@@ -1,90 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWGISq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbWGISxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161048AbWGISq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 14:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWGISq3
+	id S1161054AbWGISxE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 14:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWGISxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 14:46:29 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:50272 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161048AbWGISq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 14:46:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rWHxhcI7QPcTH4nrcfhTHCK3gqqs9Q38GbxDyW3VAStSLOqxXToijRIzPhiDQPYJ7FJotN3CbiYJxMG9BwRo4alvucTOAJ/nW97jZWmXrGrn73O3mOKlzkia2wZU+7pOiipI4RuoQB/ZP5MgqZ65K5EkZEH6QOm9anbhXTbN0oc=
-Message-ID: <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
-Date: Sun, 9 Jul 2006 14:46:28 -0400
-From: "Daniel Bonekeeper" <thehazard@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: Automatic Kernel Bug Report
-Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060709125805.GF13938@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jul 2006 14:53:03 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:26338 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161054AbWGISxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 14:53:02 -0400
+Date: Sun, 9 Jul 2006 13:52:28 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Kirill Korotaev <dev@openvz.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
+Message-ID: <20060709185228.GB14100@sergelap.austin.ibm.com>
+References: <20060703030355.420c7155.akpm@osdl.org> <20060708202011.GD5020@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
-	 <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
-	 <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com>
-	 <20060709125805.GF13938@stusta.de>
+In-Reply-To: <20060708202011.GD5020@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm sorry for being so negative, but it seems you are overdesigning a
-> solution for a non-existing problem:
->
-> There are cases where the machine is simply dead with exactly zero
-> information. These are the really hard ones.
->
+Quoting Adrian Bunk (bunk@stusta.de):
+> namespaces-utsname-sysctl-hack.patch and ipc-namespace-sysctls.patch 
+> cause the following compile error with CONFIG_PROC_FS=n:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      kernel/sysctl.o
+> kernel/sysctl.c:107: warning: #proc_do_ipc_string# used but never defined
+> kernel/sysctl.c:150: warning: #proc_do_utsns_string# used but never defined
+> kernel/sysctl.c:2465: warning: #proc_do_uts_string# defined but not used
+> ...
+>   LD      .tmp_vmlinux1
+> kernel/built-in.o:(.data+0x938): undefined reference to `proc_do_utsns_string'
+> kernel/built-in.o:(.data+0x964): undefined reference to `proc_do_utsns_string'
+> kernel/built-in.o:(.data+0x990): undefined reference to `proc_do_utsns_string'
+> kernel/built-in.o:(.data+0x9bc): undefined reference to `proc_do_utsns_string'
+> kernel/built-in.o:(.data+0x9e8): undefined reference to `proc_do_utsns_string'
+> kernel/built-in.o:(.data+0xc24): undefined reference to `proc_do_ipc_string'
+> kernel/built-in.o:(.data+0xc50): undefined reference to `proc_do_ipc_string'
+> kernel/built-in.o:(.data+0xc7c): undefined reference to `proc_do_ipc_string'
+> kernel/built-in.o:(.data+0xca8): undefined reference to `proc_do_ipc_string'
+> kernel/built-in.o:(.data+0xcd4): undefined reference to `proc_do_ipc_string'
+> kernel/built-in.o:(.data+0xd00): more undefined references to `proc_do_ipc_string' follow
+> make: *** [.tmp_vmlinux1] Error 1
 
-Then really there isn't anything that we can do, except to expect the
-kindness of the user in taking a picture of his screen and posting on
-the kernel's bugzilla.
+Does the below patch fix this for you?  Took me awhile to get a valid
+CONFIG_PROC_FS=n .config, and I'm having other -mm s390 build failures
+which I'll look into tomorrow, but this seems to fix the problem.
 
-> Then there are cases where the kernel is able to print a BUG() or Oops
-> to a log file. Or the error message is printed to the screen and the
-> user uses a digital camera and sends the photo.
+thanks,
+-serge
 
-Then again, users may just continue using the machine (without even
-noticing the Oops), or notice but never care to report it, or forgets,
-etc.
+From: Serge Hallyn <serue@us.ibm.com>
+Subject: [PATCH] namespaces: fix compilation when !CONFIG_PROC_FS
 
-> The message is usually enough for starting to debug the problem or
-> asking the user for additional information.
->
-> But most important, the problem lies in a completely different area:
->
-> Interaction between kernel devlopers and users is not a real problem.
-> The real problem is the missing developer manpower for handling bug
-> reports.
->
+The proc_do_uts_string function was misnamed when !CONFIG_PROC_FS.  The
+proc_do_ipc_string function was not defined if !CONFIG_PROC_FS.
 
-Well Adrian, this is the other side of the problem. We don't actually
-need a kernel monkey to keep looking for bugs that comes (even thought
-would be good, but as you stated, there is not enough manpower to do
-that), even more after having something that automatically sends Oops
-reports to the server, where we could expect thousands of bug reports
-daily... but I also believe that not having somebody to look at them
-is not an excuse for not having this bug taken account for. For
-example, even though we may not debug each and every bug report, we
-can have statistics for which modules are reporting more problems (and
-therefore, have more bugs). For example, I don't really expect
-Microsoft to investigate every crash report that users send, but it is
-definitely important to have bugs accounted for. Let's say that the
-SCSI maintainer just did a big change to the SCSI subsystem and wants
-to know how is it going: he just goes to bugzilla and see statistics
-about increase of the ratio of bug reports compared to the last
-version, or he can also see which functions (based on the EIP as a
-guess) are reporting more problems.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-In resume, don't being able to investigate each report isn't a reason
-for not being acknowledged of its existance, and even we don't
-investigate it, having it for statistical purposes is already a great
-deal.
+---
 
-Daniel
+ kernel/sysctl.c |   27 +++++++++++++++------------
+ 1 files changed, 15 insertions(+), 12 deletions(-)
 
+488d4b4675744109a40f5a0a7d73075176cd281a
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 5c4d19d..11e71c3 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -142,13 +142,8 @@ extern int max_lock_depth;
+ 
+ static int parse_table(int __user *, int, void __user *, size_t __user *, void __user *, size_t,
+ 		       ctl_table *, void **);
+-#ifndef CONFIG_UTS_NS
+ static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer, size_t *lenp, loff_t *ppos);
+-#else
+-static int proc_do_utsns_string(ctl_table *table, int write, struct file *filp,
+-		  void __user *buffer, size_t *lenp, loff_t *ppos);
+-#endif
+ 
+ static ctl_table root_table[];
+ static struct ctl_table_header root_table_header =
+@@ -291,7 +286,7 @@ static ctl_table kern_table[] = {
+ 		/* could maybe use __NEW_UTS_LEN here? */
+ 		.maxlen		= FIELD_SIZEOF(struct new_utsname, sysname),
+ 		.mode		= 0444,
+-		.proc_handler	= &proc_do_utsns_string,
++		.proc_handler	= &proc_do_uts_string,
+ 		.strategy	= &sysctl_string,
+ 	},
+ 	{
+@@ -300,7 +295,7 @@ static ctl_table kern_table[] = {
+ 		.data		= NULL,
+ 		.maxlen		= FIELD_SIZEOF(struct new_utsname, release),
+ 		.mode		= 0444,
+-		.proc_handler	= &proc_do_utsns_string,
++		.proc_handler	= &proc_do_uts_string,
+ 		.strategy	= &sysctl_string,
+ 	},
+ 	{
+@@ -309,7 +304,7 @@ static ctl_table kern_table[] = {
+ 		.data		= NULL,
+ 		.maxlen		= FIELD_SIZEOF(struct new_utsname, version),
+ 		.mode		= 0444,
+-		.proc_handler	= &proc_do_utsns_string,
++		.proc_handler	= &proc_do_uts_string,
+ 		.strategy	= &sysctl_string,
+ 	},
+ 	{
+@@ -318,7 +313,7 @@ static ctl_table kern_table[] = {
+ 		.data		= NULL,
+ 		.maxlen		= FIELD_SIZEOF(struct new_utsname, nodename),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_utsns_string,
++		.proc_handler	= &proc_do_uts_string,
+ 		.strategy	= &sysctl_string,
+ 	},
+ 	{
+@@ -327,7 +322,7 @@ static ctl_table kern_table[] = {
+ 		.data		= NULL,
+ 		.maxlen		= FIELD_SIZEOF(struct new_utsname, domainname),
+ 		.mode		= 0644,
+-		.proc_handler	= &proc_do_utsns_string,
++		.proc_handler	= &proc_do_uts_string,
+ 		.strategy	= &sysctl_string,
+ 	},
+ #endif /* !CONFIG_UTS_NS */
+@@ -1791,7 +1786,7 @@ static int proc_do_uts_string(ctl_table 
+ 	return r;
+ }
+ #else /* !CONFIG_UTS_NS */
+-static int proc_do_utsns_string(ctl_table *table, int write, struct file *filp,
++static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	int r;
+@@ -2461,11 +2456,19 @@ int proc_dostring(ctl_table *table, int 
+ }
+ 
+ static int proc_do_uts_string(ctl_table *table, int write, struct file *filp,
+-			    void __user *buffer, size_t *lenp, loff_t *ppos)
++		void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
+ 	return -ENOSYS;
+ }
+ 
++#ifdef CONFIG_SYSVIPC
++static int proc_do_ipc_string(ctl_table *table, int write, struct file *filp,
++		void __user *buffer, size_t *lenp, loff_t *ppos)
++{
++	return -ENOSYS;
++}
++#endif
++
+ int proc_dointvec(ctl_table *table, int write, struct file *filp,
+ 		  void __user *buffer, size_t *lenp, loff_t *ppos)
+ {
 -- 
-What this world needs is a good five-dollar plasma weapon.
+1.1.6

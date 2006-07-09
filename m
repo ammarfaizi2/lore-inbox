@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWGIPIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWGIPTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161025AbWGIPIf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 11:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGIPIf
+	id S1161023AbWGIPTs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 11:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGIPTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 11:08:35 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:6086 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1161021AbWGIPIe (ORCPT
+	Sun, 9 Jul 2006 11:19:48 -0400
+Received: from mail.gmx.de ([213.165.64.21]:61396 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161023AbWGIPTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 11:08:34 -0400
-Date: Sun, 9 Jul 2006 19:08:20 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060709150819.GB15071@2ka.mipt.ru>
-References: <20060709132446.GB29435@2ka.mipt.ru> <84144f020607090759o176f35edg603a26cb9c752e6e@mail.gmail.com>
+	Sun, 9 Jul 2006 11:19:47 -0400
+X-Authenticated: #2769515
+Date: Sun, 9 Jul 2006 17:25:16 +0200
+From: Martin Langer <martin-langer@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de
+Subject: Re: [RFC][PATCH 1/2] firmware version management: add firmware_version()
+Message-ID: <20060709152516.GB3678@tuba>
+References: <20060708130904.GA3819@tuba> <1152365514.3120.46.camel@laptopd505.fenrus.org> <1152366597.29506.13.camel@localhost> <20060709122118.GA3678@tuba> <1152457310.3255.58.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <84144f020607090759o176f35edg603a26cb9c752e6e@mail.gmail.com>
+In-Reply-To: <1152457310.3255.58.camel@laptopd505.fenrus.org>
+X-Public-Key-URL: http://www.langerland.de/martin/martinlanger.asc
 User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 09 Jul 2006 19:08:23 +0400 (MSD)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 05:59:42PM +0300, Pekka Enberg (penberg@cs.helsinki.fi) wrote:
-> On 7/9/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >+struct kevent *kevent_alloc(gfp_t mask)
-> >+{
-> >+       struct kevent *k;
-> >+
-> >+       if (kevent_cache)
-> >+               k = kmem_cache_alloc(kevent_cache, mask);
-> >+       else
-> >+               k = kzalloc(sizeof(struct kevent), mask);
-> >+
-> >+       return k;
-> >+}
+On Sun, Jul 09, 2006 at 05:01:49PM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-07-09 at 14:21 +0200, Martin Langer wrote:
+> > On Sat, Jul 08, 2006 at 03:49:57PM +0200, Marcel Holtmann wrote:
+> > > Hi Arjan,
+> > > 
+> > > > > It would be good if a driver knows which firmware version will be 
+> > > > > written to the hardware. I'm talking about external firmware files 
+> > > > > claimed by request_firmware(). 
+> > > > > 
+> > > > > We know so many different firmware files for bcm43xx and it becomes 
+> > > > > more and more complicated without some firmware version management.
+> > > > > 
+> > > > > This patch can create the md5sum of a firmware file. Then it looks into 
+> > > > > a table to figure out which version number is assigned to the hashcode.
+> > > > > That table is placed in the driver code and an example for bcm43xx comes 
+> > > > > in my next mail. Any comments?
+> > > > 
+> > > > why does this have to happen on the kernel side? Isn't it a lot easier
+> > > > and better to let the userspace side of things do this work, and even
+> > > > have a userspace file with the md5->version mapping? Or are there some
+> > > > practical considerations that make that hard to impossible?
+> > > 
+> > > I fully agree that we shouldn't put firmware versioning into the kernel
+> > > drivers. The pattern you give to request_firmware() can be mapped to any
+> > > file on the file system. And you also have the link to the device object
+> > > and I prefer you export a sysfs file for the version so that the helper
+> > > application loading the firmware can pick the right file.
+> > 
+> > Bcm43xx has no helper application to upload the firmware. 
 > 
-> What's this for? Why would kevent_cache be NULL? Note that you can use
-> kmem_cache_zalloc() for fixed size allocations that need to be zeroed.
+> yes it does. bcm43xx asks userspace to upload firmware (via
+> request_firmware() ) and a userspace app (udev most of the time) will
+> upload it. That app, eg udev, can do the md5sum and checking it against
+> a list of "known good" firmwares. Voila problem solved ;)
 
-It can work without cache at all, i.e. if cache creation fails.
-Well, it can be removed of course, since it does not hurt anything.
+I see. It's an interesting way that I didn't noticed. 
+Thanks for the guidance.
 
-> On 7/9/06, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >+
-> >+void kevent_free(struct kevent *k)
-> >+{
-> >+       memset(k, 0xab, sizeof(struct kevent));
-> 
-> Why is slab poisoning not sufficient?
-
-Since that pointer is always known to be poisoned no matter if kernel
-debugging option is turned on or off.
-
--- 
-	Evgeniy Polyakov
+Martin

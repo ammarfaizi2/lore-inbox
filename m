@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWGIO2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWGIO27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWGIO2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 10:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161016AbWGIO2r
+	id S932154AbWGIO27 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 10:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWGIO27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 10:28:47 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63757 "HELO
+	Sun, 9 Jul 2006 10:28:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:64269 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932453AbWGIO2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 10:28:47 -0400
-Date: Sun, 9 Jul 2006 16:28:45 +0200
+	id S932154AbWGIO25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 10:28:57 -0400
+Date: Sun, 9 Jul 2006 16:28:56 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fix MODULES=n compile
-Message-ID: <20060709142845.GH13938@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Erich Chen <erich@areca.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [-mm patch] proper prototype for drivers/scsi/arcmsr/arcmsr_attr.c:arcmsr_free_sysfs_attr()
+Message-ID: <20060709142856.GI13938@stusta.de>
 References: <20060709021106.9310d4d1.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -29,36 +29,30 @@ On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.17-mm6:
 >...
-> +null-terminate-over-long-proc-kallsyms-symbols.patch
+> +areca-raid-linux-scsi-driver-update7.patch
 >...
->  Misc updates.
+>  Update drivers-scsi-arcmsr-cleanups.patch
 >...
-
-This patch fixes the following compile error with CONFIG_MODULES=n:
 
 <--  snip  -->
 
 ...
-  CC      kernel/kallsyms.o
-kernel/kallsyms.c: In function ‘get_ksymbol_mod’:
-kernel/kallsyms.c:279: error: too many arguments to function ‘module_get_kallsym’
-make[1]: *** [kernel/kallsyms.o] Error 1
+  CC      drivers/scsi/arcmsr/arcmsr_hba.o
+drivers/scsi/arcmsr/arcmsr_hba.c: In function ‘arcmsr_remove’:
+drivers/scsi/arcmsr/arcmsr_hba.c:410: error: implicit declaration of function ‘arcmsr_free_sysfs_attr’
 
 <--  snip  -->
 
+Let's add a proper prototype for arcmsr_free_sysfs_attr().
+
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.18-rc1-mm1-full/include/linux/module.h.old	2006-07-09 11:30:38.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/include/linux/module.h	2006-07-09 11:31:36.000000000 +0200
-@@ -533,8 +533,8 @@
- 
- static inline struct module *module_get_kallsym(unsigned int symnum,
- 						unsigned long *value,
--						char *type,
--						char namebuf[128])
-+						char *type, char *name,
-+						size_t namelen)
- {
- 	return NULL;
- }
+--- linux-2.6.18-rc1-mm1-full/drivers/scsi/arcmsr/arcmsr.h.old	2006-07-09 12:29:42.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/drivers/scsi/arcmsr/arcmsr.h	2006-07-09 12:33:29.000000000 +0200
+@@ -468,3 +468,5 @@
+ extern void arcmsr_post_Qbuffer(struct AdapterControlBlock *acb);
+ extern struct class_device_attribute *arcmsr_host_attrs[];
+ extern int arcmsr_alloc_sysfs_attr(struct AdapterControlBlock *acb);
++void arcmsr_free_sysfs_attr(struct AdapterControlBlock *acb);
++
 

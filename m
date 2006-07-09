@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWGIDhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWGIDow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWGIDhi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jul 2006 23:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWGIDhi
+	id S964939AbWGIDow (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jul 2006 23:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWGIDow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jul 2006 23:37:38 -0400
-Received: from stinky.trash.net ([213.144.137.162]:8126 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id S964953AbWGIDhh (ORCPT
+	Sat, 8 Jul 2006 23:44:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35297 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964939AbWGIDov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jul 2006 23:37:37 -0400
-Message-ID: <44B079FF.8060909@trash.net>
-Date: Sun, 09 Jul 2006 05:37:35 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: coreteam@netfilter.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/ipv4/netfilter/: fix SYSCTL=n compile
-References: <20060708202023.GE5020@stusta.de>
-In-Reply-To: <20060708202023.GE5020@stusta.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Sat, 8 Jul 2006 23:44:51 -0400
+Date: Sat, 8 Jul 2006 20:44:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: mreuther@umich.edu, linux-kernel@vger.kernel.org
+Subject: Re: Compile Error on 2.6.17-mm6
+Message-Id: <20060708204448.6914aaf9.akpm@osdl.org>
+In-Reply-To: <20060708203424.281400d2.rdunlap@xenotime.net>
+References: <200607072222.31586.mreuther@umich.edu>
+	<20060708174347.76391c7b.akpm@osdl.org>
+	<20060708203424.281400d2.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch fixes the following compile error with CONFIG_SYSCTL=n 
-> introduced by commit 39a27a35c5c1b5be499a0576a35c45a011788bf8:
+On Sat, 8 Jul 2006 20:34:24 -0700
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
 
-My fault I guess.
-
-> <--  snip  -->
+> On Sat, 8 Jul 2006 17:43:47 -0700 Andrew Morton wrote:
 > 
-> ...
->   LD      .tmp_vmlinux1
-> net/built-in.o: In function `tcp_error':
-> ip_conntrack_proto_tcp.c:(.text+0x77af6): undefined reference to `ip_conntrack_checksum'
-> net/built-in.o: In function `udp_error':
-> ip_conntrack_proto_udp.c:(.text+0x78456): undefined reference to `ip_conntrack_checksum'
-> net/built-in.o: In function `icmp_error':
-> ip_conntrack_proto_icmp.c:(.text+0x7868f): undefined reference to `ip_conntrack_checksum'
-> make: *** [.tmp_vmlinux1] Error 1
+> > On Fri, 7 Jul 2006 22:22:16 -0400
+> > Matt Reuther <mreuther@umich.edu> wrote:
+> > 
+> > > Here is the error:
+> > >   CHK     include/linux/compile.h
+> > >   UPD     include/linux/compile.h
+> > >   CC      init/version.o
+> > >   LD      init/built-in.o
+> > >   LD      .tmp_vmlinux1
+> > > arch/i386/kernel/built-in.o(.text+0xe282): In function 
+> > > `cpu_request_microcode':
+> > > arch/i386/kernel/microcode.c:544: undefined reference to `request_firmware'
+> > > arch/i386/kernel/built-in.o(.text+0xe304):arch/i386/kernel/microcode.c:573: 
+> > > undefined reference to `release_firmware'
+> > 
+> > CONFIG_FW_LOADER=m
+> > CONFIG_MICROCODE=y
+> > 
+> > So
+> > 
+> > config MICROCODE
+> > 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
+> > 	depends on FW_LOADER
+> > 
+> > is not sufficient.  There's a fix for this, but I cannot remember what it
+> > is.  Help.
+> 
+> That 1-line depends patch fixes the problem for me (on x86-64,
+> but they are the same in this area).
+> 
 
-Thanks Adrian. Usually all bugs in ip_conntrack are duplicated in
-nf_conntrack, please update your patch to take care of that as well.
-
+What patch is that?

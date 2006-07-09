@@ -1,140 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWGIGte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbWGIHOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbWGIGte (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 02:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161104AbWGIGte
+	id S1161110AbWGIHOx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 03:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWGIHOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 02:49:34 -0400
-Received: from web50204.mail.yahoo.com ([206.190.38.45]:36008 "HELO
-	web50204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1161102AbWGIGtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 02:49:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iiUrGgtdOR/Ax8tBJ/cN3q8q6rEjadscye1SQ19MuXIFeweRtKefmS9/vAtIurWiOGezflzzY8l150wu/XO3SIkyrc3cAxsjFZLB2m+eenJ5K9TG30W6Gsiejxzhd6yv9iXSSlIaly61zrqv3mkoNbouJpGXiYafoJznqUH5oxQ=  ;
-Message-ID: <20060709064932.77080.qmail@web50204.mail.yahoo.com>
-Date: Sat, 8 Jul 2006 23:49:32 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: [REPOST: PATCH] Fix panic when reinserting Adaptec PCMCIA SCSI card.
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 9 Jul 2006 03:14:53 -0400
+Received: from mail.gmx.de ([213.165.64.21]:31105 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932375AbWGIHOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 03:14:52 -0400
+X-Authenticated: #14349625
+Subject: Re: Runnable threads on run queue
+From: Mike Galbraith <efault@gmx.de>
+To: Ask List <askthelist@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <loom.20060708T220409-206@post.gmane.org>
+References: <loom.20060708T220409-206@post.gmane.org>
+Content-Type: text/plain
+Date: Sun, 09 Jul 2006 09:20:26 +0200
+Message-Id: <1152429626.9711.34.camel@Homer.TheSimpsons.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resubmit of a patch that was submitted 2 weeks ago. To date, no feedback
-has been received.
+On Sat, 2006-07-08 at 20:18 +0000, Ask List wrote:
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+> 83  0   1328 301684  37868 1520632    0    0     0   264  400  1332 98  2  0  0
+> 17  0   1328 293936  37868 1520688    0    0     0     0  537   979 97  3  0  0
+> 73  0   1328 293688  37868 1520712    0    0     0     0  268  2643 98  2  0  0
+> 80  0   1328 277220  37868 1520756    0    0     0     0  351   824 98  2  0  0
+> 49  0   1328 262452  37868 1520800    0    0     0     0  393  1882 97  3  0  0
+> 45  0   1328 246796  37868 1520828    0    0     0   304  302  1631 96  4  0  0
+> 55  0   1328 243852  37868 1520872    0    0     0     0  356  1101 99  1  0  0
+> 17  0   1328 228672  37868 1520916    0    0     0     0  336   748 97  3  0  0
+>  0  0   1328 299948  37868 1520956    0    0     0     0  299   821 78  3 19  0
+>  0  0   1328 299184  37868 1520960    0    0     0     0  168    78  8  0 92  0
+>  0  0   1328 299184  37868 1520960    0    0     0   248  173    38  0  1 99  0
+>  0  0   1328 299184  37868 1520960    0    0     0     0  160    20  0  0 100  0
+>  0  0   1328 299184  37868 1520960    0    0     0     0  151     6  0  0 100  0
+>  0  0   1328 299184  37868 1520960    0    0     0     0  162    42  0  1 99  0
+>  1  0   1328 299188  37868 1520960    0    0     0     0  161    24  0  0 100  0
+>  0  0   1328 298808  37868 1520988    0    0     0   100  303  1119 57  0 42  0
+>  0  0   1328 298808  37868 1520988    0    0     0     0  162    22  0  1 99  0
 
-Please cc: me as I am not subscribed.
+Looking at the interrupts column, I suspect you have a network problem,
+not a scheduler problem.  Looks to me like your SpamAssasins are simply
+running out of work to do because your network traffic comes in bursts.
 
-===========================================================================
-If the card is re-inserted 2 or more times, we access elements
-past the end of the aha152x_host array.
+	-Mike
 
-Also correct spelling errors.
-
-Signed-off-by Alex Davis <alex14641 at yahoo dot com>
-=========================================================================
-diff -u linux-2.6.17.1-orig/drivers/scsi/aha152x.c linux-2.6.17.1/drivers/scsi/aha152x.c
---- linux-2.6.17.1-orig/drivers/scsi/aha152x.c	2006-06-17 21:49:35.000000000 -0400
-+++ linux-2.6.17.1/drivers/scsi/aha152x.c	2006-06-25 20:06:05.000000000 -0400
-@@ -766,7 +766,7 @@
- 	struct Scsi_Host *shpnt = lookup_irq(irqno);
- 
- 	if (!shpnt) {
--        	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n",
-irqno);
-+        	printk(KERN_ERR "aha152x: caught software interrupt %d for unknown controller.\n",
-irqno);
- 		return IRQ_NONE;
- 	}
- 
-@@ -779,6 +779,7 @@
- struct Scsi_Host *aha152x_probe_one(struct aha152x_setup *setup)
- {
- 	struct Scsi_Host *shpnt;
-+	int i;
- 
- 	shpnt = scsi_host_alloc(&aha152x_driver_template, sizeof(struct aha152x_hostdata));
- 	if (!shpnt) {
-@@ -787,6 +788,22 @@
- 	}
- 
- 	/* need to have host registered before triggering any interrupt */
-+
-+	/* find an empty slot. */
-+	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
-+		if ( aha152x_host[i] == NULL ) {
-+			break;
-+		}
-+	}
-+
-+	/* no empty slots? */
-+	if ( i >= ARRAY_SIZE(aha152x_host) ) {
-+		printk(KERN_ERR "aha152x: too many hosts: %d\n", i + 1);
-+		return NULL;
-+	}
-+
-+	registered_count = i;
-+
- 	aha152x_host[registered_count] = shpnt;
- 
- 	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
-@@ -915,6 +932,8 @@
- 
- void aha152x_release(struct Scsi_Host *shpnt)
- {
-+	int i;
-+
- 	if(!shpnt)
- 		return;
- 
-@@ -933,6 +952,12 @@
- 
- 	scsi_remove_host(shpnt);
- 	scsi_host_put(shpnt);
-+	for ( i = 0; i < ARRAY_SIZE(aha152x_host); ++i ) {
-+		if ( aha152x_host[i] == shpnt ) {
-+			aha152x_host[i] = NULL;
-+			break;
-+		}
-+	}
- }
- 
- 
-@@ -1458,7 +1483,7 @@
- 	unsigned char rev, dmacntrl0;
- 
- 	if (!shpnt) {
--		printk(KERN_ERR "aha152x: catched interrupt %d for unknown controller.\n", irqno);
-+		printk(KERN_ERR "aha152x: caught interrupt %d for unknown controller.\n", irqno);
- 		return IRQ_NONE;
- 	}
- 
-@@ -2976,6 +3001,9 @@
- 	Scsi_Cmnd *ptr;
- 	unsigned long flags;
- 
-+	if(!shpnt)
-+		return;
-+
- 	DO_LOCK(flags);
- 	printk(KERN_DEBUG "\nqueue status:\nissue_SC:\n");
- 	for (ptr = ISSUE_SC; ptr; ptr = SCNEXT(ptr))
-@@ -3941,7 +3969,6 @@
- 
- 	for(i=0; i<ARRAY_SIZE(setup); i++) {
- 		aha152x_release(aha152x_host[i]);
--		aha152x_host[i]=NULL;
- 	}
- }
-
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

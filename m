@@ -1,46 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWGIRWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWGIR1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030217AbWGIRWz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 13:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWGIRWz
+	id S964940AbWGIR1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 13:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWGIR1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 13:22:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:25299 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964880AbWGIRWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 13:22:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KkMCcJJh39laXEBOZsPnfxZKEepj8NzkVFqH5zfCze4PTM6Zstmc5lkfWvKR9bNPp7lJtQ3aHbwJaxd7rkL8AVjR292VjldWwe+q7vv3/CDuG528nvgm3cma9HTU48HFUGNIgmPoiODzN0mxiCHX1wQcAIIUWFabbJysuMZIekY=
-Message-ID: <787b0d920607091022l4e4e7b1en41781a50a1ab048f@mail.gmail.com>
-Date: Sun, 9 Jul 2006 13:22:53 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Stephen Rothwell" <sfr@canb.auug.org.au>
-Subject: Re: devices.txt errors
-Cc: linux-kernel@vger.kernel.org, device@lanana.org
-In-Reply-To: <20060710024315.7dacd7f9.sfr@canb.auug.org.au>
+	Sun, 9 Jul 2006 13:27:24 -0400
+Received: from lucidpixels.com ([66.45.37.187]:35476 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S964880AbWGIR1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 13:27:23 -0400
+Date: Sun, 9 Jul 2006 13:27:21 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <200607091224.31451.liml@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
+ <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <787b0d920607082349h59ec36f7nc477e3cc9f9b6c77@mail.gmail.com>
-	 <20060710024315.7dacd7f9.sfr@canb.auug.org.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/9/06, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> On Sun, 9 Jul 2006 02:49:19 -0400 "Albert Cahalan" <acahalan@gmail.com> wrote:
-> >
-> > Some names, like "/dev/iseries/vtty%d", are too damn big.
+
+
+On Sun, 9 Jul 2006, Mark Lord wrote:
+
+> Mmm.. there are two main paths into those messages,
+> and my current patch only caught one of them.
 >
-> As far as I know they were never used and certainly aren't now.  We did
-> once use /dev/viocons/%d, but that went away a long time ago (before the
-> code was in the mainline kernel).  Major 229 is now used by the pSeries
-> Hypervisor consoles (/dev/hvc%d) and hopefully soon by a new iSeries
-> hypervisor console with the same name.
+> Here's a reworked version that catches the ata_op on both paths.
+> Maybe this will dump out the info we need to diagnose Justin's system.
+>
+> Compiles & links fine on 2.6.17, but not tested.
+>
+> Cheers
+>
+> --- linux/drivers/scsi/libata-scsi.c.orig	2006-06-23 13:38:37.000000000 -0400
+> +++ linux/drivers/scsi/libata-scsi.c	2006-07-09 12:19:52.000000000 -0400
+> @@ -542,6 +542,7 @@
+> 	struct ata_taskfile *tf = &qc->tf;
+> 	unsigned char *sb = cmd->sense_buffer;
+> 	unsigned char *desc = sb + 8;
+> +	unsigned char ata_op = tf->command;
+>
+> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
+>
+> @@ -558,6 +559,7 @@
+> 	 * onto sense key, asc & ascq.
+> 	 */
+> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+> +		printk(KERN_WARNING "ata_gen_ata_desc_sense: failed ata_op=0x%02x\n", ata_op);
+> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+> 				   &sb[1], &sb[2], &sb[3]);
+> 		sb[1] &= 0x0f;
+> @@ -617,6 +619,7 @@
+> 	struct scsi_cmnd *cmd = qc->scsicmd;
+> 	struct ata_taskfile *tf = &qc->tf;
+> 	unsigned char *sb = cmd->sense_buffer;
+> +	unsigned char ata_op = tf->command;
+>
+> 	memset(sb, 0, SCSI_SENSE_BUFFERSIZE);
+>
+> @@ -633,6 +636,7 @@
+> 	 * onto sense key, asc & ascq.
+> 	 */
+> 	if (tf->command & (ATA_BUSY | ATA_DF | ATA_ERR | ATA_DRQ)) {
+> +		printk(KERN_WARNING "ata_gen_fixed_sense: failed ata_op=0x%02x\n", ata_op);
+> 		ata_to_sense_error(qc->ap->id, tf->command, tf->feature,
+> 				   &sb[2], &sb[12], &sb[13]);
+> 		sb[2] &= 0x0f;
+>
 
-Since that still isn't in devices.txt...
+Thanks Mark!
 
-/dev/ttyHV%d would match the standard pattern better.
-(assuming you only need 3-digit numbers)
+Applying now.
+

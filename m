@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWGJNlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWGJNuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbWGJNlS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWGJNlS
+	id S964809AbWGJNuE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGJNuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:41:18 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:13096 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S964912AbWGJNlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:41:18 -0400
-Message-ID: <44B258E3.7070708@openvz.org>
-Date: Mon, 10 Jul 2006 17:40:51 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: [PATCH] fdset's leakage
-Content-Type: multipart/mixed;
- boundary="------------080705040507060402090106"
+	Mon, 10 Jul 2006 09:50:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:39362 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964809AbWGJNuB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:50:01 -0400
+Message-Id: <200607101323.k6ADNmuc031378@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow
+In-Reply-To: Your message of "Mon, 10 Jul 2006 14:53:19 +0200."
+             <1152535999.4874.36.camel@laptopd505.fenrus.org>
+From: Valdis.Kletnieks@vt.edu
+References: <9a8748490607100548o14dbe684j40bde90eb19a7558@mail.gmail.com>
+            <1152535999.4874.36.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152537827_25551P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 09:23:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080705040507060402090106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--==_Exmh_1152537827_25551P
+Content-Type: text/plain; charset=us-ascii
 
-Andrew,
+On Mon, 10 Jul 2006 14:53:19 +0200, Arjan van de Ven said:
 
-Another patch from Alexey Kuznetsov fixing memory leak in alloc_fdtable().
+> I'm just about always in favor of having automated tools help us find
+> bugs. However... can you give an indication of how many real bugs you
+> have encountered? If it's "mostly noise" all the time.. then it's maybe
+> not worth the effort... while if you find real bugs then it's obviously
+> worthwhile to go through this.
 
-[PATCH] fdset's leakage
+I started doing similar a while back, and I hadn't come across any
+actual bugs either.  However, there's 2 aspects to this:
 
-When found, it is obvious. nfds calculated when allocating fdsets
-is rewritten by calculation of size of fdtable, and when we are
-unlucky, we try to free fdsets of wrong size.
+1) The cleanup cases that Jesper is doing (which are pretty similar
+to what I was doing) are mostly "function prototypes in .h files use
+a variable name that collides with another global variable" ('up' for
+example). (My nominee for patch 10/9:
 
-Found due to OpenVZ resource management (User Beancounters).
+include/net/tcp.h:469: warning: declaration of '__x' shadows a previous local
+include/net/tcp.h:469: warning: shadowed declaration is here
 
-Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+2) The actual *bugs* are most probably in the "variable in .c file
+shadows a global".
+
+As Jesper notes, it's hard to see the latter when there's 38,000+ noise
+warnings....
+
+To get a good estimate of the *actual* bug rate, grep for how many *.c files
+trigger the warning when built with -Wshadow - there's 695 of *those* in
+my current config.
+
+When I did a bunch of cleanups a while ago to make -Wundef work, I think
+I scared up exactly one actual bug - but it was a subtle one in the NFS
+code that wouldn't have been easu to find otherwise...
 
 
---------------080705040507060402090106
-Content-Type: text/plain;
- name="diff-fdset-leakage"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-fdset-leakage"
+--==_Exmh_1152537827_25551P
+Content-Type: application/pgp-signature
 
-diff -urp linux-2.6-orig/fs/file.c linux-2.6/fs/file.c
---- linux-2.6-orig/fs/file.c	2006-07-10 12:10:51.000000000 +0400
-+++ linux-2.6/fs/file.c	2006-07-10 14:47:01.000000000 +0400
-@@ -277,11 +277,13 @@ static struct fdtable *alloc_fdtable(int
- 	} while (nfds <= nr);
- 	new_fds = alloc_fd_array(nfds);
- 	if (!new_fds)
--		goto out;
-+		goto out2;
- 	fdt->fd = new_fds;
- 	fdt->max_fds = nfds;
- 	fdt->free_files = NULL;
- 	return fdt;
-+out2:
-+	nfds = fdt->max_fdset;
- out:
-   	if (new_openset)
-   		free_fdset(new_openset, nfds);
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
---------------080705040507060402090106--
+iD8DBQFEslTjcC3lWbTT17ARArdjAKCjeClmr+a9pYKeZqyT6c93PwyknwCgopkE
+5rkWu066pEV4yKb1nwa7E3c=
+=y7ks
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1152537827_25551P--

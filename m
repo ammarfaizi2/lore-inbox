@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161280AbWGJAiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161284AbWGJAvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161280AbWGJAiG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 20:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWGJAiG
+	id S1161284AbWGJAvW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 20:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWGJAvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 20:38:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5332 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161280AbWGJAiF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 20:38:05 -0400
-Date: Mon, 10 Jul 2006 10:37:40 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Masayuki Saito <m-saito@tnes.nec.co.jp>
-Cc: David Chinner <dgc@sgi.com>, xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xfs: i_state of inode is changed after the inode is freed
-Message-ID: <20060710103740.B1674239@wobbly.melbourne.sgi.com>
-References: <20060704204145.GU15160733@melbourne.sgi.com> <20060707214131m-saito@mail.aom.tnes.nec.co.jp>
+	Sun, 9 Jul 2006 20:51:22 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:51088 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964923AbWGJAvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 20:51:21 -0400
+Date: Mon, 10 Jul 2006 09:52:54 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, mbligh@google.com, hch@infradead.org,
+       marcelo@kvack.org, arjan@infradead.org, nickpiggin@yahoo.com.au,
+       clameter@sgi.com, ak@suse.de
+Subject: Re: [RFC 1/8] Add CONFIG_ZONE_DMA to all archesM
+Message-Id: <20060710095254.bad0084b.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060708000506.3829.34340.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060708000501.3829.25578.sendpatchset@schroedinger.engr.sgi.com>
+	<20060708000506.3829.34340.sendpatchset@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060707214131m-saito@mail.aom.tnes.nec.co.jp>; from m-saito@tnes.nec.co.jp on Fri, Jul 07, 2006 at 09:41:31PM +0900
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07, 2006 at 09:41:31PM +0900, Masayuki Saito wrote:
-> Thank you for comments.
+On Fri, 7 Jul 2006 17:05:06 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
+> As a result of this patch CONFIG_ZONE_DMA should be defined for every
+> arch.
 > 
-> >You'd be talking about xfs_iunpin(), wouldn't you ;)
-> Yes, of course.
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
 > 
-> >http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=714250879ea61cdb1a39bb96fe9d934ee0c669a2
-> >
-> >This fixed the reproducable test case I had for the problem.
-> >Can you see if it fixes your problem as well?
-> We applied the above TAKE to linux-2.6.17.1 and tested it.
-> However, we confirm the case that i_state of the inode was changed
-> when the inode was freed in xfs filesystem.
-> 
-> We think that the TAKE reduces the occurrence only.
-> And we think that our patch fixes the problem.
-> 
-> Could you review our patch again?
+> Index: linux-2.6.17-mm6/mm/Kconfig
+> ===================================================================
+> --- linux-2.6.17-mm6.orig/mm/Kconfig	2006-07-03 13:47:22.616084772 -0700
+> +++ linux-2.6.17-mm6/mm/Kconfig	2006-07-03 21:26:49.956038556 -0700
+> @@ -134,6 +134,10 @@ config SPLIT_PTLOCK_CPUS
+>  	default "4096" if PARISC && !PA20
+>  	default "4"
+>  
+> +config ZONE_DMA
+> +	def_bool y
+> +	depends on GENERIC_ISA_DMA
+> +
 
-I'll leave it to Dave to comment more later (he's travelling at the
-moment), since he's had his head deep in this area of the code most
-recently - but my first thoughts on your patch are that its solving
-the problem incorrectly.  We should not be in the destroy_inode code
-if the inode reference counting is correct everywhere - I would have
-expected the fix to be a get/put style change, rather than adding an
-inode lock and new lock/unlock semantics around an individual field;
-... and if that cannot be done to fix this (eh?), then some comments
-as to why refcounting didn't solve the problem here.
+How about configuring this by
 
-cheers.
+config ZONE_DMA
+	def_bool y
+	depends on GENERIC_ISA_DMA || ARCH_ZONE_DMA
 
--- 
-Nathan
+and set ARCH_ZONE_DMA for each arch ?
+
+
+-Kame
+

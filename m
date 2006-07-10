@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161292AbWGJBz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161290AbWGJBzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161292AbWGJBz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 21:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161294AbWGJBz0
+	id S1161290AbWGJBzT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 21:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161291AbWGJBzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 21:55:26 -0400
-Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:48074 "EHLO
-	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161292AbWGJBzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 21:55:25 -0400
-Date: Sun, 9 Jul 2006 21:49:02 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.18-rc1-mm1 fails on amd64 (smp_call_function_single)
-To: Andrew Morton <akpm@osdl.org>
-Cc: "gregoire.favre" <gregoire.favre@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Vojtech Pavlik <vojtech@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Message-ID: <200607092152_MC3-1-C488-18A8@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Sun, 9 Jul 2006 21:55:19 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:29141 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1161290AbWGJBzR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 21:55:17 -0400
+Date: Mon, 10 Jul 2006 11:55:01 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Albert Cahalan" <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, device@lanana.org
+Subject: Re: devices.txt errors
+Message-Id: <20060710115501.09379b97.sfr@canb.auug.org.au>
+In-Reply-To: <787b0d920607091022l4e4e7b1en41781a50a1ab048f@mail.gmail.com>
+References: <787b0d920607082349h59ec36f7nc477e3cc9f9b6c77@mail.gmail.com>
+	<20060710024315.7dacd7f9.sfr@canb.auug.org.au>
+	<787b0d920607091022l4e4e7b1en41781a50a1ab048f@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__10_Jul_2006_11_55_01_+1000_BzRWUq.mE7jj4ZZ_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060709154445.60d6619c.akpm@osdl.org>
+--Signature=_Mon__10_Jul_2006_11_55_01_+1000_BzRWUq.mE7jj4ZZ_
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 9 Jul 2006 15:44:45 -0700, Andrew Morton wrote:
+On Sun, 9 Jul 2006 13:22:53 -0400 "Albert Cahalan" <acahalan@gmail.com> wro=
+te:
+>
+> On 7/9/06, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> > On Sun, 9 Jul 2006 02:49:19 -0400 "Albert Cahalan" <acahalan@gmail.com>=
+ wrote:
+> > >
+> > > Some names, like "/dev/iseries/vtty%d", are too damn big.
+> >
+> > As far as I know they were never used and certainly aren't now.  We did
+> > once use /dev/viocons/%d, but that went away a long time ago (before the
+> > code was in the mainline kernel).  Major 229 is now used by the pSeries
+> > Hypervisor consoles (/dev/hvc%d) and hopefully soon by a new iSeries
+> > hypervisor console with the same name.
+>=20
+> Since that still isn't in devices.txt...
+>=20
+> /dev/ttyHV%d would match the standard pattern better.
+> (assuming you only need 3-digit numbers)
 
-> I meant, in smp.h:
-> 
-> #else /* CONFIG_SMP */
-> #define smp_call_function_single(cpu, fn, arg, x, y) fn(arg)
-> #endif        /* CONFIG_SMP */
+However, it is already in the mainline kernel (the pSeries HV console) and
+in common use ...
 
-But smp_call_function_single() generates an error if you try to call
-it on your own CPU, so that doesn't make sense.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-I fixed it like this, because that register defaults to zero
-anyway and doesn't need initialization on CPU 0.
+--Signature=_Mon__10_Jul_2006_11_55_01_+1000_BzRWUq.mE7jj4ZZ_
+Content-Type: application/pgp-signature
 
-What I can't figure out is how this ever gets called on CPU 0
-during init, whether it's SMP or not.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+iD8DBQFEsbN7FdBgD/zoJvwRAkzDAJ0QYZQipMTbFHka8el1mvlyvLqJswCfb6AU
+3OprUis3n57ZdcEvu1cEzQA=
+=DseR
+-----END PGP SIGNATURE-----
 
---- 2.6.18-rc1-mm1-64.orig/arch/x86_64/kernel/vsyscall.c
-+++ 2.6.18-rc1-mm1-64/arch/x86_64/kernel/vsyscall.c
-@@ -253,13 +253,14 @@ void __cpuinit vsyscall_set_cpu(int cpu)
- #ifdef CONFIG_NUMA
- 	node = cpu_to_node[cpu];
- #endif
-+#ifdef CONFIG_SMP
- 	if (cpu_has(&cpu_data[cpu], X86_FEATURE_RDTSCP)) {
- 		/* the notifier is unfortunately not executed on the
- 		   target CPU */
- 		void *info = (void *)((node << 12) | cpu);
- 		smp_call_function_single(cpu, write_rdtscp_cb, info, 0, 1);
- 	}
--
-+#endif
- 	/* Store cpu number in limit so that it can be loaded quickly
- 	   in user space in vgetcpu.
- 	   12 bits for the CPU and 8 bits for the node. */
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+--Signature=_Mon__10_Jul_2006_11_55_01_+1000_BzRWUq.mE7jj4ZZ_--

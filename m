@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWGJVxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWGJVzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWGJVxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 17:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWGJVxF
+	id S964954AbWGJVzj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 17:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbWGJVzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 17:53:05 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:44398 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964952AbWGJVxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 17:53:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=1B16Nvy3zkZlMNGMcHHzz+QDTwjZtPvcFIZmrjyCKErmwJQGadUM7tv13yHjivceL7E7mcGsW92neJA8qBI5sEQg4wquEyzZvXYPS+kUTHan8IE5onfx7iCuimtrUfKRW4GeQtShV7o3cpbJuWfsE/V8SKJnSMEoiy1OKqsleGc=  ;
-Message-ID: <44B28F93.9020304@yahoo.com.au>
-Date: Tue, 11 Jul 2006 03:34:11 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 10 Jul 2006 17:55:39 -0400
+Received: from altrade.nijmegen.internl.net ([217.149.192.18]:43693 "EHLO
+	altrade.nijmegen.internl.net") by vger.kernel.org with ESMTP
+	id S964954AbWGJVzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 17:55:39 -0400
+From: jos poortvliet <jos@mijnkamer.nl>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: 2.6.18-rc1
+Date: Mon, 10 Jul 2006 23:58:21 +0200
+User-Agent: KMail/1.9.3
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+References: <200607101308.26291.kernel@kolivas.org>
+In-Reply-To: <200607101308.26291.kernel@kolivas.org>
+X-Face: $0>4o"Xx2u2q(Tx!D+6~yPc{ZhEfnQnu:/nthh%Kr%f$aiATk$xjx^X4admsd*)=?utf-8?q?IZz=3A=5FkT=0A=09=7CurITP!=2E?=)L`*)Vw@4\@6>#r;3xSPW`,~C9vb`W/s]}Gq]b!o_/+(lJ:b)=?utf-8?q?T0=26KCLMGvG=7CS=5E=0A=09z=7B=5C=2E7EtehxhFQE=27eYSsir/=7CtQ?=
+ =?utf-8?q?j=23rWQe4o?=>WC>_R<vO,d]czmqWYkq[v~iB.e_GuxB'")
+ =?utf-8?q?p3=0A=09jGdrhlY4=5E!vd=3F=3AegW?=)xn&fP4!FV<.
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Marc Singer <elf@buici.com>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
-References: <20060709000703.GA9806@cerise.buici.com> <44B0774E.5010103@yahoo.com.au> <20060710025103.GC28166@cerise.buici.com> <44B1FAE4.9070903@yahoo.com.au> <20060710162600.GB18728@flint.arm.linux.org.uk>
-In-Reply-To: <20060710162600.GB18728@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1205434.FbitP2aLg2";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200607102358.25756.jos@mijnkamer.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Mon, Jul 10, 2006 at 04:59:48PM +1000, Nick Piggin wrote:
-> 
->>I guess you could do it a number of ways. Maybe having GFP_USERMAP
->>set __GFP_USERMAP|__GFP_COMP, and the arm dma memory allocator can
->>strip the __GFP_COMP.
->>
->>If you get an explicit __GFP_COMP passed down, the allocator doesn't
->>know whether that was because they want a user mappable area, or
->>really want a compound page (in which case, stripping __GFP_COMP is
->>the wrong thing to do).
-> 
-> 
-> So I'll mask off __GFP_COMP for the time being in the ARM dma allocator
-> with a note to this effect?
+--nextPart1205434.FbitP2aLg2
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I believe that should do the trick, yes (AFAIK, nobody yet is
-explicitly relying on a compound page from the dma allocator).
+Op maandag 10 juli 2006 05:08, schreef Con Kolivas:
+> I see the merge window closed and swap prefetch got bypassed again. I'd
+> like to believe it was an oversight but far more likely that Andrew remai=
+ns
+> undecided about whether it should go in or not.
+>
+> No bug reports have come from it in 6 months, the code has remained
+> unchanged for 3 months, it is as unobtrusive as a driver that is not
+> compiled in when !CONFIGed and there are numerous reports from satisfied
+> users (even ones that made it to the scary grounds of lkml). The only thi=
+ng
+> that happens is Nick keeps threatening to review it over and over and over
+> and....
+>
+> I'm not sure what else needs to happen?
 
-Marc can hopefully confim the fix.
+That's what I wonder about. What exactly are the criteria for getting=20
+something in the kernel? People who want it, and someone willing to maintai=
+n=20
+it are part of it, I guess... Good design? The Right Thing, The Right Way?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Now I wouldn't say Andrew is 'nobody', and if he objects, that's something =
+for=20
+sure. But he doesn't even object (do you?).
+
+I like swap prefetch, and it works for me. I can patch it in myself, so its=
+=20
+not all that important to me. And its just a small thing. But many small=20
+things...
+
+Jos
+
+--nextPart1205434.FbitP2aLg2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEss2B+wgQ1AD35iwRAnaVAKC3ivuJYUsgUspHTE2H6g7xxSn69QCgulz6
+uoVbDbKOhu2tZdBS2+ZjDx4=
+=3IPG
+-----END PGP SIGNATURE-----
+
+--nextPart1205434.FbitP2aLg2--

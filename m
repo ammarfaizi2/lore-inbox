@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWGJUWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWGJU17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422805AbWGJUWo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 16:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWGJUWn
+	id S1422802AbWGJU17 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 16:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWGJU16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 16:22:43 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12744 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422710AbWGJUWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 16:22:42 -0400
-Date: Mon, 10 Jul 2006 13:22:28 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: David Mosberger-Tang <David.Mosberger@acm.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
-       John Daiker <jdaiker@osdl.org>, John Hawkes <hawkes@sgi.com>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-Message-ID: <20060710202228.GA732959@sgi.com>
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com> <yq04py4i9p7.fsf@jaguar.mkp.net> <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com> <1151578513.3122.22.camel@laptopd505.fenrus.org> <20060708001427.GA723842@sgi.com> <1152340963.3120.0.camel@laptopd505.fenrus.org> <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 10 Jul 2006 16:27:58 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:63440 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422802AbWGJU16
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 16:27:58 -0400
+Message-ID: <44B2B84A.2020006@fr.ibm.com>
+Date: Mon, 10 Jul 2006 22:27:54 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 oops on x86_64
+References: <20060709021106.9310d4d1.akpm@osdl.org> <44B12C74.9090104@fr.ibm.com> <20060709132135.6c786cfb.akpm@osdl.org> <Pine.LNX.4.64.0607100856540.4491@schroedinger.engr.sgi.com> <Pine.LNX.4.64.0607101036060.5059@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607101036060.5059@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 07:07:14AM -0600, David Mosberger-Tang wrote:
-> Nothing is broken.  Read Alan's statement carefully...
+Christoph Lameter wrote:
+> On Mon, 10 Jul 2006, Christoph Lameter wrote:
 > 
->  --david
+>> Hmm... Actually we could leave __GFP_HIGHMEM at it prior value since
+>> GFP_ZONEMASK masks it out anyways. Need to test this though. This may
+>> also make some of the __GFP_DMA32 ifdefs unnecessary.
+> 
+> Here is the patch that fixes __GFP_DMA32 and __GFP_HIGHMEM to always
+> be nonzero. However, after the #ifdef in my last patch there is no
+> remaining instance of this left. The cure here adds some complexity:
 
-His statement can be read a couple of ways.
+My 2.6.18-rc1-mm1 is now much more friendly with the last 2 patches.
 
-Let's go over the choices.
+Thanks !
 
-First, the background.  Some apps are using the HZ definition in
-/usr/include/asm/param.h to get the system's HZ value.  That is a
-bug in the app -- everyone agrees.
+C.
 
-Currently, on IA64, HZ is defined to be 1024, which is incorrect
-for newer kernels.
-
-Options:
-
-1. Change to 250, which will be correct for most distributions as
-   well as the default IA64 kernel
-
-2. Leave at 1024, which is wrong for everything
-
-3. Change to sysconf(_SC_CLK_TCK) so that apps get the right thing
-
-4. Change to something that produces a build error to indicate to app
-   maintainer that he needs to fix something.
-
-5. Change kernel to make it compatible with old apps that think
-   system HZ is 1024.
-
-Currently, the option chosen is (3).  It doesn't seem like the best
-option to me -- maybe the worst, actually.  I would like to see at
-least one explanation as to why it's been chosen.
-
-jeremy
-
-> On 7/8/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> >
-> >> So does i386 convert the return value of the times(2) call to user
-> >> hertz?  On IA64, it returns the value in internal clock ticks, and
-> >> then when a program uses the value in param.h, it gets it wrong now,
-> >> because internal HZ is now 250.
-> >>
-> >> So is times() is broken in IA64, or is this an exception to Alan's
-> >> statement?
-> >
-> >yes it's broken; it needs to convert it to the original HZ (1024) and
-> >make the sysconf() function also return 1024

@@ -1,125 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWGJSAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWGJSAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWGJSAd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbWGJSAd
+	id S965156AbWGJSAx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965194AbWGJSAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:00:33 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:61922 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964950AbWGJSAc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:00:32 -0400
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-From: john stultz <johnstul@us.ibm.com>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
-In-Reply-To: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
-References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
-Content-Type: text/plain
-Date: Mon, 10 Jul 2006 10:58:47 -0700
-Message-Id: <1152554328.5320.6.camel@localhost.localdomain>
+	Mon, 10 Jul 2006 14:00:53 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:20641 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S965156AbWGJSAw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:00:52 -0400
+Message-Id: <200607101759.k6AHxbda012403@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Daniel Bonekeeper <thehazard@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Automatic Kernel Bug Report
+In-Reply-To: Your message of "Mon, 10 Jul 2006 12:40:07 CDT."
+             <e1e1d5f40607101040u3baf0da7r43d5538700b02e2@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com> <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com> <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com> <20060709125805.GF13938@stusta.de> <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com> <20060709191107.GN13938@stusta.de> <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com> <200607092019.k69KJt66005527@turing-police.cc.vt.edu> <e1e1d5f40607091327y3db1cbdco89ebdb04cda60ce0@mail.gmail.com> <20060710081131.GA2251@elf.ucw.cz>
+            <e1e1d5f40607101040u3baf0da7r43d5538700b02e2@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1152554377_3170P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 13:59:37 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 01:52 +0200, Mikael Pettersson wrote:
-> On Sun, 09 Jul 2006 14:20:56 -0700, john stultz wrote:
-> >> I've traced the cause of this problem to the i386 time-keeping
-> >> changes in kernel 2.6.17-git11. What happens is that:
-> >> - The kernel autoselects TSC as my clocksource, which is
-> >>   reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
-> >> - Immediately after APM resumes (arch/i386/kernel/apm.c line
-> >>   1231 in 2.6.18-rc1) there is an interrupt from the PIT,
-> >>   which takes us to kernel/timer.c:update_wall_time().
-> >> - update_wall_time() does a clocksource_read() and computes
-> >>   the offset from the previous read. However, the TSC was
-> >>   reset by HW or BIOS during the APM suspend/resume cycle and
-> >>   is now smaller than it was at the prevous read. On my machine,
-> >>   the offset is 0xffffffd598e0a566 at this point, which appears
-> >>   to throw update_wall_time() into a very very long loop.
-> >
-> >Huh. It seems you're getting an interrupt before timekeeping_resume()
-> >runs (which resets cycle_last). I'll look over the code and see if I can
-> >sort out why it works w/ ACPI suspend, but not APM, or if the
-> >resume/interrupt-enablement bit is just racy in general.
-> 
-> I forgot to mention this, but I had a debug printk() in apm.c
-> which showed that irqs_disabled() == 0 at the point when APM
-> resumes the kernel.
+--==_Exmh_1152554377_3170P
+Content-Type: text/plain; charset=us-ascii
 
-So it seems possible that the timer tick will be enabled before the
-timekeeping resume code runs. I'm not sure why this isn't seen w/ ACPI
-suspend/resume, as I think they're using the same
-sysdev_class .suspend/.resume bits. 
+On Mon, 10 Jul 2006 12:40:07 CDT, Daniel Bonekeeper said:
 
-Anyway, I think this patch should fix it (I've only compile tested it,
-as I don't have my laptop on me right now). Would you mind giving it a
-try? 
+> real bugs. If so, they get reported here on LKML. Since we can expect,
+> maybe, dozens of thousands of reports per week, wouldn't be hard to
+> distinct between real bugs, etc (if we use frequency as a marker).
 
-thanks
--john
+Actually, at that level, it *is* hard to distinguish.  I'm sure the RedHat
+people have a *very* good idea of exactly how much PEBKAC cruft their bugzilla
+gathers - and that's from users clued enough to bugzilla.
 
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 396a3c0..afaa594 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -966,7 +966,7 @@ void __init timekeeping_init(void)
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- }
- 
--
-+static int timekeeping_suspended;
- /*
-  * timekeeping_resume - Resumes the generic timekeeping subsystem.
-  * @dev:	unused
-@@ -982,6 +982,18 @@ static int timekeeping_resume(struct sys
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	/* restart the last cycle value */
- 	clock->cycle_last = clocksource_read(clock);
-+	clock->error = 0;
-+	timekeeping_suspended = 0;
-+	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	return 0;
-+}
-+
-+static int timekeeping_suspend(struct sys_device *dev, pm_message_t state)
-+{
-+	unsigned long flags;
-+
-+	write_seqlock_irqsave(&xtime_lock, flags);
-+	timekeeping_suspended = 1;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	return 0;
- }
-@@ -989,6 +1001,7 @@ static int timekeeping_resume(struct sys
- /* sysfs resume/suspend bits for timekeeping */
- static struct sysdev_class timekeeping_sysclass = {
- 	.resume		= timekeeping_resume,
-+	.suspend	= timekeeping_suspend,
- 	set_kset_name("timekeeping"),
- };
- 
-@@ -1090,14 +1103,17 @@ static void clocksource_adjust(struct cl
- static void update_wall_time(void)
- {
- 	cycle_t offset;
--
--	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
-+	
-+	/* avoid timekeeping before we're fully resumed */
-+	if (unlikely(timekeeping_suspended))
-+		return;
- 
- #ifdef CONFIG_GENERIC_TIME
- 	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
- #else
- 	offset = clock->cycle_interval;
- #endif
-+	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
- 
- 	/* normally this loop will run just once, however in the
- 	 * case of lost or late ticks, it will accumulate correctly.
+It might be interesting to use it to measure how many machines crap out because
+of stray single-bit errors due to insufficient ECC on the hardware.
 
+You can't use "a sudden upsurge" in reports as a good regression test, because
+the vast majority of boxes are running distro kernels.  RHEL 4.0 just shipped a
+2.6.9-34 kernel.  Ubuntu is on a 2.6.15.
 
+And the people who are using kernel.org kernels aren't actually upgrading all
+*that* fast either.  You'll get better info by looking at the lkml postings
+that say '2.6.mumble regressed my foobar' - that will likely trigger before any
+statistical tendency in bug reports gets noticed.
+
+(Visit the bugzilla.mozilla.org, and note that neither 'most frequently
+reported' nor 'reported today' give you a really good grasp on *current*
+issues....)
+
+--==_Exmh_1152554377_3170P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEspWJcC3lWbTT17ARAhNWAKDLKbwiBv3Ts1qY8cCReOojFPAUIwCg/Wcc
+69SuBP/kXVlXeuuzKPt3MVI=
+=Z+RD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1152554377_3170P--

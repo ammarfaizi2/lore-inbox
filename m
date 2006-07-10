@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWGJPhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWGJPib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWGJPhe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWGJPhe
+	id S1422660AbWGJPib (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWGJPib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:37:34 -0400
-Received: from khc.piap.pl ([195.187.100.11]:34701 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S965025AbWGJPhe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:37:34 -0400
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: "Antonino A. Daplas" <adaplas@pol.net>, Jean Delvare <khali@linux-fr.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>
-	<20060705165255.ab7f1b83.khali@linux-fr.org>
-	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>
-	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>
-	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net>
-	<m3ejwt65of.fsf@defiant.localdomain> <44B248E4.2020506@pol.net>
-	<m3u05p4mkx.fsf@defiant.localdomain> <44B26004.4050500@gmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 10 Jul 2006 17:37:30 +0200
-In-Reply-To: <44B26004.4050500@gmail.com> (Antonino A. Daplas's message of "Mon, 10 Jul 2006 22:11:16 +0800")
-Message-ID: <m3r70tqxmt.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Jul 2006 11:38:31 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:12756 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1422660AbWGJPia (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:38:30 -0400
+Message-Id: <200607101538.k6AFc3OE007205@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+In-Reply-To: Your message of "Mon, 10 Jul 2006 16:21:47 BST."
+             <20060710152146.GA18728@flint.arm.linux.org.uk>
+From: Valdis.Kletnieks@vt.edu
+References: <1152524657.27368.108.camel@localhost.localdomain> <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com> <1152537049.27368.119.camel@localhost.localdomain> <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com> <1152539034.27368.124.camel@localhost.localdomain> <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com> <44B26752.9000507@gmail.com> <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com> <1152544746.27368.134.camel@localhost.localdomain> <200607101510.k6AFAWND006142@turing-police.cc.vt.edu>
+            <20060710152146.GA18728@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1152545883_3170P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 11:38:03 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> writes:
+--==_Exmh_1152545883_3170P
+Content-Type: text/plain; charset=us-ascii
 
-> David Eger is the author, the last I heard from him was 2 years ago.
-> But I haven't received that many problem reports on cirrusfb.
+On Mon, 10 Jul 2006 16:21:47 BST, Russell King said:
 
-Doesn't matter, what is important is that you know the stuff.
+> Maybe - what if userspace is looking up /dev/tty0 in /proc/tty/drivers
+> and happens to know that it's called /dev/vc/0, because it's working
+> around this known idiosyncrasy of the kernel ?
 
-> The only register touched by the i2c code is EEPROM control (CL_SEQR8).
-> This is never touched by the rest of the cirrusfb code. So I don't
-> think concurrent access is a problem (unless the hardware has restrictions
-> such as no other register accesses are allowed while this register is being
-> accessed).
+It only breaks if it's being totally brain-dead and doing this:
 
-I mean I'm using (simplified):
+	if (!strcmp(inputdev,"/dev/tty0") inputdev = "/dev/vc/0";
 
-unsigned char vga_rseq (void *regbase, unsigned char reg)
-{
-        vga_w (regbase, VGA_SEQ_I, reg);
-        return vga_r (regbase, VGA_SEQ_D);
-}
+and not bothering to check that /dev/tty0 could *possibly* actually
+appear in the /proc/tty entry.  In fact, it would have to be actively
+asserting that it can't appear.
 
-and
+Code that does this sort of thing:
 
-void vga_wseq (void *regbase, unsigned char reg, unsigned char val)
-{
-#ifdef VGA_OUTW_WRITE
-        vga_w_fast (regbase, VGA_SEQ_I, reg, val);
-#else
-        vga_w (regbase, VGA_SEQ_I, reg);
-        vga_w (regbase, VGA_SEQ_D, val);
-#endif /* VGA_OUTW_WRITE */
-}
+	if (!strcmp(procentry,"/dev/vc/0") procentry = "/dev/tty0";
+	if (!strcmp(procentry, inputdev)) { whatever to to do when found }
+
+will still work.
+
+> That "terminally broken stuff" might just happen to work with today's
+> kernels.  Even so, that's no reason to pile in additional user-visible
+> changes which could potentially have adverse effects.
+
+Oddly enough, "This PoS code only happened to work" is considered a good
+and sufficient reason to fix kernel code. :)
+
+Also, please note that I *did* agree with Alan - this needs to be done right
+in /sys first, and then tools updated.  However, having provided a *correct*
+way to do it, we should not *then* use "old crap might break further" as
+a reason to not finish the cleanup.
 
 
-How do I know the following will not happen:
+--==_Exmh_1152545883_3170P
+Content-Type: application/pgp-signature
 
-taskA) alpine_getsda() called from I2C subsystem
- taskB) cirrusfb_blank() called from elsewhere
-taskA) vga_rseq() calls vga_w()
- taskB) vga_rseq() or _wseq() calls vga_w()
-taskA) vga_r() performed with wrong index (set by taskB).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-I see most of vga_[rw]seq() calls are at init/set_mode time but still
-this could be a problem.
+iD8DBQFEsnRbcC3lWbTT17ARAtSOAJ9ycrJmCrX9+ycJ4LjyBTgg46qKrgCg3G9c
+fw61C/g9jvnill+dBKTduEc=
+=3Wf/
+-----END PGP SIGNATURE-----
 
-This question isn't limited to cirrusfb only, of course.
-
-> The framebuffer layer is serialized by
-> acquire_console_sem()/release_console_sem(). If you think concurrent access
-> is a problem, you can always use that.
-
-It's quite big... While I haven't investigated that, I rather thought
-about some small lock for vga_rseq() and vga_wseq(). Not sure.
-
-Another thing... How is access to VGA registers shared between
-X11 and the framebuffer?
--- 
-Krzysztof Halasa
+--==_Exmh_1152545883_3170P--

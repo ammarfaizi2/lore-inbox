@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWGJK5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWGJK6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWGJK5i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWGJK5i
+	id S964792AbWGJK6D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWGJK6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:57:38 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.155]:57634 "EHLO
-	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S964777AbWGJK5h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:57:37 -0400
-Message-ID: <44B23256.8030504@ru.mvista.com>
-Date: Mon, 10 Jul 2006 14:56:22 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Mon, 10 Jul 2006 06:58:01 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:17553 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964792AbWGJK6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 06:58:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eHadUxU4iwk3qJGvqqM35iTM1XnezK9stw0e53T4flQeVxkTb6RYKRL9Za9ySUugq2GLciVpRLRCLyD4KKOebvXPUXriaBpvgkV8JF06/++0xV3X2fFy3le/IZW2wTx1ZL+L44U1L5PXOEHr+1vFVQNb6yKCa87MYnESEqsHdH8=
+Message-ID: <6bffcb0e0607100357q7762cd7dw757626e4cc680900@mail.gmail.com>
+Date: Mon, 10 Jul 2006 12:57:58 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.18-rc1-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Arjan van de Ven" <arjan@infradead.org>
+In-Reply-To: <20060710103724.GA10602@elte.hu>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Adrian Bunk <bunk@stusta.de>, juha.yrjola@solidboot.com,
-       linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-       jlavi@iki.fi
-Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup() static
-References: <20060626220215.GI23314@stusta.de>	<1151416141.17609.140.camel@hades.cambridge.redhat.com>	<20060629173206.GF19712@stusta.de> <1152436332.25567.12.camel@shinybook.infradead.org>
-In-Reply-To: <1152436332.25567.12.camel@shinybook.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <6bffcb0e0607090332i477d594fq9ef96721574ae91b@mail.gmail.com>
+	 <20060709035203.cdc3926f.akpm@osdl.org>
+	 <20060710074039.GA26853@elte.hu>
+	 <6bffcb0e0607100222m5cbdba31ia39d47f3f1f94b26@mail.gmail.com>
+	 <20060710092528.GA8455@elte.hu>
+	 <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com>
+	 <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
+	 <20060710103724.GA10602@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > On 10/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > >On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
+> > >> ah, ok. So i'll put this under the 'unclean-build artifact' section,
+> > >> i.e. not a lockdep bug for now, it seems. Please re-report if it ever
+> > >> occurs again with a clean kernel build.
+> > >
+> > >Unfortunately "make O=/dir clean" doesn't help. I'll disable lockdep,
+> > >and see what happens.
+> > >
+> >
+> > When I set DEBUG_LOCK_ALLOC=n and CONFIG_PROVE_LOCKING=n everything is
+> > ok. It maybe a gcc 4.2 bug.
 
-David Woodhouse wrote:
+It's not gcc 4.2 bug.
 
->>>>This patch makes the needlessly global mtdpart_setup() static.
+>
+> well ... if you disable lockdep then you wont get lockdep messages -
+> that's normal.
 
->>>>Signed-off-by: Adrian Bunk <bunk@stusta.de>
->>>>
->>>>--- linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c.old 2006-06-26 23:18:39.000000000 +0200
->>>>+++ linux-2.6.17-mm2-full/drivers/mtd/cmdlinepart.c     2006-06-26 23:18:51.000000000 +0200
->>>>@@ -346,7 +346,7 @@
->>>>  *
->>>>  * This function needs to be visible for bootloaders.
->>>>  */
->>>>-int mtdpart_setup(char *s)
->>>>+static int mtdpart_setup(char *s) 
+I'm just checking ;).
 
->>>Patch lacks sufficient explanation. Explain the relevance of the comment
->>>immediately above the function declaration, in the context of your
->>>patch. Explain your decision to change the behaviour, but not change the
->>>comment itself.
+> Or did i miss what the bug is about?
+>
+>         Ingo
+>
 
->>My explanation regarding the relevance of the comment is that it seems 
->>to be nonsense.
+Regards,
+Michal
 
->>Do I miss something, or why and how should a bootloader access 
->>in-kernel functions? 
-
-> I'm not entirely sure, but allegedly it does -- Juha, can you elaborate?
-
-    In addition, this function might be needed to support parsing of the 
-partition info extracted from the OF device tree (if this way of storing it 
-there will be accepted)...
-
-WBR, Sergei
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

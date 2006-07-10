@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965326AbWGJXWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965320AbWGJXWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965326AbWGJXWR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965325AbWGJXWR
+	id S965320AbWGJXWq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965323AbWGJXWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:22:17 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:57348 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S965319AbWGJXWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:22:16 -0400
-Date: Tue, 11 Jul 2006 09:23:24 +1000
-From: CaT <cat@zip.com.au>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: possible dos / wsize affected frozen connection length (was: Re: 2.6.17.1: fails to fully get webpage)
-Message-ID: <20060710232324.GR2344@zip.com.au>
-References: <20060629015915.GH2149@zip.com.au> <20060628.194627.74748190.davem@davemloft.net> <20060629030923.GI2149@zip.com.au> <20060628.204709.41634813.davem@davemloft.net> <20060629041827.GJ2149@zip.com.au> <44A3E898.1020202@tmr.com> <20060629225039.GO2149@zip.com.au> <20060705005540.GL2344@zip.com.au> <Pine.LNX.4.61.0607050743470.30694@chaos.analogic.com>
-Mime-Version: 1.0
+	Mon, 10 Jul 2006 19:22:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48066 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965320AbWGJXWp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:22:45 -0400
+Date: Tue, 11 Jul 2006 01:22:12 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: suspend2-devel@lists.suspend2.net, Arjan van de Ven <arjan@infradead.org>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, grundig <grundig@teleline.es>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Message-ID: <20060710232212.GD444@elf.ucw.cz>
+References: <20060627133321.GB3019@elf.ucw.cz> <1152523109.4874.11.camel@laptopd505.fenrus.org> <20060710100227.GA25310@atrey.karlin.mff.cuni.cz> <200607110749.48209.nigel@suspend2.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0607050743470.30694@chaos.analogic.com>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200607110749.48209.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 05, 2006 at 07:54:01AM -0400, linux-os (Dick Johnson) wrote:
-> >> running since 8:42pm yesterday. It's 8:37am now. It hasn't progressed
-> >> in any way. It hasn't quit. It hasn't timed out. It just sits there,
-> >> hung. This leads me to consider the possibility of a DOS, either
-> >> intentional or accidental (think about 2.6.17.x running on a mail server
-> >> and someone mails/spams from a broken place).
+Hi!
+
+> > > As I said... if that is the case then it'd be easy to first merge "the
+> > > right basics", get that solid, and THEN add the features. So far I've
+> > > not seen that happen.
+> >
+> > Well.. Nigel claims his code can not be split into reasonable chunks.
+> >
+> > I actually wanted to get a version without advanced features
+> > (userspace splash, compression, encryption, plugins), but he claims it
+> > is not possible. Rafael is trying to persuade him to split out at
+> > least freezer out...
 > 
-> TCP/IP connections can continue forever. That's one of the reasons why
-> Berkeley sockets has SO_KEEPALIVE for a socket option. In the absence
-> of such an option, the physical connection can be broken for a week,
-> reconnected, then the session can continue.
+> When did you ask for that? Perhaps I missed it.
 
-D'oh. I knew that. Sigh. It's one of the things I like about having a
-static ip on a bad connection. :)
+It was long time ago...
 
-> In your case, you probably have a real error in which one end of the
-> connection crashed. However, until the other end shuts down that
+> The modularity is part of the basis of the redesign, so I couldn't easily 
+> remove that. Removing the compression and encryption support is trivial 
+> though (one file each, plus Makefile & Kconfig entries - no other 
+> modifications needed). Userspace splash - well, just don't compile and 
+> install that userspace component - suspend2 will keep working quite happily 
+> without any userspace app to do a nice display (it will still do printks, so 
+> you won't be flying completely blind).
 
-Well not so much crashed but became unreachable due to the wsize thing.
+Lets see the patches, then.
 
-> socket, the connection is logically correct and should not be
-> forcefully terminated.
+> As for the freezer, Rafael doesn't need to persuade me at all. I just need to 
+> find the time to do what he requested.
 
-It'll never terminate right now unless I hit ^c.
-
-> A DOS is unlikely because with no data being transferred, little
-
-Not all DOS' are transfer based. Just anything that uses up resources to
-the point where a service is no longer able to be performed.
-
-> non-swapable resources are used. You can control the maximum number
-> of connections allowed from a host with your firewall software
-> (like iptables).
-
-After the fact really. In this case one can send mail to a box and make
-it bounce to someplace behind a wsize broken network. Resources taken up
-that wont return until someone spots what's wrong. You could make your
-own wsize broken network, connect to someplace a few times and then move
-on whilst their end hangs around, waiting for the connections to do
-somthing.
-
-In my test case I am wondering if there was/is a web process hanging
-about doing nothing other then waiting for my end to do something.
-
+Ok.
+									Pavel
 -- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161319AbWGJD1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161323AbWGJD1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161319AbWGJD1G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 23:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbWGJD1G
+	id S1161323AbWGJD1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 23:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161320AbWGJD1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 23:27:06 -0400
-Received: from beauty.rexursive.com ([203.171.74.242]:10130 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S1161319AbWGJD1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 23:27:05 -0400
-Message-ID: <20060710132702.zybmjie9co8wk440@www.rexursive.com>
-Date: Mon, 10 Jul 2006 13:27:02 +1000
-From: Bojan Smojver <bojan@rexursive.com>
-To: linux-kernel@vger.kernel.org
-Subject: Intel ICH7 82801GBM/GHM
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Disposition: inline
+	Sun, 9 Jul 2006 23:27:25 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:36067 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161321AbWGJD1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 23:27:23 -0400
+Date: Mon, 10 Jul 2006 12:29:25 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-ia64@vger.kernel.org, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] remove empty node at boot time
+Message-Id: <20060710122925.759c368b.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <200607092038.41053.bjorn.helgaas@hp.com>
+References: <20060601200436.6bf7c4e5.kamezawa.hiroyu@jp.fujitsu.com>
+	<200607071726.31646.bjorn.helgaas@hp.com>
+	<20060710093418.be084931.kamezawa.hiroyu@jp.fujitsu.com>
+	<200607092038.41053.bjorn.helgaas@hp.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.1.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know if this chip, which goes by PCI ID 8086:27c4 (as  
-listed in ata_piix.c) is something that ahci.c can also drive? It  
-isn't listed explicity in ahci.c file, but ata_piix.c file says it's  
-identical to ICH6M, which is listed in ahci.c.
+On Sun, 9 Jul 2006 20:38:40 -0600
+Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> Yes.  Here's the relevant part of the call tree:
+> 
+> setup_arch
+>   acpi_numa_init
+>     acpi_numa_arch_fixup
+>       acpi_online_node_fixup (test available_cpus)
+>   ... 
+>   acpi_boot_init
+>     acpi_table_parse_madt(..., acpi_parse_lsapic, ...)
+>       acpi_parse_lsapic (increment available_cpus)
+> 
+> Note that we test available_cpus in acpi_online_node_fixup()
+> before we increment it in acpi_parse_lsapic(), so the inner
+> loop is never executed.
 
-PS. I'm not subscribed to the list, so please CC me on the answer.
+Hmm...okay, I misunderstood the boot path..
+To work with my remove-empty-node patch, parsing lsapic should be done
+before SRAT. 
+I'd like to fix this. BTW, can we move parsing MADT before SRAT ?
 
-TIA,
--- 
-Bojan
+-Kame
+
+

@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422746AbWGJSYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422747AbWGJS0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422746AbWGJSYy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422747AbWGJSYx
+	id S1422747AbWGJS0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422748AbWGJS0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:24:53 -0400
-Received: from xenotime.net ([66.160.160.81]:45196 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422746AbWGJSYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:24:53 -0400
-Date: Mon, 10 Jul 2006 11:27:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, erich@areca.com.tw
-Subject: [PATCH -mm] arcmsr: fix implicit func. decl.
-Message-Id: <20060710112736.77a45088.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 14:26:54 -0400
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:35755 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1422747AbWGJS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:26:53 -0400
+X-Sasl-enc: 1h/dE607hhvPrCeqhnUGZCToHxNsfceVU75DtZuIpbFz 1152556008
+Message-ID: <44B29C4C.70105@imap.cc>
+Date: Mon, 10 Jul 2006 20:28:28 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, efault@gmx.de
+Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled
+ /sbin/ifup
+References: <6wDCq-5xj-25@gated-at.bofh.it>	<6wM2X-1lt-7@gated-at.bofh.it>	<6wOxP-4QN-5@gated-at.bofh.it>	<44B189D3.4090303@imap.cc> <20060709161712.c6d2aecb.akpm@osdl.org>
+In-Reply-To: <20060709161712.c6d2aecb.akpm@osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig329DB7072E9F0F29889660D8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig329DB7072E9F0F29889660D8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Fix implicit function declaration:
-drivers/scsi/arcmsr/arcmsr_hba.c:410: warning: implicit declaration of function 'arcmsr_free_sysfs_attr'
+On 10.07.2006 01:17, Andrew Morton wrote:
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/scsi/arcmsr/arcmsr.h |    1 +
- 1 files changed, 1 insertion(+)
+>>>I'd be suspecting
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-r=
+c1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device=
+=2Epatch.
+> [...] you'll also need to revert
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc=
+1/2.6.18-rc1-mm1/broken-out/gregkh-driver-class_device_rename-remove.patc=
+h
 
---- linux-2618-rc1mm1.orig/drivers/scsi/arcmsr/arcmsr.h
-+++ linux-2618-rc1mm1/drivers/scsi/arcmsr/arcmsr.h
-@@ -468,3 +468,4 @@ struct SENSE_DATA
- extern void arcmsr_post_Qbuffer(struct AdapterControlBlock *acb);
- extern struct class_device_attribute *arcmsr_host_attrs[];
- extern int arcmsr_alloc_sysfs_attr(struct AdapterControlBlock *acb);
-+extern void arcmsr_free_sysfs_attr(struct AdapterControlBlock *acb);
+Ok, that helped. With these two reverted, my eth0 interface comes up
+again as it should.
+
+Thanks
+Tilman
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Stuttgart ist viel sch=F6ner als Berlin!
 
 
----
+--------------enig329DB7072E9F0F29889660D8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEspxVMdB4Whm86/kRAoZ6AJ4vMI+bVy/KPpI3ezqQ3XcPxgrk6wCggDZG
+8WCjDpK/fkucbARwbxXMxVY=
+=HRh+
+-----END PGP SIGNATURE-----
+
+--------------enig329DB7072E9F0F29889660D8--

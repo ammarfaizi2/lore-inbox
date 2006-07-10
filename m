@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbWGJSbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWGJSb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965202AbWGJSbc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWGJSbc
+	id S1422651AbWGJSb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422749AbWGJSb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:31:32 -0400
-Received: from main.gmane.org ([80.91.229.2]:12475 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965202AbWGJSbb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:31:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Steve Fox <drfickle@us.ibm.com>
-Subject: Re: Linux v2.6.18-rc1
-Date: Mon, 10 Jul 2006 13:30:31 -0500
-Organization: IBM
-Message-ID: <pan.2006.07.10.18.30.30.338580@us.ibm.com>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <pan.2006.07.07.15.41.35.528827@us.ibm.com> <1152441242.4128.33.camel@localhost.localdomain> <1152549482.2658.29.camel@flooterbu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 24-159-197-73.dhcp.roch.mn.charter.com
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-Cc: linuxppc-dev@ozlabs.org
+	Mon, 10 Jul 2006 14:31:57 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27657 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422651AbWGJSb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:31:56 -0400
+Date: Mon, 10 Jul 2006 20:31:54 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: marcel@holtmann.org, maxk@qualcomm.com
+Cc: bluez-devel@lists.sourceforge.net, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux390@de.ibm.com
+Subject: [2.6 patch] let BT_HIDP depend on INPUT
+Message-ID: <20060710183154.GD13938@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 11:38:02 -0500, Steve Fox wrote:
+This patch let's BT_HIDP depend on instead of select INPUT.
 
-> Also, booting with ide=nodma, as Alan suggested to Will, did not help.
+This fixes the following warning during an s390 build:
 
-I'm not sure if it was due to using the nodma parameter or not, but I did
-get a few more details during this boot. No idea if they're useful or not.
+<--  snip  -->
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2 ide:
-Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD8111: IDE controller at PCI slot 0000:00:04.1 AMD8111: chipset revision
-3 AMD8111: 0000:00:04.1 (rev 03) UDMA133 controller AMD8111: 100% native
-mode on irq 17
-    ide0: BM-DMA at 0x7c00-0x7c07, BIOS settings: hda:pio, hdb:pio ide1:
-    BM-DMA at 0x7c08-0x7c0f, BIOS settings: hdc:pio, hdd:pio
-hda: TOSHIBA MK4019GAXB, ATA DISK drive ide0 at 0x7400-0x7407,0x6c02 on
-irq 17 hda: max request size: 128KiB
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: 78140160 sectors (40007 MB), CHS=65535/16/63 hda: lost interrupt hda:
-cache flushes supported
- hda:<4>hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
- hda1 hda2 hda3 hda4 <<4>hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
- hda5<4>hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
+...
+net/bluetooth/hidp/Kconfig:4:warning: 'select' used by config symbol 'BT_HIDP' refer to undefined symbol 'INPUT'
+...
 
+<--  snip  -->
 
--- 
+A dependency on INPUT also implies !S390 (and therefore makes the 
+explicit dependency obsolete) since INPUT is not available on s390.
 
-Steve Fox
-IBM Linux Technology Center
+The practical difference should be nearly zero, since INPUT is always 
+set to y unless EMBEDDED=y (or S390=y).
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc1-mm1-full/net/bluetooth/hidp/Kconfig.old	2006-07-10 16:51:59.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/bluetooth/hidp/Kconfig	2006-07-10 16:52:52.000000000 +0200
+@@ -1,7 +1,6 @@
+ config BT_HIDP
+ 	tristate "HIDP protocol support"
+-	depends on BT && BT_L2CAP && (BROKEN || !S390)
+-	select INPUT
++	depends on INPUT && BT && BT_L2CAP
+ 	help
+ 	  HIDP (Human Interface Device Protocol) is a transport layer
+ 	  for HID reports.  HIDP is required for the Bluetooth Human
 

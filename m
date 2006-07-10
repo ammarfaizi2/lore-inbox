@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWGJJNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWGJJN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWGJJNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWGJJNw
+	id S932405AbWGJJN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 05:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWGJJN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:13:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7697 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932371AbWGJJNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:13:52 -0400
-Date: Mon, 10 Jul 2006 10:13:40 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
-       mingo@redhat.com, Andrew Victor <andrew@sanpeople.com>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [patch 2.6.18-rc1] genirq: {en,dis}able_irq_wake() need refcounting too
-Message-ID: <20060710091340.GA4400@flint.arm.linux.org.uk>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	David Brownell <david-b@pacbell.net>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	tglx@linutronix.de, mingo@redhat.com,
-	Andrew Victor <andrew@sanpeople.com>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>
-References: <200607091458.52298.david-b@pacbell.net> <20060710085849.GA6016@elte.hu>
+	Mon, 10 Jul 2006 05:13:58 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:56449 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932374AbWGJJN5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 05:13:57 -0400
+Date: Mon, 10 Jul 2006 13:13:54 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org
+Subject: [ACRYPTO] new release of asynchronous crrypto layer.
+Message-ID: <20060710091353.GA19863@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20060710085849.GA6016@elte.hu>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 10 Jul 2006 13:13:54 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 10:58:49AM +0200, Ingo Molnar wrote:
-> 
-> * David Brownell <david-b@pacbell.net> wrote:
-> 
-> > It's not just "normal" mode operation that needs refcounting for the 
-> > {en,dis}able_irq() calls ... "wakeup" mode calls need it too, for the 
-> > very same reasons.
-> > 
-> > This patch adds that refcounting.  I expect that some ARM drivers will 
-> > be triggering the new warning, but this call isn't yet widely used. 
-> > (Which is probably why the bug has lingered this long...)
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-> we should also add disable_irq_wake() / enable_irq_wake() APIs and start 
-> migrating most ARM users over to the new APIs, agreed? That makes the 
-> APIs more symmetric and the code more readable too.
+Hello.
 
-That _is_ the API anyway.  set_irq_wake() was never intended to be called
-directly from drivers.
+I'm pleased to announce new release of asynchronous crypto layer ACRYPTO
+[1]. Acrypto allows to handle crypto requests asynchronously in
+hardware.
+
+This release has following major features:
+ * OCF [2] to acrypto bridge. Work by Yakov Lerner <iler.ml@gmail.com>
+   This module allows to use ixp4xx driver with acrypto IPsec and
+   dm-crypt.
+ * major name refactoring
+ * crypto context abstractions (allows to notify hardware when keys 
+   and/or some other crypto parameters are changed)
+ * bugfixes and small feature extensions
+
+With this release I decide to drop support for old tarball acrypto
+releases. All new features and bugfixes will go directly into combined
+patchsets against supported trees (currently 2.6.16 and 2.6.17, 2.6.15
+is unsupported anymore). Releases with major changes will be announced
+in linux-kernel@ and linux-crypto@ mail lists.
+
+Combined patchsets include:
+ * acrypto core
+ * IPsec ESP4 port to acrypto
+ * dm-crypt port to acrypto
+ * OCF to acrypto bridge
+
+Acrypto supports following crypto providers:
+ * SW crypto provider
+ * HIFN 795x adapters
+ * VIA nehemiah CPU
+ * SuperCrypt CE99C003B
+ * devices supported by OCF (only IXP4xx was tested)
+
+1. Acrypto homepage.
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+
+2. OCF homepage.
+http://ocf-linux.sourceforge.net
+
+3. Acrypto archive with combined patchsets.
+http://tservice.net.ru/~s0mbre/archive/acrypto/patchsets/
+
+4. Acrypto archive with device drivers.
+http://tservice.net.ru/~s0mbre/archive/acrypto/drivers/
+
+Thank you.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	Evgeniy Polyakov

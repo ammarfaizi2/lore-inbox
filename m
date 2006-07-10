@@ -1,72 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWGJN5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWGJN7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbWGJN5F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGJN5F
+	id S1030355AbWGJN7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWGJN7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:57:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57094 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964864AbWGJN5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:57:04 -0400
-Date: Mon, 10 Jul 2006 15:57:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Adam =?utf-8?Q?Tla=C5=82ka?= <atlka@pg.gda.pl>
-Cc: Lee Revell <rlrevell@joe-job.com>, alan@lxorguk.ukuu.org.uk,
-       alsa-devel@alsa-project.org, ak@suse.de, perex@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-Message-ID: <20060710135702.GZ13938@stusta.de>
-References: <20060707231716.GE26941@stusta.de> <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe> <20060710132810.551a4a8d.atlka@pg.gda.pl>
+	Mon, 10 Jul 2006 09:59:32 -0400
+Received: from lucidpixels.com ([66.45.37.187]:10127 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1030318AbWGJN7b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:59:31 -0400
+Date: Mon, 10 Jul 2006 09:59:30 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Follow up? LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
+In-Reply-To: <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
+Message-ID: <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
+ <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
+ <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
+ <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
+ <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
+ <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060710132810.551a4a8d.atlka@pg.gda.pl>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 01:28:10PM +0200, Adam Tlałka wrote:
-> On Sun, 09 Jul 2006 11:18:19 -0400
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > On Sat, 2006-07-08 at 01:50 +0200, Andi Kleen wrote:
-> > > Adrian Bunk <bunk@stusta.de> writes:
-> > > > 
-> > > > Q: What about the OSS emulation in ALSA?
-> > > > A: The OSS emulation in ALSA is not affected by my patches
-> > > >    (and it's not in any way scheduled for removal).
-> > > 
-> > > I again object to removing the old ICH sound driver.
-> > > It does the same as the Alsa driver in much less code and is ideal
-> > > for generic monolithic kernels
-> > 
-> > It doesn't do the same thing - software mixing is impossible with OSS.
-> 
-> Only GPL'ed version has this limitation - its just not implemented because all this
-> GPL'ed OSS is abandoned.
-> The commercial version from www.opensound.com does input/output mixing
-> in software in kernel space.
->...
+Any follow up now that we have the failed ata-translated op codes?
 
-When we are talking about OSS, we are talking about what is under 
-sound/oss/ in the kernel sources.
+On Sun, 9 Jul 2006, Justin Piszcz wrote:
 
-The commercial OSS might be much better, but it's not relevant since 
-it's not GPL'ed and therefore not a candidate for inclusion into the 
-kernel.
-
-As you said yourself, the "GPL'ed OSS is abandoned".
-And ALSA is it's successor in the kernel.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4294810.556000] ata4: error=0x04 { DriveStatusError }
+> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
+> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
+> [4295514.668000] ata3: error=0x04 { DriveStatusError }
+> [4297033.649000] ata_gen_fixed_sense: failed ata_op=0xca
+> [4297033.649000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [4297033.649000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4297033.649000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4297033.649000] ata4: error=0x04 { DriveStatusError }
+> [4297741.057000] ata_gen_fixed_sense: failed ata_op=0x35
+> [4297741.057000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+> 0xb/00/00
+> [4297741.057000] ata_gen_ata_desc_sense: failed ata_op=0x51
+> [4297741.057000] ata4: status=0x51 { DriveReady SeekComplete Error }
+> [4297741.057000] ata4: error=0x04 { DriveStatusError }
+>
+> Also got a 0xca.
+>
+>
+> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>
+>> 
+>> 
+>> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>> 
+>>> 
+>>> 
+>>> On Sun, 9 Jul 2006, Justin Piszcz wrote:
+>>> 
+>>>> I made my own patch (following Mark's example) but also added that printk 
+>>>> in that function.
+>>>> 
+>>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
+>>>> ata_op=0x35
+>>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA 
+>>>> stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: 
+>>>> failed ata_op=0x51
+>>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { 
+>>>> DriveReady SeekComplete Error }
+>>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
+>>>> DriveStatusError }
+>>>> 
+>>>> Now that we have found the ata_op code of 0x35, what does this mean?  Is 
+>>>> it generated from a bad FUA/unsupported command from the kernel/SATA 
+>>>> driver?
+>>>> 
+>>>> Justin.
+>>>> 
+>>>> -
+>>>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+>>>> in
+>>>> the body of a message to majordomo@vger.kernel.org
+>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>>> 
+>>> 
+>>> In /usr/src/linux/include/linux/ata.h:
+>>>
+>>>  ATA_CMD_WRITE_EXT = 0x35,
+>>> 
+>>> Perhaps these drives do not support this command or do not support it 
+>>> properly?
+>>> 
+>>> Any idea, Jeff/Alan?
+>>> 
+>>> Justin.
+>>> 
+>>> 
+>> 
+>> Here are all the errors (when reading/writing heavily):
+>> 
+>> [4294810.556000] ata_gen_fixed_sense: failed ata_op=0x35
+>> [4294810.556000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+>> 0xb/00/00
+>> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
+>> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
+>> [4294810.556000] ata4: error=0x04 { DriveStatusError }
+>> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
+>> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+>> 0xb/00/00
+>> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
+>> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
+>> [4295514.668000] ata3: error=0x04 { DriveStatusError }
+>> 
+>> Jeff/Mark, from these errors can we reach a consensus as to the cause of 
+>> these errors and how to eliminate the problem?
+>> 
+>> Thanks,
+>> 
+>> Justin.
+>> 
+>

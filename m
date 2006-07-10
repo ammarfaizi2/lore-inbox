@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWGJMdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWGJMlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWGJMdV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 08:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWGJMdV
+	id S1030349AbWGJMlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 08:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWGJMlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 08:33:21 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:19307 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964983AbWGJMdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 08:33:20 -0400
+	Mon, 10 Jul 2006 08:41:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:47671 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965005AbWGJMlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 08:41:51 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
-        b=dLho6Dxp5m79xPtxujBTIBtF2bUe8Jl0XNbeo+xMDKHKB+vJ70TTZk9dtGzrxTGfvOdNHOvCG8Iw+2S17IU7Aqy97hPfwGp+DOKgFMfokwPPUSZesOcLHpr2q8WhuQddNGHc1FKKsHb0UFPkqnl7rZ6Gtufvq9jtN7BACCSa0t8=
-Message-ID: <44B248E4.2020506@pol.net>
-Date: Mon, 10 Jul 2006 20:32:36 +0800
-From: "Antonino A. Daplas" <adaplas@pol.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A96Y1NbZdok6F0i6bVpbD2lYB3i7oialIv+Ktmm2GT5xo/ygbd8qrLPgjg/1kZKsi5k1UqsjDTkCz1v+bCZqHZDSKYvK+Z4IbRqZGHmuFfbU+/5dfL3Z+Mbt9tGOL6Be+PGF6Fefvbr0VjwFEhPaiILky2De+Ac4vlk0rA5Htyg=
+Message-ID: <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>
+Date: Mon, 10 Jul 2006 08:41:50 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+Cc: lkml <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <1152524657.27368.108.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net> <m3ejwt65of.fsf@defiant.localdomain>
-In-Reply-To: <m3ejwt65of.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
+	 <1152524657.27368.108.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> "Antonino A. Daplas" <adaplas@pol.net> writes:
-> 
->>> Feel free to add another patch, while I don't see a need I have nothing
->>> against :-)
->> No, you fix the patch.
-> 
-> Look, I don't feel my patch needs such "fix". So if you think it does,
-> you have to do it.
+On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Ar Llu, 2006-07-10 am 00:11 -0400, ysgrifennodd Jon Smirl:
+> > Fix various places in the tty code to make it match the current naming system.
+> >         pty_slave_driver->driver_name = "pty_slave";
+>
+>
+> NAK to just about all of this. Its gratuitous breaking of existing apps,
+> it achieves nothing and some of it like the pty stuff is just plain
+> incorrect anyway.
 
-Eventually, I'm the one who's going to maintain the code, most
-of the drivers in the video directory are practically abandoned. 
-Additionally, this is mentioned in Documentation/CodingStyle.
+The whole naming scheme encoded into the tty code is incompatible with
+udev. Udev allows renames and this code isn't aware of them.
 
-2) #ifdefs are ugly
+I thought the idea behind udev was to remove all of this naming code
+from the kernel and handle it in user space. So if I want legacy
+device names I would add a section to /etc/udev to create them. Udev
+is already capable of doing this.
 
-Code cluttered with ifdefs is difficult to read and maintain.  Don't do
-it.  Instead, put your ifdefs in a header, and conditionally define
-'static inline' functions, or macros, which are used in the code.
-Let the compiler optimize away the "no-op" case.
+> If you want to add sysfs interfaces to the tty code great, but please
+> leave the existing, relied up, functional and effectively user space ABI
+> tty files alone.
 
-Simple example, of poor code:
+So far I haven't identified anything that is really needed that isn't
+already available in sysfs.
 
-	dev = alloc_etherdev (sizeof(struct funky_private));
-	if (!dev)
-		return -ENODEV;
-	#ifdef CONFIG_NET_FUNKINESS
-	init_funky_net(dev);
-	#endif
+It does seem that we are missing a user space library call for
+converting a device number into a device name using the udev database.
 
-> 
->> And while your at it, check your Kconfig
->> dependencies, ie check for impossible combinations such as CONFIG_I2C=m,
->> CONFIG_FB_CIRRUS=y.
-> 
-> You're right here, I don't know why I assumed DEPENDS does it
-> automatically.
+On 7/9/06, Albert Cahalan <acahalan@gmail.com> wrote:
+> BSD just uses devname(3) in libc, which asks the kernel via
+> the kern.devname sysctl. So, /proc/sys/kern/devname for us.
+> This is essentially what /proc/tty/drivers is today, except
+> that FreeBSD standardized on a fully functional devfs.
+>
+> Solaris uses _ttyname_dev(dev_t,buf,bufsize), also in libc.
+> This is horribly slow, involving a recursive search of
+> directories listed in the /etc/ttysrch file. The interface
+> is nice though. You get: ttyname, ttyname_r, _ttyname_dev.
 
-Use select.
 
-Tony
+-- 
+Jon Smirl
+jonsmirl@gmail.com

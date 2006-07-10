@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWGJKmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWGJKph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWGJKmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGJKmz
+	id S1751230AbWGJKph (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWGJKph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:42:55 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:10170 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932366AbWGJKmy (ORCPT
+	Mon, 10 Jul 2006 06:45:37 -0400
+Received: from mail.gmx.de ([213.165.64.21]:8683 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751230AbWGJKpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:42:54 -0400
-Date: Mon, 10 Jul 2006 12:37:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.18-rc1-mm1
-Message-ID: <20060710103724.GA10602@elte.hu>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <6bffcb0e0607090332i477d594fq9ef96721574ae91b@mail.gmail.com> <20060709035203.cdc3926f.akpm@osdl.org> <20060710074039.GA26853@elte.hu> <6bffcb0e0607100222m5cbdba31ia39d47f3f1f94b26@mail.gmail.com> <20060710092528.GA8455@elte.hu> <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com> <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
+	Mon, 10 Jul 2006 06:45:36 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.18-rc1: slab BUG_ON(!PageSlab(page)) upon umount after
+	failed suspend
+From: Mike Galbraith <efault@gmx.de>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <84144f020607100333s57159d38ha1101c65e8c099b1@mail.gmail.com>
+References: <6wDCq-5xj-25@gated-at.bofh.it> <6wM2X-1lt-7@gated-at.bofh.it>
+	 <6wOxP-4QN-5@gated-at.bofh.it> <44B189D3.4090303@imap.cc>
+	 <20060709161712.c6d2aecb.akpm@osdl.org>
+	 <1152513068.7748.13.camel@Homer.TheSimpsons.net>
+	 <84144f020607100142l62f02321i9802f9eed64d39f4@mail.gmail.com>
+	 <1152527148.8700.8.camel@Homer.TheSimpsons.net>
+	 <84144f020607100333s57159d38ha1101c65e8c099b1@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 10 Jul 2006 12:51:26 +0200
+Message-Id: <1152528686.9122.5.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5018]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-07-10 at 13:33 +0300, Pekka Enberg wrote:
+> On 7/10/06, Mike Galbraith <efault@gmx.de> wrote:
+> > Hm.  I've never _noticed_ gcc putting anything out there before.  This
+> > is gcc version 4.1.2 20060531 (prerelease) (SUSE Linux).
+> 
+> [snip]
+> 
+> Curious... GCC cuts line and file information after ud2a. Looking at
+> your stack trace, I am wondering who calls free_block() as we don't
+> see cache_flusharray() in the trace. Do you have CONFIG_NUMA enabled?
 
-* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+(gdb) list *__cache_free+0x86
+0xb1068e39 is in __cache_free (slab.c:3152).
+3147                            shared_array->avail += batchcount;
+3148                            goto free_done;
+3149                    }
+3150            }
+3151
+3152            free_block(cachep, ac->entry, batchcount, node);
+3153    free_done:
+3154    #if STATS
+3155            {
+3156                    int i = 0;
+(gdb)
 
-> On 10/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
-> >> ah, ok. So i'll put this under the 'unclean-build artifact' section,
-> >> i.e. not a lockdep bug for now, it seems. Please re-report if it ever
-> >> occurs again with a clean kernel build.
-> >
-> >Unfortunately "make O=/dir clean" doesn't help. I'll disable lockdep,
-> >and see what happens.
-> >
->
-> When I set DEBUG_LOCK_ALLOC=n and CONFIG_PROVE_LOCKING=n everything is 
-> ok. It maybe a gcc 4.2 bug.
+It got inlined.
 
-well ... if you disable lockdep then you wont get lockdep messages - 
-that's normal. Or did i miss what the bug is about?
+	-Mike
 
-	Ingo

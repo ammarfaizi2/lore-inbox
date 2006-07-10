@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWGJKhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWGJKmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWGJKhl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGJKhl
+	id S932366AbWGJKmz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGJKmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:37:41 -0400
-Received: from javad.com ([216.122.176.236]:62989 "EHLO javad.com")
-	by vger.kernel.org with ESMTP id S1751277AbWGJKhk (ORCPT
+	Mon, 10 Jul 2006 06:42:55 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:10170 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932366AbWGJKmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:37:40 -0400
-From: Sergei Organov <osv@javad.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
- transfers
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<20060630001021.2b49d4bd.akpm@osdl.org> <87veq9cosq.fsf@javad.com>
-	<1152302831.20883.63.camel@localhost.localdomain>
-Date: Mon, 10 Jul 2006 14:36:55 +0400
-In-Reply-To: <1152302831.20883.63.camel@localhost.localdomain> (Alan Cox's
-	message of "Fri, 07 Jul 2006 21:07:11 +0100")
-Message-ID: <87d5cdg308.fsf@javad.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Mon, 10 Jul 2006 06:42:54 -0400
+Date: Mon, 10 Jul 2006 12:37:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rc1-mm1
+Message-ID: <20060710103724.GA10602@elte.hu>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <6bffcb0e0607090332i477d594fq9ef96721574ae91b@mail.gmail.com> <20060709035203.cdc3926f.akpm@osdl.org> <20060710074039.GA26853@elte.hu> <6bffcb0e0607100222m5cbdba31ia39d47f3f1f94b26@mail.gmail.com> <20060710092528.GA8455@elte.hu> <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com> <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5018]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> Ar Gwe, 2006-07-07 am 21:23 +0400, ysgrifennodd Sergei Organov:
->> It seems that there is much worse problem here. The amount of data that
->> has been inserted by the tty_insert_flip_string() could be up to
->> URB_TRANSFER_BUFFER_SIZE (=4096 bytes) and may easily exceed
->> TTY_THRESHOLD_THROTTLE (=128 bytes) defined in the
->> char/n_tty.c. 
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+
+> On 10/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> >On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >> ah, ok. So i'll put this under the 'unclean-build artifact' section,
+> >> i.e. not a lockdep bug for now, it seems. Please re-report if it ever
+> >> occurs again with a clean kernel build.
+> >
+> >Unfortunately "make O=/dir clean" doesn't help. I'll disable lockdep,
+> >and see what happens.
+> >
 >
-> You may throttle late but that is always true as there is an implicit
-> race between the hardware signals and the chip FIFO on all UART
-> devices.
+> When I set DEBUG_LOCK_ALLOC=n and CONFIG_PROVE_LOCKING=n everything is 
+> ok. It maybe a gcc 4.2 bug.
 
-I don't talk about races here. What I see is simple logical software
-problem arose due to poor interface between ldisc and tty. One can't
-easily reproduce it with UART drivers unless UART FIFO is larger than
-128 bytes, and even if such an UART exists, I think the RS232 is too
-slow anyway so that in practice tty never tries to flip more than 128
-bytes when ldisc buffer is almost full. I.e., it's hardware
-characteristics of UARTs/RS232 that prevent the problem from being
-triggered.
+well ... if you disable lockdep then you wont get lockdep messages - 
+that's normal. Or did i miss what the bug is about?
 
-However, the problem is easily seen for USB-to-tty drivers where there
-are no UARTS anywhere and speeds are rather high so that more than 4096
-bytes (the line discipline buffer size) could be received before a task
-has a chance to read from the line discipline buffer, and single flip
-size is not limited by the hardware.
-
-> The buffering should be taking care of it, and the tty layer taking care
-> not to over stuff the ldisc 
-
-Well, it should, but it doesn't seem to, -- that's the problem :(
-Moreover, looking into the source code I don't see how tty can take care
-not to over-stuff the ldisc. ldisc`s receive_buf() routine doesn't tell
-the caller how many chars it actually consumed and silently throws away
-whatever doesn't fit into its buffer. After it threw away unknown (to
-the caller) amount of bytes, it calls throttle(), but first it's too
-late and second tty flip code doesn't handle throttle() itself
-anyway. So once again how this "tty layer taking care not to over stuff
-the ldisc" is supposed to work?
-
-Overall, the definition of the problem is: one can't reliably flip more
-than 128 bytes at once without danger of missing of bytes. [This in turn
-implies that with tty->low_latency set to 0 one can't reliably flip any
-bytes at all(!) as N flips of M bytes each may be effectively converted
-into delayed flip of M*N bytes.]
-
-> which I thought Paul had fixed while doing the locking wizardry
-
-I don't think locking has anything to do about it, but if it's indeed
-fixed, where can I take the patch(es) as it doesn't seem to be fixed in
-2.17.4?
-
--- 
-Sergei.
+	Ingo

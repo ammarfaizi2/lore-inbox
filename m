@@ -1,95 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWGJL0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWGJL0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWGJL0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWGJL0Z
+	id S1751334AbWGJL0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWGJL0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:26:25 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:23516 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S1751353AbWGJL0Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:26:24 -0400
-Date: Mon, 10 Jul 2006 13:28:10 +0200
-From: Adam =?ISO-8859-2?B?VGxhs2th?= <atlka@pg.gda.pl>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-Message-Id: <20060710132810.551a4a8d.atlka@pg.gda.pl>
-In-Reply-To: <1152458300.28129.45.camel@mindpipe>
-References: <20060707231716.GE26941@stusta.de>
-	<p737j2potzr.fsf@verdi.suse.de>
-	<1152458300.28129.45.camel@mindpipe>
-Organization: Gdansk University of Technology
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Mon, 10 Jul 2006 07:26:10 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:63996 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751334AbWGJL0J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:26:09 -0400
+Date: Mon, 10 Jul 2006 13:25:25 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, drepper@redhat.com
+Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
+Message-ID: <20060710132525.4d0042ed@cad-250-152.norway.atmel.com>
+In-Reply-To: <1152525453.3373.9.camel@pmac.infradead.org>
+References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
+	<20060706021906.1af7ffa3.akpm@osdl.org>
+	<20060706120319.26b35798@cad-250-152.norway.atmel.com>
+	<20060706031416.33415696.akpm@osdl.org>
+	<20060710110325.3b9a8270@cad-250-152.norway.atmel.com>
+	<1152525453.3373.9.camel@pmac.infradead.org>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 09 Jul 2006 11:18:19 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+On Mon, 10 Jul 2006 10:57:33 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-> On Sat, 2006-07-08 at 01:50 +0200, Andi Kleen wrote:
-> > Adrian Bunk <bunk@stusta.de> writes:
-> > > 
-> > > Q: What about the OSS emulation in ALSA?
-> > > A: The OSS emulation in ALSA is not affected by my patches
-> > >    (and it's not in any way scheduled for removal).
-> > 
-> > I again object to removing the old ICH sound driver.
-> > It does the same as the Alsa driver in much less code and is ideal
-> > for generic monolithic kernels
+> On Mon, 2006-07-10 at 11:03 +0200, Haavard Skinnemoen wrote:
+> +	.global	__sys_pselect6
+> +	.type	__sys_pselect6,@function
+> +__sys_pselect6:
+> +	pushm	lr
+> +	st.w	--sp, ARG6
+> +	rcall	sys_pselect6
+> +	sub	sp, -4
+> +	popm	pc
 > 
-> It doesn't do the same thing - software mixing is impossible with OSS.
+> 
+> sys_pselect6() is just a hackish workaround for the fact that most
+> architectures don't allow seven-argument syscalls. Having your own
+> workaround in assembly, which then calls sys_pselect6(), seems a
+> little odd -- why not call sys_pselect7() directly instead from your
+> assembly wrapper?
 
-Only GPL'ed version has this limitation - its just not implemented because all this
-GPL'ed OSS is abandoned.
-The commercial version from www.opensound.com does input/output mixing
-in software in kernel space.
-It is free for home/personal use and only one thing you must do is to update
-it regularly - once every 4 months. It works out of the box with 2.6.xx kernels and you don't
-need additional sound daemons or hidden library threads (ALSA approach).
-It has included scripts for module compilation in case of kernel change
-and you can also have automatic updates and mixer settings restore without need
-for instaling additional software packages.
-It has also text and graphical configuration tools and mixers.
-So users have still a choise and they will chose a product which best fits they needs.
+Good point. The reason I did it this way is because I haven't written a
+_syscall7() stub for uClibc yet, but I guess I should probably get that
+done. I did a quick grep through include/asm-* and didn't find any
+other architectures defining __NR_pselect7...
 
->From my point of view ALSA has many advantages if you want to dig in the card driver
-buffers/period etc. settings but lacks ease of use and some of simple in theory
-functionality is a pain - device enumeration or switching output mode/device
-without restarting apps or rewritting them so they have special function for that purpose.
+> Stop a moment and work out precisely what the best way to pass the
+> arguments _is_ if you have only 5 registers and the stack, perhaps.
 
-esd, arts, jackd, polypd and other prove that ALSA is not enough
-and its functionality is far from perfect.
+The regular AVR32 call convention uses r12-r8 to pass up to 5 arguments
+in registers, while any additional arguments are pushed on the stack.
 
-We have more and more audio devices - USB and Bluetooth ones - and
-we need switch ouput from one to other device without changes in apps.
+For syscalls, I've modified this to pass the syscall number in r8 and
+no arguments on the stack. arg5 is passed in r5 and moved to r8 by the
+low-level syscall handler, while arg6 is passed through r3 and pushed
+on the stack only if necessary.
 
-So better is to have some virtual sound device, then some mixing/effects/plugins
-modules and then true sound device or network stream. Normal app just doesn't
-need to now mutch about sound device. It just sets basic audio parameters
-and plays. Is ALSA going in that direction?
+So the best way to implement pselect7 is probably to pass the seventh
+argument through r2 -- or maybe r4.
 
-ALSA api is too complicated - too many possibilities to obtain the same effect -
-and additionaly there is no good docs how to use this api properly.
-Some methods don't work in some situactions - callback method for example uses signals
-and in case of apps which turns some signals off there will be no sound at all.
+> Â¹ Note that I'm just _asking_ -- the answer "Uli doesn't want to
+> support anything but the basic 6-argument sys_pselect6() in glibc" is
+> an acceptable answer on your part.
 
-Developers of ALSA say that they have no time to write docs. True - but including in kernel
-some functionality for which users have no good docs is not good for anybody.
-We have many programs which use ALSA and don't work properly.
-Forcing users to use ALSA is some kind of misunderstanding in this situaction.
+Well, we haven't actually ported glibc yet. But if 7-argument syscalls
+is going to cause problems later, we should probably not do it...
 
-We have also almost no docs about ALSA drvier <-> ALSA lib interface which is a strange
-in case of GPL'ed software if we want to implement a new hw driver.
-
-So is ALSA really what the users need? The future is unknown.
- 
-Regards
--- 
-Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+HÃ¥vard

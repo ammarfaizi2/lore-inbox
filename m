@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWGJXEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWGJXSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422778AbWGJXEL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422925AbWGJXEK
+	id S965040AbWGJXSS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWGJXSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:04:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:27523 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422778AbWGJXEJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:04:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AJyRIdwWYH62eQT0e+I8yJp/wDnNniwcYn7+3EkJLGNfEDcpuUM/MDS6VWA7Me8SnNKhZekOsCVD3y12ZHaexMWy0Nblzbo9UuwiRA9gNmrH+O6mxKSeS2+sEI8MK5aYJHse4RwFHkpwYP75zYVL5yDhIBPjFIcrKbmcm1+pRIk=
-Message-ID: <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-Date: Mon, 10 Jul 2006 19:04:08 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152573312.27368.212.camel@localhost.localdomain>
+	Mon, 10 Jul 2006 19:18:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56455 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965040AbWGJXSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:18:17 -0400
+Date: Tue, 11 Jul 2006 01:17:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: john stultz <johnstul@us.ibm.com>, Mikael Pettersson <mikpe@it.uu.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+Message-ID: <20060710231744.GC444@elf.ucw.cz>
+References: <200607092352.k69NqZuJ029196@harpo.it.uu.se> <1152554328.5320.6.camel@localhost.localdomain> <20060710180839.GA16503@elf.ucw.cz> <Pine.LNX.4.64.0607110035300.17704@scrub.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152552806.27368.187.camel@localhost.localdomain>
-	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
-	 <1152554708.27368.202.camel@localhost.localdomain>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0607110035300.17704@scrub.home>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-07-10 am 18:35 -0400, ysgrifennodd Jon Smirl:
-> > Assuming do_SAK has blocked anyone's ability to newly open the tty,
-> > why does it need to search every file handle in the system instead of
-> > just using tty->tty_files? tty->tty_files should contain a list of
-> > everyone who has the tty open. Is this global search needed because of
-> > duplicated handles?
->
-> I don't actually know. Thats an area I've not dug too deeply into at
-> all.
+On Tue 2006-07-11 00:37:06, Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 10 Jul 2006, Pavel Machek wrote:
+> 
+> > APM can only keep interrupts disabled on non-IBM machines, presumably
+> > due to BIOS problems.
+> 
+> Is it possible to disable the timer interrupt before suspend and just 
+> reinit the timer afterwards?
 
-I wonder what the impact of banging on the SAK key on a box with 100K
-processes is like. You may be able to stall the whole system.
+I know little about APM...
 
+We know that cli breaks those thinkpads.
+
+Maybe disabling timer on PIC would do the trick? Not sure...
+									Pavel
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWGJVUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbWGJVX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965235AbWGJVUG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 17:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWGJVUF
+	id S965208AbWGJVX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 17:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWGJVX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 17:20:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11019 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965235AbWGJVUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 17:20:04 -0400
-Date: Mon, 10 Jul 2006 23:20:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Adam Henley <adamazing@gmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.18-rc1 1/1] arch/x86-64: A few trivial spelling and grammar fixes
-Message-ID: <20060710212002.GH13938@stusta.de>
-References: <c526a04b0607081027j62887e9bi5a3b93fa4606e003@mail.gmail.com> <200607100152.32389.ak@suse.de>
+	Mon, 10 Jul 2006 17:23:58 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:21915 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S965208AbWGJVX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 17:23:57 -0400
+Message-ID: <44B2C493.4060007@oracle.com>
+Date: Mon, 10 Jul 2006 14:20:19 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+CC: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Ingo Molnar <mingo@elte.hu>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Roland Dreier <rolandd@cisco.com>
+Subject: Re: [PATCHv2] IB/mthca: comment fix
+References: <20060710111412.GD24705@mellanox.co.il> <20060710151824.GL24705@mellanox.co.il> <20060710211542.GA30898@mellanox.co.il>
+In-Reply-To: <20060710211542.GA30898@mellanox.co.il>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607100152.32389.ak@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 01:52:32AM +0200, Andi Kleen wrote:
-> On Saturday 08 July 2006 19:27, Adam Henley wrote:
-> > A few trivial spelling and grammar mistakes picked up in
-> > "arch/x86_64/aperture.c", "arch/x86_64/crash.c" and
-> > "arch/x86_64/apic.c". I think all are correct fixes but am ever aware
-> > of my fallibility :o) This is my first patch submission so all
-> > feedback is appreciated, esp.
-> 
-> Applied thanks.
-> 
-> > WRT CCing to Linus, Andi and 
-> > trivial@kernel.org, is this correct? 
-> 
-> Me would have been enough in this case when there is an active maintainer.
->...
+Michael S. Tsirkin wrote:
+> OK, this is fine with both Arjan van de Ven and Roland Dreier, so -
+> Andrew, could you take this into -mm please?
 
-A Cc to trivial@kernel.org is never wrong for such patches - if a 
-maintainer picks it up I'm simply deleting the patch.
+> Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Acked-by: Zach Brown <zach.brown@oracle.com>
 

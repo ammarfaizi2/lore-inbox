@@ -1,159 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWGJSOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWGJSSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965199AbWGJSOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422742AbWGJSOI
+	id S1422734AbWGJSSr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWGJSSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:14:08 -0400
-Received: from mga03.intel.com ([143.182.124.21]:58765 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965204AbWGJSOG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:14:06 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="63776568:sNHT95626188329"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [patch] fix boot with acpi=off
-Date: Mon, 10 Jul 2006 22:08:19 +0400
-Message-ID: <8E389A5F2FEABA4CB1DEC35A25CB39CE0C4F5C@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] fix boot with acpi=off
-thread-index: AcaijClwEml2Pv6+RaSjLrkONPlWKABWknCwABdr42A=
-From: "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>
-To: "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 10 Jul 2006 18:08:29.0614 (UTC) FILETIME=[D8F5FCE0:01C6A44B]
+	Mon, 10 Jul 2006 14:18:46 -0400
+Received: from mxl145v66.mxlogic.net ([208.65.145.66]:4044 "EHLO
+	p02c11o143.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1422734AbWGJSSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:18:45 -0400
+Date: Mon, 10 Jul 2006 21:15:47 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rolandd@cisco.com>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [PATCH] IB/addr: gid structure alignment fix
+Message-ID: <20060710181547.GD29641@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Jul 2006 18:20:24.0515 (UTC) FILETIME=[83133930:01C6A44D]
+X-Spam: [F=0.1365585120; S=0.136(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> acpi=off used to be handled by acpi_bus_register_driver()
-> for these drivers.
+Hello, Andrew!
+Could you please drop the following in -mm and on to Linus?
 
-> But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
-> for procfs are inserted before that in the _init functions.
-This is fragment from SBS patch. 
------------------------------------------
- 	ACPI_FUNCTION_TRACE("acpi_ac_init");
+---
+
+The device address contains unsigned character arrays, which contain raw GID
+addresses.  The GIDs may not be naturally aligned, so do not cast them to
+structures or unions.
+
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+
+
+Index: gitcma/include/rdma/ib_addr.h
+===================================================================
+--- gitcma.orig/include/rdma/ib_addr.h	2006-07-09 23:41:27.000000000 +0300
++++ gitcma/include/rdma/ib_addr.h	2006-07-09 23:51:23.000000000 +0300
+@@ -89,9 +89,10 @@ static inline void ib_addr_set_pkey(stru
+ 	dev_addr->broadcast[9] = (unsigned char) pkey;
+ }
  
--	acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
-+	acpi_ac_dir = acpi_lock_ac_dir();
- 	if (!acpi_ac_dir)
- 		return_VALUE(-ENODEV);
--	acpi_ac_dir->owner = THIS_MODULE;
+-static inline union ib_gid *ib_addr_get_sgid(struct rdma_dev_addr *dev_addr)
++static inline void ib_addr_get_sgid(struct rdma_dev_addr *dev_addr,
++				    union ib_gid *gid)
+ {
+-	return 	(union ib_gid *) (dev_addr->src_dev_addr + 4);
++	memcpy(gid, dev_addr->src_dev_addr + 4, sizeof *gid);
+ }
  
- 	result = acpi_bus_register_driver(&acpi_ac_driver);
- 	if (result < 0) {
--		remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
-+		acpi_unlock_ac_dir(acpi_ac_dir);
- 		return_VALUE(-ENODEV);
+ static inline void ib_addr_set_sgid(struct rdma_dev_addr *dev_addr,
+@@ -100,9 +101,10 @@ static inline void ib_addr_set_sgid(stru
+ 	memcpy(dev_addr->src_dev_addr + 4, gid, sizeof *gid);
+ }
+ 
+-static inline union ib_gid *ib_addr_get_dgid(struct rdma_dev_addr *dev_addr)
++static inline void ib_addr_get_dgid(struct rdma_dev_addr *dev_addr,
++				    union ib_gid *gid)
+ {
+-	return 	(union ib_gid *) (dev_addr->dst_dev_addr + 4);
++	memcpy(gid, dev_addr->dst_dev_addr + 4, sizeof *gid);
+ }
+ 
+ static inline void ib_addr_set_dgid(struct rdma_dev_addr *dev_addr,
+Index: gitcma/drivers/infiniband/core/cma.c
+===================================================================
+--- gitcma.orig/drivers/infiniband/core/cma.c	2006-07-09 23:41:26.000000000 +0300
++++ gitcma/drivers/infiniband/core/cma.c	2006-07-09 23:51:23.000000000 +0300
+@@ -262,14 +262,14 @@ static void cma_detach_from_dev(struct r
+ static int cma_acquire_ib_dev(struct rdma_id_private *id_priv)
+ {
+ 	struct cma_device *cma_dev;
+-	union ib_gid *gid;
++	union ib_gid gid;
+ 	int ret = -ENODEV;
+ 
+-	gid = ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr);
++	ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr, &gid),
+ 
+ 	mutex_lock(&lock);
+ 	list_for_each_entry(cma_dev, &dev_list, list) {
+-		ret = ib_find_cached_gid(cma_dev->device, gid,
++		ret = ib_find_cached_gid(cma_dev->device, &gid,
+ 					 &id_priv->id.port_num, NULL);
+ 		if (!ret) {
+ 			cma_attach_to_dev(id_priv, cma_dev);
+@@ -1134,8 +1134,8 @@ static int cma_query_ib_route(struct rdm
+ 	struct ib_sa_path_rec path_rec;
+ 
+ 	memset(&path_rec, 0, sizeof path_rec);
+-	path_rec.sgid = *ib_addr_get_sgid(addr);
+-	path_rec.dgid = *ib_addr_get_dgid(addr);
++	ib_addr_get_sgid(addr, &path_rec.sgid);
++	ib_addr_get_dgid(addr, &path_rec.dgid);
+ 	path_rec.pkey = cpu_to_be16(ib_addr_get_pkey(addr));
+ 	path_rec.numb_path = 1;
+ 
+@@ -1263,7 +1263,7 @@ static int cma_bind_loopback(struct rdma
+ {
+ 	struct cma_device *cma_dev;
+ 	struct ib_port_attr port_attr;
+-	union ib_gid *gid;
++	union ib_gid gid;
+ 	u16 pkey;
+ 	int ret;
+ 	u8 p;
+@@ -1284,8 +1284,7 @@ static int cma_bind_loopback(struct rdma
  	}
-------------------------------------------
-Order of proc_mkdir and acpi_bus_register_driver is the same as order of
-acpi_lock_ac_dir. Could you explain what you meant?
+ 
+ port_found:
+-	gid = ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr);
+-	ret = ib_get_cached_gid(cma_dev->device, p, 0, gid);
++	ret = ib_get_cached_gid(cma_dev->device, p, 0, &gid);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1293,6 +1292,7 @@ port_found:
+ 	if (ret)
+ 		goto out;
+ 
++	ib_addr_set_sgid(&id_priv->id.route.addr.dev_addr, &gid);
+ 	ib_addr_set_pkey(&id_priv->id.route.addr.dev_addr, pkey);
+ 	id_priv->id.port_num = p;
+ 	cma_attach_to_dev(id_priv, cma_dev);
+@@ -1339,6 +1339,7 @@ static int cma_resolve_loopback(struct r
+ {
+ 	struct cma_work *work;
+ 	struct sockaddr_in *src_in, *dst_in;
++	union ib_gid gid;
+ 	int ret;
+ 
+ 	work = kzalloc(sizeof *work, GFP_KERNEL);
+@@ -1351,8 +1352,8 @@ static int cma_resolve_loopback(struct r
+ 			goto err;
+ 	}
+ 
+-	ib_addr_set_dgid(&id_priv->id.route.addr.dev_addr,
+-			 ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr));
++	ib_addr_get_sgid(&id_priv->id.route.addr.dev_addr, &gid);
++	ib_addr_set_dgid(&id_priv->id.route.addr.dev_addr, &gid);
+ 
+ 	if (cma_zero_addr(&id_priv->id.route.addr.src_addr)) {
+ 		src_in = (struct sockaddr_in *)&id_priv->id.route.addr.src_addr;
 
->Vladimir,
->Any reason that the procfs stuff can't be after the
->acpi_bus_register_driver()
->calls?
+-- 
+MST
 
-If we move it after acpi_bus_register_driver(), calls to create files
-inside battery/ac directories (called from acpi_bus_register_driver via
-acpi_{battery,ac}_add()) will fail. 
+_______________________________________________
+openib-general mailing list
+openib-general@openib.org
+http://openib.org/mailman/listinfo/openib-general
 
+To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
 
->Under what conditions could these lock functions fail?
-If there is no /proc/acpi directory in which to create ac/battery
-directories.
+----- End forwarded message -----
 
-
-
-
-
------Original Message-----
-From: Brown, Len 
-Sent: Monday, July 10, 2006 10:16 AM
-To: Pavel Machek; kernel list; Andrew Morton; Lebedev, Vladimir P
-Cc: linux-acpi@vger.kernel.org
-Subject: RE: [patch] fix boot with acpi=off
-
-[adding linux-acpi@vger.kernel.org to cc]
-
-acpi=off used to be handled by acpi_bus_register_driver()
-for these drivers.
-
-But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
-for procfs are inserted before that in the _init functions.
-
-This will be a problem for sbs.c also.
-
-Vladimir,
-Any reason that the procfs stuff can't be after the
-acpi_bus_register_driver()
-calls?  Under what conditions could these lock functions fail?
-
--Len
-
-
->-----Original Message-----
->From: Pavel Machek [mailto:pavel@ucw.cz] 
->Sent: Saturday, July 08, 2006 8:44 AM
->To: kernel list; Andrew Morton; Brown, Len
->Subject: [patch] fix boot with acpi=off
->
->With acpi=off and acpi_ac/battery compiled into kernel, acpi breaks
->boot. This fixes it.
->
->Signed-off-by: Pavel Machek <pavel@suse.cz>
->
->---
->commit 30b8ecda788b096fbd7088808f9af65c41c3a83d
->tree 3c28088018932f9ceb18bcf980507474d4a50c4e
->parent 05f70501240c6ad5f852f13c187ee55579ad7bb8
->author <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
->committer <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
->
-> drivers/acpi/ac.c      |    2 ++
-> drivers/acpi/battery.c |    3 +++
-> 2 files changed, 5 insertions(+), 0 deletions(-)
->
->diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
->index 24ccf81..432b6b7 100644
->--- a/drivers/acpi/ac.c
->+++ b/drivers/acpi/ac.c
->@@ -285,6 +285,8 @@ static int __init acpi_ac_init(void)
-> {
-> 	int result;
-> 
->+	if (acpi_disabled)
->+		return -ENODEV;
-> 
-> 	acpi_ac_dir = acpi_lock_ac_dir();
-> 	if (!acpi_ac_dir)
->diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
->index 2ce9b35..5af1f64 100644
->--- a/drivers/acpi/battery.c
->+++ b/drivers/acpi/battery.c
->@@ -764,6 +764,9 @@ static int __init acpi_battery_init(void
-> {
-> 	int result;
-> 
->+	if (acpi_disabled)
->+		return -ENODEV;
->+
-> 	acpi_battery_dir = acpi_lock_battery_dir();
-> 	if (!acpi_battery_dir)
-> 		return -ENODEV;
->
->-- 
->(english) http://www.livejournal.com/~pavelmachek
->(cesky, pictures) 
->http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
->
+-- 
+MST

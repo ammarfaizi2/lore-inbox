@@ -1,87 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWGJEyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWGJE4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWGJEyN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 00:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGJEyN
+	id S1751335AbWGJE4E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 00:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWGJE4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 00:54:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12936 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751331AbWGJEyL (ORCPT
+	Mon, 10 Jul 2006 00:56:04 -0400
+Received: from mail.gmx.net ([213.165.64.21]:34782 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751335AbWGJE4C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 00:54:11 -0400
-Date: Sun, 9 Jul 2006 21:54:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-Message-Id: <20060709215407.e6845228.akpm@osdl.org>
-In-Reply-To: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 10 Jul 2006 00:56:02 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.18-rc1-mm1:  /sys/class/net/ethN becoming symlink
+	befuddled /sbin/ifup
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060709135148.60561e69.akpm@osdl.org>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <1152469329.9254.15.camel@Homer.TheSimpsons.net>
+	 <20060709135148.60561e69.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 10 Jul 2006 07:01:38 +0200
+Message-Id: <1152507698.8710.2.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 00:11:11 -0400
-"Jon Smirl" <jonsmirl@gmail.com> wrote:
+On Sun, 2006-07-09 at 13:51 -0700, Andrew Morton wrote:
 
-> Fix various places in the tty code to make it match the current naming system.
-> 
+> I'd be suspecting
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
 
-eh?
+Yeah, that and gregkh-driver-class_device_rename-remove.patch brought it
+back to reality.
 
-> 
-> diff --git a/drivers/char/pty.c b/drivers/char/pty.c
-> index 34dd4c3..af43f37 100644
-> --- a/drivers/char/pty.c
-> +++ b/drivers/char/pty.c
-> @@ -279,7 +279,7 @@ static void __init legacy_pty_init(void)
-> 
->  	pty_slave_driver->owner = THIS_MODULE;
->  	pty_slave_driver->driver_name = "pty_slave";
-> -	pty_slave_driver->name = "ttyp";
-> +	pty_slave_driver->name = "pts";
->  	pty_slave_driver->major = PTY_SLAVE_MAJOR;
->  	pty_slave_driver->minor_start = 0;
->  	pty_slave_driver->type = TTY_DRIVER_TYPE_PTY;
-> diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
-> index bfdb902..4a83e94 100644
-> --- a/drivers/char/tty_io.c
-> +++ b/drivers/char/tty_io.c
-> @@ -3245,7 +3245,7 @@ #endif
->  #ifdef CONFIG_VT
->  	cdev_init(&vc0_cdev, &console_fops);
->  	if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
-> -	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
-> +	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/tty0") < 0)
->  		panic("Couldn't register /dev/tty0 driver\n");
->  	class_device_create(tty_class, NULL, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
-> 
-> diff --git a/drivers/char/vt.c b/drivers/char/vt.c
-> index da7e66a..a627e8b 100644
-> --- a/drivers/char/vt.c
-> +++ b/drivers/char/vt.c
-> @@ -2662,6 +2662,7 @@ int __init vty_init(void)
->  	if (!console_driver)
->  		panic("Couldn't allocate console driver\n");
->  	console_driver->owner = THIS_MODULE;
-> +	console_driver->driver_name = "vtconsole";
->  	console_driver->name = "tty";
->  	console_driver->name_base = 1;
->  	console_driver->major = TTY_MAJOR;
-> diff --git a/fs/proc/proc_tty.c b/fs/proc/proc_tty.c
-> index 15c4455..042aefe 100644
-> --- a/fs/proc/proc_tty.c
-> +++ b/fs/proc/proc_tty.c
-> @@ -48,7 +48,7 @@ static void show_tty_range(struct seq_fi
->  			seq_printf(m, ":vtmaster");
->  		break;
->  	case TTY_DRIVER_TYPE_CONSOLE:
-> -		seq_printf(m, "console");
-> +		seq_printf(m, "vt:console");
+	-Mike
 
-This seems to be changing a whole pile of userspace-visible stuff.
-
-Tell us more.  Much more.

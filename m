@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWGJCZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161299AbWGJC0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161300AbWGJCZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 22:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWGJCZQ
+	id S1161299AbWGJC0m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 22:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWGJC0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 22:25:16 -0400
-Received: from mail.suse.de ([195.135.220.2]:18884 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161300AbWGJCZO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 22:25:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.18-rc1-mm1 fails on amd64 (smp_call_function_single)
-Date: Mon, 10 Jul 2006 04:25:07 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, "gregoire.favre" <gregoire.favre@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>
-References: <200607092152_MC3-1-C488-18A8@compuserve.com>
-In-Reply-To: <200607092152_MC3-1-C488-18A8@compuserve.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607100425.07750.ak@suse.de>
+	Sun, 9 Jul 2006 22:26:41 -0400
+Received: from nwd2mail11.analog.com ([137.71.25.57]:51461 "EHLO
+	nwd2mail11.analog.com") by vger.kernel.org with ESMTP
+	id S1161299AbWGJC0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jul 2006 22:26:41 -0400
+X-IronPort-AV: i="4.06,221,1149480000"; 
+   d="scan'208"; a="4461443:sNHT22700230"
+Message-Id: <6.1.1.1.0.20060709193540.01ec8370@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Sun, 09 Jul 2006 22:26:39 -0400
+To: kai@germaschewski.name
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: ./scripts/kallsyms.c question
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 July 2006 03:49, Chuck Ebbert wrote:
-> In-Reply-To: <20060709154445.60d6619c.akpm@osdl.org>
-> 
-> On Sun, 9 Jul 2006 15:44:45 -0700, Andrew Morton wrote:
-> 
-> > I meant, in smp.h:
-> > 
-> > #else /* CONFIG_SMP */
-> > #define smp_call_function_single(cpu, fn, arg, x, y) fn(arg)
-> > #endif        /* CONFIG_SMP */
-> 
-> But smp_call_function_single() generates an error if you try to call
-> it on your own CPU, so that doesn't make sense.
+The application kallsyms generate assembler source containing symbol 
+information, where "symbol information" is in these pre-defined names:
 
-I have a full patch to be mirrored out soon.
+  _stext, _etext, _sinittext, _einittext, _sextratext, _eextratext
 
-Your patch is still wrong because now it won't be initialized on the BP
+I am working with a processor (Blackfin) which uses these plus two others 
+_stext_l1, and _etext_l1.
 
-> 
-> I fixed it like this, because that register defaults to zero
-> anyway and doesn't need initialization on CPU 0.
-> 
-> What I can't figure out is how this ever gets called on CPU 0
-> during init, whether it's SMP or not.
+I can add these in the same fashion as the existing (see below), but was 
+wondering if this shouldn't be re-structured with a struct/loop rather than 
+the existing n lines of if/else?
 
-The notifier is called from time.c
+Thanks
+-Robin
 
--Andi
+--- ./kallsyms.c.org    2006-04-02 15:42:50.000000000 -0400
++++ ./kallsyms.c        2006-04-02 15:57:25.000000000 -0400
+@@ -43,7 +43,7 @@
+
+  static struct sym_entry *table;
+  static unsigned int table_size, table_cnt;
+-static unsigned long long _stext, _etext, _sinittext, _einittext, 
+_sextratext, _eextratext;
++static unsigned long long _stext, _etext, _sinittext, _einittext, 
+_sextratext, _eextratext;
++static unsigned long long _stext_l1, _etext_l1;
+  static int all_symbols = 0;
+  static char symbol_prefix_char = '\0';
+
+@@ -103,6 +103,10 @@
+                 _sextratext = s->addr;
+         else if (strcmp(sym, "_eextratext") == 0)
+                 _eextratext = s->addr;
++       else if (strcmp(sym, "_stext_l1" ) == 0)
++               _stext_l1 = s->addr;
++       else if (strcmp(sym, "_etext_l1" ) == 0)
++               _etext_l1 = s->addr;
+         else if (toupper(stype) == 'A')
+         {
+                 /* Keep these useful absolute symbols */
+@@ -161,7 +165,8 @@
+         if (!all_symbols) {
+                 if ((s->addr < _stext || s->addr > _etext)
+                     && (s->addr < _sinittext || s->addr > _einittext)
+-                   && (s->addr < _sextratext || s->addr > _eextratext))
++                   && (s->addr < _sextratext || s->addr > _eextratext)
++                   && (s->addr < _stext_l1 || s->addr > _etext_l1))
+                         return 0;
+                 /* Corner case.  Discard any symbols with the same value as
+                  * _etext _einittext or _eextratext; they can move between 
+pass
+

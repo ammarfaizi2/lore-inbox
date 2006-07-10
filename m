@@ -1,91 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWGJT01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422792AbWGJTbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422796AbWGJT01 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 15:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWGJT01
+	id S1422792AbWGJTbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 15:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422793AbWGJTbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 15:26:27 -0400
-Received: from xenotime.net ([66.160.160.81]:37830 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422796AbWGJT00 (ORCPT
+	Mon, 10 Jul 2006 15:31:22 -0400
+Received: from lug-owl.de ([195.71.106.12]:39085 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1422792AbWGJTbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 15:26:26 -0400
-Date: Mon, 10 Jul 2006 12:29:10 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, gregkh <greg@kroah.com>
-Subject: [PATCH -mm] sysfs_remove_bin_file: no return value, no check needed
-Message-Id: <20060710122910.08c01f46.rdunlap@xenotime.net>
-In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 10 Jul 2006 15:31:22 -0400
+Date: Mon, 10 Jul 2006 21:31:19 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Paul Jackson <pj@sgi.com>, dgc@sgi.com,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Lee Schermerhorn <Lee.Schermerhorn@hp.com>, jes@sgi.com,
+       Adam Litke <agl@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       steiner@sgi.com, Peter Zijlstra <a.p.zijlstra@chello.nl>, akpm@osdl.org
+Subject: Re: Agenda for NUMA BOF @OLS & NUMA paper
+Message-ID: <20060710193119.GJ22573@lug-owl.de>
+Mail-Followup-To: Christoph Lameter <clameter@sgi.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Marcelo Tosatti <marcelo@kvack.org>,
+	KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+	Paul Jackson <pj@sgi.com>, dgc@sgi.com,
+	Ravikiran G Thirumalai <kiran@scalex86.org>,
+	Lee Schermerhorn <Lee.Schermerhorn@hp.com>, jes@sgi.com,
+	Adam Litke <agl@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+	steiner@sgi.com, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+	akpm@osdl.org
+References: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kgh2FNDOY+603hGA"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
->   In some cases (eg, sysfs file removal) there's not a lot the caller can do
->   apart from warn, so we should probably change those things to return void
->   and put a diagnostic message into the callee itself.
+--Kgh2FNDOY+603hGA
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-sysfs_remove_bin_file() cannot tell if there is an error and
-cannot return an error, so "fix" around 40 must-check warnings.
+On Mon, 2006-07-10 12:22:16 -0700, Christoph Lameter <clameter@sgi.com> wro=
+te:
+> I have given a number of talks about various NUMA issues in the last=20
+> months and tried to put the most important points together in a=20
+> paper that begins to explain NUMA from scratch and then gets into some=20
+> of the current issues. That paper is available at=20
+> http://ftp.kernel.org/pub/linux/kernel/people/christoph/pmig/numamemory.p=
+df
 
-Convert sysfs_remove_bin_file() from int to void since it
-  cannot return an error.
-Remove __must_check from its declaration.
-Convert the only function that checked the return value of
-  sysfs_remove_bin_file().
+Erm, that's not a PDF file, but an OOo document...
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/pci/hotplug/acpiphp_ibm.c |    4 +---
- fs/sysfs/bin.c                    |    5 ++---
- include/linux/sysfs.h             |    2 +-
- 3 files changed, 4 insertions(+), 7 deletions(-)
+MfG, JBG
 
---- linux-2618-rc1mm1.orig/fs/sysfs/bin.c
-+++ linux-2618-rc1mm1/fs/sysfs/bin.c
-@@ -194,10 +194,9 @@ int sysfs_create_bin_file(struct kobject
-  *
-  */
- 
--int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
-+void sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
- {
--	sysfs_hash_and_remove(kobj->dentry,attr->attr.name);
--	return 0;
-+	sysfs_hash_and_remove(kobj->dentry, attr->attr.name);
- }
- 
- EXPORT_SYMBOL_GPL(sysfs_create_bin_file);
---- linux-2618-rc1mm1.orig/drivers/pci/hotplug/acpiphp_ibm.c
-+++ linux-2618-rc1mm1/drivers/pci/hotplug/acpiphp_ibm.c
-@@ -487,9 +487,7 @@ static void __exit ibm_acpiphp_exit(void
- 	if (ACPI_FAILURE(status))
- 		err("%s: Notification handler removal failed\n", __FUNCTION__);
- 	/* remove the /sys entries */
--	if (sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr))
--		err("%s: removal of sysfs file apci_table failed\n",
--				__FUNCTION__);
-+	sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr);
- }
- 
- module_init(ibm_acpiphp_init);
---- linux-2618-rc1mm1.orig/include/linux/sysfs.h
-+++ linux-2618-rc1mm1/include/linux/sysfs.h
-@@ -116,7 +116,7 @@ sysfs_remove_link(struct kobject *, cons
- 
- int __must_check sysfs_create_bin_file(struct kobject * kobj,
- 					struct bin_attribute * attr);
--int __must_check sysfs_remove_bin_file(struct kobject * kobj,
-+void sysfs_remove_bin_file(struct kobject * kobj,
- 					struct bin_attribute * attr);
- 
- int __must_check sysfs_create_group(struct kobject *,
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
+--Kgh2FNDOY+603hGA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEsqsHHb1edYOZ4bsRApGJAKCIr8v42E7OAQUhxNlKEN9/DkEpDACdEUGM
+CnhrpOyqj52BoIi6HzwsTbk=
+=Achl
+-----END PGP SIGNATURE-----
+
+--Kgh2FNDOY+603hGA--

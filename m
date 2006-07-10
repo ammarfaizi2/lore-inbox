@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965272AbWGJWXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965270AbWGJWYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965272AbWGJWXY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965274AbWGJWXX
+	id S965270AbWGJWYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbWGJWYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:23:23 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:33195 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965272AbWGJWXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:23:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vJVNx+9aFdSmmtxrry30NER9pFQy1iJKWWAWCIc2TLOnDHcmM15JMzMdCMCKubf/mG8O0IK+B2I1JTWTMsOkZqYp20noBGYDOHPpa4aJnGd+mtfnI6y3BjE24dQUG1xAUX++iOmRLvOVlnkFYL/4UyTLsc8MJUPJ2nDycClJSHs=  ;
-Message-ID: <44B29461.40605@yahoo.com.au>
-Date: Tue, 11 Jul 2006 03:54:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 10 Jul 2006 18:24:23 -0400
+Received: from mail.gmx.net ([213.165.64.21]:35761 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965270AbWGJWYW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:24:22 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: 2.6.18-rc1-mm1
+Date: Tue, 11 Jul 2006 00:25:04 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <20060709132400.a7f6e358.akpm@osdl.org> <1152515512.3490.89.camel@praia>
+In-Reply-To: <1152515512.3490.89.camel@praia>
 MIME-Version: 1.0
-To: Joshua Hudson <joshudson@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'volatile' in userspace
-References: <44B0FAD5.7050002@argo.co.il>	 <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>	 <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>	 <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
-In-Reply-To: <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607110025.05027.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson wrote:
->>
->> So this would tend to confirm the rule of thumb: use of "volatile" in
->> a userspace progam tends to indicate a bug.
->>
->>                                                 - Ted
-> 
-> 
-> No. vfork(), setjmp(), signal().
-> 
-> Yes, I use vfork. So far, the only way I have found for the parent to
-> know whether or not the child's exec() failed is this way:
-> 
-> volatile int failed;
-> pid_t pid;
-> 
-> failed = 0;
-> if (0 == (pid = vfork())) {
->   execve(argv[0], argv, envp);
->   failed = errno;
->   _exit(0);
-> }
-> if (pid < 0) {
->   /* can't fork */
-> }
-> if (failed) {
->   /* wait for pid (clean up zombie) */
->   errno = failed;
->   /* can't exec: update state */
-> }
+On Monday, 10. July 2006 09:11, Mauro Carvalho Chehab wrote:
+> Em Dom, 2006-07-09 às 13:24 -0700, Andrew Morton escreveu:
+> > On Sun, 9 Jul 2006 19:28:07 +0200
+> > Right - this is one of those mysterious crashes deep in sysfs
+> > from calling code which basically hasn't changed.  Mauro and Greg
+> > are vacationing or otherwise offline so not much is likely to
+> > happen short-term.
+>
+> I should be returning back from vacations by the end of this week.
+>
+> About the errors you are suffering, image is not clean enough to
+> allow reading the log. There were some changes on -mm that may
+> affect people with third-party drivers (like, for example, some
+> webcam drivers). This is due to a change at video_device structure,
+> used to register video devices. Several third-party drivers just
+> have a copy of videodev.h. So, those drivers compile using the old
+> struct definition, but tries to register the device by calling a
+> function that is expecting the newer struct. Maybe this is your
+> case.
 
-May not be portable because you're apparently not supposed to assume
-anything about the memory sharing semantics (eg. it may share memory
-or it may not -- AFAIK if your code doesn't work correctly after
-replacing vfork with fork, then it is buggy).
+hi,
+thx for your reply, but I'm not using any binary drivers, neither 
+other external driver sources.
 
-What's wrong with _exit(exec() == -1 ? 0 : errno);
-and picking up the status with wait(2) ?
+> > Is 2.6.18-rc1 OK?
+I will check it tomorrow and let you know if it works!
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+cheers,
+dominik

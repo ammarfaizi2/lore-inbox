@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWGJOhp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbWGJOl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWGJOhp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbWGJOhp
+	id S1161166AbWGJOl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbWGJOl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:37:45 -0400
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:10727 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161161AbWGJOhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:37:45 -0400
-Date: Mon, 10 Jul 2006 10:30:55 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: handle_BUG(): don't print garbage if debug info
-  unavailable
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Mike Galbraith <efault@gmx.de>
-Message-ID: <200607101034_MC3-1-C497-51F7@compuserve.com>
-MIME-Version: 1.0
+	Mon, 10 Jul 2006 10:41:27 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:48700 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1161166AbWGJOl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 10:41:27 -0400
+Subject: Re: tasklet_unlock_wait() causes soft lockup with -rt and ieee1394
+	audio
+From: Daniel Walker <dwalker@mvista.com>
+To: Pieter Palmers <pieterp@joow.be>
+Cc: Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <44B0E5E4.2090902@joow.be>
+References: <1152371924.4736.169.camel@mindpipe>
+	 <1152409894.32734.27.camel@localhost.localdomain>
+	 <1152411169.28129.24.camel@mindpipe>  <44B0E5E4.2090902@joow.be>
+Content-Type: text/plain
+Date: Mon, 10 Jul 2006 07:41:23 -0700
+Message-Id: <1152542483.19929.11.camel@c-67-180-134-207.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-handle_BUG() tries to print file and line number even when
-they're not available (CONFIG_DEBUG_BUGVERBOSE is not set.)
-Change this to print a message stating info is unavailable
-instead of printing a misleading message.
+On Sun, 2006-07-09 at 13:17 +0200, Pieter Palmers wrote:
+> > 
+> > I am just posting this for Pieter - all followups should be directed to
+> > him.  (I don't even have the hardware to reproduce this)
+> > 
+> > IIRC the problem could only be reproduced with PREEMPT_RT.  Pieter, can
+> > you confirm?
+> 
+> It can only be reproduced with PREEMPT_RT. And the test kernel is 
+> configured with irq threading, I haven't tried it without irq threading.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+It's another one of those situations when a userspace real time process
+gets stuck in a tight loop waiting for a bit to change. It's similar to
+the issue with bit spinlocks, or yield. 
 
----
+You should be able to reproduce it without PREEMPT_RT but SMP only .
 
- Compile tested only, with/without CONFIG_DEBUG_BUGVERBOSE.
+Daniel
 
- arch/i386/kernel/traps.c |   20 +++++++++++++-------
- 1 files changed, 13 insertions(+), 7 deletions(-)
-
---- 2.6.18-rc1-nb.orig/arch/i386/kernel/traps.c
-+++ 2.6.18-rc1-nb/arch/i386/kernel/traps.c
-@@ -324,13 +324,14 @@ void show_registers(struct pt_regs *regs
- 
- static void handle_BUG(struct pt_regs *regs)
- {
-+	unsigned long eip = regs->eip;
- 	unsigned short ud2;
-+
-+#ifdef CONFIG_DEBUG_BUGVERBOSE
- 	unsigned short line;
- 	char *file;
- 	char c;
--	unsigned long eip;
--
--	eip = regs->eip;
-+#endif
- 
- 	if (eip < PAGE_OFFSET)
- 		goto no_bug;
-@@ -338,21 +339,26 @@ static void handle_BUG(struct pt_regs *r
- 		goto no_bug;
- 	if (ud2 != 0x0b0f)
- 		goto no_bug;
-+	printk(KERN_EMERG "------------[ cut here ]------------\n");
-+
-+#ifdef CONFIG_DEBUG_BUGVERBOSE
- 	if (__get_user(line, (unsigned short __user *)(eip + 2)))
--		goto bug;
-+		goto no_info;
- 	if (__get_user(file, (char * __user *)(eip + 4)) ||
- 		(unsigned long)file < PAGE_OFFSET || __get_user(c, file))
- 		file = "<bad filename>";
- 
--	printk(KERN_EMERG "------------[ cut here ]------------\n");
- 	printk(KERN_EMERG "kernel BUG at %s:%d!\n", file, line);
-+#else
-+	goto no_info;
-+#endif
- 
- no_bug:
- 	return;
- 
- 	/* Here we know it was a BUG but file-n-line is unavailable */
--bug:
--	printk(KERN_EMERG "Kernel BUG\n");
-+no_info:
-+	printk(KERN_EMERG "Kernel BUG at [verbose debug info unavailable]\n");
- }
- 
- /* This is gone through when something in the kernel
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush

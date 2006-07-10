@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWGJORY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWGJOSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030310AbWGJORY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:17:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWGJORY
+	id S1030408AbWGJOSM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWGJOSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:17:24 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:23702 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030310AbWGJORY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:17:24 -0400
-Subject: Re: [PATCH 1/3] stack overflow safe kdump (2.6.18-rc1-i386) -
-	safe_smp_processor_id
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-Cc: vgoyal@in.ibm.com, "Eric W. Biederman" <ebiederm@xmission.com>,
-       akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org
-In-Reply-To: <1152517852.2120.107.camel@localhost.localdomain>
-References: <1152517852.2120.107.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 10 Jul 2006 09:16:28 -0500
-Message-Id: <1152540988.7275.7.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 8bit
+	Mon, 10 Jul 2006 10:18:12 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:17027 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030408AbWGJOSK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 10:18:10 -0400
+Date: Mon, 10 Jul 2006 16:17:41 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+In-Reply-To: <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0607101616090.5071@yvahk01.tjqt.qr>
+References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com> 
+ <1152524657.27368.108.camel@localhost.localdomain> 
+ <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com> 
+ <1152537049.27368.119.camel@localhost.localdomain> 
+ <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com> 
+ <1152539034.27368.124.camel@localhost.localdomain>
+ <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 16:50 +0900, Fernando Luis Vázquez Cao wrote:
-> diff -urNp linux-2.6.18-rc1/include/asm-i386/smp.h
-> linux-2.6.18-rc1-sof/include/asm-i386/smp.h
-> --- linux-2.6.18-rc1/include/asm-i386/smp.h     2006-07-10
-> 11:00:05.000000000 +0900
-> +++ linux-2.6.18-rc1-sof/include/asm-i386/smp.h 2006-07-10
-> 15:34:26.000000000 +0900
-> @@ -89,12 +89,20 @@ static __inline int logical_smp_processo
->  
->  #endif
->  
-> +#ifdef CONFIG_X86_VOYAGER
-> +extern int hard_smp_processor_id(void);
-> +#define safe_smp_processor_id() hard_smp_processor_id()
-> +#else
-> +extern int safe_smp_processor_id(void);
-> +#endif
-> +
+>
+> Before the change /proc/tty/drivers shows this:
+>
+> [jonsmirl@jonsmirl ~]$ cat /proc/tty/drivers
+> /dev/tty             /dev/tty        5       0 system:/dev/tty
+> /dev/console         /dev/console    5       1 system:console
+> /dev/ptmx            /dev/ptmx       5       2 system
+> /dev/vc/0            /dev/vc/0       4       0 system:vtmaster
+> serial               /dev/ttyS       4 64-67 serial
+> pty_slave            /dev/pts      136 0-1048575 pty:slave
+> pty_master           /dev/ptm      128 0-1048575 pty:master
+> unknown              /dev/tty        4 1-63 console
+>
 
-Argh, no, don't do this.  The Subarchitecture specific code should never
-appear in the standard include directory (that was about the whole
-point).  The extern for hard_smp_processor_id should just be global,
-since it's common to all architectures, and the voyager specific define
-should be in a voyager specific header file.
+My word here too :)
 
-As an aside, it shows the problems x86 got itself into with it's
-inconsistent direction of physical vs logical CPUs.  The idea was that
-smp_processor_id() and hard_smp_processor_id() were supposed to return
-the same thing, only hard_... went to the actual SMP registers to get
-it.
+I doubt that userspace can do something useful with the "/dev/vc/0" 
+line when there is no devfs around at all.
 
-James
+Like below.
+
+> Nothing in that patch has anything to do with udev support. It is just
+> trying to make things match my current devices. When we got rid of
+> devfs /dev/vc/0 became /dev/tty0.
 
 
+Jan Engelhardt
+-- 

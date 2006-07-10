@@ -1,210 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbWGJVdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWGJVeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbWGJVdO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 17:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbWGJVdO
+	id S965249AbWGJVeU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 17:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965251AbWGJVeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 17:33:14 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:59344 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965243AbWGJVdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 17:33:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm 2/2] swsusp: struct snapshot_handle cleanup
-Date: Mon, 10 Jul 2006 23:16:48 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200607102240.45365.rjw@sisk.pl>
-In-Reply-To: <200607102240.45365.rjw@sisk.pl>
+	Mon, 10 Jul 2006 17:34:20 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:5757 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965248AbWGJVeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 17:34:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NBdUyRn8cUUrtvEwloEseGjibHRzuC8kyTM0WTknxMu2lMkVY6cVgFKULO76RB3riJw/ZL8OSRBices3nNBZBx+RMhgCgSDHiTQU7IH8mR0JQscdBFC/jYPp4zuzQcCwBmeOQD0MTcvFsm96RoTZ5KmJhHaj+fjPXd5LoSB43LI=
+Message-ID: <e1e1d5f40607101434m25f490c8k2e84f518ea337509@mail.gmail.com>
+Date: Mon, 10 Jul 2006 17:34:18 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Subject: Re: Automatic Kernel Bug Report
+Cc: "Pavel Machek" <pavel@ucw.cz>,
+       "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607101841.k6AIfXgp012297@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607102316.48641.rjw@sisk.pl>
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <thehazard@gmail.com>
+	 <e1e1d5f40607101040u3baf0da7r43d5538700b02e2@mail.gmail.com>
+	 <200607101841.k6AIfXgp012297@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add comments describing struct snapshot_handle and its members,
-change the confusing name of its member 'page' to 'cur'.
+On 7/10/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Daniel Bonekeeper <thehazard@gmail.com> wrote:
+> > On 7/10/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > > Hi!
+> >
+> > Hi ! =)
+>
+>
+> Hi all out there!
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/power.h    |   64 ++++++++++++++++++++++++++++++++++++++++++------
- kernel/power/snapshot.c |   40 +++++++++++++++---------------
- 2 files changed, 76 insertions(+), 28 deletions(-)
+Hi Horst!
 
-Index: linux-2.6.18-rc1-mm1/kernel/power/power.h
-===================================================================
---- linux-2.6.18-rc1-mm1.orig/kernel/power/power.h
-+++ linux-2.6.18-rc1-mm1/kernel/power/power.h
-@@ -50,17 +50,65 @@ extern asmlinkage int swsusp_arch_resume
- 
- extern unsigned int count_data_pages(void);
- 
-+/**
-+ *	Auxiliary structure used for reading the snapshot image data and
-+ *	metadata from and writing them to the list of page backup entries
-+ *	(PBEs) which is the main data structure of swsusp.
-+ *
-+ *	Using struct snapshot_handle we can transfer the image, including its
-+ *	metadata, as a continuous sequence of bytes with the help of
-+ *	snapshot_read_next() and snapshot_write_next().
-+ *
-+ *	The code that writes the image to a storage or transfers it to
-+ *	the user land is required to use snapshot_read_next() for this
-+ *	purpose and it should not make any assumptions regarding the internal
-+ *	structure of the image.  Similarly, the code that reads the image from
-+ *	a storage or transfers it from the user land is required to use
-+ *	snapshot_write_next().
-+ *
-+ *	This may allow us to change the internal structure of the image
-+ *	in the future with considerably less effort.
-+ */
-+
- struct snapshot_handle {
--	loff_t		offset;
--	unsigned int	page;
--	unsigned int	page_offset;
--	unsigned int	prev;
--	struct pbe	*pbe, *last_pbe;
--	void		*buffer;
--	unsigned int	buf_offset;
--	int		sync_read;
-+	loff_t		offset;	/* number of the last byte ready for reading
-+				 * or writing in the sequence
-+				 */
-+	unsigned int	cur;	/* number of the block of PAGE_SIZE bytes the
-+				 * next operation will refer to (ie. current)
-+				 */
-+	unsigned int	cur_offset;	/* offset with respect to the current
-+					 * block (for the next operation)
-+					 */
-+	unsigned int	prev;	/* number of the block of PAGE_SIZE bytes that
-+				 * was the current one previously
-+				 */
-+	struct pbe	*pbe;	/* PBE that corresponds to 'buffer' */
-+	struct pbe	*last_pbe;	/* When the image is restored (eg. read
-+					 * from disk) we can store some image
-+					 * data directly in the page frames
-+					 * in which they were before suspend.
-+					 * In such a case the PBEs that
-+					 * correspond to them will be unused.
-+					 * This is the last PBE, so far, that
-+					 * does not correspond to such data.
-+					 */
-+	void		*buffer;	/* address of the block to read from
-+					 * or write to
-+					 */
-+	unsigned int	buf_offset;	/* location to read from or write to,
-+					 * given as a displacement from 'buffer'
-+					 */
-+	int		sync_read;	/* Set to one to notify the caller of
-+					 * snapshot_write_next() that it may
-+					 * need to call wait_on_bio_chain()
-+					 */
- };
- 
-+/* This macro returns the address from/to which the caller of
-+ * snapshot_read_next()/snapshot_write_next() is allowed to
-+ * read/write data after the function returns
-+ */
- #define data_of(handle)	((handle).buffer + (handle).buf_offset)
- 
- extern int snapshot_read_next(struct snapshot_handle *handle, size_t count);
-Index: linux-2.6.18-rc1-mm1/kernel/power/snapshot.c
-===================================================================
---- linux-2.6.18-rc1-mm1.orig/kernel/power/snapshot.c
-+++ linux-2.6.18-rc1-mm1/kernel/power/snapshot.c
-@@ -555,7 +555,7 @@ static inline struct pbe *pack_orig_addr
- 
- int snapshot_read_next(struct snapshot_handle *handle, size_t count)
- {
--	if (handle->page > nr_meta_pages + nr_copy_pages)
-+	if (handle->cur > nr_meta_pages + nr_copy_pages)
- 		return 0;
- 	if (!buffer) {
- 		/* This makes the buffer be freed by swsusp_free() */
-@@ -568,8 +568,8 @@ int snapshot_read_next(struct snapshot_h
- 		handle->buffer = buffer;
- 		handle->pbe = pagedir_nosave;
- 	}
--	if (handle->prev < handle->page) {
--		if (handle->page <= nr_meta_pages) {
-+	if (handle->prev < handle->cur) {
-+		if (handle->cur <= nr_meta_pages) {
- 			handle->pbe = pack_orig_addresses(buffer, handle->pbe);
- 			if (!handle->pbe)
- 				handle->pbe = pagedir_nosave;
-@@ -577,15 +577,15 @@ int snapshot_read_next(struct snapshot_h
- 			handle->buffer = (void *)handle->pbe->address;
- 			handle->pbe = handle->pbe->next;
- 		}
--		handle->prev = handle->page;
-+		handle->prev = handle->cur;
- 	}
--	handle->buf_offset = handle->page_offset;
--	if (handle->page_offset + count >= PAGE_SIZE) {
--		count = PAGE_SIZE - handle->page_offset;
--		handle->page_offset = 0;
--		handle->page++;
-+	handle->buf_offset = handle->cur_offset;
-+	if (handle->cur_offset + count >= PAGE_SIZE) {
-+		count = PAGE_SIZE - handle->cur_offset;
-+		handle->cur_offset = 0;
-+		handle->cur++;
- 	} else {
--		handle->page_offset += count;
-+		handle->cur_offset += count;
- 	}
- 	handle->offset += count;
- 	return count;
-@@ -820,7 +820,7 @@ int snapshot_write_next(struct snapshot_
- {
- 	int error = 0;
- 
--	if (handle->prev && handle->page > nr_meta_pages + nr_copy_pages)
-+	if (handle->prev && handle->cur > nr_meta_pages + nr_copy_pages)
- 		return 0;
- 	if (!buffer) {
- 		/* This makes the buffer be freed by swsusp_free() */
-@@ -831,7 +831,7 @@ int snapshot_write_next(struct snapshot_
- 	if (!handle->offset)
- 		handle->buffer = buffer;
- 	handle->sync_read = 1;
--	if (handle->prev < handle->page) {
-+	if (handle->prev < handle->cur) {
- 		if (!handle->prev) {
- 			error = load_header(handle,
- 					(struct swsusp_info *)buffer);
-@@ -854,15 +854,15 @@ int snapshot_write_next(struct snapshot_
- 			handle->buffer = get_buffer(handle);
- 			handle->sync_read = 0;
- 		}
--		handle->prev = handle->page;
-+		handle->prev = handle->cur;
- 	}
--	handle->buf_offset = handle->page_offset;
--	if (handle->page_offset + count >= PAGE_SIZE) {
--		count = PAGE_SIZE - handle->page_offset;
--		handle->page_offset = 0;
--		handle->page++;
-+	handle->buf_offset = handle->cur_offset;
-+	if (handle->cur_offset + count >= PAGE_SIZE) {
-+		count = PAGE_SIZE - handle->cur_offset;
-+		handle->cur_offset = 0;
-+		handle->cur++;
- 	} else {
--		handle->page_offset += count;
-+		handle->cur_offset += count;
- 	}
- 	handle->offset += count;
- 	return count;
-@@ -871,5 +871,5 @@ int snapshot_write_next(struct snapshot_
- int snapshot_image_loaded(struct snapshot_handle *handle)
- {
- 	return !(!handle->pbe || handle->pbe->next || !nr_copy_pages ||
--		handle->page <= nr_meta_pages + nr_copy_pages);
-+		handle->cur <= nr_meta_pages + nr_copy_pages);
- }
+> > > Well, unless we have some volunteer to go through the bugreports and
+> > > sort them/kill the invalid ones/etc... this is going to do more harm
+> > > than good.
+>
+> > As I told before, I wouldn't care to do that,
+>
+> Who will, then?
+
+What I meant (as you can read on earlier messages) is that I would do
+everything (from kernelspace stuff to maintain the server[s] that will
+receive the reports and the web interface that will classify them)
+
+> >  as long as I know that
+> > it is actually being used (and useful).
+>
+> If you don't care about the data...
+
+I do! So much that I even suggested the system. =)
+
+> > The system (at the server
+> > side) could automatically
+>
+> /Someone/ will have to program/configure/tweak/maintain that...
+>
+
+I'll program, configure and maintain the whole system. By
+"automatically" I mean classify each report by distribution (when
+possible), kernel version, release, architecture, type of hardware,
+function (EIP) where the bug happened, type of bug (null point
+dereference, or BUG_ON(), etc), that kind of stuff that is already on
+the report, I'll just parse it using regular expressions to extract it
+and classify (so I don't need to manually check boxes for every report
+that comes).
+
+> > route some reports (mark them as "tainted
+> > modules detected", etc, that sort of mechanical stuff),
+>
+> Mechanical != trivial, and much less == "does it by itself, all alone"...
+>
+
+The system will be mechanical as long as possible. By mechanical I
+don't mean "automatically detect if the bug was caused by some binary
+nVidia driver messing around, because the automatic disassembler shows
+that the nVidia driver is acquiring a lock and never releasing it
+under that specific circunstance". I mean "if nvidia.ko is loaded,
+mark the report as tainted". I won't let the system just send mails to
+LKML reporting bugs unless I already looked at them and confirmed that
+something is wrong. I never intended to create a system that magically
+analyzes the reports and check the source code for bugs and suggest
+fixes ( Just Impossible(tm) ), but rather have a tool where we can
+know that a certain kind of motherboard or usb controller is Oopsing
+too much, always at some point. Think of it as a really large
+compatibility laboratory.
+
+> > and according
+> > to the frequency of certain bugs, I could check if they are actually
+> > real bugs. If so, they get reported here on LKML.
+>
+> Which helps how in getting more new people up to speed and involved in bug
+> fixing? (Last I heard, that was the current bottleneck...)
+>
+
+Well, that I don't know. There's already www.kernelnewbies.org for
+that, and I see that lots of higher education institutes (aka
+universities) are starting to include kernel hacking in their programs
+(or at least lots of exercises involving that), so hopefully we'll get
+more new people in a few month/years. Again, I believe that not having
+enough people to work on bugs is not an excuse to not get them
+acknowledged and catalogued. Just because you don't have anybody to
+change your car's tires, does it mean that you don't actually want to
+know that they are flat ?
+
+> > Since we can expect,
+> > maybe, dozens of thousands of reports per week, wouldn't be hard to
+> > distinct between real bugs, etc (if we use frequency as a marker). For
+> > example, if the number of reports on Suspend2 get risen up sensitively
+> > on some just-released kernel, this means that something that was added
+> > isn't working (so here comes the personal debug, where we can see if
+> > it's a new bug or a regression)
+>
+> That kind of stuff is currently sitting in bugzillas all over the
+> distributions. And again, what is required is people willing to see if they
+> can reproduce the bug (and that may mean getting an obscure piece of
+> hardware, etc) and then see if they can fix it.
+
+Yes, they are also full of bug reports for multimedia players,
+editors, etc. I agree, every decent distribution have their bugzillas
+loaded with all kinds of bugs. Also, there are probably hundreds of
+distros around the world, with a good number of them being widely
+used. Can you easily let me know if people using those distros are
+having frequent NULL dereferences using sata_via and a VIA VT6420 SATA
+RAID Controller with rev 80, when people with the same driver and
+controller weren't having such problems 2 months ago ? Or that 95% of
+those people have SMP kernels ? You probably can know that, if you
+know what exactly to look for and search using lots of "contains the
+string" (hopefully everything that you need was pasted on the report).
+And then, repeat this for 10 major distros. Understand ? Since our
+developers are so few and so busy, having a tool to automatically
+compare that stuff is handy. Imagine that you want to fix a bug in
+sata_via. You search all references to sata_via module (where EIP is
+on it, for example), and you can have statistics telling you that 70%
+of bugs reported on sata_via are caused by machines using some kind of
+proprietary driver (just made that up). This is already a very decent
+clue (unfortunatelly I don't expect things to be that easy, but it's a
+start).
+
+
+-- 
+What this world needs is a good five-dollar plasma weapon.

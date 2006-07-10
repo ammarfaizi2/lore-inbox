@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWGJMxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWGJNAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWGJMxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 08:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbWGJMxU
+	id S1161017AbWGJNAV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGJNAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 08:53:20 -0400
-Received: from mail.gmx.de ([213.165.64.21]:52403 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161042AbWGJMxT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 08:53:19 -0400
-X-Authenticated: #14349625
-Subject: Re: [GIT PATCH] ACPI for 2.6.18-rc1
-From: Mike Galbraith <efault@gmx.de>
-To: Len Brown <len.brown@intel.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1152517180.12021.16.camel@Homer.TheSimpsons.net>
-References: <200606230437.50845.len.brown@intel.com>
-	 <200606300220.39405.len.brown@intel.com>
-	 <200607011730.24361.len.brown@intel.com>
-	 <200607100301.58861.len.brown@intel.com>
-	 <1152517180.12021.16.camel@Homer.TheSimpsons.net>
-Content-Type: text/plain
-Date: Mon, 10 Jul 2006 14:59:08 +0200
-Message-Id: <1152536349.21138.8.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Mon, 10 Jul 2006 09:00:21 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:43291 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1161017AbWGJNAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:00:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BtCsQwDzmYljxFryiTvp7N9FWUcbYV3MLp87c2pVwjrlwC0hjAzrixu3Pqk7eb8X5NF0F887UZrRPinXmDBfiPvn9xT2qR2hHN/jp94xHKgaFi8cG5tJVanaBU9QLin3zLmqZYQZgFTuSS3QanXT55udVvD0dZRZ0sRGzfF3FTc=
+Message-ID: <9a8748490607100600w125700a0n8a77870998704342@mail.gmail.com>
+Date: Mon, 10 Jul 2006 15:00:19 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152535999.4874.36.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <9a8748490607100548o14dbe684j40bde90eb19a7558@mail.gmail.com>
+	 <1152535999.4874.36.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 09:39 +0200, Mike Galbraith wrote:
-> On Mon, 2006-07-10 at 03:01 -0400, Len Brown wrote:
-> > Hi Linus,
-> > 
-> > please pull from: 
-> > 
-> > git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
-> 
-> Do you have a plain old patch (scm impaired) lying around?
-> 
+On 10/07/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> > So, what do people say?
+>
+>
+> Hi,
+>
+> I'm just about always in favor of having automated tools help us find
+> bugs. However... can you give an indication of how many real bugs you
+> have encountered? If it's "mostly noise" all the time.. then it's maybe
+> not worth the effort... while if you find real bugs then it's obviously
+> worthwhile to go through this.
+>
+For the parts I've done so far, the only "real" issue is one case of a
+superfluous variable. But I'm far from done going through all the
+warnings.
 
-In the meantime, I went ahead and ripped the 2.6.18-rc1 diff up, and it
-doesn't seem to be acpi, so never mind.
-
-	-Mike
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

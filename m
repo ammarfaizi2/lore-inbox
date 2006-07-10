@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWGJNW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWGJN0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWGJNW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWGJNW4
+	id S964806AbWGJN0M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWGJN0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:22:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23864 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751357AbWGJNWz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:22:55 -0400
-Date: Mon, 10 Jul 2006 15:25:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: splice() and file offsets
-Message-ID: <20060710132529.GD5210@suse.de>
-References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de> <20060710130754.26280@gmx.net>
+	Mon, 10 Jul 2006 09:26:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16568 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964806AbWGJN0L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:26:11 -0400
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
+References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
+	 <1152524657.27368.108.camel@localhost.localdomain>
+	 <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>
+	 <1152537049.27368.119.camel@localhost.localdomain>
+	 <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 14:43:54 +0100
+Message-Id: <1152539034.27368.124.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060710130754.26280@gmx.net>
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10 2006, Michael Kerrisk wrote:
-> Jens,
-> 
-> > > What are the semantics of splice() supposed to be with respect 
-> > > to the current file offsets of 'fd_in' and 'fd_out', and how
-> > > is the presence or absence (NULL) of 'off_in' and 'off_out'
-> > > supposed to affect things.
-> > > 
-> > > Using the program below, here is what I observe for 
-> > > fd_out/off_out:
-> > > 
-> > > 1. If off_out is NULL, then 
-> > >    a) splice() changes the current file offset of fd_out.
-> > > 
-> > > 2. If off_out is not NULL, then splice() 
-> > >    a) does not change the current file offset of fd_out, but 
-> > >    b) treats off_out as a value result parameter, returning 
-> > >       an updated offset of the file.
-> > > 
-> > > It is "2 a)" that surprises me.  But perhaps it's expected 
-> > > behaviour; or I'm doing something dumb in my test program.
-> > 
-> > Not sure why you find that surprising, that is exactly what is supposed
-> > to happen :-)
-> >
-> > If you don't give off_out, we use the current position. For most people,
-> > that's probably what they want. If you are sharing the fd, that doesn't
-> > work though. So you pass off_in/off_out as you please, and the kernel
-> > uses those and passes the updated parameter back out so you don't have
-> > to update it manually.
-> 
-> I'm still not clear here.  Let me phrase my question another way:
-> why is it that the presence or absence of off_out affects whether
-> or not splice() changes the current file offset for fd_out?
+Ar Llu, 2006-07-10 am 09:03 -0400, ysgrifennodd Jon Smirl:
+> I agree with this. I made a mistake with the pts vs pty, why not just
+> help me fix the mistake instead of rejecting everything? Some the of
+> the info being reported in /proc/tty/drivers is wrong (vc./0 - from
+> the devfs attempt?). or missing.
 
-The logic is simple - either you don't give an explicit offset, and the
-current position is used and updated. Or you give an offset, and the
-current position is ignored (not read, not updated).
+What are you trying to achieve and where are you trying to get. If you
+want better info for the tty layer then get the new info working in
+sysfs first. Then when people are generally using sysfs you can worry
+about cleaning up/removing/breaking the old stuff.
 
-> > It's identical to how sendfile() works.
-> 
-> But it isn't: sendfile() never changes the file offset 
-> of its 'in_fd'.
 
-Ehm, yes it does. Would you expect the app to do an appropriate lseek()
-on every sendfile() call?
+> I'm not going to solve this problem but it is something that needs to
+> be discussed. Are we really going to maintain parallel naming schemes,
+> one in-kernel and one out of kernel? I'm not even sure if USB will
+> work without udev anymore.
 
--- 
-Jens Axboe
+It works fine, it would not suprise me if udev users were still the
+minority case in fact.
 

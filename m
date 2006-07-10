@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161321AbWGJDm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161332AbWGJD5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161321AbWGJDm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 23:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161325AbWGJDm7
+	id S1161332AbWGJD5v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 23:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161333AbWGJD5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 23:42:59 -0400
-Received: from thunk.org ([69.25.196.29]:11702 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1161321AbWGJDm6 (ORCPT
+	Sun, 9 Jul 2006 23:57:51 -0400
+Received: from main.gmane.org ([80.91.229.2]:23704 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161332AbWGJD5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 23:42:58 -0400
-Date: Sun, 9 Jul 2006 23:42:50 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: linux-kernel@tux.tmfweb.nl
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] 'volatile' in userspace
-Message-ID: <20060710034250.GA15138@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>, linux-kernel@tux.tmfweb.nl,
-	David Schwartz <davids@webmaster.com>,
-	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <44B0FAD5.7050002@argo.co.il> <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com> <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709204006.GA5242@nospam.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Sun, 9 Jul 2006 23:57:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Mon, 10 Jul 2006 03:57:21 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <e8sj71$nad$1@sea.gmane.org>
+References: <20060627133321.GB3019@elf.ucw.cz> <1152407148.2598.10.camel@coyote.rexursive.com> <200607091551.18456.rjw@sisk.pl> <200607100706.45789.ncunningham@linuxmail.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-065-013-029-145.sip.asm.bellsouth.net
+User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: suspend2-devel@lists.suspend2.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 10:40:06PM +0200, Rutger Nijlunsing wrote:
-> > So if a userspace progam ever uses volatile, it's almost certainly a
-> > bug, one way or another.
-> 
-> Without 'volatile' and disabling optimizations altogether, how do we
-> prevent gcc from optimizing away pointers? As can be seen on
-> http://wiki.rubygarden.org/Ruby/page/show/GCAndExtensions (at
-> 'Compiler over-optimisations and "volatile"'), volatile is used to
-> prevent a specific type of optimization. This is because of the
-> garbage collector, which scans the stack and registers to find
-> referenced objects. So you don't want local variables containing
-> references to objects optimized away.
+ncunningham@linuxmail.org said:
+> If Suspend2 added code in a way that broke swsusp, I would agree. But it=20
+> doesn't.
 
-Well, if you look at the Wiki, it admits that this is a bug:
+That isn't true. I stopped using the suspend2 patches after they broke
+the in-kernel suspend twice in the last year, since 2.6.14 or so. (The
+first time I reported one of these bugs is here:
+http://article.gmane.org/gmane.linux.swsusp.general/3243)
 
-	(Warning: This section is not strictly correct. volatile
-	instructs the C compiler that it should not do certain
-	optimisations to code that accesses the variable - the value
-	cannot be stored in a register and must be read from memory
-	each time it is accessed. It is still perfectly legal for the
-	compiler to overwrite the VALUE's stack location with other
-	data, if the compiler decides there are no further uses of the
-	VALUE. Fortunately, a side effect of volatile in common C
-	compilers like GCC and Visual Studio is to prevent the
-	dangerous optimisation described above. The Ruby source itself
-	uses volatile for this purpose, so it is an "accepted hack"
-	for Ruby C extensions.)
+Before I stopped using suspend2, there was a 6-8 month period where I
+could easily use both in-kernel swsusp and suspend2 on my laptop. I kept
+using suspend2 because it was faster, but I eventually stopped because
+it locked up the machine during suspend or crashed it during resume on
+one out of every 20-30 tries (and the crashes weren't in some driver
+- the backtrace always pointed down into the guts of suspend code).
 
-"Accepted hack" is basically another way of saying bug.  Some day GCC
-will be made smart enough to optimize the use of str on the stack, and
-then the Ruby will be screwed.  (Mental note to self: don't use Ruby
-in any future project.)
+In-kernel swsusp, on the other hand, aside from being slower, has never
+crashed or frozen the machine. The same is true of the new uswsusp code,
+which i'd say subjectively feels nearly as fast as suspend2 was, with
+both using lzf compression.
 
-This is really an architectural bug.  RSTRING() should have explicitly
-bumped a use pointer, which the C code should have then explicitly
-decremented, to protect the underlying pointer from getting GC'ed
-unexpectedly.  It would have made RSTRING() more difficult to use, but
-that's the price you pay when you try to graft a garbage-collected
-paradigm into C code, since the C language really was never designed
-for it.
+Jason
 
-So this would tend to confirm the rule of thumb: use of "volatile" in
-a userspace progam tends to indicate a bug.  
-
-						- Ted

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWGJTAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422770AbWGJTCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422767AbWGJTAb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 15:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWGJTAb
+	id S1422770AbWGJTCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 15:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422774AbWGJTCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 15:00:31 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:54989 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1422767AbWGJTAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 15:00:30 -0400
-Date: Mon, 10 Jul 2006 09:43:36 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Adrian Bunk <bunk@stusta.de>
-cc: Michael Krufky <mkrufky@linuxtv.org>, Pavel Machek <pavel@suse.cz>,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, stable@kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.16.y series
-In-Reply-To: <20060710165429.GB13938@stusta.de>
-Message-ID: <Pine.LNX.4.63.0607100942550.1768@qynat.qvtvafvgr.pbz>
-References: <20060706222553.GA2946@kroah.com>  <20060707105407.GA1654@elf.ucw.cz>
- <44AE558D.9000906@linuxtv.org> <20060710165429.GB13938@stusta.de>
+	Mon, 10 Jul 2006 15:02:16 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:51983 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1422770AbWGJTCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 15:02:15 -0400
+Date: Mon, 10 Jul 2006 15:02:14 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Brown, Len" <len.brown@intel.com>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       <johnstul@us.ibm.com>, <linux-pm@lists.osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+Subject: RE: [linux-pm] [BUG] sleeping function called from invalid context
+ during resume
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6ED003F@hdsmsx411.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44L0.0607101452310.5721-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006, Adrian Bunk wrote:
+On Mon, 10 Jul 2006, Brown, Len wrote:
 
->
-> Greg told me they want to make one last 2.6.16.y release.
->
-> Greg and Chris don't maintain two series that long - check the date of
-> the last 2.6.15.y release.
+> oops, looks like I e-mailed and attached a diff that was
+> from before I built and tested.  The version in git
+> has one line different -- includes actypes.h as you suggest.
+> I've updated the attachment in the bug report above to match git.
+> 
+> note that the definitions of acpi_cpu_flags
+> and acpi_thread_id are not un-needed.  Indeed,
+> they must occur in aclinux.h above where actypes.h
+> is included or the ACPICA defaults would be used
+> and that would break the Linux build.
 
-they haven't in the past, but I thought the stated plan was to support -stable 
-for two revs back going forward.
+Thank you.  Additional comments added to the bug report (#3469).
 
-David Lang
+Alan Stern
+

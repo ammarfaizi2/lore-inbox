@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWGJLNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWGJLOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWGJLNr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWGJLNr
+	id S1751351AbWGJLOV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWGJLOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:13:47 -0400
-Received: from mxl145v66.mxlogic.net ([208.65.145.66]:5025 "EHLO
-	p02c11o143.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1751341AbWGJLNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:13:46 -0400
-Date: Mon, 10 Jul 2006 14:14:12 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Ingo Molnar <mingo@elte.hu>,
-       Zach Brown <zach.brown@oracle.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH] IB/mthca: comment fix
-Message-ID: <20060710111412.GD24705@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Jul 2006 07:14:21 -0400
+Received: from fitch1.uni2.net ([130.227.52.101]:39118 "EHLO fitch1.uni2.net")
+	by vger.kernel.org with ESMTP id S1751351AbWGJLOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:14:20 -0400
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH 1/9] -Wshadow: Add -Wshadow to toplevel Makefile
+Date: Mon, 10 Jul 2006 13:12:27 +0200
+User-Agent: KMail/1.8.2
+Cc: jesper.juhl@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 10 Jul 2006 11:18:49.0906 (UTC) FILETIME=[9E503120:01C6A412]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+Message-Id: <200607101312.27738.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-Here's a cosmetic patch for IB/mthca. Pls drop it into -mm and on.
+(please see the mail titled 
+ "[RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow"
+ for an explanation of why I'm doing this)
 
+
+Add -Wshadow to the top-level Makefile.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
-comment in mthca_qp.c makes it seem lockdep is the only reason WQ locks should
-be initialized separately, but as Zach Brown and Roland pointed out, there are
-other reasons, e.g. that mthca_wq_init is called from modify qp as well.
+ Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
-index 490fc78..2f3917e 100644
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -1114,7 +1114,7 @@ static int mthca_alloc_qp_common(struct 
- 	qp->sq_policy    = send_policy;
- 	mthca_wq_init(&qp->sq);
- 	mthca_wq_init(&qp->rq);
--	/* these are initialized separately so lockdep can tell them apart */
-+
- 	spin_lock_init(&qp->sq.lock);
- 	spin_lock_init(&qp->rq.lock);
+--- linux-2.6.18-rc1/Makefile.orig	2006-07-10 10:31:59.000000000 +0200
++++ linux-2.6.18-rc1/Makefile	2006-07-10 10:32:33.000000000 +0200
+@@ -188,7 +188,7 @@
  
+ HOSTCC       = gcc
+ HOSTCXX      = g++
+-HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS   = -Wall -Wshadow -Wstrict-prototypes -O2 -fomit-frame-pointer
+ HOSTCXXFLAGS = -O2
+ 
+ # Decide whether to build built-in, modular, or both.
+@@ -307,7 +307,7 @@
+ 
+ CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+ 
+-CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
++CFLAGS          := -Wall -Wshadow -Wundef -Wstrict-prototypes -Wno-trigraphs \
+                    -fno-strict-aliasing -fno-common
+ # Force gcc to behave correct even for buggy distributions
+ CFLAGS          += $(call cc-option, -fno-stack-protector-all \
 
--- 
-MST
+

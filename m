@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWGJJFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWGJJF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbWGJJFp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWGJJFp
+	id S1751389AbWGJJF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 05:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWGJJF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:05:45 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:5749 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751388AbWGJJFo (ORCPT
+	Mon, 10 Jul 2006 05:05:56 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:17320 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751389AbWGJJFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:05:44 -0400
-Message-ID: <44B21855.5080108@sw.ru>
-Date: Mon, 10 Jul 2006 13:05:25 +0400
+	Mon, 10 Jul 2006 05:05:55 -0400
+Message-ID: <44B2185F.1060402@sw.ru>
+Date: Mon, 10 Jul 2006 13:05:35 +0400
 From: Kirill Korotaev <dev@sw.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
 X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
 Subject: [PATCH] struct file leakage
 Content-Type: multipart/mixed;
- boundary="------------070901050203060904000004"
+ boundary="------------010105050408050908010206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070901050203060904000004
+--------------010105050408050908010206
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
@@ -60,7 +60,7 @@ Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
 CC: Kirill Korotaev <dev@openvz.org>
 
 
---------------070901050203060904000004
+--------------010105050408050908010206
 Content-Type: text/plain;
  name="diff-namei-leak"
 Content-Transfer-Encoding: 7bit
@@ -87,4 +87,4 @@ Content-Disposition: inline;
  	if (nd->last_type == LAST_BIND)
  		goto ok;
 
---------------070901050203060904000004--
+--------------010105050408050908010206--

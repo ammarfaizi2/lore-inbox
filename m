@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWGJXhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965289AbWGJXjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965066AbWGJXhw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWGJXhv
+	id S965289AbWGJXjo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWGJXjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:37:51 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:47036 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965066AbWGJXhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:37:51 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
-Date: Tue, 11 Jul 2006 09:37:45 +1000
-User-Agent: KMail/1.9.1
-Cc: suspend2-devel@lists.suspend2.net, Arjan van de Ven <arjan@infradead.org>,
-       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
-       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, grundig <grundig@teleline.es>
-References: <20060627133321.GB3019@elf.ucw.cz> <200607110749.48209.nigel@suspend2.net> <20060710232212.GD444@elf.ucw.cz>
-In-Reply-To: <20060710232212.GD444@elf.ucw.cz>
+	Mon, 10 Jul 2006 19:39:44 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:44440 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S965289AbWGJXjn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:39:43 -0400
+Message-ID: <44B2E4FF.9000502@pg.gda.pl>
+Date: Tue, 11 Jul 2006 01:38:39 +0200
+From: =?ISO-8859-2?Q?Adam_Tla=B3ka?= <atlka@pg.gda.pl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; pl-PL; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1608371.idEdJl74iD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607110937.49257.nigel@suspend2.net>
+To: Lee Revell <rlrevell@joe-job.com>
+CC: ak@suse.de, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       perex@suse.cz, alan@lxorguk.ukuu.org.uk
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+References: <20060707231716.GE26941@stusta.de>	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>	 <20060710132810.551a4a8d.atlka@pg.gda.pl> <1152571717.19047.36.camel@mindpipe>
+In-Reply-To: <1152571717.19047.36.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1608371.idEdJl74iD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+U¿ytkownik Lee Revell napisa³:
+> On Mon, 2006-07-10 at 13:28 +0200, Adam Tla³ka wrote:
+>> >From my point of view ALSA has many advantages if you want to dig in
+>> the card driver buffers/period etc. settings but lacks ease of use and
+>> some of simple in theory functionality is a pain - device enumeration
+>> or switching output mode/device without restarting apps or rewritting
+>> them so they have special function for that purpose.
+>>
+> 
+> Does any available sound driver interface allow switching output devices
+> with no help from the app and without having to restart playback?  OSS
+> does not, and every Windows app I've used has a configuration option to
+> set the sound device, and you must stop and start playback for it to
+> take effect.
 
-Hi.
+Sorry but is a Windows solution the best on the whole world?
+Is there any problem to imagine an abstract sound device which virtually 
+always works but uses real device chosen by user, network redirection or 
+  emulating work and we have some control panel/app which can control 
+connections/plugins/redirections etc. (also this can be done by some 
+kind of daemon responding to hw change events)?
+Do we really need to program every sound app to have device setting code?
 
-On Tuesday 11 July 2006 09:22, Pavel Machek wrote:
-> > The modularity is part of the basis of the redesign, so I couldn't easi=
-ly
-> > remove that. Removing the compression and encryption support is trivial
-> > though (one file each, plus Makefile & Kconfig entries - no other
-> > modifications needed). Userspace splash - well, just don't compile and
-> > install that userspace component - suspend2 will keep working quite
-> > happily without any userspace app to do a nice display (it will still do
-> > printks, so you won't be flying completely blind).
->
-> Lets see the patches, then.
+>> esd, arts, jackd, polypd and other prove that ALSA is not enough
+>> and its functionality is far from perfect.
+>>
+> 
+> esd and artsd are no longer needed since ALSA began to enable software
+> mixing by default in release 1.0.9.
+ >
 
-They're basically what you already have - as I said, just ignore the=20
-compression and encryption files and a couple of lines in the Makefile and=
-=20
-Kconfig changes. No modifications are needed to have suspend2 without a=20
-userspace user interface. That's the advantage of that modular design you=20
-don't like.
+So why they are still exist in so many Linux distributions?
 
-Regards,
+> As for jackd and other apps that
+> provide additional functionality - no one ever claimed ALSA would handle
+> every audio related function imaginable.  It's just a low level HAL.
 
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+Format changing, resampling, mixing and supporting additional plugins
+does not seems to be just low level HAL for hw device. It creates some 
+kind of virtual functionality which means more then this provided by 
+hardware device itself.
 
---nextPart1608371.idEdJl74iD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEsuTNN0y+n1M3mo0RAtSaAKCNlehkaf6R7R+82yJqU7r5+/FQQwCglTDN
-48f0OM0TmqoVEGCbEG0w8k4=
-=Q8cT
------END PGP SIGNATURE-----
-
---nextPart1608371.idEdJl74iD--
+Regards
+-- 
+Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+Computer Center,  Gdañsk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl

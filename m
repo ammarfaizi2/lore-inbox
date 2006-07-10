@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWGJJEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWGJJEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWGJJEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWGJJEJ
+	id S1751378AbWGJJEc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 05:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWGJJEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:04:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8521 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751383AbWGJJEH (ORCPT
+	Mon, 10 Jul 2006 05:04:31 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:20623 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751378AbWGJJE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:04:07 -0400
-Date: Mon, 10 Jul 2006 11:06:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: michael.kerrisk@gmx.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       vendor-sec@lst.de, lcapitulino@mandriva.com.br
-Subject: Re: splice/tee bugs?
-Message-ID: <20060710090635.GM4141@suse.de>
-References: <20060709111629.GV4188@suse.de> <20060709134703.0aa5bc41@home.brethil> <20060709175744.GZ4188@suse.de> <20060710062551.307040@gmx.net> <20060710064355.GB4141@suse.de> <20060710080917.286970@gmx.net> <20060710082423.GI4141@suse.de> <20060710084017.109310@gmx.net> <20060710084645.GJ4141@suse.de> <20060710085025.109290@gmx.net>
+	Mon, 10 Jul 2006 05:04:29 -0400
+Date: Mon, 10 Jul 2006 10:58:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
+       mingo@redhat.com, Andrew Victor <andrew@sanpeople.com>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [patch 2.6.18-rc1] genirq: {en,dis}able_irq_wake() need refcounting too
+Message-ID: <20060710085849.GA6016@elte.hu>
+References: <200607091458.52298.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060710085025.109290@gmx.net>
+In-Reply-To: <200607091458.52298.david-b@pacbell.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5005]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10 2006, Michael Kerrisk wrote:
-> > So it's find being stuck, this doesn't look tee/splice related at all.
-> > Can you reproduce the same thing just by doing the find . > /dev/null?
+
+* David Brownell <david-b@pacbell.net> wrote:
+
+> It's not just "normal" mode operation that needs refcounting for the 
+> {en,dis}able_irq() calls ... "wakeup" mode calls need it too, for the 
+> very same reasons.
 > 
-> Hmm -- yes, I can.  So you are right, it's unrelated to splice.
-> Not sure what's going on...
+> This patch adds that refcounting.  I expect that some ARM drivers will 
+> be triggering the new warning, but this call isn't yet widely used. 
+> (Which is probably why the bug has lingered this long...)
 
-Hmm duh, the one-in-five-runs should have run a bell (and I should have
-read the trace more carefully) - it's the access times being synced to
-disk. If you mount with noatime,nodiratime you should get consistent
-times across runs.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-So nothing unexpected there.
+we should also add disable_irq_wake() / enable_irq_wake() APIs and start 
+migrating most ARM users over to the new APIs, agreed? That makes the 
+APIs more symmetric and the code more readable too.
 
--- 
-Jens Axboe
+	Ingo
 

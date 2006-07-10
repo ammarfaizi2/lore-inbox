@@ -1,129 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422708AbWGJRKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422712AbWGJROI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422708AbWGJRKi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 13:10:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422709AbWGJRKi
+	id S1422712AbWGJROI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 13:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbWGJROI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 13:10:38 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:16442 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422708AbWGJRKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 13:10:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=ViOJjHSD4YPEAMOBHBoOVnakYA4gw//u0AhLdQ1pZUUoCuPUl3iC9HELMiRTlHbakEuwmbV03uuCM2si1X6nTITePjqRepV/VcLO0nueaLOZeg1n/hzrX/0UQ/cqhpMalDZuzcA9i9HmjdOJUJFRN1ji4PQ2sGBZRys+MDQevh0=
-Date: Mon, 10 Jul 2006 19:10:49 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>, mingo@elte.hu,
-       oleg@tv-sign.ru, linux-kernel@vger.kernel.org, dino@us.ibm.com,
-       tytso@us.ibm.com, dvhltc@us.ibm.com
-Subject: Re: [PATCH -rt] catch put_task_struct RCU handling up to mainline
-In-Reply-To: <20060710155147.GB1446@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0607101855410.14469@localhost.localdomain>
-References: <20060707192955.GA2219@us.ibm.com>
- <Pine.LNX.4.64.0607072352390.12372@localhost.localdomain>
- <20060707231524.GI1296@us.ibm.com> <Pine.LNX.4.64.0607081450150.11051@localhost.localdomain>
- <20060710155147.GB1446@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+	Mon, 10 Jul 2006 13:14:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45009 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422712AbWGJROH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 13:14:07 -0400
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+	transfers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Organov <osv@javad.com>
+Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <873bd9fobb.fsf@javad.com>
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	 <20060630001021.2b49d4bd.akpm@osdl.org> <87veq9cosq.fsf@javad.com>
+	 <1152302831.20883.63.camel@localhost.localdomain>
+	 <87d5cdg308.fsf@javad.com>
+	 <1152529855.27368.114.camel@localhost.localdomain>
+	 <873bd9fobb.fsf@javad.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 18:31:23 +0100
+Message-Id: <1152552683.27368.185.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006, Paul E. McKenney wrote:
+Ar Llu, 2006-07-10 am 19:54 +0400, ysgrifennodd Sergei Organov:
+> Wow! The code you've quoted seems to be correct! But where did you get
+> it from? The version of flush_to_ldisc() from drivers/char/tty_io.c from
+> 2.17.4 got last Friday from kernel.org does this:
 
-> On Sat, Jul 08, 2006 at 02:59:37PM +0100, Esben Nielsen wrote:
->> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
->>
->>> On Fri, Jul 07, 2006 at 11:56:00PM +0100, Esben Nielsen wrote:
->>>> On Fri, 7 Jul 2006, Paul E. McKenney wrote:
->>>>
->>>>> Hello!
->>>>>
->>>>> Due to the separate -rt and mainline evolution of RCU signal handling,
->>>>> the -rt patchset now makes each task struct go through two RCU grace
->>>>> periods, with one call_rcu() in release_task() and with another
->>>>> in put_task_struct().  Only the call_rcu() in release_task() is
->>>>> required, since this is the one that is associated with tearing down
->>>>> the task structure.
->>>>>
->>>>> This patch removes the extra call_rcu() in put_task_struct(), synching
->>>>> this up with mainline.  Tested lightly on i386.
->>>>>
->>>>
->>>> The extra call_rcu() has an advantage:
->>>> It defers work away from the task doing the last put_task_struct().
->>>> It could be a priority 99 task with hard latency requirements doing
->>>> some PI boosting, forinstance. The extra call_rcu() defers non-RT work to
->>>> a low priority task. This is in generally a very good idea in a real-time
->>>> system.
->>>> So unless you can argue that the work defered is as small as the work of
->>>> doing a call_rcu() I would prefer the extra call_rcu().
->>>
->>> I would instead argue that the only way that the last put_task_struct()
->>> is an unrelated high-priority task is if it manipulating an already-exited
->>> task.  In particular, I believe that the sys_exit() path prohibits your
->>> example of priority-boosting an already-exited task by removing the
->>> exiting task from the various lists before doing the release_task()
->>> on itself.
->>>
->>> Please let me know what I am missing here!
->>
->> You could very well be right (I don't know the details that well). But in
->> that case the get/put_task_struct() in the PI code is not needed?
->> I think, however, it is needed because the task doing the (de)boosting
->> gets a pointer to a task, enables preemption and drops all locks. It then
->> uses the pointer. The task could have been deleted a long time ago if it
->> wasn't used protected by get/put_task_struct().
->>
->> This is an examble of why using reference counting in a RT system is a bad
->> idea: Suddenly a highpriority task can end up doing the cleanup for low
->> priority tasks.
->
-> My belief is that the scenarios that lead to this situation involve error
-> situations -- in which case the dying task will be missing whatever
-> deadlines it had anyway, because it died before it could complete
-> its work.  So, I agree that we need the get/put_task_struct() calls,
-> but I believe that their job is to keep the system running in face of
-> application errors.  Otherwise, it would be really hard to debug the
-> application, right?
->
-> That said, it is entirely possible that I am missing a code path where
-> a correctly written application could legitimately force a high-priority
-> task to do cleanup work on behalf of a low-priority path.
->
->> The work should be defered to a low priority task. Using rcu is
->> probably overkill because it also introduces other delays. A tasklet
->> or a dedicated task would be better.
->
-> Agreed -- if there is in fact a legitimate non-error code path, then
-> a patch that used some deferral mechanism would be good.  But RCU is
-> overkill, and misleading overkill at that!
->
+>From HEAD so it should make 2.6.18. Paul fixed this one.
 
-I think this is a legitimate situation. lock 1 is owned by B which is
-blocked on lock 2 which is owned by C
 
-  CPU1:                                      CPU2
-     RT task A locks lock 1                C runs something
-     A boosts B to RT
-     A does get_task_struct B
-     A enables interrupts                  C unlocks lock 2
-     An very long interrupt is running     B unlocks lock 2
-                                           B unlocks lock 1
-                                           B is deboosted
-                                           B exits
-     A gets CPU1 again
-     A does put_task_struct B
-
-I don't know if the timing is realistic, but theoretically it is possible.
-It might also be possible the B exits on another CPU even without the long
-interrupt handler. If A has cpu affinity to CPU1 it is enough if a higher 
-priority task preempts it on CPU1.
-
-Esben
-
-> 							Thanx, Paul
->
+Alan

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965201AbWGJU5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422919AbWGJVDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965201AbWGJU5c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 16:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWGJU5c
+	id S1422919AbWGJVDV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 17:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422920AbWGJVDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 16:57:32 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:40241 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S965201AbWGJU5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 16:57:31 -0400
-Date: Mon, 10 Jul 2006 13:56:20 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Miller <davem@davemloft.net>, auke-jan.h.kok@intel.com,
-       jgarzik@pobox.com, pavel@ucw.cz, yi.zhu@intel.com,
-       jketreno@linux.intel.com, netdev@vger.kernel.org,
-       linville@tuxdriver.com, linux-kernel@vger.kernel.org,
-       mark.fasheh@oracle.com
+	Mon, 10 Jul 2006 17:03:20 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:14005
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1422919AbWGJVDT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 17:03:19 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@ucw.cz>
 Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
-Message-ID: <20060710205620.GO11640@ca-server1.us.oracle.com>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	David Miller <davem@davemloft.net>, auke-jan.h.kok@intel.com,
-	jgarzik@pobox.com, pavel@ucw.cz, yi.zhu@intel.com,
-	jketreno@linux.intel.com, netdev@vger.kernel.org,
-	linville@tuxdriver.com, linux-kernel@vger.kernel.org,
-	mark.fasheh@oracle.com
-References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com> <44B29C8A.8090405@intel.com> <20060710.114717.44959528.davem@davemloft.net> <1152557518.4874.79.camel@laptopd505.fenrus.org>
+Date: Mon, 10 Jul 2006 23:05:06 +0200
+User-Agent: KMail/1.9.1
+References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com>
+In-Reply-To: <44B2940A.2080102@pobox.com>
+Cc: yi.zhu@intel.com, jketreno@linux.intel.com,
+       Netdev list <netdev@vger.kernel.org>, linville@tuxdriver.com,
+       kernel list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1152557518.4874.79.camel@laptopd505.fenrus.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Message-Id: <200607102305.06572.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 08:51:58PM +0200, Arjan van de Ven wrote:
-> > Besides, the initramfs runs long after the driver init routine
-> > runs which is when the firmware needs to be available.
+On Monday 10 July 2006 19:53, you wrote:
+> Pavel Machek wrote:
+> > Kconfig currently allows compiling IPW_2100 and IPW_2200 into kernel
+> > (not as a module). Unfortunately, such configuration does not work,
+> > because these drivers need a firmware, and it can't be loaded by
+> > userspace loader when userspace is not running.
 > 
-> .. unless you use sysfs to do a fake hotunplug + replug the device, at
-> which point the driver init routine runs again.
+> False, initramfs...
 
-	Can we document how to do that?  I've wanted to synthesize such
-things before, and I couldn't quite reason how.
-	In my case, I had RHEL4 module-init-tools that don't wait for
-modprobe, so I had to compile in scsi and qla2x00, but the qla2x00 needs
-firmware, and it's too early...etc.
-
-Joel
+Does the ipw driver _really_ need the firmware on insmod time?
+bcm43xx, for example, loads the firmware on "ifconfig up" time.
+If ipw really needs the firmware on insmod, is it possible to
+defer it to later at "ifconfig up" time?
 
 -- 
-
-"Baby, even the losers
- Get luck sometimes.
- Even the losers
- Keep a little bit of pride."
-
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Greetings Michael.

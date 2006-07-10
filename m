@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWGJPtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWGJPuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbWGJPtO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965115AbWGJPtN
+	id S965115AbWGJPuY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWGJPuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:49:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:59628 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965134AbWGJPtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:49:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kuetSnZbwBrcEXTA4RHWXyfaQY4PvximetE4BYykvmEbYKFXjCH++LswmPjvXteYsgXjlExzO02dbciOmMABjJmceYXPfxce8BXvwekKHm64wT7IPZ3Z3XLjTtKhUeAQRvQSmLqjZPVQoOZRfqgcArIxzj6z2evXkPSpftVLQx8=
-Message-ID: <d120d5000607100849k5af2ee78o2715d9a51b06c000@mail.gmail.com>
-Date: Mon, 10 Jul 2006 11:49:10 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: lockdep input layer warnings.
-Cc: "Dave Jones" <davej@redhat.com>, mingo@redhat.com,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152544371.4874.66.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jul 2006 11:50:24 -0400
+Received: from xenotime.net ([66.160.160.81]:44255 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965115AbWGJPuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:50:23 -0400
+Date: Mon, 10 Jul 2006 08:53:10 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: arjan@infradead.org, adamazing@gmail.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 2.6.18-rc1 1/1] arch/x86-64: A few trivial spelling and
+ grammar fixes
+Message-Id: <20060710085310.94f9a10d.rdunlap@xenotime.net>
+In-Reply-To: <44B25003.6020401@gmail.com>
+References: <c526a04b0607081027j62887e9bi5a3b93fa4606e003@mail.gmail.com>
+	<1152381894.27368.30.camel@localhost.localdomain>
+	<c526a04b0607081150s54516470p1d1b1726dd7d9675@mail.gmail.com>
+	<200607100204.07517.ak@suse.de>
+	<c526a04b0607100529p7626c50as4952fcbaf9896a97@mail.gmail.com>
+	<1152534797.4874.32.camel@laptopd505.fenrus.org>
+	<44B25003.6020401@gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060706173411.GA2538@redhat.com>
-	 <d120d5000607061137r605a08f9ie6cd45a389285c4a@mail.gmail.com>
-	 <1152212575.3084.88.camel@laptopd505.fenrus.org>
-	 <d120d5000607061329t4868d265h6f8285c798a0e3b7@mail.gmail.com>
-	 <1152544371.4874.66.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Thu, 2006-07-06 at 16:29 -0400, Dmitry Torokhov wrote:
-> >
-> > Well, you are right, the patch is in -rc1 and I see mutex_lock_nested
-> > in the backtrace but for some reason it is still not happy. Again,
-> > this is with pass-through Synaptics port and we first taking mutex of
-> > the child device and then (going through pass-through port) trying to
-> > take mutex of the parent.
->
-> Ok it seems more drastic measures are needed; and a split of the
-> cmd_mutex class on a per driver basis. The easiest way to do that is to
-> inline the lock initialization (patch below) but to be honest I think
-> the patch is a bit ugly; I considered inlining the entire function
-> instead, any opinions on that?
->
+On Mon, 10 Jul 2006 21:02:59 +0800 Antonino A. Daplas wrote:
 
-It is ugly. Maybe we could have something like mutex_init_nolockdep()
-to annotate that lockdep is confused and make it ignore such locks?
+> Arjan van de Ven wrote:
+> >> Apologies Andi, white-space munging is probably the fault of gmail,
+> >> despite using plain text only, I'll try and use Thunderbird from now
+> >> on.
+> > 
+> > DOOOOOM
+> > 
+> > 
+> > please read
+> > 
+> > http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+> > 
+> > before thinking that thunderbird is better than gmail ;-)
+> 
+> It's not that hopeless, I use thunderbird + gmail + an external
+> editor (emacs). And it's not mangling the whitespaces, or so I hope :-)
 
-Of course there is a chance that lockdep is correct but I do not think so.
+Right, tbird is usable (although could be much better).
+I've done it and documented it several times.
 
--- 
-Dmitry
+---
+~Randy

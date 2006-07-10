@@ -1,110 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWGJGQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWGJGUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161037AbWGJGQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 02:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWGJGQI
+	id S1161101AbWGJGUi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 02:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbWGJGUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 02:16:08 -0400
-Received: from mga03.intel.com ([143.182.124.21]:12150 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751354AbWGJGQH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 02:16:07 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="63495173:sNHT7050427454"
-Content-class: urn:content-classes:message
+	Mon, 10 Jul 2006 02:20:38 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:57047 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161101AbWGJGUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 02:20:38 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Mon, 10 Jul 2006 16:20:30 +1000
+User-Agent: KMail/1.9.1
+Cc: Jason Lunz <lunz@falooley.org>, linux-kernel@vger.kernel.org
+References: <20060627133321.GB3019@elf.ucw.cz> <200607100706.45789.ncunningham@linuxmail.org> <e8sj71$nad$1@sea.gmane.org>
+In-Reply-To: <e8sj71$nad$1@sea.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [patch] fix boot with acpi=off
-Date: Mon, 10 Jul 2006 02:15:57 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ECFA46@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] fix boot with acpi=off
-Thread-Index: AcaijClwEml2Pv6+RaSjLrkONPlWKABWknCw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>
-Cc: <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 10 Jul 2006 06:15:59.0691 (UTC) FILETIME=[500569B0:01C6A3E8]
+Content-Type: multipart/signed;
+  boundary="nextPart6704119.3iUQIIaDna";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607101620.34408.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[adding linux-acpi@vger.kernel.org to cc]
+--nextPart6704119.3iUQIIaDna
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-acpi=off used to be handled by acpi_bus_register_driver()
-for these drivers.
+Hi.
 
-But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
-for procfs are inserted before that in the _init functions.
+On Monday 10 July 2006 13:57, Jason Lunz wrote:
+> ncunningham@linuxmail.org said:
+> > If Suspend2 added code in a way that broke swsusp, I would agree. But
+> > it=3D20 doesn't.
+>
+> That isn't true. I stopped using the suspend2 patches after they broke
+> the in-kernel suspend twice in the last year, since 2.6.14 or so. (The
+> first time I reported one of these bugs is here:
+> http://article.gmane.org/gmane.linux.swsusp.general/3243)
 
-This will be a problem for sbs.c also.
+The switch to using the swsusp lowlevel code was a bit bumpy, and I do admi=
+t=20
+that I broke swsusp from time to time, but these are the exceptions (as you=
+=20
+say), and the general design is such that they should be coexist. I'll free=
+ly=20
+admit that I don't regularly test swsusp, but I'm also not reguarly changin=
+g=20
+things that should break it.
 
-Vladimir,
-Any reason that the procfs stuff can't be after the
-acpi_bus_register_driver()
-calls?  Under what conditions could these lock functions fail?
+> Before I stopped using suspend2, there was a 6-8 month period where I
+> could easily use both in-kernel swsusp and suspend2 on my laptop. I kept
+> using suspend2 because it was faster, but I eventually stopped because
+> it locked up the machine during suspend or crashed it during resume on
+> one out of every 20-30 tries (and the crashes weren't in some driver
+> - the backtrace always pointed down into the guts of suspend code).
 
--Len
+Did you report them to the list? I try to be responsive (although, again, I=
+=20
+don't always succeed to the extent that I'd like.
 
+> In-kernel swsusp, on the other hand, aside from being slower, has never
+> crashed or frozen the machine. The same is true of the new uswsusp code,
+> which i'd say subjectively feels nearly as fast as suspend2 was, with
+> both using lzf compression.
 
->-----Original Message-----
->From: Pavel Machek [mailto:pavel@ucw.cz] 
->Sent: Saturday, July 08, 2006 8:44 AM
->To: kernel list; Andrew Morton; Brown, Len
->Subject: [patch] fix boot with acpi=off
->
->With acpi=off and acpi_ac/battery compiled into kernel, acpi breaks
->boot. This fixes it.
->
->Signed-off-by: Pavel Machek <pavel@suse.cz>
->
->---
->commit 30b8ecda788b096fbd7088808f9af65c41c3a83d
->tree 3c28088018932f9ceb18bcf980507474d4a50c4e
->parent 05f70501240c6ad5f852f13c187ee55579ad7bb8
->author <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
->committer <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
->
-> drivers/acpi/ac.c      |    2 ++
-> drivers/acpi/battery.c |    3 +++
-> 2 files changed, 5 insertions(+), 0 deletions(-)
->
->diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
->index 24ccf81..432b6b7 100644
->--- a/drivers/acpi/ac.c
->+++ b/drivers/acpi/ac.c
->@@ -285,6 +285,8 @@ static int __init acpi_ac_init(void)
-> {
-> 	int result;
-> 
->+	if (acpi_disabled)
->+		return -ENODEV;
-> 
-> 	acpi_ac_dir = acpi_lock_ac_dir();
-> 	if (!acpi_ac_dir)
->diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
->index 2ce9b35..5af1f64 100644
->--- a/drivers/acpi/battery.c
->+++ b/drivers/acpi/battery.c
->@@ -764,6 +764,9 @@ static int __init acpi_battery_init(void
-> {
-> 	int result;
-> 
->+	if (acpi_disabled)
->+		return -ENODEV;
->+
-> 	acpi_battery_dir = acpi_lock_battery_dir();
-> 	if (!acpi_battery_dir)
-> 		return -ENODEV;
->
->-- 
->(english) http://www.livejournal.com/~pavelmachek
->(cesky, pictures) 
->http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
->
+Yeah, being much simpler does have its advantages, and Rafael has done a go=
+od=20
+job with the uswsusp code. Hopefully I'll get to test it properly soon.
+
+Regards,
+
+Nigel
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart6704119.3iUQIIaDna
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsfGyN0y+n1M3mo0RArXNAJ9kym2EOEXsMtwS9i3ZDvKW5HIIZQCgsaii
+8hwN9tPOk3VPLakbhdnPgo4=
+=IxjM
+-----END PGP SIGNATURE-----
+
+--nextPart6704119.3iUQIIaDna--

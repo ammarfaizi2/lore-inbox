@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWGJRDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422705AbWGJRDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422706AbWGJRDK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 13:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWGJRDK
+	id S1422705AbWGJRDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 13:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWGJRDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 13:03:10 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:13494 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1422702AbWGJRDI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 13:03:08 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [PATCH] remove empty node at boot time
-Date: Mon, 10 Jul 2006 11:03:03 -0600
-User-Agent: KMail/1.8.3
-Cc: linux-ia64@vger.kernel.org, tony.luck@intel.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20060601200436.6bf7c4e5.kamezawa.hiroyu@jp.fujitsu.com> <200607092038.41053.bjorn.helgaas@hp.com> <20060710141903.424ba3db.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060710141903.424ba3db.kamezawa.hiroyu@jp.fujitsu.com>
+	Mon, 10 Jul 2006 13:03:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9370 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1422704AbWGJRDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 13:03:15 -0400
+Message-ID: <44B28834.4060302@torque.net>
+Date: Mon, 10 Jul 2006 13:02:44 -0400
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org, tomfa@debian.org, kumba@gentoo.org
+Subject: [ANNOUNCE] sdparm 0.99
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607101103.03849.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 July 2006 23:19, KAMEZAWA Hiroyuki wrote:
-> Could you try this patch ? (against 2.6.18-rc1)
+sdparm is a command line utility designed to get and set
+SCSI device parameters (cf hdparm for ATA disks). The
+parameters are held in mode pages. Apart from SCSI devices
+(e.g. disks, tapes and enclosures) sdparm can be used on
+any device that uses a SCSI command set. Virtually all CD/DVD
+drives use the SCSI MMC set irrespective of the transport.
+sdparm also can decode VPD pages including the device
+identification page. Commands to start and stop the media;
+load and unload removable media and some other housekeeping
+functions are supported. sdparm supports both the lk 2.4 and
+2.6 series.
 
-Your patch does fix it.  But I'm worried about removing
-empty nodes at boot-time.  I want to support the following
-scenario:
+This version fixes a problem that appeared in version 0.98:
+A Request Sense command was added to clear down any pending
+Unit Attention conditions but libata doesn't support
+Request Sense. This version expands the exit status values
+which are the same as those found in the recently released
+sg3_utils version 1.21 .
 
-  node 0: 1 enabled CPU, 3 disabled CPUs, no local memory
-  node 1: 4 disabled CPUs, no local memory
-  node 2: no CPUs, big interleaved memory across nodes 0 & 1
+For more information and downloads see:
+http://www.torque.net/sg/sdparm.html
 
-At run-time, I'd like to be able to enable any or all of the
-7 disabled CPUs.  If you remove the "empty" node 1 at boot-time,
-it sounds like I won't be able to enable its CPUs later.
+Changelog:
+http://www.torque.net/sg/p/sdparm.ChangeLog
 
-Bjorn
+Doug Gilbert

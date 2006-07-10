@@ -1,101 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWGJXg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965066AbWGJXhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWGJXg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWGJXg1
+	id S965066AbWGJXhw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbWGJXhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:36:27 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:234 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S965064AbWGJXg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:36:26 -0400
-Date: Tue, 11 Jul 2006 01:36:15 +0200 (MEST)
-Message-Id: <200607102336.k6ANaFpx020663@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: johnstul@us.ibm.com, mikpe@it.uu.se
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz
+	Mon, 10 Jul 2006 19:37:51 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:47036 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965066AbWGJXhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:37:51 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Tue, 11 Jul 2006 09:37:45 +1000
+User-Agent: KMail/1.9.1
+Cc: suspend2-devel@lists.suspend2.net, Arjan van de Ven <arjan@infradead.org>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, grundig <grundig@teleline.es>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607110749.48209.nigel@suspend2.net> <20060710232212.GD444@elf.ucw.cz>
+In-Reply-To: <20060710232212.GD444@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1608371.idEdJl74iD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607110937.49257.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 10:58:47 -0700, john stultz wrote:
->So it seems possible that the timer tick will be enabled before the
->timekeeping resume code runs. I'm not sure why this isn't seen w/ ACPI
->suspend/resume, as I think they're using the same
->sysdev_class .suspend/.resume bits. 
->
->Anyway, I think this patch should fix it (I've only compile tested it,
->as I don't have my laptop on me right now). Would you mind giving it a
->try? 
->
->thanks
->-john
+--nextPart1608371.idEdJl74iD
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-With this patch my Latitude resumes OK from APM suspend again.
+Hi.
 
-Thanks John.
-
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
-
->diff --git a/kernel/timer.c b/kernel/timer.c
->index 396a3c0..afaa594 100644
->--- a/kernel/timer.c
->+++ b/kernel/timer.c
->@@ -966,7 +966,7 @@ void __init timekeeping_init(void)
-> 	write_sequnlock_irqrestore(&xtime_lock, flags);
-> }
-> 
->-
->+static int timekeeping_suspended;
-> /*
->  * timekeeping_resume - Resumes the generic timekeeping subsystem.
->  * @dev:	unused
->@@ -982,6 +982,18 @@ static int timekeeping_resume(struct sys
-> 	write_seqlock_irqsave(&xtime_lock, flags);
-> 	/* restart the last cycle value */
-> 	clock->cycle_last = clocksource_read(clock);
->+	clock->error = 0;
->+	timekeeping_suspended = 0;
->+	write_sequnlock_irqrestore(&xtime_lock, flags);
->+	return 0;
->+}
->+
->+static int timekeeping_suspend(struct sys_device *dev, pm_message_t state)
->+{
->+	unsigned long flags;
->+
->+	write_seqlock_irqsave(&xtime_lock, flags);
->+	timekeeping_suspended = 1;
-> 	write_sequnlock_irqrestore(&xtime_lock, flags);
-> 	return 0;
-> }
->@@ -989,6 +1001,7 @@ static int timekeeping_resume(struct sys
-> /* sysfs resume/suspend bits for timekeeping */
-> static struct sysdev_class timekeeping_sysclass = {
-> 	.resume		= timekeeping_resume,
->+	.suspend	= timekeeping_suspend,
-> 	set_kset_name("timekeeping"),
-> };
-> 
->@@ -1090,14 +1103,17 @@ static void clocksource_adjust(struct cl
-> static void update_wall_time(void)
-> {
-> 	cycle_t offset;
->-
->-	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
->+	
->+	/* avoid timekeeping before we're fully resumed */
->+	if (unlikely(timekeeping_suspended))
->+		return;
-> 
-> #ifdef CONFIG_GENERIC_TIME
-> 	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
-> #else
-> 	offset = clock->cycle_interval;
-> #endif
->+	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
-> 
-> 	/* normally this loop will run just once, however in the
-> 	 * case of lost or late ticks, it will accumulate correctly.
+On Tuesday 11 July 2006 09:22, Pavel Machek wrote:
+> > The modularity is part of the basis of the redesign, so I couldn't easi=
+ly
+> > remove that. Removing the compression and encryption support is trivial
+> > though (one file each, plus Makefile & Kconfig entries - no other
+> > modifications needed). Userspace splash - well, just don't compile and
+> > install that userspace component - suspend2 will keep working quite
+> > happily without any userspace app to do a nice display (it will still do
+> > printks, so you won't be flying completely blind).
 >
->
+> Lets see the patches, then.
+
+They're basically what you already have - as I said, just ignore the=20
+compression and encryption files and a couple of lines in the Makefile and=
+=20
+Kconfig changes. No modifications are needed to have suspend2 without a=20
+userspace user interface. That's the advantage of that modular design you=20
+don't like.
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart1608371.idEdJl74iD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsuTNN0y+n1M3mo0RAtSaAKCNlehkaf6R7R+82yJqU7r5+/FQQwCglTDN
+48f0OM0TmqoVEGCbEG0w8k4=
+=Q8cT
+-----END PGP SIGNATURE-----
+
+--nextPart1608371.idEdJl74iD--

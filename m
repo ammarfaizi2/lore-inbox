@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965289AbWGJXjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965328AbWGJXju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965289AbWGJXjo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965328AbWGJXjo
+	id S965328AbWGJXju (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWGJXju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:39:44 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:44440 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S965289AbWGJXjn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:39:43 -0400
-Message-ID: <44B2E4FF.9000502@pg.gda.pl>
-Date: Tue, 11 Jul 2006 01:38:39 +0200
-From: =?ISO-8859-2?Q?Adam_Tla=B3ka?= <atlka@pg.gda.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; pl-PL; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+	Mon, 10 Jul 2006 19:39:50 -0400
+Received: from thunk.org ([69.25.196.29]:36309 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S965328AbWGJXjt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:39:49 -0400
+Date: Mon, 10 Jul 2006 19:39:44 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+Message-ID: <20060710233944.GB30332@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com> <1152552806.27368.187.camel@localhost.localdomain> <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com> <1152554708.27368.202.camel@localhost.localdomain> <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: ak@suse.de, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-References: <20060707231716.GE26941@stusta.de>	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>	 <20060710132810.551a4a8d.atlka@pg.gda.pl> <1152571717.19047.36.camel@mindpipe>
-In-Reply-To: <1152571717.19047.36.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Lee Revell napisa³:
-> On Mon, 2006-07-10 at 13:28 +0200, Adam Tla³ka wrote:
->> >From my point of view ALSA has many advantages if you want to dig in
->> the card driver buffers/period etc. settings but lacks ease of use and
->> some of simple in theory functionality is a pain - device enumeration
->> or switching output mode/device without restarting apps or rewritting
->> them so they have special function for that purpose.
->>
+On Mon, Jul 10, 2006 at 06:35:50PM -0400, Jon Smirl wrote:
+> On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >We hold file_list_lock because we have to find everyone using that tty
+> >and hang up their instance of it, then flip the file operations not
+> >because we need to protect against tty structs going away. It's needed
+> >in order to walk the file list and protects against the file list itself
+> >changing rather than the tty structs. It may well be possible to move
+> >that to a tty layer private lock with care, but it would need care to
+> >deal with VFS operations.
 > 
-> Does any available sound driver interface allow switching output devices
-> with no help from the app and without having to restart playback?  OSS
-> does not, and every Windows app I've used has a configuration option to
-> set the sound device, and you must stop and start playback for it to
-> take effect.
+> Assuming do_SAK has blocked anyone's ability to newly open the tty,
+> why does it need to search every file handle in the system instead of
+> just using tty->tty_files? tty->tty_files should contain a list of
+> everyone who has the tty open. Is this global search needed because of
+> duplicated handles?
 
-Sorry but is a Windows solution the best on the whole world?
-Is there any problem to imagine an abstract sound device which virtually 
-always works but uses real device chosen by user, network redirection or 
-  emulating work and we have some control panel/app which can control 
-connections/plugins/redirections etc. (also this can be done by some 
-kind of daemon responding to hw change events)?
-Do we really need to program every sound app to have device setting code?
+When I wrote the do_SAK code about 12-13 years ago, tty->tty_files
+didn't exist.  It should be safe to do this, but I'll echo Alan's
+comment.  We really ought to implement revoke(2) at the VFS layer, and
+then utilize to implement SAK and vhangup() functionality.
 
->> esd, arts, jackd, polypd and other prove that ALSA is not enough
->> and its functionality is far from perfect.
->>
-> 
-> esd and artsd are no longer needed since ALSA began to enable software
-> mixing by default in release 1.0.9.
- >
-
-So why they are still exist in so many Linux distributions?
-
-> As for jackd and other apps that
-> provide additional functionality - no one ever claimed ALSA would handle
-> every audio related function imaginable.  It's just a low level HAL.
-
-Format changing, resampling, mixing and supporting additional plugins
-does not seems to be just low level HAL for hw device. It creates some 
-kind of virtual functionality which means more then this provided by 
-hardware device itself.
-
-Regards
--- 
-Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+						- Ted

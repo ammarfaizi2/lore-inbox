@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWGJKHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWGJKPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWGJKHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWGJKHo
+	id S1751394AbWGJKPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGJKPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:07:44 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:15408 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751390AbWGJKHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:07:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
-        b=SOcBHWeMI2+d/ROb0Md2CpHFsvX18JuyDmgZ858YqhxXcqYWqNWcnvXcnJmcs41JdEnLZwD5JjCQjGuLBgiwehOZ7PJkGZojDW1PbO5TlZEuZuNTRWR3STLSYGKxZFuTfRBlatLoNB/thFygJVAfQTl1q+AOhqVbDPzvsNFFvho=
-Message-ID: <44B226E8.40104@pol.net>
-Date: Mon, 10 Jul 2006 18:07:36 +0800
-From: "Antonino A. Daplas" <adaplas@pol.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net> <m3irm5hjr0.fsf@defiant.localdomain>
-In-Reply-To: <m3irm5hjr0.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 10 Jul 2006 06:15:54 -0400
+Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:60139 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1751398AbWGJKPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 06:15:54 -0400
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
+	(2.6.18-rc1-i386) - safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: akpm@osdl.org, James.Bottomley@steeleye.com,
+       "Eric W. Biederman" <ebiederm@xmission.com>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <5742.1152520068@ocs3.ocs.com.au>
+References: <5742.1152520068@ocs3.ocs.com.au>
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Mon, 10 Jul 2006 19:15:50 +0900
+Message-Id: <1152526550.3003.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> "Antonino A. Daplas" <adaplas@pol.net> writes:
+Hi Keith,
+
+Thank you for the comments.
+
+On Mon, 2006-07-10 at 18:27 +1000, Keith Owens wrote:
+> Fernando Luis Vazquez Cao (on Mon, 10 Jul 2006 16:50:52 +0900) wrote:
+> >On the event of a stack overflow critical data that usually resides at
+> >the bottom of the stack is likely to be stomped and, consequently, its
+> >use should be avoided.
+> >
+> >In particular, in the i386 and IA64 architectures the macro
+> >smp_processor_id ultimately makes use of the "cpu" member of struct
+> >thread_info which resides at the bottom of the stack. x86_64, on the
+> >other hand, is not affected by this problem because it benefits from
+> >the use of the PDA infrastructure.
+> >
+> >To circumvent this problem I suggest implementing
+> >"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+> >IA64 and use it as a replacement for smp_processor_id in the reboot path
+> >to the dump capture kernel. This is a possible implementation for i386.
 > 
->> Why don't you create a separate function for this, ie cirrusfb_create_i2c()
->> or something. This way, we eliminate the #ifdef/#endif inside the function.
-> 
-> #ifdef inside a function isn't a problem, while unnecessary complication
-> (= worse readability) is.
+> I agree with avoiding the use of thread_info when the stack might be
+> corrupt.  However your patch results in reading apic data and scanning
+> NR_CPU sized tables for each IPI that is sent, which will slow down the
+> sending of all IPIs, not just dump.
+This patch only affects IPIs sent using send_IPI_allbutself which is
+rarely called, so the impact in performance should be negligible.
 
-There are better reasons (ie, smaller patch), but worse readability is not
-one of them.
+> It would be far cheaper to define
+> a per-cpu variable containing the logical cpu number, set that variable
+> once as each cpu is brought up and just read it in cases where you
+> might not trust the integrity of struct thread_info.  safe_smp_processor_id()
+> resolves to just a read of the per cpu variable.
+But to read a per-cpu variable you need to index the corresponding array
+with processor id of the current CPU (see code below), but that is
+precisely what we are trying to figure out. Anyway as
+send_IPI_allbutself is not a fast path (correct if this assumption is
+wrong) the current implementation of safe_smp_processor_id should be
+fine.
 
-I could more easily grasp the code flow of cirrusfb_register() if you
-just inserted "cirrusfb_create_i2c_buses()" instead of:
+#define get_cpu_var(var) (*({ preempt_disable();
+&__get_cpu_var(var); }))
+#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
 
-+		cinfo->bit_cirrus_data.setsda = alpine_setsda;
-+		cinfo->bit_cirrus_data.setscl = alpine_setscl;
-+		cinfo->bit_cirrus_data.getsda = alpine_getsda;
-+		cinfo->bit_cirrus_data.getscl = alpine_getscl;
-+		cinfo->bit_cirrus_data.udelay = 5;
-+		cinfo->bit_cirrus_data.mdelay = 1;
-+		cinfo->bit_cirrus_data.timeout = HZ;
-+		cinfo->bit_cirrus_data.data = cinfo;
-+		cinfo->cirrus_ops.owner = THIS_MODULE;
-+		cinfo->cirrus_ops.id = I2C_HW_B_CIRRUS;
-+		cinfo->cirrus_ops.class = I2C_CLASS_DDC;
-+		cinfo->cirrus_ops.algo_data = &cinfo->bit_cirrus_data;
-+		cinfo->cirrus_ops.dev.parent = info->device;
-+		strlcpy(cinfo->cirrus_ops.name, "Cirrus Logic DDC I2C adapter",
-+			I2C_NAME_SIZE);
-+		if (!(err = i2c_bit_add_bus(&cinfo->cirrus_ops))) {
-+			printk(KERN_DEBUG "Initialized Cirrus Logic I2C"
-+			       " adapter\n");
- 			cinfo->i2c_used = 1;
- 		} else
--			printk(KERN_WARNING "Unable to initialize Alpine I2C"
--			       "adapter (result = %i)\n", err);
-+			printk(KERN_WARNING "Unable to initialize Cirrus"
-+			       " Logic I2C adapter (result = %i)\n", err);
+Am I missing something obvious?
 
-Tony
+Regards,
+
+Fernando
+

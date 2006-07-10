@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWGJPGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWGJPJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWGJPGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGJPGM
+	id S965014AbWGJPJE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGJPJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:06:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:20290 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965014AbWGJPGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:06:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NhJub+gorsagM7yCmbgU/2QkuOwC5rmoorWtEOfYQolQat8PpCXn0mHuORDySA7B1Eg7bxSpzNSQpWN874kCuR9NMwtiR53SchETtq0Irru0osc5wI50HgiJqV/vjNANEJuPPbAFODodHt623F6MrNP8Rpp3If70eTRuDaPMPmE=
-Message-ID: <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
-Date: Mon, 10 Jul 2006 11:06:09 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: Opinions on removing /proc/tty?
-Cc: ray-gmail@madrabbit.org, "Jon Smirl" <jonsmirl@gmail.com>,
-       "Greg KH" <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 11:09:04 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:57748 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965014AbWGJPJD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:09:03 -0400
+Date: Mon, 10 Jul 2006 10:08:21 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Kirill Korotaev <dev@openvz.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
+Message-ID: <20060710150821.GE28688@sergelap.austin.ibm.com>
+References: <20060703030355.420c7155.akpm@osdl.org> <20060708202011.GD5020@stusta.de> <20060709185228.GB14100@sergelap.austin.ibm.com> <20060709233321.GY13938@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com>
-	 <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com>
-	 <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com>
-	 <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com>
-	 <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>
-	 <20060709193133.GA32457@flint.arm.linux.org.uk>
-	 <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com>
-	 <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
+In-Reply-To: <20060709233321.GY13938@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >
-> > Just do /proc/*/tty links and all will be good. This even
-> > handles the case of two different names for the same dev_t.
-> >
-> Is this for the controlling tty? Then it should be ctty.
+Quoting Adrian Bunk (bunk@stusta.de):
+> On Sun, Jul 09, 2006 at 01:52:28PM -0500, Serge E. Hallyn wrote:
+> > Quoting Adrian Bunk (bunk@stusta.de):
+> > > namespaces-utsname-sysctl-hack.patch and ipc-namespace-sysctls.patch 
+> > > cause the following compile error with CONFIG_PROC_FS=n:
+> > > 
+> > > <--  snip  -->
+> > > 
+> > > ...
+> > >   CC      kernel/sysctl.o
+> > > kernel/sysctl.c:107: warning: #proc_do_ipc_string# used but never defined
+> > > kernel/sysctl.c:150: warning: #proc_do_utsns_string# used but never defined
+> > > kernel/sysctl.c:2465: warning: #proc_do_uts_string# defined but not used
+> > > ...
+> > >   LD      .tmp_vmlinux1
+> > > kernel/built-in.o:(.data+0x938): undefined reference to `proc_do_utsns_string'
+> > > kernel/built-in.o:(.data+0x964): undefined reference to `proc_do_utsns_string'
+> > > kernel/built-in.o:(.data+0x990): undefined reference to `proc_do_utsns_string'
+> > > kernel/built-in.o:(.data+0x9bc): undefined reference to `proc_do_utsns_string'
+> > > kernel/built-in.o:(.data+0x9e8): undefined reference to `proc_do_utsns_string'
+> > > kernel/built-in.o:(.data+0xc24): undefined reference to `proc_do_ipc_string'
+> > > kernel/built-in.o:(.data+0xc50): undefined reference to `proc_do_ipc_string'
+> > > kernel/built-in.o:(.data+0xc7c): undefined reference to `proc_do_ipc_string'
+> > > kernel/built-in.o:(.data+0xca8): undefined reference to `proc_do_ipc_string'
+> > > kernel/built-in.o:(.data+0xcd4): undefined reference to `proc_do_ipc_string'
+> > > kernel/built-in.o:(.data+0xd00): more undefined references to `proc_do_ipc_string' follow
+> > > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> > Does the below patch fix this for you?  Took me awhile to get a valid
+> 
+> I can confirm this patch fixes the compilation for me.
+> 
+> > CONFIG_PROC_FS=n .config, and I'm having other -mm s390 build failures
+> > which I'll look into tomorrow, but this seems to fix the problem.
+> 
+> CONFIG_EMBEDDED=y is required for CONFIG_PROC_FS=n, but apart from this 
+> there was no problem for me.
+> 
+> Did you observe any other problems (besides a small ATM compile error 
+> Dave has just merged my patch for) with CONFIG_PROC_FS=n?
 
-Eeeew, an extra byte so it can look ugly.
-What other special tty is there?
+Ok, CONFIG_PROC_FS=n hides the fs/proc/task_mmu.c:arch_vma_name()
+definition, and only i386 and powerpc have their own versions.
 
-It's always been "tty" in the kernel as far as I know.
-See "struct tty_struct *tty" in sched.h's struct signal_struct.
+2.6.18-rc1-mm1's kernel/signal.c uses arch_vma_name() in print_vma().
 
-Various "ps" programs have always used "TTY" or "TT".
-This makes "tt" more reasonable than "ctty".
+-serge

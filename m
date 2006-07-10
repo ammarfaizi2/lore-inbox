@@ -1,228 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWGJQXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWGJQZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbWGJQXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 12:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422676AbWGJQXw
+	id S1422676AbWGJQZU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 12:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422680AbWGJQZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 12:23:52 -0400
-Received: from ihug-mail.icp-qv1-irony6.iinet.net.au ([203.59.1.224]:39448
-	"EHLO mail-ihug.icp-qv1-irony6.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1422677AbWGJQXu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 12:23:50 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.06,225,1149436800"; 
-   d="scan'208"; a="371355394:sNHT18625944"
-Subject: Re: [autofs] Re: [PATCH] autofs4 needs to force fail return
-	revalidate
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, autofs@linux.kernel.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060710032429.15192c9c.akpm@osdl.org>
-References: <200606210618.k5L6IFDr008176@raven.themaw.net>
-	 <20060620233941.49ba2223.akpm@osdl.org>
-	 <Pine.LNX.4.64.0606231159540.2904@raven.themaw.net>
-	 <20060710032429.15192c9c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 00:23:47 +0800
-Message-Id: <1152548627.1853.19.camel@raven.themaw.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 10 Jul 2006 12:25:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:41348 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1422676AbWGJQZR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 12:25:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hg47Pr1/lh3ksVNnfIWlbLCTBDzLSh/iJnk38ZC4UziD2eukrnL6ftzTpCa5241z1cv6jJSEdJnh6zTF9XgO/PM8GJLtpZkqN5kBcdzyCWnvMNRSKhGxH/8w/RUwpOJf380pPd0edG/XpXClWjJ4TVP5Jlg5Qonbwglmp9I+7iI=
+Message-ID: <9f7850090607100925k297fdb47v92a8fbbefef4bd96@mail.gmail.com>
+Date: Mon, 10 Jul 2006 09:25:15 -0700
+From: "marty fouts" <mf.danger@gmail.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Subject: Re: [patch] spinlocks: remove 'volatile'
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Albert Cahalan" <acahalan@gmail.com>, tglx@linutronix.de,
+       joe.korty@ccur.com, linux-kernel@vger.kernel.org, linux-os@analogic.com,
+       khc@pm.waw.pl, mingo@elte.hu, akpm@osdl.org, arjan@infradead.org
+In-Reply-To: <20060709211023.GC5759@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <787b0d920607072054i237eebf5g8109a100623a1070@mail.gmail.com>
+	 <20060708094556.GA13254@tsunami.ccur.com>
+	 <1152354244.24611.312.camel@localhost.localdomain>
+	 <787b0d920607080849p322a6349g7a5fd98f78aa9f32@mail.gmail.com>
+	 <1152383487.24611.337.camel@localhost.localdomain>
+	 <787b0d920607081233w3e0e99a9n706ff510c3de458b@mail.gmail.com>
+	 <Pine.LNX.4.64.0607081256170.3869@g5.osdl.org>
+	 <20060709211023.GC5759@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 03:24 -0700, Andrew Morton wrote:
-> btw, this patch is presently in a not-going-anywhere state because Al
-> expressed some reservations.  But then it all went quiet?
+On 7/9/06, Pavel Machek <pavel@suse.cz> wrote:
+> Hi!
+>
+> > Btw, I think that the whole standard definition of "volatile" is pretty
+> > weak and useless. The standard could be improved, and a way to improve the
+> > definition of volatile would actually be to say something like
+> >
+> >       "volatile" implies that the access to that entity can alias with
+> >       any other access.
+> >
+> > That's actually a lot simpler for a compiler writer (a C compiler already
+> > has to know about the notion of data aliasing), and gives a lot more
+> > useful (and strict) semantics to the whole concept.
+> >
+> > So to look at the previous example of
+> >
+> >       extern int a;
+> >       extern int volatile b;
+> >
+> >       void testfn(void)
+> >       {
+> >               a++;
+> >               b++;
+> >       }
+> >
+> > _my_ definition of "volatile" is actually totally unambiguous, and not
+> > just simpler than the current standard, it is also stronger. It would make
+> > it clearly invalid to read the value of "b" until the value of "a" has
+> > been written, because (by my definition), "b" may actually alias the value
+> > of "a", so you clearly cannot read "b" until "a" has been updated.
+> ...
+> > In contrast, the current C standard definition of "volatile" is not only
+> > cumbersome and inconvenient, it's also badly defined when it comes to
+> > accesses to _other_ data, making it clearly less useful.
+> >
+> > I personally think that my simpler definition of volatile is actually a
+> > perfectly valid implementation of the current definition of volatile, and
+> > I suggested it to some gcc people as a better way to handle "volatile"
+> > inside gcc while still being standards-conforming (ie the "can alias
+> > anything" thing is not just clearer and simpler, it's strictly a subset of
+> > what the C standard allows, meaning that I think you can adopt my
+> > definition _without_ breaking any old programs or standards).
+>
+> Are you sure?
+>
+> volatile int a; a=1; a=2;
+>
+> ...under old definition, there's nothing to optimize but AFAICT, your
+> definition allows optimizing out a=1.
+>
+>                                                Pavel
+> --
 
-Ya. Thought that might be the case.
-This is in a sensitive place in the VFS.
+You don't have to go that far.  "Alias with anything" is too vague,
+because it basically means that all external variables are volatile if
+any are.  In the original example, b shouldn't be allowed as an alias
+for a, because a is not "volatile". Otherwise, once you've added any
+volatile variables you've effectively said "all variables are
+volatile".
 
-Al, please your swift and sure guidance would be appreciated.
-
-> 
-> 
-> From: Ian Kent <raven@themaw.net>
-> 
-> For a long time now I have had a problem with not being able to return a
-> lookup failure on an existsing directory.  In autofs this corresponds to a
-> mount failure on a autofs managed mount entry that is browsable (and so the
-> mount point directory exists).
-> 
-> While this problem has been present for a long time I've avoided resolving
-> it because it was not very visible.  But now that autofs v5 has "mount and
-> expire on demand" of nested multiple mounts, such as is found when mounting
-> an export list from a server, solving the problem cannot be avoided any
-> longer.
-> 
-> I've tried very hard to find a way to do this entirely within the autofs4
-> module but have not been able to find a satisfactory way to achieve it.
-> 
-> So, I need to propose a change to the VFS.
-> 
-> Signed-off-by: Ian Kent <raven@themaw.net>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  fs/autofs4/root.c |   38 ++++++++++++++++++++++++++-------
->  fs/namei.c        |   50 ++++++++++++++++++++++++++++++--------------
->  linux/dcache.h    |    0 
->  3 files changed, 65 insertions(+), 23 deletions(-)
-> 
-> diff -puN fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate fs/autofs4/root.c
-> --- a/fs/autofs4/root.c~autofs4-needs-to-force-fail-return-revalidate
-> +++ a/fs/autofs4/root.c
-> @@ -137,7 +137,9 @@ static int autofs4_dir_open(struct inode
->  		nd.flags = LOOKUP_DIRECTORY;
->  		ret = (dentry->d_op->d_revalidate)(dentry, &nd);
->  
-> -		if (!ret) {
-> +		if (ret <= 0) {
-> +			if (ret < 0)
-> +				status = ret;
->  			dcache_dir_close(inode, file);
->  			goto out;
->  		}
-> @@ -400,13 +402,23 @@ static int autofs4_revalidate(struct den
->  	struct autofs_sb_info *sbi = autofs4_sbi(dir->i_sb);
->  	int oz_mode = autofs4_oz_mode(sbi);
->  	int flags = nd ? nd->flags : 0;
-> -	int status = 0;
-> +	int status = 1;
->  
->  	/* Pending dentry */
->  	if (autofs4_ispending(dentry)) {
-> -		if (!oz_mode)
-> -			status = try_to_fill_dentry(dentry, flags);
-> -		return !status;
-> +		/* The daemon never causes a mount to trigger */
-> +		if (oz_mode)
-> +			return 1;
-> +
-> +		/*
-> +		 * A zero status is success otherwise we have a
-> +		 * negative error code.
-> +		 */
-> +		status = try_to_fill_dentry(dentry, flags);
-> +		if (status == 0)
-> +				return 1;
-> +
-> +		return status;
->  	}
->  
->  	/* Negative dentry.. invalidate if "old" */
-> @@ -421,9 +433,19 @@ static int autofs4_revalidate(struct den
->  		DPRINTK("dentry=%p %.*s, emptydir",
->  			 dentry, dentry->d_name.len, dentry->d_name.name);
->  		spin_unlock(&dcache_lock);
-> -		if (!oz_mode)
-> -			status = try_to_fill_dentry(dentry, flags);
-> -		return !status;
-> +		/* The daemon never causes a mount to trigger */
-> +		if (oz_mode)
-> +			return 1;
-> +
-> +		/*
-> +		 * A zero status is success otherwise we have a
-> +		 * negative error code.
-> +		 */
-> +		status = try_to_fill_dentry(dentry, flags);
-> +		if (status == 0)
-> +			return 1;
-> +
-> +		return status;
->  	}
->  	spin_unlock(&dcache_lock);
->  
-> diff -puN fs/namei.c~autofs4-needs-to-force-fail-return-revalidate fs/namei.c
-> --- a/fs/namei.c~autofs4-needs-to-force-fail-return-revalidate
-> +++ a/fs/namei.c
-> @@ -365,6 +365,30 @@ void release_open_intent(struct nameidat
->  		fput(nd->intent.open.file);
->  }
->  
-> +static inline struct dentry *
-> +do_revalidate(struct dentry *dentry, struct nameidata *nd)
-> +{
-> +	int status = dentry->d_op->d_revalidate(dentry, nd);
-> +	if (unlikely(status <= 0)) {
-> +		/*
-> +		 * The dentry failed validation.
-> +		 * If d_revalidate returned 0 attempt to invalidate
-> +		 * the dentry otherwise d_revalidate is asking us
-> +		 * to return a fail status.
-> +		 */
-> +		if (!status) {
-> +			if (!d_invalidate(dentry)) {
-> +				dput(dentry);
-> +				dentry = NULL;
-> +			}
-> +		} else {
-> +			dput(dentry);
-> +			dentry = ERR_PTR(status);
-> +		}
-> +	}
-> +	return dentry;
-> +}
-> +
->  /*
->   * Internal lookup() using the new generic dcache.
->   * SMP-safe
-> @@ -379,12 +403,9 @@ static struct dentry * cached_lookup(str
->  	if (!dentry)
->  		dentry = d_lookup(parent, name);
->  
-> -	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-> -		if (!dentry->d_op->d_revalidate(dentry, nd) && !d_invalidate(dentry)) {
-> -			dput(dentry);
-> -			dentry = NULL;
-> -		}
-> -	}
-> +	if (dentry && dentry->d_op && dentry->d_op->d_revalidate)
-> +		dentry = do_revalidate(dentry, nd);
-> +
->  	return dentry;
->  }
->  
-> @@ -477,10 +498,9 @@ static struct dentry * real_lookup(struc
->  	 */
->  	mutex_unlock(&dir->i_mutex);
->  	if (result->d_op && result->d_op->d_revalidate) {
-> -		if (!result->d_op->d_revalidate(result, nd) && !d_invalidate(result)) {
-> -			dput(result);
-> +		result = do_revalidate(result, nd);
-> +		if (!result)
->  			result = ERR_PTR(-ENOENT);
-> -		}
->  	}
->  	return result;
->  }
-> @@ -760,12 +780,12 @@ need_lookup:
->  	goto done;
->  
->  need_revalidate:
-> -	if (dentry->d_op->d_revalidate(dentry, nd))
-> -		goto done;
-> -	if (d_invalidate(dentry))
-> -		goto done;
-> -	dput(dentry);
-> -	goto need_lookup;
-> +	dentry = do_revalidate(dentry, nd);
-> +	if (!dentry)
-> +		goto need_lookup;
-> +	if (IS_ERR(dentry))
-> +		goto fail;
-> +	goto done;
->  
->  fail:
->  	return PTR_ERR(dentry);
-> diff -puN include/linux/dcache.h~autofs4-needs-to-force-fail-return-revalidate include/linux/dcache.h
-> _
-> 
-> _______________________________________________
-> autofs mailing list
-> autofs@linux.kernel.org
-> http://linux.kernel.org/mailman/listinfo/autofs
+Anyway, this approach is the opposite of the original intent of
+volatile.  Originally, the idea was that volatile meant "anything
+might have changed b since the last time you referenced it".  Here,
+you're saying "changing b could change anything".

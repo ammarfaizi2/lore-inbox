@@ -1,95 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWGJOUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWGJOXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWGJOUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWGJOUM
+	id S1030411AbWGJOXU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWGJOXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:20:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4711 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030400AbWGJOUJ (ORCPT
+	Mon, 10 Jul 2006 10:23:20 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:12242 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030411AbWGJOXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:20:09 -0400
-Date: Mon, 10 Jul 2006 16:22:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: splice() and file offsets
-Message-ID: <20060710142245.GG5210@suse.de>
-References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de> <20060710130754.26280@gmx.net> <20060710132529.GD5210@suse.de> <20060710135427.26270@gmx.net>
+	Mon, 10 Jul 2006 10:23:19 -0400
+Date: Mon, 10 Jul 2006 09:22:40 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Kirill Korotaev <dev@openvz.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6: kernel/sysctl.c: PROC_FS=n compile error
+Message-ID: <20060710142240.GB28688@sergelap.austin.ibm.com>
+References: <20060703030355.420c7155.akpm@osdl.org> <20060708202011.GD5020@stusta.de> <20060709185228.GB14100@sergelap.austin.ibm.com> <20060709233321.GY13938@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060710135427.26270@gmx.net>
+In-Reply-To: <20060709233321.GY13938@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10 2006, Michael Kerrisk wrote:
-> Jens,
-> 
-> > > I'm still not clear here.  Let me phrase my question another way:
-> > > why is it that the presence or absence of off_out affects whether
-> > > or not splice() changes the current file offset for fd_out?
-> > 
-> > The logic is simple - either you don't give an explicit offset, and the
-> > current position is used and updated. Or you give an offset, and the
-> > current position is ignored (not read, not updated).
-> 
-> Yes, I understand what the code is doing, but *why* do 
-> things this way?  (To put things another way: why not *always 
-> have splice() update the file offset?)  I realise there may be
-> some good reason for this, and if there is, it will go into the
-> man page!
+Quoting Adrian Bunk (bunk@stusta.de):
+> On Sun, Jul 09, 2006 at 01:52:28PM -0500, Serge E. Hallyn wrote:
+> CONFIG_EMBEDDED=y is required for CONFIG_PROC_FS=n, but apart from this 
+> there was no problem for me.
 
-The good reason is why update the current position? I just told the
-kernel to ignore the current position and use the given offset, why
-would I bother updating the current position? The whole point of
-providing an offset is to ignore the current position.
+ok, that's what I finally ended up trying.  Tried other things first as
+I wasn't sure 'embedded' and 's390' would mix well  :)  but it went
+fine.
 
-I must say I cannot understand why you are confused or find this
-illogical, it makes perfect sense to me.
+> Did you observe any other problems (besides a small ATM compile error 
+> Dave has just merged my patch for) with CONFIG_PROC_FS=n?
 
-> > > > It's identical to how sendfile() works.
-> > > 
-> > > But it isn't: sendfile() never changes the file offset 
-> > > of its 'in_fd'.
-> > 
-> > Ehm, yes it does. Would you expect the app to do an appropriate lseek()
-> > on every sendfile() call?
-> 
-> No!  It does not!  See the sendfile.2 man page: "sendfile() 
-> does not modify the current file offset of in_fd."  
+Only in s390-specific drivers:
 
-I didn't read the man page, I read the source. And it clearly updates
-the file offset, in fact the actual sendfile portion is just a supplied
-actor to the generic page cache read functions.
+kernel/built-in.o(.text+0x198c0): In function `get_signal_to_deliver':
+: undefined reference to `arch_vma_name'
+drivers/s390/built-in.o(.text+0x5ed8c): In function
+`zfcp_ccw_set_online':
+: undefined reference to `statistic_create'
+drivers/s390/built-in.o(.text+0x5ee20): In function
+`zfcp_ccw_set_online':
+: undefined reference to `statistic_remove'
+drivers/s390/built-in.o(.text+0x5eef0): In function
+`zfcp_ccw_set_offline':
+: undefined reference to `statistic_remove'
+drivers/s390/built-in.o(.text+0x66a02): In function `zfcp_erp_thread':
+: undefined reference to `statistic_add'
+drivers/s390/built-in.o(.text+0x66a96): In function `zfcp_erp_thread':
+: undefined reference to `statistic_add'
+drivers/s390/built-in.o(.text+0x68e08): In function
+`zfcp_qdio_response_handler':
+: undefined reference to `statistic_add'
+drivers/s390/built-in.o(.text+0x690aa): In function
+`zfcp_qdio_sbals_from_sg':
+: undefined reference to `statistic_add'
+drivers/s390/built-in.o(.text+0x693a6): In function
+`zfcp_qdio_sbals_from_scsicmnd':
+: undefined reference to `statistic_add'
+drivers/s390/built-in.o(.text+0x69690): more undefined references to
+`statistic_add' follow
+make: *** [.tmp_vmlinux1] Error 1
 
-> (You had me worried -- I just now went and *tested* 
-> the operation of sendfile().)  The app does not need to 
-> do an lseek() call because the 'offset' argument is *always* 
-> updated with the new "virtual" offset.  This is part of why I 
-> am disturbed/confused: sendfile() always updates its 'offset' 
-> argument and *never* changes the file offset; splice() only 
-> does that if its 'offset' argument is non-NULL.
+These might be fixed in 2.6.18-rc1-mm1, haven't had a chance to check.
 
-Maybe you didn't understand me correctly. Basically what sys_sendfile()
-ends up doing is:
-
-        if (offset_given)
-                ppos = &offset_given;
-        else
-                ppos = &in_fd->current_position;
-
-ppos is always updated. sendfile() behaves as I described, it updates
-ppos which is _EITHER_ the supplied offset _OR_ the current file offset.
-You said that sendfile() never changes in in_fd offset, which is clearly
-false as it always updates it if you don't pass in an offset. If you do
-pass in an offset, that and only that is changed. The lseek() comment of
-course applied to the case where you _don't_ give an explicit offset and
-the current position is used.
-
-If you don't believe me, read the source and do another test app.
-splice() behaves identically, as previously stated.
-
--- 
-Jens Axboe
-
+thanks,
+-serge

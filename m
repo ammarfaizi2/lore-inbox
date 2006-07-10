@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422766AbWGJSyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422767AbWGJTAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422766AbWGJSyg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422767AbWGJSyg
+	id S1422767AbWGJTAb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 15:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422770AbWGJTAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:54:36 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:31980 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1422766AbWGJSyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:54:35 -0400
-Date: Mon, 10 Jul 2006 14:54:35 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Joshua Hudson <joshudson@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'volatile' in userspace
-Message-ID: <20060710185435.GA5445@ccure.user-mode-linux.org>
-References: <44B0FAD5.7050002@argo.co.il> <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com> <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com> <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 10 Jul 2006 15:00:31 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:54989 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1422767AbWGJTAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 15:00:30 -0400
+Date: Mon, 10 Jul 2006 09:43:36 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Michael Krufky <mkrufky@linuxtv.org>, Pavel Machek <pavel@suse.cz>,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, stable@kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.16.y series
+In-Reply-To: <20060710165429.GB13938@stusta.de>
+Message-ID: <Pine.LNX.4.63.0607100942550.1768@qynat.qvtvafvgr.pbz>
+References: <20060706222553.GA2946@kroah.com>  <20060707105407.GA1654@elf.ucw.cz>
+ <44AE558D.9000906@linuxtv.org> <20060710165429.GB13938@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 10:00:37AM -0700, Joshua Hudson wrote:
-> Yes, I use vfork. So far, the only way I have found for the parent to
-> know whether or not the child's exec() failed is this way:
+On Mon, 10 Jul 2006, Adrian Bunk wrote:
 
-What I do in UML is make a pipe between the parent and child, set it
-CLOEXEC, and write a byte down it if the exec fails.
+>
+> Greg told me they want to make one last 2.6.16.y release.
+>
+> Greg and Chris don't maintain two series that long - check the date of
+> the last 2.6.15.y release.
 
-The parent reads it - if it gets no bytes, the exec succeeded, if it
-gets one byte, it failed.
+they haven't in the past, but I thought the stated plan was to support -stable 
+for two revs back going forward.
 
-child -
-	execvp(argv[0], argv);
-	errval = errno;
-	write(data->fd, &errval, sizeof(errval));
-
-parent -
-	socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
-	fcntl(fds[1], F_SETFD, flag);
-	pid = clone(child, NULL, SIGCHLD, NULL);
-	if(pid < 0){
-		...
-	}
-
-	close(fds[1]);
-
-	/* Read the errno value from the child, if the exec failed, or get 0 if
-	 * the exec succeeded because the pipe fd was set as close-on-exec.
-	 */
-	n = read(fds[0], &ret, sizeof(ret));
-	if (n < 0) {
-	} else if(n != 0){
-		/* exec failed */
-	} else {
-		/* exec succeeded */
-	}
-
-				Jeff
+David Lang

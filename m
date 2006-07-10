@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWGJOL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWGJONT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030388AbWGJOL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWGJOL6
+	id S1030383AbWGJONT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWGJONS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:11:58 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:6271 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030388AbWGJOL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:11:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=AC0pFm1GDzZrcrJ6ZC1RzNbEqLnjYStXaJGa5GzGlZN6oABRQXE0i7dnxb/EqCZgm4TONVV7oCuAAB829ldCRt5X5uvYR7RSVDCSKCP1yOKqryPGn7fIGy5MAbdiMnhAciJpgT7VZHmQcnZOGKAJ5AOv99P6/IGUfZbIP/92ma0=
-Message-ID: <44B26004.4050500@gmail.com>
-Date: Mon, 10 Jul 2006 22:11:16 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: "Antonino A. Daplas" <adaplas@pol.net>, Jean Delvare <khali@linux-fr.org>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net>	<m3ejwt65of.fsf@defiant.localdomain> <44B248E4.2020506@pol.net> <m3u05p4mkx.fsf@defiant.localdomain>
-In-Reply-To: <m3u05p4mkx.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 10:13:18 -0400
+Received: from tirith.ics.muni.cz ([147.251.4.36]:21436 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030383AbWGJONS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 10:13:18 -0400
+Date: Mon, 10 Jul 2006 16:13:15 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 3ware disk latency?
+Message-ID: <20060710141315.GA5753@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> "Antonino A. Daplas" <adaplas@pol.net> writes:
-> 
->> Eventually, I'm the one who's going to maintain the code, most
->> of the drivers in the video directory are practically abandoned. 
-> 
-> BTW, it's fortunate that you are maintaing it.
+	Hi all,
 
-David Eger is the author, the last I heard from him was 2 years ago.
-But I haven't received that many problem reports on cirrusfb.
+I have upgraded my machine from 3ware 7508 with 8x 250GB ATA drives
+to 3ware 9550SX-8LP with 8x 500GB SATA-II drives, and I have found that
+while the overall throughput of the disks is higher than before,
+the latency - measured as the number of messages per time unit Qmail can
+deliver - is far worse than before[1]. I have tried to use deadline
+and cfq schedulers, but it made no visible speedup.
 
-However, changes that affect all drivers are my responsibility.
- 
-> The I2C code in cirrusfb
-> uses vga_wseq() and vga_rseq(). Is it safe WRT races between I2C
-> adapter code and fb code? I don't see any locking here, and both
-> functions are non-atomic (write merging and posting will not break it,
-> but it looks like I need a lock for concurent access).
+	I have found the following two years old mail by Jens Axboe:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0409.0/1330.html
+- the problem at that time was that the device had its internal
+command queue deeper than the nr_requests of the block device layer,
+so the I/O scheduler couldn't do anything.  I was surprised
+that the situation is still the same: I have
 
-The only register touched by the i2c code is EEPROM control (CL_SEQR8).
-This is never touched by the rest of the cirrusfb code. So I don't
-think concurrent access is a problem (unless the hardware has restrictions
-such as no other register accesses are allowed while this register is being
-accessed). 
+/sys/block/sd[a-h]/queue/nr_requests == 128, and
+/sys/devices/pci0000:00/0000:00:0b.0/0000:01:03.0/host0/target*/*/queue_depth == 254
 
-The framebuffer layer is serialized by
-acquire_console_sem()/release_console_sem(). If you think concurrent access
-is a problem, you can always use that.
+I have verified that even on older 3ware drivers (7508) the situation
+is the same. On the newer hardware it is probably more visible, because
+the controller actually has bigger on-board cache (128MB vs. 32MB, I think).
 
-Tony
+	I have tried to lower the /sys/devices/.../queue_depth to 4
+and disable the NCQ, and the latency got a bit better. But it is still
+nowhere near to where it was on the older HW.
 
+	Does anybody experience the similar latency problems with
+3ware 95xx controllers? Thanks,
+
+-Yenya
+
+[1] the old configuration peaked at ~2k-4k messages per 5 minutes,
+	with 1k-2k messages/5min being pretty normal, while the new one
+	has maximum throughput of 1k messages per 5 minutes, but the normal
+	speed is much lower - some low hundreds messages per 5 minutes.
+	The new system runs about the same load as the previous one,
+	and the layout of disks is also the same (just the newer drives
+	are bigger, of course).
+
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> I will never go to meetings again because I think  face to face meetings <
+> are the biggest waste of time you can ever have.        --Linus Torvalds <

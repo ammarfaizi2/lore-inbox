@@ -1,87 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWGJMpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWGJMq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWGJMpq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 08:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWGJMpq
+	id S1030352AbWGJMq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 08:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWGJMq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 08:45:46 -0400
-Received: from max.feld.cvut.cz ([147.32.192.36]:41659 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1030351AbWGJMpq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 08:45:46 -0400
-From: CIJOML <cijoml@volny.cz>
-To: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: pcmcia-cs package kills 2.6.18-rc1 kernel?
-Date: Mon, 10 Jul 2006 14:22:37 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 08:46:29 -0400
+Received: from wx-out-0102.google.com ([66.249.82.197]:60184 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030352AbWGJMq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 08:46:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=rKSnhlmg7+uD1X3vgdStpp+PA87cpkBh3cUhE1ahU8tjNlwNnwXYyEDXeLguTD1SneCAL0iNdlMeo04RRMl+AOhI2iE5Fyv/UA+HYbu6m1flFJkXBB4+qcpdLhRATqDkP9lOShgePYw19sJR7+QtvBfPo2xvVOFV/aBIhbvAJ6o=
+Date: Mon, 10 Jul 2006 08:45:40 -0400
+From: Thomas Tuttle <thinkinginbinary@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Message-ID: <20060710124540.GA742@phoenix>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060627133321.GB3019@elf.ucw.cz> <ce9ef0d90607080942w685a6b60q7611278856c78ac0@mail.gmail.com> <1152377434.3120.69.camel@laptopd505.fenrus.org> <200607082125.12819.rjw@sisk.pl> <1152387552.3120.89.camel@laptopd505.fenrus.org> <44B219CC.4010409@zurich.ibm.com> <1152523109.4874.11.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
 Content-Disposition: inline
-Message-Id: <200607101422.37174.cijoml@volny.cz>
+In-Reply-To: <1152523109.4874.11.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have Acer TravelMate 242 laptop
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-00:00.0 Host bridge: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to 
-I/O Controller (rev 02)
-00:00.1 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV 
-Processor to I/O Controller (rev 02)
-00:00.3 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV 
-Processor to I/O Controller (rev 02)
-00:02.0 VGA compatible controller: Intel Corporation 82852/855GM Integrated 
-Graphics Device (rev 02)
-00:02.1 Display controller: Intel Corporation 82852/855GM Integrated Graphics 
-Device (rev 02)
-00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) 
-USB UHCI Controller #1 (rev 03)
-00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) 
-USB UHCI Controller #2 (rev 03)
-00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) 
-USB UHCI Controller #3 (rev 03)
-00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI 
-Controller (rev 03)
-00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 83)
-00:1f.0 ISA bridge: Intel Corporation 82801DBM (ICH4-M) LPC Interface Bridge 
-(rev 03)
-00:1f.1 IDE interface: Intel Corporation 82801DBM (ICH4-M) IDE Controller (rev 
-03)
-00:1f.3 SMBus: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus 
-Controller (rev 03)
-00:1f.5 Multimedia audio controller: Intel Corporation 82801DB/DBL/DBM 
-(ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
-00:1f.6 Modem: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 
-Modem Controller (rev 03)
-02:04.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller 
-(rev 01)
-02:04.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller 
-(rev 01)
-02:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
+First, let me say, I've gotten both swsusp and suspend2 to work, but
+I've had better luck with hardware under suspend2, and reading and
+writing the image was faster under suspend2.
 
-up to 2.6.16 everythink worked fine for me.
+On July 10 at 05:18 EDT, Arjan van de Ven hastily scribbled:
+> As I said... if that is the case then it'd be easy to first merge "the
+> right basics", get that solid, and THEN add the features. So far I've
+> not seen that happen.
 
-in 2.6.17 uplugging my xi-325 card sometimes killed kernel, but loading 
-pcmcia-cs was fine...
+So, you mean like merge just the freezer mods (if needed), and the
+suspend2 core, and then add the encryption/compression/filewriter/userui
+stuff separately?
 
-in 2.6.18-rc1, only running pcmcia-cs package caused kernel freeze! :(
+That doesn't sound too unreasonable, if it's possible to separate them.
 
-Any solution? Any workaround?
+--Thomas Tuttle
 
-My distribution is Debian testing
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-cijoml@notas:~$ dpkg -l |grep pcmc
-ii  pcmcia-cs                        3.2.8-8                     PCMCIA Card 
-Services for Linux (deprecated)
-ii  pcmciautils                      013-2                       PCMCIA 
-utilities for Linux 2.6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
+iD8DBQFEskv0/UG6u69REsYRAuVPAJsGFluuaQcOWmTZ4qPmtex4Gts3YwCfb8JX
+cvPYQCnxtRQtWAnOQPPCoBo=
+=9H7x
+-----END PGP SIGNATURE-----
 
-Thanks a lot for help
-
-Michal
-
+--M9NhX3UHpAaciwkO--

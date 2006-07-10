@@ -1,141 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWGJIWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWGJI1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbWGJIWD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 04:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWGJIWD
+	id S1751361AbWGJI1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 04:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWGJI1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 04:22:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42532 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751359AbWGJIWB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 04:22:01 -0400
-Date: Mon, 10 Jul 2006 10:24:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: michael.kerrisk@gmx.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       vendor-sec@lst.de, lcapitulino@mandriva.com.br
-Subject: Re: splice/tee bugs?
-Message-ID: <20060710082423.GI4141@suse.de>
-References: <20060707131310.0e382585@doriath.conectiva> <20060708064131.GG4188@suse.de> <20060708180926.00b1c0f8@home.brethil> <20060709103606.GU4188@suse.de> <20060709111629.GV4188@suse.de> <20060709134703.0aa5bc41@home.brethil> <20060709175744.GZ4188@suse.de> <20060710062551.307040@gmx.net> <20060710064355.GB4141@suse.de> <20060710080917.286970@gmx.net>
+	Mon, 10 Jul 2006 04:27:52 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:9154 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751361AbWGJI1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 04:27:51 -0400
+Subject: Re: [PATCH 2/3] disallow modular binfmt_elf32
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060710060603.GA9440@osiris.boeblingen.de.ibm.com>
+References: <20060708180554.GB7034@lst.de>
+	 <20060710060603.GA9440@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Mon, 10 Jul 2006 10:27:58 +0200
+Message-Id: <1152520078.5834.7.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060710080917.286970@gmx.net>
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10 2006, Michael Kerrisk wrote:
-> > > Could you post a 2.6.17 patch please.
-> > 
-> > Here's a 2.6.17.x version.
+On Mon, 2006-07-10 at 08:06 +0200, Heiko Carstens wrote:
+> On Sat, Jul 08, 2006 at 08:05:54PM +0200, Christoph Hellwig wrote:
+> > Currently most architectures either always build binfmt_elf32 in the
+> > kernel image or make it a boolean option.  Only sparc64 and s390 allow
+> > to build it modularly.  This patch turns the option into a boolean
+> > aswell because elf requires various symbols that shouldn't be available
+> > to modules.  The most urgent one is tasklist_lock whos export this patch
+> > series kills, but there are others like force_sgi aswell.
+> > [...] 
+> > Index: linux-2.6/arch/s390/Kconfig
+> > ===================================================================
+> > --- linux-2.6.orig/arch/s390/Kconfig	2006-07-06 14:21:17.000000000 +0200
+> > +++ linux-2.6/arch/s390/Kconfig	2006-07-08 19:08:46.000000000 +0200
+> > @@ -119,7 +119,7 @@
+> >  	default y
+> >  
+> >  config BINFMT_ELF32
+> > -	tristate "Kernel support for 31 bit ELF binaries"
+> > +	bool "Kernel support for 31 bit ELF binaries"
+> >  	depends on COMPAT
+> >  	help
 > 
-> Jens,
-> 
-> Thanks.  I applied your patch against 2.6.17(.0), and did some
-> testing using my modified version of your test program, using 
-> the same command line: ls *.c | ktee r | wc, and also running 
-> several instances of the program in parallel using the 
-> command line:
-> 
-> find . | ktee r | wc
-> 
-> which in my test directory produces this output:
-> 
-> tee returned 65536
-> splice returned 65536
-> tee returned 65536
-> splice returned 65536
-> tee returned 53248
-> splice returned 53248
-> tee returned 57344
-> splice returned 57344
-> tee returned 7245
-> splice returned 7245
-> tee returned 0
->    6212    6213  248909
-> 
-> Things look good so far: runs produce the results I expect, and 
-> no OOPSes (which Luiz Fernando reported when running multiple
-> instances in parallel, but I didn't see myself because I didn't
-> try doing that with vanilla 2.6.17) and no command-line hangs.
+> Martin and I discussed this already a few days ago. This config option
+> should go away on s390, since everybody who wants CONFIG_COMPAT also wants
+> CONFIG_BINFMT_ELF32. See patch below which applies on top of yours:
 
-So far, so good.
-
-> > The most notable differences between my program and yours
-> > are:
-> >
-> > * I print some debugging info to stderr.
-> >
-> > * I don't pass SPLICE_F_NONBLOCK to tee().
-> [...]
-> > On different runs I see:
-> >
-> > a) No output from ls through the pipeline:
-> >
-> > tee returned 0
-> >       0       0       0
-> 
-> I am no longer seeing results like this. So am I correct in 
-> understanding that tee() should only return 0 on EOF?
-
-tee() can still return 0 without SPLICE_F_NONBLOCK being set, if the
-pipes are changed in between the _prep calls and link_pipe(). There's
-really nothing we can do about that. There's no EOF condition for
-link_pipe(), as it purely operates on pipes. A 0 return means that we
-had no data to splice and could not wait for data, either because it
-would be a locking violation or because it simply doesn't make sense to
-wait (eg no writers attached to the pipe). It will only return EAGAIN
-for a non-blocking tee() now though.
-
-> And is the same true of splice()?  (There is no statement 
-> about 0 returns from splice() in your draft manual page.)
-
-Same holds true for splice. We can still return 0 even for a blocking
-splice if there's no data to splice from the pipe and no writers
-attached. This is identical to how pipes behave.
-
-> > b) Very many instances of EAGAIN followed by expected results:
-> >
-> > ...
-> > EAGAIN
-> > EAGAIN
-> > EAGAIN
-> > EAGAIN
-> > EAGAIN
-> > EAGAIN
-> > tee returned 19
-> > splice returned 19
-> > tee returned 0
-> >       2       2      19
-> [...]
-> 
-> I no longer see results like this.  From another of your mails
-> in this thread, I gather that intended behaviour is that EAGAIN
-> will only occur if SPLICE_F_NONBLOCK has been set, right?
-
-Correct.
-
-> > c) Occasionally the command line just hangs, producing no output.
-> >    In this case I can't kill it with ^C or ^\.  This is a
-> >    hard-to-reproduce behaviour on my (x86) system, but I have
-> >    seen it several times by now.
-> 
-> I no longer see this behaviour (at least so far, after quite a
-> bit of testing).
-
-Good, it should be fixed with the blocking removal from link_pipe().
-
-> One slight strangeness.  Most of the time, the 
-> "find . | ktee r | wc" command line takes about 0.1 seconds to 
-> execute, but about 1 time in 5 on my x86 system, it takes about 
-> 1.5 to 2 seconds to execute.  Any ideas about what's happening 
-> there?
-
-That is pretty odd. Any chance you can do a quick sysrq-t and see where
-find/ktee/wc is stuck when this happens? You should not be seeing that,
-naturally, I'll see if I can reproduce that here. How much data does
-find . return in your example?
+Yes, the removal of the BINFMT_ELF32 Kconfig option has been part of the
+s390 Kconfig cleanup patch as well, it is supposed to go away.
 
 -- 
-Jens Axboe
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

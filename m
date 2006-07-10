@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWGJL1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWGJL2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWGJL1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWGJL1Z
+	id S1751387AbWGJL2W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWGJL2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:27:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:62667 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751338AbWGJL1Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:27:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
-        b=ikPw+cnZuXuhkh/cJYHAlGUln+xNwqVkq+a7BxeE+y0BUfjE22R92h5YyYqazrE+z5Lp24RBY+feZviowDa2aHGAmM5MXTqVOBprxshF4azaSLrEaONte2r6jHFFf8lpUiB7qaJZgvMcCapZUlASI0J3fUDBABOzGvToXSlZl1I=
-Message-ID: <44B2398B.7040300@pol.net>
-Date: Mon, 10 Jul 2006 19:27:07 +0800
-From: "Antonino A. Daplas" <adaplas@pol.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Mon, 10 Jul 2006 07:28:21 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:43788 "EHLO mail.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S1751387AbWGJL2V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:28:21 -0400
+Date: Mon, 10 Jul 2006 13:28:10 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.17.4] slabinfo.buffer_head increases
+Message-ID: <Pine.LNX.4.63.0607101023450.27628@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net> <m3mzbh68g9.fsf@defiant.localdomain>
-In-Reply-To: <m3mzbh68g9.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> "Antonino A. Daplas" <adaplas@pol.net> writes:
-> 
->> There are better reasons (ie, smaller patch), but worse readability is not
->> one of them.
->>
->> I could more easily grasp the code flow of cirrusfb_register() if you
->> just inserted "cirrusfb_create_i2c_buses()" instead of:
-> 
-> Feel free to add another patch, while I don't see a need I have nothing
-> against :-)
+Hi
 
-No, you fix the patch.  And while your at it, check your Kconfig
-dependencies, ie check for impossible combinations such as CONFIG_I2C=m,
-CONFIG_FB_CIRRUS=y.
+I am obsering a steadily increasing buffer_head value in slabinfo under 
+2.6.17.4. I searched the net / archives and didn't find anything 
+directly relevant. Does anyone have an idea or how shall we debug it?
 
-Tony
+I first noticed this "feature" on a 2.6.17-rc5 based ARM-system, where if 
+I stop some user-space applications, the number stop increasing.
+
+I was also able to reproduce it on a SuSE-9.0 system, where I wasn't able 
+to stop this growth even as I stopped all possible services. Then the 
+process list looked like this:
+
+  PID TTY      STAT   TIME COMMAND
+    1 ?        S      0:00 init [5]  
+    2 ?        SWN    0:00 [ksoftirqd/0]
+    3 ?        SW     0:00 [watchdog/0]
+    4 ?        SW<    0:00 [events/0]
+    5 ?        SW<    0:00 [khelper]
+    6 ?        SW<    0:00 [kthread]
+    8 ?        SW<    0:00 [kblockd/0]
+    9 ?        SW<    0:00 [kacpid]
+   82 ?        SW<    0:00 [kseriod]
+  108 ?        SW     0:00 [pdflush]
+  109 ?        SW     0:00 [pdflush]
+  110 ?        SW     0:00 [kswapd0]
+  111 ?        SW<    0:00 [aio/0]
+  721 ?        SW<    0:00 [kpsmoused]
+  726 ?        SW<    0:00 [reiserfs/0]
+ 1560 ?        SW     0:00 [khpsbpkt]
+ 4015 ?        S      0:00 login -- gl     
+ 4016 tty3     S      0:00 /sbin/mingetty tty3
+ 4017 tty4     S      0:00 /sbin/mingetty tty4
+ 4018 tty5     S      0:00 /sbin/mingetty tty5
+ 4019 tty6     S      0:00 /sbin/mingetty tty6
+ 4480 ?        S      0:00 login -- root     
+ 5051 tty1     R      0:00 -bash
+ 5330 tty2     S      0:00 -bash
+ 5601 tty2     S      0:00 sleep 5
+ 5602 tty1     R      0:00 ps ax
+
+the "sleep 5" comes from the script:
+
+while true; do grep buffer_head /proc/slabinfo; sleep 5; done
+
+Does it look like a memory leak? Here's a fragment of the output:
+
+buffer_head         8110   8112     48   78    1 : tunables  120   60    0 : slabdata    104    104      0
+buffer_head         8148   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
+buffer_head         8144   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
+buffer_head         8166   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
+buffer_head         8181   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
+buffer_head         8189   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
+buffer_head         8226   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
+buffer_head         8244   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
+buffer_head         8240   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
+buffer_head         8260   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
+buffer_head         8304   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
+buffer_head         8340   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
+buffer_head         8332   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
+buffer_head         8343   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany

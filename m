@@ -1,67 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422694AbWGJQsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422696AbWGJQwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422694AbWGJQsp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 12:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422692AbWGJQsp
+	id S1422696AbWGJQwD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 12:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422697AbWGJQwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 12:48:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28937 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1422694AbWGJQso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 12:48:44 -0400
-Date: Mon, 10 Jul 2006 18:51:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Michael Kerrisk <mtk-manpages@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: splice() and file offsets
-Message-ID: <20060710165120.GI5210@suse.de>
-References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de> <20060710130754.26280@gmx.net> <20060710132529.GD5210@suse.de> <20060710135427.26270@gmx.net> <20060710142245.GG5210@suse.de> <20060710154854.26270@gmx.net>
+	Mon, 10 Jul 2006 12:52:03 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:15509 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422696AbWGJQwC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 12:52:02 -0400
+Date: Mon, 10 Jul 2006 09:51:18 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@us.ibm.com, akpm@osdl.org, matthltc@us.ibm.com,
+       dipankar@in.ibm.com, stern@rowland.harvard.edu, mingo@elte.hu,
+       tytso@us.ibm.com, dvhltc@us.ibm.com, jes@sgi.com, dhowells@redhat.com
+Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
+Message-ID: <20060710165118.GC1446@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060706171401.GA1768@us.ibm.com> <20060706172022.GA1901@us.ibm.com> <20060709235029.GA194@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060710154854.26270@gmx.net>
+In-Reply-To: <20060709235029.GA194@oleg>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10 2006, Michael Kerrisk wrote:
-> Jens,
+On Mon, Jul 10, 2006 at 03:50:29AM +0400, Oleg Nesterov wrote:
+> On 07/06, Paul E. McKenney wrote:
+> >
+> > Updated patch adding a variant of RCU that permits sleeping in read-side
+> > critical sections.
 > 
-> > > Yes, I understand what the code is doing, but *why* do 
-> > > things this way?  (To put things another way: why not *always 
-> > > have splice() update the file offset?)  I realise there may be
-> > > some good reason for this, and if there is, it will go into the
-> > > man page!
-> > 
-> > The good reason is why update the current position? I just told the
-> > kernel to ignore the current position and use the given offset, why
-> > would I bother updating the current position? The whole point of
-> > providing an offset is to ignore the current position.
-> > 
-> > I must say I cannot understand why you are confused or find this
-> > illogical, it makes perfect sense to me.
-> 
-> Yes, now it's clear to me too.
-> 
-> [...]
-> 
-> > > No!  It does not!  See the sendfile.2 man page: "sendfile() 
-> > > does not modify the current file offset of in_fd."  
-> > 
-> > I didn't read the man page, I read the source. And it clearly updates
-> > the file offset, in fact the actual sendfile portion is just a supplied
-> > actor to the generic page cache read functions.
-> 
-> Doh!  I took what I "knew", re-read the sendfile.2 manual page to 
-> check, misread the source, and then wrote an inadequate 
-> test program :-{.  (The sendfile manual page is now fixed.)
-> 
-> > If you don't believe me, read the source and do another test app.
-> > splice() behaves identically, as previously stated.
-> 
-> Now I believe you; sorry to have wasted your time...
+> I do not see any problems with this patch, but I have a couple of
+> questions, so your help is needed again.
 
-No worries, glad we got it sorted out :-)
+Thank you for looking it over!
 
--- 
-Jens Axboe
+> > +void synchronize_srcu(struct srcu_struct *sp)
+> > +{
+> > +	[... snip ...]
+> > +
+> > +	synchronize_sched();  /* Force memory barrier on all CPUs. */
+> > +
+> > +	/*
+> > +	 * The preceding synchronize_sched() forces all srcu_read_unlock()
+> > +	 * primitives that were executing concurrently with the preceding
+> > +	 * for_each_possible_cpu() loop to have completed by this point.
+> > +	 * More importantly, it also forces the corresponding SRCU read-side
+> > +	 * critical sections to have also completed, and the corresponding
+> > +	 * references to SRCU-protected data items to be dropped.
+> > +	 */
+> > +
+> > +	mutex_unlock(&sp->mutex);
+> > +}
+> 
+> Isn't it possible to unlock ->mutex earlier, before the last
+> synchronize_sched()?
 
+It seems possible, but I would like to think carefully about this one
+first, and, if it still seems plausible, test it heavily.  If I understand
+your line of reasoning, the thought is that the first synchronize_sched()
+at the beginning of synchronize_srcu() ensures that all of the counter
+updates pertaining to the last instance of synchronize_srcu() have
+been committed.  The same reasoning might well cover the sp->completed
+fastpath as well.
+
+In any case, this is a performance boost off the fastpath.  A good boost,
+if it works, but I will be much more excited if you find a way of speeding
+up srcu_read_lock() or srcu_read_unlock().  ;-)
+
+> Another question: what is the semantics of synchronize_sched() ?
+> 
+> I am not talking about the current implementation, it is very clear.
+> The question is: what is the _definition_ of synchronize_sched()
+> (which must be valid for "any" RCU implementation) ?
+> 
+> 1) The comment in include/linux/rcupdate.h states that "all preempt_disable
+>    code sequences will have completed before this primitive returns".
+> 
+> 2) kernel/srcu.c claims that this primitive "forces memory barrier on all
+>    CPUs". (so the comment in rcupdate.h is not complete).
+> 
+>    (I understand this so that each cpu does something which implies mb()
+>     semantics).
+> 
+> As I see it, 1) + 2) is NOT enough for synchronize_srcu() to be correct
+> (the 2-nd and 3-rd synchronize_sched() calls). I think synchronize_sched()
+> should also guarantee the completion of mem ops on all CPUs before return,
+> not just mb() (which does not have any timing guaranties).
+> 
+> Could you clarify this issue?
+> 
+> (Again, I do not see any problems with the current RCU implementation).
+
+However, this -does- seem to be to be a problem with the comment headers
+and the documentation.  Does the following patch make things better?
+
+David, would it be worthwhile adding this global-memory-barrier effect
+of synchronize_rcu(), synchronize_sched(), and synchronize_srcu() to
+Documentation/memory-barriers.txt?
+
+							Thanx, Paul
+
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+---
+
+ Documentation/RCU/checklist.txt |    4 ++++
+ include/linux/rcupdate.h        |    3 +++
+ kernel/rcupdate.c               |    3 +++
+ kernel/srcu.c                   |    3 ++-
+ 4 files changed, 12 insertions(+), 1 deletion(-)
+
+diff -urpNa -X dontdiff linux-2.6.17-srcu-LKML-4/Documentation/RCU/checklist.txt linux-2.6.17-srcu-LKML-5/Documentation/RCU/checklist.txt
+--- linux-2.6.17-srcu-LKML-4/Documentation/RCU/checklist.txt	2006-07-06 16:45:01.000000000 -0700
++++ linux-2.6.17-srcu-LKML-5/Documentation/RCU/checklist.txt	2006-07-10 09:43:19.000000000 -0700
+@@ -221,3 +221,7 @@ over a rather long period of time, but i
+ 
+ 	Note that, rcu_assign_pointer() and rcu_dereference() relate to
+ 	SRCU just as they do to other forms of RCU.
++
++14.	The synchronize_rcu(), synchronize_sched(), and synchronize_srcu()
++	primitives force at least one memory barrier to be executed on
++	each active CPU before they return.
+diff -urpNa -X dontdiff linux-2.6.17-srcu-LKML-4/include/linux/rcupdate.h linux-2.6.17-srcu-LKML-5/include/linux/rcupdate.h
+--- linux-2.6.17-srcu-LKML-4/include/linux/rcupdate.h	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-srcu-LKML-5/include/linux/rcupdate.h	2006-07-10 09:48:51.000000000 -0700
+@@ -251,6 +251,9 @@ extern int rcu_needs_cpu(int cpu);
+  * guarantees that rcu_read_lock() sections will have completed.
+  * In "classic RCU", these two guarantees happen to be one and
+  * the same, but can differ in realtime RCU implementations.
++ * 
++ * In addition, this primitive guarantees that every active CPU has
++ * executed at least one memory barrier before it returns.
+  */
+ #define synchronize_sched() synchronize_rcu()
+ 
+diff -urpNa -X dontdiff linux-2.6.17-srcu-LKML-4/kernel/rcupdate.c linux-2.6.17-srcu-LKML-5/kernel/rcupdate.c
+--- linux-2.6.17-srcu-LKML-4/kernel/rcupdate.c	2006-06-17 18:49:35.000000000 -0700
++++ linux-2.6.17-srcu-LKML-5/kernel/rcupdate.c	2006-07-10 09:48:32.000000000 -0700
+@@ -597,6 +597,9 @@ static void wakeme_after_rcu(struct rcu_
+  * sections are delimited by rcu_read_lock() and rcu_read_unlock(),
+  * and may be nested.
+  *
++ * This primitive also causes each active CPU to execute at least one
++ * memory barrier before it returns.
++ *
+  * If your read-side code is not protected by rcu_read_lock(), do -not-
+  * use synchronize_rcu().
+  */
+diff -urpNa -X dontdiff linux-2.6.17-srcu-LKML-4/kernel/srcu.c linux-2.6.17-srcu-LKML-5/kernel/srcu.c
+--- linux-2.6.17-srcu-LKML-4/kernel/srcu.c	2006-07-06 16:50:23.000000000 -0700
++++ linux-2.6.17-srcu-LKML-5/kernel/srcu.c	2006-07-10 09:48:09.000000000 -0700
+@@ -143,7 +143,8 @@ void srcu_read_unlock(struct srcu_struct
+  * Flip the completed counter, and wait for the old count to drain to zero.
+  * As with classic RCU, the updater must use some separate means of
+  * synchronizing concurrent updates.  Can block; must be called from
+- * process context.
++ * process context.  Has the side-effect of forcing a memory barrier on
++ * each active CPU before returning.
+  *
+  * Note that it is illegal to call synchornize_srcu() from the corresponding
+  * SRCU read-side critical section; doing so will result in deadlock.

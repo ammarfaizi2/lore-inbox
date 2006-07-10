@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422695AbWGJUJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422702AbWGJUKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422695AbWGJUJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 16:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWGJUJQ
+	id S1422702AbWGJUKA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 16:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWGJUKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 16:09:16 -0400
-Received: from pat.uio.no ([129.240.10.4]:40183 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1422695AbWGJUJP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 16:09:15 -0400
-Subject: Re: ext4 features
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <44B01DEF.9070607@tmr.com>
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>
-	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>
-	 <20060705125956.GA529@fieldses.org>
-	 <1152128033.22345.17.camel@lade.trondhjem.org>  <44AC2D9A.7020401@tmr.com>
-	 <1152135740.22345.42.camel@lade.trondhjem.org>  <44B01DEF.9070607@tmr.com>
-Content-Type: text/plain
-Date: Mon, 10 Jul 2006 16:08:55 -0400
-Message-Id: <1152562135.6220.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
-	autolearn=disabled, UIO_MAIL_IS_INTERNAL -5.00)
+	Mon, 10 Jul 2006 16:10:00 -0400
+Received: from old-tantale.fifi.org ([64.81.251.130]:56973 "EHLO
+	tantale.fifi.org") by vger.kernel.org with ESMTP id S1422702AbWGJUJ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 16:09:59 -0400
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] 'volatile' in userspace
+References: <44B0FAD5.7050002@argo.co.il>
+	<MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>
+	<20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>
+	<20060710034250.GA15138@thunk.org>
+	<bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
+	<20060710185435.GA5445@ccure.user-mode-linux.org>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 10 Jul 2006 13:09:47 -0700
+In-Reply-To: <20060710185435.GA5445@ccure.user-mode-linux.org>
+Message-ID: <874pxp1at0.fsf@tantale.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-08 at 17:04 -0400, Bill Davidsen wrote:
-> No, I didn't quite mean a manual touch, but a system call to "close and 
-> set time to high resolution" for files where time uniformity is 
-> important. Consider that in most cases the inodes times are set by the 
-> host machine clock, which I close the change reflects the fileserving 
-> host idea of time. If there were a call to close a file and set the 
-> times like touch, then that could be used, for both local and network files.
+Jeff Dike <jdike@addtoit.com> writes:
 
-Close should never update the time since that would be a violation of
-POSIX rules. Normally, an NFS client will never need to update the time:
-RPC calls like WRITE, READ and SETATTR will automatically do it for us
-whenever necessary.
+> On Mon, Jul 10, 2006 at 10:00:37AM -0700, Joshua Hudson wrote:
+> > Yes, I use vfork. So far, the only way I have found for the parent to
+> > know whether or not the child's exec() failed is this way:
+> 
+> What I do in UML is make a pipe between the parent and child, set it
+> CLOEXEC, and write a byte down it if the exec fails.
+> 
+> The parent reads it - if it gets no bytes, the exec succeeded, if it
+> gets one byte, it failed.
 
-Cheers,
-  Trond
+I usually do the same, except that I write the errno in case of
+failure.  This way the parent knows *why* exec failed ;-)
+
+Phil.
 

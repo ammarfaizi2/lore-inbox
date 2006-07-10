@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965301AbWGJWsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965310AbWGJWtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965301AbWGJWsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965306AbWGJWst
+	id S965310AbWGJWtY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbWGJWtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:48:49 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56268 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965301AbWGJWss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:48:48 -0400
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adam =?iso-8859-2?Q?Tla=B3ka?= <atlka@pg.gda.pl>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20060710132810.551a4a8d.atlka@pg.gda.pl>
-References: <20060707231716.GE26941@stusta.de>
-	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>
-	 <20060710132810.551a4a8d.atlka@pg.gda.pl>
-Content-Type: text/plain; charset=iso-8859-2
-Date: Mon, 10 Jul 2006 18:48:37 -0400
-Message-Id: <1152571717.19047.36.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 8bit
+	Mon, 10 Jul 2006 18:49:24 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:51028 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S965310AbWGJWtX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:49:23 -0400
+Message-ID: <44B2D96F.8080405@tls.msk.ru>
+Date: Tue, 11 Jul 2006 02:49:19 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: functions returning 0 on success [was: [PATCH] Fix a memory leak
+ in the i386 setup code]
+References: <20060710221308.5351.78741.stgit@localhost.localdomain> <44B2D893.9050209@tls.msk.ru>
+In-Reply-To: <44B2D893.9050209@tls.msk.ru>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 13:28 +0200, Adam Tla³ka wrote:
-> >From my point of view ALSA has many advantages if you want to dig in
-> the card driver buffers/period etc. settings but lacks ease of use and
-> some of simple in theory functionality is a pain - device enumeration
-> or switching output mode/device without restarting apps or rewritting
-> them so they have special function for that purpose.
+Michael Tokarev wrote:
+[]
+> Ofcourse, later you understand that do_something() returns 0
+> on failure, and the code is correct.  But the first impression
+> (again, for me anyway) is that it's wrong.
 > 
-
-Does any available sound driver interface allow switching output devices
-with no help from the app and without having to restart playback?  OSS
-does not, and every Windows app I've used has a configuration option to
-set the sound device, and you must stop and start playback for it to
-take effect.
-
-> esd, arts, jackd, polypd and other prove that ALSA is not enough
-> and its functionality is far from perfect.
+> In such cases when a routine returns 0 on error, I usually write
+> it this way:
+....
+s/error/success/g.  Blah ;)
 > 
-
-esd and artsd are no longer needed since ALSA began to enable software
-mixing by default in release 1.0.9.  As for jackd and other apps that
-provide additional functionality - no one ever claimed ALSA would handle
-every audio related function imaginable.  It's just a low level HAL.
-
-Lee
-
+>    if (request_resource() != 0)
+>      fail()
+[..]
+/mjt

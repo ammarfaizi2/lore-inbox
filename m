@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWGJV7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWGJWAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWGJV7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 17:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWGJV7s
+	id S965034AbWGJWAv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWGJWAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 17:59:48 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:56465 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965033AbWGJV7r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 17:59:47 -0400
-Date: Mon, 10 Jul 2006 23:59:26 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Fredrik Roubert <roubert@df.lth.se>
-cc: Alan Stern <stern@rowland.harvard.edu>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-In-Reply-To: <20060710094414.GD1640@igloo.df.lth.se>
-Message-ID: <Pine.LNX.4.64.0607102356460.17704@scrub.home>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
- <20060710094414.GD1640@igloo.df.lth.se>
+	Mon, 10 Jul 2006 18:00:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51073 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965034AbWGJWAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:00:49 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] msi: Only keep one msi_desc in each slab entry.
+Date: Mon, 10 Jul 2006 16:00:07 -0600
+Message-ID: <m1veq5m87s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 10 Jul 2006, Fredrik Roubert wrote:
+It looks like someone confused kmem_cache_create with a different
+allocator and was attempting to give it knowledge of how many cache
+entries there were.
 
-> > Before 2.6.18-rc1, I used to be able to use it as follows:
-> >
-> > 	Press and hold an Alt key,
-> > 	Press and hold the SysRq key,
-> > 	Release the Alt key,
-> > 	Press and release some hot key like S or T or 7,
-> > 	Repeat the previous step as many times as desired,
-> > 	Release the SysRq key.
-> >
-> > This scheme doesn't work any more,
-> 
-> The SysRq code has been updated to make it useable with keyboards that
-> are broken in other ways than your. With the new behaviour, you should
-> be able to use Magic SysRq with your keyboard in this way:
+With the unfortunate result that each slab entry was big enough to
+hold every irq.
 
-Apparently it changes existing well documented behaviour, which is a 
-really bad idea.
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ drivers/pci/msi.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-bye, Roman
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 0cd4a3e..082e942 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -40,13 +40,13 @@ msi_register(struct msi_ops *ops)
+ 
+ static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
+ {
+-	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
++	memset(p, 0, sizeof(struct msi_desc));
+ }
+ 
+ static int msi_cache_init(void)
+ {
+ 	msi_cachep = kmem_cache_create("msi_cache",
+-			NR_IRQS * sizeof(struct msi_desc),
++			sizeof(struct msi_desc),
+ 		       	0, SLAB_HWCACHE_ALIGN, msi_cache_ctor, NULL);
+ 	if (!msi_cachep)
+ 		return -ENOMEM;
+-- 
+1.4.1.gac83a
+

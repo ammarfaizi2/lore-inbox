@@ -1,128 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWGJRie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422727AbWGJRkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422653AbWGJRie (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 13:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbWGJRid
+	id S1422727AbWGJRkK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 13:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422728AbWGJRkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 13:38:33 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:36794 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422653AbWGJRid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 13:38:33 -0400
-Date: Mon, 10 Jul 2006 10:38:26 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1 oops on x86_64
-In-Reply-To: <Pine.LNX.4.64.0607100856540.4491@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0607101036060.5059@schroedinger.engr.sgi.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <44B12C74.9090104@fr.ibm.com>
- <20060709132135.6c786cfb.akpm@osdl.org> <Pine.LNX.4.64.0607100856540.4491@schroedinger.engr.sgi.com>
+	Mon, 10 Jul 2006 13:40:10 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:63493 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1422727AbWGJRkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 13:40:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZYVWcjjj7K6Pu+g4wYc3cQAU0fyy8C6gE4vc9yxCjU/aZzvykHqsEZvDMhHNfl1HhZ6qSkd81yZtkcFb6p+9riwfGw9mgmaVp567726vtm28oh/1QnPcZmIod6Gf/Niyq7D0L41dNXFJEu8RoniseJNH5ISjgMVqrl77KGQbRJw=
+Message-ID: <e1e1d5f40607101040u3baf0da7r43d5538700b02e2@mail.gmail.com>
+Date: Mon, 10 Jul 2006 12:40:07 -0500
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: Automatic Kernel Bug Report
+Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       "Adrian Bunk" <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060710081131.GA2251@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
+	 <6bffcb0e0607090245t2dbcd394n86ce91eec661f215@mail.gmail.com>
+	 <e1e1d5f40607090329i25f6b1b2s3db2c2001230932c@mail.gmail.com>
+	 <20060709125805.GF13938@stusta.de>
+	 <e1e1d5f40607091146s2f8e6431v33923f38c6d10539@mail.gmail.com>
+	 <20060709191107.GN13938@stusta.de>
+	 <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
+	 <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
+	 <e1e1d5f40607091327y3db1cbdco89ebdb04cda60ce0@mail.gmail.com>
+	 <20060710081131.GA2251@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006, Christoph Lameter wrote:
+On 7/10/06, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
 
-> Hmm... Actually we could leave __GFP_HIGHMEM at it prior value since
-> GFP_ZONEMASK masks it out anyways. Need to test this though. This may
-> also make some of the __GFP_DMA32 ifdefs unnecessary.
+Hi ! =)
 
-Here is the patch that fixes __GFP_DMA32 and __GFP_HIGHMEM to always
-be nonzero. However, after the #ifdef in my last patch there is no
-remaining instance of this left. The cure here adds some complexity:
+>
+> Well, unless we have some volunteer to go through the bugreports and
+> sort them/kill the invalid ones/etc... this is going to do more harm
+> than good.
+
+As I told before, I wouldn't care to do that, as long as I know that
+it is actually being used (and useful). The system (at the server
+side) could automatically route some reports (mark them as "tainted
+modules detected", etc, that sort of mechanical stuff), and according
+to the frequency of certain bugs, I could check if they are actually
+real bugs. If so, they get reported here on LKML. Since we can expect,
+maybe, dozens of thousands of reports per week, wouldn't be hard to
+distinct between real bugs, etc (if we use frequency as a marker). For
+example, if the number of reports on Suspend2 get risen up sensitively
+on some just-released kernel, this means that something that was added
+isn't working (so here comes the personal debug, where we can see if
+it's a new bug or a regression)
+
+Daniel
 
 
 
-
-Avoid __GFP_xx becoming 0
-
-We sometimes do comparisons like
-
-xx & (__GFP_x| __GFP_y)) == GFP_y
-
-This becomes a problem if GFP_y is redefined to be zero.
-
-Both __GFP_HIGHMEM (caused by me) and __GFP_DMA32 (was this way before)
-can become zero in order to cause a fall back to ZONE_NORMAL.
-
-We also have a GFP_MASK that is applied before indexing into the
-nodelists array. We can use that mask to avoid having both become zero
-and instead use the GFP_MASK to clear the respective bits before
-retrieving the zonelist.
-
-- Remove #ifdefs that cause __GFP_HIGHMEM or __GFP_DMA32 to become zero.
-
-- GFP_MASK works nicely to cause fall back to ZONE_NORMAL except if
-  CONFIG_ZONE_DMA32 and !CONFIG_HIGHMEM are set. In that case the
-  fallback to ZONE_NORMAL does not work. So add a special case
-  to mmzone.h to define a special mask that switches off the highmem
-  bit for this particular configuration.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.18-rc1-mm1/include/linux/gfp.h
-===================================================================
---- linux-2.6.18-rc1-mm1.orig/include/linux/gfp.h	2006-07-10 09:37:56.352426085 -0700
-+++ linux-2.6.18-rc1-mm1/include/linux/gfp.h	2006-07-10 09:42:44.254485171 -0700
-@@ -12,17 +12,10 @@ struct vm_area_struct;
-  */
- /* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low three bits) */
- #define __GFP_DMA	((__force gfp_t)0x01u)
--
--#ifdef CONFIG_HIGHMEM
- #define __GFP_HIGHMEM	((__force gfp_t)0x02u)
--#else
--#define __GFP_HIGHMEM	((__force gfp_t)0x00)	/* NORMAL is HIGHMEM */
--#endif
- 
--#ifndef CONFIG_ZONE_DMA32
-+#if !defined(CONFIG_ZONE_DMA32) && BITS_PER_LONG >= 64
- #define __GFP_DMA32	((__force gfp_t)0x01)	/* ZONE_DMA is ZONE_DMA32 */
--#elif BITS_PER_LONG < 64
--#define __GFP_DMA32	((__force gfp_t)0x00)	/* ZONE_NORMAL is ZONE_DMA32 */
- #else
- #define __GFP_DMA32	((__force gfp_t)0x04)	/* Has own ZONE_DMA32 */
- #endif
-Index: linux-2.6.18-rc1-mm1/include/linux/mmzone.h
-===================================================================
---- linux-2.6.18-rc1-mm1.orig/include/linux/mmzone.h	2006-07-10 09:37:56.424687226 -0700
-+++ linux-2.6.18-rc1-mm1/include/linux/mmzone.h	2006-07-10 09:49:18.442923919 -0700
-@@ -162,18 +162,33 @@ enum zone_type {
-  *
-  * NOTE! Make sure this matches the zones in <linux/gfp.h>
-  */
--#define GFP_ZONETYPES		((GFP_ZONEMASK + 1) / 2 + 1)    /* Loner */
- 
- #ifdef CONFIG_ZONE_DMA32
-+
-+#ifdef CONFIG_HIGHMEM
-+#define GFP_ZONETYPES		((GFP_ZONEMASK + 1) / 2 + 1)    /* Loner */
- #define GFP_ZONEMASK		0x07
--#define	ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
-+#define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
-+#else
-+#define GFP_ZONETYPES		((0x07 + 1) / 2 + 1)    /* Loner */
-+/* Mask __GFP_HIGHMEM */
-+#define GFP_ZONEMASK		0x05
-+#define ZONES_SHIFT		2
-+#endif
-+
- #else
- #ifdef CONFIG_HIGHMEM
-+
- #define GFP_ZONEMASK		0x03
--#define	ZONES_SHIFT		2
-+#define ZONES_SHIFT		2
-+#define GFP_ZONETYPES		3
-+
- #else
-+
- #define GFP_ZONEMASK		0x01
- #define ZONES_SHIFT		1
-+#define GFP_ZONETYPES		2
-+
- #endif
- #endif
- 
+-- 
+What this world needs is a good five-dollar plasma weapon.

@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422747AbWGJS0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965202AbWGJSbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422747AbWGJS0y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422748AbWGJS0y
+	id S965202AbWGJSbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965203AbWGJSbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:26:54 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:35755 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1422747AbWGJS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:26:53 -0400
-X-Sasl-enc: 1h/dE607hhvPrCeqhnUGZCToHxNsfceVU75DtZuIpbFz 1152556008
-Message-ID: <44B29C4C.70105@imap.cc>
-Date: Mon, 10 Jul 2006 20:28:28 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
-MIME-Version: 1.0
+	Mon, 10 Jul 2006 14:31:32 -0400
+Received: from main.gmane.org ([80.91.229.2]:12475 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965202AbWGJSbb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:31:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, efault@gmx.de
-Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled
- /sbin/ifup
-References: <6wDCq-5xj-25@gated-at.bofh.it>	<6wM2X-1lt-7@gated-at.bofh.it>	<6wOxP-4QN-5@gated-at.bofh.it>	<44B189D3.4090303@imap.cc> <20060709161712.c6d2aecb.akpm@osdl.org>
-In-Reply-To: <20060709161712.c6d2aecb.akpm@osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig329DB7072E9F0F29889660D8"
+From: Steve Fox <drfickle@us.ibm.com>
+Subject: Re: Linux v2.6.18-rc1
+Date: Mon, 10 Jul 2006 13:30:31 -0500
+Organization: IBM
+Message-ID: <pan.2006.07.10.18.30.30.338580@us.ibm.com>
+References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org> <pan.2006.07.07.15.41.35.528827@us.ibm.com> <1152441242.4128.33.camel@localhost.localdomain> <1152549482.2658.29.camel@flooterbu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 24-159-197-73.dhcp.roch.mn.charter.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+Cc: linuxppc-dev@ozlabs.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig329DB7072E9F0F29889660D8
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, 10 Jul 2006 11:38:02 -0500, Steve Fox wrote:
 
-On 10.07.2006 01:17, Andrew Morton wrote:
+> Also, booting with ide=nodma, as Alan suggested to Will, did not help.
 
->>>I'd be suspecting
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-r=
-c1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device=
-=2Epatch.
-> [...] you'll also need to revert
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc=
-1/2.6.18-rc1-mm1/broken-out/gregkh-driver-class_device_rename-remove.patc=
-h
+I'm not sure if it was due to using the nodma parameter or not, but I did
+get a few more details during this boot. No idea if they're useful or not.
 
-Ok, that helped. With these two reverted, my eth0 interface comes up
-again as it should.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2 ide:
+Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+AMD8111: IDE controller at PCI slot 0000:00:04.1 AMD8111: chipset revision
+3 AMD8111: 0000:00:04.1 (rev 03) UDMA133 controller AMD8111: 100% native
+mode on irq 17
+    ide0: BM-DMA at 0x7c00-0x7c07, BIOS settings: hda:pio, hdb:pio ide1:
+    BM-DMA at 0x7c08-0x7c0f, BIOS settings: hdc:pio, hdd:pio
+hda: TOSHIBA MK4019GAXB, ATA DISK drive ide0 at 0x7400-0x7407,0x6c02 on
+irq 17 hda: max request size: 128KiB
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: 78140160 sectors (40007 MB), CHS=65535/16/63 hda: lost interrupt hda:
+cache flushes supported
+ hda:<4>hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+ hda1 hda2 hda3 hda4 <<4>hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+ hda5<4>hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
 
-Thanks
-Tilman
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Stuttgart ist viel sch=F6ner als Berlin!
+-- 
+
+Steve Fox
+IBM Linux Technology Center
 
 
---------------enig329DB7072E9F0F29889660D8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEspxVMdB4Whm86/kRAoZ6AJ4vMI+bVy/KPpI3ezqQ3XcPxgrk6wCggDZG
-8WCjDpK/fkucbARwbxXMxVY=
-=HRh+
------END PGP SIGNATURE-----
-
---------------enig329DB7072E9F0F29889660D8--

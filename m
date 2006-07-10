@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWGJLk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWGJLp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWGJLk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWGJLk2
+	id S964922AbWGJLp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWGJLp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:40:28 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:47553 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932398AbWGJLk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:40:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=S9bkVrBKDYD9tEN7bhsyL8wd/kFm3WffzzA2ehinxntYNopva8xiP/KAG+848zwJqUBlTvTuGJ62YFwKN7WGNaeOzIVbJCpwQNOgdJTphOGSS/9ZJDTDvi+iwbDqXYHr1bwOYtkgqFzDkw6FEPjZ2njKRv0HAGVI9Q/EdHMwMlE=
-Message-ID: <84144f020607100440m2522fccie2b009a6a19fb630@mail.gmail.com>
-Date: Mon, 10 Jul 2006 14:40:26 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Mike Galbraith" <efault@gmx.de>
-Subject: Re: 2.6.18-rc1: slab BUG_ON(!PageSlab(page)) upon umount after failed suspend
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152528686.9122.5.camel@Homer.TheSimpsons.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jul 2006 07:45:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:63362 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964912AbWGJLpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:45:25 -0400
+Subject: Re: [PATCH] IB/mthca: comment fix
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Zach Brown <zach.brown@oracle.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20060710113112.GA26198@mellanox.co.il>
+References: <1152530289.4874.19.camel@laptopd505.fenrus.org>
+	 <20060710113112.GA26198@mellanox.co.il>
+Content-Type: text/plain
+Date: Mon, 10 Jul 2006 13:45:03 +0200
+Message-Id: <1152531909.4874.22.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6wDCq-5xj-25@gated-at.bofh.it> <6wM2X-1lt-7@gated-at.bofh.it>
-	 <6wOxP-4QN-5@gated-at.bofh.it> <44B189D3.4090303@imap.cc>
-	 <20060709161712.c6d2aecb.akpm@osdl.org>
-	 <1152513068.7748.13.camel@Homer.TheSimpsons.net>
-	 <84144f020607100142l62f02321i9802f9eed64d39f4@mail.gmail.com>
-	 <1152527148.8700.8.camel@Homer.TheSimpsons.net>
-	 <84144f020607100333s57159d38ha1101c65e8c099b1@mail.gmail.com>
-	 <1152528686.9122.5.camel@Homer.TheSimpsons.net>
-X-Google-Sender-Auth: bfcb6b2af811cc49
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 13:33 +0300, Pekka Enberg wrote:
-> > Curious... GCC cuts line and file information after ud2a. Looking at
-> > your stack trace, I am wondering who calls free_block() as we don't
-> > see cache_flusharray() in the trace. Do you have CONFIG_NUMA enabled?
+On Mon, 2006-07-10 at 14:31 +0300, Michael S. Tsirkin wrote:
+> Quoting r. Arjan van de Ven <arjan@infradead.org>:
+> > Subject: Re: [PATCH] IB/mthca: comment fix
+> > 
+> > On Mon, 2006-07-10 at 14:14 +0300, Michael S. Tsirkin wrote:
+> > > Hi Andrew,
+> > > Here's a cosmetic patch for IB/mthca. Pls drop it into -mm and on.
+> > > 
+> > > ---
+> > > 
+> > > comment in mthca_qp.c makes it seem lockdep is the only reason WQ locks should
+> > > be initialized separately, but as Zach Brown and Roland pointed out, there are
+> > > other reasons, e.g. that mthca_wq_init is called from modify qp as well.
+> > 
+> > ehh.. shouldn't the comment say that instead then? that's one tricky
+> > thing and might as well have that documented in the code!
+> 
+> Hmm. Okay. Maybe we should rename mthca_wq_init to mthca_wq_reset?
+> This would make it clear that it does not init the spinlocks,
+> but just resets the rest of the fields, would not it?
 
-On 7/10/06, Mike Galbraith <efault@gmx.de> wrote:
-> It got inlined.
+makes sense to me; my main concern is that we document the bug that was
+there; unless you document such things.. these bugs tend to have a habit
+of resurfacing later ;)
 
-Right. Can't spot anything obviously wrong with the code. Try
-CONFIG_DEBUG_SLAB if you can reproduce it.
-
-                              Pekka

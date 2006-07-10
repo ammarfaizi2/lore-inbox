@@ -1,143 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWGJKDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWGJKGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWGJKDX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWGJKDX
+	id S1751396AbWGJKGb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWGJKGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:03:23 -0400
-Received: from ip-140-150.sn2.eutelia.it ([83.211.140.150]:407 "HELO
-	intranet.antek.it") by vger.kernel.org with SMTP id S1751352AbWGJKDW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:03:22 -0400
-Message-ID: <44B2262B.9070907@antek.it>
-Date: Mon, 10 Jul 2006 12:04:27 +0200
-From: Luca Ognibene <ognibene@antek.it>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: ftdi error in /var/log/messages when connecting to gprs
-References: <44AD2DBF.4060200@antek.it> <20060707110004.537e2466@doriath.conectiva>
-In-Reply-To: <20060707110004.537e2466@doriath.conectiva>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 10 Jul 2006 06:06:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44761 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751393AbWGJKGa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 06:06:30 -0400
+Date: Mon, 10 Jul 2006 03:05:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, devel@openvz.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] struct file leakage
+Message-Id: <20060710030526.fdb1ca27.akpm@osdl.org>
+In-Reply-To: <44B2185F.1060402@sw.ru>
+References: <44B2185F.1060402@sw.ru>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luiz Fernando N. Capitulino wrote:
-> On Thu, 06 Jul 2006 17:35:27 +0200
-> Luca Ognibene <ognibene@antek.it> wrote:
-> 
-> | Hi, i have an error very often when using a USB modem (from Hamlet) to
-> | connect to gprs. This is the log from /var/log/messages:
-> | 
-> | Jul  6 17:06:51 aylook012 chat[4783]: Failed (NO CARRIER)
-> | Jul  6 17:06:52 aylook012 pppd[4756]: Modem hangup
-> | Jul  6 17:06:52 aylook012 pppd[4756]: Exit.
-> | Jul  6 17:06:52 aylook012 pppd[4795]: pppd 2.4.3 started by root, uid 0
-> | Jul  6 17:06:52 aylook012 kernel: c01e58c5
-> | Jul  6 17:06:52 aylook012 kernel: Modules linked in: ppp_deflate
-> | zlib_deflate bsd_comp ppp_async crc_ccitt ppp_generic slhc ftdi_sio
-> | usbserial bttv video_buf firmware_class v4l2_common btcx_risc tveeprom
-> | videodev i2c_algo_bit i2c_core snd_intel8x0 snd_ac97_codec snd_pcm_oss
-> | snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc sd_mod
-> | pcmcia yenta_socket rsrc_nonstatic pcmcia_core ipv6 ipt_REJECT ipt_LOG
-> | ipt_state ipt_pkttype ipt_recent ipt_iprange ipt_physdev ipt_multiport
-> | ipt_conntrack iptable_mangle ip_nat_irc ip_nat_tftp ip_nat_ftp
-> | iptable_nat ip_conntrack_irc ip_conntrack_tftp ip_conntrack_ftp ip_conntrack
-> | iptable_filter ip_tables ohci_hcd usbcore sata_sis libata scsi_mod
-> | 8139too mii ide_cd cdrom rtc ext3 jbd ide_disk ide_generic via82cxxx
-> | trm290 triflex slc90e66 sis5513 siimage serverworks sc1200 rz1000 piix
-> | pdc202xx_old opti621 ns87415 hpt366 hpt34x
-> | generic cy82c693 cs5530 cs5520 cmd64x atiixp amd74xx alim15x3 aec62xx
-> | pdc202xx_new ide_core unix fbcon tileblit font bitblit
-> | vesafb cfbcopyarea cfbimgblt
-> | Jul  6 17:06:52 aylook012 kernel: fbfillrect softcursor capability commoncap
-> | Jul  6 17:06:52 aylook012 kernel: CPU:    0
-> | Jul  6 17:06:52 aylook012 kernel: EIP:    0060:[tty_get_baud_rate+5/76]
-> |    Not tainted VLI
-> | Jul  6 17:06:52 aylook012 kernel: EFLAGS: 00010282   (2.6.12-1-386)
-> | Jul  6 17:06:52 aylook012 kernel: EIP is at tty_get_baud_rate+0x5/0x4c
-> | Jul  6 17:06:52 aylook012 pppd[4797]: pppd 2.4.3 started by root, uid 0
-> | Jul  6 17:06:52 aylook012 pppd[4797]: Removed stale lock on modem (pid 4795)
-> | Jul  6 17:06:52 aylook012 kernel: eax: cb14ca00   ebx: 00000000   ecx:
-> | cef2f080   edx: cef2a000
-> | Jul  6 17:06:52 aylook012 kernel: esi: cb14ca00   edi: cb14f580   ebp:
-> | cef2f080   esp: c42a5e34
-> | Jul  6 17:06:52 aylook012 kernel: ds: 007b   es: 007b   ss: 0068
-> | Jul  6 17:06:52 aylook012 kernel: Process pppd (pid: 4795,
-> | threadinfo=c42a4000 task=c26ee020)
-> | Jul  6 17:06:52 aylook012 kernel: Stack: cea28f40 cfb3e279 00000000
-> | cea28f40 cb14ca00 cb14f580 cfb3e205 cb14ca00
-> | Jul  6 17:06:52 aylook012 kernel:        00000008 80000cbd cb14f580
-> | ce712c00 cfb3ff15 cb14ca00 00000000 8000007b
-> | Jul  6 17:06:52 aylook012 kernel:        cb14f580 cb14ca00 cb14ca00
-> | ce712c00 cfb3eecb cb14ca00 c42a5e90 ce53695c
-> | Jul  6 17:06:52 aylook012 kernel: Call Trace:
-> | Jul  6 17:06:52 aylook012 kernel:  [pg0+259613305/1069900800]
-> | get_ftdi_divisor+0x15/0x2b8 [ftdi_sio]
-> | Jul  6 17:06:52 aylook012 kernel:  [pg0+259613189/1069900800]
-> | change_speed+0x29/0x88 [ftdi_sio]
-> | Jul  6 17:06:52 aylook012 kernel:  [pg0+259620629/1069900800]
-> | ftdi_set_termios+0x201/0x574 [ftdi_sio]
-> | Jul  6 17:06:52 aylook012 kernel:  [pg0+259616459/1069900800]
-> | ftdi_open+0x77/0x160 [ftdi_sio]
-> | Jul  6 17:06:52 aylook012 kernel:  [link_path_walk+86/244]
-> | link_path_walk+0x56/0xf4
-> | Jul  6 17:06:52 aylook012 kernel:  [pg0+259654503/1069900800]
-> | serial_open+0x7b/0xfc [usbserial]
-> | Jul  6 17:06:52 aylook012 kernel:  [tty_open+250/700] tty_open+0xfa/0x2bc
-> | Jul  6 17:06:52 aylook012 kernel:  [chrdev_open+107/304]
-> | chrdev_open+0x6b/0x130
-> | Jul  6 17:06:52 aylook012 kernel:  [dentry_open+178/460]
-> | dentry_open+0xb2/0x1cc
-> | Jul  6 17:06:52 aylook012 kernel:  [filp_open+70/80] filp_open+0x46/0x50
-> | Jul  6 17:06:52 aylook012 kernel:  [__fput+157/236] __fput+0x9d/0xec
-> | Jul  6 17:06:52 aylook012 kernel:  [sys_open+47/104] sys_open+0x2f/0x68
-> | Jul  6 17:06:52 aylook012 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-> | Jul  6 17:06:52 aylook012 kernel: Code: ef 89 43 08 8b 04 95 20 52 30 c0
-> | 5b c3 90 8d 4a 0f 3b 0d 9c 52 30 c0 77 e5 89 ca 8b 04 95 20 52 30 c0 5b
-> | c3 89 f6 53 8b 5c 24 08 <ff> 73 68 e8 af ff ff ff 5a 3d 00 96 00 00 74
-> | 03 5b c3 90 8b 93
-> | Jul  6 17:06:52 aylook012 kernel:  <1>Unable to handle kernel NULL
-> | pointer dereference at virtual address 00000084
-> | Jul  6 17:06:52 aylook012 kernel: cfb48bac
-> | 
-> | Motherboard: Asus P5S800-VM
-> | Modem (from lsusb):
-> | Bus 002 Device 002: ID 0403:6001 Future Technology Devices
-> | International, Ltd 8-bit FIFO
-> | Linux: i'm using a Debian sarge (kernel 2.6.8), i've also tried with a
-> | 2.6.16 from debian backport (the log is using 2.6.16)
-> 
->  Your log says:
-> 
-> """
-> Jul  6 17:06:52 aylook012 kernel: EFLAGS: 00010282   (2.6.12-1-386)
-> """
-> 
->  Please, could you try to reproduce with 2.6.18-rc1 ?
-> 
-oops, my fault. I've tested with 2.6.16 and i've not been able to
-reproduce it. Now i get (sometime) a different error:
+On Mon, 10 Jul 2006 13:05:35 +0400
+Kirill Korotaev <dev@sw.ru> wrote:
 
-Jul  7 17:06:36 aylook012 kernel: usb 1-2: USB disconnect, address 2
-Jul  7 17:06:36 aylook012 kernel: ftdi_sio 1-2:1.0: device disconnected
-Jul  7 17:06:36 aylook012 kernel: usb 1-2: new full speed USB device
-using ohci_hcd and address 3
-Jul  7 17:06:36 aylook012 kernel: usb 1-2: configuration #1 chosen from
-1 choice
-Jul  7 17:06:36 aylook012 kernel: ftdi_sio 1-2:1.0: FTDI USB Serial
-Device converter detected
-Jul  7 17:06:36 aylook012 kernel: drivers/usb/serial/ftdi_sio.c:
-Detected FT232BM
-Jul  7 17:06:36 aylook012 kernel: usb 1-2: FTDI USB Serial Device
-converter now attached to ttyUSB1
-Jul  7 17:06:37 aylook012 kernel: ftdi_sio ttyUSB0: FTDI USB Serial
-Device converter now disconnected from ttyUSB0
+> Hello!
+> 
+> Andrew, this is a patch from Alexey Kuznetsov for 2.6.16.
+> I believe 2.6.17 still has this leak.
+> 
+> -------------------------------------------------------------
+> 
+> 2.6.16 leaks like hell. While testing, I found massive leakage
+> (reproduced in openvz) in:
+> 
+> *filp
+> *size-4096
+> 
+> And 1 object leaks in
+> *size-32
+> *size-64
+> *size-128
+> 
+> 
+> It is the fix for the first one. filp leaks in the bowels
+> of namei.c.
+> 
+> Seems, size-4096 is file table leaking in expand_fdtables.
 
-I'll retry with 2.6.18-rc1 ASAP.
+I suspect that's been there for a long time.
 
-ciao
-Luca
+> I have no idea what are the rest and why they show only
+> accompaniing another leaks. Some debugging structs?
+
+I don't understand this.  Are you implying that there are other bugs.
+
+> Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+> CC: Kirill Korotaev <dev@openvz.org>
+> 
+
+> --- linux-2.6.16-w/fs/namei.c	2006-07-10 11:43:11.000000000 +0400
+> +++ linux-2.6.16/fs/namei.c	2006-07-10 11:53:36.000000000 +0400
+> @@ -1774,8 +1774,15 @@ do_link:
+>  	if (error)
+>  		goto exit_dput;
+>  	error = __do_follow_link(&path, nd);
+> -	if (error)
+> +	if (error) {
+> +		/* Does someone understand code flow here? Or it is only
+> +		 * me so stupid? Anathema to whoever designed this non-sense
+> +		 * with "intent.open".
+> +		 */
+> +		if (!IS_ERR(nd->intent.open.file))
+> +			release_open_intent(nd);
+>  		return error;
+> +	}
+>  	nd->flags &= ~LOOKUP_PARENT;
+>  	if (nd->last_type == LAST_BIND)
+>  		goto ok;
+> 
+
+It's good to have some more Alexeycomments in the tree.
+
+I wonder if we're also needing a path_release() here.  And if not, whether
+it is still safe to run release_open_intent() against this nameidata?
+
+Hopefully Trond can recall what's going on in there...

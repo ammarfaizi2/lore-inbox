@@ -1,106 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWGJO6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWGJPBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422648AbWGJO6F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWGJO6E
+	id S964880AbWGJPBg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGJPBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:58:04 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:27832 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422648AbWGJO6C
+	Mon, 10 Jul 2006 11:01:36 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5535 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964880AbWGJPBf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:58:02 -0400
-Date: Mon, 10 Jul 2006 07:58:38 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] kernel/rcutorture.c: make code static
-Message-ID: <20060710145838.GA1446@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060709021106.9310d4d1.akpm@osdl.org> <20060709175333.GL13938@stusta.de>
+	Mon, 10 Jul 2006 11:01:35 -0400
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com>
+References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
+	 <1152524657.27368.108.camel@localhost.localdomain>
+	 <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>
+	 <1152537049.27368.119.camel@localhost.localdomain>
+	 <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
+	 <1152539034.27368.124.camel@localhost.localdomain>
+	 <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>
+	 <44B26752.9000507@gmail.com>
+	 <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Jul 2006 16:19:06 +0100
+Message-Id: <1152544746.27368.134.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709175333.GL13938@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 07:53:33PM +0200, Adrian Bunk wrote:
-> On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.17-mm6:
-> >...
-> > -srcu-rcu-variant-permitting-read-side-blocking.patch
-> > -srcu-2-rcu-variant-permitting-read-side-blocking.patch
-> > -srcu-add-srcu-operations-to-rcutorture.patch
-> > -srcu-2-add-srcu-operations-to-rcutorture.patch
-> > +srcu-3-rcu-variant-permitting-read-side-blocking.patch
-> > +srcu-3-rcu-variant-permitting-read-side-blocking-fix.patch
-> > +srcu-3-add-srcu-operations-to-rcutorture.patch
-> > 
-> >  Updated srcu patchset.
-> >...
+Ar Llu, 2006-07-10 am 10:57 -0400, ysgrifennodd Jon Smirl:
+> > A few apps do rely on /proc/tty/drivers for the major-minor
+> > to device name mapping. /dev/vc/0 does not exist (unless
+> > created manually) without devfs.
 > 
-> The contents of the patch below somehow got lost during these updates.
-> 
-> cu
-> Adrian
+> This is why I questioned if /proc/tty was really in use, it contains
+> an entry that is obviously wrong for my system.
 
-My bad...  I have applied this to my local view.
+Which tools already know about. What is so hard to understand about the
+idea that pointless random changes break stuff and don't fix things.
 
-Andrew, please apply.
+As I've now said three times, put the new stuff in your sysfs work you
+are going to submit, and get it right there, then come back and
+revisit /proc/tty.
 
-							Thanx, Paul
+Alan
 
-> <--  snip  -->
-> 
-> 
-> This patch makes needlessly global code static.
-
-Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  kernel/rcutorture.c |   14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
-> 
-> --- linux-2.6.17-mm3-full/kernel/rcutorture.c.old	2006-06-27 17:59:20.000000000 +0200
-> +++ linux-2.6.17-mm3-full/kernel/rcutorture.c	2006-06-27 18:01:00.000000000 +0200
-> @@ -105,11 +105,11 @@
->  static DEFINE_PER_CPU(long [RCU_TORTURE_PIPE_LEN + 1], rcu_torture_batch) =
->  	{ 0 };
->  static atomic_t rcu_torture_wcount[RCU_TORTURE_PIPE_LEN + 1];
-> -atomic_t n_rcu_torture_alloc;
-> -atomic_t n_rcu_torture_alloc_fail;
-> -atomic_t n_rcu_torture_free;
-> -atomic_t n_rcu_torture_mberror;
-> -atomic_t n_rcu_torture_error;
-> +static atomic_t n_rcu_torture_alloc;
-> +static atomic_t n_rcu_torture_alloc_fail;
-> +static atomic_t n_rcu_torture_free;
-> +static atomic_t n_rcu_torture_mberror;
-> +static atomic_t n_rcu_torture_error;
->  
->  /*
->   * Allocate an element from the rcu_tortures pool.
-> @@ -338,7 +338,7 @@
->  	}
->  }
->  
-> -int srcu_torture_stats(char *page)
-> +static int srcu_torture_stats(char *page)
->  {
->  	int cnt = 0;
->  	int cpu;
-> @@ -567,7 +567,7 @@
->  /* Shuffle tasks such that we allow @rcu_idle_cpu to become idle. A special case
->   * is when @rcu_idle_cpu = -1, when we allow the tasks to run on all CPUs.
->   */
-> -void rcu_torture_shuffle_tasks(void)
-> +static void rcu_torture_shuffle_tasks(void)
->  {
->  	cpumask_t tmp_mask = CPU_MASK_ALL;
->  	int i;
-> 
-> 

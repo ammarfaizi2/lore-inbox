@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965264AbWGJWLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965262AbWGJWK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965264AbWGJWLh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWGJWK5
+	id S965262AbWGJWK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWGJWKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:10:57 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:273 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S965254AbWGJWKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:10:52 -0400
+	Mon, 10 Jul 2006 18:10:41 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:7121 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S965254AbWGJWKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:10:22 -0400
 From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 08/10] Keep the __init functions after initialization
-Date: Mon, 10 Jul 2006 23:10:50 +0100
+Subject: [PATCH 05/10] Add kmemleak support for i386
+Date: Mon, 10 Jul 2006 23:10:19 +0100
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060710221049.5191.9776.stgit@localhost.localdomain>
+Message-Id: <20060710221018.5191.60271.stgit@localhost.localdomain>
 In-Reply-To: <20060710220901.5191.66488.stgit@localhost.localdomain>
 References: <20060710220901.5191.66488.stgit@localhost.localdomain>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -24,51 +24,83 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Catalin Marinas <catalin.marinas@arm.com>
 
-This patch adds the CONFIG_DEBUG_KEEP_INIT option which preserves the
-.init.text section after initialization. Memory leaks happening during this
-phase can be more easily tracked.
+This patch modifies the vmlinux.lds.S script and adds the backtrace support
+for i386 to be used with kmemleak.
 
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
 
- include/linux/init.h |    4 ++++
- lib/Kconfig.debug    |   10 ++++++++++
- 2 files changed, 14 insertions(+), 0 deletions(-)
+ arch/i386/kernel/vmlinux.lds.S |    4 ++++
+ include/asm-i386/processor.h   |   12 ++++++++++++
+ include/asm-i386/thread_info.h |   10 +++++++++-
+ 3 files changed, 25 insertions(+), 1 deletions(-)
 
-diff --git a/include/linux/init.h b/include/linux/init.h
-index 6667785..1590e9a 100644
---- a/include/linux/init.h
-+++ b/include/linux/init.h
-@@ -40,7 +40,11 @@ #include <linux/compiler.h>
+diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
+index 2d4f138..34fccf1 100644
+--- a/arch/i386/kernel/vmlinux.lds.S
++++ b/arch/i386/kernel/vmlinux.lds.S
+@@ -45,6 +45,7 @@ SECTIONS
+   __tracedata_end = .;
  
- /* These are for everybody (although not all archs will actually
-    discard it in modules) */
-+#ifdef CONFIG_DEBUG_KEEP_INIT
-+#define __init
-+#else
- #define __init		__attribute__ ((__section__ (".init.text")))
-+#endif
- #define __initdata	__attribute__ ((__section__ (".init.data")))
- #define __exitdata	__attribute__ ((__section__(".exit.data")))
- #define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 6c56be2..5013375 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -171,6 +171,16 @@ config DEBUG_MEMLEAK_ORPHAN_FREEING
- 	  information displayed allow an easier identification of
- 	  false positives.
+   /* writeable */
++  _sdata = .;			/* Start of data section */
+   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
+ 	*(.data)
+ 	CONSTRUCTORS
+@@ -156,6 +157,9 @@ #endif
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
+   __per_cpu_end = .;
++  __memleak_offsets_start = .;
++  .init.memleak_offsets : AT(ADDR(.init.memleak_offsets) - LOAD_OFFSET) { *(.init.memleak_offsets) }
++  __memleak_offsets_end = .;
+   . = ALIGN(4096);
+   __init_end = .;
+   /* freed after init ends here */
+diff --git a/include/asm-i386/processor.h b/include/asm-i386/processor.h
+index b32346d..0884122 100644
+--- a/include/asm-i386/processor.h
++++ b/include/asm-i386/processor.h
+@@ -731,4 +731,16 @@ extern unsigned long boot_option_idle_ov
+ extern void enable_sep_cpu(void);
+ extern int sysenter_setup(void);
  
-+config DEBUG_KEEP_INIT
-+	bool "Do not free the __init functions"
-+	default n
-+	depends on DEBUG_MEMLEAK
-+	help
-+	  This option moves the __init functions out of the .init.text
-+	  section and therefore they are no longer freed after the
-+	  kernel initialization. It is useful for identifying memory
-+	  leaks happening during the kernel or modules initialization.
++#ifdef CONFIG_FRAME_POINTER
++static inline unsigned long arch_call_address(void *frame)
++{
++	return *(unsigned long *) (frame + 4);
++}
 +
- config DEBUG_PREEMPT
- 	bool "Debug preemptible kernel"
- 	depends on DEBUG_KERNEL && PREEMPT && TRACE_IRQFLAGS_SUPPORT
++static inline void *arch_prev_frame(void *frame)
++{
++	return *(void **) frame;
++}
++#endif
++
+ #endif /* __ASM_I386_PROCESSOR_H */
+diff --git a/include/asm-i386/thread_info.h b/include/asm-i386/thread_info.h
+index 2833fa2..80b9451 100644
+--- a/include/asm-i386/thread_info.h
++++ b/include/asm-i386/thread_info.h
+@@ -100,12 +100,20 @@ #define alloc_thread_info(tsk)					\
+ 		struct thread_info *ret;			\
+ 								\
+ 		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		memleak_ignore(ret);				\
+ 		if (ret)					\
+ 			memset(ret, 0, THREAD_SIZE);		\
+ 		ret;						\
+ 	})
+ #else
+-#define alloc_thread_info(tsk) kmalloc(THREAD_SIZE, GFP_KERNEL)
++#define alloc_thread_info(tsk)					\
++	({							\
++		struct thread_info *ret;			\
++								\
++		ret = kmalloc(THREAD_SIZE, GFP_KERNEL);		\
++		memleak_ignore(ret);				\
++		ret;						\
++	})
+ #endif
+ 
+ #define free_thread_info(info)	kfree(info)

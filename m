@@ -1,80 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWGJSNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWGJSNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965194AbWGJSNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbWGJSNT
+	id S1422751AbWGJSNj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbWGJSNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:13:19 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:9484 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S965199AbWGJSNT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:13:19 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-Date: Mon, 10 Jul 2006 19:13:45 +0100
-User-Agent: KMail/1.9.3
-Cc: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com> <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com> <44B26752.9000507@gmail.com>
-In-Reply-To: <44B26752.9000507@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 14:13:39 -0400
+Received: from mxl145v64.mxlogic.net ([208.65.145.64]:58756 "EHLO
+	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1422743AbWGJSNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:13:37 -0400
+Date: Mon, 10 Jul 2006 21:14:06 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rolandd@cisco.com>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [PATCH] IB/cm: drop REQ when out of memory
+Message-ID: <20060710181406.GC29641@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607101913.45070.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Jul 2006 18:18:43.0546 (UTC) FILETIME=[46E493A0:01C6A44D]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 July 2006 15:42, Antonino A. Daplas wrote:
-> Jon Smirl wrote:
-> > On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >> Ar Llu, 2006-07-10 am 09:03 -0400, ysgrifennodd Jon Smirl:
-> >> > I agree with this. I made a mistake with the pts vs pty, why not just
-> >> > help me fix the mistake instead of rejecting everything? Some the of
-> >> > the info being reported in /proc/tty/drivers is wrong (vc./0 - from
-> >> > the devfs attempt?). or missing.
-> >>
-> >> What are you trying to achieve and where are you trying to get. If you
-> >> want better info for the tty layer then get the new info working in
-> >> sysfs first. Then when people are generally using sysfs you can worry
-> >> about cleaning up/removing/breaking the old stuff.
-> >
-> > Before the change /proc/tty/drivers shows this:
-> >
-> > [jonsmirl@jonsmirl ~]$ cat /proc/tty/drivers
-> > /dev/tty             /dev/tty        5       0 system:/dev/tty
-> > /dev/console         /dev/console    5       1 system:console
-> > /dev/ptmx            /dev/ptmx       5       2 system
-> > /dev/vc/0            /dev/vc/0       4       0 system:vtmaster
->
-> vtmaster was /dev/tty0 in 2.2.x, changed to /dev/vc/0 probably
-> because of devfs. I would tend to agree with the change of at least
-> this part.
->
-> A few apps do rely on /proc/tty/drivers for the major-minor
-> to device name mapping. /dev/vc/0 does not exist (unless
-> created manually) without devfs.
+Hello Andrew!
+Could you please drop the following in -mm and on to Linus?
 
-Create a file in /etc/udev/rules.d. Add to it the following.
+---
 
-# devfs-ify vt devices
-KERNEL="tty[0-9]*",  NAME="vc/%n"
+If a user of the IB CM returns -ENOMEM from their connection callback,
+simply drop the incoming REQ - do not attempt to send a reject. This should
+allow the sender to retry the request.
 
-Now John's names are broken.
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 
-As Alan's wisely pointed out, it's utterly insane to try to "fix" a legacy 
-file when it a) can never match all possible, legal, current configurations 
-and b) shouldn't be used for anything important anyway.
-
-It'd be better to CONFIG out this directory and see what breaks. Then we can 
-decide if we should (or provide distributors the option to) remove it.
+Index: l/drivers/infiniband/core/cm.c
+===================================================================
+--- l/drivers/infiniband/core/cm.c	(revision 8224)
++++ l/drivers/infiniband/core/cm.c	(working copy)
+@@ -702,7 +702,7 @@ static void cm_reset_to_idle(struct cm_i
+ 	}
+ }
+ 
+-void ib_destroy_cm_id(struct ib_cm_id *cm_id)
++static void cm_destroy_id(struct ib_cm_id *cm_id, int err)
+ {
+ 	struct cm_id_private *cm_id_priv;
+ 	struct cm_work *work;
+@@ -736,12 +736,22 @@ retest:
+ 			       sizeof cm_id_priv->av.port->cm_dev->ca_guid,
+ 			       NULL, 0);
+ 		break;
++	case IB_CM_REQ_RCVD:
++		if (err == -ENOMEM) {
++			/* Do not reject to allow future retries. */
++			cm_reset_to_idle(cm_id_priv);
++			spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++		} else {
++			spin_unlock_irqrestore(&cm_id_priv->lock, flags);
++			ib_send_cm_rej(cm_id, IB_CM_REJ_CONSUMER_DEFINED,
++				       NULL, 0, NULL, 0);
++		}
++		break;
+ 	case IB_CM_MRA_REQ_RCVD:
+ 	case IB_CM_REP_SENT:
+ 	case IB_CM_MRA_REP_RCVD:
+ 		ib_cancel_mad(cm_id_priv->av.port->mad_agent, cm_id_priv->msg);
+ 		/* Fall through */
+-	case IB_CM_REQ_RCVD:
+ 	case IB_CM_MRA_REQ_SENT:
+ 	case IB_CM_REP_RCVD:
+ 	case IB_CM_MRA_REP_SENT:
+@@ -776,6 +786,11 @@ retest:
+ 	kfree(cm_id_priv->private_data);
+ 	kfree(cm_id_priv);
+ }
++
++void ib_destroy_cm_id(struct ib_cm_id *cm_id)
++{
++	cm_destroy_id(cm_id, 0);
++}
+ EXPORT_SYMBOL(ib_destroy_cm_id);
+ 
+ int ib_cm_listen(struct ib_cm_id *cm_id, __be64 service_id, __be64 service_mask,
+@@ -1164,7 +1179,7 @@ static void cm_process_work(struct cm_id
+ 	}
+ 	cm_deref_id(cm_id_priv);
+ 	if (ret)
+-		ib_destroy_cm_id(&cm_id_priv->id);
++		cm_destroy_id(&cm_id_priv->id, ret);
+ }
+ 
+ static void cm_format_mra(struct cm_mra_msg *mra_msg,
 
 -- 
-Cheers,
-Alistair.
+MST
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+_______________________________________________
+openib-general mailing list
+openib-general@openib.org
+http://openib.org/mailman/listinfo/openib-general
+
+To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
+
+----- End forwarded message -----
+
+-- 
+MST

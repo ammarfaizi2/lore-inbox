@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422719AbWGJR15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWGJRbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422719AbWGJR15 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 13:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWGJR14
+	id S1422722AbWGJRbq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 13:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWGJRbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 13:27:56 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:34936 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422719AbWGJR14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 13:27:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uQwBn23er/8N/d/I1M2e85Go/FC3SIw6ezh394CyM+xXo/HXyKbTe2KumMQYZ6EdRoGLCzBH0VROWg78VsglYJ4270LSrnOCVXjQpCsz9kzx2DzJkIO2+e9bJfUtjvpyNTU4BubAcI3cggJ0HEo8B+qJY5oiBlDP2t+FU8IXbr8=
-Message-ID: <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
-Date: Mon, 10 Jul 2006 13:27:54 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152552806.27368.187.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jul 2006 13:31:46 -0400
+Received: from xenotime.net ([66.160.160.81]:22733 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422722AbWGJRbq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 13:31:46 -0400
+Date: Mon, 10 Jul 2006 10:34:33 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matt LaPlante <kernel1@cyberdogtech.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 18-rc1] Fix typos in /Documentation : 'A'
+Message-Id: <20060710103433.37420ae2.rdunlap@xenotime.net>
+In-Reply-To: <20060710130549.ed48127a.kernel1@cyberdogtech.com>
+References: <20060710130549.ed48127a.kernel1@cyberdogtech.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152552806.27368.187.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-07-10 am 11:10 -0400, ysgrifennodd Jon Smirl:
-> > Since you want a new subject can you explain tty's use of file_lock to
-> > me? Is there some non-obvious global coordination happening here or is
-> > it work breaking down the big kernel lock that never got finished?
->
-> Its explained in the comment in do_SAK.
+On Mon, 10 Jul 2006 13:05:49 -0400 Matt LaPlante wrote:
 
-This problem seems to be aggravated by reusing the tty_struct for that
-tty. With the refcount patch it is now easy to disassociate an
-existing tty (and the processes attached to it) from the array
-tracking tty minors. A new clean tty_struct can be allocated and made
-visible. Init will grab this new struct. Now there is no way to get to
-the old one and it can be cleaned up and deleted.
+> This patch fixes typos in various Documentation txts. This patch addresses some words starting with the letter 'A'.
+> 
+> Signed-off-by: Matt LaPlante <kernel1@cyberdogtech.com>
 
-Is this strategy worth coding up? It would really simplify the locking issues.
+Hi,
+Looks mostly good.  I think it would be OK to fix other typos
+on the same lines as the patches... see below.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+
+> diff -ru a/Documentation/fb/sstfb.txt b/Documentation/fb/sstfb.txt
+> --- a/Documentation/fb/sstfb.txt	2006-07-08 14:12:27.000000000 -0400
+> +++ b/Documentation/fb/sstfb.txt	2006-07-10 12:14:50.000000000 -0400
+> @@ -161,7 +161,7 @@
+>  	- Buy more coffee.
+>  	- test/port to other arch.
+>  	- try to add panning using tweeks with front and back buffer .
+> -	- try to implement accel on voodoo2 , this board can actualy do a 
+> +	- try to implement accel on voodoo2 , this board can actually do a 
+
+No space before comma.
+
+>  	  lot in 2D even if it was sold as a 3D only board ...
+>  
+>  ghoz.
+> diff -ru a/Documentation/networking/pktgen.txt b/Documentation/networking/pktgen.txt
+> --- a/Documentation/networking/pktgen.txt	2006-07-08 14:13:34.000000000 -0400
+> +++ b/Documentation/networking/pktgen.txt	2006-07-10 12:19:44.000000000 -0400
+> @@ -7,7 +7,7 @@
+>  
+>  Enable CONFIG_NET_PKTGEN to compile and build pktgen.o either in kernel
+>  or as module. Module is preferred. insmod pktgen if needed. Once running
+> -pktgen creates a thread on each CPU where each thread has affinty it's CPU.
+> +pktgen creates a thread on each CPU where each thread has affinity it's CPU.
+
+its
+or
+to its
+
+>  Monitoring and controlling is done via /proc. Easiest to select a suitable 
+>  a sample script and configure.
+>  
+> diff -ru a/Documentation/scsi/ppa.txt b/Documentation/scsi/ppa.txt
+> --- a/Documentation/scsi/ppa.txt	2006-07-08 14:13:34.000000000 -0400
+> +++ b/Documentation/scsi/ppa.txt	2006-07-10 12:07:39.000000000 -0400
+> @@ -3,7 +3,7 @@
+>  General Iomega ZIP drive page for Linux:
+>  http://www.torque.net/~campbell/
+>  
+> -Driver achive for old drivers:
+> +Driver archive for old drivers:
+>  http://www.torque.net/~campbell/ppa/
+
+dead URL
+
+>  Linux Parport page (parallel port)
+
+---
+~Randy

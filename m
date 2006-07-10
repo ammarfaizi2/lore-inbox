@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWGJWSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWGJWUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbWGJWSj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWGJWSj
+	id S965020AbWGJWUI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWGJWUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:18:39 -0400
-Received: from mxl145v65.mxlogic.net ([208.65.145.65]:56012 "EHLO
-	p02c11o142.mxlogic.net") by vger.kernel.org with ESMTP
-	id S965016AbWGJWSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:18:38 -0400
-Date: Tue, 11 Jul 2006 01:19:02 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rolandd@cisco.com>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: infiniband patch series (was Re: ipath patch series a-comin', but no IB maintainer to shepherd them)
-Message-ID: <20060710221902.GB32328@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 10 Jul 2006 22:23:39.0656 (UTC) FILETIME=[7E750080:01C6A46F]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+	Mon, 10 Jul 2006 18:20:08 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:36542 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965020AbWGJWUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:20:06 -0400
+Date: Tue, 11 Jul 2006 00:17:49 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Albert Cahalan <acahalan@gmail.com>
+cc: ray-gmail@madrabbit.org, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Opinions on removing /proc/tty?
+In-Reply-To: <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0607110015030.5420@yvahk01.tjqt.qr>
+References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com> 
+ <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com> 
+ <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com> 
+ <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com> 
+ <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com> 
+ <20060709193133.GA32457@flint.arm.linux.org.uk> 
+ <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com> 
+ <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
+ <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Michael S. Tsirkin <mst@mellanox.co.il>:
-> Yes, -mm seems like a good way to get more review.
+>> > Just do /proc/*/tty links and all will be good. This even
+>> > handles the case of two different names for the same dev_t.
+>> > 
+>> Is this for the controlling tty? Then it should be ctty.
+>
+> Eeeew, an extra byte so it can look ugly.
+> What other special tty is there?
+>
+Any fd, for that matter.
 
-Andrew, am I using the right format to send things upstream to you?
-There's really a set of independent patches, so it didn't make sense
-to me to batch them up in a series. OK?
-Maybe the addition of the git tree (below) serves to clarify things.
+00:09 shanghai:/dev/shm > ls -l /proc/$$/fd
+total 4
+dr-x------  2 jengelh users  0 Jul 11 00:16 .
+dr-xr-xr-x  5 jengelh root   0 Jul 11 00:04 ..
+lrwx------  1 jengelh users 64 Jul 11 00:16 0 -> /dev/pts/2
+lrwx------  1 jengelh users 64 Jul 11 00:16 1 -> /dev/pts/2
+lrwx------  1 jengelh users 64 Jul 11 00:16 2 -> /dev/pts/2
+lrwx------  1 jengelh users 64 Jul 11 00:16 255 -> /dev/pts/2
+and CTTY is /dev/tty1.
 
-> Further, in the hope that this will help keep things reasonably stable till
-> Roland comes back, and help everyone see what's being merged, I have
-> created a git branch for all things infiniband going into 2.6.18.
-> 
-> You can get at it here:
-> 	git://www.mellanox.co.il/~git/infiniband  mst-for-2.6.18
+So what would /proc/$$/tty - ambiguous name - point to, the normal (attached)
+or the ctty? Not to mention exotic, yet possible things
 
-BTW, all outstanding infiniband patches intended for upstream are currently
-there. Here's the list:
+00:09 shanghai:/dev/shm > ls -l /proc/$$/fd
+total 4
+dr-x------  2 jengelh users  0 Jul 11 00:16 .
+dr-xr-xr-x  5 jengelh root   0 Jul 11 00:04 ..
+lrwx------  1 jengelh users 64 Jul 11 00:16 0 -> /dev/pts/1
+lrwx------  1 jengelh users 64 Jul 11 00:16 1 -> /dev/pts/2
+lrwx------  1 jengelh users 64 Jul 11 00:16 2 -> /dev/pts/3
+lrwx------  1 jengelh users 64 Jul 11 00:16 255 -> /dev/pts/4
+and an even different ctty.
 
-Jack Morgenstein:
-      IB/mthca: fix mthca_ah_query static rate format
+> It's always been "tty" in the kernel as far as I know.
+> See "struct tty_struct *tty" in sched.h's struct signal_struct.
+>
+> Various "ps" programs have always used "TTY" or "TT".
+> This makes "tt" more reasonable than "ctty".
+>
 
-Michael S. Tsirkin:
-      IB/cm: drop REQ when out of memory
-      IB/mthca: comment fix
-
-Sean Hefty:
-      IB/addr: gid structure alignment fix
-
-Vu Pham:
-      IB/srp: fix fmr error handling
-
+Jan Engelhardt
 -- 
-MST

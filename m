@@ -1,148 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWGJOHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWGJOL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030345AbWGJOHn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 10:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWGJOHn
+	id S1030388AbWGJOL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWGJOL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 10:07:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:36810 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030345AbWGJOHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 10:07:42 -0400
+	Mon, 10 Jul 2006 10:11:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:6271 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030388AbWGJOL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 10:11:58 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UUH16MYC2sDjnnzoNFgz+spfsezLAtWZV53bGpJbZKC7xF/kZWWgAEaR/VCBHu01KPrLI7jm8LjAT82BlflCFq6JLkTeEHBG4fui5FtqiIuj6rZkLCJKzgtDSE8DHtrSp8T9ReUldl98G73t1YTnWkYqCfOw8Xagb4o92Jr3GOI=
-Message-ID: <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>
-Date: Mon, 10 Jul 2006 10:07:41 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-Cc: "H. Peter Anvin" <hpa@zytor.com>, "Greg KH" <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <1152539034.27368.124.camel@localhost.localdomain>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=AC0pFm1GDzZrcrJ6ZC1RzNbEqLnjYStXaJGa5GzGlZN6oABRQXE0i7dnxb/EqCZgm4TONVV7oCuAAB829ldCRt5X5uvYR7RSVDCSKCP1yOKqryPGn7fIGy5MAbdiMnhAciJpgT7VZHmQcnZOGKAJ5AOv99P6/IGUfZbIP/92ma0=
+Message-ID: <44B26004.4050500@gmail.com>
+Date: Mon, 10 Jul 2006 22:11:16 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: "Antonino A. Daplas" <adaplas@pol.net>, Jean Delvare <khali@linux-fr.org>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
+References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net>	<m3ejwt65of.fsf@defiant.localdomain> <44B248E4.2020506@pol.net> <m3u05p4mkx.fsf@defiant.localdomain>
+In-Reply-To: <m3u05p4mkx.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
-	 <1152524657.27368.108.camel@localhost.localdomain>
-	 <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>
-	 <1152537049.27368.119.camel@localhost.localdomain>
-	 <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
-	 <1152539034.27368.124.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-07-10 am 09:03 -0400, ysgrifennodd Jon Smirl:
-> > I agree with this. I made a mistake with the pts vs pty, why not just
-> > help me fix the mistake instead of rejecting everything? Some the of
-> > the info being reported in /proc/tty/drivers is wrong (vc./0 - from
-> > the devfs attempt?). or missing.
->
-> What are you trying to achieve and where are you trying to get. If you
-> want better info for the tty layer then get the new info working in
-> sysfs first. Then when people are generally using sysfs you can worry
-> about cleaning up/removing/breaking the old stuff.
->
+Krzysztof Halasa wrote:
+> "Antonino A. Daplas" <adaplas@pol.net> writes:
+> 
+>> Eventually, I'm the one who's going to maintain the code, most
+>> of the drivers in the video directory are practically abandoned. 
+> 
+> BTW, it's fortunate that you are maintaing it.
 
-Before the change /proc/tty/drivers shows this:
+David Eger is the author, the last I heard from him was 2 years ago.
+But I haven't received that many problem reports on cirrusfb.
 
-[jonsmirl@jonsmirl ~]$ cat /proc/tty/drivers
-/dev/tty             /dev/tty        5       0 system:/dev/tty
-/dev/console         /dev/console    5       1 system:console
-/dev/ptmx            /dev/ptmx       5       2 system
-/dev/vc/0            /dev/vc/0       4       0 system:vtmaster
-serial               /dev/ttyS       4 64-67 serial
-pty_slave            /dev/pts      136 0-1048575 pty:slave
-pty_master           /dev/ptm      128 0-1048575 pty:master
-unknown              /dev/tty        4 1-63 console
+However, changes that affect all drivers are my responsibility.
+ 
+> The I2C code in cirrusfb
+> uses vga_wseq() and vga_rseq(). Is it safe WRT races between I2C
+> adapter code and fb code? I don't see any locking here, and both
+> functions are non-atomic (write merging and posting will not break it,
+> but it looks like I need a lock for concurent access).
 
-I changed it to this which better reflects my system.
+The only register touched by the i2c code is EEPROM control (CL_SEQR8).
+This is never touched by the rest of the cirrusfb code. So I don't
+think concurrent access is a problem (unless the hardware has restrictions
+such as no other register accesses are allowed while this register is being
+accessed). 
 
-[jonsmirl@jonsmirl ~]$ cat /proc/tty/drivers
-/dev/tty             /dev/tty        5       0 system:/dev/tty
-/dev/console         /dev/console    5       1 system:console
-/dev/ptmx            /dev/ptmx       5       2 system:/dev/ptmx
-/dev/tty0            /dev/tty0       4       0 system:vtmaster
-serial               /dev/ttyS       4 64-67 serial
-pty_slave            /dev/pts      136 0-1048575 pty:slave
-pty_master           /dev/ptm      128 0-1048575 pty:master
-vtconsole            /dev/tty        4 1-63 vt:console
+The framebuffer layer is serialized by
+acquire_console_sem()/release_console_sem(). If you think concurrent access
+is a problem, you can always use that.
 
-Nothing in that patch has anything to do with udev support. It is just
-trying to make things match my current devices. When we got rid of
-devfs /dev/vc/0 became /dev/tty0.
+Tony
 
-The ttyp change was a mistake. The patch below removes that error. Is
-there anything else wrong with it? That's why we have patch reviews,
-to catch dumb errors like that.
-
-> > I'm not going to solve this problem but it is something that needs to
-> > be discussed. Are we really going to maintain parallel naming schemes,
-> > one in-kernel and one out of kernel? I'm not even sure if USB will
-> > work without udev anymore.
->
-> It works fine, it would not suprise me if udev users were still the
-> minority case in fact.
-
-If I use udev to rename my devices, the names aren't going to match
-/proc/tty and what ps shows. The idea behind udev is that the kernel
-only deals in device numbers and all naming happens in user space.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
-
-diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
-index bfdb902..4a83e94 100644
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -3245,7 +3245,7 @@ #endif
-  #ifdef CONFIG_VT
- 	cdev_init(&vc0_cdev, &console_fops);
-  	if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
--	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
-+	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/tty0") < 0)
-  		panic("Couldn't register /dev/tty0 driver\n");
-  	class_device_create(tty_class, NULL, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
-
-diff --git a/drivers/char/vt.c b/drivers/char/vt.c
-index da7e66a..a627e8b 100644
---- a/drivers/char/vt.c
-+++ b/drivers/char/vt.c
-@@ -2662,6 +2662,7 @@ int __init vty_init(void)
- 	if (!console_driver)
- 		panic("Couldn't allocate console driver\n");
- 	console_driver->owner = THIS_MODULE;
-+	console_driver->driver_name = "vtconsole";
-  	console_driver->name = "tty";
- 	console_driver->name_base = 1;
- 	console_driver->major = TTY_MAJOR;
-diff --git a/fs/proc/proc_tty.c b/fs/proc/proc_tty.c
-index 15c4455..042aefe 100644
---- a/fs/proc/proc_tty.c
-+++ b/fs/proc/proc_tty.c
-@@ -48,7 +48,7 @@ static void show_tty_range(struct seq_fi
-  			seq_printf(m, ":vtmaster");
- 		break;
- 	case TTY_DRIVER_TYPE_CONSOLE:
--		seq_printf(m, "console");
-+		seq_printf(m, "vt:console");
- 		break;
- 	case TTY_DRIVER_TYPE_SERIAL:
- 		seq_printf(m, "serial");
-@@ -84,10 +84,10 @@ static int show_tty_driver(struct seq_fi
-  #ifdef CONFIG_UNIX98_PTYS
-  		seq_printf(m, "%-20s /dev/%-8s ", "/dev/ptmx", "ptmx");
- 		seq_printf(m, "%3d %7d ", TTYAUX_MAJOR, 2);
--		seq_printf(m, "system\n");
-+		seq_printf(m, "system:/dev/ptmx\n");
-  #endif
-  #ifdef CONFIG_VT
--		seq_printf(m, "%-20s /dev/%-8s ", "/dev/vc/0", "vc/0");
-+		seq_printf(m, "%-20s /dev/%-8s ", "/dev/tty0", "tty0");
- 		seq_printf(m, "%3d %7d ", TTY_MAJOR, 0);
-  		seq_printf(m, "system:vtmaster\n");
-  #endif

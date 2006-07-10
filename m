@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWGJSdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWGJSeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965124AbWGJSdF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWGJSdF
+	id S1422644AbWGJSeN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422749AbWGJSeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:33:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30217 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965008AbWGJSdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:33:03 -0400
-Date: Mon, 10 Jul 2006 20:33:02 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Luben Tuikov <luben_tuikov@adaptec.com>
-Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org
-Subject: [-mm patch] include/scsi/libsas.h should #include <linux/scatterlist.h>
-Message-ID: <20060710183302.GE13938@stusta.de>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
+	Mon, 10 Jul 2006 14:34:13 -0400
+Received: from mga02.intel.com ([134.134.136.20]:7759 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422644AbWGJSeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:34:11 -0400
+X-IronPort-AV: i="4.06,223,1149490800"; 
+   d="scan'208"; a="63043774:sNHT1566116776"
+Message-ID: <44B29C8A.8090405@intel.com>
+Date: Mon, 10 Jul 2006 11:29:30 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.4 (X11/20060617)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Pavel Machek <pavel@ucw.cz>, yi.zhu@intel.com, jketreno@linux.intel.com,
+       Netdev list <netdev@vger.kernel.org>, linville@tuxdriver.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
+References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com>
+In-Reply-To: <44B2940A.2080102@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jul 2006 18:30:14.0180 (UTC) FILETIME=[E28AF640:01C6A44E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-mm6:
->...
->  git-sas.patch
->...
->  git trees
->...
+Jeff Garzik wrote:
+> Pavel Machek wrote:
+>> Kconfig currently allows compiling IPW_2100 and IPW_2200 into kernel
+>> (not as a module). Unfortunately, such configuration does not work,
+>> because these drivers need a firmware, and it can't be loaded by
+>> userspace loader when userspace is not running.
+> 
+> False, initramfs...
 
-This patch fixes the following compile error (on s390):
+which would warrant some extra documentation in Kconfig explaining that this 
+driver needs initramfs with firmware for it to work when compiled in the 
+kernel. A link to the ipw2x00 documentation might also help.
 
-<--  snip  -->
+Cheers,
 
-...
-  CC      drivers/scsi/sas/sas_init.o
-In file included from drivers/scsi/sas/sas_internal.h:31,
-                 from drivers/scsi/sas/sas_init.c:35:
-include/scsi/libsas.h:479: error: field 'smp_req' has incomplete type
-include/scsi/libsas.h:480: error: field 'smp_resp' has incomplete type
-make[3]: *** [drivers/scsi/sas/sas_init.o] Error 1
-
-<--  snip  -->
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.18-rc1-mm1-full/include/scsi/libsas.h.old	2006-07-10 18:19:10.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/include/scsi/libsas.h	2006-07-10 18:19:53.000000000 +0200
-@@ -31,6 +31,7 @@
- #include <linux/pci.h>
- #include <scsi/sas.h>
- #include <linux/list.h>
-+#include <linux/scatterlist.h>
- #include <asm/semaphore.h>
- #include <scsi/scsi_device.h>
- #include <scsi/scsi_cmnd.h>
-
+Auke

@@ -1,117 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422751AbWGJSNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965199AbWGJSOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422751AbWGJSNj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422745AbWGJSNj
+	id S965199AbWGJSOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:14:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422742AbWGJSOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:13:39 -0400
-Received: from mxl145v64.mxlogic.net ([208.65.145.64]:58756 "EHLO
-	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1422743AbWGJSNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:13:37 -0400
-Date: Mon, 10 Jul 2006 21:14:06 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rolandd@cisco.com>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: [PATCH] IB/cm: drop REQ when out of memory
-Message-ID: <20060710181406.GC29641@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 10 Jul 2006 18:18:43.0546 (UTC) FILETIME=[46E493A0:01C6A44D]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+	Mon, 10 Jul 2006 14:14:08 -0400
+Received: from mga03.intel.com ([143.182.124.21]:58765 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S965204AbWGJSOG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:14:06 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="63776568:sNHT95626188329"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [patch] fix boot with acpi=off
+Date: Mon, 10 Jul 2006 22:08:19 +0400
+Message-ID: <8E389A5F2FEABA4CB1DEC35A25CB39CE0C4F5C@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] fix boot with acpi=off
+thread-index: AcaijClwEml2Pv6+RaSjLrkONPlWKABWknCwABdr42A=
+From: "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>
+To: "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@ucw.cz>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 10 Jul 2006 18:08:29.0614 (UTC) FILETIME=[D8F5FCE0:01C6A44B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew!
-Could you please drop the following in -mm and on to Linus?
+> acpi=off used to be handled by acpi_bus_register_driver()
+> for these drivers.
 
----
-
-If a user of the IB CM returns -ENOMEM from their connection callback,
-simply drop the incoming REQ - do not attempt to send a reject. This should
-allow the sender to retry the request.
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-
-Index: l/drivers/infiniband/core/cm.c
-===================================================================
---- l/drivers/infiniband/core/cm.c	(revision 8224)
-+++ l/drivers/infiniband/core/cm.c	(working copy)
-@@ -702,7 +702,7 @@ static void cm_reset_to_idle(struct cm_i
+> But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
+> for procfs are inserted before that in the _init functions.
+This is fragment from SBS patch. 
+-----------------------------------------
+ 	ACPI_FUNCTION_TRACE("acpi_ac_init");
+ 
+-	acpi_ac_dir = proc_mkdir(ACPI_AC_CLASS, acpi_root_dir);
++	acpi_ac_dir = acpi_lock_ac_dir();
+ 	if (!acpi_ac_dir)
+ 		return_VALUE(-ENODEV);
+-	acpi_ac_dir->owner = THIS_MODULE;
+ 
+ 	result = acpi_bus_register_driver(&acpi_ac_driver);
+ 	if (result < 0) {
+-		remove_proc_entry(ACPI_AC_CLASS, acpi_root_dir);
++		acpi_unlock_ac_dir(acpi_ac_dir);
+ 		return_VALUE(-ENODEV);
  	}
- }
- 
--void ib_destroy_cm_id(struct ib_cm_id *cm_id)
-+static void cm_destroy_id(struct ib_cm_id *cm_id, int err)
- {
- 	struct cm_id_private *cm_id_priv;
- 	struct cm_work *work;
-@@ -736,12 +736,22 @@ retest:
- 			       sizeof cm_id_priv->av.port->cm_dev->ca_guid,
- 			       NULL, 0);
- 		break;
-+	case IB_CM_REQ_RCVD:
-+		if (err == -ENOMEM) {
-+			/* Do not reject to allow future retries. */
-+			cm_reset_to_idle(cm_id_priv);
-+			spin_unlock_irqrestore(&cm_id_priv->lock, flags);
-+		} else {
-+			spin_unlock_irqrestore(&cm_id_priv->lock, flags);
-+			ib_send_cm_rej(cm_id, IB_CM_REJ_CONSUMER_DEFINED,
-+				       NULL, 0, NULL, 0);
-+		}
-+		break;
- 	case IB_CM_MRA_REQ_RCVD:
- 	case IB_CM_REP_SENT:
- 	case IB_CM_MRA_REP_RCVD:
- 		ib_cancel_mad(cm_id_priv->av.port->mad_agent, cm_id_priv->msg);
- 		/* Fall through */
--	case IB_CM_REQ_RCVD:
- 	case IB_CM_MRA_REQ_SENT:
- 	case IB_CM_REP_RCVD:
- 	case IB_CM_MRA_REP_SENT:
-@@ -776,6 +786,11 @@ retest:
- 	kfree(cm_id_priv->private_data);
- 	kfree(cm_id_priv);
- }
-+
-+void ib_destroy_cm_id(struct ib_cm_id *cm_id)
-+{
-+	cm_destroy_id(cm_id, 0);
-+}
- EXPORT_SYMBOL(ib_destroy_cm_id);
- 
- int ib_cm_listen(struct ib_cm_id *cm_id, __be64 service_id, __be64 service_mask,
-@@ -1164,7 +1179,7 @@ static void cm_process_work(struct cm_id
- 	}
- 	cm_deref_id(cm_id_priv);
- 	if (ret)
--		ib_destroy_cm_id(&cm_id_priv->id);
-+		cm_destroy_id(&cm_id_priv->id, ret);
- }
- 
- static void cm_format_mra(struct cm_mra_msg *mra_msg,
+------------------------------------------
+Order of proc_mkdir and acpi_bus_register_driver is the same as order of
+acpi_lock_ac_dir. Could you explain what you meant?
 
--- 
-MST
+>Vladimir,
+>Any reason that the procfs stuff can't be after the
+>acpi_bus_register_driver()
+>calls?
 
-_______________________________________________
-openib-general mailing list
-openib-general@openib.org
-http://openib.org/mailman/listinfo/openib-general
+If we move it after acpi_bus_register_driver(), calls to create files
+inside battery/ac directories (called from acpi_bus_register_driver via
+acpi_{battery,ac}_add()) will fail. 
 
-To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
 
------ End forwarded message -----
+>Under what conditions could these lock functions fail?
+If there is no /proc/acpi directory in which to create ac/battery
+directories.
 
--- 
-MST
+
+
+
+
+-----Original Message-----
+From: Brown, Len 
+Sent: Monday, July 10, 2006 10:16 AM
+To: Pavel Machek; kernel list; Andrew Morton; Lebedev, Vladimir P
+Cc: linux-acpi@vger.kernel.org
+Subject: RE: [patch] fix boot with acpi=off
+
+[adding linux-acpi@vger.kernel.org to cc]
+
+acpi=off used to be handled by acpi_bus_register_driver()
+for these drivers.
+
+But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
+for procfs are inserted before that in the _init functions.
+
+This will be a problem for sbs.c also.
+
+Vladimir,
+Any reason that the procfs stuff can't be after the
+acpi_bus_register_driver()
+calls?  Under what conditions could these lock functions fail?
+
+-Len
+
+
+>-----Original Message-----
+>From: Pavel Machek [mailto:pavel@ucw.cz] 
+>Sent: Saturday, July 08, 2006 8:44 AM
+>To: kernel list; Andrew Morton; Brown, Len
+>Subject: [patch] fix boot with acpi=off
+>
+>With acpi=off and acpi_ac/battery compiled into kernel, acpi breaks
+>boot. This fixes it.
+>
+>Signed-off-by: Pavel Machek <pavel@suse.cz>
+>
+>---
+>commit 30b8ecda788b096fbd7088808f9af65c41c3a83d
+>tree 3c28088018932f9ceb18bcf980507474d4a50c4e
+>parent 05f70501240c6ad5f852f13c187ee55579ad7bb8
+>author <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
+>committer <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
+>
+> drivers/acpi/ac.c      |    2 ++
+> drivers/acpi/battery.c |    3 +++
+> 2 files changed, 5 insertions(+), 0 deletions(-)
+>
+>diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+>index 24ccf81..432b6b7 100644
+>--- a/drivers/acpi/ac.c
+>+++ b/drivers/acpi/ac.c
+>@@ -285,6 +285,8 @@ static int __init acpi_ac_init(void)
+> {
+> 	int result;
+> 
+>+	if (acpi_disabled)
+>+		return -ENODEV;
+> 
+> 	acpi_ac_dir = acpi_lock_ac_dir();
+> 	if (!acpi_ac_dir)
+>diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+>index 2ce9b35..5af1f64 100644
+>--- a/drivers/acpi/battery.c
+>+++ b/drivers/acpi/battery.c
+>@@ -764,6 +764,9 @@ static int __init acpi_battery_init(void
+> {
+> 	int result;
+> 
+>+	if (acpi_disabled)
+>+		return -ENODEV;
+>+
+> 	acpi_battery_dir = acpi_lock_battery_dir();
+> 	if (!acpi_battery_dir)
+> 		return -ENODEV;
+>
+>-- 
+>(english) http://www.livejournal.com/~pavelmachek
+>(cesky, pictures) 
+>http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422699AbWGJRAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWGJRDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422699AbWGJRAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 13:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422701AbWGJRAj
+	id S1422706AbWGJRDK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 13:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWGJRDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 13:00:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:4998 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422699AbWGJRAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 13:00:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EkHYr/PSNVknbDpsKxoveff11sRJEAdD7jedoYrCyE6YYNk76X+Ff8zKVONte0UWQNIP+Z3JsSuWTnJUoEag9u26zD2+sRXsdvZgh6Scg25nbcDDS6o1Wic97RwoHSROrEckrOnLx1vohle3PGbiMZonmXBmsWWkjv/lpndTUrc=
-Message-ID: <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
-Date: Mon, 10 Jul 2006 10:00:37 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'volatile' in userspace
-In-Reply-To: <20060710034250.GA15138@thunk.org>
+	Mon, 10 Jul 2006 13:03:10 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:13494 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1422702AbWGJRDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 13:03:08 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [PATCH] remove empty node at boot time
+Date: Mon, 10 Jul 2006 11:03:03 -0600
+User-Agent: KMail/1.8.3
+Cc: linux-ia64@vger.kernel.org, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <20060601200436.6bf7c4e5.kamezawa.hiroyu@jp.fujitsu.com> <200607092038.41053.bjorn.helgaas@hp.com> <20060710141903.424ba3db.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060710141903.424ba3db.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <44B0FAD5.7050002@argo.co.il>
-	 <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>
-	 <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>
-	 <20060710034250.GA15138@thunk.org>
+Message-Id: <200607101103.03849.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> So this would tend to confirm the rule of thumb: use of "volatile" in
-> a userspace progam tends to indicate a bug.
->
->                                                 - Ted
+On Sunday 09 July 2006 23:19, KAMEZAWA Hiroyuki wrote:
+> Could you try this patch ? (against 2.6.18-rc1)
 
-No. vfork(), setjmp(), signal().
+Your patch does fix it.  But I'm worried about removing
+empty nodes at boot-time.  I want to support the following
+scenario:
 
-Yes, I use vfork. So far, the only way I have found for the parent to
-know whether or not the child's exec() failed is this way:
+  node 0: 1 enabled CPU, 3 disabled CPUs, no local memory
+  node 1: 4 disabled CPUs, no local memory
+  node 2: no CPUs, big interleaved memory across nodes 0 & 1
 
-volatile int failed;
-pid_t pid;
+At run-time, I'd like to be able to enable any or all of the
+7 disabled CPUs.  If you remove the "empty" node 1 at boot-time,
+it sounds like I won't be able to enable its CPUs later.
 
-failed = 0;
-if (0 == (pid = vfork())) {
-   execve(argv[0], argv, envp);
-   failed = errno;
-   _exit(0);
-}
-if (pid < 0) {
-   /* can't fork */
-}
-if (failed) {
-   /* wait for pid (clean up zombie) */
-   errno = failed;
-   /* can't exec: update state */
-}
+Bjorn

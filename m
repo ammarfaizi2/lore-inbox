@@ -1,115 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161274AbWGJAWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWGJA2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161274AbWGJAWj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jul 2006 20:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWGJAWj
+	id S1161275AbWGJA2c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jul 2006 20:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161277AbWGJA2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 20:22:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62397 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161274AbWGJAWi (ORCPT
+	Sun, 9 Jul 2006 20:28:32 -0400
+Received: from beauty.rexursive.com ([203.171.74.242]:53707 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S1161275AbWGJA2b convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 20:22:38 -0400
-Date: Sun, 9 Jul 2006 17:22:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Fredrik Roubert <roubert@df.lth.se>
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-Id: <20060709172222.d8c275fd.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Jul 2006 20:28:31 -0400
+Message-ID: <20060710102828.1z89jo3lh6ocsgkc@www.rexursive.com>
+Date: Mon, 10 Jul 2006 10:28:28 +1000
+From: Bojan Smojver <bojan@rexursive.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Sunil Kumar <devsku@gmail.com>, Avuton Olrich <avuton@gmail.com>,
+       Olivier Galibert <galibert@pobox.com>, Jan Rychter <jan@rychter.com>,
+       linux-kernel@vger.kernel.org, suspend2-devel@lists.suspend2.net,
+       grundig <grundig@teleline.es>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+References: <20060627133321.GB3019@elf.ucw.cz>
+	<20060709003230.GA1753@elf.ucw.cz>
+	<1152407148.2598.10.camel@coyote.rexursive.com>
+	<200607091551.18456.rjw@sisk.pl>
+In-Reply-To: <200607091551.18456.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jul 2006 17:06:57 -0400 (EDT)
-Alan Stern <stern@rowland.harvard.edu> wrote:
+Quoting "Rafael J. Wysocki" <rjw@sisk.pl>:
 
-> Dmitry:
-> 
-> Are you the right person to handle changes in the behavior of Alt-SysRq?
-> 
-> Before 2.6.18-rc1, I used to be able to use it as follows:
-> 
-> 	Press and hold an Alt key,
-> 	Press and hold the SysRq key,
-> 	Release the Alt key,
-> 	Press and release some hot key like S or T or 7,
-> 	Repeat the previous step as many times as desired,
-> 	Release the SysRq key.
-> 
-> This scheme doesn't work any more, or if it does, the timing requirements
-> are now much stricter.  In practice I have to hold down all three keys at
-> the same time; I can't release the Alt key before pressing the hot key.
-> 
-> This makes thinks very awkward on my laptop machine.  Its keyboard
-> controller doesn't seem to like having three keys pressed simultaneously.  
-> Instead of the expected hotkey behavior, I usually got an error message
-> from atkbd warning about too many keys being pressed.  Getting it to work
-> as desired is hit-and-miss.
-> 
-> I would really appreciate going back to the old behavior, where only two 
-> keys needed to be held down at any time.
-> 
+> The problem is he _can't_ do it on his own if he wants the code merged,
+> because for this purpose some people have to review it, and that's not
+> only me or Pavel, but also architecture maintainers, memory management
+> maintainers, and probably some other people too.  Moreover, Nigel needs
+> to address the issues raised by the reviewers.
 
-I assume reverting the below will fix it?
+Of course, of course. Nobody is going to merge anything until relevant  
+maintainers approve. That's not what I proposed.
 
+My point is something else. A few months back Pavel mentioned that  
+he's thinking of developers more than users when it comes to Suspend2.  
+In other words, he was concerned with maintenance of the thing. I'm  
+also guessing nobody likes signing their name on something they have  
+fundamental design beef with. All valid points, of course.
 
-From: Fredrik Roubert <roubert@df.lth.se>
+In order to avoid all this, my proposal introduces Nigel as the  
+maintainer of Suspend2 code (i.e. *only* the non-shared bits with  
+swsusp/uswsusp).
 
-Magic sysrq fails to work on many keyboards, particulary most of notebook
-keyboards.  This patch fixes it.
+Given that Nigel:
 
-The idea is quite simple: Discard the SysRq break code if Alt is still being
-held down.  This way the broken keyboard can send the break code (or the user
-with a normal keyboard can release the SysRq key) and the kernel waits until
-the next key is pressed or the Alt key is released.
+- doesn't want to rip out/change neither swsusp nor uswsusp
+- wants to share code as much as possible
+- wants to fix things to be technically acceptable
+- has shown to able to maintain Suspend2 codebase for users
+- no swsusp/uswsup coder would have to worry about Suspend2 code  
+beyond already shared bits they would worry about anyway
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+I think it would be appropriate to let him do so (once the initial  
+technical issues are fixed).
 
- drivers/char/keyboard.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+The "your design sucks" argument between Pavel and Nigel is not likely  
+to be resolved by more talk (this thread is quite appropriately called  
+"history lesson" :-). These two have been at it for months now, with  
+no resolution in sight. Yours truly also contributed by useless  
+flaming from time to time ;-) No need for that any more.
 
-diff -puN drivers/char/keyboard.c~fix-magic-sysrq-on-strange-keyboards drivers/char/keyboard.c
---- a/drivers/char/keyboard.c~fix-magic-sysrq-on-strange-keyboards
-+++ a/drivers/char/keyboard.c
-@@ -151,6 +151,7 @@ unsigned char kbd_sysrq_xlate[KEY_MAX + 
-         "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
-         "\r\000/";                                      /* 0x60 - 0x6f */
- static int sysrq_down;
-+static int sysrq_alt_use;
- #endif
- static int sysrq_alt;
- 
-@@ -1143,7 +1144,7 @@ static void kbd_keycode(unsigned int key
- 	kbd = kbd_table + fg_console;
- 
- 	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
--		sysrq_alt = down;
-+		sysrq_alt = down ? keycode : 0;
- #ifdef CONFIG_SPARC
- 	if (keycode == KEY_STOP)
- 		sparc_l1_a_state = down;
-@@ -1163,9 +1164,14 @@ static void kbd_keycode(unsigned int key
- 
- #ifdef CONFIG_MAGIC_SYSRQ	       /* Handle the SysRq Hack */
- 	if (keycode == KEY_SYSRQ && (sysrq_down || (down == 1 && sysrq_alt))) {
--		sysrq_down = down;
-+		if (!sysrq_down) {
-+			sysrq_down = down;
-+			sysrq_alt_use = sysrq_alt;
-+		}
- 		return;
- 	}
-+	if (sysrq_down && !down && keycode == sysrq_alt_use)
-+		sysrq_down = 0;
- 	if (sysrq_down && down && !rep) {
- 		handle_sysrq(kbd_sysrq_xlate[keycode], regs, tty);
- 		return;
-_
+However, Pavel is the one in the position of power here (being the  
+maintainer), so I think he should, in the interest of users, decide to  
+give Suspend2 a fair chance (after all those technical issues are  
+addressed, of course), by letting Suspend2 be in the same position as  
+swsusp or uswsusp - in other words, in the main tree (actually -mm, to  
+start with, just as Nigel asked). And with my proposal Pavel and other  
+swsusp/uswsusp coders, yourself included, would not have to spend any  
+effort past reviewing the initial set of patches.
 
+In the end, it's a win-win.
+
+-- 
+Bojan

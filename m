@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWGJJhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGJJgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWGJJhV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWGJJhV
+	id S964848AbWGJJgE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 05:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWGJJgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:37:21 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:5009 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S964838AbWGJJhT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:37:19 -0400
-Date: Mon, 10 Jul 2006 02:28:52 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephane Eranian <eranian@hpl.hp.com>
-Subject: Re: [patch] i386: use thread_info flags for debug regs and IO bitmaps
-Message-ID: <20060710092852.GC26382@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200607071155_MC3-1-C45F-B7C2@compuserve.com> <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
-Mime-Version: 1.0
+	Mon, 10 Jul 2006 05:36:04 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:48273 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP id S964848AbWGJJgC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 05:36:02 -0400
+Date: Mon, 10 Jul 2006 11:28:52 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com, dwilder@us.ibm.com,
+       Mike Grundy <grundym@us.ibm.com>
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060710092852.GC9440@osiris.boeblingen.de.ibm.com>
+References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <1151421789.5390.65.camel@localhost> <20060628055857.GA9452@osiris.boeblingen.de.ibm.com> <20060707172333.GA12068@localhost.localdomain> <20060707172555.GA10452@osiris.ibm.com> <20060708185428.GA26129@localhost.localdomain> <20060708195823.GA4112@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607081425430.3869@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+In-Reply-To: <20060708195823.GA4112@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+> +static int __kprobes swap_instruction(void *aref)
+> +{
+> +	unsigned long addr, prev, tmp;
+> +	int shift;
+> +	struct ins_replace_args *args = aref;
+> +
+> +	addr = (unsigned long) args->ptr;
+> +	shift = (2 ^ (addr & 2)) << 3;
+> +	addr ^= addr & 2;
+> +	asm volatile(
+> +		"    l   %0,0(%4)\n"
+> +		"    nr  %0,%5\n"
+> +                "    lr  %1,%0\n"
 
-On Sat, Jul 08, 2006 at 02:26:53PM -0700, Linus Torvalds wrote:
-> > From: Stephane Eranian <eranian@hpl.hp.com>
-> > 
-> > Use thread info flags to track use of debug registers and IO bitmaps.
-> >  
-> > 	- add TIF_DEBUG to track when debug registers are active
-> >  	- add TIF_IO_BITMAP to track when I/O bitmap is used
-> >  	- modify __switch_to() to use the new TIF flags
-> 
-> Can you explain what the advantages of this are?
-> 
-> I don't see it. It's just creating new state to describe state that we 
-> already had, and as far as I can tell, it's just a way to potentially have 
-> more new bugs thanks to the new state getting out of sync with the old 
-> one?
-> 
+Whitespace :)
 
-AS Chuck explained, this is motivated by the perfmon patch. We need to save
-and restore the performance counters on context switch. We do it only for
-the tasks that use them. As such, this is yet another optional work that
-needs to be checked in __switch_to(). You have to test it for both
-the outgoing and incoming tasks. Andi suggested that instead of adding yet
-another test and touch yet another pair of cachelines, we pack all the
-'extra' work into a single bitfield per task. This way the number of cachelines
-touched is limited to two for the debug registers, I/O bitmap and later perfmon.
-I leveraged the TIF mechanism for this as it seemed quite appropriate.
+> +		"    or  %0,%2\n"
+> +		"    or  %1,%3\n"
+> +		"0:  cs  %0,%1,0(%4)\n"
+> +		"    jnl 1f\n"
+> +		"    xr  %1,%0\n"
+> +		"    nr  %1,%5\n"
+> +		"    jnz 0b\n"
+> +		"1:"
+> +#ifndef __s390x__
+> +		".section .fixup,\"ax\"\n"
+> +		"2: lhi    %0,%6\n"
+> +		"   bras   1,3f\n"
+> +		"   .long  1b\n"
+> +		"3: l      1,0(1)\n"
+> +		"   br     1\n"
+> +		".previous\n"
+> +		".section __ex_table,\"a\"\n"
+> +		"   .align 4\n"
+> +		"   .long  0b,2b\n"
+> +		".previous"
+> +#else /* __s390x__ */
+> +		".section .fixup,\"ax\"\n"
+> +		"2: lghi   %0,%6\n"
+> +		"   jg     1b\n"
+> +		".previous\n"
+> +		".section __ex_table,\"a\"\n"
+> +		"   .align 8\n"
+> +		"   .quad  0b,2b\n"
+> +		".previous"
+> +#endif /* __s390x__ */
+> +		: "=&d" (prev), "=&d" (tmp)
+> +		: "d" (args->old << shift), "d" (args->new << shift),
+> +		  "a" (args->ptr), "d" (~(65535 << shift)), "K" (-EFAULT)
+> +		: "memory", "cc" );
+> +	return prev >> shift;
 
-As you point out, it adds a little bit of complexity in that you need to
-ensure that when you touch the debug registers and/or the I/O bitmap, we keep
-the TIF flags in sync. The patch I submitted ensures that. The good thing
-is that, for both, the number of places were they are activated/stopped is very
-limited.
+You need a label behind the cs instruction and put that into the __ex_table,
+since the PSW will point to the instruction after cs if it fails.
 
--- 
--Stephane
+Also, on failure this function seems to return -EFAULT >> shift, which
+seems to be wrong.
+
+> +EXPORT_SYMBOL(register_die_notifier);
+> +EXPORT_SYMBOL(unregister_die_notifier);
+
+_GPL?

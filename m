@@ -1,100 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWGJGIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWGJGQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbWGJGIE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 02:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWGJGIE
+	id S1161037AbWGJGQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 02:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWGJGQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 02:08:04 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:47392 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751351AbWGJGID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 02:08:03 -0400
-Date: Mon, 10 Jul 2006 08:06:03 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, davem@davemloft.net, schwidefsky@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] disallow modular binfmt_elf32
-Message-ID: <20060710060603.GA9440@osiris.boeblingen.de.ibm.com>
-References: <20060708180554.GB7034@lst.de>
+	Mon, 10 Jul 2006 02:16:08 -0400
+Received: from mga03.intel.com ([143.182.124.21]:12150 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751354AbWGJGQH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 02:16:07 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="63495173:sNHT7050427454"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060708180554.GB7034@lst.de>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [patch] fix boot with acpi=off
+Date: Mon, 10 Jul 2006 02:15:57 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ECFA46@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] fix boot with acpi=off
+Thread-Index: AcaijClwEml2Pv6+RaSjLrkONPlWKABWknCw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Lebedev, Vladimir P" <vladimir.p.lebedev@intel.com>
+Cc: <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 10 Jul 2006 06:15:59.0691 (UTC) FILETIME=[500569B0:01C6A3E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 08:05:54PM +0200, Christoph Hellwig wrote:
-> Currently most architectures either always build binfmt_elf32 in the
-> kernel image or make it a boolean option.  Only sparc64 and s390 allow
-> to build it modularly.  This patch turns the option into a boolean
-> aswell because elf requires various symbols that shouldn't be available
-> to modules.  The most urgent one is tasklist_lock whos export this patch
-> series kills, but there are others like force_sgi aswell.
-> [...] 
-> Index: linux-2.6/arch/s390/Kconfig
-> ===================================================================
-> --- linux-2.6.orig/arch/s390/Kconfig	2006-07-06 14:21:17.000000000 +0200
-> +++ linux-2.6/arch/s390/Kconfig	2006-07-08 19:08:46.000000000 +0200
-> @@ -119,7 +119,7 @@
->  	default y
->  
->  config BINFMT_ELF32
-> -	tristate "Kernel support for 31 bit ELF binaries"
-> +	bool "Kernel support for 31 bit ELF binaries"
->  	depends on COMPAT
->  	help
+[adding linux-acpi@vger.kernel.org to cc]
 
-Martin and I discussed this already a few days ago. This config option
-should go away on s390, since everybody who wants CONFIG_COMPAT also wants
-CONFIG_BINFMT_ELF32. See patch below which applies on top of yours:
+acpi=off used to be handled by acpi_bus_register_driver()
+for these drivers.
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+But now acpi_lock_ac_dir() and acpi_lock_battery_dir()
+for procfs are inserted before that in the _init functions.
 
-[PATCH] s390: remove BINFMT_ELF32 config option
+This will be a problem for sbs.c also.
 
-Remove BINFMT_ELF32 config option. Support should be always compiled in
-if CONFIG_COMPAT is set.
+Vladimir,
+Any reason that the procfs stuff can't be after the
+acpi_bus_register_driver()
+calls?  Under what conditions could these lock functions fail?
 
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+-Len
 
- arch/s390/Kconfig         |    7 -------
- arch/s390/kernel/Makefile |    4 ++--
- 2 files changed, 2 insertions(+), 9 deletions(-)
 
-Index: linux-2.6/arch/s390/Kconfig
-===================================================================
---- linux-2.6.orig/arch/s390/Kconfig
-+++ linux-2.6/arch/s390/Kconfig
-@@ -118,13 +118,6 @@ config SYSVIPC_COMPAT
- 	depends on COMPAT && SYSVIPC
- 	default y
- 
--config BINFMT_ELF32
--	bool "Kernel support for 31 bit ELF binaries"
--	depends on COMPAT
--	help
--	  This allows you to run 32-bit Linux/ELF binaries on your zSeries
--	  in 64 bit mode. Everybody wants this; say Y.
--
- comment "Code generation options"
- 
- choice
-Index: linux-2.6/arch/s390/kernel/Makefile
-===================================================================
---- linux-2.6.orig/arch/s390/kernel/Makefile
-+++ linux-2.6/arch/s390/kernel/Makefile
-@@ -17,8 +17,8 @@ obj-$(CONFIG_MODULES)		+= s390_ksyms.o m
- obj-$(CONFIG_SMP)		+= smp.o
- 
- obj-$(CONFIG_COMPAT)		+= compat_linux.o compat_signal.o \
--					compat_wrapper.o compat_exec_domain.o
--obj-$(CONFIG_BINFMT_ELF32)	+= binfmt_elf32.o
-+					compat_wrapper.o compat_exec_domain.o \
-+					binfmt_elf32.o
- 
- obj-$(CONFIG_VIRT_TIMER)	+= vtime.o
- obj-$(CONFIG_STACKTRACE)	+= stacktrace.o
+>-----Original Message-----
+>From: Pavel Machek [mailto:pavel@ucw.cz] 
+>Sent: Saturday, July 08, 2006 8:44 AM
+>To: kernel list; Andrew Morton; Brown, Len
+>Subject: [patch] fix boot with acpi=off
+>
+>With acpi=off and acpi_ac/battery compiled into kernel, acpi breaks
+>boot. This fixes it.
+>
+>Signed-off-by: Pavel Machek <pavel@suse.cz>
+>
+>---
+>commit 30b8ecda788b096fbd7088808f9af65c41c3a83d
+>tree 3c28088018932f9ceb18bcf980507474d4a50c4e
+>parent 05f70501240c6ad5f852f13c187ee55579ad7bb8
+>author <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
+>committer <pavel@amd.ucw.cz> Sat, 08 Jul 2006 14:43:13 +0200
+>
+> drivers/acpi/ac.c      |    2 ++
+> drivers/acpi/battery.c |    3 +++
+> 2 files changed, 5 insertions(+), 0 deletions(-)
+>
+>diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+>index 24ccf81..432b6b7 100644
+>--- a/drivers/acpi/ac.c
+>+++ b/drivers/acpi/ac.c
+>@@ -285,6 +285,8 @@ static int __init acpi_ac_init(void)
+> {
+> 	int result;
+> 
+>+	if (acpi_disabled)
+>+		return -ENODEV;
+> 
+> 	acpi_ac_dir = acpi_lock_ac_dir();
+> 	if (!acpi_ac_dir)
+>diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+>index 2ce9b35..5af1f64 100644
+>--- a/drivers/acpi/battery.c
+>+++ b/drivers/acpi/battery.c
+>@@ -764,6 +764,9 @@ static int __init acpi_battery_init(void
+> {
+> 	int result;
+> 
+>+	if (acpi_disabled)
+>+		return -ENODEV;
+>+
+> 	acpi_battery_dir = acpi_lock_battery_dir();
+> 	if (!acpi_battery_dir)
+> 		return -ENODEV;
+>
+>-- 
+>(english) http://www.livejournal.com/~pavelmachek
+>(cesky, pictures) 
+>http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>

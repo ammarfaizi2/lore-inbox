@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965293AbWGJWgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965291AbWGJWh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965293AbWGJWgf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWGJWge
+	id S965291AbWGJWh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbWGJWh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:36:34 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:27595
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S965290AbWGJWgd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:36:33 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: akpm@osdl.org
-Subject: [PATCH] cancel_rearming_delayed_work infinite loop fix
-Date: Tue, 11 Jul 2006 00:36:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Jiri Benc <jbenc@suse.cz>, netdev@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, linville@tuxdriver.com,
+	Mon, 10 Jul 2006 18:37:29 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:1938 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965291AbWGJWh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:37:28 -0400
+Date: Tue, 11 Jul 2006 00:37:06 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Pavel Machek <pavel@ucw.cz>
+cc: john stultz <johnstul@us.ibm.com>, Mikael Pettersson <mikpe@it.uu.se>,
        linux-kernel@vger.kernel.org
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+In-Reply-To: <20060710180839.GA16503@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0607110035300.17704@scrub.home>
+References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
+ <1152554328.5320.6.camel@localhost.localdomain> <20060710180839.GA16503@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607110036.31574.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cancel_rearming_delayed_work{queue} is broken, because it is
-possible to enter an infinite loop if:
-We call the function on a work that is currently not executing or pending.
+Hi,
 
-But, as this is a synchronization function and as its only purpose
-is to synchronize the work, that should not loop infinite.
+On Mon, 10 Jul 2006, Pavel Machek wrote:
 
-This patch rewrites the function.
-It now first cancels the work, but throws the retval of that function
-away, because it is meaningless in this context. (The retval is 1,
-if the work was pending and 0, if not)
-After that we flush the queue to make sure any work function returns.
-Now, if it was indeed running, it rescheduled itself. That is caught
-by the test_bit(). If it rescheduled itself, we have the schedule-delay
-time to cancel the work again (without it rescheduling itself again).
-So we redo the loop. Most likely it will succeed on the
-second loop iteration at least.
+> APM can only keep interrupts disabled on non-IBM machines, presumably
+> due to BIOS problems.
 
-Signed-off-by: Michael Buesch <mb@bu3sch.de>
+Is it possible to disable the timer interrupt before suspend and just 
+reinit the timer afterwards?
 
-Index: wireless-dev-dscapeports/kernel/workqueue.c
-===================================================================
---- wireless-dev-dscapeports.orig/kernel/workqueue.c	2006-06-13 14:44:16.000000000 +0200
-+++ wireless-dev-dscapeports/kernel/workqueue.c	2006-07-11 00:19:06.000000000 +0200
-@@ -461,8 +461,10 @@
- void cancel_rearming_delayed_workqueue(struct workqueue_struct *wq,
- 				       struct work_struct *work)
- {
--	while (!cancel_delayed_work(work))
-+	do {
-+		cancel_delayed_work(work);
- 		flush_workqueue(wq);
-+	} while (test_bit(0, &work->pending));
- }
- EXPORT_SYMBOL(cancel_rearming_delayed_workqueue);
-
--- 
-Greetings Michael.
+bye, Roman

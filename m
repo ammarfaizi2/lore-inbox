@@ -1,90 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbWGJSDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbWGJSJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965182AbWGJSDn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWGJSDn
+	id S965190AbWGJSJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbWGJSJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:03:43 -0400
-Received: from mga03.intel.com ([143.182.124.21]:4230 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S965182AbWGJSDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:03:42 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="63771406:sNHT4885015555"
-Message-ID: <44B2952A.5030403@intel.com>
-Date: Mon, 10 Jul 2006 10:58:02 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.4 (X11/20060617)
+	Mon, 10 Jul 2006 14:09:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52445 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965190AbWGJSJL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:09:11 -0400
+Date: Mon, 10 Jul 2006 20:08:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+Message-ID: <20060710180839.GA16503@elf.ucw.cz>
+References: <200607092352.k69NqZuJ029196@harpo.it.uu.se> <1152554328.5320.6.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Molle Bestefich <molle.bestefich@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [bug] e100 bug: checksum mismatch on 82551ER rev10
-References: <62b0912f0607090434q735e36b7pd9ab35baf0914e7a@mail.gmail.com>	 <44B2716A.3030009@intel.com>	 <62b0912f0607100945o574dcce8w8f734e5828bdcaa8@mail.gmail.com>	 <44B28C5A.5090605@intel.com> <62b0912f0607101041w69bd2a19t635a438f378e0e24@mail.gmail.com>
-In-Reply-To: <62b0912f0607101041w69bd2a19t635a438f378e0e24@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jul 2006 17:58:47.0770 (UTC) FILETIME=[7E27A3A0:01C6A44A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152554328.5320.6.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Molle Bestefich wrote:
-> Auke Kok wrote:
->> > Every single IP130 I've had my hands on has had an EEPROM that the
->> > Linux driver declared bad.
->>
->> that means that whoever is selling you the IP130's is consistently 
->> putting on
->> bad EEPROMs, which is *very* bad. Which vendor is that? They can fix this
->> problem for you and for *everyone* else they have sold and will sell 
->> IP130's
->> to in the future.
+Hi!
+
+> > >> I've traced the cause of this problem to the i386 time-keeping
+> > >> changes in kernel 2.6.17-git11. What happens is that:
+> > >> - The kernel autoselects TSC as my clocksource, which is
+> > >>   reasonable since it's a PentiumII. 2.6.17 also chose the TSC.
+> > >> - Immediately after APM resumes (arch/i386/kernel/apm.c line
+> > >>   1231 in 2.6.18-rc1) there is an interrupt from the PIT,
+> > >>   which takes us to kernel/timer.c:update_wall_time().
+> > >> - update_wall_time() does a clocksource_read() and computes
+> > >>   the offset from the previous read. However, the TSC was
+> > >>   reset by HW or BIOS during the APM suspend/resume cycle and
+> > >>   is now smaller than it was at the prevous read. On my machine,
+> > >>   the offset is 0xffffffd598e0a566 at this point, which appears
+> > >>   to throw update_wall_time() into a very very long loop.
+> > >
+> > >Huh. It seems you're getting an interrupt before timekeeping_resume()
+> > >runs (which resets cycle_last). I'll look over the code and see if I can
+> > >sort out why it works w/ ACPI suspend, but not APM, or if the
+> > >resume/interrupt-enablement bit is just racy in general.
+> > 
+> > I forgot to mention this, but I had a debug printk() in apm.c
+> > which showed that irqs_disabled() == 0 at the point when APM
+> > resumes the kernel.
 > 
-> Nokia.
-> 
-> Maybe they've changed the BABA magic, or the checksum logic entirely,
-> to prevent other software than their own OS from running.
+> So it seems possible that the timer tick will be enabled before the
+> timekeeping resume code runs. I'm not sure why this isn't seen w/ ACPI
+> suspend/resume, as I think they're using the same
+> sysdev_class .suspend/.resume bits. 
 
-in almost all cases where a bad EEPROM checksum is found on a board the vendor 
-has changed settings in the EEPROM image without recalculating the checksum.
+ACPI actually keeps interrupts disabled, always.
 
->> > I'm afraid that it's not the board that's at fault, it's the driver.
->>
->> No it is not. The NIC is supported (you can even call Intel for first 
->> line
->> support) but if your vendor put a bad EEPROM image on it then all bets 
->> are
->> off.  Intel provides the vendors with the proper tools to make valid 
->> EEPROMs,
->> the driver checks them for a very good reason.
-> 
-> You're completely sure that the EEPROM check is correct for this
-> particular revision of this particular chip?
+APM can only keep interrupts disabled on non-IBM machines, presumably
+due to BIOS problems.
 
-It's valid for every piece of network silicon that has an EEPROM ever made.
-
-> (Do you happen to know where the EEPROM is located, by the way?
-
-it's in the NIC itself. In your case, where you have 3 separate chips, there 
-will be 3 different EEPROM images total.
-
->> How can you tell? Do you know if jumbo frames work correctly?  Is the 
->> device
->> properly checksumming? is flow control working properly?  These and 
->> many, many
->> more settings are determined by the EEPROM.  Seemingly it may work 
->> correctly,
->> but there is no guarantee whatsoever that it will work correctly at 
->> all if the
->> checksum is bad.  Again, you can lose data, or worse, you could 
->> corrupt memory
->> in the system causing massive failure (DMA timings, etc). Unlikely? 
->> sure, but
->> not impossible.
-> 
-> They've been used in production environments for years.
-
-all the more reason to suggest that Nokia is forgetting to update the checksums :)
-
-Cheers,
-
-Auke
+Could we get some sanity check into looping function? If timesource
+goes backwards, at least somehow reporting it would be nice...
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

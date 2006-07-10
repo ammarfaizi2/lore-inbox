@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWGJNIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161127AbWGJNJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbWGJNIA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWGJNIA
+	id S1161127AbWGJNJh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161134AbWGJNJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:08:00 -0400
-Received: from mail.gmx.de ([213.165.64.21]:50308 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1161090AbWGJNH7 (ORCPT
+	Mon, 10 Jul 2006 09:09:37 -0400
+Received: from khc.piap.pl ([195.187.100.11]:21437 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1161115AbWGJNJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:07:59 -0400
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 10 Jul 2006 15:07:54 +0200
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <20060710125150.GM25911@suse.de>
-Message-ID: <20060710130754.26280@gmx.net>
+	Mon, 10 Jul 2006 09:09:36 -0400
+To: "Antonino A. Daplas" <adaplas@pol.net>
+Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
+References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>
+	<20060705165255.ab7f1b83.khali@linux-fr.org>
+	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>
+	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>
+	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net>
+	<m3ejwt65of.fsf@defiant.localdomain> <44B248E4.2020506@pol.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 10 Jul 2006 15:09:32 +0200
+In-Reply-To: <44B248E4.2020506@pol.net> (Antonino A. Daplas's message of "Mon, 10 Jul 2006 20:32:36 +0800")
+Message-ID: <m3y7v14neb.fsf@defiant.localdomain>
 MIME-Version: 1.0
-References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de>
-Subject: Re: splice() and file offsets
-To: Jens Axboe <axboe@suse.de>
-X-Authenticated: #24879014
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
+"Antonino A. Daplas" <adaplas@pol.net> writes:
 
-> > What are the semantics of splice() supposed to be with respect 
-> > to the current file offsets of 'fd_in' and 'fd_out', and how
-> > is the presence or absence (NULL) of 'off_in' and 'off_out'
-> > supposed to affect things.
-> > 
-> > Using the program below, here is what I observe for 
-> > fd_out/off_out:
-> > 
-> > 1. If off_out is NULL, then 
-> >    a) splice() changes the current file offset of fd_out.
-> > 
-> > 2. If off_out is not NULL, then splice() 
-> >    a) does not change the current file offset of fd_out, but 
-> >    b) treats off_out as a value result parameter, returning 
-> >       an updated offset of the file.
-> > 
-> > It is "2 a)" that surprises me.  But perhaps it's expected 
-> > behaviour; or I'm doing something dumb in my test program.
-> 
-> Not sure why you find that surprising, that is exactly what is supposed
-> to happen :-)
+>> You're right here, I don't know why I assumed DEPENDS does it
+>> automatically.
 >
-> If you don't give off_out, we use the current position. For most people,
-> that's probably what they want. If you are sharing the fd, that doesn't
-> work though. So you pass off_in/off_out as you please, and the kernel
-> uses those and passes the updated parameter back out so you don't have
-> to update it manually.
+> Use select.
 
-I'm still not clear here.  Let me phrase my question another way:
-why is it that the presence or absence of off_out affects whether
-or not splice() changes the current file offset for fd_out?
+It has a known problem - if the "selected" thing changes (requires
+another option etc) things are screwed. With "depends on", you don't
+have to track such changes.
 
-> It's identical to how sendfile() works.
+While near selects (in the same build directory) are IMHO ok, far
+ones are not.
 
-But it isn't: sendfile() never changes the file offset 
-of its 'in_fd'.
-
-Cheers,
-
-Michael
+I think it would be different if trying to select something which
+can't be selected automatically resulted in a warning. I think
+I have to look at it then, but for now I'll use something like
+"depends on (FB_CIRRUS=m && I2C && I2C_ALGOBIT) ||
+(FB_CIRRUS=y && I2C=y && I2C_ALGOBIT=y)".
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+Krzysztof Halasa

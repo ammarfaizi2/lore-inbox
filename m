@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWGJSJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWGJSNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWGJSJG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965190AbWGJSJF
+	id S965194AbWGJSNU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbWGJSNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:09:05 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:49171 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964937AbWGJSJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:09:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CONc1U/ipRMDmjUtxwFG2qBJZl8mBBS94qoo9uYxCxFmMyXNB5xbxRYiqrH1yIBMxPRFQ2OT8moa+CqlFk1wLprthj24e/nRTmb8wtzqQqRH/8M/mnG6j5Bq/KWkGl0E2FwMemFOtWugyCRNtDN6WhFO+tgZ0Z0S6MOyFu07L3o=
-Message-ID: <9e4733910607101109w46915fbbl19bdd8664e1ca4d@mail.gmail.com>
-Date: Mon, 10 Jul 2006 14:09:03 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152554708.27368.202.camel@localhost.localdomain>
+	Mon, 10 Jul 2006 14:13:19 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:9484 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S965199AbWGJSNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:13:19 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH] Clean up old names in tty code to current names
+Date: Mon, 10 Jul 2006 19:13:45 +0100
+User-Agent: KMail/1.9.3
+Cc: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>, Greg KH <greg@kroah.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com> <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com> <44B26752.9000507@gmail.com>
+In-Reply-To: <44B26752.9000507@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152552806.27368.187.camel@localhost.localdomain>
-	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
-	 <1152554708.27368.202.camel@localhost.localdomain>
+Message-Id: <200607101913.45070.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Ar Llu, 2006-07-10 am 13:27 -0400, ysgrifennodd Jon Smirl:
-> > > Its explained in the comment in do_SAK.
+On Monday 10 July 2006 15:42, Antonino A. Daplas wrote:
+> Jon Smirl wrote:
+> > On 7/10/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >> Ar Llu, 2006-07-10 am 09:03 -0400, ysgrifennodd Jon Smirl:
+> >> > I agree with this. I made a mistake with the pts vs pty, why not just
+> >> > help me fix the mistake instead of rejecting everything? Some the of
+> >> > the info being reported in /proc/tty/drivers is wrong (vc./0 - from
+> >> > the devfs attempt?). or missing.
+> >>
+> >> What are you trying to achieve and where are you trying to get. If you
+> >> want better info for the tty layer then get the new info working in
+> >> sysfs first. Then when people are generally using sysfs you can worry
+> >> about cleaning up/removing/breaking the old stuff.
 > >
-> > This problem seems to be aggravated by reusing the tty_struct for that
-> > tty. With the refcount patch it is now easy to disassociate an
-> > existing tty (and the processes attached to it) from the array
-> > tracking tty minors.
+> > Before the change /proc/tty/drivers shows this:
+> >
+> > [jonsmirl@jonsmirl ~]$ cat /proc/tty/drivers
+> > /dev/tty             /dev/tty        5       0 system:/dev/tty
+> > /dev/console         /dev/console    5       1 system:console
+> > /dev/ptmx            /dev/ptmx       5       2 system
+> > /dev/vc/0            /dev/vc/0       4       0 system:vtmaster
 >
-> The real problem is the rather deeper one - the lack of revoke(). Its
-> possible to paper over that with SELinux but really we need revoke() and
-> when you get revoke() you get the handle stuff cleaned up
+> vtmaster was /dev/tty0 in 2.2.x, changed to /dev/vc/0 probably
+> because of devfs. I would tend to agree with the change of at least
+> this part.
 >
-> We hold file_list_lock because we have to find everyone using that tty
-> and hang up their instance of it, then flip the file operations not
-> because we need to protect against tty structs going away. It's needed
-> in order to walk the file list and protects against the file list itself
-> changing rather than the tty structs. It may well be possible to move
-> that to a tty layer private lock with care, but it would need care to
-> deal with VFS operations.
->
-> We hold the ->files->file_lock because we have to walk other processes
-> file tables in a safe fashion in SAK. That one is fairly clear.
+> A few apps do rely on /proc/tty/drivers for the major-minor
+> to device name mapping. /dev/vc/0 does not exist (unless
+> created manually) without devfs.
 
-What if do_SAK did something like this?
+Create a file in /etc/udev/rules.d. Add to it the following.
 
-copy the tty struct to new_tty
-NULL out the file list in new_tty
-insert new_tty into the array tracking tty minors so that open will
-find the new one
+# devfs-ify vt devices
+KERNEL="tty[0-9]*",  NAME="vc/%n"
 
-in old_tty stub out all of it's routines that do read/write/etc
-Now start a kernel thread doing the HUP/INT/KILL sequence, it has a
-reference to old_tty so it can find everything.
-When everything is clean, delete old_tty
+Now John's names are broken.
 
-The processes and file handles attached to old_tty won't be able to do
-anything, all of their IO calls have been stubbed out. The file list
-can't be changed since there there is no way to get to it anymore.
+As Alan's wisely pointed out, it's utterly insane to try to "fix" a legacy 
+file when it a) can never match all possible, legal, current configurations 
+and b) shouldn't be used for anything important anyway.
 
-When init respawns it picks up new_tty which is guaranteed clean of
-processes and open handles because it was just created.
+It'd be better to CONFIG out this directory and see what breaks. Then we can 
+decide if we should (or provide distributors the option to) remove it.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

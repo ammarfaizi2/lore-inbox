@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbWGJWQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWGJWSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965263AbWGJWQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965270AbWGJWQm
+	id S965071AbWGJWSj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWGJWSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:16:42 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:63081 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965263AbWGJWQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:16:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hYW6m2K6FNEgO/YM2hGaiJNIBCrmaCwmA8qX0W/E1t9YOvxNT2bjESCSw5kCTKSJX3YIiW/11GsS+ukWJDWQHb2LEgDpYVqjl1FSjWrTDj5EU+thEArnikJkaFkrYdIP4kHDIemN8yB8yLL3klwTbWlMug1BvSyHe6MP7KInlXc=
-Message-ID: <9a8748490607101516x3c13a712h714a1a8bc4d1eeb7@mail.gmail.com>
-Date: Tue, 11 Jul 2006 00:16:40 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] -Wshadow: Fix warnings in mconf
-In-Reply-To: <20060710155337.GB9617@admingilde.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 18:18:39 -0400
+Received: from mxl145v65.mxlogic.net ([208.65.145.65]:56012 "EHLO
+	p02c11o142.mxlogic.net") by vger.kernel.org with ESMTP
+	id S965016AbWGJWSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:18:38 -0400
+Date: Tue, 11 Jul 2006 01:19:02 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rolandd@cisco.com>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: infiniband patch series (was Re: ipath patch series a-comin', but no IB maintainer to shepherd them)
+Message-ID: <20060710221902.GB32328@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200607101312.38149.jesper.juhl@gmail.com>
-	 <20060710155337.GB9617@admingilde.org>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Jul 2006 22:23:39.0656 (UTC) FILETIME=[7E750080:01C6A46F]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/07/06, Martin Waitz <tali@admingilde.org> wrote:
-> hoi :)
->
-> On Mon, Jul 10, 2006 at 01:12:37PM +0200, Jesper Juhl wrote:
-> > --- linux-2.6.18-rc1-orig/scripts/kconfig/mconf.c     2006-06-18 03:49:35.000000000 +0200
-> > +++ linux-2.6.18-rc1/scripts/kconfig/mconf.c  2006-07-09 19:48:05.000000000 +0200
-> > @@ -276,7 +276,7 @@ static void conf_save(void);
-> >  static void show_textbox(const char *title, const char *text, int r, int c);
-> >  static void show_helptext(const char *title, const char *text);
-> >  static void show_help(struct menu *menu);
-> > -static void show_file(const char *filename, const char *title, int r, int c);
-> > +static void show_file(const char *fname, const char *title, int r, int c);
-> >
-> >  static void cprint_init(void);
-> >  static int cprint1(const char *fmt, ...);
->
-> perhaps its more clear if you change the global variable instead?
-> perhaps to config_filename?
->
+Quoting r. Michael S. Tsirkin <mst@mellanox.co.il>:
+> Yes, -mm seems like a good way to get more review.
 
-Not a bad suggestion. Thanks.
+Andrew, am I using the right format to send things upstream to you?
+There's really a set of independent patches, so it didn't make sense
+to me to batch them up in a series. OK?
+Maybe the addition of the git tree (below) serves to clarify things.
+
+> Further, in the hope that this will help keep things reasonably stable till
+> Roland comes back, and help everyone see what's being merged, I have
+> created a git branch for all things infiniband going into 2.6.18.
+> 
+> You can get at it here:
+> 	git://www.mellanox.co.il/~git/infiniband  mst-for-2.6.18
+
+BTW, all outstanding infiniband patches intended for upstream are currently
+there. Here's the list:
+
+Jack Morgenstein:
+      IB/mthca: fix mthca_ah_query static rate format
+
+Michael S. Tsirkin:
+      IB/cm: drop REQ when out of memory
+      IB/mthca: comment fix
+
+Sean Hefty:
+      IB/addr: gid structure alignment fix
+
+Vu Pham:
+      IB/srp: fix fmr error handling
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+MST

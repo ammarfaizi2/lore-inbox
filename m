@@ -1,87 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWGJME5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWGJMLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbWGJME5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 08:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWGJME5
+	id S964805AbWGJMLM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 08:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWGJMLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 08:04:57 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:40757 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S964953AbWGJME4 (ORCPT
+	Mon, 10 Jul 2006 08:11:12 -0400
+Received: from mail.gmx.de ([213.165.64.21]:49371 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964805AbWGJMLM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 08:04:56 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-cc: akpm@osdl.org, James.Bottomley@steeleye.com,
-       "Eric W. Biederman" <ebiederm@xmission.com>, fastboot@lists.osdl.org,
-       ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump (2.6.18-rc1-i386) - safe_smp_processor_id 
-In-reply-to: Your message of "Mon, 10 Jul 2006 19:15:50 +0900."
-             <1152526550.3003.24.camel@localhost.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 10 Jul 2006 22:04:35 +1000
-Message-ID: <2087.1152533075@ocs3.ocs.com.au>
+	Mon, 10 Jul 2006 08:11:12 -0400
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 10 Jul 2006 14:11:10 +0200
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Message-ID: <20060710121110.26260@gmx.net>
+MIME-Version: 1.0
+Subject: splice() and file offsets
+To: Jens Axboe <axboe@suse.de>
+X-Authenticated: #24879014
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao (on Mon, 10 Jul 2006 19:15:50 +0900) wrote:
->Hi Keith,
->
->Thank you for the comments.
->
->On Mon, 2006-07-10 at 18:27 +1000, Keith Owens wrote:
->> Fernando Luis Vazquez Cao (on Mon, 10 Jul 2006 16:50:52 +0900) wrote:
->> >On the event of a stack overflow critical data that usually resides at
->> >the bottom of the stack is likely to be stomped and, consequently, its
->> >use should be avoided.
->> >
->> >In particular, in the i386 and IA64 architectures the macro
->> >smp_processor_id ultimately makes use of the "cpu" member of struct
->> >thread_info which resides at the bottom of the stack. x86_64, on the
->> >other hand, is not affected by this problem because it benefits from
->> >the use of the PDA infrastructure.
->> >
->> >To circumvent this problem I suggest implementing
->> >"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
->> >IA64 and use it as a replacement for smp_processor_id in the reboot path
->> >to the dump capture kernel. This is a possible implementation for i386.
->> =
->
->> I agree with avoiding the use of thread_info when the stack might be
->> corrupt.  However your patch results in reading apic data and scanning
->> NR_CPU sized tables for each IPI that is sent, which will slow down the
->> sending of all IPIs, not just dump.
->This patch only affects IPIs sent using send_IPI_allbutself which is
->rarely called, so the impact in performance should be negligible.
+Jens,
 
-The main users of send_IPI_allbutself() are smp_call_function() and
-on_each_cpu(), which are used quite often.  My main concern are the
-architectures that use IPI to flush TLB entries from other cpus.  For
-example, i386 ioremap_page_range() -> flush_tlb_all() -> on_each_cpu().
+What are the semantics of splice() supposed to be with respect 
+to the current file offsets of 'fd_in' and 'fd_out', and how
+is the presence or absence (NULL) of 'off_in' and 'off_out'
+supposed to affect things.
 
->> It would be far cheaper to define
->> a per-cpu variable containing the logical cpu number, set that variable
->> once as each cpu is brought up and just read it in cases where you
->> might not trust the integrity of struct thread_info.  safe_smp_processor_=
->id()
->> resolves to just a read of the per cpu variable.
->But to read a per-cpu variable you need to index the corresponding array
->with processor id of the current CPU (see code below), but that is
->precisely what we are trying to figure out.
+Using the program below, here is what I observe for 
+fd_out/off_out:
 
-Ouch, I am so used to ia64 where accessing the local per cpu variables
-is a direct read, with no need to use smp_processor_id().
+1. If off_out is NULL, then 
+   a) splice() changes the current file offset of fd_out.
 
-The use of smp_processor_id() in include/asm-generic/percpu.h is
-worrying, it means that any RAS code like dump or debuggers cannot
-access any per cpu variables.  Corrupt the kernel stack and all per cpu
-variables become useless!  That is a hidden bug, just waiting to bite
-all the RAS code.
+2. If off_out is not NULL, then splice() 
+   a) does not change the current file offset of fd_out, but 
+   b) treats off_out as a value result parameter, returning 
+      an updated offset of the file.
 
-ia64, x86_64, power, s390, sparc64 do not suffer from this problem,
-they have efficient implementations of __get_cpu_var().  All other
-architectures (including i386) use the generic percpu code and per cpu
-variables will not work with corrupt kernel stacks.
+It is "2 a)" that surprises me.  But perhaps it's expected 
+behaviour; or I'm doing something dumb in my test program.
 
+If the test program is run without a third command-line 
+argument, then 'off_out' is specified as NULL, and we see:
+
+$ find .. | ./t_splice out
+splice() returned 69632
+After splice(), offset of fd is: 69632; off_out = 0
+splice() returned 32768
+After splice(), offset of fd is: 102400; off_out = 0
+splice() returned 100000
+After splice(), offset of fd is: 202400; off_out = 0
+splice() returned 14688
+After splice(), offset of fd is: 217088; off_out = 0
+splice() returned 31990
+After splice(), offset of fd is: 249078; off_out = 0
+splice() returned 0
+After splice(), offset of fd is: 249078; off_out = 0
+
+If the test program is run with a third command-line 
+argument, then 'off_out' is initialised to 0, and then
+supplied as an argument on each splice() call, and we 
+see:
+
+$ find .. | ./t_splice out x
+splice() returned 20480
+After splice(), offset of fd is: 0; off_out = 20480
+splice() returned 49152
+After splice(), offset of fd is: 0; off_out = 69632
+splice() returned 100000
+After splice(), offset of fd is: 0; off_out = 169632
+splice() returned 35168
+After splice(), offset of fd is: 0; off_out = 204800
+splice() returned 44278
+After splice(), offset of fd is: 0; off_out = 249078
+splice() returned 0
+After splice(), offset of fd is: 0; off_out = 249078
+
+Cheers,
+
+Michael
+
+/* t_splice.c */
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <errno.h>
+#include <limits.h>
+
+#if defined(__i386__)
+#define __NR_splice     313
+#define __NR_tee        315
+#else
+#error unsupported arch
+#endif
+
+#define SPLICE_F_MOVE   (0x01)  /* move pages instead of copying */
+#define SPLICE_F_NONBLOCK (0x02) /* don't block on the pipe splicing (but */
+                                 /* we may still block on the fd we splice */
+                                 /* from/to, of course */
+#define SPLICE_F_MORE   (0x04)  /* expect more data */
+#define SPLICE_F_GIFT   (0x08)  /* pages passed in are a gift */
+
+
+static inline int splice(int fdin, loff_t *off_in, int fdout,
+                         loff_t *off_out, size_t len, unsigned int flags)
+{
+    return syscall(__NR_splice, fdin, off_in, fdout, off_out, len, flags);
+}
+
+static inline int tee(int fdin, int fdout, size_t len, unsigned int flags)
+{
+    return syscall(__NR_tee, fdin, fdout, len, flags);
+}
+
+int
+main(int argc, char *argv[])
+{
+    int fd;
+    int slen;
+    loff_t off_out;
+
+    assert(argc >= 2);
+
+    fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) {
+        perror("open");
+        exit(EXIT_FAILURE);
+    }
+
+    off_out = 0;
+    for (;;) {
+        slen = splice(STDIN_FILENO, NULL, fd,
+                (argc > 2) ? &off_out : NULL, 100000, 0);
+        if (slen < 0) {
+            perror("splice");
+            break;
+        }
+        fprintf(stderr, "splice() returned %ld\n", (long) slen);
+        fprintf(stderr, "After splice(), offset of fd is: %lld; "
+                "off_out = %lld\n",
+                (long long) lseek(fd, 0, SEEK_CUR),
+                (long long) off_out);
+        if (slen == 0)
+            break;
+    }
+
+    close(fd);
+    exit(EXIT_SUCCESS);
+}
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

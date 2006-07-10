@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbWGJPuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbWGJPvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbWGJPuY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWGJPuY
+	id S965155AbWGJPvW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbWGJPvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:50:24 -0400
-Received: from xenotime.net ([66.160.160.81]:44255 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965115AbWGJPuX (ORCPT
+	Mon, 10 Jul 2006 11:51:21 -0400
+Received: from mga02.intel.com ([134.134.136.20]:52915 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964906AbWGJPvU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:50:23 -0400
-Date: Mon, 10 Jul 2006 08:53:10 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: arjan@infradead.org, adamazing@gmail.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH 2.6.18-rc1 1/1] arch/x86-64: A few trivial spelling and
- grammar fixes
-Message-Id: <20060710085310.94f9a10d.rdunlap@xenotime.net>
-In-Reply-To: <44B25003.6020401@gmail.com>
-References: <c526a04b0607081027j62887e9bi5a3b93fa4606e003@mail.gmail.com>
-	<1152381894.27368.30.camel@localhost.localdomain>
-	<c526a04b0607081150s54516470p1d1b1726dd7d9675@mail.gmail.com>
-	<200607100204.07517.ak@suse.de>
-	<c526a04b0607100529p7626c50as4952fcbaf9896a97@mail.gmail.com>
-	<1152534797.4874.32.camel@laptopd505.fenrus.org>
-	<44B25003.6020401@gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 11:51:20 -0400
+X-IronPort-AV: i="4.06,223,1149490800"; 
+   d="scan'208"; a="62956811:sNHT21654167430"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [linux-pm] [BUG] sleeping function called from invalid context during resume
+Date: Mon, 10 Jul 2006 11:51:00 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ECFDB0@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-pm] [BUG] sleeping function called from invalid context during resume
+Thread-Index: AcakNzIaEt8gxdPFTdCuRgv7/pvyDAAATufg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: "Pavel Machek" <pavel@ucw.cz>, "Andrew Morton" <akpm@osdl.org>,
+       <johnstul@us.ibm.com>, <linux-pm@lists.osdl.org>,
+       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 10 Jul 2006 15:51:03.0871 (UTC) FILETIME=[A61D74F0:01C6A438]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 21:02:59 +0800 Antonino A. Daplas wrote:
+ 
+>> http://bugzilla.kernel.org/show_bug.cgi?id=3469
+>> 
+>> Make acpi_os_allocate() into an inline function to
+>> allow /proc/slab_allocators to work.
+>
+>Another problem with this patch; it doesn't compile.
 
-> Arjan van de Ven wrote:
-> >> Apologies Andi, white-space munging is probably the fault of gmail,
-> >> despite using plain text only, I'll try and use Thunderbird from now
-> >> on.
-> > 
-> > DOOOOOM
-> > 
-> > 
-> > please read
-> > 
-> > http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
-> > 
-> > before thinking that thunderbird is better than gmail ;-)
-> 
-> It's not that hopeless, I use thunderbird + gmail + an external
-> editor (emacs). And it's not mangling the whitespaces, or so I hope :-)
+Hmmm, to you refer to the patch on the bug-id, the one
+in e-mail, or the one checked into git?
 
-Right, tbird is usable (although could be much better).
-I've done it and documented it several times.
+My appologies if they don't match.  I've compiled 
+this into a few dozen kernels at this point.
 
----
-~Randy
+thanks,
+-Len

@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965279AbWGJW1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbWGJW14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965279AbWGJW1P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965280AbWGJW1P
+	id S965284AbWGJW14 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWGJW1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:27:15 -0400
-Received: from 206-124-142-26.buici.com ([206.124.142.26]:9645 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S965279AbWGJW1O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:27:14 -0400
-Date: Mon, 10 Jul 2006 15:27:13 -0700
-From: Marc Singer <elf@buici.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
-Message-ID: <20060710222713.GA6849@buici.com>
-References: <20060709000703.GA9806@cerise.buici.com> <44B0774E.5010103@yahoo.com.au> <20060710025103.GC28166@cerise.buici.com> <44B1FAE4.9070903@yahoo.com.au> <20060710162600.GB18728@flint.arm.linux.org.uk> <44B28F93.9020304@yahoo.com.au>
+	Mon, 10 Jul 2006 18:27:55 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:63884 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S965281AbWGJW1x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:27:53 -0400
+Date: Tue, 11 Jul 2006 00:27:14 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: <Pine.LNX.4.64.0607101747160.2603@p34.internal.lan>
+Message-ID: <Pine.LNX.4.61.0607110026030.5420@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+ <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+ <Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
+ <Pine.LNX.4.64.0607071037190.5153@p34.internal.lan> <17582.55703.209583.446356@cse.unsw.edu.au>
+ <Pine.LNX.4.64.0607101747160.2603@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B28F93.9020304@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 03:34:11AM +1000, Nick Piggin wrote:
-> Russell King wrote:
-> >On Mon, Jul 10, 2006 at 04:59:48PM +1000, Nick Piggin wrote:
-> >
-> >>I guess you could do it a number of ways. Maybe having GFP_USERMAP
-> >>set __GFP_USERMAP|__GFP_COMP, and the arm dma memory allocator can
-> >>strip the __GFP_COMP.
-> >>
-> >>If you get an explicit __GFP_COMP passed down, the allocator doesn't
-> >>know whether that was because they want a user mappable area, or
-> >>really want a compound page (in which case, stripping __GFP_COMP is
-> >>the wrong thing to do).
-> >
-> >
-> >So I'll mask off __GFP_COMP for the time being in the ARM dma allocator
-> >with a note to this effect?
-> 
-> I believe that should do the trick, yes (AFAIK, nobody yet is
-> explicitly relying on a compound page from the dma allocator).
-> 
-> Marc can hopefully confim the fix.
+> md3 : active raid5 sdc1[7] sde1[6] sdd1[5] hdk1[2] hdi1[4] hde1[3] hdc1[1]
+> hda1[0]
+>      2344252416 blocks super 0.91 level 5, 512k chunk, algorithm 2 [8/8]
+> [UUUUUUUU]
+>      [>....................]  reshape =  0.2% (1099280/390708736)
+> finish=1031.7min speed=6293K/sec
+>
+> It is working, thanks!
+>
+Hm, what's superblock 0.91? It is not mentioned in mdadm.8.
 
-I'll verify that that works, yes.
 
-> 
-> -- 
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jan Engelhardt
+-- 

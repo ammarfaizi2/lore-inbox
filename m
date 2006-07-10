@@ -1,46 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbWGJXtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWGJXv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965052AbWGJXtd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWGJXtd
+	id S965069AbWGJXv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 19:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWGJXv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:49:33 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:48833 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965052AbWGJXtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:49:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j2yoOkZntPap2m7P7pVJo41fqOXYo/DeYKTpn/H3VrhqE5+VNkiZfLYHzhQvrY6P/WAcLDVWYa5hndwWfcT2HdiiLSRWW91uE8da4bm+7uTy+EwT13GOYlmRMMei4VLy/55R4Iqx5/RiPJDLkpWEXbquSP5T7y0hJjELWmgGUTo=
-Message-ID: <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
-Date: Mon, 10 Jul 2006 19:49:31 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152552806.27368.187.camel@localhost.localdomain>
-	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
-	 <1152554708.27368.202.camel@localhost.localdomain>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
-	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
+	Mon, 10 Jul 2006 19:51:57 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:36820 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965069AbWGJXv4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 19:51:56 -0400
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adam =?iso-8859-2?Q?Tla=B3ka?= <atlka@pg.gda.pl>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       perex@suse.cz, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <44B2E4FF.9000502@pg.gda.pl>
+References: <20060707231716.GE26941@stusta.de>
+	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>
+	 <20060710132810.551a4a8d.atlka@pg.gda.pl>
+	 <1152571717.19047.36.camel@mindpipe>  <44B2E4FF.9000502@pg.gda.pl>
+Content-Type: text/plain; charset=iso-8859-2
+Date: Mon, 10 Jul 2006 19:51:44 -0400
+Message-Id: <1152575505.19047.52.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How about the use of lock/unlock_kernel(). Is there some hidden global
-synchronization going on? Every time lock/unlock_kernel() is used
-there is a tty_struct available. My first thought would be to turn
-this into a per tty spinlock. Looking at where it is used it looks
-like it was added to protect all of the VFS calls. I see no obvious
-coordination with other ttys that isn't handled by other locks.
+On Tue, 2006-07-11 at 01:38 +0200, Adam Tla³ka wrote:
+> U¿ytkownik Lee Revell napisa³:
+> > On Mon, 2006-07-10 at 13:28 +0200, Adam Tla³ka wrote:
+> >> >From my point of view ALSA has many advantages if you want to dig in
+> >> the card driver buffers/period etc. settings but lacks ease of use and
+> >> some of simple in theory functionality is a pain - device enumeration
+> >> or switching output mode/device without restarting apps or rewritting
+> >> them so they have special function for that purpose.
+> >>
+> > 
+> > Does any available sound driver interface allow switching output devices
+> > with no help from the app and without having to restart playback?  OSS
+> > does not, and every Windows app I've used has a configuration option to
+> > set the sound device, and you must stop and start playback for it to
+> > take effect.
+> 
+> Sorry but is a Windows solution the best on the whole world?
+> Is there any problem to imagine an abstract sound device which virtually 
+> always works but uses real device chosen by user, network redirection or 
+>   emulating work and we have some control panel/app which can control 
+> connections/plugins/redirections etc. (also this can be done by some 
+> kind of daemon responding to hw change events)?
+> Do we really need to program every sound app to have device setting code?
+> 
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+The problem is you trade ease of development for performance, penalizing
+the users to save developer time.  Your proposals would require every
+app to go through a software buffering layer.
+
+Of course, you're free to develop a system like this.
+
+> >> esd, arts, jackd, polypd and other prove that ALSA is not enough
+> >> and its functionality is far from perfect.
+> >>
+> > 
+> > esd and artsd are no longer needed since ALSA began to enable software
+> > mixing by default in release 1.0.9.
+>  >
+> 
+> So why they are still exist in so many Linux distributions?
+> 
+
+Backwards compatibility, bugs still being worked out, waiting for
+upstream to catch up, etc.  Same reason that distros never have the very
+latest version of every app.
+
+> > As for jackd and other apps that
+> > provide additional functionality - no one ever claimed ALSA would handle
+> > every audio related function imaginable.  It's just a low level HAL.
+> 
+> Format changing, resampling, mixing and supporting additional plugins
+> does not seems to be just low level HAL for hw device. It creates some 
+> kind of virtual functionality which means more then this provided by 
+> hardware device itself.
+
+OK, but my point is that it does not make sense to put every imaginable
+audio feature in ALSA.
+
+Lee
+

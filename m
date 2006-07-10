@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWGJWLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965269AbWGJWN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbWGJWLg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965259AbWGJWLT
+	id S965269AbWGJWN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWGJWN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:11:19 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:16594 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S965258AbWGJWLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:11:12 -0400
-From: Catalin Marinas <catalin.marinas@gmail.com>
-Subject: [PATCH 10/10] Update the MAINTAINERS file for kmemleak
-Date: Mon, 10 Jul 2006 23:11:04 +0100
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060710221104.5191.40268.stgit@localhost.localdomain>
-In-Reply-To: <20060710220901.5191.66488.stgit@localhost.localdomain>
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Mon, 10 Jul 2006 18:13:59 -0400
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:12540 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S965270AbWGJWN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:13:58 -0400
+Message-ID: <44B2D122.6010005@lwfinger.net>
+Date: Mon, 10 Jul 2006 17:13:54 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: John Linville <linville@tuxdriver.com>, linux-kernel@vger.kernel.org
+Subject: Error in git pull
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+John,
 
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
+I just pulled your latest changes from the wireless-2.6 repository. When I did so, I got the 
+following git error:
 
- MAINTAINERS |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+finger@larrylap:~/wireless-2.6> git pull
+Unpacking 22599 objects
+  100% (22599/22599) done
+error: no such remote ref refs/heads/zd1211rw
+* refs/heads/origin: does not fast forward to branch 'master' of 
+git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-2.6;
+   not updating.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 196a31c..808b75e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1635,6 +1635,12 @@ W:	http://www.kerneljanitors.org/
- W:	http://sf.net/projects/kernel-janitor/
- S:	Maintained
- 
-+KERNEL MEMORY LEAK DETECTOR
-+P:	Catalin Marinas
-+M:	catalin.marinas@gmail.com
-+W:	http://www.procode.org/
-+S:	Maintained
-+
- KERNEL NFSD
- P:	Neil Brown
- M:	neilb@cse.unsw.edu.au
+Is there any way for me to recover without pulling the entire tree again?
+
+Thanks,
+
+Larry

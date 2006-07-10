@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWGJLiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWGJLis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWGJLiG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWGJLiG
+	id S932334AbWGJLis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWGJLis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:38:06 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:12229 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751176AbWGJLiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:38:05 -0400
-Subject: Re: [2.6 patch] make drivers/mtd/cmdlinepart.c:mtdpart_setup()
-	static
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Cc: Adrian Bunk <bunk@stusta.de>, juha.yrjola@solidboot.com,
-       linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-       jlavi@iki.fi
-In-Reply-To: <44B23256.8030504@ru.mvista.com>
-References: <20060626220215.GI23314@stusta.de>
-	 <1151416141.17609.140.camel@hades.cambridge.redhat.com>
-	 <20060629173206.GF19712@stusta.de>
-	 <1152436332.25567.12.camel@shinybook.infradead.org>
-	 <44B23256.8030504@ru.mvista.com>
-Content-Type: text/plain
-Date: Mon, 10 Jul 2006 12:37:33 +0100
-Message-Id: <1152531453.3373.48.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 10 Jul 2006 07:38:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26282 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932334AbWGJLir convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:38:47 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Fernando Luis =?iso-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+Cc: Keith Owens <kaos@ocs.com.au>, akpm@osdl.org, James.Bottomley@steeleye.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump (2.6.18-rc1-i386) - safe_smp_processor_id
+References: <5742.1152520068@ocs3.ocs.com.au>
+	<1152526550.3003.24.camel@localhost.localdomain>
+Date: Mon, 10 Jul 2006 05:37:26 -0600
+In-Reply-To: <1152526550.3003.24.camel@localhost.localdomain> (Fernando Luis
+	=?iso-8859-1?Q?V=E1zquez?= Cao's message of "Mon, 10 Jul 2006 19:15:50
+ +0900")
+Message-ID: <m1u05ppu6h.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 14:56 +0400, Sergei Shtylyov wrote:
->     In addition, this function might be needed to support parsing of the 
-> partition info extracted from the OF device tree (if this way of storing it 
-> there will be accepted)... 
+Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> writes:
 
-Yes, we should extend physmap to handle of_devices and partition
-information represented as a string. It won't be mtdpart_setup() which
-we use for that though.
+> Hi Keith,
+>
+> Thank you for the comments.
+>
+> On Mon, 2006-07-10 at 18:27 +1000, Keith Owens wrote:
+>> Fernando Luis Vazquez Cao (on Mon, 10 Jul 2006 16:50:52 +0900) wrote:
+>> >On the event of a stack overflow critical data that usually resides at
+>> >the bottom of the stack is likely to be stomped and, consequently, its
+>> >use should be avoided.
+>> >
+>> >In particular, in the i386 and IA64 architectures the macro
+>> >smp_processor_id ultimately makes use of the "cpu" member of struct
+>> >thread_info which resides at the bottom of the stack. x86_64, on the
+>> >other hand, is not affected by this problem because it benefits from
+>> >the use of the PDA infrastructure.
+>> >
+>> >To circumvent this problem I suggest implementing
+>> >"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+>> >IA64 and use it as a replacement for smp_processor_id in the reboot path
+>> >to the dump capture kernel. This is a possible implementation for i386.
+>> 
+>> I agree with avoiding the use of thread_info when the stack might be
+>> corrupt.  However your patch results in reading apic data and scanning
+>> NR_CPU sized tables for each IPI that is sent, which will slow down the
+>> sending of all IPIs, not just dump.
+> This patch only affects IPIs sent using send_IPI_allbutself which is
+> rarely called, so the impact in performance should be negligible.
 
--- 
-dwmw2
+Well smp_call_function uses it so I don't know if rarely called applies.
 
+However when called with the NMI vector every instance of send_IPI_allbutself
+transforms this into send_IPI_mask.  Which is why we need to know our current
+cpu in the first place.
+
+Therefore why don't we just do that explicitly in crash.c
+i.e.
+
+static void smp_send_nmi_allbutself(void)
+{
+	cpumask_t mask = cpu_online_map;
+	cpu_clear(safe_smp_processor_id(), mask);
+	send_IPI_mask(mask, NMI_VECTOR);
+}
+
+That will guarantee that any effects this code paranoia may have
+are only seen in the crash dump path.
+
+
+>> It would be far cheaper to define
+>> a per-cpu variable containing the logical cpu number, set that variable
+>> once as each cpu is brought up and just read it in cases where you
+>> might not trust the integrity of struct thread_info.  safe_smp_processor_id()
+>> resolves to just a read of the per cpu variable.
+> But to read a per-cpu variable you need to index the corresponding array
+> with processor id of the current CPU (see code below), but that is
+> precisely what we are trying to figure out. Anyway as
+> send_IPI_allbutself is not a fast path (correct if this assumption is
+> wrong) the current implementation of safe_smp_processor_id should be
+> fine.
+>
+> #define get_cpu_var(var) (*({ preempt_disable();
+> &__get_cpu_var(var); }))
+> #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+>
+> Am I missing something obvious?
+
+No.  Except that other architectures have cheaper per pointers so they
+don't have that problem.
+
+Eric

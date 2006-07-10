@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWGJJ6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWGJKBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWGJJ6f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGJJ6e
+	id S1751347AbWGJKBj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWGJKBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:58:34 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:948
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751184AbWGJJ6e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:58:34 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Fredrik Roubert <roubert@df.lth.se>
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-Date: Mon, 10 Jul 2006 11:59:41 +0200
-User-Agent: KMail/1.9.1
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se>
-In-Reply-To: <20060710094414.GD1640@igloo.df.lth.se>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+	Mon, 10 Jul 2006 06:01:38 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:37411 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751342AbWGJKBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 06:01:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U3CX9hwnzMuBBauJgQFk5b4U6EcgyR2JyUs7ruLwkx3Ul2YwKMl3saK5fkndiuaWRR8ni698c1j3BjJLfh6bNeHyK7XwFSLvh8Ry90Wm1d4nS2AQTxaGK0cJYg4KBhVt4UlFO7Vg+KaVzFIktMOuspAN8Xmzmarihl1HXQgO+nk=
+Message-ID: <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com>
+Date: Mon, 10 Jul 2006 12:01:37 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.18-rc1-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Arjan van de Ven" <arjan@infradead.org>
+In-Reply-To: <20060710092528.GA8455@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607101159.41738.mb@bu3sch.de>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <6bffcb0e0607090332i477d594fq9ef96721574ae91b@mail.gmail.com>
+	 <20060709035203.cdc3926f.akpm@osdl.org>
+	 <20060710074039.GA26853@elte.hu>
+	 <6bffcb0e0607100222m5cbdba31ia39d47f3f1f94b26@mail.gmail.com>
+	 <20060710092528.GA8455@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 July 2006 11:44, Fredrik Roubert wrote:
-> On Sun 09 Jul 23:06 CEST 2006, Alan Stern wrote:
-> 
-> > Before 2.6.18-rc1, I used to be able to use it as follows:
+On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+>
+> > >> rofl.  You broke lockdep.
+> > >
+> > >ouch! the lock identifications look quite funny :-| Never saw that
+> > >happen before,
 > >
-> > 	Press and hold an Alt key,
-> > 	Press and hold the SysRq key,
-> > 	Release the Alt key,
-> > 	Press and release some hot key like S or T or 7,
-> > 	Repeat the previous step as many times as desired,
-> > 	Release the SysRq key.
+> > :)
 > >
-> > This scheme doesn't work any more,
-> 
-> The SysRq code has been updated to make it useable with keyboards that
-> are broken in other ways than your. With the new behaviour, you should
-> be able to use Magic SysRq with your keyboard in this way:
-> 
-> 	Press and hold an Alt key,
-> 	Press and release the SysRq key,
-> 	Press and release some hot key like S or T or 7,
-> 	Repeat the previous step as many times as desired,
-> 	Release the Alt key.
+> > >i'm wondering what's going on. Michal, did this happen
+> > >straight during bootup? Or did you remove/recompile/reinsert any modules
+> > >perhaps?
+> >
+> > It's happening while /etc/init.d/cpuspeed execution.
+> >
+> > I forgot about "make O=/dir/ clean". When new -mm is out I always
+> > remove kernel directory and create new one.
+>
+> ah, ok. So i'll put this under the 'unclean-build artifact' section,
+> i.e. not a lockdep bug for now, it seems. Please re-report if it ever
+> occurs again with a clean kernel build.
 
-While we are at it, does someone know how to trigger
-the sysrq on a PowerBook? Kernel Documentation says to press F13,
-but the PowerBook keyboard does not have F13.
+Unfortunately "make O=/dir clean" doesn't help. I'll disable lockdep,
+and see what happens.
+
+>
+>         Ingo
+>
+
+Regards,
+Michal
 
 -- 
-Greetings Michael.
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

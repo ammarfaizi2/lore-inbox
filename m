@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965285AbWGJW2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbWGJWai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965285AbWGJW2X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWGJW2W
+	id S965282AbWGJWai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWGJWah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:28:22 -0400
-Received: from mail.tmr.com ([64.65.253.246]:12724 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S965282AbWGJW2U (ORCPT
+	Mon, 10 Jul 2006 18:30:37 -0400
+Received: from lucidpixels.com ([66.45.37.187]:11500 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S965282AbWGJWag (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:28:20 -0400
-Message-ID: <44B2D6AA.3090707@tmr.com>
-Date: Mon, 10 Jul 2006 18:37:30 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 10 Jul 2006 18:30:36 -0400
+Date: Mon, 10 Jul 2006 18:30:35 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: <Pine.LNX.4.61.0607110026030.5420@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64.0607101830130.2603@p34.internal.lan>
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+ <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+ <Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
+ <Pine.LNX.4.64.0607071037190.5153@p34.internal.lan> <17582.55703.209583.446356@cse.unsw.edu.au>
+ <Pine.LNX.4.64.0607101747160.2603@p34.internal.lan>
+ <Pine.LNX.4.61.0607110026030.5420@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
-       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ext4 features
-References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>	 <20060705125956.GA529@fieldses.org>	 <1152128033.22345.17.camel@lade.trondhjem.org>  <44AC2D9A.7020401@tmr.com>	 <1152135740.22345.42.camel@lade.trondhjem.org>  <44B01DEF.9070607@tmr.com> <1152562135.6220.7.camel@lade.trondhjem.org>
-In-Reply-To: <1152562135.6220.7.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
 
->On Sat, 2006-07-08 at 17:04 -0400, Bill Davidsen wrote:
->  
->
->>No, I didn't quite mean a manual touch, but a system call to "close and 
->>set time to high resolution" for files where time uniformity is 
->>important. Consider that in most cases the inodes times are set by the 
->>host machine clock, which I close the change reflects the fileserving 
->>host idea of time. If there were a call to close a file and set the 
->>times like touch, then that could be used, for both local and network files.
->>    
+
+On Tue, 11 Jul 2006, Jan Engelhardt wrote:
+
+>> md3 : active raid5 sdc1[7] sde1[6] sdd1[5] hdk1[2] hdi1[4] hde1[3] hdc1[1]
+>> hda1[0]
+>>      2344252416 blocks super 0.91 level 5, 512k chunk, algorithm 2 [8/8]
+>> [UUUUUUUU]
+>>      [>....................]  reshape =  0.2% (1099280/390708736)
+>> finish=1031.7min speed=6293K/sec
 >>
+>> It is working, thanks!
+>>
+> Hm, what's superblock 0.91? It is not mentioned in mdadm.8.
 >
->Close should never update the time since that would be a violation of
->POSIX rules. Normally, an NFS client will never need to update the time:
->RPC calls like WRITE, READ and SETATTR will automatically do it for us
->whenever necessary.
->  
+>
+> Jan Engelhardt
+> -- 
 >
 
-Let me restate this a third time in another way. What I suggest is a 
-system call, NOT NAMED CLOSE, which does a close and touch. This was all 
-blue sky discussion, new system calls are as valid as nanosecond 
-resolution and syncronization between servers. Since this is a new call 
-it is not specified by POSIX.
+Not sure, the block version perhaps?
 
-And Linus has already suggested that he would accept something similar, 
-when I proposed something like "noatime" mounts, which only updated 
-atime and mtime on open and close, to keep metadata relevant but not 
-have the overhead of constant updates.
+I am using:
 
-Actually, now that I have more free time I may revisit that idea.
+$ mdadm -V
+mdadm - v2.5 -  26 May 2006
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Debian Etch.
 
+Justin.

@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWGJPSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWGJPS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWGJPSO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWGJPSO
+	id S1422657AbWGJPS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWGJPS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:18:14 -0400
-Received: from mxl145v68.mxlogic.net ([208.65.145.68]:4273 "EHLO
-	p02c11o145.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1422651AbWGJPSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:18:13 -0400
-Date: Mon, 10 Jul 2006 18:18:24 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Zach Brown <zach.brown@oracle.com>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: [PATCH updated] IB/mthca: comment fix
-Message-ID: <20060710151824.GL24705@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060710111412.GD24705@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060710111412.GD24705@mellanox.co.il>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 10 Jul 2006 15:23:01.0890 (UTC) FILETIME=[BB938620:01C6A434]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+	Mon, 10 Jul 2006 11:18:56 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:62809 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1422652AbWGJPSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:18:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
+        b=lHRWTIDtmm3844WI+/1kFDKte1cDEEwuaeL3YiaWYj70uDObG+A7x4HRSFEA1gLXVNIBwjCerRWT/N+snM9hQyiNx3kM+X+kSQQnpEr5VY/4bimYLbaQU1gGxbUX1iSGM4/kE+32N0NA85YhaSi4P1l2W8bum9HVenlOYtXz3fQ=
+Message-ID: <44B26FD5.403@pol.net>
+Date: Mon, 10 Jul 2006 23:18:45 +0800
+From: "Antonino A. Daplas" <adaplas@pol.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
+References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>	<20060705165255.ab7f1b83.khali@linux-fr.org>	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>	<m3irm5hjr0.fsf@defiant.localdomain> <44B226E8.40104@pol.net>	<m3mzbh68g9.fsf@defiant.localdomain> <44B2398B.7040300@pol.net>	<m3ejwt65of.fsf@defiant.localdomain> <44B248E4.2020506@pol.net> <m3u05p4mkx.fsf@defiant.localdomain>
+In-Reply-To: <m3u05p4mkx.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, the following makes it clear what the function does, from its name.
-More comments?
+Krzysztof Halasa wrote:
+> "Antonino A. Daplas" <adaplas@pol.net> writes:
+> 
+>> Eventually, I'm the one who's going to maintain the code, most
+>> of the drivers in the video directory are practically abandoned. 
+> 
+> BTW, it's fortunate that you are maintaing it. The I2C code in cirrusfb
+> uses vga_wseq() and vga_rseq(). Is it safe WRT races between I2C
+> adapter code and fb code? I don't see any locking here, and both
+> functions are non-atomic (write merging and posting will not break it,
+> but it looks like I need a lock for concurent access).
 
----
+Correcting myself: vga_wseq() is not a problem in little endian machines
+because the 2 single-byte writes are done with a single 2-byte write.
+vga_rseq() is not safe though.
 
-After recent changes, mthca_wq_init does not actually initialize the WQ as it
-used to - it simply resets all index fields to their initial values. So,
-let's rename it to mthca_wq_reset.
+I don't know how big a problem this is, reading the i2c bus while the
+video mode is changing..., but I agree that it might be worthwhile
+to at least lock sequencer access.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Tony
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
-index 490fc78..cd8b672 100644
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -222,9 +222,8 @@ static void *get_send_wqe(struct mthca_q
- 			 (PAGE_SIZE - 1));
- }
- 
--static void mthca_wq_init(struct mthca_wq *wq)
-+static void mthca_wq_reset(struct mthca_wq *wq)
- {
--	/* mthca_alloc_qp_common() initializes the locks */
- 	wq->next_ind  = 0;
- 	wq->last_comp = wq->max - 1;
- 	wq->head      = 0;
-@@ -845,10 +844,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 			mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq), qp->qpn,
- 				       qp->ibqp.srq ? to_msrq(qp->ibqp.srq) : NULL);
- 
--		mthca_wq_init(&qp->sq);
-+		mthca_wq_reset(&qp->sq);
- 		qp->sq.last = get_send_wqe(qp, qp->sq.max - 1);
- 
--		mthca_wq_init(&qp->rq);
-+		mthca_wq_reset(&qp->rq);
- 		qp->rq.last = get_recv_wqe(qp, qp->rq.max - 1);
- 
- 		if (mthca_is_memfree(dev)) {
-@@ -1112,9 +1111,9 @@ static int mthca_alloc_qp_common(struct 
- 	qp->atomic_rd_en = 0;
- 	qp->resp_depth   = 0;
- 	qp->sq_policy    = send_policy;
--	mthca_wq_init(&qp->sq);
--	mthca_wq_init(&qp->rq);
--	/* these are initialized separately so lockdep can tell them apart */
-+	mthca_wq_reset(&qp->sq);
-+	mthca_wq_reset(&qp->rq);
-+
- 	spin_lock_init(&qp->sq.lock);
- 	spin_lock_init(&qp->rq.lock);
- 
--- 
-MST
+
+
+

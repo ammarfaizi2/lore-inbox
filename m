@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWGJNAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWGJNCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbWGJNAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWGJNAV
+	id S1161053AbWGJNCj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWGJNCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:00:21 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:43291 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161017AbWGJNAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:00:20 -0400
+	Mon, 10 Jul 2006 09:02:39 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:50100 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161053AbWGJNCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:02:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BtCsQwDzmYljxFryiTvp7N9FWUcbYV3MLp87c2pVwjrlwC0hjAzrixu3Pqk7eb8X5NF0F887UZrRPinXmDBfiPvn9xT2qR2hHN/jp94xHKgaFi8cG5tJVanaBU9QLin3zLmqZYQZgFTuSS3QanXT55udVvD0dZRZ0sRGzfF3FTc=
-Message-ID: <9a8748490607100600w125700a0n8a77870998704342@mail.gmail.com>
-Date: Mon, 10 Jul 2006 15:00:19 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1152535999.4874.36.camel@laptopd505.fenrus.org>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=hQXoiYhhUMKZeLMK0EZW9Pudg4oRWInpa17gxH7H4U4PeAjJFX1Nt7peSKJJgRsPHveyr4C2qbScYgM+BiEW1dRcPc2wPm1g+uxSvNXsLaYXOQ8ZOpoOAXoP1BS9Fz0b/wPUwGT8JW/uvXN7uYhDA46KCX4JXGDnB1xNf/rTbzk=
+Message-ID: <44B24FE7.2050807@gmail.com>
+Date: Mon, 10 Jul 2006 21:02:31 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Matt Reuther <mreuther@umich.edu>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Depmod errors on 2.6.17.4/2.6.18-rc1/2.6.18-rc1-mm1
+References: <200607100833.00461.mreuther@umich.edu>
+In-Reply-To: <200607100833.00461.mreuther@umich.edu>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9a8748490607100548o14dbe684j40bde90eb19a7558@mail.gmail.com>
-	 <1152535999.4874.36.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/07/06, Arjan van de Ven <arjan@infradead.org> wrote:
->
-> > So, what do people say?
->
->
-> Hi,
->
-> I'm just about always in favor of having automated tools help us find
-> bugs. However... can you give an indication of how many real bugs you
-> have encountered? If it's "mostly noise" all the time.. then it's maybe
-> not worth the effort... while if you find real bugs then it's obviously
-> worthwhile to go through this.
->
-For the parts I've done so far, the only "real" issue is one case of a
-superfluous variable. But I'm far from done going through all the
-warnings.
+Matt Reuther wrote:
+> The following errors show up on 'make modules_install' for the 2.6.18-rc1-mm1 
+> kernel. The snd-miro ones have actually been there since at least 2.6.17.4, 
+> and they show up in 2.6.18-rc1 as well.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
+> needs unknown symbol fb_unregister_client
+> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
+> needs unknown symbol fb_register_client
+> 
+
+CONFIG_FB=n, CONFIG_BACKLIGHT_CLASS_DEVICE=m should not be possible in
+2.6.18-rc1-mm1 and 2.6.18-rc1.  Can you run kconfig again?
+
+Tony
+

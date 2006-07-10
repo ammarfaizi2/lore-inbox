@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWGJNy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWGJN5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWGJNy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWGJNy3
+	id S964864AbWGJN5F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGJN5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:54:29 -0400
-Received: from mail.gmx.net ([213.165.64.21]:34492 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965027AbWGJNy3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:54:29 -0400
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-Date: Mon, 10 Jul 2006 15:54:27 +0200
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <20060710132529.GD5210@suse.de>
-Message-ID: <20060710135427.26270@gmx.net>
+	Mon, 10 Jul 2006 09:57:05 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57094 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964864AbWGJN5E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:57:04 -0400
+Date: Mon, 10 Jul 2006 15:57:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Adam =?utf-8?Q?Tla=C5=82ka?= <atlka@pg.gda.pl>
+Cc: Lee Revell <rlrevell@joe-job.com>, alan@lxorguk.ukuu.org.uk,
+       alsa-devel@alsa-project.org, ak@suse.de, perex@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+Message-ID: <20060710135702.GZ13938@stusta.de>
+References: <20060707231716.GE26941@stusta.de> <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe> <20060710132810.551a4a8d.atlka@pg.gda.pl>
 MIME-Version: 1.0
-References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de>
- <20060710130754.26280@gmx.net> <20060710132529.GD5210@suse.de>
-Subject: Re: splice() and file offsets
-To: Jens Axboe <axboe@suse.de>
-X-Authenticated: #24879014
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060710132810.551a4a8d.atlka@pg.gda.pl>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
-
-> > I'm still not clear here.  Let me phrase my question another way:
-> > why is it that the presence or absence of off_out affects whether
-> > or not splice() changes the current file offset for fd_out?
+On Mon, Jul 10, 2006 at 01:28:10PM +0200, Adam Tlałka wrote:
+> On Sun, 09 Jul 2006 11:18:19 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> The logic is simple - either you don't give an explicit offset, and the
-> current position is used and updated. Or you give an offset, and the
-> current position is ignored (not read, not updated).
-
-Yes, I understand what the code is doing, but *why* do 
-things this way?  (To put things another way: why not *always 
-have splice() update the file offset?)  I realise there may be
-some good reason for this, and if there is, it will go into the
-man page!
-
-> > > It's identical to how sendfile() works.
+> > On Sat, 2006-07-08 at 01:50 +0200, Andi Kleen wrote:
+> > > Adrian Bunk <bunk@stusta.de> writes:
+> > > > 
+> > > > Q: What about the OSS emulation in ALSA?
+> > > > A: The OSS emulation in ALSA is not affected by my patches
+> > > >    (and it's not in any way scheduled for removal).
+> > > 
+> > > I again object to removing the old ICH sound driver.
+> > > It does the same as the Alsa driver in much less code and is ideal
+> > > for generic monolithic kernels
 > > 
-> > But it isn't: sendfile() never changes the file offset 
-> > of its 'in_fd'.
+> > It doesn't do the same thing - software mixing is impossible with OSS.
 > 
-> Ehm, yes it does. Would you expect the app to do an appropriate lseek()
-> on every sendfile() call?
+> Only GPL'ed version has this limitation - its just not implemented because all this
+> GPL'ed OSS is abandoned.
+> The commercial version from www.opensound.com does input/output mixing
+> in software in kernel space.
+>...
 
-No!  It does not!  See the sendfile.2 man page: "sendfile() 
-does not modify the current file offset of in_fd."  
-(You had me worried -- I just now went and *tested* 
-the operation of sendfile().)  The app does not need to 
-do an lseek() call because the 'offset' argument is *always* 
-updated with the new "virtual" offset.  This is part of why I 
-am disturbed/confused: sendfile() always updates its 'offset' 
-argument and *never* changes the file offset; splice() only 
-does that if its 'offset' argument is non-NULL.
+When we are talking about OSS, we are talking about what is under 
+sound/oss/ in the kernel sources.
 
-Cheers,
+The commercial OSS might be much better, but it's not relevant since 
+it's not GPL'ed and therefore not a candidate for inclusion into the 
+kernel.
 
-Michael
+As you said yourself, the "GPL'ed OSS is abandoned".
+And ALSA is it's successor in the kernel.
+
+cu
+Adrian
+
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
 
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

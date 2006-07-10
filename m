@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWGJWAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWGJWCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965034AbWGJWAv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965041AbWGJWAu
+	id S965041AbWGJWCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbWGJWCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:00:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51073 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965034AbWGJWAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:00:49 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] msi: Only keep one msi_desc in each slab entry.
-Date: Mon, 10 Jul 2006 16:00:07 -0600
-Message-ID: <m1veq5m87s.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 10 Jul 2006 18:02:38 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47115 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965041AbWGJWCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 18:02:37 -0400
+Date: Tue, 11 Jul 2006 00:02:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] make sound/isa/gus/gusextreme.c:devices static
+Message-ID: <20060710220236.GI13938@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"devices" is not a good name for a global variable.
 
-It looks like someone confused kmem_cache_create with a different
-allocator and was attempting to give it knowledge of how many cache
-entries there were.
+Thankfully, it can become static.
 
-With the unfortunate result that each slab entry was big enough to
-hold every irq.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- drivers/pci/msi.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index 0cd4a3e..082e942 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -40,13 +40,13 @@ msi_register(struct msi_ops *ops)
+--- linux-2.6.18-rc1-mm1-full/sound/isa/gus/gusextreme.c.old	2006-07-10 01:15:13.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/sound/isa/gus/gusextreme.c	2006-07-10 01:15:20.000000000 +0200
+@@ -87,7 +87,7 @@
+ module_param_array(pcm_channels, int, NULL, 0444);
+ MODULE_PARM_DESC(pcm_channels, "Reserved PCM channels for GUS Extreme driver.");
  
- static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
- {
--	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
-+	memset(p, 0, sizeof(struct msi_desc));
- }
+-struct platform_device *devices[SNDRV_CARDS];
++static struct platform_device *devices[SNDRV_CARDS];
  
- static int msi_cache_init(void)
- {
- 	msi_cachep = kmem_cache_create("msi_cache",
--			NR_IRQS * sizeof(struct msi_desc),
-+			sizeof(struct msi_desc),
- 		       	0, SLAB_HWCACHE_ALIGN, msi_cache_ctor, NULL);
- 	if (!msi_cachep)
- 		return -ENOMEM;
--- 
-1.4.1.gac83a
+ 
+ #define PFX	"gusextreme: "
 

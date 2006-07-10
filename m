@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbWGJQEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWGJQJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbWGJQEq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 12:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWGJQEq
+	id S964906AbWGJQJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 12:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWGJQJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 12:04:46 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:24494 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965178AbWGJQEp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 12:04:45 -0400
-Message-ID: <44B27A8F.6030105@zytor.com>
-Date: Mon, 10 Jul 2006 09:04:31 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 10 Jul 2006 12:09:19 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:9456 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964906AbWGJQJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 12:09:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=RWeeL/qY9t8DOPqvkyvP5ag/4lJansbaBG2iy/3oZt1ncr7o1vGMQDg5K2bE2PyEtde/NM2pYR6wxroH09bFs6Sw2H6jZH68t/P2vTvn2O/6hmmFz/Vj/y3W+1DLan5xVxSTcYTFGl69XE8IC7RsaEUwhFWcHj0lgHUGsvbckck=
+Message-ID: <44B27BA5.6070304@gmail.com>
+Date: Tue, 11 Jul 2006 00:09:09 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: "Antonino A. Daplas" <adaplas@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>	 <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>	 <1152537049.27368.119.camel@localhost.localdomain>	 <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>	 <1152539034.27368.124.camel@localhost.localdomain>	 <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>	 <44B26752.9000507@gmail.com>	 <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com>	 <1152544746.27368.134.camel@localhost.localdomain>	 <44B273B9.8050308@gmail.com> <9e4733910607100854x250e9d3aga027ef5e156ec34e@mail.gmail.com>
-In-Reply-To: <9e4733910607100854x250e9d3aga027ef5e156ec34e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: arjan@infradead.org, adamazing@gmail.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 2.6.18-rc1 1/1] arch/x86-64: A few trivial spelling and
+ grammar fixes
+References: <c526a04b0607081027j62887e9bi5a3b93fa4606e003@mail.gmail.com>	<1152381894.27368.30.camel@localhost.localdomain>	<c526a04b0607081150s54516470p1d1b1726dd7d9675@mail.gmail.com>	<200607100204.07517.ak@suse.de>	<c526a04b0607100529p7626c50as4952fcbaf9896a97@mail.gmail.com>	<1152534797.4874.32.camel@laptopd505.fenrus.org>	<44B25003.6020401@gmail.com> <20060710085310.94f9a10d.rdunlap@xenotime.net>
+In-Reply-To: <20060710085310.94f9a10d.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
+Randy.Dunlap wrote:
+> On Mon, 10 Jul 2006 21:02:59 +0800 Antonino A. Daplas wrote:
 > 
-> BSD has /dev/vc/0 right? I suspect that code is there to support BSD
-> and make the app portable.
+>> Arjan van de Ven wrote:
+>>>> Apologies Andi, white-space munging is probably the fault of gmail,
+>>>> despite using plain text only, I'll try and use Thunderbird from now
+>>>> on.
+>>> DOOOOOM
+>>>
+>>>
+>>> please read
+>>>
+>>> http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+>>>
+>>> before thinking that thunderbird is better than gmail ;-)
+>> It's not that hopeless, I use thunderbird + gmail + an external
+>> editor (emacs). And it's not mangling the whitespaces, or so I hope :-)
+> 
+> Right, tbird is usable (although could be much better).
+> I've done it and documented it several times.
 > 
 
-I think it was there to support devfs.
+Getting the external editor extension makes using tbird much
+easier. When composing a message, just click on the external
+editor icon and your favorite text editor pops up.
 
-> As far as I know the only time Linux has ever had /dev/vc/0 was during
-> the brief excursion into devfs land. At that time /proc/tty/drivers
-> was modified to support devfs.  But now devfs has been removed and the
-> device has reverted back to tty0. But /proc/tty/drivers wasn't
-> adjusted for devfs removal.
-> 
+http://globs.org/?lng=en
 
-Agreed.
-
-	-hpa
+Tony

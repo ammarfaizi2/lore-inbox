@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422666AbWGJPxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422668AbWGJPxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422666AbWGJPxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWGJPxk
+	id S1422668AbWGJPxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422666AbWGJPxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:53:40 -0400
-Received: from admingilde.org ([213.95.32.146]:11147 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S1422666AbWGJPxj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:53:39 -0400
-Date: Mon, 10 Jul 2006 17:53:37 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2/9] -Wshadow: Fix warnings in mconf
-Message-ID: <20060710155337.GB9617@admingilde.org>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <200607101312.38149.jesper.juhl@gmail.com>
+	Mon, 10 Jul 2006 11:53:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1422667AbWGJPxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:53:35 -0400
+Subject: Re: lockdep input layer warnings.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, mingo@redhat.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <d120d5000607100849k5af2ee78o2715d9a51b06c000@mail.gmail.com>
+References: <20060706173411.GA2538@redhat.com>
+	 <d120d5000607061137r605a08f9ie6cd45a389285c4a@mail.gmail.com>
+	 <1152212575.3084.88.camel@laptopd505.fenrus.org>
+	 <d120d5000607061329t4868d265h6f8285c798a0e3b7@mail.gmail.com>
+	 <1152544371.4874.66.camel@laptopd505.fenrus.org>
+	 <d120d5000607100849k5af2ee78o2715d9a51b06c000@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 10 Jul 2006 17:53:32 +0200
+Message-Id: <1152546812.4874.69.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
-Content-Disposition: inline
-In-Reply-To: <200607101312.38149.jesper.juhl@gmail.com>
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-07-10 at 11:49 -0400, Dmitry Torokhov wrote:
+> On 7/10/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > On Thu, 2006-07-06 at 16:29 -0400, Dmitry Torokhov wrote:
+> > >
+> > > Well, you are right, the patch is in -rc1 and I see mutex_lock_nested
+> > > in the backtrace but for some reason it is still not happy. Again,
+> > > this is with pass-through Synaptics port and we first taking mutex of
+> > > the child device and then (going through pass-through port) trying to
+> > > take mutex of the parent.
+> >
+> > Ok it seems more drastic measures are needed; and a split of the
+> > cmd_mutex class on a per driver basis. The easiest way to do that is to
+> > inline the lock initialization (patch below) but to be honest I think
+> > the patch is a bit ugly; I considered inlining the entire function
+> > instead, any opinions on that?
+> >
+> 
+> It is ugly. Maybe we could have something like mutex_init_nolockdep()
+> to annotate that lockdep is confused and make it ignore such locks?
 
---rJwd6BRFiFCcLxzm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+nope but there is a function to make it unique, we could put that in the
+wrapper instead of mutex_init if that makes it less ugly..
 
-hoi :)
-
-On Mon, Jul 10, 2006 at 01:12:37PM +0200, Jesper Juhl wrote:
-> --- linux-2.6.18-rc1-orig/scripts/kconfig/mconf.c	2006-06-18 03:49:35.000=
-000000 +0200
-> +++ linux-2.6.18-rc1/scripts/kconfig/mconf.c	2006-07-09 19:48:05.00000000=
-0 +0200
-> @@ -276,7 +276,7 @@ static void conf_save(void);
->  static void show_textbox(const char *title, const char *text, int r, int=
- c);
->  static void show_helptext(const char *title, const char *text);
->  static void show_help(struct menu *menu);
-> -static void show_file(const char *filename, const char *title, int r, in=
-t c);
-> +static void show_file(const char *fname, const char *title, int r, int c=
-);
-> =20
->  static void cprint_init(void);
->  static int cprint1(const char *fmt, ...);
-
-perhaps its more clear if you change the global variable instead?
-perhaps to config_filename?
-
---=20
-Martin Waitz
-
---rJwd6BRFiFCcLxzm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEsngBj/Eaxd/oD7IRAu3pAJ9wyMR+q9tx2FG/+8anXc2jZwVNNQCfUJyB
-EeeSt6bIGn0tZmkTUnAmqaU=
-=lWaI
------END PGP SIGNATURE-----
-
---rJwd6BRFiFCcLxzm--

@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWGJUpV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965177AbWGJUwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWGJUpV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 16:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWGJUpV
+	id S965177AbWGJUwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 16:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbWGJUwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 16:45:21 -0400
-Received: from mta9.adelphia.net ([68.168.78.199]:60805 "EHLO
-	mta9.adelphia.net") by vger.kernel.org with ESMTP id S964795AbWGJUpU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 16:45:20 -0400
-Message-ID: <44B2BCAA.5000007@walsh.ws>
-Date: Mon, 10 Jul 2006 16:46:34 -0400
-From: Brian Walsh <brian@walsh.ws>
-User-Agent: Mail/News 1.5 (X11/20060213)
-MIME-Version: 1.0
-To: Deepak Sanexa <dsanexa@mvista.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.18-rc1 1/1] [RESUBMIT] mtd/maps: ixp4xx partition parsing
-References: <44B2AFFB.2070507@walsh.ws> <20060710200212.GA31761@flint.arm.linux.org.uk>
-In-Reply-To: <20060710200212.GA31761@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jul 2006 16:52:20 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:32749 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S965177AbWGJUwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 16:52:19 -0400
+Date: Mon, 10 Jul 2006 16:52:15 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Philippe Troin <phil@fifi.org>
+Cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] 'volatile' in userspace
+Message-ID: <20060710205215.GA6400@ccure.user-mode-linux.org>
+References: <44B0FAD5.7050002@argo.co.il> <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com> <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com> <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com> <20060710185435.GA5445@ccure.user-mode-linux.org> <874pxp1at0.fsf@tantale.fifi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <874pxp1at0.fsf@tantale.fifi.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the amount of flash is not divisible by 2 then the mask in parse_mtd_partitions would fail to work as designed.  Passing in the base address corrects this problem.
+On Mon, Jul 10, 2006 at 01:09:47PM -0700, Philippe Troin wrote:
+> I usually do the same, except that I write the errno in case of
+> failure.  This way the parent knows *why* exec failed ;-)
 
-Signed-off-by: Brian Walsh <brian@walsh.ws>
----
+If you look at the code I posted, it does exactly that.
 
-diff -ur a/drivers/mtd/maps/ixp4xx.c b/drivers/mtd/maps/ixp4xx.c
---- a/drivers/mtd/maps/ixp4xx.c 2006-06-17 21:49:35.000000000 -0400
-+++ b/drivers/mtd/maps/ixp4xx.c 2006-07-10 16:29:47.000000000 -0400
-@@ -253,7 +253,7 @@
-        /* Use the fast version */
-        info->map.write = ixp4xx_write16,
-
--       err = parse_mtd_partitions(info->mtd, probes, &info->partitions, 0);
-+       err = parse_mtd_partitions(info->mtd, probes, &info->partitions, dev->resource->start);
-        if (err > 0) {
-                err = add_mtd_partitions(info->mtd, info->partitions, err);
-                if(err)
-
-
+				Jeff

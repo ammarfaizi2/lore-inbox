@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWGJNLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWGJNNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965005AbWGJNLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGJNLZ
+	id S1161135AbWGJNNR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGJNNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:11:25 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:40978 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S964886AbWGJNLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:11:24 -0400
-Date: Mon, 10 Jul 2006 23:12:04 +1000
-From: CaT <cat@zip.com.au>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-Message-ID: <20060710131204.GO2344@zip.com.au>
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com> <1152524657.27368.108.camel@localhost.localdomain> <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com> <1152537049.27368.119.camel@localhost.localdomain> <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Jul 2006 09:13:17 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:44363 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964886AbWGJNNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:13:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K3pKUI735rMdmig2ae3pl8NRpW95shB4aARb4w1tA2P9Mjp1ymByIZtXKHWaK1QCzm6H6oqkXsGJMaW0GxZc2x2nONEtpjuAG9rQJ3JLLOPWk2UADXFWerXe7nEz4/wsLAr/OB9f7gieunjhrN7JPI+/YoKaDiqFL+wTetAZgLI=
+Message-ID: <9a8748490607100613s2489d656g430b80ee06e51782@mail.gmail.com>
+Date: Mon, 10 Jul 2006 15:13:14 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow
+Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152536791.4874.43.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+References: <9a8748490607100548o14dbe684j40bde90eb19a7558@mail.gmail.com>
+	 <1152535999.4874.36.camel@laptopd505.fenrus.org>
+	 <d120d5000607100603r7ac59457tc1b080a15ed84db3@mail.gmail.com>
+	 <1152536791.4874.43.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 09:03:49AM -0400, Jon Smirl wrote:
-> one in-kernel and one out of kernel? I'm not even sure if USB will
-> work without udev anymore.
+On 10/07/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Mon, 2006-07-10 at 09:03 -0400, Dmitry Torokhov wrote:
+> >
+> > While we may not have any issues with the present code it can help
+> > avoiding problems in new code if we have -Wshadow by default.
+>
+> I agree with that; however that still depends on the ratio of real bugs
+> vs "noise". While it's hard to estimate for future code, the existing
+> code base can be an indication...
+>
+One little twist here is that if I end up going through all the
+current warnings to clean them up then once I know that ratio I'll
+have already done all the cleanup work, so whatever the bugs/noise
+ratio turns out to be, all the work will already be done and then
+(from my point of view) we might as well do it ;-)
 
-*blink* I use USB every other day, on recent kernels without problems
-and without udev. What should I expect not to work for me?
+More seriously; I'll try and sift through the pile I have at the
+moment and pick out those that look like real bugs, then we can look
+at that and see if it's worth-while...
+In any case, even if there are only very few real bugs (or even none)
+I'm still full willing to do the work to help us protect against
+future bugs.
+
 
 -- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

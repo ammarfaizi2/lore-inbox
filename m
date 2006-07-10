@@ -1,138 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWGJN7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWGJOCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbWGJN7c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWGJN7c
+	id S1030356AbWGJOCU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 10:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWGJOCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:59:32 -0400
-Received: from lucidpixels.com ([66.45.37.187]:10127 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1030318AbWGJN7b (ORCPT
+	Mon, 10 Jul 2006 10:02:20 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:51384 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030356AbWGJOCT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:59:31 -0400
-Date: Mon, 10 Jul 2006 09:59:30 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Follow up? LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
-In-Reply-To: <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <44AEB3CA.8080606@pobox.com>
- <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan> <200607091224.31451.liml@rtr.ca>
- <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
- <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
- <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
- <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
- <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
- <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
+	Mon, 10 Jul 2006 10:02:19 -0400
+Date: Mon, 10 Jul 2006 16:02:04 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Albert Cahalan <acahalan@gmail.com>
+cc: ray-gmail@madrabbit.org, Jon Smirl <jonsmirl@gmail.com>,
+       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: Opinions on removing /proc/tty?
+In-Reply-To: <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
+References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com> 
+ <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com> 
+ <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com> 
+ <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com> 
+ <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com> 
+ <20060709193133.GA32457@flint.arm.linux.org.uk>
+ <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any follow up now that we have the failed ata-translated op codes?
+>
+> Just do /proc/*/tty links and all will be good. This even
+> handles the case of two different names for the same dev_t.
+>
+Is this for the controlling tty? Then it should be ctty.
 
-On Sun, 9 Jul 2006, Justin Piszcz wrote:
 
-> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
-> [4294810.556000] ata4: error=0x04 { DriveStatusError }
-> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
-> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
-> [4295514.668000] ata3: error=0x04 { DriveStatusError }
-> [4297033.649000] ata_gen_fixed_sense: failed ata_op=0xca
-> [4297033.649000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [4297033.649000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4297033.649000] ata4: status=0x51 { DriveReady SeekComplete Error }
-> [4297033.649000] ata4: error=0x04 { DriveStatusError }
-> [4297741.057000] ata_gen_fixed_sense: failed ata_op=0x35
-> [4297741.057000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> 0xb/00/00
-> [4297741.057000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> [4297741.057000] ata4: status=0x51 { DriveReady SeekComplete Error }
-> [4297741.057000] ata4: error=0x04 { DriveStatusError }
->
-> Also got a 0xca.
->
->
-> On Sun, 9 Jul 2006, Justin Piszcz wrote:
->
->> 
->> 
->> On Sun, 9 Jul 2006, Justin Piszcz wrote:
->> 
->>> 
->>> 
->>> On Sun, 9 Jul 2006, Justin Piszcz wrote:
->>> 
->>>> I made my own patch (following Mark's example) but also added that printk 
->>>> in that function.
->>>> 
->>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_fixed_sense: failed 
->>>> ata_op=0x35
->>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: translated ATA 
->>>> stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata_gen_ata_desc_sense: 
->>>> failed ata_op=0x51
->>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: status=0x51 { 
->>>> DriveReady SeekComplete Error }
->>>> Jul  9 16:37:52 p34 kernel: [4294810.556000] ata4: error=0x04 { 
->>>> DriveStatusError }
->>>> 
->>>> Now that we have found the ata_op code of 0x35, what does this mean?  Is 
->>>> it generated from a bad FUA/unsupported command from the kernel/SATA 
->>>> driver?
->>>> 
->>>> Justin.
->>>> 
->>>> -
->>>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
->>>> in
->>>> the body of a message to majordomo@vger.kernel.org
->>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>> Please read the FAQ at  http://www.tux.org/lkml/
->>>> 
->>> 
->>> In /usr/src/linux/include/linux/ata.h:
->>>
->>>  ATA_CMD_WRITE_EXT = 0x35,
->>> 
->>> Perhaps these drives do not support this command or do not support it 
->>> properly?
->>> 
->>> Any idea, Jeff/Alan?
->>> 
->>> Justin.
->>> 
->>> 
->> 
->> Here are all the errors (when reading/writing heavily):
->> 
->> [4294810.556000] ata_gen_fixed_sense: failed ata_op=0x35
->> [4294810.556000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
->> 0xb/00/00
->> [4294810.556000] ata_gen_ata_desc_sense: failed ata_op=0x51
->> [4294810.556000] ata4: status=0x51 { DriveReady SeekComplete Error }
->> [4294810.556000] ata4: error=0x04 { DriveStatusError }
->> [4295514.668000] ata_gen_fixed_sense: failed ata_op=0x35
->> [4295514.668000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
->> 0xb/00/00
->> [4295514.668000] ata_gen_ata_desc_sense: failed ata_op=0x51
->> [4295514.668000] ata3: status=0x51 { DriveReady SeekComplete Error }
->> [4295514.668000] ata3: error=0x04 { DriveStatusError }
->> 
->> Jeff/Mark, from these errors can we reach a consensus as to the cause of 
->> these errors and how to eliminate the problem?
->> 
->> Thanks,
->> 
->> Justin.
->> 
->
+Jan Engelhardt
+-- 

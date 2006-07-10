@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWGJL2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWGJLax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWGJL2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 07:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWGJL2V
+	id S932451AbWGJLax (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 07:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGJLax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 07:28:21 -0400
-Received: from mail.dsa-ac.de ([62.112.80.99]:43788 "EHLO mail.dsa-ac.de")
-	by vger.kernel.org with ESMTP id S1751387AbWGJL2V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 07:28:21 -0400
-Date: Mon, 10 Jul 2006 13:28:10 +0200 (CEST)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.17.4] slabinfo.buffer_head increases
-Message-ID: <Pine.LNX.4.63.0607101023450.27628@pcgl.dsa-ac.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jul 2006 07:30:53 -0400
+Received: from mxl145v67.mxlogic.net ([208.65.145.67]:16772 "EHLO
+	p02c11o144.mxlogic.net") by vger.kernel.org with ESMTP
+	id S932314AbWGJLaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 07:30:52 -0400
+Date: Mon, 10 Jul 2006 14:31:12 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Zach Brown <zach.brown@oracle.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH] IB/mthca: comment fix
+Message-ID: <20060710113112.GA26198@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <1152530289.4874.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152530289.4874.19.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Jul 2006 11:35:50.0296 (UTC) FILETIME=[FE835980:01C6A414]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Quoting r. Arjan van de Ven <arjan@infradead.org>:
+> Subject: Re: [PATCH] IB/mthca: comment fix
+> 
+> On Mon, 2006-07-10 at 14:14 +0300, Michael S. Tsirkin wrote:
+> > Hi Andrew,
+> > Here's a cosmetic patch for IB/mthca. Pls drop it into -mm and on.
+> > 
+> > ---
+> > 
+> > comment in mthca_qp.c makes it seem lockdep is the only reason WQ locks should
+> > be initialized separately, but as Zach Brown and Roland pointed out, there are
+> > other reasons, e.g. that mthca_wq_init is called from modify qp as well.
+> 
+> ehh.. shouldn't the comment say that instead then? that's one tricky
+> thing and might as well have that documented in the code!
 
-I am obsering a steadily increasing buffer_head value in slabinfo under 
-2.6.17.4. I searched the net / archives and didn't find anything 
-directly relevant. Does anyone have an idea or how shall we debug it?
+Hmm. Okay. Maybe we should rename mthca_wq_init to mthca_wq_reset?
+This would make it clear that it does not init the spinlocks,
+but just resets the rest of the fields, would not it?
 
-I first noticed this "feature" on a 2.6.17-rc5 based ARM-system, where if 
-I stop some user-space applications, the number stop increasing.
+How does this sound?
 
-I was also able to reproduce it on a SuSE-9.0 system, where I wasn't able 
-to stop this growth even as I stopped all possible services. Then the 
-process list looked like this:
-
-  PID TTY      STAT   TIME COMMAND
-    1 ?        S      0:00 init [5]  
-    2 ?        SWN    0:00 [ksoftirqd/0]
-    3 ?        SW     0:00 [watchdog/0]
-    4 ?        SW<    0:00 [events/0]
-    5 ?        SW<    0:00 [khelper]
-    6 ?        SW<    0:00 [kthread]
-    8 ?        SW<    0:00 [kblockd/0]
-    9 ?        SW<    0:00 [kacpid]
-   82 ?        SW<    0:00 [kseriod]
-  108 ?        SW     0:00 [pdflush]
-  109 ?        SW     0:00 [pdflush]
-  110 ?        SW     0:00 [kswapd0]
-  111 ?        SW<    0:00 [aio/0]
-  721 ?        SW<    0:00 [kpsmoused]
-  726 ?        SW<    0:00 [reiserfs/0]
- 1560 ?        SW     0:00 [khpsbpkt]
- 4015 ?        S      0:00 login -- gl     
- 4016 tty3     S      0:00 /sbin/mingetty tty3
- 4017 tty4     S      0:00 /sbin/mingetty tty4
- 4018 tty5     S      0:00 /sbin/mingetty tty5
- 4019 tty6     S      0:00 /sbin/mingetty tty6
- 4480 ?        S      0:00 login -- root     
- 5051 tty1     R      0:00 -bash
- 5330 tty2     S      0:00 -bash
- 5601 tty2     S      0:00 sleep 5
- 5602 tty1     R      0:00 ps ax
-
-the "sleep 5" comes from the script:
-
-while true; do grep buffer_head /proc/slabinfo; sleep 5; done
-
-Does it look like a memory leak? Here's a fragment of the output:
-
-buffer_head         8110   8112     48   78    1 : tunables  120   60    0 : slabdata    104    104      0
-buffer_head         8148   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
-buffer_head         8144   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
-buffer_head         8166   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
-buffer_head         8181   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
-buffer_head         8189   8190     48   78    1 : tunables  120   60    0 : slabdata    105    105      0
-buffer_head         8226   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
-buffer_head         8244   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
-buffer_head         8240   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
-buffer_head         8260   8268     48   78    1 : tunables  120   60    0 : slabdata    106    106      0
-buffer_head         8304   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
-buffer_head         8340   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
-buffer_head         8332   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
-buffer_head         8343   8346     48   78    1 : tunables  120   60    0 : slabdata    107    107      0
-
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+-- 
+MST

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWGJPBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWGJPGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWGJPBg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWGJPBg
+	id S1422638AbWGJPGM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGJPGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:01:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5535 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964880AbWGJPBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:01:35 -0400
-Subject: Re: [PATCH] Clean up old names in tty code to current names
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com>
-References: <9e4733910607092111i4c41c610u8b9df5b917cca02c@mail.gmail.com>
-	 <1152524657.27368.108.camel@localhost.localdomain>
-	 <9e4733910607100541i744dd744n16c35c50dae1e98d@mail.gmail.com>
-	 <1152537049.27368.119.camel@localhost.localdomain>
-	 <9e4733910607100603r5ae1a21ex1a2fa0f045424fd1@mail.gmail.com>
-	 <1152539034.27368.124.camel@localhost.localdomain>
-	 <9e4733910607100707g4810a86boa93a5b6b0b1a8d0a@mail.gmail.com>
-	 <44B26752.9000507@gmail.com>
-	 <9e4733910607100757t4ddfaf93l1723580de551529b@mail.gmail.com>
-Content-Type: text/plain
+	Mon, 10 Jul 2006 11:06:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:20290 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965014AbWGJPGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:06:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NhJub+gorsagM7yCmbgU/2QkuOwC5rmoorWtEOfYQolQat8PpCXn0mHuORDySA7B1Eg7bxSpzNSQpWN874kCuR9NMwtiR53SchETtq0Irru0osc5wI50HgiJqV/vjNANEJuPPbAFODodHt623F6MrNP8Rpp3If70eTRuDaPMPmE=
+Message-ID: <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
+Date: Mon, 10 Jul 2006 11:06:09 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: Opinions on removing /proc/tty?
+Cc: ray-gmail@madrabbit.org, "Jon Smirl" <jonsmirl@gmail.com>,
+       "Greg KH" <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 10 Jul 2006 16:19:06 +0100
-Message-Id: <1152544746.27368.134.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com>
+	 <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com>
+	 <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com>
+	 <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com>
+	 <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>
+	 <20060709193133.GA32457@flint.arm.linux.org.uk>
+	 <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com>
+	 <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-10 am 10:57 -0400, ysgrifennodd Jon Smirl:
-> > A few apps do rely on /proc/tty/drivers for the major-minor
-> > to device name mapping. /dev/vc/0 does not exist (unless
-> > created manually) without devfs.
-> 
-> This is why I questioned if /proc/tty was really in use, it contains
-> an entry that is obviously wrong for my system.
+On 7/10/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >
+> > Just do /proc/*/tty links and all will be good. This even
+> > handles the case of two different names for the same dev_t.
+> >
+> Is this for the controlling tty? Then it should be ctty.
 
-Which tools already know about. What is so hard to understand about the
-idea that pointless random changes break stuff and don't fix things.
+Eeeew, an extra byte so it can look ugly.
+What other special tty is there?
 
-As I've now said three times, put the new stuff in your sysfs work you
-are going to submit, and get it right there, then come back and
-revisit /proc/tty.
+It's always been "tty" in the kernel as far as I know.
+See "struct tty_struct *tty" in sched.h's struct signal_struct.
 
-Alan
-
+Various "ps" programs have always used "TTY" or "TT".
+This makes "tt" more reasonable than "ctty".

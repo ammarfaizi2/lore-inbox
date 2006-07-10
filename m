@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965256AbWGJVr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWGJVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965256AbWGJVr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 17:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965254AbWGJVr0
+	id S964853AbWGJVtv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 17:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWGJVtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 17:47:26 -0400
-Received: from lucidpixels.com ([66.45.37.187]:17373 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S965011AbWGJVrZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 17:47:25 -0400
-Date: Mon, 10 Jul 2006 17:47:24 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Neil Brown <neilb@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
-In-Reply-To: <17582.55703.209583.446356@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.64.0607101747160.2603@p34.internal.lan>
-References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
- <Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
- <Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
- <Pine.LNX.4.64.0607071037190.5153@p34.internal.lan> <17582.55703.209583.446356@cse.unsw.edu.au>
+	Mon, 10 Jul 2006 17:49:51 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:12191 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S964853AbWGJVtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 17:49:50 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: suspend2-devel@lists.suspend2.net
+Subject: Re: [Suspend2-devel] Re: uswsusp history lesson
+Date: Tue, 11 Jul 2006 07:49:43 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Avuton Olrich <avuton@gmail.com>, Olivier Galibert <galibert@pobox.com>,
+       Jan Rychter <jan@rychter.com>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, grundig <grundig@teleline.es>
+References: <20060627133321.GB3019@elf.ucw.cz> <1152523109.4874.11.camel@laptopd505.fenrus.org> <20060710100227.GA25310@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060710100227.GA25310@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1395286.jBo4MP7ZlC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607110749.48209.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1395286.jBo4MP7ZlC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Hi.
 
-On Sat, 8 Jul 2006, Neil Brown wrote:
+On Monday 10 July 2006 20:02, Pavel Machek wrote:
+> Hi!
+>
+> > > >>  so that it's as
+> > > >> feature-rich as the other one.
+> > > >
+> > > > this is one of the things that bothers me.
+> > > > "features features features"
+> > > > lets first get the basics right and working.
+> > > > Once we have that in tree for a release or two and it's really
+> > > > reliable... THEN and only THEN work on adding features.
+> > >
+> > > hmm...could it be that we "features, features, features" in suspend2
+> > > because nigel & co did get the basics right?
+> >
+> > As I said... if that is the case then it'd be easy to first merge "the
+> > right basics", get that solid, and THEN add the features. So far I've
+> > not seen that happen.
+>
+> Well.. Nigel claims his code can not be split into reasonable chunks.
+>
+> I actually wanted to get a version without advanced features
+> (userspace splash, compression, encryption, plugins), but he claims it
+> is not possible. Rafael is trying to persuade him to split out at
+> least freezer out...
 
-> On Friday July 7, jpiszcz@lucidpixels.com wrote:
->>>>
->>>> Jul  7 08:44:59 p34 kernel: [4295845.933000] raid5: reshape: not enough
->>>> stripes.  Needed 512
->>>> Jul  7 08:44:59 p34 kernel: [4295845.962000] md: couldn't update array
->>>> info. -28
->>>>
->>>> So the RAID5 reshape only works if you use a 128kb or smaller chunk size?
->>>>
->>
->> Neil,
->>
->> Any comments?
->>
->
-> Yes.   This is something I need to fix in the next mdadm.
-> You need to tell md/raid5 to increase the size of the stripe cache
-> before the grow can proceed.  You can do this with
->
->  echo 600 > /sys/block/md3/md/stripe_cache_size
->
-> Then the --grow should work.  The next mdadm will do this for you.
->
-> NeilBrown
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-md3 : active raid5 sdc1[7] sde1[6] sdd1[5] hdk1[2] hdi1[4] hde1[3] hdc1[1] 
-hda1[0]
-       2344252416 blocks super 0.91 level 5, 512k chunk, algorithm 2 [8/8] 
-[UUUUUUUU]
-       [>....................]  reshape =  0.2% (1099280/390708736) 
-finish=1031.7min speed=6293K/sec
+When did you ask for that? Perhaps I missed it.
 
-It is working, thanks!
+The modularity is part of the basis of the redesign, so I couldn't easily=20
+remove that. Removing the compression and encryption support is trivial=20
+though (one file each, plus Makefile & Kconfig entries - no other=20
+modifications needed). Userspace splash - well, just don't compile and=20
+install that userspace component - suspend2 will keep working quite happily=
+=20
+without any userspace app to do a nice display (it will still do printks, s=
+o=20
+you won't be flying completely blind).
 
+As for the freezer, Rafael doesn't need to persuade me at all. I just need =
+to=20
+find the time to do what he requested.
+
+Regards,
+
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
+
+--nextPart1395286.jBo4MP7ZlC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEsst8N0y+n1M3mo0RAq4sAKCw6mwhPEZq/OAx9ItyC7PmNgVjZACffMbP
+9V79T9LykfEWDj2n9RtsXsg=
+=7X00
+-----END PGP SIGNATURE-----
+
+--nextPart1395286.jBo4MP7ZlC--

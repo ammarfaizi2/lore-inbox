@@ -1,53 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWGJPRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWGJPSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422649AbWGJPRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 11:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWGJPRJ
+	id S1422655AbWGJPSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 11:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWGJPSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 11:17:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61644 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422649AbWGJPRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 11:17:07 -0400
-Subject: Re: Follow up? LibPATA code issues / 2.6.15.4 (found the
-	opcode=0x35)!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Mark Lord <liml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34>
-	 <44AEB3CA.8080606@pobox.com>
-	 <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>
-	 <200607091224.31451.liml@rtr.ca>
-	 <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>
-	 <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>
-	 <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>
-	 <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>
-	 <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>
-	 <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>
-	 <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 10 Jul 2006 16:33:59 +0100
-Message-Id: <1152545639.27368.137.camel@localhost.localdomain>
+	Mon, 10 Jul 2006 11:18:14 -0400
+Received: from mxl145v68.mxlogic.net ([208.65.145.68]:4273 "EHLO
+	p02c11o145.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1422651AbWGJPSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 11:18:13 -0400
+Date: Mon, 10 Jul 2006 18:18:24 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Zach Brown <zach.brown@oracle.com>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [PATCH updated] IB/mthca: comment fix
+Message-ID: <20060710151824.GL24705@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060710111412.GD24705@mellanox.co.il>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060710111412.GD24705@mellanox.co.il>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Jul 2006 15:23:01.0890 (UTC) FILETIME=[BB938620:01C6A434]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-10 am 09:59 -0400, ysgrifennodd Justin Piszcz:
-> > [4297741.057000] ata_gen_fixed_sense: failed ata_op=0x35
-> > [4297741.057000] ata4: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
-> > 0xb/00/00
-> > [4297741.057000] ata_gen_ata_desc_sense: failed ata_op=0x51
-> > [4297741.057000] ata4: status=0x51 { DriveReady SeekComplete Error }
-> > [4297741.057000] ata4: error=0x04 { DriveStatusError }
-> >
-> > Also got a 0xca.
+OK, the following makes it clear what the function does, from its name.
+More comments?
 
-Thats "write" so if that is reporting as an unknown command something
-very odd indeed is happening.
+---
 
+After recent changes, mthca_wq_init does not actually initialize the WQ as it
+used to - it simply resets all index fields to their initial values. So,
+let's rename it to mthca_wq_reset.
 
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+
+diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+index 490fc78..cd8b672 100644
+--- a/drivers/infiniband/hw/mthca/mthca_qp.c
++++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -222,9 +222,8 @@ static void *get_send_wqe(struct mthca_q
+ 			 (PAGE_SIZE - 1));
+ }
+ 
+-static void mthca_wq_init(struct mthca_wq *wq)
++static void mthca_wq_reset(struct mthca_wq *wq)
+ {
+-	/* mthca_alloc_qp_common() initializes the locks */
+ 	wq->next_ind  = 0;
+ 	wq->last_comp = wq->max - 1;
+ 	wq->head      = 0;
+@@ -845,10 +844,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 			mthca_cq_clean(dev, to_mcq(qp->ibqp.recv_cq), qp->qpn,
+ 				       qp->ibqp.srq ? to_msrq(qp->ibqp.srq) : NULL);
+ 
+-		mthca_wq_init(&qp->sq);
++		mthca_wq_reset(&qp->sq);
+ 		qp->sq.last = get_send_wqe(qp, qp->sq.max - 1);
+ 
+-		mthca_wq_init(&qp->rq);
++		mthca_wq_reset(&qp->rq);
+ 		qp->rq.last = get_recv_wqe(qp, qp->rq.max - 1);
+ 
+ 		if (mthca_is_memfree(dev)) {
+@@ -1112,9 +1111,9 @@ static int mthca_alloc_qp_common(struct 
+ 	qp->atomic_rd_en = 0;
+ 	qp->resp_depth   = 0;
+ 	qp->sq_policy    = send_policy;
+-	mthca_wq_init(&qp->sq);
+-	mthca_wq_init(&qp->rq);
+-	/* these are initialized separately so lockdep can tell them apart */
++	mthca_wq_reset(&qp->sq);
++	mthca_wq_reset(&qp->rq);
++
+ 	spin_lock_init(&qp->sq.lock);
+ 	spin_lock_init(&qp->rq.lock);
+ 
+-- 
+MST

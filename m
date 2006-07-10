@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWGJWUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWGJWUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965020AbWGJWUI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 18:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWGJWUI
+	id S965026AbWGJWUg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 18:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965271AbWGJWUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 18:20:08 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:36542 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S965020AbWGJWUG (ORCPT
+	Mon, 10 Jul 2006 18:20:35 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62400 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965270AbWGJWUe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 18:20:06 -0400
-Date: Tue, 11 Jul 2006 00:17:49 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Albert Cahalan <acahalan@gmail.com>
-cc: ray-gmail@madrabbit.org, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Opinions on removing /proc/tty?
-In-Reply-To: <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0607110015030.5420@yvahk01.tjqt.qr>
-References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com> 
- <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com> 
- <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com> 
- <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com> 
- <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com> 
- <20060709193133.GA32457@flint.arm.linux.org.uk> 
- <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com> 
- <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>
- <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jul 2006 18:20:34 -0400
+Date: Mon, 10 Jul 2006 18:20:54 -0400
+From: Mike Grundy <grundym@us.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com, dwilder@us.ibm.com
+Subject: Re: [PATCH] kprobes for s390 architecture
+Message-ID: <20060710222054.GA27908@localhost.localdomain>
+Mail-Followup-To: Heiko Carstens <heiko.carstens@de.ibm.com>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
+	systemtap@sources.redhat.com, dwilder@us.ibm.com
+References: <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <1151421789.5390.65.camel@localhost> <20060628055857.GA9452@osiris.boeblingen.de.ibm.com> <20060707172333.GA12068@localhost.localdomain> <20060707172555.GA10452@osiris.ibm.com> <20060708185428.GA26129@localhost.localdomain> <20060708195823.GA4112@localhost.localdomain> <20060710092852.GC9440@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060710092852.GC9440@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Just do /proc/*/tty links and all will be good. This even
->> > handles the case of two different names for the same dev_t.
->> > 
->> Is this for the controlling tty? Then it should be ctty.
->
-> Eeeew, an extra byte so it can look ugly.
-> What other special tty is there?
->
-Any fd, for that matter.
+On Mon, Jul 10, 2006 at 11:28:52AM +0200, Heiko Carstens wrote:
+> Whitespace :)
+d'oh.
+> You need a label behind the cs instruction and put that into the __ex_table,
+> since the PSW will point to the instruction after cs if it fails.
+Yeah, thought that was a nullify not a terminate. d'oh. d'oh.
 
-00:09 shanghai:/dev/shm > ls -l /proc/$$/fd
-total 4
-dr-x------  2 jengelh users  0 Jul 11 00:16 .
-dr-xr-xr-x  5 jengelh root   0 Jul 11 00:04 ..
-lrwx------  1 jengelh users 64 Jul 11 00:16 0 -> /dev/pts/2
-lrwx------  1 jengelh users 64 Jul 11 00:16 1 -> /dev/pts/2
-lrwx------  1 jengelh users 64 Jul 11 00:16 2 -> /dev/pts/2
-lrwx------  1 jengelh users 64 Jul 11 00:16 255 -> /dev/pts/2
-and CTTY is /dev/tty1.
+> Also, on failure this function seems to return -EFAULT >> shift, which
+> seems to be wrong.
+Yeah. I think just returning the value without the shift would be ok. kprobes
+never checks to see if the instruction swap was successful (which seems even
+more wrong)
 
-So what would /proc/$$/tty - ambiguous name - point to, the normal (attached)
-or the ctty? Not to mention exotic, yet possible things
+> > +EXPORT_SYMBOL(register_die_notifier);
+> > +EXPORT_SYMBOL(unregister_die_notifier);
+> _GPL?
+Makes sense, but I kept it consistent with the rest of kprobes.
 
-00:09 shanghai:/dev/shm > ls -l /proc/$$/fd
-total 4
-dr-x------  2 jengelh users  0 Jul 11 00:16 .
-dr-xr-xr-x  5 jengelh root   0 Jul 11 00:04 ..
-lrwx------  1 jengelh users 64 Jul 11 00:16 0 -> /dev/pts/1
-lrwx------  1 jengelh users 64 Jul 11 00:16 1 -> /dev/pts/2
-lrwx------  1 jengelh users 64 Jul 11 00:16 2 -> /dev/pts/3
-lrwx------  1 jengelh users 64 Jul 11 00:16 255 -> /dev/pts/4
-and an even different ctty.
-
-> It's always been "tty" in the kernel as far as I know.
-> See "struct tty_struct *tty" in sched.h's struct signal_struct.
->
-> Various "ps" programs have always used "TTY" or "TT".
-> This makes "tt" more reasonable than "ctty".
->
-
-Jan Engelhardt
 -- 
+Thanks
+Mike
+
+=========================================
+Michael Grundy - grundym@us.ibm.com
+
+If at first you don't succeed, call in an air strike.
+

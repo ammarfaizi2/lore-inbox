@@ -1,83 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWGJTXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422796AbWGJT01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422673AbWGJTXA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 15:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422791AbWGJTXA
+	id S1422796AbWGJT01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 15:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422795AbWGJT01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 15:23:00 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:21211 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422673AbWGJTW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 15:22:59 -0400
-Date: Mon, 10 Jul 2006 12:22:16 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-cc: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Marcelo Tosatti <marcelo@kvack.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Paul Jackson <pj@sgi.com>, dgc@sgi.com,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Lee Schermerhorn <Lee.Schermerhorn@hp.com>, jes@sgi.com,
-       Adam Litke <agl@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       steiner@sgi.com, Peter Zijlstra <a.p.zijlstra@chello.nl>, akpm@osdl.org
-Subject: Agenda for NUMA BOF @OLS & NUMA paper
-Message-ID: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 Jul 2006 15:26:27 -0400
+Received: from xenotime.net ([66.160.160.81]:37830 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422796AbWGJT00 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 15:26:26 -0400
+Date: Mon, 10 Jul 2006 12:29:10 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, gregkh <greg@kroah.com>
+Subject: [PATCH -mm] sysfs_remove_bin_file: no return value, no check needed
+Message-Id: <20060710122910.08c01f46.rdunlap@xenotime.net>
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have given a number of talks about various NUMA issues in the last 
-months and tried to put the most important points together in a 
-paper that begins to explain NUMA from scratch and then gets into some 
-of the current issues. That paper is available at 
-http://ftp.kernel.org/pub/linux/kernel/people/christoph/pmig/numamemory.pdf
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Also there will be a NUMA BOF at the OLS on Thursday July 20th 18:00
-in Room B. Some of the items that we may discuss are 
-mentioned at the end of the paper.
+>   In some cases (eg, sysfs file removal) there's not a lot the caller can do
+>   apart from warn, so we should probably change those things to return void
+>   and put a diagnostic message into the callee itself.
 
-Here is a one liner for each subject that may be useful to discuss. I'd be 
-interested in hearing if there are any other issues that would need our 
-attention or maybe some of these are not that important (Probably too many 
-subjects already ...). Maybe this thread will allow those who will not be 
-at the OLS to give us some imput.
+sysfs_remove_bin_file() cannot tell if there is an error and
+cannot return an error, so "fix" around 40 must-check warnings.
 
-A. Scalability
-	- Lockless page cache / Concurrent page cache
-	- Page Dirty handling (per node write throttling?)
-	- How to effectively deal with per cpu data at high
-		processor counts (f.e. 1024p)
-	- Issues with the number of objects increasing by the
-		power of two for higher counts (f.e. alien slab caches, 
-		pagesets)
-	- Effective per node slab reclaim for dentry and inode cache.
-	- TLB pressure issues for large memory (huge pages???)
+Convert sysfs_remove_bin_file() from int to void since it
+  cannot return an error.
+Remove __must_check from its declaration.
+Convert the only function that checked the return value of
+  sysfs_remove_bin_file().
 
-B. Page Migration
-	- Automatic page migration approaches
-	- Use of page migration to defragment memory
-	- Memory hotplug and page migration
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/pci/hotplug/acpiphp_ibm.c |    4 +---
+ fs/sysfs/bin.c                    |    5 ++---
+ include/linux/sysfs.h             |    2 +-
+ 3 files changed, 4 insertions(+), 7 deletions(-)
 
-C. Memory Policies / Cpusets
-	- Memory policies for the page cache?
-	- Is the current situation okay that memory policies apply only
-		to a single zone per node? (Okay for SGI because we only 
-		have a single zone per node.... but how about others?)
-	- Cpuset interference with subsystems managing their own
-	  locality (vmalloc, slab, drivers).
+--- linux-2618-rc1mm1.orig/fs/sysfs/bin.c
++++ linux-2618-rc1mm1/fs/sysfs/bin.c
+@@ -194,10 +194,9 @@ int sysfs_create_bin_file(struct kobject
+  *
+  */
+ 
+-int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
++void sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
+ {
+-	sysfs_hash_and_remove(kobj->dentry,attr->attr.name);
+-	return 0;
++	sysfs_hash_and_remove(kobj->dentry, attr->attr.name);
+ }
+ 
+ EXPORT_SYMBOL_GPL(sysfs_create_bin_file);
+--- linux-2618-rc1mm1.orig/drivers/pci/hotplug/acpiphp_ibm.c
++++ linux-2618-rc1mm1/drivers/pci/hotplug/acpiphp_ibm.c
+@@ -487,9 +487,7 @@ static void __exit ibm_acpiphp_exit(void
+ 	if (ACPI_FAILURE(status))
+ 		err("%s: Notification handler removal failed\n", __FUNCTION__);
+ 	/* remove the /sys entries */
+-	if (sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr))
+-		err("%s: removal of sysfs file apci_table failed\n",
+-				__FUNCTION__);
++	sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr);
+ }
+ 
+ module_init(ibm_acpiphp_init);
+--- linux-2618-rc1mm1.orig/include/linux/sysfs.h
++++ linux-2618-rc1mm1/include/linux/sysfs.h
+@@ -116,7 +116,7 @@ sysfs_remove_link(struct kobject *, cons
+ 
+ int __must_check sysfs_create_bin_file(struct kobject * kobj,
+ 					struct bin_attribute * attr);
+-int __must_check sysfs_remove_bin_file(struct kobject * kobj,
++void sysfs_remove_bin_file(struct kobject * kobj,
+ 					struct bin_attribute * attr);
+ 
+ int __must_check sysfs_create_group(struct kobject *,
 
-D. Scheduler
-	- Accounting for interrupt load?
-	- Fairer cpu load balancing
 
-General future vision things:
-	- Increasing scheduler complexity for NUMA.
-	- NUMA scheduler in user space that can be much more intelligent
-		than possible in the kernel?
-	- Functional overlap between memory policies and cpusets.
-		Is there some scheme to unify these two and make it
-		more general?
-	- General memory balancing / dirty load balancing. Is there some
-	  scheme to make it better and avoid some of the current manual
-	  tuning?
+---

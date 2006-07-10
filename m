@@ -1,80 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWGJNuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWGJNy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWGJNuE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 09:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWGJNuD
+	id S965027AbWGJNy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 09:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWGJNy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 09:50:03 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39362 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964809AbWGJNuB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 09:50:01 -0400
-Message-Id: <200607101323.k6ADNmuc031378@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH 0/9] -Wshadow: Making the kernel build clean with -Wshadow
-In-Reply-To: Your message of "Mon, 10 Jul 2006 14:53:19 +0200."
-             <1152535999.4874.36.camel@laptopd505.fenrus.org>
-From: Valdis.Kletnieks@vt.edu
-References: <9a8748490607100548o14dbe684j40bde90eb19a7558@mail.gmail.com>
-            <1152535999.4874.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152537827_25551P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 10 Jul 2006 09:54:29 -0400
+Received: from mail.gmx.net ([213.165.64.21]:34492 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965027AbWGJNy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 09:54:29 -0400
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 10 Jul 2006 15:54:27 +0200
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+In-Reply-To: <20060710132529.GD5210@suse.de>
+Message-ID: <20060710135427.26270@gmx.net>
+MIME-Version: 1.0
+References: <20060710121110.26260@gmx.net> <20060710125150.GM25911@suse.de>
+ <20060710130754.26280@gmx.net> <20060710132529.GD5210@suse.de>
+Subject: Re: splice() and file offsets
+To: Jens Axboe <axboe@suse.de>
+X-Authenticated: #24879014
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
 Content-Transfer-Encoding: 7bit
-Date: Mon, 10 Jul 2006 09:23:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152537827_25551P
-Content-Type: text/plain; charset=us-ascii
+Jens,
 
-On Mon, 10 Jul 2006 14:53:19 +0200, Arjan van de Ven said:
+> > I'm still not clear here.  Let me phrase my question another way:
+> > why is it that the presence or absence of off_out affects whether
+> > or not splice() changes the current file offset for fd_out?
+> 
+> The logic is simple - either you don't give an explicit offset, and the
+> current position is used and updated. Or you give an offset, and the
+> current position is ignored (not read, not updated).
 
-> I'm just about always in favor of having automated tools help us find
-> bugs. However... can you give an indication of how many real bugs you
-> have encountered? If it's "mostly noise" all the time.. then it's maybe
-> not worth the effort... while if you find real bugs then it's obviously
-> worthwhile to go through this.
+Yes, I understand what the code is doing, but *why* do 
+things this way?  (To put things another way: why not *always 
+have splice() update the file offset?)  I realise there may be
+some good reason for this, and if there is, it will go into the
+man page!
 
-I started doing similar a while back, and I hadn't come across any
-actual bugs either.  However, there's 2 aspects to this:
+> > > It's identical to how sendfile() works.
+> > 
+> > But it isn't: sendfile() never changes the file offset 
+> > of its 'in_fd'.
+> 
+> Ehm, yes it does. Would you expect the app to do an appropriate lseek()
+> on every sendfile() call?
 
-1) The cleanup cases that Jesper is doing (which are pretty similar
-to what I was doing) are mostly "function prototypes in .h files use
-a variable name that collides with another global variable" ('up' for
-example). (My nominee for patch 10/9:
+No!  It does not!  See the sendfile.2 man page: "sendfile() 
+does not modify the current file offset of in_fd."  
+(You had me worried -- I just now went and *tested* 
+the operation of sendfile().)  The app does not need to 
+do an lseek() call because the 'offset' argument is *always* 
+updated with the new "virtual" offset.  This is part of why I 
+am disturbed/confused: sendfile() always updates its 'offset' 
+argument and *never* changes the file offset; splice() only 
+does that if its 'offset' argument is non-NULL.
 
-include/net/tcp.h:469: warning: declaration of '__x' shadows a previous local
-include/net/tcp.h:469: warning: shadowed declaration is here
+Cheers,
 
-2) The actual *bugs* are most probably in the "variable in .c file
-shadows a global".
+Michael
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
 
-As Jesper notes, it's hard to see the latter when there's 38,000+ noise
-warnings....
-
-To get a good estimate of the *actual* bug rate, grep for how many *.c files
-trigger the warning when built with -Wshadow - there's 695 of *those* in
-my current config.
-
-When I did a bunch of cleanups a while ago to make -Wundef work, I think
-I scared up exactly one actual bug - but it was a subtle one in the NFS
-code that wouldn't have been easu to find otherwise...
-
-
---==_Exmh_1152537827_25551P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEslTjcC3lWbTT17ARArdjAKCjeClmr+a9pYKeZqyT6c93PwyknwCgopkE
-5rkWu066pEV4yKb1nwa7E3c=
-=y7ks
------END PGP SIGNATURE-----
-
---==_Exmh_1152537827_25551P--
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

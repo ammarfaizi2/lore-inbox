@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWGJKgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWGJKhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWGJKgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 06:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWGJKgc
+	id S1751254AbWGJKhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 06:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWGJKhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 06:36:32 -0400
-Received: from mail.gmx.de ([213.165.64.21]:60854 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751252AbWGJKgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 06:36:31 -0400
-X-Authenticated: #14349625
-Subject: Re: 2.6.18-rc1: slab BUG_ON(!PageSlab(page)) upon umount after
-	failed suspend
-From: Mike Galbraith <efault@gmx.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <84144f020607100333s57159d38ha1101c65e8c099b1@mail.gmail.com>
-References: <6wDCq-5xj-25@gated-at.bofh.it> <6wM2X-1lt-7@gated-at.bofh.it>
-	 <6wOxP-4QN-5@gated-at.bofh.it> <44B189D3.4090303@imap.cc>
-	 <20060709161712.c6d2aecb.akpm@osdl.org>
-	 <1152513068.7748.13.camel@Homer.TheSimpsons.net>
-	 <84144f020607100142l62f02321i9802f9eed64d39f4@mail.gmail.com>
-	 <1152527148.8700.8.camel@Homer.TheSimpsons.net>
-	 <84144f020607100333s57159d38ha1101c65e8c099b1@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 10 Jul 2006 12:42:21 +0200
-Message-Id: <1152528141.9122.0.camel@Homer.TheSimpsons.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Mon, 10 Jul 2006 06:37:08 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:51559 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751301AbWGJKhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 06:37:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hlRtUCheGjOiHqFQYYihF6iVCvxljmg91ZRPsqgSz4HpAcjwUKt2vbbLNdubnEH77MNin9W5/NxoklY+P5qXowFmvn/lx0TBwDOUGrICkggWbnNilwAE0yiHqpq5dVyqJxM+TdOaQoWXF6AGkaBYNmy2HtSRjoRFlrzN4ePdq/4=
+Message-ID: <6bffcb0e0607100337v41cb807eta26a2aa370e582ff@mail.gmail.com>
+Date: Mon, 10 Jul 2006 12:37:05 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.18-rc1-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Arjan van de Ven" <arjan@infradead.org>
+In-Reply-To: <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <6bffcb0e0607090332i477d594fq9ef96721574ae91b@mail.gmail.com>
+	 <20060709035203.cdc3926f.akpm@osdl.org>
+	 <20060710074039.GA26853@elte.hu>
+	 <6bffcb0e0607100222m5cbdba31ia39d47f3f1f94b26@mail.gmail.com>
+	 <20060710092528.GA8455@elte.hu>
+	 <6bffcb0e0607100301j1fa444au2c3ecd7128e126ef@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 13:33 +0300, Pekka Enberg wrote:
-> On 7/10/06, Mike Galbraith <efault@gmx.de> wrote:
-> > Hm.  I've never _noticed_ gcc putting anything out there before.  This
-> > is gcc version 4.1.2 20060531 (prerelease) (SUSE Linux).
-> 
-> [snip]
-> 
-> Curious... GCC cuts line and file information after ud2a. Looking at
-> your stack trace, I am wondering who calls free_block() as we don't
-> see cache_flusharray() in the trace. Do you have CONFIG_NUMA enabled?
+On 10/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 10/07/06, Ingo Molnar <mingo@elte.hu> wrote:
+> > ah, ok. So i'll put this under the 'unclean-build artifact' section,
+> > i.e. not a lockdep bug for now, it seems. Please re-report if it ever
+> > occurs again with a clean kernel build.
+>
+> Unfortunately "make O=/dir clean" doesn't help. I'll disable lockdep,
+> and see what happens.
+>
 
-Nope.
+When I set DEBUG_LOCK_ALLOC=n and CONFIG_PROVE_LOCKING=n everything is ok.
+It maybe a gcc 4.2 bug.
 
+Regards,
+Michal
 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

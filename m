@@ -1,113 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWGJScE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWGJSdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbWGJScE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 14:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWGJScD
+	id S965124AbWGJSdF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 14:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWGJSdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 14:32:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:40548 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1422749AbWGJScA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 14:32:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cJnLOPLHmBo1lKc4R2u+vhxwfa7xmQKORYQ8+uvJ4kvP8OahR1wIQnEa9G8yDA3cLZt9yh0pwCusEgB4vkzypSw3sF4i4rCW5xj2oQbYpU/gU0DHslvGTgHEWZWNFd3z1/lLFFAaYpVoENJyieO7DyUkOcvo8r3Nz0LGpRSRCnc=
-Message-ID: <b637ec0b0607101131r7c908a3dl6f90bd75cd64a4e2@mail.gmail.com>
-Date: Mon, 10 Jul 2006 20:31:59 +0200
-From: "Fabio Comolli" <fabio.comolli@gmail.com>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc1-mm1: PATA detection weirdness
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Jeff Garzik" <jeff@garzik.org>
+	Mon, 10 Jul 2006 14:33:05 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30217 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965008AbWGJSdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 14:33:03 -0400
+Date: Mon, 10 Jul 2006 20:33:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+Subject: [-mm patch] include/scsi/libsas.h should #include <linux/scatterlist.h>
+Message-ID: <20060710183302.GE13938@stusta.de>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-mm6:
+>...
+>  git-sas.patch
+>...
+>  git trees
+>...
 
-Using 2.6.17 with Alan PATA patches I get:
+This patch fixes the following compile error (on s390):
 
--------------------------------------------------------------------------------------------------------
-Jul  9 10:30:11 tycho kernel: ata1: PATA max UDMA/133 cmd 0x1F0 ctl
-0x3F6 bmdma 0x18C0 irq 14
-Jul  9 10:30:11 tycho kernel: ata1: dev 0 ATA-6, max UDMA/100,
-156301488 sectors: LBA
-Jul  9 10:30:11 tycho kernel: ata1: dev 1 ATAPI, max MWDMA2
-Jul  9 10:30:11 tycho kernel: ata1: dev 0 configured for UDMA/100
-Jul  9 10:30:11 tycho kernel: ata1: dev 1 configured for MWDMA2
-Jul  9 10:30:11 tycho kernel: scsi0 : ata_piix
-Jul  9 10:30:11 tycho kernel:   Vendor: ATA       Model: TOSHIBA
-MK8025GA  Rev: KA02
-Jul  9 10:30:11 tycho kernel:   Type:   Direct-Access
-    ANSI SCSI revision: 05
-Jul  9 10:30:11 tycho kernel:   Vendor: TSSTcorp  Model: CD/DVDW
-TS-L532M  Rev: HR08
-Jul  9 10:30:11 tycho kernel:   Type:   CD-ROM
-    ANSI SCSI revision: 05
-Jul  9 10:30:11 tycho kernel: ata2: PATA max UDMA/133 cmd 0x170 ctl
-0x376 bmdma 0x18C8 irq 15
-Jul  9 10:30:11 tycho kernel: ata2: port disabled. ignoring.
-Jul  9 10:30:11 tycho kernel: scsi1 : ata_piix
-Jul  9 10:30:11 tycho kernel: SCSI device sda: 156301488 512-byte hdwr
-sectors (80026 MB)
-Jul  9 10:30:11 tycho kernel: sda: Write Protect is off
-Jul  9 10:30:11 tycho kernel: SCSI device sda: drive cache: write back
-Jul  9 10:30:11 tycho kernel: SCSI device sda: 156301488 512-byte hdwr
-sectors (80026 MB)
-Jul  9 10:30:11 tycho kernel: sda: Write Protect is off
-Jul  9 10:30:11 tycho kernel: SCSI device sda: drive cache: write back
-Jul  9 10:30:11 tycho kernel:  sda: sda1 sda2 sda3 sda4
-Jul  9 10:30:11 tycho kernel: sd 0:0:0:0: Attached scsi disk sda
-Jul  9 10:30:11 tycho kernel: sr0: scsi3-mmc drive: 24x/24x writer
-cd/rw xa/form2 cdda tray
-Jul  9 10:30:11 tycho kernel: Uniform CD-ROM driver Revision: 3.20
-----------------------------------------------------------------------------------------------------
+<--  snip  -->
 
-With 2.6.18-rc1-mm1 I get:
+...
+  CC      drivers/scsi/sas/sas_init.o
+In file included from drivers/scsi/sas/sas_internal.h:31,
+                 from drivers/scsi/sas/sas_init.c:35:
+include/scsi/libsas.h:479: error: field 'smp_req' has incomplete type
+include/scsi/libsas.h:480: error: field 'smp_resp' has incomplete type
+make[3]: *** [drivers/scsi/sas/sas_init.o] Error 1
 
---------------------------------------------------------------------------------------------------
-Jul 10 20:20:02 tycho kernel: ata1: PATA max UDMA/100 cmd 0x1F0 ctl
-0x3F6 bmdma 0x18C0 irq 14
-Jul 10 20:20:02 tycho kernel: scsi0 : ata_piix
-Jul 10 20:20:02 tycho kernel: ata1.00: ATA-6, max UDMA/100, 156301488
-sectors: LBA
-Jul 10 20:20:02 tycho kernel: ata1.00: ata1: dev 0 multi count 16
-Jul 10 20:20:02 tycho kernel: ata1.01: ATAPI, max MWDMA2
-Jul 10 20:20:02 tycho kernel: ata1.00: configured for UDMA/33
-Jul 10 20:20:02 tycho kernel: ata1.01: configured for MWDMA2
-Jul 10 20:20:02 tycho kernel:   Vendor: ATA       Model: TOSHIBA
-MK8025GA  Rev: KA02
-Jul 10 20:20:02 tycho kernel:   Type:   Direct-Access
-    ANSI SCSI revision: 05
-Jul 10 20:20:02 tycho kernel:   Vendor: TSSTcorp  Model: CD/DVDW
-TS-L532M  Rev: HR08
-Jul 10 20:20:02 tycho kernel:   Type:   CD-ROM
-    ANSI SCSI revision: 05
-Jul 10 20:20:02 tycho kernel: ata2: PATA max UDMA/100 cmd 0x170 ctl
-0x376 bmdma 0x18C8 irq 15
-Jul 10 20:20:02 tycho kernel: scsi1 : ata_piix
-Jul 10 20:20:02 tycho kernel: ata2: port disabled. ignoring.
-Jul 10 20:20:02 tycho kernel: ATA: abnormal status 0xFF on port 0x177
-Jul 10 20:20:02 tycho kernel: SCSI device sda: 156301488 512-byte hdwr
-sectors (80026 MB)
-Jul 10 20:20:02 tycho kernel: sda: Write Protect is off
-Jul 10 20:20:02 tycho kernel: SCSI device sda: drive cache: write back
-Jul 10 20:20:02 tycho kernel: SCSI device sda: 156301488 512-byte hdwr
-sectors (80026 MB)
-Jul 10 20:20:02 tycho kernel: sda: Write Protect is off
-Jul 10 20:20:02 tycho kernel: SCSI device sda: drive cache: write back
-Jul 10 20:20:02 tycho kernel:  sda: sda1 sda2 sda3 sda4
-Jul 10 20:20:02 tycho kernel: sd 0:0:0:0: Attached scsi disk sda
-Jul 10 20:20:02 tycho kernel: sr0: scsi3-mmc drive: 24x/24x writer
-cd/rw xa/form2 cdda tray
-Jul 10 20:20:02 tycho kernel: Uniform CD-ROM driver Revision: 3.20
--------------------------------------------------------------------------------------------------
+<--  snip  -->
 
-However, it seems to be only an "aestethic" issue as there is no
-performance regression.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Regards,
-Fabio
+--- linux-2.6.18-rc1-mm1-full/include/scsi/libsas.h.old	2006-07-10 18:19:10.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/include/scsi/libsas.h	2006-07-10 18:19:53.000000000 +0200
+@@ -31,6 +31,7 @@
+ #include <linux/pci.h>
+ #include <scsi/sas.h>
+ #include <linux/list.h>
++#include <linux/scatterlist.h>
+ #include <asm/semaphore.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_cmnd.h>
+

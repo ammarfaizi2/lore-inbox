@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWGJJ6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWGJJ6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWGJJ6f (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751184AbWGJJ6f (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 10 Jul 2006 05:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGJJ6f
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGJJ6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:58:35 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:43455 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751300AbWGJJ6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 10 Jul 2006 05:58:34 -0400
-Subject: Re: AVR32 architecture patch against Linux 2.6.18-rc1 available
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, drepper@redhat.com
-In-Reply-To: <20060710110325.3b9a8270@cad-250-152.norway.atmel.com>
-References: <20060706105227.220565f8@cad-250-152.norway.atmel.com>
-	 <20060706021906.1af7ffa3.akpm@osdl.org>
-	 <20060706120319.26b35798@cad-250-152.norway.atmel.com>
-	 <20060706031416.33415696.akpm@osdl.org>
-	 <20060710110325.3b9a8270@cad-250-152.norway.atmel.com>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 10 Jul 2006 10:57:33 +0100
-Message-Id: <1152525453.3373.9.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:948
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751184AbWGJJ6e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 05:58:34 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Fredrik Roubert <roubert@df.lth.se>
+Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
+Date: Mon, 10 Jul 2006 11:59:41 +0200
+User-Agent: KMail/1.9.1
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se>
+In-Reply-To: <20060710094414.GD1640@igloo.df.lth.se>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607101159.41738.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-10 at 11:03 +0200, Haavard Skinnemoen wrote:
-+	.global	__sys_pselect6
-+	.type	__sys_pselect6,@function
-+__sys_pselect6:
-+	pushm	lr
-+	st.w	--sp, ARG6
-+	rcall	sys_pselect6
-+	sub	sp, -4
-+	popm	pc
+On Monday 10 July 2006 11:44, Fredrik Roubert wrote:
+> On Sun 09 Jul 23:06 CEST 2006, Alan Stern wrote:
+> 
+> > Before 2.6.18-rc1, I used to be able to use it as follows:
+> >
+> > 	Press and hold an Alt key,
+> > 	Press and hold the SysRq key,
+> > 	Release the Alt key,
+> > 	Press and release some hot key like S or T or 7,
+> > 	Repeat the previous step as many times as desired,
+> > 	Release the SysRq key.
+> >
+> > This scheme doesn't work any more,
+> 
+> The SysRq code has been updated to make it useable with keyboards that
+> are broken in other ways than your. With the new behaviour, you should
+> be able to use Magic SysRq with your keyboard in this way:
+> 
+> 	Press and hold an Alt key,
+> 	Press and release the SysRq key,
+> 	Press and release some hot key like S or T or 7,
+> 	Repeat the previous step as many times as desired,
+> 	Release the Alt key.
 
-
-sys_pselect6() is just a hackish workaround for the fact that most
-architectures don't allow seven-argument syscalls. Having your own
-workaround in assembly, which then calls sys_pselect6(), seems a little
-odd -- why not call sys_pselect7() directly instead from your assembly
-wrapper?
-
-Stop a moment and work out precisely what the best way to pass the
-arguments _is_ if you have only 5 registers and the stack, perhaps.
+While we are at it, does someone know how to trigger
+the sysrq on a PowerBook? Kernel Documentation says to press F13,
+but the PowerBook keyboard does not have F13.
 
 -- 
-dwmw2
-
-¹ Note that I'm just _asking_ -- the answer "Uli doesn't want to support
-anything but the basic 6-argument sys_pselect6() in glibc" is an
-acceptable answer on your part.
-
-
+Greetings Michael.

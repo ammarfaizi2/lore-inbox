@@ -1,61 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWGJJoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWGJJt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWGJJoW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 05:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWGJJoV
+	id S932338AbWGJJt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 05:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWGJJt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 05:44:21 -0400
-Received: from mail.df.lth.se ([194.47.250.12]:29362 "EHLO df.lth.se")
-	by vger.kernel.org with ESMTP id S1751374AbWGJJoV (ORCPT
+	Mon, 10 Jul 2006 05:49:57 -0400
+Received: from khc.piap.pl ([195.187.100.11]:15078 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932338AbWGJJt5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 05:44:21 -0400
-Date: Mon, 10 Jul 2006 11:44:14 +0200
-From: Fredrik Roubert <roubert@df.lth.se>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <20060710094414.GD1640@igloo.df.lth.se>
-Mail-Followup-To: Alan Stern <stern@rowland.harvard.edu>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-Mime-Version: 1.0
+	Mon, 10 Jul 2006 05:49:57 -0400
+To: "Antonino A. Daplas" <adaplas@pol.net>
+Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
+References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>
+	<20060705165255.ab7f1b83.khali@linux-fr.org>
+	<m3bqryv7jx.fsf_-_@defiant.localdomain> <44B196ED.1070804@pol.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 10 Jul 2006 11:49:55 +0200
+In-Reply-To: <44B196ED.1070804@pol.net> (Antonino A. Daplas's message of "Mon, 10 Jul 2006 07:53:17 +0800")
+Message-ID: <m3irm5hjr0.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.2.1i
-X-PGP-Public-Key: http://www.df.lth.se/~roubert/pubkey.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 09 Jul 23:06 CEST 2006, Alan Stern wrote:
+"Antonino A. Daplas" <adaplas@pol.net> writes:
 
-> Before 2.6.18-rc1, I used to be able to use it as follows:
->
-> 	Press and hold an Alt key,
-> 	Press and hold the SysRq key,
-> 	Release the Alt key,
-> 	Press and release some hot key like S or T or 7,
-> 	Repeat the previous step as many times as desired,
-> 	Release the SysRq key.
->
-> This scheme doesn't work any more,
+> Why don't you create a separate function for this, ie cirrusfb_create_i2c()
+> or something. This way, we eliminate the #ifdef/#endif inside the function.
 
-The SysRq code has been updated to make it useable with keyboards that
-are broken in other ways than your. With the new behaviour, you should
-be able to use Magic SysRq with your keyboard in this way:
-
-	Press and hold an Alt key,
-	Press and release the SysRq key,
-	Press and release some hot key like S or T or 7,
-	Repeat the previous step as many times as desired,
-	Release the Alt key.
-
-Does that work for you?
-
-Cheers // Fredrik Roubert
-
+#ifdef inside a function isn't a problem, while unnecessary complication
+(= worse readability) is.
 -- 
-Visserij 192  |  +32 473 344527 / +46 708 776974
-BE-9000 Gent  |  http://www.df.lth.se/~roubert/
+Krzysztof Halasa

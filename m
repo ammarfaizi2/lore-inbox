@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWGJTDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422775AbWGJTF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422777AbWGJTDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 15:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422774AbWGJTDJ
+	id S1422775AbWGJTF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 15:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422776AbWGJTF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 15:03:09 -0400
-Received: from mga01.intel.com ([192.55.52.88]:40036 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1422771AbWGJTDH convert rfc822-to-8bit (ORCPT
+	Mon, 10 Jul 2006 15:05:56 -0400
+Received: from smtp2-g19.free.fr ([212.27.42.28]:50877 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1422775AbWGJTFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 15:03:07 -0400
-X-IronPort-AV: i="4.06,225,1149490800"; 
-   d="scan'208"; a="95813326:sNHT16578464"
-Content-class: urn:content-classes:message
+	Mon, 10 Jul 2006 15:05:55 -0400
+Message-ID: <44B2A522.2080703@free.fr>
+Date: Mon, 10 Jul 2006 21:06:10 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.4) Gecko/20060405 SeaMonkey/1.0.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [linux-pm] [BUG] sleeping function called from invalid context during resume
-Date: Mon, 10 Jul 2006 15:02:47 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6ED008C@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [linux-pm] [BUG] sleeping function called from invalid context during resume
-Thread-Index: AcakNM1M7NjG3GAhSxm8xcurC0HI9QAHBoDg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Cc: "Pavel Machek" <pavel@ucw.cz>, "Andrew Morton" <akpm@osdl.org>,
-       <johnstul@us.ibm.com>, <linux-pm@lists.osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 10 Jul 2006 19:02:49.0394 (UTC) FILETIME=[6FF0F120:01C6A453]
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 inconsistent lock state in netpoll_send_skb
+References: <20060709021106.9310d4d1.akpm@osdl.org>	 <44B17735.4060006@free.fr> <1152520823.4874.0.camel@laptopd505.fenrus.org>
+In-Reply-To: <1152520823.4874.0.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->... a similar fix needs to be made in
-drivers/acpi/osl.c:acpi_os_wait_semaphore().
->If interrupts are disabled the timeout argument should be set to 0, so
-that the 
->routine will call down_trylock() instead of down() or
-schedule_timeout_interruptible().
 
-We used to have a hack in acpi_os_wait_semaphore():
+Le 10.07.2006 10:40, Arjan van de Ven a écrit :
+> On Sun, 2006-07-09 at 23:37 +0200, Laurent Riffard wrote:
+>> ei_start_xmit
+> 
+> please try this patch
+> 
+> ---
+>  drivers/net/8390.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> Index: linux-2.6.17-mm4/drivers/net/8390.c
+> ===================================================================
+> --- linux-2.6.17-mm4.orig/drivers/net/8390.c
+> +++ linux-2.6.17-mm4/drivers/net/8390.c
+> @@ -299,7 +299,7 @@ static int ei_start_xmit(struct sk_buff 
+>  	 *	Slow phase with lock held.
+>  	 */
+>  	 
+> -	disable_irq_nosync(dev->irq);
+> +	disable_irq_nosync_lockdep(dev->irq);
+>  	
+>  	spin_lock(&ei_local->page_lock);
+>  	
+> @@ -338,7 +338,7 @@ static int ei_start_xmit(struct sk_buff 
+>  		netif_stop_queue(dev);
+>  		outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+>  		spin_unlock(&ei_local->page_lock);
+> -		enable_irq(dev->irq);
+> +		enable_irq_lockdep(dev->irq);
+>  		ei_local->stat.tx_errors++;
+>  		return 1;
+>  	}
+> @@ -379,7 +379,7 @@ static int ei_start_xmit(struct sk_buff 
+>  	outb_p(ENISR_ALL, e8390_base + EN0_IMR);
+>  	
+>  	spin_unlock(&ei_local->page_lock);
+> -	enable_irq(dev->irq);
+> +	enable_irq_lockdep(dev->irq);
+>  
+>  	dev_kfree_skb (skb);
+>  	ei_local->stat.tx_bytes += send_length;
+> @@ -505,9 +505,9 @@ irqreturn_t ei_interrupt(int irq, void *
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  void ei_poll(struct net_device *dev)
+>  {
+> -	disable_irq(dev->irq);
+> +	disable_irq_lockdep(dev->irq);
+>  	ei_interrupt(dev->irq, dev, NULL);
+> -	enable_irq(dev->irq);
+> +	enable_irq_lockdep(dev->irq);
+>  }
+>  #endif
 
-if (in_atomic())
-	timeout = 0;
 
-But we deleted it upon ACPICA 20060608 when the
-ACPICA locks that were used at interrupt-time were
-converted to be Linux spin-locks.
+Reversed (or previously applied) patch detected! 
 
-Now it is still conceivable that during resume before interrutps are
-re-enabled,
-the PCI interrupt link devices run AML and go to acquire an AML mutex
-with
-a timeout.  However, we are single threaded at that point, so it isn't
-possible for them to acquire the mutex -- timeout or not.
+Wrong patch ? This one won't apply, it seems to be already 
+applied to 2.6.18-rc1-mm1.
 
-I don't like the looks of the "workaround" above -- it makes the code
-confusing.
-
-I'd be open to putting a BUG_ON() in the sleep case if interrupts are
-not enabled.
-
-Is there another case that you can think of?
-
--Len
+-- 
+laurent

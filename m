@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWGKQ5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWGKRAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWGKQ5m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 12:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWGKQ5m
+	id S1751085AbWGKRAp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWGKRAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 12:57:42 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:11141 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751007AbWGKQ5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 12:57:42 -0400
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Adam =?iso-8859-2?Q?Tla=B3ka?= <atlka@pg.gda.pl>,
-       alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200607111430.k6BEUUus006736@turing-police.cc.vt.edu>
-References: <20060707231716.GE26941@stusta.de>
-	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>
-	 <20060710132810.551a4a8d.atlka@pg.gda.pl>
-	 <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl>
-	 <200607110209.k6B29psN007504@turing-police.cc.vt.edu>
-	 <20060711081528.4d3ab197.atlka@pg.gda.pl>
-	 <200607111430.k6BEUUus006736@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 12:57:43 -0400
-Message-Id: <1152637064.21909.61.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 11 Jul 2006 13:00:45 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:3626 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751085AbWGKRAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:00:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EYJkWD4Yu0C/mTdaJb03kkth7tg0u0v5p3mF+7uGvxX2HnZYZbJBTcG5VO6yQgKregcpf8oaVBDKWBcPQI+YGN+GR7yELUHv0Yhd+aX4U+8G0pSXmWqgBj2SIS6PlPYzGbMFNa7OzWzvxH47zTJynympNMeNqjO2necLpK5kOUw=
+Message-ID: <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+Date: Tue, 11 Jul 2006 19:00:43 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <b0943d9e0607110556v50185b9i5443dabedba46152@mail.gmail.com>
+	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
+	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
+	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+	 <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
+	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
+	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 10:30 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 11 Jul 2006 08:15:28 +0200, Adam =?ISO-8859-2?B?VGxhs2th?= said:
-> > Sorry to say but it is just not that way. Window manager is for managing windows
-> > and it shouldn't depend on any audio system. It should use an external app using exec call
-> > to play sounds (aplay, sox, wavplay etc.) configured by some config option.
-> 
-> So what you're saying is that something like 'esd' *is* needed.  (It's
-> certainly silly to keep doing fork/exec for every little sound sample when
-> you can just leave the app running and hand it requests...)
+On 11/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > So if we got 3970
+> > orphan pointer 0xf5a6fd60 (size 39):
+> >   c0173822: <__kmalloc>
+> >   c01df500: <context_struct_to_string>
+> [...]
+> > and 4673
+> > orphan pointer 0xf4249488 (size 29):
+> >   c0173822: <__kmalloc>
+> >   c01df500: <context_struct_to_string>
+> [...]
+> > It's not a memleak?
+>
+> Not exactly. What I meant is that if you have a corresponding number
+> of reports from __alloc_skb, maybe they were false positives and the
+> block wasn't scanned leading to other false positive reports
+>
+> It looks like there are some reports in __alloc_skb. Please try the
+> attached patch.
 
-That approach also won't be reliable as it ignores the realtime
-constraint that is inherent in audio playback.  It will probably work on
-a fast/lightly loaded machine but will glitch out under load.
+Here is the result
+http://www.stardust.webpages.pl/files/o_bugs/kml/ml4.txt
 
-It's how GDM plays startup/shutdown sounds and it sucks - on shutdown
-the sound is choppy.  You either need a dedicated daemon running
-SCHED_FIFO or an RT thread for reliable audio playback.
+>
+> Thanks.
+>
+> --
+> Catalin
+>
+>
+>
 
-Lee
+Regards,
+Michal
 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWGKWHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWGKWHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWGKWHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWGKWHZ
+	id S932185AbWGKWHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWGKWHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:07:25 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57316
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932184AbWGKWHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:07:24 -0400
-Date: Tue, 11 Jul 2006 15:08:10 -0700 (PDT)
-Message-Id: <20060711.150810.13051231.davem@davemloft.net>
-To: bos@serpentine.com
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
- keep cache pressure down
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1152655509.16499.49.camel@chalcedony.pathscale.com>
-References: <1152653401.16499.35.camel@chalcedony.pathscale.com>
-	<20060711.145751.77136364.davem@davemloft.net>
-	<1152655509.16499.49.camel@chalcedony.pathscale.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 11 Jul 2006 18:07:52 -0400
+Received: from ns2.suse.de ([195.135.220.15]:41451 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932185AbWGKWHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:07:51 -0400
+Date: Tue, 11 Jul 2006 15:03:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Mike Galbraith <efault@gmx.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Opinions on removing /proc/tty?
+Message-ID: <20060711220332.GE663@kroah.com>
+References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <1152344452.7922.11.camel@Homer.TheSimpsons.net> <9e4733910607080712y248f61b9q7444b754516c4d6a@mail.gmail.com> <1152370102.27368.5.camel@localhost.localdomain> <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com> <20060708172047.GA23882@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060708172047.GA23882@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryan O'Sullivan <bos@serpentine.com>
-Date: Tue, 11 Jul 2006 15:05:08 -0700
+On Sat, Jul 08, 2006 at 06:20:47PM +0100, Russell King wrote:
+> On Sat, Jul 08, 2006 at 12:20:06PM -0400, Jon Smirl wrote:
+> > I'll put together a patch making it mountable. Is there any specific
+> > info that needs to be added to sysfs?
+> 
+> Adding info to the sysfs side of tty devices is rather fraught (or was
+> last time I looked - I'd like to do exactly that with serial_core.)
+> 
+> Unfortunately, until it becomes easier (and maybe it recently has now
+> that tty_register_device returns the class device struct), /proc/tty
+> needs to stay.  But... I heard that Greg wants to remove struct
+> class_device...
 
-> Well, exactly this scheme seems to work for __iowrite_copy*.  There's a
-> weak generic version and a strong version in arch/x86_64/lib that
-> overrides it, and it gets picked up at kernel link time.
+Yes I do want to remove it, but anything that you add to the
+class_device will still work just fine, I'm not wanting to break
+userspace tools anymore :)
 
-It is linked in as an object, not into the library archive,
-that's why that one works like that.
+And it should be pretty easy to do, now that we do return the
+class_device that you need to have to add files to.
 
-That is why io.o is added to the "obj-y" variable instead of the
-"lib-y" variable.  It is also necessary to link these things
-in as objects when module exports are present, because if there
-is no in-kernel reference to the function, you won't get the
-function nor it's module export :)
+thanks,
+
+greg k-h

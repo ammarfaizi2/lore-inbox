@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWGKI74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWGKJCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWGKI74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 04:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWGKI74
+	id S1750799AbWGKJCI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 05:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWGKJCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 04:59:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46300 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750782AbWGKI74 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 04:59:56 -0400
-Date: Tue, 11 Jul 2006 01:59:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/2] swsusp: clean up browsing of pfns
-Message-Id: <20060711015941.d35f0b7d.akpm@osdl.org>
-In-Reply-To: <20060711083415.GB1787@elf.ucw.cz>
-References: <200607102240.45365.rjw@sisk.pl>
-	<200607102251.40083.rjw@sisk.pl>
-	<20060711083415.GB1787@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 05:02:08 -0400
+Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:29312
+	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S1750799AbWGKJCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 05:02:07 -0400
+Message-ID: <44B36910.3010801@lsrfire.ath.cx>
+Date: Tue, 11 Jul 2006 11:02:08 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, devel@openvz.org, kuznet@ms2.inr.ac.ru,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] fdset's leakage
+References: <44B258E3.7070708@openvz.org> <20060711010104.16ed5d4b.akpm@osdl.org>
+In-Reply-To: <20060711010104.16ed5d4b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 10:34:15 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+[strange loop snipped]
 
-> Hi!
-> 
-> > Clean up some loops over pfns for each zone in snapshot.c: reduce the number
-> > of additions to perform, rework detection of saveable pages and make the code
-> > a bit less difficult to understand, hopefully.
-> 
-> Also remove the BUG_ON() so that you can solve Andrew's monster
-> machine problem.
+> That's going to take a long time to compute if nr > NR_OPEN.  I just fixed
+> a similar infinite loop in this function.
 
-I don't understand your comment.  I assume you're adding an explanation for
-the removal of:
+That other fix looks buggy btw.  Here it is:
 
--	BUG_ON(PageReserved(page) && PageNosave(page));
+-	nfds = 8 * L1_CACHE_BYTES;
+-  	/* Expand to the max in easy steps */
+-  	while (nfds <= nr) {
+-		nfds = nfds * 2;
+-		if (nfds > NR_OPEN)
+-			nfds = NR_OPEN;
+-	}
++	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nfds));
++	if (nfds > NR_OPEN)
++		nfds = NR_OPEN;
 
-from saveable_page().
+Surely you meant to say "roundup_pow_of_two(nr + 1)"?
 
-But my emt64 test box is oopsing when touching a hole in the memory-map; it
-isn't going BUG() (any more than usual ;))
-
+René

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWGKD0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbWGKD3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbWGKD0X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 23:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWGKD0X
+	id S965086AbWGKD3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 23:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbWGKD3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 23:26:23 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:48604 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965096AbWGKD0W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 23:26:22 -0400
-Message-ID: <44B31A54.3030501@zytor.com>
-Date: Mon, 10 Jul 2006 20:26:12 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc1-mm1
-References: <200607102302_MC3-1-C4A4-1385@compuserve.com>
-In-Reply-To: <200607102302_MC3-1-C4A4-1385@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jul 2006 23:29:14 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29357
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965086AbWGKD3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 23:29:13 -0400
+Date: Mon, 10 Jul 2006 20:29:56 -0700 (PDT)
+Message-Id: <20060710.202956.83858417.davem@davemloft.net>
+To: luke.adi@gmail.com
+Cc: samuel@sortiz.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix an inproper alignment accessing in irda protocol
+ stack
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <489ecd0c0607101912t4225e551sa608faa769f09064@mail.gmail.com>
+References: <489ecd0c0606131929l5311bdb9g1e903904f0d8fb2b@mail.gmail.com>
+	<20060617.221435.48805608.davem@davemloft.net>
+	<489ecd0c0607101912t4225e551sa608faa769f09064@mail.gmail.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> On Sun, 9 Jul 2006 02:11:06 -0700, Andrew morton wrote:
-> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
-> 
-> Warnings(?) during build:
-> 
-> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/ipconfig' given more than once in the same rule.
-> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/nfsmount' given more than once in the same rule.
-> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/run-init' given more than once in the same rule.
-> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/fstype' given more than once in the same rule.
-> 
+From: "Luke Yang" <luke.adi@gmail.com>
+Date: Tue, 11 Jul 2006 10:12:41 +0800
 
-Already resolved.
+>   There is another same unaligend issue in irda stack to be fixed:
+> 
+> Signed-off-by: Luke Yang <luke.adi@gmail.com>
 
-	-hpa
+Your patch is corrupted by your email client and cannot be applied
+cleanly to the current kernel sources.
+
+This is the second time around I've had to ask you to correct this
+kind of problem with your submissions.  Consider this my last and
+final warning.
+
+A lot of my time is wasted when patches are improperly submitted.

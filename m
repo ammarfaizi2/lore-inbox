@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWGKSEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWGKSEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWGKSEV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSEV
+	id S1751169AbWGKSEt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:04:21 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:16547 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751167AbWGKSEU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:04:20 -0400
-Message-ID: <44B3E814.3060004@zytor.com>
-Date: Tue, 11 Jul 2006 11:04:04 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 11 Jul 2006 14:04:49 -0400
+Received: from mga02.intel.com ([134.134.136.20]:39035 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751169AbWGKSEs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:04:48 -0400
+X-IronPort-AV: i="4.06,223,1149490800"; 
+   d="scan'208"; a="63600465:sNHT12700329418"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de>
-In-Reply-To: <20060711180126.GB16869@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: Intel ICH7 82801GBM/GHM
+Date: Tue, 11 Jul 2006 10:59:17 -0700
+Message-ID: <39B20DF628532344BC7A2692CB6AEE070A683F@orsmsx420.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: Intel ICH7 82801GBM/GHM
+Thread-Index: AcalE7qArdAmGO8qSoSbtyev3SFvXQ==
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: <bojan@rexursive.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Jul 2006 17:59:18.0826 (UTC) FILETIME=[BB1428A0:01C6A513]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> But for the partition discovery (the ROOT_DEV users) its likely less than
-> 100 lines of code. And after all, root= exists. Probably not a big loss if
-> that code just disappears.
+Bojan,
 
-Partition discovery is not "the ROOT_DEV users".  It's the mapping of 
-certain chunks of disk to partitions.
+27c4 is the ICH7M SATA (IDE mode) controller DeviceID.
 
-	-hpa
+If you change the mode from IDE to AHCI in BIOS, this will change to
+27c5, which is the ICH7M SATA (AHCI mode) controller DeviceID.
+
+Jason
+
+
+> Does anyone know if this chip, which goes by PCI ID 8086:27c4 (as
+listed 
+> in ata_piix.c) is something that ahci.c can also drive? It isn't
+listed 
+> explicity in ahci.c file, but ata_piix.c file says it's identical to 
+> ICH6M, which is listed in ahci.c.
+

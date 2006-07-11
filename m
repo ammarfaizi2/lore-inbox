@@ -1,366 +1,325 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWGKS3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWGKSaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWGKS3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGKS3y
+	id S1751106AbWGKSaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWGKSai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:29:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11693 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751189AbWGKS3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:29:52 -0400
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Rik van Riel <riel@redhat.com>
-Date: Tue, 11 Jul 2006 20:29:43 +0200
-Message-Id: <20060711182943.31293.3449.sendpatchset@lappy>
-In-Reply-To: <20060711182936.31293.58306.sendpatchset@lappy>
-References: <20060711182936.31293.58306.sendpatchset@lappy>
-Subject: [PATCH 1/2] mm: nonresident page tracking
+	Tue, 11 Jul 2006 14:30:38 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:23942 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751178AbWGKSaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:30:13 -0400
+Date: Tue, 11 Jul 2006 11:30:51 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andrew Morton <akpm@osdl.org>, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Matt Helsley <matthltc@us.ibm.com>, Benjamin LaHaise <bcrl@kvack.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add SRCU-based notifier chains
+Message-ID: <20060711183051.GH1288@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060711173906.GC1288@us.ibm.com> <Pine.LNX.4.44L0.0607111404270.18796-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0607111404270.18796-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 11, 2006 at 02:18:53PM -0400, Alan Stern wrote:
+> This patch (as751) adds a new type of notifier chain, based on the SRCU
+> (Sleepable Read-Copy Update) primitives recently added to the kernel.  An
+> SRCU notifier chain is much like a blocking notifier chain, in that it
+> must be called in process context and its callout routines are allowed to
+> sleep.  The difference is that the chain's links are protected by the SRCU
+> mechanism rather than by an rw-semaphore, so calling the chain has
+> extremely low overhead: no memory barriers and no cache-line bouncing.  
+> On the other hand, unregistering from the chain is expensive and the chain
+> head requires special runtime initialization (plus cleanup if it is to be
+> deallocated).
+> 
+> SRCU notifiers are appropriate for notifiers that will be called very
+> frequently and for which unregistration occurs very seldom.  The proposed
+> "task notifier" scheme qualifies, as may some of the network notifiers.
 
-From: Rik van Riel <riel@redhat.com>
+Looks good from an SRCU perspective!  Looks like notifier_chain_register()
+already contains the required rcu_assign_pointer(), and
+notifier_call_chain() already contains the required rcu_dereference().
 
-Track non-resident pages through a simple hashing scheme.  This way
-the space overhead is limited to 1 u32 per page, or 0.1% space overhead
-and lookups are one cache miss.
-
-Aside from seeing whether or not a page was recently evicted, we can
-also take a reasonable guess at how many other pages were evicted since
-this page was evicted.
-
-NOTE: bucket space also contributes to the total size of the hash.
-This way even 64-bit machines with more than 2^32 pages get a fair
-chance.
-
-Signed-off-by: Rik van Riel <riel@redhat.com>
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-
- include/linux/nonresident.h |   35 +++++++++
- init/main.c                 |    2 
- mm/Kconfig                  |    4 +
- mm/Makefile                 |    1 
- mm/nonresident.c            |  167 ++++++++++++++++++++++++++++++++++++++++++++
- mm/swap.c                   |    3 
- mm/vmscan.c                 |    3 
- 7 files changed, 215 insertions(+)
-
-Index: linux-2.6/mm/nonresident.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6/mm/nonresident.c	2006-07-10 19:51:24.000000000 +0200
-@@ -0,0 +1,171 @@
-+/*
-+ * mm/nonresident.c
-+ * (C) 2004,2005 Red Hat, Inc
-+ * Written by Rik van Riel <riel@redhat.com>
-+ * Released under the GPL, see the file COPYING for details.
-+ *
-+ * Keeps track of whether a non-resident page was recently evicted
-+ * and should be immediately promoted to the active list. This also
-+ * helps automatically tune the inactive target.
-+ *
-+ * The pageout code stores a recently evicted page in this cache
-+ * by calling remember_page(mapping/mm, index/vaddr, generation)
-+ * and can look it up in the cache by calling recently_evicted()
-+ * with the same arguments.
-+ *
-+ * Note that there is no way to invalidate pages after eg. truncate
-+ * or exit, we let the pages fall out of the non-resident set through
-+ * normal replacement.
-+ */
-+#include <linux/mm.h>
-+#include <linux/cache.h>
-+#include <linux/spinlock.h>
-+#include <linux/bootmem.h>
-+#include <linux/hash.h>
-+#include <linux/prefetch.h>
-+#include <linux/kernel.h>
-+
-+/* Number of non-resident pages per hash bucket. Never smaller than 15. */
-+#if (L1_CACHE_BYTES < 64)
-+#define NR_BUCKET_BYTES 64
-+#else
-+#define NR_BUCKET_BYTES L1_CACHE_BYTES
-+#endif
-+#define NUM_NR ((NR_BUCKET_BYTES - sizeof(atomic_t))/sizeof(u32))
-+
-+struct nr_bucket
-+{
-+	atomic_t hand;
-+	u32 page[NUM_NR];
-+} ____cacheline_aligned;
-+
-+/* The non-resident page hash table. */
-+static struct nr_bucket * nonres_table;
-+static unsigned int nonres_shift;
-+static unsigned int nonres_mask;
-+
-+static struct nr_bucket * nr_hash(void * mapping, unsigned long index)
-+{
-+	unsigned long bucket;
-+	unsigned long hash;
-+
-+	hash = hash_ptr(mapping, BITS_PER_LONG);
-+	hash = 37 * hash + hash_long(index, BITS_PER_LONG);
-+	bucket = hash & nonres_mask;
-+
-+	return nonres_table + bucket;
-+}
-+
-+static u32 nr_cookie(struct address_space * mapping, unsigned long index)
-+{
-+	/*
-+	 * Different hash magic from bucket selection to insure
-+	 * the combined bits extend hash-space.
-+	 */
-+	unsigned long cookie = hash_long(index, BITS_PER_LONG);
-+	cookie = 51 * cookie + hash_ptr(mapping, BITS_PER_LONG);
-+
-+	if (mapping && mapping->host) {
-+		cookie = 37 * cookie + hash_long(mapping->host->i_ino, BITS_PER_LONG);
-+	}
-+
-+	return (u32)(cookie >> (BITS_PER_LONG - 32));
-+}
-+
-+unsigned long nonresident_get(struct address_space * mapping, unsigned long index)
-+{
-+	struct nr_bucket * nr_bucket;
-+	int distance;
-+	u32 wanted;
-+	int i;
-+
-+	prefetch(mapping->host);
-+	nr_bucket = nr_hash(mapping, index);
-+
-+	prefetch(nr_bucket);
-+	wanted = nr_cookie(mapping, index);
-+
-+	for (i = 0; i < NUM_NR; i++) {
-+		if (nr_bucket->page[i] == wanted) {
-+			nr_bucket->page[i] = 0;
-+			/* Return the distance between entry and clock hand. */
-+			distance = atomic_read(&nr_bucket->hand) + NUM_NR - i;
-+			distance %= NUM_NR;
-+			return (distance << nonres_shift) + (nr_bucket - nonres_table);
-+		}
-+	}
-+
-+	return ~0UL;
-+}
-+
-+u32 nonresident_put(struct address_space * mapping, unsigned long index)
-+{
-+	struct nr_bucket * nr_bucket;
-+	u32 nrpage;
-+	int i;
-+
-+	prefetch(mapping->host);
-+	nr_bucket = nr_hash(mapping, index);
-+
-+	prefetchw(nr_bucket);
-+	nrpage = nr_cookie(mapping, index);
-+
-+	/* Atomically find the next array index. */
-+	preempt_disable();
-+retry:
-+	i = atomic_inc_return(&nr_bucket->hand);
-+	if (unlikely(i >= NUM_NR)) {
-+		if (i == NUM_NR)
-+			atomic_set(&nr_bucket->hand, -1);
-+		goto retry;
-+	}
-+	preempt_enable();
-+
-+	/* Statistics may want to know whether the entry was in use. */
-+	return xchg(&nr_bucket->page[i], nrpage);
-+}
-+
-+unsigned long nonresident_total(void)
-+{
-+	return NUM_NR << nonres_shift;
-+}
-+
-+/*
-+ * For interactive workloads, we remember about as many non-resident pages
-+ * as we have actual memory pages.  For server workloads with large inter-
-+ * reference distances we could benefit from remembering more.
-+ */
-+static __initdata unsigned long nonresident_factor = 1;
-+void __init nonresident_init(void)
-+{
-+	int target;
-+	int i;
-+
-+	/*
-+	 * Calculate the non-resident hash bucket target. Use a power of
-+	 * two for the division because alloc_large_system_hash rounds up.
-+	 */
-+	target = nr_all_pages * nonresident_factor;
-+	target /= (sizeof(struct nr_bucket) / sizeof(u32));
-+
-+	nonres_table = alloc_large_system_hash("Non-resident page tracking",
-+					sizeof(struct nr_bucket),
-+					target,
-+					0,
-+					HASH_EARLY | HASH_HIGHMEM,
-+					&nonres_shift,
-+					&nonres_mask,
-+					0);
-+
-+	for (i = 0; i < (1 << nonres_shift); i++)
-+		atomic_set(&nonres_table[i].hand, 0);
-+}
-+
-+static int __init set_nonresident_factor(char * str)
-+{
-+	if (!str)
-+		return 0;
-+	nonresident_factor = simple_strtoul(str, &str, 0);
-+	return 1;
-+}
-+__setup("nonresident_factor=", set_nonresident_factor);
-Index: linux-2.6/include/linux/nonresident.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6/include/linux/nonresident.h	2006-07-10 19:51:27.000000000 +0200
-@@ -0,0 +1,35 @@
-+#ifndef _LINUX_NONRESIDENT_H_
-+#define _LINUX_NONRESIDENT_H_
-+
-+#ifdef __KERNEL__
-+
-+#ifdef CONFIG_MM_NONRESIDENT
-+
-+extern void nonresident_init(void);
-+extern unsigned long nonresident_get(struct address_space *, unsigned long);
-+extern u32 nonresident_put(struct address_space *, unsigned long);
-+extern unsigned long nonresident_total(void);
-+
-+#else /* CONFIG_MM_NONRESIDENT */
-+
-+static inline void nonresident_init(void) { }
-+static inline
-+unsigned long nonresident_get(struct address_space *, unsigned long, int)
-+{
-+	return 0;
-+}
-+
-+static inline u32 nonresident_put(struct address_space *, unsigned long)
-+{
-+	return 0;
-+}
-+
-+static inline unsigned long nonresident_total(void)
-+{
-+	return 0;
-+}
-+
-+#endif /* CONFIG_MM_NONRESIDENT */
-+
-+#endif /* __KERNEL */
-+#endif /* _LINUX_NONRESIDENT_H_ */
-Index: linux-2.6/init/main.c
-===================================================================
---- linux-2.6.orig/init/main.c	2006-07-10 19:49:02.000000000 +0200
-+++ linux-2.6/init/main.c	2006-07-10 19:49:52.000000000 +0200
-@@ -49,6 +49,7 @@
- #include <linux/buffer_head.h>
- #include <linux/debug_locks.h>
- #include <linux/lockdep.h>
-+#include <linux/nonresident.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -544,6 +545,7 @@ asmlinkage void __init start_kernel(void
- #endif
- 	vfs_caches_init_early();
- 	cpuset_init_early();
-+	nonresident_init();
- 	mem_init();
- 	kmem_cache_init();
- 	setup_per_cpu_pageset();
-Index: linux-2.6/mm/Makefile
-===================================================================
---- linux-2.6.orig/mm/Makefile	2006-07-10 19:49:02.000000000 +0200
-+++ linux-2.6/mm/Makefile	2006-07-10 19:49:52.000000000 +0200
-@@ -13,6 +13,7 @@ obj-y			:= bootmem.o filemap.o mempool.o
- 			   prio_tree.o util.o mmzone.o vmstat.o $(mmu-y)
- 
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
-+obj-$(CONFIG_MM_NONRESIDENT) += nonresident.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
- obj-$(CONFIG_NUMA) 	+= mempolicy.o
- obj-$(CONFIG_SPARSEMEM)	+= sparse.o
-Index: linux-2.6/mm/swap.c
-===================================================================
---- linux-2.6.orig/mm/swap.c	2006-07-10 19:49:02.000000000 +0200
-+++ linux-2.6/mm/swap.c	2006-07-10 19:49:52.000000000 +0200
-@@ -30,6 +30,7 @@
- #include <linux/cpu.h>
- #include <linux/notifier.h>
- #include <linux/init.h>
-+#include <linux/nonresident.h>
- 
- /* How many pages do we try to swap or page in/out together? */
- int page_cluster;
-@@ -346,6 +347,7 @@ void __pagevec_lru_add(struct pagevec *p
- 		}
- 		BUG_ON(PageLRU(page));
- 		SetPageLRU(page);
-+		nonresident_get(page_mapping(page), page_index(page));
- 		add_page_to_inactive_list(zone, page);
- 	}
- 	if (zone)
-@@ -373,6 +375,7 @@ void __pagevec_lru_add_active(struct pag
- 		}
- 		BUG_ON(PageLRU(page));
- 		SetPageLRU(page);
-+		nonresident_get(page_mapping(page), page_index(page));
- 		BUG_ON(PageActive(page));
- 		SetPageActive(page);
- 		add_page_to_active_list(zone, page);
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c	2006-07-10 19:49:02.000000000 +0200
-+++ linux-2.6/mm/vmscan.c	2006-07-10 19:49:52.000000000 +0200
-@@ -35,6 +35,7 @@
- #include <linux/rwsem.h>
- #include <linux/delay.h>
- #include <linux/kthread.h>
-+#include <linux/nonresident.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/div64.h>
-@@ -395,6 +396,7 @@ int remove_mapping(struct address_space 
- 
- 	if (PageSwapCache(page)) {
- 		swp_entry_t swap = { .val = page_private(page) };
-+		nonresident_put(mapping, page_index(page));
- 		__delete_from_swap_cache(page);
- 		write_unlock_irq(&mapping->tree_lock);
- 		swap_free(swap);
-@@ -402,6 +404,7 @@ int remove_mapping(struct address_space 
- 		return 1;
- 	}
- 
-+	nonresident_put(mapping, page_index(page));
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	__put_page(page);
-Index: linux-2.6/mm/Kconfig
-===================================================================
---- linux-2.6.orig/mm/Kconfig	2006-07-10 19:49:02.000000000 +0200
-+++ linux-2.6/mm/Kconfig	2006-07-10 19:51:24.000000000 +0200
-@@ -152,3 +152,7 @@ config RESOURCES_64BIT
- 	default 64BIT
- 	help
- 	  This option allows memory and IO resources to be 64 bit.
-+
-+config MM_NONRESIDENT
-+	bool "Track nonresident pages"
-+	def_bool y
-
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> 
+> ---
+> 
+> Index: usb-2.6/kernel/sys.c
+> ===================================================================
+> --- usb-2.6.orig/kernel/sys.c
+> +++ usb-2.6/kernel/sys.c
+> @@ -151,7 +151,7 @@ static int __kprobes notifier_call_chain
+>  
+>  /*
+>   *	Atomic notifier chain routines.  Registration and unregistration
+> - *	use a mutex, and call_chain is synchronized by RCU (no locks).
+> + *	use a spinlock, and call_chain is synchronized by RCU (no locks).
+>   */
+>  
+>  /**
+> @@ -399,6 +399,128 @@ int raw_notifier_call_chain(struct raw_n
+>  
+>  EXPORT_SYMBOL_GPL(raw_notifier_call_chain);
+>  
+> +/*
+> + *	SRCU notifier chain routines.    Registration and unregistration
+> + *	use a mutex, and call_chain is synchronized by SRCU (no locks).
+> + */
+> +
+> +/**
+> + *	srcu_notifier_chain_register - Add notifier to an SRCU notifier chain
+> + *	@nh: Pointer to head of the SRCU notifier chain
+> + *	@n: New entry in notifier chain
+> + *
+> + *	Adds a notifier to an SRCU notifier chain.
+> + *	Must be called in process context.
+> + *
+> + *	Currently always returns zero.
+> + */
+> + 
+> +int srcu_notifier_chain_register(struct srcu_notifier_head *nh,
+> +		struct notifier_block *n)
+> +{
+> +	int ret;
+> +
+> +	/*
+> +	 * This code gets used during boot-up, when task switching is
+> +	 * not yet working and interrupts must remain disabled.  At
+> +	 * such times we must not call mutex_lock().
+> +	 */
+> +	if (unlikely(system_state == SYSTEM_BOOTING))
+> +		return notifier_chain_register(&nh->head, n);
+> +
+> +	mutex_lock(&nh->mutex);
+> +	ret = notifier_chain_register(&nh->head, n);
+> +	mutex_unlock(&nh->mutex);
+> +	return ret;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(srcu_notifier_chain_register);
+> +
+> +/**
+> + *	srcu_notifier_chain_unregister - Remove notifier from an SRCU notifier chain
+> + *	@nh: Pointer to head of the SRCU notifier chain
+> + *	@n: Entry to remove from notifier chain
+> + *
+> + *	Removes a notifier from an SRCU notifier chain.
+> + *	Must be called from process context.
+> + *
+> + *	Returns zero on success or %-ENOENT on failure.
+> + */
+> +int srcu_notifier_chain_unregister(struct srcu_notifier_head *nh,
+> +		struct notifier_block *n)
+> +{
+> +	int ret;
+> +
+> +	/*
+> +	 * This code gets used during boot-up, when task switching is
+> +	 * not yet working and interrupts must remain disabled.  At
+> +	 * such times we must not call mutex_lock().
+> +	 */
+> +	if (unlikely(system_state == SYSTEM_BOOTING))
+> +		return notifier_chain_unregister(&nh->head, n);
+> +
+> +	mutex_lock(&nh->mutex);
+> +	ret = notifier_chain_unregister(&nh->head, n);
+> +	mutex_unlock(&nh->mutex);
+> +	synchronize_srcu(&nh->srcu);
+> +	return ret;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(srcu_notifier_chain_unregister);
+> +
+> +/**
+> + *	srcu_notifier_call_chain - Call functions in an SRCU notifier chain
+> + *	@nh: Pointer to head of the SRCU notifier chain
+> + *	@val: Value passed unmodified to notifier function
+> + *	@v: Pointer passed unmodified to notifier function
+> + *
+> + *	Calls each function in a notifier chain in turn.  The functions
+> + *	run in a process context, so they are allowed to block.
+> + *
+> + *	If the return value of the notifier can be and'ed
+> + *	with %NOTIFY_STOP_MASK then srcu_notifier_call_chain
+> + *	will return immediately, with the return value of
+> + *	the notifier function which halted execution.
+> + *	Otherwise the return value is the return value
+> + *	of the last notifier function called.
+> + */
+> + 
+> +int srcu_notifier_call_chain(struct srcu_notifier_head *nh,
+> +		unsigned long val, void *v)
+> +{
+> +	int ret;
+> +	int idx;
+> +
+> +	idx = srcu_read_lock(&nh->srcu);
+> +	ret = notifier_call_chain(&nh->head, val, v);
+> +	srcu_read_unlock(&nh->srcu, idx);
+> +	return ret;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(srcu_notifier_call_chain);
+> +
+> +/**
+> + *	srcu_init_notifier_head - Initialize an SRCU notifier head
+> + *	@nh: Pointer to head of the srcu notifier chain
+> + *
+> + *	Unlike other sorts of notifier heads, SRCU notifier heads require
+> + *	dynamic initialization.  Be sure to call this routine before
+> + *	calling any of the other SRCU notifier routines for this head.
+> + *
+> + *	If an SRCU notifier head is deallocated, it must first be cleaned
+> + *	up by calling srcu_cleanup_notifier_head().  Otherwise the head's
+> + *	per-cpu data (used by the SRCU mechanism) will leak.
+> + */
+> +
+> +void srcu_init_notifier_head(struct srcu_notifier_head *nh)
+> +{
+> +	mutex_init(&nh->mutex);
+> +	init_srcu_struct(&nh->srcu);
+> +	nh->head = NULL;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(srcu_init_notifier_head);
+> +
+>  /**
+>   *	register_reboot_notifier - Register function to be called at reboot time
+>   *	@nb: Info about notifier function to be called
+> Index: usb-2.6/include/linux/notifier.h
+> ===================================================================
+> --- usb-2.6.orig/include/linux/notifier.h
+> +++ usb-2.6/include/linux/notifier.h
+> @@ -12,9 +12,10 @@
+>  #include <linux/errno.h>
+>  #include <linux/mutex.h>
+>  #include <linux/rwsem.h>
+> +#include <linux/srcu.h>
+>  
+>  /*
+> - * Notifier chains are of three types:
+> + * Notifier chains are of four types:
+>   *
+>   *	Atomic notifier chains: Chain callbacks run in interrupt/atomic
+>   *		context. Callouts are not allowed to block.
+> @@ -23,13 +24,27 @@
+>   *	Raw notifier chains: There are no restrictions on callbacks,
+>   *		registration, or unregistration.  All locking and protection
+>   *		must be provided by the caller.
+> + *	SRCU notifier chains: A variant of blocking notifier chains, with
+> + *		the same restrictions.
+>   *
+>   * atomic_notifier_chain_register() may be called from an atomic context,
+> - * but blocking_notifier_chain_register() must be called from a process
+> - * context.  Ditto for the corresponding _unregister() routines.
+> + * but blocking_notifier_chain_register() and srcu_notifier_chain_register()
+> + * must be called from a process context.  Ditto for the corresponding
+> + * _unregister() routines.
+>   *
+> - * atomic_notifier_chain_unregister() and blocking_notifier_chain_unregister()
+> - * _must not_ be called from within the call chain.
+> + * atomic_notifier_chain_unregister(), blocking_notifier_chain_unregister(),
+> + * and srcu_notifier_chain_unregister() _must not_ be called from within
+> + * the call chain.
+> + *
+> + * SRCU notifier chains are an alternative form of blocking notifier chains.
+> + * They use SRCU (Sleepable Read-Copy Update) instead of rw-semaphores for
+> + * protection of the chain links.  This means there is _very_ low overhead
+> + * in srcu_notifier_call_chain(): no cache bounces and no memory barriers.
+> + * As compensation, srcu_notifier_chain_unregister() is rather expensive.
+> + * SRCU notifier chains should be used when the chain will be called very
+> + * often but notifier_blocks will seldom be removed.  Also, SRCU notifier
+> + * chains are slightly more difficult to use because they require special
+> + * runtime initialization.
+>   */
+>  
+>  struct notifier_block {
+> @@ -52,6 +67,12 @@ struct raw_notifier_head {
+>  	struct notifier_block *head;
+>  };
+>  
+> +struct srcu_notifier_head {
+> +	struct mutex mutex;
+> +	struct srcu_struct srcu;
+> +	struct notifier_block *head;
+> +};
+> +
+>  #define ATOMIC_INIT_NOTIFIER_HEAD(name) do {	\
+>  		spin_lock_init(&(name)->lock);	\
+>  		(name)->head = NULL;		\
+> @@ -64,6 +85,11 @@ struct raw_notifier_head {
+>  		(name)->head = NULL;		\
+>  	} while (0)
+>  
+> +/* srcu_notifier_heads must be initialized and cleaned up dynamically */
+> +extern void srcu_init_notifier_head(struct srcu_notifier_head *nh);
+> +#define srcu_cleanup_notifier_head(name)	\
+> +		cleanup_srcu_struct(&(name)->srcu);
+> +
+>  #define ATOMIC_NOTIFIER_INIT(name) {				\
+>  		.lock = __SPIN_LOCK_UNLOCKED(name.lock),	\
+>  		.head = NULL }
+> @@ -72,6 +98,7 @@ struct raw_notifier_head {
+>  		.head = NULL }
+>  #define RAW_NOTIFIER_INIT(name)	{				\
+>  		.head = NULL }
+> +/* srcu_notifier_heads cannot be initialized statically */
+>  
+>  #define ATOMIC_NOTIFIER_HEAD(name)				\
+>  	struct atomic_notifier_head name =			\
+> @@ -91,6 +118,8 @@ extern int blocking_notifier_chain_regis
+>  		struct notifier_block *);
+>  extern int raw_notifier_chain_register(struct raw_notifier_head *,
+>  		struct notifier_block *);
+> +extern int srcu_notifier_chain_register(struct srcu_notifier_head *,
+> +		struct notifier_block *);
+>  
+>  extern int atomic_notifier_chain_unregister(struct atomic_notifier_head *,
+>  		struct notifier_block *);
+> @@ -98,6 +127,8 @@ extern int blocking_notifier_chain_unreg
+>  		struct notifier_block *);
+>  extern int raw_notifier_chain_unregister(struct raw_notifier_head *,
+>  		struct notifier_block *);
+> +extern int srcu_notifier_chain_unregister(struct srcu_notifier_head *,
+> +		struct notifier_block *);
+>  
+>  extern int atomic_notifier_call_chain(struct atomic_notifier_head *,
+>  		unsigned long val, void *v);
+> @@ -105,6 +136,8 @@ extern int blocking_notifier_call_chain(
+>  		unsigned long val, void *v);
+>  extern int raw_notifier_call_chain(struct raw_notifier_head *,
+>  		unsigned long val, void *v);
+> +extern int srcu_notifier_call_chain(struct srcu_notifier_head *,
+> +		unsigned long val, void *v);
+>  
+>  #define NOTIFY_DONE		0x0000		/* Don't care */
+>  #define NOTIFY_OK		0x0001		/* Suits me */
+> Index: usb-2.6/include/linux/srcu.h
+> ===================================================================
+> --- usb-2.6.orig/include/linux/srcu.h
+> +++ usb-2.6/include/linux/srcu.h
+> @@ -24,6 +24,9 @@
+>   *
+>   */
+>  
+> +#ifndef _LINUX_SRCU_H
+> +#define _LINUX_SRCU_H
+> +
+>  struct srcu_struct_array {
+>  	int c[2];
+>  };
+> @@ -47,3 +50,5 @@ void srcu_read_unlock(struct srcu_struct
+>  void synchronize_srcu(struct srcu_struct *sp);
+>  long srcu_batches_completed(struct srcu_struct *sp);
+>  void cleanup_srcu_struct(struct srcu_struct *sp);
+> +
+> +#endif
+> 

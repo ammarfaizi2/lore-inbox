@@ -1,64 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWGKTmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWGKTnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWGKTmK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWGKTmJ
+	id S932101AbWGKTnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGKTnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:42:09 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38610 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751215AbWGKTmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:42:08 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Fernando Luis =?iso-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>,
-       vgoyal@in.ibm.com, akpm@osdl.org, ak@suse.de,
-       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Subject: Re: [PATCH 1/3] stack overflow safe kdump (2.6.18-rc1-i386) - safe_smp_processor_id
-References: <1152517852.2120.107.camel@localhost.localdomain>
-	<1152540988.7275.7.camel@mulgrave.il.steeleye.com>
-	<m1irm5nwyw.fsf@ebiederm.dsl.xmission.com>
-	<1152565096.4027.4.camel@mulgrave.il.steeleye.com>
-	<m18xn0lsdq.fsf@ebiederm.dsl.xmission.com>
-	<1152621374.3575.1.camel@mulgrave.il.steeleye.com>
-Date: Tue, 11 Jul 2006 13:41:03 -0600
-In-Reply-To: <1152621374.3575.1.camel@mulgrave.il.steeleye.com> (James
-	Bottomley's message of "Tue, 11 Jul 2006 08:36:14 -0400")
-Message-ID: <m1mzbgexps.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 15:43:46 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:5593 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932101AbWGKTnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:43:45 -0400
+Subject: Re: [PATCH] irqtrace-option-off-compile-fix
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
+In-Reply-To: <1152641141.3128.104.camel@laptopd505.fenrus.org>
+References: <1152577120.7654.9.camel@localhost.localdomain>
+	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
+	 <1152635003.7654.40.camel@localhost.localdomain>
+	 <1152637993.3128.96.camel@laptopd505.fenrus.org>
+	 <1152635804.7654.44.camel@localhost.localdomain>
+	 <1152641141.3128.104.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Intel
+Date: Tue, 11 Jul 2006 12:02:20 -0700
+Message-Id: <1152644540.3578.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> writes:
+On Tue, 2006-07-11 at 20:05 +0200, Arjan van de Ven wrote: 
+> On Tue, 2006-07-11 at 09:36 -0700, Tim Chen wrote:
+> > On Tue, 2006-07-11 at 19:13 +0200, Arjan van de Ven wrote:
+> > > On Tue, 2006-07-11 at 09:23 -0700, Tim Chen wrote:
+> > > > I was testing on x86_64 and turned off the option in
+> > > > arch/x86_64/Kconfig.debug. 
+> > > > 
+> > > > When the option is turned off, the following functions become undefined:
+> > > > local_irq_disable()           
+> > > > local_irq_enable()             
+> > > > local_irq_save(flags)          
+> > > > local_irq_restore(flags)       
+> > > > safe_halt() 
+> > > > local_save_flags()
+> > > > irqs_disabled()
+> > > > irqs_disabled_flags(flags)                   
+> > > > 
+> > > > It seems plausible that some users may want to avoid the overhead of
+> > > > tracing IRQFLAGS by turning the option off.
+> > > 
+> > > eh that is a different config option!
+> > 
+> > My typo, it is TRACE_IRQFLAGS_SUPPORT in arch/x86_64/Kconfig.debug.
+> 
+> 
+> that should never ever be user setable. That just says if you have
+> support for the api.
+> 
+> The one you want is CONFIG_TRACE_IRQFLAGS .. which is the one that
+> actually turns the tracing on
+> 
 
-> On Mon, 2006-07-10 at 21:42 -0600, Eric W. Biederman wrote:
->> But I do agree the subarch header files are clean.
->> And no this case except for the fact no one realized that the
->> code doesn't even compile on voyager does not show how brittle
->> the x86 subarch code is.    Except for the fact that it seems
->> obvious that kernel/smp.c is generic code that every smp subarch
->> would use.
->
-> OK ... that's the mistaken assumption.  kernel/smp.c is not subarch
-> generic, it's APIC specific.  So all apic using subarchs, which is
-> pretty much everything except voyager, use it.  Since voyager uses
-> vic/qic based smp harness, it has its own version of this file (in fact
-> voyager has a completely separate SMP HAL).
+I could not turn off CONFIG_TRACE_IRQFLAGS_SUPPORT in .config directly. 
+The command "scripts/kconfig/conf -s arch/x86_64/Kconfig" in Makefile
+overwrites changes made to CONFIG_TRACE_IRQFLAGS_SUPPORT in .config
+file.  So this is always turned on in .config if the option
+TRACE_IRQFLAGS_SUPPORT is set in arch/x86_64/Kconfig.debug.  I may be
+missing something.  Any suggestions?
+  
 
-Yep.  My point is that with the current subarch structure on x86 it is
-really easy to make mistaken assumptions like kernel/smp.c applies to
-all x86 subarchitectures, because the lines are not clear.  The
-architectures where I have seen that the lines are clear generally
-allow for building a single kernel that can boot on any subarch.
 
-My hope is that we can recognized how non-obvious the x86 subarch code
-is so that future work will be able to improve the situation.
 
-To give credit I do think the division of labor between the subarch's
-appears sound.  I just don't like how the subarches are glued together
-into the x86 arch.
 
-Eric
+

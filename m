@@ -1,90 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWGKRpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWGKRqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWGKRpR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWGKRpQ
+	id S1751146AbWGKRqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWGKRqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:45:16 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:40118 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751180AbWGKRpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:45:14 -0400
-Date: Tue, 11 Jul 2006 10:45:52 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: mingo@elte.hu, oleg@tv-sign.ru, linux-kernel@vger.kernel.org,
-       dino@us.ibm.com, tytso@us.ibm.com, dvhltc@us.ibm.com
-Subject: Re: [PATCH -rt] catch put_task_struct RCU handling up to mainline
-Message-ID: <20060711174552.GD1288@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060707192955.GA2219@us.ibm.com> <Pine.LNX.4.64.0607072352390.12372@localhost.localdomain> <20060707231524.GI1296@us.ibm.com> <Pine.LNX.4.64.0607081450150.11051@localhost.localdomain> <20060710155147.GB1446@us.ibm.com> <Pine.LNX.4.64.0607101855410.14469@localhost.localdomain> <20060710174846.GD1446@us.ibm.com> <Pine.LNX.4.64.0607102100570.19383@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607102100570.19383@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 Jul 2006 13:46:14 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:18517 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751146AbWGKRqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:46:13 -0400
+Message-ID: <44B3E3E0.1050100@tls.msk.ru>
+Date: Tue, 11 Jul 2006 21:46:08 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de>
+In-Reply-To: <20060711164040.GA16327@suse.de>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 09:09:35PM +0100, Esben Nielsen wrote:
-> On Mon, 10 Jul 2006, Paul E. McKenney wrote:
-> >On Mon, Jul 10, 2006 at 07:10:49PM +0100, Esben Nielsen wrote:
-> >>On Mon, 10 Jul 2006, Paul E. McKenney wrote:
-> >>>On Sat, Jul 08, 2006 at 02:59:37PM +0100, Esben Nielsen wrote:
-> >
-> >[ . . . ]
-> >
-> >>>>The work should be defered to a low priority task. Using rcu is
-> >>>>probably overkill because it also introduces other delays. A tasklet
-> >>>>or a dedicated task would be better.
-> >>>
-> >>>Agreed -- if there is in fact a legitimate non-error code path, then
-> >>>a patch that used some deferral mechanism would be good.  But RCU is
-> >>>overkill, and misleading overkill at that!
-> >>>
-> >>
-> >>I think this is a legitimate situation. lock 1 is owned by B which is
-> >>blocked on lock 2 which is owned by C
-> >>
-> >> CPU1:                                      CPU2
-> >>    RT task A locks lock 1                C runs something
-> >>    A boosts B to RT
-> >>    A does get_task_struct B
-> >>    A enables interrupts                  C unlocks lock 2
-> >>    An very long interrupt is running     B unlocks lock 2
-> >>                                          B unlocks lock 1
-> >>                                          B is deboosted
-> >>                                          B exits
-> >>    A gets CPU1 again
-> >>    A does put_task_struct B
-> >>
-> >>I don't know if the timing is realistic, but theoretically it is possible.
-> >>It might also be possible the B exits on another CPU even without the long
-> >>interrupt handler. If A has cpu affinity to CPU1 it is enough if a higher
-> >>priority task preempts it on CPU1.
-> >
-> >For this to happen, either A has to be at a lower priority than the irq
-> >tasks or the interrupt has to be a hard irq (e.g., scheduling clock
-> >interrupt).  In the first case, the added cleanup processing seems
-> >inconsequential compared to (say) an interrupt doing network protocol
-> >processing.  In the second case, B does not do its put_task_struct()
-> >until after the hard irq returns (because the put_task_struct() is invoked
-> >from a call_rcu() callback), which makes the above scenario unlikely,
-> >though perhaps not impossible.
-> >
-> >If the second scenario is in fact possible, would you be willing to
-> >supply the appropriate deferral code?  I believe we both agree that RCU
-> >is not really the right deferral mechanism in this situation.
-> >
-> 
-> Let your patch go through. I'll stop complaining :-)
-> Is there anywhere where we can make a list of known issues like this?
-> I can't promise I will get time to fix this one :-(
+Olaf Hering wrote:
+[]
+> To create the initrd you needed a loop file, at least for ext2, minix etc.
 
-;-)
+It's just damn trivial to pack your files into cpio archive and gzip it.
+No need for any filesystem code in kernel, be it ext2, minix or other.
 
-One possibility would be a file in the Documentation directory.
-Another would be something on the web, but a file in the Documentation
-directory would have the advantage of being synched with the -rt version.
+initrd => initramfs conversion (what you said I "force" on users) is
+to switch from loop+whatever-fs-du-jur to plain dirrectory and cpio,
+and to add the final mount+run_init into the initrd script.  And after
+that's done, everything becomes good... ;)
 
-							Thanx, Paul
+> But so far, the arguments are not convincing that kinit has to be in the
+> kernel tree.
+
+Here, I agree.
+
+/mjt

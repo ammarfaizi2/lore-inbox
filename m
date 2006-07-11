@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWGKT3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWGKTbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWGKT3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWGKT3J
+	id S1751204AbWGKTbB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWGKTbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:29:09 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:41647 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751199AbWGKT3I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:29:08 -0400
-Message-ID: <44B3EDBA.4090109@zytor.com>
-Date: Tue, 11 Jul 2006 11:28:10 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Cedric Le Goater <clg@fr.ibm.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
-References: <20060711075051.382004000@localhost.localdomain> <44B3EA16.1090208@zytor.com> <44B3ED3B.3010401@fr.ibm.com>
-In-Reply-To: <44B3ED3B.3010401@fr.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 15:31:01 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:41943 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751204AbWGKTbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:31:00 -0400
+Date: Tue, 11 Jul 2006 12:30:48 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 on thinkpad x32
+Message-Id: <20060711123048.522ba85c.kristen.c.accardi@intel.com>
+In-Reply-To: <20060709225208.GA1787@elf.ucw.cz>
+References: <20060709225208.GA1787@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.19; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater wrote:
-> H. Peter Anvin wrote:
-> 
->> I would like give a strong objection to the naming.  The -ve() suffix in
->> execve() isn't jettisonable; it indicates its position within a family
->> of functions (only one of which is a true system call.)
->>
->> execven() would be better name (the -n argument coming after then -e
->> argument).  The library could then provide execlen(), execlpn() etc as
->> appropriate.
-> 
-> I agree. execns() is a shortcut.
-> 
-> This service behaves like execve() if the flag argument is 0, so I guess we
-> should keep the execve- prefix. However, we could be a bit more explicit on
-> the nature of this service and call it execve_unshare().
-> 
+On Mon, 10 Jul 2006 00:52:08 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-How about execveu()?  -n looked a bit weird to me, mostly because the 
-"le" form would be execlen() which looks like something completely 
-different...
+> Hi!
+> 
+> * acpi problems are gone, good -- it now boots with acpi=off and boots
+> with enabled pci hotplugging.
+> 
+> 	(that uncovered other problem where machine dies if I try to
+> 	undock it... This has worked before. I'll report it properly.)
+>
 
-	-hpa
+When you get your report for this ready, try to observe whether it happens
+if you boot undocked, then dock and then undock, or whether it will
+happen if you boot docked, then undock.  I do have an outstanding issue
+with some docks that have ide ports on the station where if you boot
+docked, then undock, we can't properly remove the ide device.  I am 
+working on that one, but it's not solved yet.
+ 

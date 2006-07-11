@@ -1,75 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWGKFUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWGKFVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965172AbWGKFUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 01:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWGKFUw
+	id S965170AbWGKFVE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 01:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbWGKFVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 01:20:52 -0400
-Received: from 1wt.eu ([62.212.114.60]:15882 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S965172AbWGKFUw (ORCPT
+	Tue, 11 Jul 2006 01:21:04 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15032 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965170AbWGKFVD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 01:20:52 -0400
-Date: Tue, 11 Jul 2006 07:20:40 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Tony Borras <tonyb@thekrnl.sysdev.org>
-Cc: linux-kernel@vger.kernel.org, gmorris@toyecorp.com
-Subject: Re: Memory tables corruption - kernel v2.4.33-rc1
-Message-ID: <20060711052040.GE2037@1wt.eu>
-References: <20060710203938.134a4d16.tonyb@sysdev.org>
+	Tue, 11 Jul 2006 01:21:03 -0400
+Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m14pxolryw.fsf@ebiederm.dsl.xmission.com>
+References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
+	 <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
+	 <1152571162.1576.122.camel@localhost.localdomain>
+	 <m14pxolryw.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 15:20:05 +1000
+Message-Id: <1152595205.6346.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060710203938.134a4d16.tonyb@sysdev.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Mon, Jul 10, 2006 at 08:39:38PM -0800, Tony Borras wrote:
-> Please fwd to 2.4.33 Team.
-> 
-> One of my customers reported in tests that, after some runtime,
-> his 59MB ram drive suddenly, randomly shrinks.
-> 
-> Same customer s/w has been running fine with 2.4.31 kernel.
-> 
-> 
-> Report follows:
-> 
-> I have two Advantech (i486 Geode's w/64MB ram, ~49MB usable, as
-> configured in the kernel make) test units where Dosemu crashed
-> this weekend. For some reason the Via unit was fine.
-> 
-> Here is what happened:
-> 
-> 1. Linux was O.K., dosemu 1.3.2 had shut down.
-> It appears both units were out of RAM.
-> 
-> 2. The first unit showed the RAM drive size to be
-> 14661 1k blocks using the df command. The 1K blocks
-> should be 47595, as they were after boot. The other unit
-> showed the correct value of 1K blocks=47595. Even after
-> restarting the Advantech, the 1K blocks would not go back to
-> normal, so my software cannot even load.
-> 
-> 3. The second Advantech unit showed correct values with the df
-> command, but when I used the du -cbs command, I found the /tmp
-> directory had only 110796 bytes, instead of the normal ~15 MB.
-> When I restarted Linux, all the RAM came back, and the
-> unit started working again.
-> 
->                               ---------
-> 
-> Thanks, I will check further with this customer.
+> I didn't really expect you to have an immediate use, but the
+> confirmation is nice.  The interesting part is how I have factored out
+> the arch specific details. I believe this is close to the direction
+> you envisioned for msi.  If you could look at the basic structure
+> and confirm that the structure looks properly arch neutral that
+> would be appreciated.  As time permits I want to make the msi code
+> look more the this hypertransport irq code.
 
-2.4.33-rc1 has a bug in vfs_unlink(). Probably you've been hitting
-it when removing lots of files from /tmp which might not have been
-really freed. -rc2 has this fixed. You should try it instead. Other
-people reported kernel panics on -rc1 with NFS.
+Ok, I'll try to have a second look in the plane :) (I'm flying off
+tomorrow). If you are interested in the new IRQ infrastructure I did for
+powerpc, it's now upstream (read comments in arch/powerpc/kernel/irq.c).
+My idea for MSIs etc... is that I've completley disconnected linux
+interrupt numbers and HW vector numbers for a given controller. Thus I
+can allocate linux virtual irq numbers (including linear ranges of them
+if we ever want to handle multiple MSIs (not MSI-X) etc.. However, it's
+up to a given irq controller to handle it's own allocation of vectors
+for those MSIs. Some controllers may have a fixed set of vectors
+reserved for MSIs, or in some cases, like pSeries LPAR, the firmware
+controls everything and just hands me a bunch of vectors for devices,
+etc... 
 
-> Tony Borras
+That also mean that the allocation of vectors for a given controller
+that can do MSI will be handled completely locally to the driver of that
+controller. For example, on the Quad G5, I will have the MPIC driver
+locally have a bitmap of what irq sources are used by LSIs and HT
+interrupts coming from IO-APICs (pretty much the same as LSIs as far as
+the driver is concerned) and will implement a local allocator to handle
+the allocation of the remaining sources by MSI capable devices.
 
-Regards,
-Willy
+One problem I have at this point is with multiple MSIs. Our current
+interface, pci_enable_msi(), is pretty much documented as only ever
+enabling one MSI and I don't quite understand why we did that in the
+first place. It seems ok to me to define that it can enable 2^N MSIs as
+requested by the device with consecutive numbers starting at pdev->irq.
+Now if we don't want to change that, I would propose that we define a
+new interface, pci_enable_msi_multi(pdev, order, array) to which we can
+pass a requested count (order) which has to be <= to the device number
+of requested MSIs (so the driver can ask for less if it knows it doesn't
+need as much as the device asks for) and the actual interrupts infos are
+returned via an array identical to the one used for MSI-X. That way,
+even if hardware MSI vectors still have to be naturally aligned on the
+number requested and consecutive, the returned linux IRQ numbers don't
+have to. In addition, by holding the list of IRQs in the same data
+structure as MSI-X, this simplifies drivers who want to implement both
+modes.
+
+I don't have time to work much on the MSI aspect of things before OLS
+though and I'll be away after that until end of august with only
+intermittent internet access, so we'll talk about it again either at OLS
+itself if we find some time, or when I'm back.
+
+Cheers,
+Ben.
+
 

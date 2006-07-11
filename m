@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWGKXnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWGKXrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWGKXnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGKXnU
+	id S932260AbWGKXrH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWGKXrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:43:20 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:58232 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S932255AbWGKXnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:43:20 -0400
-X-IronPort-AV: i="4.06,230,1149490800"; 
-   d="scan'208"; a="328436970:sNHT31095694"
-To: Zach Brown <zach.brown@oracle.com>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [openib-general] ipoib lockdep warning
-X-Message-Flag: Warning: May contain useful information
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
-	<44B433CE.1030103@oracle.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 11 Jul 2006 16:43:18 -0700
-In-Reply-To: <44B433CE.1030103@oracle.com> (Zach Brown's message of "Tue, 11 Jul 2006 16:27:10 -0700")
-Message-ID: <adasll7zp0p.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Jul 2006 23:43:19.0112 (UTC) FILETIME=[C9A5DC80:01C6A543]
-Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	Tue, 11 Jul 2006 19:47:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64441 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932260AbWGKXrF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:47:05 -0400
+Date: Tue, 11 Jul 2006 16:50:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+Message-Id: <20060711165003.25265bb7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607120132440.12900@scrub.home>
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
+	<20060710094414.GD1640@igloo.df.lth.se>
+	<Pine.LNX.4.64.0607102356460.17704@scrub.home>
+	<20060711124105.GA2474@elf.ucw.cz>
+	<Pine.LNX.4.64.0607120016490.12900@scrub.home>
+	<20060711224225.GC1732@elf.ucw.cz>
+	<Pine.LNX.4.64.0607120132440.12900@scrub.home>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, good point.
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> Hi,
+> 
+> On Wed, 12 Jul 2006, Pavel Machek wrote:
+> 
+> > BTW I believe that original way (alt down, sysrq down, b down) still
+> > works before and after the patch.
+> 
+> No, it doesn't.
+> 
+> > Here's patch that updates docs with now-working trick.
+> 
+> NACK.
+> 
 
-It sort of seems to me like the idr interfaces are broken by design.
-Internally, lib/idr.c uses bare spin_lock(&idp->lock) with no
-interrupt disabling or anything in both the idr_pre_get() and
-idr_get_new() code paths.  But idr_pre_get() is supposed to be called
-in a context that can sleep, while idr_get_new() is supposed to be
-called with locks held to serialize things (at least according to
-http://lwn.net/Articles/103209/).
+Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
+which it *did not work at all*.  If that makes it harder to type but still
+possible to type on other machines, well, we win.
 
-So, ugh... maybe the best thing to do is change lib/idr.c to use
-spin_lock_irqsave() internally?
-
- - R.

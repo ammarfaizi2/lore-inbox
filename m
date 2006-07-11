@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWGKHQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965245AbWGKHRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965229AbWGKHQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWGKHQ6
+	id S965245AbWGKHRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWGKHRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:16:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54961 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965229AbWGKHQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:16:57 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] msi: Only keep one msi_desc in each slab entry.
-References: <m1veq5m87s.fsf@ebiederm.dsl.xmission.com>
-	<84144f020607102303o3e379e95qc58cec97cbfd7d0c@mail.gmail.com>
-	<m1k66kiqvw.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.58.0607110951240.12720@sbz-30.cs.Helsinki.FI>
-Date: Tue, 11 Jul 2006 01:16:12 -0600
-In-Reply-To: <Pine.LNX.4.58.0607110951240.12720@sbz-30.cs.Helsinki.FI> (Pekka
-	J. Enberg's message of "Tue, 11 Jul 2006 09:55:56 +0300 (EEST)")
-Message-ID: <m1psgcharn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 11 Jul 2006 03:17:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:17822 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965236AbWGKHRo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:17:44 -0400
+Date: Tue, 11 Jul 2006 17:17:22 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] ramdisk blocksize Kconfig entry
+Message-ID: <20060711171722.E1710004@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> writes:
+This patch makes the ramdisk blocksize configurable at kernel
+compilation time rather than only at boot or module load time,
+like a couple of the other ramdisk options.  I found this handy
+awhile back but thought little of it, until recently asked by a
+few of the testing folks here to be able to do the same thing
+for their automated test setups.
 
-> On Tue, 11 Jul 2006, Eric W. Biederman wrote:
->> Please look at what the code changes.
->> Please recognize how very bad the current code is behaving.
->
-> Yes, there's plenty of slab confusion going on.
->
-> On Tue, 11 Jul 2006, Eric W. Biederman wrote:
->> As for the rest sure go ahead and create a patch to address it
->> but that really is a separate issue and thus a separate patch.
->> 
->> I'm just trying to keep the kernel from calling BUG_ON the first
->> time a msi irq is allocated on a kernel with a maximum NR_CPUS
->> configuration, and from wasting memory the rest of the time.
->> 
->> Or you know how bad the msi code is when every patch to fix a major
->> issue is followed up comments on how to improve the code even further.
->
-> Ok.
+The Kconfig comment is largely lifted from comments in rd.c,
+and hopefully this will increase the chances of making folks
+aware that the default value often isn't a great choice here
+(for increasing values of PAGE_SIZE, even moreso).
 
-Looks good to me. 
+Signed-off-by: Nathan Scott <nathans@sgi.com>
 
-> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-> ---
->
-> diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-> index 36bc7c4..77b08ee 100644
-> --- a/drivers/pci/msi.c
-> +++ b/drivers/pci/msi.c
-> @@ -45,16 +45,11 @@ msi_register(struct msi_ops *ops)
->  	return 0;
->  }
->  
-> -static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
-> -{
-> -	memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
-> -}
-> -
->  static int msi_cache_init(void)
->  {
->  	msi_cachep = kmem_cache_create("msi_cache",
-> -			NR_IRQS * sizeof(struct msi_desc),
-> -		       	0, SLAB_HWCACHE_ALIGN, msi_cache_ctor, NULL);
-> +			sizeof(struct msi_desc),
-> +		       	0, SLAB_HWCACHE_ALIGN, NULL, NULL);
->  	if (!msi_cachep)
->  		return -ENOMEM;
->  
-> @@ -402,11 +397,10 @@ static struct msi_desc* alloc_msi_entry(
->  {
->  	struct msi_desc *entry;
->  
-> -	entry = kmem_cache_alloc(msi_cachep, SLAB_KERNEL);
-> +	entry = kmem_cache_zalloc(msi_cachep, GFP_KERNEL);
->  	if (!entry)
->  		return NULL;
->  
-> -	memset(entry, 0, sizeof(struct msi_desc));
->  	entry->link.tail = entry->link.head = 0;	/* single message */
->  	entry->dev = NULL;
->  
+
+Index: ramdisk-2.6/drivers/block/Kconfig
+===================================================================
+--- ramdisk-2.6.orig/drivers/block/Kconfig	2006-07-11 16:56:03.594339750 +1000
++++ ramdisk-2.6/drivers/block/Kconfig	2006-07-11 16:57:34.984051250 +1000
+@@ -400,6 +400,16 @@ config BLK_DEV_RAM_SIZE
+ 	  what are you doing. If you are using IBM S/390, then set this to
+ 	  8192.
+ 
++config BLK_DEV_RAM_BLOCKSIZE
++	int "Default RAM disk block size (bytes)"
++	depends on BLK_DEV_RAM
++	default "1024"
++	help
++	  The default value is 1024 kilobytes.  PAGE_SIZE is a much more
++	  efficient choice however.  The default is kept to ensure initrd
++	  setups function - apparently needed by the rd_load_image routine
++	  that supposes the filesystem in the image uses a 1024 blocksize.
++
+ config BLK_DEV_INITRD
+ 	bool "Initial RAM filesystem and RAM disk (initramfs/initrd) support"
+ 	depends on BROKEN || !FRV
+Index: ramdisk-2.6/drivers/block/rd.c
+===================================================================
+--- ramdisk-2.6.orig/drivers/block/rd.c	2006-07-11 16:56:06.822541500 +1000
++++ ramdisk-2.6/drivers/block/rd.c	2006-07-11 16:56:47.065056500 +1000
+@@ -84,7 +84,7 @@ int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		
+  * behaviour. The default is still BLOCK_SIZE (needed by rd_load_image that
+  * supposes the filesystem in the image uses a BLOCK_SIZE blocksize).
+  */
+-static int rd_blocksize = BLOCK_SIZE;		/* blocksize of the RAM disks */
++static int rd_blocksize = CONFIG_BLK_DEV_RAM_BLOCKSIZE;
+ 
+ /*
+  * Copyright (C) 2000 Linus Torvalds.

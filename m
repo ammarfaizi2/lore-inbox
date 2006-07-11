@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWGKSox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWGKSqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWGKSox (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGKSox
+	id S932087AbWGKSqy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWGKSqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:44:53 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:25714 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932101AbWGKSow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:44:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=KQgEDpqoLLgPyukeMav75eOfUrGCITq++pWFacK+9Lo3p/PuTuS6qTQCP8lAq87AoVSCWmgD5VNLTsd7ZlK+10tTxoS3Abq+lgKcBYcndwv10sBlDM+E+MNoAtCoiNFZnJouKPB4clf6AJyjgVFKtYf7OcGvz0Q+uf/HHlFnGYo=  ;
-Message-ID: <44B39151.10600@yahoo.com.au>
-Date: Tue, 11 Jul 2006 21:53:53 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 11 Jul 2006 14:46:54 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:31414 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751178AbWGKSqy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:46:54 -0400
+Message-ID: <44B3F203.3020500@zytor.com>
+Date: Tue, 11 Jul 2006 11:46:27 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'volatile' in userspace
-References: <44B0FAD5.7050002@argo.co.il>  <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>  <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>  <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com> <44B29461.40605@yahoo.com.au> <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Olaf Hering <olh@suse.de>, Jeff Garzik <jeff@garzik.org>,
+       Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org>	 <Pine.LNX.4.64.0606271316220.17704@scrub.home>	 <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru>	 <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com>	 <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org>	 <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com>	 <20060711181552.GD16869@suse.de>  <44B3EC5A.1010100@zytor.com> <1152644023.18028.43.camel@localhost.localdomain>
+In-Reply-To: <1152644023.18028.43.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>What's wrong with _exit(exec() == -1 ? 0 : errno);
->>and picking up the status with wait(2) ?
->>
+Alan Cox wrote:
+> Ar Maw, 2006-07-11 am 11:22 -0700, ysgrifennodd H. Peter Anvin:
+>> You know how much code there is in glibc to make your /bin/ls still work?
 > 
-> The exec'd application may return regular error codes, which would 
-> interfere. IIRC /usr/sbin/useradd has different exit codes depending on 
-> what failed (providing some option, failure to create account, failure to 
-> create home dir, etc.). Now if you exit(errno) instead, you have an 
-> overlap.
+> A static linked pre libc 2.2 (thats libc not glibc) ls works fine today,
+> as does a 0.98.5 era built rogue binary
 
-You're right. Maybe you could return -ve or with a high bit set,
-but I guess you may not know what the app will return.
+Didn't work when I tried it, although that was a shared binary (and yes, 
+I had the library there.)  I assumed mostly that ZMAGIC support had 
+bitrotted -- even back in '95 there was a lot of problems with ZMAGIC 
+binaries when ext2 block size was > 1K.
 
-But I don't see how the volatile or pipe solutions are any better
-though: it would seem that both result in undefined behaviour
-according to my vfork man page. At least the wait() solution is
-defined (and workable, if you know what the target might return).
+	-hpa
 
-> And your code is somewhat wrong. Given that exec() would stand for 
-> execve(someprogram_and_args_here), if it returned -1 you would return 0, 
-> indicating success. Can't be. And if exec() does not return -1, which it 
-> never should, you return errno, which never reaches anyone.
-
-Yeah, thinko.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

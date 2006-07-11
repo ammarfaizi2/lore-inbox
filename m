@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWGKLMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGKLOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWGKLMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 07:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWGKLMJ
+	id S1751034AbWGKLOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 07:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWGKLOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 07:12:09 -0400
-Received: from srvr22.engin.umich.edu ([141.213.75.21]:10647 "EHLO
-	srvr22.engin.umich.edu") by vger.kernel.org with ESMTP
-	id S1751029AbWGKLMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 07:12:08 -0400
-From: Matt Reuther <mreuther@umich.edu>
-Organization: The Knights Who Say... Ni!
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: Depmod errors on 2.6.17.4/2.6.18-rc1/2.6.18-rc1-mm1
-Date: Tue, 11 Jul 2006 07:20:53 -0400
-User-Agent: KMail/1.8.2
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200607100833.00461.mreuther@umich.edu> <200607102327.38426.mreuther@umich.edu> <44B34BBA.4010806@gmail.com>
-In-Reply-To: <44B34BBA.4010806@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 11 Jul 2006 07:14:52 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48772 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751033AbWGKLOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 07:14:51 -0400
+Subject: Re: lockdep: bdev->bd_mutex deadlock
+From: Arjan van de Ven <arjan@infradead.org>
+To: Peter Jones <pjones@redhat.com>
+Cc: mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <1152287003.14409.2.camel@localhost.localdomain>
+References: <1152221477.25480.9.camel@localhost.localdomain>
+	 <1152257687.3111.23.camel@laptopd505.fenrus.org>
+	 <1152287003.14409.2.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 13:14:46 +0200
+Message-Id: <1152616486.3128.34.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607110720.54119.mreuther@umich.edu>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 02:56 am, Antonino A. Daplas wrote:
-> Matt Reuther wrote:
-> > On Monday 10 July 2006 11:58 am, Antonino A. Daplas wrote:
-> >> Matt Reuther wrote:
-> > I ran 'make menuconfig' and I got the same warnings. Perhaps CONFIG_FB
-> > needs to be part of the 'selects' line for any option that selects the
-> > backlight support. I think the USB Apple Cinema display support, which I
-> > set as modular, might have selected backlight. I don't need framebuffer
-> > support, so I have that shut off. Here are the depmod warnings once
-> > again:
->
-> Yes, that's the culprit.  I've been thinking for some time to eliminate
-> the framebuffer dependency from lcd/backlight.  Can you try the patch I
-> sent in another thread?
->
-> Tony
+On Fri, 2006-07-07 at 11:43 -0400, Peter Jones wrote:
+> <4> [<c05ebd9d>] mutex_lock+0x21/0x24
+> <4> [<c04c4acf>] blkdev_ioctl+0x5dd/0x732
+> <4> [<c046323b>] block_ioctl+0x16/0x1b
 
-OK. I will give that a shot, probably this evening.
 
-Shouldn't kconfig recursively figure out dependencies for stuff like this?
+From: Arjan van de Ven <arjan@linux.intel.com>
+Subject: lockdep: annotate the BLKPG_DEL_PARTITION ioctl
 
-I turned on Apple Cinema support without turning on the framebuffer, but 
-Cinema needed backlight, which needed framebuffer. I can see kconfig turning 
-on backlight, but not checking to see what backlight needed.
+The delete partition IOCTL takes the bd_mutex for both the disk and the partition;
+these have an obvious hierarchical relationship and this patch annotates this
+relationship for lockdep.
 
-There might be similar issues with snd-miro, which seems to want stuff in 
-snd_cs4231, which I think I have shut off.
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Index: linux-2.6.18-rc1/block/ioctl.c
+===================================================================
+--- linux-2.6.18-rc1.orig/block/ioctl.c
++++ linux-2.6.18-rc1/block/ioctl.c
+@@ -72,7 +72,7 @@ static int blkpg_ioctl(struct block_devi
+ 			bdevp = bdget_disk(disk, part);
+ 			if (!bdevp)
+ 				return -ENOMEM;
+-			mutex_lock(&bdevp->bd_mutex);
++			mutex_lock_nested(&bdevp->bd_mutex, BD_MUTEX_PARTITION);
+ 			if (bdevp->bd_openers) {
+ 				mutex_unlock(&bdevp->bd_mutex);
+ 				bdput(bdevp);
+@@ -82,7 +82,7 @@ static int blkpg_ioctl(struct block_devi
+ 			fsync_bdev(bdevp);
+ 			invalidate_bdev(bdevp, 0);
+ 
+-			mutex_lock(&bdev->bd_mutex);
++			mutex_lock_nested(&bdev->bd_mutex, BD_MUTEX_WHOLE);
+ 			delete_partition(disk, part);
+ 			mutex_unlock(&bdev->bd_mutex);
+ 			mutex_unlock(&bdevp->bd_mutex);
 
-Thanks for your help. I try out your patch later on today, when I can get back 
-to my computer.
 
-Matt

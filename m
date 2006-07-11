@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWGKQQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWGKQY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWGKQQN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 12:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWGKQQM
+	id S1751020AbWGKQY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 12:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWGKQY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 12:16:12 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:63435
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1750762AbWGKQQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 12:16:11 -0400
-Date: Tue, 11 Jul 2006 18:16:39 +0200
-From: andrea@cpushare.com
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060711161639.GL7192@opteron.random>
-References: <20060629180706.64a58f95.akpm@osdl.org> <20060630014050.GI19712@stusta.de> <20060630045228.GA14677@opteron.random> <20060630094753.GA14603@elte.hu> <20060630145825.GA10667@opteron.random> <20060711073625.GA4722@elte.hu> <20060711141709.GE7192@opteron.random> <1152628374.3128.66.camel@laptopd505.fenrus.org> <20060711153117.GJ7192@opteron.random> <20060711160236.GX13938@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711160236.GX13938@stusta.de>
+	Tue, 11 Jul 2006 12:24:26 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:7048 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751018AbWGKQYZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 12:24:25 -0400
+Message-ID: <44B3D0A0.7030409@zytor.com>
+Date: Tue, 11 Jul 2006 09:24:00 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de>
+In-Reply-To: <20060711112746.GA14059@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 06:02:36PM +0200, Adrian Bunk wrote:
-> And it was you who said just a few days ago [1]:
+Olaf Hering wrote:
 > 
-> <--  snip  -->
+>>> The other group is the one that uses some sort of initrd (loop mount or cpio),
+>>> created with tools from their distribution.
+>>> Again, they should install that kinit binary as well because kinit emulates
+>>> the loop mount handling of /initrd.image. This is for older distributions
+>>> that still create a loop mounted initrd.
+>> There's no need for loop-mounting of any initrd.images.  Initramfs (cpio image,
+>> possible gzipped) works just fine, and it will NOT go away because something
+>> should do the unpacking/loading of that image so that kinit &Co will run.
+>> There's no need for old initrd+pivot_root at all.  Only the ones who are,
+>> for some reason, didn't switch to initramfs yet.  And I personally see no
+>> reasons not to switch - initramfs (rootfs) concept is much more clean and
+>> easy to handle and gives more possibilities than initrd.
 > 
-> ...
-> If I've to keep reading these threads about CONFIG_SECCOMP every few
-> months then set it to N (even if I disagree with that setting). Like
-> Alan said, what really matters is what distro will choose in their
-> config, not the default (and I doubt fedora ships with cifs=Y like the
-> default where only the required stuff is set to Y, please focus on the
-> big stuff first ;).
-> 
-> <--  snip  -->
+> Are you saying that everyone now suddenly is forced to use a cpio image?
+> Why did hpa add the loop mount code to kinit?
+> So if you force people who build kernels to use newer tools, one more
+> external binary will surely not hurt.
 
-The above was in the context of the mainline kernel in case you didn't
-notice (when I wrote the above I expected fedora to set it to Y even if
-the main kernel was set to N, imagine how way off I was when I wrote the
-above ;).
+When you say "loop mount code" I presume you mean legacy initrd support 
+(which doesn't use loop mounting.)  Legacy initrd support is provided to 
+be as compatible as possible, obviously.
+
+And yes, it should be a configurable.  Chopping kinit into configurable 
+pieces is on my short list.
+
+	-hpa

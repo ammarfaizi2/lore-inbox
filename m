@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWGKPpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWGKPrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWGKPpB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWGKPpB
+	id S1751132AbWGKPrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWGKPrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:45:01 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:43959 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751303AbWGKPo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:44:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h6gQtZQkHCpQVTsIKlbJJ1HQRKWD3oJgqhi9q0NsP0bpmQlpggg71s5B7uj7zW0YGnc/Rjm5r9mTfutsgSzIW7MOlQ1Bpkofcp6+uh0oHuNgjdABuHca5sk/IpKGbbZVuB5BsYkClHuR6Ye46EnjtWfo13CKtH1Bm2qpLo7zgJU=
-Message-ID: <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
-Date: Tue, 11 Jul 2006 16:44:59 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 11:47:45 -0400
+Received: from mail.suse.de ([195.135.220.2]:61835 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751132AbWGKPro (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:47:44 -0400
+Date: Tue, 11 Jul 2006 17:47:43 +0200
+From: Olaf Hering <olh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Theodore Tso <tytso@mit.edu>, "H. Peter Anvin" <hpa@zytor.com>,
+       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       klibc@zytor.com, torvalds@osdl.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060711154743.GA15910@suse.de>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <20060711134554.GC24029@thunk.org> <20060711151347.GA15625@suse.de> <20060711153052.GW13938@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
-	 <b0943d9e0607110556v50185b9i5443dabedba46152@mail.gmail.com>
-	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
-	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
-	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
-	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
-	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+In-Reply-To: <20060711153052.GW13938@stusta.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> It is DEBUG_MEMLEAK_ORPHAN_FREEING issue. Disabling it solved the
-> problem.
+ On Tue, Jul 11, Adrian Bunk wrote:
 
-OK, thanks for trying.
+> On Tue, Jul 11, 2006 at 05:13:47PM +0200, Olaf Hering wrote:
+> >  On Tue, Jul 11, Theodore Tso wrote:
+> > 
+> > > > In earlier mails you stated that having kinit/klibc in the kernel sources
+> > > > would make it easier to keep up with interface changes.
+> > > > What interface changes did you have in mind, and can you name any relevant
+> > > > interface changes that were made after 2.6.0 which would break an external
+> > > > kinit?
+> > > 
+> > > When you load a SCSI driver (the one that bit me was the MPT Fusion
+> > > driver), it no longer waits for SCSI bus probe to finish before
+> > > returning.  So the RHEL4 initrd fails to find the root filesystem, and
+> > > bombs out.  This change was definitely made after 2.6.0, and is an
+> > > example of the sort of change which wouldn't have happened if kinit
+> > > was under the kernel sources and not supplied by the distro.
+> > 
+> > Was RHEL4 designed for 2.6?
+> 
+> Yes (it uses 2.6.9).
 
-> orphan pointer 0xc6113bec (size 28):
->   c017392a: <__kmalloc_track_caller>
->   c01631b1: <__kzalloc>
->   c010b7d7: <legacy_init_iomem_resources>
->   c010b89c: <request_standard_resources>
->   c0100b8b: <do_initcalls>
->   c0100c3d: <do_basic_setup>
->   c0100cdb: <init>
-
-That's a real leak. I posted a patch last night that solves this issue
-- http://lkml.org/lkml/2006/7/10/370
-
-> This is most common
-> orphan pointer 0xf5a6fd60 (size 39):
->   c0173822: <__kmalloc>
->   c01df500: <context_struct_to_string>
->   c01df679: <security_sid_to_context>
->   c01d7eee: <selinux_socket_getpeersec_dgram>
->   f884f019: <unix_get_peersec_dgram>
->   f8850698: <unix_dgram_sendmsg>
->   c02a88c2: <sock_sendmsg>
->   c02a9c7a: <sys_sendto>
-
-Looking at the call trace, the pointer to the memory allocated in
-context_struct_to_string() is stored in the "cb" variable in struct
-sk_buff (argument passed to selinux_socket_getpeersec_dgram from
-unix_get_peersec_dgram).
-
-This pointer should be found when scanning the "struct sk_buff"
-blocks, unless you also get a comparable number of "struct sk_buff"
-reports (from __alloc_skb). If not, it might be a real leak.
-
--- 
-Catalin
+Ok, I suspect RHEL9 doesnt work with root on usb-storage or sbp2 either?
+If so, not a big deal. in-kernel kinit wouldnt work any better if it lacks
+support for async probing. But I dont know the details about the mpt failure.

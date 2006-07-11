@@ -1,167 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWGKEnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWGKEoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbWGKEnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 00:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWGKEnR
+	id S964787AbWGKEoh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 00:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWGKEoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 00:43:17 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27882 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965154AbWGKEnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 00:43:16 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Ingo Oeser <ioe-lkml@rameria.de>
-Subject: [PATCH] de_thread: Use tsk not current.
-Date: Mon, 10 Jul 2006 22:42:25 -0600
-Message-ID: <m1bqrwkb0u.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 00:44:37 -0400
+Received: from ns.oss.ntt.co.jp ([222.151.198.98]:50564 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S964787AbWGKEog
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 00:44:36 -0400
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe
+	kdump	(2.6.18-rc1-i386) - safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: akpm@osdl.org, James.Bottomley@steeleye.com, Keith Owens <kaos@ocs.com.au>,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <1152591661.2414.11.camel@localhost.localdomain>
+References: <5742.1152520068@ocs3.ocs.com.au>
+	 <1152526550.3003.24.camel@localhost.localdomain>
+	 <m1u05ppu6h.fsf@ebiederm.dsl.xmission.com>
+	 <1152591661.2414.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Tue, 11 Jul 2006 13:44:33 +0900
+Message-Id: <1152593073.2414.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-07-11 at 13:21 +0900, Fernando Luis Vázquez Cao wrote:
+> Hi Eric!
+> 
+> On Mon, 2006-07-10 at 05:37 -0600, Eric W. Biederman wrote:
+> > Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> writes:
+> > 
+> > > Hi Keith,
+> > >
+> > > Thank you for the comments.
+> > >
+> > > On Mon, 2006-07-10 at 18:27 +1000, Keith Owens wrote:
+> > >> Fernando Luis Vazquez Cao (on Mon, 10 Jul 2006 16:50:52 +0900) wrote:
+> > >> >On the event of a stack overflow critical data that usually resides at
+> > >> >the bottom of the stack is likely to be stomped and, consequently, its
+> > >> >use should be avoided.
+> > >> >
+> > >> >In particular, in the i386 and IA64 architectures the macro
+> > >> >smp_processor_id ultimately makes use of the "cpu" member of struct
+> > >> >thread_info which resides at the bottom of the stack. x86_64, on the
+> > >> >other hand, is not affected by this problem because it benefits from
+> > >> >the use of the PDA infrastructure.
+> > >> >
+> > >> >To circumvent this problem I suggest implementing
+> > >> >"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+> > >> >IA64 and use it as a replacement for smp_processor_id in the reboot path
+> > >> >to the dump capture kernel. This is a possible implementation for i386.
+> > >> 
+> > >> I agree with avoiding the use of thread_info when the stack might be
+> > >> corrupt.  However your patch results in reading apic data and scanning
+> > >> NR_CPU sized tables for each IPI that is sent, which will slow down the
+> > >> sending of all IPIs, not just dump.
+> > > This patch only affects IPIs sent using send_IPI_allbutself which is
+> > > rarely called, so the impact in performance should be negligible.
+> > 
+> > Well smp_call_function uses it so I don't know if rarely called applies.
+> > 
+> > However when called with the NMI vector every instance of send_IPI_allbutself
+> > transforms this into send_IPI_mask.  Which is why we need to know our current
+> > cpu in the first place.
+> > 
+> > Therefore why don't we just do that explicitly in crash.c
+> > i.e.
+> > 
+> > static void smp_send_nmi_allbutself(void)
+> > {
+> > 	cpumask_t mask = cpu_online_map;
+> > 	cpu_clear(safe_smp_processor_id(), mask);
+> > 	send_IPI_mask(mask, NMI_VECTOR);
+> > }
+> > 
+> > That will guarantee that any effects this code paranoia may have
+> > are only seen in the crash dump path.
+> 
+> That is a good idea, but I have on concern. In mach-default by default
+> we use __send_IPI_shortcut (no_broadcast==0) instead of send_IPI_mask.
+> Is it always safe to ignore the no_broadcast setting? In other words,
+> can __send_IPI_shortcut be replaced by send_IPI_mask safely?
+>From reading the code, it seems that send_IPI_mask is always safer (we
+avoid the risk of sending an IPI to an offline CPU) and with it we can
+certainly accomplish what we want. I will prepare new patches taking all
+your comments and advices.
 
-Ingo Oeser pointed out that because current expands to an inline function it
-is more space efficient and somewhat faster to simply keep a cached copy of
-current in another variable.  This patch implements that for the de_thread
-function.
+Thank you,
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- fs/exec.c |   46 +++++++++++++++++++++++-----------------------
- 1 files changed, 23 insertions(+), 23 deletions(-)
+Fernando
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 1dd7d49..4dc39b7 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -597,7 +597,7 @@ static int de_thread(struct task_struct 
- 	if (!newsighand)
- 		return -ENOMEM;
- 
--	if (thread_group_empty(current))
-+	if (thread_group_empty(tsk))
- 		goto no_thread_group;
- 
- 	/*
-@@ -622,17 +622,17 @@ static int de_thread(struct task_struct 
- 	 * Reparenting needs write_lock on tasklist_lock,
- 	 * so it is safe to do it under read_lock.
- 	 */
--	if (unlikely(current->group_leader == child_reaper))
--		child_reaper = current;
-+	if (unlikely(tsk->group_leader == child_reaper))
-+		child_reaper = tsk;
- 
--	zap_other_threads(current);
-+	zap_other_threads(tsk);
- 	read_unlock(&tasklist_lock);
- 
- 	/*
- 	 * Account for the thread group leader hanging around:
- 	 */
- 	count = 1;
--	if (!thread_group_leader(current)) {
-+	if (!thread_group_leader(tsk)) {
- 		count = 2;
- 		/*
- 		 * The SIGALRM timer survives the exec, but needs to point
-@@ -641,14 +641,14 @@ static int de_thread(struct task_struct 
- 		 * synchronize with any firing (by calling del_timer_sync)
- 		 * before we can safely let the old group leader die.
- 		 */
--		sig->tsk = current;
-+		sig->tsk = tsk;
- 		spin_unlock_irq(lock);
- 		if (hrtimer_cancel(&sig->real_timer))
- 			hrtimer_restart(&sig->real_timer);
- 		spin_lock_irq(lock);
- 	}
- 	while (atomic_read(&sig->count) > count) {
--		sig->group_exit_task = current;
-+		sig->group_exit_task = tsk;
- 		sig->notify_count = count;
- 		__set_current_state(TASK_UNINTERRUPTIBLE);
- 		spin_unlock_irq(lock);
-@@ -664,13 +664,13 @@ static int de_thread(struct task_struct 
- 	 * do is to wait for the thread group leader to become inactive,
- 	 * and to assume its PID:
- 	 */
--	if (!thread_group_leader(current)) {
-+	if (!thread_group_leader(tsk)) {
- 		/*
- 		 * Wait for the thread group leader to be a zombie.
- 		 * It should already be zombie at this point, most
- 		 * of the time.
- 		 */
--		leader = current->group_leader;
-+		leader = tsk->group_leader;
- 		while (leader->exit_state != EXIT_ZOMBIE)
- 			yield();
- 
-@@ -684,12 +684,12 @@ static int de_thread(struct task_struct 
- 		 * When we take on its identity by switching to its PID, we
- 		 * also take its birthdate (always earlier than our own).
- 		 */
--		current->start_time = leader->start_time;
-+		tsk->start_time = leader->start_time;
- 
- 		write_lock_irq(&tasklist_lock);
- 
--		BUG_ON(leader->tgid != current->tgid);
--		BUG_ON(current->pid == current->tgid);
-+		BUG_ON(leader->tgid != tsk->tgid);
-+		BUG_ON(tsk->pid == tsk->tgid);
- 		/*
- 		 * An exec() starts a new thread group with the
- 		 * TGID of the previous thread group. Rehash the
-@@ -702,17 +702,17 @@ static int de_thread(struct task_struct 
- 		 * Note: The old leader also uses this pid until release_task
- 		 *       is called.  Odd but simple and correct.
- 		 */
--		detach_pid(current, PIDTYPE_PID);
--		current->pid = leader->pid;
--		attach_pid(current, PIDTYPE_PID,  current->pid);
--		transfer_pid(leader, current, PIDTYPE_PGID);
--		transfer_pid(leader, current, PIDTYPE_SID);
--		list_replace_rcu(&leader->tasks, &current->tasks);
-+		detach_pid(tsk, PIDTYPE_PID);
-+		tsk->pid = leader->pid;
-+		attach_pid(tsk, PIDTYPE_PID,  tsk->pid);
-+		transfer_pid(leader, tsk, PIDTYPE_PGID);
-+		transfer_pid(leader, tsk, PIDTYPE_SID);
-+		list_replace_rcu(&leader->tasks, &tsk->tasks);
- 
--		current->group_leader = current;
--		leader->group_leader = current;
-+		tsk->group_leader = tsk;
-+		leader->group_leader = tsk;
- 
--		current->exit_signal = SIGCHLD;
-+		tsk->exit_signal = SIGCHLD;
- 
- 		BUG_ON(leader->exit_state != EXIT_ZOMBIE);
- 		leader->exit_state = EXIT_DEAD;
-@@ -752,7 +752,7 @@ no_thread_group:
- 		spin_lock(&oldsighand->siglock);
- 		spin_lock(&newsighand->siglock);
- 
--		rcu_assign_pointer(current->sighand, newsighand);
-+		rcu_assign_pointer(tsk->sighand, newsighand);
- 		recalc_sigpending();
- 
- 		spin_unlock(&newsighand->siglock);
-@@ -763,7 +763,7 @@ no_thread_group:
- 			kmem_cache_free(sighand_cachep, oldsighand);
- 	}
- 
--	BUG_ON(!thread_group_leader(current));
-+	BUG_ON(!thread_group_leader(tsk));
- 	return 0;
- }
- 	
--- 
-1.4.1.gac83a
+P.S.: Sorry for replying to myself...
+
+> 
+> The implementation of send_IPI_allbutself in the different architectures
+> follows:
+> 
+> smp_send_nmi_allbutself
+>   send_IPI_allbutself
+> 
+> * mach-bigsmp
+> send_IPI_allbutself
+>   cpu_clear(smp_processor_id(), mask)
+>   send_IPI_mask
+>     send_IPI_mask_sequence
+>       apic_wait_icr_idle
+> 
+> * mach-default
+> send_IPI_allbutself
+>   __local_send_IPI_allbutself
+>     if (no_broadcast) {
+>       cpu_clear(smp_processor_id(), mask)
+>       send_IPI_mask(mask, vector)
+>         send_IPI_mask_bitmask
+>           apic_wait_icr_idle
+>     } else {
+>       __send_IPI_shortcut(APIC_DEST_ALLBUT, vector)
+>         apic_wait_icr_idle
+>     }
+> 
+> * mach-es7000
+> send_IPI_allbutself
+>   cpu_clear(smp_processor_id(), mask);
+>   send_IPI_mask
+>     send_IPI_mask_sequence
+>       apic_wait_icr_idle
+> 
+> * mach-numaq
+> send_IPI_allbutself
+>   cpu_clear(smp_processor_id(), mask)
+>   send_IPI_mask
+>     send_IPI_mask_sequence
+>       apic_wait_icr_idle
+> 
+> * mach-summit
+> send_IPI_allbutself
+>   cpu_clear(smp_processor_id(), mask)
+>   send_IPI_mask
+>     send_IPI_mask_sequence
+>       apic_wait_icr_idle
+> 
+> Regards,
+> 
+> Fernando
+> 
+> > 
+> > 
+> > >> It would be far cheaper to define
+> > >> a per-cpu variable containing the logical cpu number, set that variable
+> > >> once as each cpu is brought up and just read it in cases where you
+> > >> might not trust the integrity of struct thread_info.  safe_smp_processor_id()
+> > >> resolves to just a read of the per cpu variable.
+> > > But to read a per-cpu variable you need to index the corresponding array
+> > > with processor id of the current CPU (see code below), but that is
+> > > precisely what we are trying to figure out. Anyway as
+> > > send_IPI_allbutself is not a fast path (correct if this assumption is
+> > > wrong) the current implementation of safe_smp_processor_id should be
+> > > fine.
+> > >
+> > > #define get_cpu_var(var) (*({ preempt_disable();
+> > > &__get_cpu_var(var); }))
+> > > #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+> > >
+> > > Am I missing something obvious?
+> > 
+> > No.  Except that other architectures have cheaper per pointers so they
+> > don't have that problem.
+> > 
+> > Eric
+> 
+> _______________________________________________
+> fastboot mailing list
+> fastboot@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/fastboot
 

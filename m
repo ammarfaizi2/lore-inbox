@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWGKWFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWGKWFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWGKWFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWGKWFL
+	id S932180AbWGKWFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWGKWFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:05:11 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:153 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932182AbWGKWFJ (ORCPT
+	Tue, 11 Jul 2006 18:05:38 -0400
+Received: from mail.suse.de ([195.135.220.2]:22214 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932184AbWGKWFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:05:09 -0400
-Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
-	keep cache pressure down
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-In-Reply-To: <20060711.145751.77136364.davem@davemloft.net>
-References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-	 <20060711.135729.104381402.davem@davemloft.net>
-	 <1152653401.16499.35.camel@chalcedony.pathscale.com>
-	 <20060711.145751.77136364.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 15:05:08 -0700
-Message-Id: <1152655509.16499.49.camel@chalcedony.pathscale.com>
+	Tue, 11 Jul 2006 18:05:35 -0400
+Date: Tue, 11 Jul 2006 15:01:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: Opinions on removing /proc/tty?
+Message-ID: <20060711220117.GD663@kroah.com>
+References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <20060707223043.31488bca.rdunlap@xenotime.net> <9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com> <20060708220414.c8f1476e.rdunlap@xenotime.net> <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com> <44B0D55D.2010400@gmail.com> <9e4733910607090645l236f17f1sb9778f0fc6c6ca01@mail.gmail.com> <20060709103529.bf8a46a4.rdunlap@xenotime.net> <44B191CF.2090506@gmail.com> <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 14:57 -0700, David Miller wrote:
+On Sun, Jul 09, 2006 at 08:44:24PM -0400, Jon Smirl wrote:
+> Much simpler solution:
+> 
+> cat /sys/class/graphics/fb0/modes
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> mode_string
+> ...
 
-> I didn't realize there was change afoot in this area, sorry.
-> I was just striving for consistency with current practice.
+How do you handle the issue when this file overflows a PAGE_SIZE buffer?
 
-Sure.
+> echo mode_string >/sys/class/graphics/fb0/mode
 
-> When the kernel is linked, lib.a implementations only get brought in
-> if they are not already resolved by definitions present in the other
-> objects of the kernel image.
+Yeah, that initially looks very simple, but again, it violates the sysfs
+rules.  No matter how stupid you think they are, it still doesn't
+matter...
 
-Well, exactly this scheme seems to work for __iowrite_copy*.  There's a
-weak generic version and a strong version in arch/x86_64/lib that
-overrides it, and it gets picked up at kernel link time.
+If you really don't like it, make a fbfs, it's only about 200 lines of
+code...
 
-It could be working by accident, I suppose, but it's at least consistent
-behaviour with what I'm used to from weak symbols.
+thanks,
 
-	<b
-
+greg k-h

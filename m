@@ -1,68 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161059AbWGITke (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 9 Jul 2006 15:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161085AbWGITke
+	id S965074AbWGKCKp (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 10 Jul 2006 22:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbWGKCKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jul 2006 15:40:34 -0400
-Received: from ip-62-2-100-238.vtz.net ([62.2.100.238]:42275 "EHLO
-	mail.vtz.net") by vger.kernel.org with ESMTP id S1161059AbWGITkd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jul 2006 15:40:33 -0400
-Date: Sun, 09 Jul 2006 12:38:44 -0800
-From: "Herman Hull" <garciaupricea@adamjeeinsurance.com>
-To: <mail@padma.ch>
-Subject: Re:Quality r'eplica watches, R'0|ex , Cartier and much more SnlOxSb
-Message-ID: <UcLyW_okBf4X5b6Yb5K3yL6@adamjeeinsurance.com>
+	Mon, 10 Jul 2006 22:10:45 -0400
+Received: from 85-130-9-100.1703706.ddns.cablebg.net ([85.130.9.100]:45061
+	"HELO 85-130-9-100.1703706.ddns.cablebg.net") by vger.kernel.org
+	with SMTP id S965074AbWGKCKo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 22:10:44 -0400
+Reply-To: "Donnie Hankins" <jpicardxddc@mfia.com>
+From: "Donnie" <jpicardxddc@mfia.com>
+Message-ID: <8289642855.20060711021613@jlapdnbmf>
+Date: Tue, 11 Jul 2006 02:16:13 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: FI H X K P Sexy Young Hitch Hiker Close Up Fucked
 MIME-Version: 1.0
-Content-type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161059AbWGITke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965074AbWGKCKp@vger.kernel.org>
 
-Wear Real Class on Your Wrist and Impress
+You have the advantage of me! :)
+Busty Nympho At Home In Lingerie Shows TitsYoung Tanned Brunette DPed Hardcore 3some
 
-We carry all major top-name brands, at terrific prices you can ONLY find Online! 
-These watches will dignify any wrist and add class to any outfit. 
-Browse our extensive online store for more great deals on MENS and LADIES watches.
+Top of the morning to you! :)
+http://inside.mygopenik.com/?fresh
 
-Goto Our Website makanjj.info
+Young Babe Fingered Bald Pussy HardcoreYoung Tanned Lesbian Babes Fucking With Strap-on
 
-***SPECIAL THIS WEEK ONLY***
-
-This week we are offering great deals on SWISS R0lex watches. These watches are GENUINE CLASS.
-* Swiss 25 Jewel ETA automatic movement
-* Serial number (accurate) and model number engraved between the lugs
-* Genuine sapphire crystal
-* Band is linked by threaded screws, not cheap pins
-* Solid back with green R0lex holographic sticker and model number
-* Diamond turning bezel
-* One-piece solid screw down crown with R0lex engraving, trip-lock, with rubber seal
-* Waterproof (to 30M), fully pressure tested
-* Perfect weight and feel
-
-Browse our collection of SWISS R0lex -- these watches are on special for THIS WEEK ONLY. 
-These watches retail for $1500 - $1800 in stores, but you can get them at major discounts online!
+Know most of the rooms of thy native country before thou goest over the threshold thereof.We lost because we told ourselves we lost.All men of action are dreamers.
 
 
-We also offer a wide variety of other name brand watches at great prices. 
-Looking for a gift? 
-We supply MENS and LADIES WATCHES: R0lex, Beitling, Bvlgari, Cartier, Chanel, Tag Heuer, and lots more! 
-Shop around and see why we are THE BEST ONLINE DISTRIBUTOR of fine jewelry at great prices.
-
-Our Shop:
-http://www.makanjj.info
-
-
-
-
-
-
-
-The Internet has a rising star whose name isn't Google. 
-Just over 2 years old, MySpace now has 21/2 times the traffic of Inc.
-and it quickly eclipsed Friendster as the top social-networking site where users 
-build larger and larger circles of friends. 
-"It's like being at a giant music conference 24 hours a day every day," 
-said Greg McIntosh, 27, guitarist for Ann Arbor, Michigan-based Great Lakes Myth Society.
-  

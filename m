@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWGKXLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWGKXLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWGKXLW (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751346AbWGKXLW (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 11 Jul 2006 19:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWGKXLV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWGKXLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 11 Jul 2006 19:11:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17282 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751346AbWGKXLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 11 Jul 2006 19:11:21 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:51082 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751345AbWGKXLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:11:21 -0400
-Message-ID: <44B43019.9010402@namesys.com>
-Date: Tue, 11 Jul 2006 16:11:21 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Clay Barnes <clay.barnes@gmail.com>
-CC: Reiserfs mail-list <Reiserfs-List@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>
-Subject: Re: short term task list for Reiser4
-References: <44B42064.4070802@namesys.com> <20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
-In-Reply-To: <20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Date: Tue, 11 Jul 2006 19:10:14 -0400
+From: Alan Cox <alan@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Alan Cox <alan@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1: drivers/ide/pci/jmicron.c warning
+Message-ID: <20060711231014.GA30186@devserv.devel.redhat.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <20060711125258.GN13938@stusta.de> <20060711140257.GA6820@devserv.devel.redhat.com> <20060711221045.GC13938@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060711221045.GC13938@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clay Barnes wrote:
+On Wed, Jul 12, 2006 at 12:10:45AM +0200, Adrian Bunk wrote:
+> I'm not a C expert myself, so I asked a gcc developer on irc.
+> 
+> The problem is that C allows you to assign other values than the ones 
+> listed in the enum to the variable.
 
->On 15:04 Tue 11 Jul     , Hans Reiser wrote:
->  
->
->>
->>6) optimize fsync --- substantive task which requires using fixed area
->>for write twice logging, and using write twice logging for fsync'd
->>data.  It might require creating mount options to choose whether to
->>optimize for serialized sequential fsyncs vs. lazy fsyncs.
->>    
->>
->With the serialized sequential fsync, is that essentially what I was
->talking about earlier with slowly streaming dirty writes to disk when
->the HDD is idle?  If that's the case, I don't see the advantage in having
->lazy fsyncs
->
-if you are optimizing throughput rather than latency, then you let
-things get to disk whenever they get there, and you let the app hang
-while it waits. A mailer processing many requests in parallel might find
-30 seconds of latency to be just fine but a database might find 3
-seconds of latency to be too much. (I make up these examples, mailer
-programmers please correct me.)
+Its still a gcc bug in that case because you can show by static analysis
+that no value is assigned into that array which isn't a member of the enum
+and also that nobody takes the address of the object in question...
 
-> except in situations where you want to keep the HDD spun down
->as much as possible.
->
-No, that is not when you do it.
+[Ok its a harder one]
 
->I've been meaning to hose my laptop (assuming I fix one problem with my
->desktop), so I am willing to help write Gentoo install docs (or possibly
->Arch Linux).  I can also test exsiting instructions.
->  
->
-That would be way cool.
-<http://wiki.namesys.com/Reiser4-GettingStarted#preview>
+I'd say that gcc warning in the case that all the enum values are enumerated
+and have returns is a broken warning irrespective of that so I won't "fix" it
+because it isn't broken. Its just like various other bogus gcc warnings
+
+
+Alan
 

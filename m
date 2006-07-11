@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWGKIm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWGKI74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWGKIm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 04:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWGKIm3
+	id S1750782AbWGKI74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 04:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWGKI74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 04:42:29 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:42908 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750756AbWGKIm2 (ORCPT
+	Tue, 11 Jul 2006 04:59:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46300 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750782AbWGKI74 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 04:42:28 -0400
-Message-ID: <44B3646F.5030902@fr.ibm.com>
-Date: Tue, 11 Jul 2006 10:42:23 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
-References: <20060711075051.382004000@localhost.localdomain> <1152604970.3128.15.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152604970.3128.15.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 11 Jul 2006 04:59:56 -0400
+Date: Tue, 11 Jul 2006 01:59:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/2] swsusp: clean up browsing of pfns
+Message-Id: <20060711015941.d35f0b7d.akpm@osdl.org>
+In-Reply-To: <20060711083415.GB1787@elf.ucw.cz>
+References: <200607102240.45365.rjw@sisk.pl>
+	<200607102251.40083.rjw@sisk.pl>
+	<20060711083415.GB1787@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Tue, 11 Jul 2006 10:34:15 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-> how does this interact with the unshare() syscall ?
+> Hi!
+> 
+> > Clean up some loops over pfns for each zone in snapshot.c: reduce the number
+> > of additions to perform, rework detection of saveable pages and make the code
+> > a bit less difficult to understand, hopefully.
+> 
+> Also remove the BUG_ON() so that you can solve Andrew's monster
+> machine problem.
 
-it complements unshare(). The purpose of this syscall is to unshare a
-namespace after the process has been flushed.
+I don't understand your comment.  I assume you're adding an explanation for
+the removal of:
 
-> can the unshare syscall be rigged up such that you have the same effect?
+-	BUG_ON(PageReserved(page) && PageNosave(page));
 
-We need a clean context with no reference in other namespaces to make
-unshare safe. It seemed easier to add an improved execve() with an extra
-flag than to modify unshare() to make it flush the old exec.
+from saveable_page().
 
-Now, that does not make unshare() useless. It's perfectly acceptable for
-uts namespace. But IMO, it's dangerous for ipc namespace and user namespace
-which are more complex because they have references all over the place :
-network with socket, mm for shmem, files for accounting.
-
-thanks,
-
-C.
+But my emt64 test box is oopsing when touching a hole in the memory-map; it
+isn't going BUG() (any more than usual ;))
 

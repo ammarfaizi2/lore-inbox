@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWGKPTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWGKPT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWGKPTe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWGKPTe
+	id S1751008AbWGKPT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWGKPT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:19:34 -0400
-Received: from mail.gmx.de ([213.165.64.21]:28317 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750983AbWGKPTe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:19:34 -0400
-Cc: john stultz <johnstul@us.ibm.com>, Valdis.Kletnieks@vt.edu,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="utf-8"
-Date: Tue, 11 Jul 2006 17:19:32 +0200
-From: "Uwe Bugla" <uwe.bugla@gmx.de>
-Message-ID: <20060711151932.19310@gmx.net>
+	Tue, 11 Jul 2006 11:19:56 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18963 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751008AbWGKPTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:19:42 -0400
+Date: Tue, 11 Jul 2006 17:19:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport open_softirq
+Message-ID: <20060711151941.GU13938@stusta.de>
+References: <20060711120159.GA20601@lst.de> <20060711121226.GA12679@elte.hu>
 MIME-Version: 1.0
-Subject: patch for timer.c
-To: Roman Zippel <zippel@linux-m68k.org>
-X-Authenticated: #8359428
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711121226.GA12679@elte.hu>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
-a thousand thanks for Roman's excellent work. which I tested as implementation in 2.6.18-rc1-mm1.
-I can use again „vga=791“ as kernel parameter, I do not suffer any keyboard errors anymore at boot prompt, and the kernel boots very quickly.
-Fantastic!
+Christoph Hellwig:
+open_softirq just enables a softirq.  The softirq array is statically
+allocated so to add a new one you would have to patch the kernel.  So
+there's no point to keep this export at all as any user would have to
+patch the enum in include/linux/interrupt.h anyway.
 
-BUT: This is a „Pentium-4-only“ solution. On my file server, which is a Pentium 3 machine, the kernel stops booting and hangs the machine, no matter if I use framebuffer console with „vga=791“ or not.
-Would you please try to find a fix for every architecture at any speed?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Regards
+--- linux-2.6.18-rc1-mm1-full/kernel/softirq.c.old	2006-07-11 16:50:54.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/kernel/softirq.c	2006-07-11 16:51:00.000000000 +0200
+@@ -311,8 +311,6 @@
+ 	softirq_vec[nr].action = action;
+ }
+ 
+-EXPORT_UNUSED_SYMBOL(open_softirq);  /*  June 2006  */
+-
+ /* Tasklets */
+ struct tasklet_head
+ {
 
-Uwe
-
--- 
-
-
-"Feel free" – 10 GB Mailbox, 100 FreeSMS/Monat ...
-Jetzt GMX TopMail testen: http://www.gmx.net/de/go/topmail

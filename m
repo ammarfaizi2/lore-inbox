@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWGKUBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGKUCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWGKUBa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWGKUBa
+	id S932117AbWGKUCt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWGKUCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:01:30 -0400
-Received: from thunk.org ([69.25.196.29]:3220 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932115AbWGKUB3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:01:29 -0400
-Date: Tue, 11 Jul 2006 16:01:00 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Olaf Hering <olh@suse.de>,
-       Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, klibc@zytor.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711200100.GA9040@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, Olaf Hering <olh@suse.de>,
-	Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-	Roman Zippel <zippel@linux-m68k.org>, klibc@zytor.com,
-	linux-kernel@vger.kernel.org
-References: <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de> <44B3E814.3060004@zytor.com> <20060711181055.GC16869@suse.de> <44B3EB28.1050007@zytor.com> <20060711191548.GA17585@suse.de> <Pine.LNX.4.64.0607111226320.5623@g5.osdl.org> <44B3FE34.9000704@zytor.com> <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
+	Tue, 11 Jul 2006 16:02:49 -0400
+Received: from mxsf18.cluster1.charter.net ([209.225.28.218]:55193 "EHLO
+	mxsf18.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751213AbWGKUCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:02:48 -0400
+X-IronPort-AV: i="4.06,230,1149480000"; 
+   d="scan'208"; a="387608855:sNHT20976968"
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
+Message-ID: <17588.997.688135.786150@stoffel.org>
+Date: Tue, 11 Jul 2006 16:02:45 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6.18-rc1-mm1 - bad serial port count messages
+In-Reply-To: <20060711185630.GA1240@flint.arm.linux.org.uk>
+References: <17587.42397.168635.821696@stoffel.org>
+	<20060711185630.GA1240@flint.arm.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 12:51:31PM -0700, Linus Torvalds wrote:
-> On Tue, 11 Jul 2006, H. Peter Anvin wrote:
-> > 
-> > Does that mean "in kernel space", "in the kernel distribution" or "in memory
-> > completely under the control by the kernel?"  That is really what this is
-> > about.
-> 
-> I think it's all about kernel space.
-> 
-> Moving the default parsing to user space would add exactly _zero_ 
-> advantage, and would add totally unnecessary complexity (ie now we need to 
-> make sure that hotplug does it right - and the hotplug routines suddenly 
-> change between the boot phase and the actual install).
 
-While you're at it, do you think you'd be willing to opine about doing
-whether it makes sense to chuck out the guts of suspend-to-disk so
-that it must be done in userspace?  
+Russell> On Tue, Jul 11, 2006 at 09:20:29AM -0400, John Stoffel wrote:
+>> I'm getting the following messages in dmesg:
+>> 
+>> uart_close: bad serial port count; tty->count is 1, state->count is 0
+>> uart_close: bad serial port count for ttyS0: -1
+>> uart_close: bad serial port count for ttyS0: -1
 
-						- Ted
+Russell> I assume that it's 100% reproducable, and doesn't happen with
+Russell> mainline?
+
+Not sure, haven't rebooted yet to make sure it happens again.  The
+hardware is a Dell Dimension 630, Dual Xeon PIII 550mhz, 768mb of
+RAM.  It's been my main machine for a number of years now.  
+
+Russell> I'm not aware of any serial core patches in -mm which would
+Russell> produce this type of breakage - maybe there's something funny
+Russell> with the tty layer in that it's trying to close the port more
+Russell> times than it's been opened...  Hmm.
+
+I thought I saw something float by where someone had raised some new
+locking or count variables?  I dunno... I'll work on it tonight and
+see what happens after another reboot.
+
+John

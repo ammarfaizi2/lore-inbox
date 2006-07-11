@@ -1,83 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbWGKGTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWGKGVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965220AbWGKGTn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWGKGTn
+	id S965217AbWGKGVx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWGKGVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:19:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58789 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965213AbWGKGTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:19:42 -0400
-Date: Mon, 10 Jul 2006 23:19:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1 - VPN chewing CPU like crazy..
-Message-Id: <20060710231939.256a017a.akpm@osdl.org>
-In-Reply-To: <200607110420.k6B4KMZM013584@turing-police.cc.vt.edu>
-References: <200607110420.k6B4KMZM013584@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 11 Jul 2006 02:21:53 -0400
+Received: from ns.oss.ntt.co.jp ([222.151.198.98]:7302 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S965217AbWGKGVx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:21:53 -0400
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
+	(2.6.18-rc1-i386) -	safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
+       fastboot@lists.osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <1152565096.4027.4.camel@mulgrave.il.steeleye.com>
+References: <1152517852.2120.107.camel@localhost.localdomain>
+	 <1152540988.7275.7.camel@mulgrave.il.steeleye.com>
+	 <m1irm5nwyw.fsf@ebiederm.dsl.xmission.com>
+	 <1152565096.4027.4.camel@mulgrave.il.steeleye.com>
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Tue, 11 Jul 2006 15:21:50 +0900
+Message-Id: <1152598910.2414.74.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi James,
 
-(cc's added)
+Thank you for taking the time to review the code!
 
-On Tue, 11 Jul 2006 00:20:22 -0400
-Valdis.Kletnieks@vt.edu wrote:
+On Mon, 2006-07-10 at 15:58 -0500, James Bottomley wrote:
+> On Mon, 2006-07-10 at 12:20 -0600, Eric W. Biederman wrote:
+> > I agree that it shows the problem, and that voyager is different from the
+> > rest of the x86 implementations. 
+> 
+> As a non-apic based SMP implementation, I don't think there was ever any
+> dissent about the latter.
+> 
+> > At least for things like the cpumask_t density of processor ids
+> > is still an interesting property.  The basic issue is that apicids are
+> > not in general dense on x86.  Not being able compile with support
+> > for only two cpus because your cpus happen to be apicid 0 and apicid
+> > 6 by default is an issue.
+> 
+> Density or lack of it is pretty much irrelevant nowadays since the CPU
+> map iterators are sparse efficient.  Whether x86 PC chooses to avail
+> itself of this or not is the business of the PC subarch maintainers.
+> The vast marjority of non-x86 SMP implementations still have sparse (or
+> at least physical only) CPU maps.
+> 
+> > To some extent this also shows the mess that the x86 subarch code is
+> > because it is never clear if code is implemented in a subarchitecture
+> > or not.
+> 
+> Erm, it does?  How?  My statement is that introducing subarch specific
+> #defines into subarch independent header files is a problem (which it
+> is).  If you grep for subarch defines in the rest of the arch
+> independent headers, I don't believe you'll find any.  This would rather
+> tend to show that for the last seven years, the subarch interface has
+> been remarkably effective ....
+> 
+> > Fernando can you just put a trivial voyager specific definition of
+> > safe_smp_processor_id in mach-voyager/voyager_smp.c.  It isn't a fast
+> > path so the little extra overhead of making two separate functions
+> > is not an issue and then the generic header doesn't have to have
+> > subarch breakage.  Just a definition of safe_smp_processor_id().
+> 
+> Yes, that should work.
+Done. I hope I got it right this time. Anyway, if there is something
+incorrect in the new patches (1/4 and 2/4 in particular) let me know.
 
-> (This is *NOT* new with 2.6.18-rc1-mm1, I've seen it a few times before, no
-> idea when it started... I think I've seen it as far back as 2.6.16-mm2 or so).
-> 
-> Most of the time, the VPN comes up just fine.
-> 
-> Jul 10 22:44:28 turing-police kernel: [ 7180.696000] CSLIP: code copyright 1989 Regents of the University of California
-> Jul 10 22:44:28 turing-police kernel: [ 7180.701000] PPP generic driver version 2.4.2
-> Jul 10 23:00:26 turing-police kernel: [ 8137.903000] PPP MPPE Compression module registered
-> 
-> However, sometimes (usually when restarting after the VPN gets dropped due to
-> a network burp, etc), it will start up, get connected, and then the the first
-> (or one of the first) data packets over the VPN will suddenly spike the
-> CPU to 100% (about 50% userspace and 50% kernel).  A quick oprofile check
-> shows the kernel CPU getting sucked:
-> 
-> samples  %        image name               app name                 symbol name
-> 10901    18.2805  arc4.ko                  arc4                     .text
-> 5046      8.4619  ppp_async.ko             ppp_async                ppp_async_push
-> 4865      8.1584  pptp                     pptp                     (no symbols)
-> 4382      7.3484  arc4.ko                  arc4                     arc4_set_key
-> 4331      7.2629  vmlinux                  vmlinux                  sha_transform
-> 4203      7.0482  libfb.so                 libfb.so                 fbCopyAreammx
-> 3342      5.6044  vmlinux                  vmlinux                  ecb_process
-> 1324      2.2203  libgdk_imlib.so.1.9.13   libgdk_imlib.so.1.9.13   (no symbols)
-> 1149      1.9268  ip_tables.ko             ip_tables                ipt_do_table
-> 1071      1.7960  vmlinux                  vmlinux                  local_bh_enable
-> 848       1.4221  vmlinux                  vmlinux                  acpi_pm_read
-> 816       1.3684  vmlinux                  vmlinux                  __local_bh_disable
-> 698       1.1705  vmlinux                  vmlinux                  n_tty_receive_buf
-> 651       1.0917  vmlinux                  vmlinux                  do_page_fault
-> 
-> (pptp is the userspace control process)
-> 
-> gkrellm reports that about 4 mbytes/sec is being sent on ppp0 - but shows
-> zero traffic on eth0 (the underlying interface).  When working properly,
-> both ppp0 and eth0 show the traffic.
-> 
-> This continues until I get fed up and manually take the VPN down, at which
-> point it happily gets rid of ppp0 and CPU load returns to normal.
-> 
-> I haven't found a clean way to reproduce it - sometimes I won't see it for
-> 2-3 weeks, then it will pop up several times in an evening.
-> 
-> Any suggestions/hints (besides rebuilding the implicated .ko with debugging
-> symbols so oprofile can be more granular - that's already on the to-do list)?
-> 
+Regards,
 
-I'd suggest you whack sysrq-T 5-10 times when it happens, capture a few
-stack traces.
+Fernando
 

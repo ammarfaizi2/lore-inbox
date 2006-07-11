@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWGKUWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWGKUWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWGKUWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWGKUWF
+	id S1751222AbWGKUWn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWGKUWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:22:05 -0400
-Received: from waha.wetafx.co.nz ([210.55.0.200]:4483 "EHLO waha.wetafx.co.nz")
-	by vger.kernel.org with ESMTP id S1751126AbWGKUWE (ORCPT
+	Tue, 11 Jul 2006 16:22:43 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:59270 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751285AbWGKUWl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:22:04 -0400
-Message-ID: <44B40869.6030103@wetafx.co.nz>
-Date: Wed, 12 Jul 2006 08:22:01 +1200
-From: Bill Ryder <bryder@wetafx.co.nz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 Thunderbird/1.5.0.4 Mnenhy/0.7.4.0
+	Tue, 11 Jul 2006 16:22:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EKnAVnJEUfesVHhmCiB8j1vSOzrKNYUvfvydkulXWQ1UuxpldIWHwxps3nu5Tr8Vy8dADdwvqNxEpawFZnab2ELCA4gpe2u+XTB01QaVSzLZFtA8JohtoXK0q7rnhWrkrbz4lxiz6V/RPNMZooHZZ1nXozb4WRsIrNLd/bpfli8=
+Message-ID: <e1e1d5f40607111322r45580fcfg4bdd15cc5a71a26@mail.gmail.com>
+Date: Tue, 11 Jul 2006 16:22:40 -0400
+From: "Daniel Bonekeeper" <thehazard@gmail.com>
+To: "Matthieu CASTET" <castet.matthieu@free.fr>
+Subject: Re: Will there be Intel Wireless 3945ABG support?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <pan.2006.07.11.19.18.18.366194@free.fr>
 MIME-Version: 1.0
-To: ray-gmail@madrabbit.org
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH 2.6.18-rc1] Make group sorting optional in the 2.6.x kernels
-References: <44B32888.6050406@wetafx.co.nz> <2c0942db0607111109n14353c50wdaf144214d572ffe@mail.gmail.com>
-In-Reply-To: <2c0942db0607111109n14353c50wdaf144214d572ffe@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <1152635563.4f13f77cjsmidt@byu.edu>
+	 <20060711171238.GA26186@tuxdriver.com>
+	 <200607111909.22972.s0348365@sms.ed.ac.uk>
+	 <44B3ED29.4040801@gmail.com>
+	 <1152644119.18028.46.camel@localhost.localdomain>
+	 <pan.2006.07.11.19.18.18.366194@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Ray Lee wrote:
-> In addition to Randy's fine comments...
+On 7/11/06, Matthieu CASTET <castet.matthieu@free.fr> wrote:
+> Le Tue, 11 Jul 2006 19:55:19 +0100, Alan Cox a écrit:
 >
->
->
-> It seems there's a third way to do this that would maintain
-> setgroups(2) compatibility and speed when you have a lot of groups.
-At least for NFS which is the problem here.
->
-> Maintain the list of groups such that the first sixteen correspond to
-> what setgroups(2) requested, and keep the rest sorted. A search for
-> groups would then linearly check each of the first sixteen entries
-> then, if there's more, binary search the remainder from 16 to
-> group_info->ngroups.
-That's a great idea.
+> > Ar Maw, 2006-07-11 am 21:25 +0300, ysgrifennodd Alon Bar-Lev:
+> >> And to have a system that you know exactly what running in it...
+> >> Having a binary closed source violate this.
+> >
+> > Also if the binary only chunk of code is neccessary to make the open
+> > source bit work then its a derivative work as I understand the
+> > situation, which makes it all rather questionable from a licensing
+> > perspsective.
+> >
+> > Hopefully Intel will find a sensible solution to the problem or someone
+> > will just reverse engineer it away.
+> >
+> Well openbsd guys already reversed engineer it :
+> http://kerneltrap.org/node/6650
 
-I'll do that instead.
+[quote]
 
-And next time I won't attach the patch :-)
+Porting wpi
 
+When asked the likelihood that the wpi driver would be ported to
+Linux, Damien thought that this was unlikely. "I doubt the Linux
+community will ever leverage this work since Intel is developing a
+802.11 layer for the Linux kernel," he said, "Linux kernel developers
+probably can't afford to upset Intel."
 
+[/quote]
 
+Huh ?
 
-
-
+-- 
+What this world needs is a good five-dollar plasma weapon.

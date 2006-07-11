@@ -1,101 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWGKEsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWGKEuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbWGKEsl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 00:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWGKEsk
+	id S965110AbWGKEuH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 00:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWGKEuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 00:48:40 -0400
-Received: from ns.suse.de ([195.135.220.2]:49572 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965106AbWGKEsk (ORCPT
+	Tue, 11 Jul 2006 00:50:07 -0400
+Received: from xenotime.net ([66.160.160.81]:42888 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965110AbWGKEuF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 00:48:40 -0400
-Date: Tue, 11 Jul 2006 06:48:34 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-       klibc@zytor.com, torvalds@osdl.org
-Subject: Re: klibc and what's the next step?
-Message-ID: <20060711044834.GA11694@suse.de>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home>
+	Tue, 11 Jul 2006 00:50:05 -0400
+Date: Mon, 10 Jul 2006 21:52:53 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matt Reuther <mreuther@umich.edu>
+Cc: adaplas@gmail.com, akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] appledisplay/backlight (Depmod errors on
+ 2.6.17.4/2.6.18-rc1/2.6.18-rc1-mm1)
+Message-Id: <20060710215253.1fcaab57.rdunlap@xenotime.net>
+In-Reply-To: <200607102327.38426.mreuther@umich.edu>
+References: <200607100833.00461.mreuther@umich.edu>
+	<20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>
+	<44B27931.30609@gmail.com>
+	<200607102327.38426.mreuther@umich.edu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0606271316220.17704@scrub.home>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2006 at 03:12:53PM +0200, Roman Zippel wrote:
+> > >> CONFIG_FB=n, CONFIG_BACKLIGHT_CLASS_DEVICE=m should not be possible in
+> > >> 2.6.18-rc1-mm1 and 2.6.18-rc1.  Can you run kconfig again?
+> > >>
+> > >> Tony
+> >
+> > I tested with make menuconfig, and it's not possible to set lcd/backlight
+> > options if CONFIG_FB is not set.
 
-> So anyone who likes to see klibc merged, because it will solve some kind 
-> of problem for him, please speak up now. Without this information it's 
-> hard to judge whether we're going to solve the right problems.
+Tony, it is possiblle when the USB APPLEDISPLAY option is set and it selects
+backlight options without regard for FB.
+ 
+> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
+> needs unknown symbol fb_unregister_client
+> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
+> needs unknown symbol fb_register_client
 
-I do not want to see kinit merged.
-It (the merge into linux-2.6.XY) doesnt solve any real problem in the long term.
-Instead, make a kinit distribution. Let it install itself into an obvious
-location on the development box (/usr/lib/kinit/* or whatever), remove all
-code behind prepare_namespace() and put a disclaimer into the Linux 2.6.XY
-releasenote stating where to grab and build a kinit binary:
-make && sudo make install
-It can even provide its own CONFIG_INITRAMFS_SOURCE file, so that would
-be the only required change to the used .config.
+This patch fixes it for me.  Is it the right thing to do?
+---
 
-The rationale is that there are essentially 2 kind of consumers:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-One is the kind that builds static kernels and uses no initrd of any kind.
-For those people, the code and interfaces behind prepare_namespace() has
-not changed in a long time.
-They will install that kinit binary once and it will continue to work with
-kernels from 2.6.6 and later, when "/init" support was merged. Or rather
-from 2.6.1x when CONFIG_INITRAMFS_SOURCE was introduced.
+appledisplay calls fb_register_client() so needs to depend on FB.
 
-The other group is the one that uses some sort of initrd (loop mount or cpio),
-created with tools from their distribution.
-Again, they should install that kinit binary as well because kinit emulates
-the loop mount handling of /initrd.image. This is for older distributions
-that still create a loop mounted initrd.
-A distribution that uses a cpio archive (SuSE does that since 2.6.5 in SLES9,
-and since 2.6.13 in 10.0) has no need for the kinit. mkinitrd creates a
-suitable cpio archive and the contained "/init" executable does all the 
-hard work (as stated in the comment in init/main.c:init())
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/usb/misc/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+--- linux-2618-rc1mm1.orig/drivers/usb/misc/Kconfig
++++ linux-2618-rc1mm1/drivers/usb/misc/Kconfig
+@@ -163,7 +163,7 @@ config USB_IDMOUSE
+ 
+ config USB_APPLEDISPLAY
+ 	tristate "Apple Cinema Display support"
+-	depends on USB
++	depends on USB && FB
+ 	select BACKLIGHT_LCD_SUPPORT
+ 	select BACKLIGHT_CLASS_DEVICE
+ 	help
 
-In earlier mails you stated that having kinit/klibc in the kernel sources
-would make it easier to keep up with interface changes.
-What interface changes did you have in mind, and can you name any relevant
-interface changes that were made after 2.6.0 which would break an external
-kinit?
-
-24-klibc-basic-build-infrastructure.patch forces the klibc build, even for
-setups where it is not required. CONFIG_KLIBC, if it ever gets merged, should
-be optional. usr/initramfs.default as example has a hard requirement.
-If CONFIG_KLIBC is off, only /dev, /dev/console and /root should be part of
-the cpio archive in the .init.ramfs ELF section. The exectuables come from
-the cpio initrd.
-I once looked briefly for a patch that would introduce something like 
-CONFIG_OBSOLETE_PREPARE_NAMESPACE which will make all code behind
-prepare_namespace() optional. For SuSE, this dead code just wastes build time,
-and it increases the vmlinux file size. While looking for ROOT_DEV users,
-it wasnt obvious to me what requirements mtd has, so I postponed that attempt.
-I'm sure ROOT_DEV can go as well in your patch named
-29-remove-in-kernel-root-mounting-code.patch
-All can be done outside the kernel code, and there is the root= cmdline option.
-
-
-As others have stated in this thread, the code behind prepare_namespace() is 
-very simple. It doesnt know anything abould lvm etc, nor about mount by
-filesystem UUID/LABEL nor does it know how to deal with properly with new
-technologies like iSCSI, evms, persistant storage device names, usb-storage,
-sbp2 or async device probing.
-Should all that knowledge end up in the kernel source on day?
-An external kinit for such features sounds more logical.
-If there are no plans to add these features, that just means that kinit
-is real static functionality-wise. So having it as external binary makes
-even more sense, given the amount of build time to spent for every new kernel.
-
-Not really related to kinit per se:
-There is also not much distribution specific inside initramfs (beside the file
-locations to actually create a suitable cpio archive). There is still the
-boundary between "/init" and the real init on the final root filesystem.
-Otherwise static kernels would not be usable on these distributions.
-I'm sure a mkinitrd that works for every distribution out there is possible.

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWGKT3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWGKT3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWGKT3p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWGKT3p
+	id S1751199AbWGKT3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWGKT3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:29:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10459 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751201AbWGKT3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:29:44 -0400
-Date: Tue, 11 Jul 2006 12:29:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Olaf Hering <olh@suse.de>
-cc: "H. Peter Anvin" <hpa@zytor.com>, Jeff Garzik <jeff@garzik.org>,
-       Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-In-Reply-To: <20060711191548.GA17585@suse.de>
-Message-ID: <Pine.LNX.4.64.0607111226320.5623@g5.osdl.org>
-References: <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org>
- <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com>
- <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com>
- <20060711180126.GB16869@suse.de> <44B3E814.3060004@zytor.com>
- <20060711181055.GC16869@suse.de> <44B3EB28.1050007@zytor.com>
- <20060711191548.GA17585@suse.de>
+	Tue, 11 Jul 2006 15:29:09 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:41647 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751199AbWGKT3I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:29:08 -0400
+Message-ID: <44B3EDBA.4090109@zytor.com>
+Date: Tue, 11 Jul 2006 11:28:10 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Cedric Le Goater <clg@fr.ibm.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
+References: <20060711075051.382004000@localhost.localdomain> <44B3EA16.1090208@zytor.com> <44B3ED3B.3010401@fr.ibm.com>
+In-Reply-To: <44B3ED3B.3010401@fr.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 11 Jul 2006, Olaf Hering wrote:
-> > 
-> > It's a proposal, and I personally think it makes sense.  If done, it is 
-> > obviously very important that it doesn't change the overall operation of 
-> > the system.
+Cedric Le Goater wrote:
+> H. Peter Anvin wrote:
 > 
-> I think you can have that today, parted uses BLKPG to add and remoe
-> things. No idea what the benefit would be, but thats not relavant for
-> kinit or no kinit.
+>> I would like give a strong objection to the naming.  The -ve() suffix in
+>> execve() isn't jettisonable; it indicates its position within a family
+>> of functions (only one of which is a true system call.)
+>>
+>> execven() would be better name (the -n argument coming after then -e
+>> argument).  The library could then provide execlen(), execlpn() etc as
+>> appropriate.
+> 
+> I agree. execns() is a shortcut.
+> 
+> This service behaves like execve() if the flag argument is 0, so I guess we
+> should keep the execve- prefix. However, we could be a bit more explicit on
+> the nature of this service and call it execve_unshare().
+> 
 
-The notion that the kernel itself should do no partition parsing at all 
-was advocated by Andries Brouwer. I violently disagree. Anything that the 
-lack of which makes a normal system basically unusable should go into the 
-kernel.
+How about execveu()?  -n looked a bit weird to me, mostly because the 
+"le" form would be execlen() which looks like something completely 
+different...
 
-Yes, the kernel rules are heuristics, but so would inevitably any 
-user-level rules be too, so I don't want to move partition detection to 
-initrd or similar.
-
-		Linus
+	-hpa

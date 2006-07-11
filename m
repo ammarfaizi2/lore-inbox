@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWGKU6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWGKVD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWGKU6X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGKU6X
+	id S932116AbWGKVD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGKVD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:58:23 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:31967 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751320AbWGKU6W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:58:22 -0400
-Message-ID: <44B410D2.5090609@zytor.com>
-Date: Tue, 11 Jul 2006 13:57:54 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Olaf Hering <olh@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de> <44B3E814.3060004@zytor.com> <20060711181055.GC16869@suse.de> <44B3EB28.1050007@zytor.com> <20060711191548.GA17585@suse.de> <Pine.LNX.4.64.0607111226320.5623@g5.osdl.org> <44B3FE34.9000704@zytor.com> <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 17:03:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:65230 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932116AbWGKVD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 17:03:58 -0400
+Subject: Re: RFC: cleaning up the in-kernel headers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org
+In-Reply-To: <20060711173301.GA27818@infradead.org>
+References: <20060711160639.GY13938@stusta.de>
+	 <1152635323.3373.211.camel@pmac.infradead.org>
+	 <20060711173301.GA27818@infradead.org>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 22:04:23 +0100
+Message-Id: <1152651863.25567.71.camel@shinybook.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, 2006-07-11 at 18:33 +0100, Christoph Hellwig wrote:
+> On Tue, Jul 11, 2006 at 05:28:43PM +0100, David Woodhouse wrote:
+> > It would be nice in the general case if we could actually _compile_ each
+> > header file, standalone. There may be some cases where that doesn't
+> > work, but it's a useful goal in most cases, for bother exported headers
+> > _and_ the in-kernel version. For the former case it would be nice to add
+> > it to 'make headers_check' once it's realistic to do so.
 > 
-> On Tue, 11 Jul 2006, H. Peter Anvin wrote:
->> Does that mean "in kernel space", "in the kernel distribution" or "in memory
->> completely under the control by the kernel?"  That is really what this is
->> about.
-> 
-> I think it's all about kernel space.
-> 
-> Moving the default parsing to user space would add exactly _zero_ 
-> advantage, and would add totally unnecessary complexity (ie now we need to 
-> make sure that hotplug does it right - and the hotplug routines suddenly 
-> change between the boot phase and the actual install).
-> 
+> That would be extremly valueable.  Maybe one of the kbuild gurus could
+> cook up a make checkheaders rule that does this? 
 
-There is no reason the hotplug routines should change between the boot 
-phase and actual install.  Please note that I didn't say "instead of 
-/sbin/hotplug", I said in rootfs in addition to /sbin/hotplug.
+We already have it for _exported_ headers -- run 'make headers_check'.
+It doesn't do much yet though.
 
-If it adds complexity, it's The Wrong Thing.  However, it seems very 
-strange to me to draw the boundary at the kernel-space boundary.
-
-	-hpa
+-- 
+dwmw2
 

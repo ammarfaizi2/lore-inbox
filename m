@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWGKTb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWGKTef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWGKTb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWGKTb3
+	id S1751205AbWGKTef (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWGKTef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:31:29 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:16313 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751202AbWGKTb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:31:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uPTEKb1tgui376EjLP1F6ffTcsse3m9FNUN3lmiRGpO8AS1cPPnkUnGKtgSuQlXwj0aCpuMFDPgqy4YAJxHI70DYJ0l7LSE/DNMIqI0OILYajWBCUiwnMuRWaE0pPPZ+30pA6qoKdMzzvZ9bBrNdyKedIFBCNp7/ODILN4v6GUE=  ;
-Message-ID: <44B3A2D1.2010108@yahoo.com.au>
-Date: Tue, 11 Jul 2006 23:08:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       oleg@tv-sign.ru, ioe-lkml@rameria.de
-Subject: Re: [PATCH] de_thread: Use tsk not current.
-References: <m1bqrwkb0u.fsf@ebiederm.dsl.xmission.com> <20060711031635.a6a1f759.akpm@osdl.org>
-In-Reply-To: <20060711031635.a6a1f759.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 15:34:35 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:34264 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751205AbWGKTee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:34:34 -0400
+Date: Tue, 11 Jul 2006 21:34:23 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+Message-ID: <20060711193423.GA9685@mars.ravnborg.org>
+References: <20060711160639.GY13938@stusta.de> <1152635323.3373.211.camel@pmac.infradead.org> <20060711173301.GA27818@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060711173301.GA27818@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 10 Jul 2006 22:42:25 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Tue, Jul 11, 2006 at 06:33:01PM +0100, Christoph Hellwig wrote:
+> On Tue, Jul 11, 2006 at 05:28:43PM +0100, David Woodhouse wrote:
+> > It would be nice in the general case if we could actually _compile_ each
+> > header file, standalone. There may be some cases where that doesn't
+> > work, but it's a useful goal in most cases, for bother exported headers
+> > _and_ the in-kernel version. For the former case it would be nice to add
+> > it to 'make headers_check' once it's realistic to do so.
 > 
-> 
->>Ingo Oeser pointed out that because current expands to an inline function it
->>is more space efficient and somewhat faster to simply keep a cached copy of
->>current in another variable.  This patch implements that for the de_thread
->>function.
->>
->>-	if (thread_group_empty(current))
->>+	if (thread_group_empty(tsk))
->>-	if (unlikely(current->group_leader == child_reaper))
->>-		child_reaper = current;
->>+	if (unlikely(tsk->group_leader == child_reaper))
->>+		child_reaper = tsk;
->>-	zap_other_threads(current);
->>+	zap_other_threads(tsk);
->> 	read_unlock(&tasklist_lock);
->>...
-> 
-> 
-> This saves nearly 100 bytes of text on gcc-4.1.0/i686.
+> That would be extremly valueable.  Maybe one of the kbuild gurus could
+> cook up a make checkheaders rule that does this?
+JÃrn Engel IIRC created a perl scrip that did this a year or two ago.
+Try googling a bit.
 
-Why can't current be a pure function, I wonder?
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Sam

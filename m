@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWGKLdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWGKLrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWGKLdy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 07:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWGKLdy
+	id S1750859AbWGKLrn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 07:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWGKLrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 07:33:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40422 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751068AbWGKLdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 07:33:54 -0400
-Date: Tue, 11 Jul 2006 13:33:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Brad Campbell <brad@wasp.net.au>
-Cc: suspend2-devel@lists.suspend2.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/rtc not suspending/resuming properly
-Message-ID: <20060711113326.GA1657@elf.ucw.cz>
-References: <44B24CEB.9010103@wasp.net.au> <20060710223629.GA7443@elf.ucw.cz> <44B359F7.3050500@wasp.net.au> <20060711111834.GB1670@elf.ucw.cz> <44B38C1E.8050008@wasp.net.au>
+	Tue, 11 Jul 2006 07:47:43 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:120 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750859AbWGKLrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 07:47:42 -0400
+Message-ID: <44B3912F.3010300@gentoo.org>
+Date: Tue, 11 Jul 2006 12:53:19 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B38C1E.8050008@wasp.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Michael Buesch <mb@bu3sch.de>
+CC: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@ucw.cz>,
+       yi.zhu@intel.com, jketreno@linux.intel.com,
+       Netdev list <netdev@vger.kernel.org>, linville@tuxdriver.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
+References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com> <200607102305.06572.mb@bu3sch.de>
+In-Reply-To: <200607102305.06572.mb@bu3sch.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Michael Buesch wrote:
+> Does the ipw driver _really_ need the firmware on insmod time?
+> bcm43xx, for example, loads the firmware on "ifconfig up" time.
+> If ipw really needs the firmware on insmod, is it possible to
+> defer it to later at "ifconfig up" time?
 
-> >So you are working on sparc?
-> 
-> No, I'm not.. the x86 part looks relatively easy, but given it appears to 
-> be used on multiple platforms I was wondering how not to break them in the 
-> process..
+Is bcm43xx able to get the MAC address before the firmware is loaded?
+Last time I checked, if the MAC address is only discovered after the 
+interface is created (as would be the case with ipw loading firmware on 
+ifconfig up, I think), interface renaming does not work.
 
-Well... in that case do it as proper platform_device, then ask sparc
-people to fix their platform ;-)).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Daniel

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWGKSDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWGKSDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWGKSDY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSDX
+	id S1751150AbWGKSDx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWGKSDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:03:23 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:5027 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751163AbWGKSDX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:03:23 -0400
-Message-ID: <44B3E7D5.8070100@zytor.com>
-Date: Tue, 11 Jul 2006 11:03:01 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 11 Jul 2006 14:03:53 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:55305 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751150AbWGKSDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:03:52 -0400
+Date: Tue, 11 Jul 2006 14:03:50 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>, <tytso@us.ibm.com>,
+       Darren Hart <dvhltc@us.ibm.com>, <oleg@tv-sign.ru>,
+       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: SRCU-based notifier chains
+In-Reply-To: <20060711173906.GC1288@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0607111357300.18796-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de>
-In-Reply-To: <20060711171624.GA16554@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> 
-> There is always some sort of prereq when new features get added.
-> Documentation/Changes has a long list. Some setup need more updates,
-> some need fewer updates. No idea what your experience is.
-> Old klibc was trivial to build (modulo that kernel header mess), and I
-> expect that kinit handles old kernels.
-> 
+On Tue, 11 Jul 2006, Paul E. McKenney wrote:
 
-One more thing on this subject... "modulo that kernel header mess" is 
-just as much a reflection of the fact that the Linux ABI really isn't 
-particularly stable.  glibc contains a huge amount of code to deal with 
-different kernel versions.  klibc will not be doing this; in general old 
-klibcs should continue to work (but may not compile against a newer 
-kernel), but a newer klibc may not work on an older kernel.
+> Looks sane to me.  A couple of minor comments interspersed.
 
-	-hpa
+Okay, I'll submit it with a proper writeup.
+
+> > +/*
+> > + *	SRCU notifier chain routines.    Registration and unregistration
+> > + *	use a mutex, and call_chain is synchronized by SRCU (no locks).
+> > + */
+> 
+> Hmmm...  Probably my just failing to pay attention, but haven't noticed
+> the double-header-comment style before.
+
+As far as I know, I made it up.  It seemed appropriate, since the first 
+header applies to the entire group of three routines that follow whereas 
+the second header is kerneldoc just for the next function.
+
+> >  /*
+> > - * Notifier chains are of three types:
+> > + * Notifier chains are of four types:
+> 
+> Is it possible to subsume one of the other three types?
+> 
+> Might not be, but have to ask...
+
+In principle we could replace blocking notifiers, but in practice we
+can't.
+
+We can't just substitute one for the other for two reasons: SRCU notifiers
+need special initialization which the blocking notifiers don't have, and
+SRCU notifiers have different time/space tradeoffs which might not be
+appropriate for all existing blocking notifiers.
+
+Alan Stern
+

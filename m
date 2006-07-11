@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWGKRQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWGKRQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWGKRQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWGKRQ1
+	id S1751098AbWGKRQE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWGKRQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:16:27 -0400
-Received: from mx2.suse.de ([195.135.220.15]:57798 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751133AbWGKRQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:16:26 -0400
-Date: Tue, 11 Jul 2006 19:16:24 +0200
-From: Olaf Hering <olh@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711171624.GA16554@suse.de>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 11 Jul 2006 13:16:03 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:51055 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751098AbWGKRQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:16:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l1DC1uRiwUWcsAFxmAXuZxTMZ5wnHRBDA1c1/DCyzz8+vgwImyTIiSgqxIq/RT0UpJaRFNeis7KfZeKbjhAKUnXJcE7fT8yjwDkeABW+roG+tNlZbTvTIW9ICymAHBC9k6cdWhXXcNDAeQ18gRni0zkiZitr/Au85XOToyYQN2A=
+Message-ID: <bda6d13a0607111015p5ab5461am4f6b4716e264e0e1@mail.gmail.com>
+Date: Tue, 11 Jul 2006 10:15:59 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, "Adrian Bunk" <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, "David Woodhouse" <dwmw2@infradead.org>,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+In-Reply-To: <20060711170725.GD5362@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44B3DA77.50103@garzik.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <20060711160639.GY13938@stusta.de>
+	 <20060711170725.GD5362@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jul 11, Jeff Garzik wrote:
-
-> Two are IMO fairly plain:
-> 
-> * Makes sure you can boot the kernel you just built.
-
-There is always some sort of prereq when new features get added.
-Documentation/Changes has a long list. Some setup need more updates,
-some need fewer updates. No idea what your experience is.
-Old klibc was trivial to build (modulo that kernel header mess), and I
-expect that kinit handles old kernels.
-
-> * Makes it easier to move stuff between kernel and userspace.
-
-What do you have in mind here?
-Once prepare_namespace is gone, there is no userspace code left.
+On 7/11/06, Dave Jones <davej@redhat.com> wrote:
+> On Tue, Jul 11, 2006 at 06:06:39PM +0200, Adrian Bunk wrote:
+>  > I'd like to cleanup the mess of the in-kernel headers, based on the
+>  > following rules:
+>  > - every header should #include everything it uses
+>  > - remove unneeded #include's from headers
+>  >
+>  > This would also remove all the implicit rules "before #include'ing
+>  > header foo.h, you must #include header bar.h" you usually only see when
+>  > the compilation fails.
+>
+> You may want to add as a secondary goal, splitting up some of the
+> huge 3-headed monster include files like sched.h
+> (It's better than it used to be, but it still sucks, and that thing
+> #include's the world).  Worst, iirc module.h pulls it in, which means
+> everything built as a module is pulling in hundreds of includes
+> even though most of the time, it'll never use anything from the
+> indirect ones.
+If you pull this off, you can shave a lot off compile time as almost
+every component #includes module.h

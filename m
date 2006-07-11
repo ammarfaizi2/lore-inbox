@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWGKSqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWGKSzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbWGKSqy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWGKSqy
+	id S932089AbWGKSzg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGKSzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:46:54 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:31414 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751178AbWGKSqy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:46:54 -0400
-Message-ID: <44B3F203.3020500@zytor.com>
-Date: Tue, 11 Jul 2006 11:46:27 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Olaf Hering <olh@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
-       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org>	 <Pine.LNX.4.64.0606271316220.17704@scrub.home>	 <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru>	 <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com>	 <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org>	 <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com>	 <20060711181552.GD16869@suse.de>  <44B3EC5A.1010100@zytor.com> <1152644023.18028.43.camel@localhost.localdomain>
-In-Reply-To: <1152644023.18028.43.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 14:55:36 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:54468 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932089AbWGKSzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:55:35 -0400
+Date: Tue, 11 Jul 2006 14:55:32 -0400
+From: Andy Gay <andy@andynet.net>
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+	transfers
+In-reply-to: <874pxof0xl.fsf@javad.com>
+To: Sergei Organov <osv@javad.com>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Message-id: <1152644133.20072.323.camel@tahini.andynet.net>
+MIME-version: 1.0
+X-Mailer: Evolution 2.4.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	<874pxof0xl.fsf@javad.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Maw, 2006-07-11 am 11:22 -0700, ysgrifennodd H. Peter Anvin:
->> You know how much code there is in glibc to make your /bin/ls still work?
+On Tue, 2006-07-11 at 22:31 +0400, Sergei Organov wrote:
+> Andy Gay <andy@andynet.net> writes:
+> > Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
+> > That patch added multiple read urbs and larger transfer buffers to allow
+> > data transfers at full EvDO speed.
 > 
-> A static linked pre libc 2.2 (thats libc not glibc) ls works fine today,
-> as does a 0.98.5 era built rogue binary
+> Below are two more problems with the patch, one of which existed in the
+> original Greg's patch resulting in return with "Message too long"
+> (EMSGSIZE) from driver's open() function.
+> 
+> [...]
+> 
+> > +		/* something happened, so free up the memory for this urb /*
+> 
+> There should be '*/' at the end of this line, not '/*', otherwise the
+> driver even doesn't compile.
 
-Didn't work when I tried it, although that was a shared binary (and yes, 
-I had the library there.)  I assumed mostly that ZMAGIC support had 
-bitrotted -- even back in '95 there was a lot of problems with ZMAGIC 
-binaries when ext2 block size was > 1K.
+Sure. I posted an updated version including that fix -
+http://lkml.org/lkml/2006/7/3/280
 
-	-hpa
+> 
+> [...]
+> > +static int airprime_open(struct usb_serial_port *port, struct file *filp)
+> > +{
+> [...]
+> > +		usb_fill_bulk_urb(urb, serial->dev,
+> > +				  usb_rcvbulkpipe(serial->dev,
+> > +						  port->bulk_out_endpointAddress),
+> 
+> Here, it should obviously be port->bulk_in_endpointAddress, not
+> port->bulk_out_endpointAddress, otherwise devices that have endpoints
+> numeration like, say 0x01-out, 0x82-in (unlike more usual usual
+> 0x01-out, 0x81-in), won't work returning -EMSGSIZE from open().
+
+Sounds correct. Good catch!
+
+> 
+> After these fixes, I've been able to run the driver with my own USB
+> device and achieved about 320 Kbytes/s read speed. That's still not very
+> exciting as I have another driver here in development that seems to be
+> able to do about 650 Kbytes/s with the same device.
+> 
+Nice. That's over 5Mbits/sec!
+
+Is that on an EvDO network? I didn't know they could go that fast. The
+EvDO network I'm testing on can only manage about 1Mbit/sec at best.
+
+
 

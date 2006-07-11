@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWGKNh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWGKNko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWGKNh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 09:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWGKNh5
+	id S1750769AbWGKNko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 09:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWGKNko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 09:37:57 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12306 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750768AbWGKNh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 09:37:56 -0400
-Date: Tue, 11 Jul 2006 15:37:55 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/arm/kernel/bios32.c: no need to set isa_bridge
-Message-ID: <20060711133755.GO13938@stusta.de>
+	Tue, 11 Jul 2006 09:40:44 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:21114 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750769AbWGKNkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 09:40:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=lWQdEQqk6etDK2JO0h7NfiZe4durWu++W6PAODyyq+Dg0ptPJpRpWLz5qZ4XHQP4GEyb0he1dri1Z67Jj+YRz2cKagmecFzQnC68KMFhDi6wuoHzkkkrHq2awZcNGJav21UnvUKJwZ16fqZcdtkeP/WN/byUeaJP7dHCkEy4jHw=
+Message-ID: <44B3AA51.1040003@gmail.com>
+Date: Tue, 11 Jul 2006 21:40:33 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, rdunlap@xenotime.net, mreuther@umich.edu,
+       linux-kernel@vger.kernel.org, zap@homelink.ru
+Subject: Re: [PATCH] fbdev: Statically link the framebuffer notification functions
+References: <200607100833.00461.mreuther@umich.edu>	 <20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>	 <44B27931.30609@gmail.com> <200607102327.38426.mreuther@umich.edu>	 <20060710215253.1fcaab57.rdunlap@xenotime.net>	 <44B34D68.3080602@gmail.com> <20060711032817.94c78ae0.akpm@osdl.org>	 <44B39D4D.8060209@gmail.com> <9e4733910607110621i720db936sebdd0bcb60fab4ad@mail.gmail.com>
+In-Reply-To: <9e4733910607110621i720db936sebdd0bcb60fab4ad@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since this assignment was the only place on !alpha where isa_bridge was 
-touched, it didn't have any effect.
+Jon Smirl wrote:
+> On 7/11/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> The backlight and lcd subsystems can be notified by the framebuffer layer
+>> of blanking events.  However, these subsystems, as a whole, can function
+>> independently from the framebuffer layer. But in order to enable to
+>> the lcd and backlight subsystems, the framebuffer has to be compiled
+>> also,
+>> effectively sucking in a huge amount of unneeded code. Besides, the
+>> dependency
+>> is introducing a lot of compilation problems.
+> 
+> This code is effectively rebuilding a fb specific version of
+> inter_module_get/put., something that was removed earlier.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Huh? I don't see any semblance of inter_module_* or symbol_* in there.
+Read the patch again.
 
----
+Tony
 
-This patch was already sent on:
-- 1 May 2006
-
---- linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/bios32.c.old	2006-04-27 23:11:07.000000000 +0200
-+++ linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/bios32.c	2006-04-27 23:12:15.000000000 +0200
-@@ -371,17 +371,6 @@
- 			features &= ~(PCI_COMMAND_SERR | PCI_COMMAND_PARITY);
- 
- 		switch (dev->class >> 8) {
--#if defined(CONFIG_ISA) || defined(CONFIG_EISA)
--		case PCI_CLASS_BRIDGE_ISA:
--		case PCI_CLASS_BRIDGE_EISA:
--			/*
--			 * If this device is an ISA bridge, set isa_bridge
--			 * to point at this device.  We will then go looking
--			 * for things like keyboard, etc.
--			 */
--			isa_bridge = dev;
--			break;
--#endif
- 		case PCI_CLASS_BRIDGE_PCI:
- 			pci_read_config_word(dev, PCI_BRIDGE_CONTROL, &status);
- 			status |= PCI_BRIDGE_CTL_PARITY|PCI_BRIDGE_CTL_MASTER_ABORT;
 

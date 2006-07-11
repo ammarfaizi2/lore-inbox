@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWGKRSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWGKRYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWGKRSG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWGKRSF
+	id S1751018AbWGKRYX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWGKRYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:18:05 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:28865 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751122AbWGKRSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:18:04 -0400
-Subject: Re: [PATCH] irqtrace-option-off-compile-fix
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
-In-Reply-To: <1152637993.3128.96.camel@laptopd505.fenrus.org>
-References: <1152577120.7654.9.camel@localhost.localdomain>
-	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
-	 <1152635003.7654.40.camel@localhost.localdomain>
-	 <1152637993.3128.96.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 11 Jul 2006 09:36:44 -0700
-Message-Id: <1152635804.7654.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+	Tue, 11 Jul 2006 13:24:23 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:54188 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751018AbWGKRYW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:24:22 -0400
+Message-ID: <44B3DEA0.3010106@zytor.com>
+Date: Tue, 11 Jul 2006 10:23:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de>
+In-Reply-To: <20060711171624.GA16554@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 19:13 +0200, Arjan van de Ven wrote:
-> On Tue, 2006-07-11 at 09:23 -0700, Tim Chen wrote:
-> > I was testing on x86_64 and turned off the option in
-> > arch/x86_64/Kconfig.debug. 
-> > 
-> > When the option is turned off, the following functions become undefined:
-> > local_irq_disable()           
-> > local_irq_enable()             
-> > local_irq_save(flags)          
-> > local_irq_restore(flags)       
-> > safe_halt() 
-> > local_save_flags()
-> > irqs_disabled()
-> > irqs_disabled_flags(flags)                   
-> > 
-> > It seems plausible that some users may want to avoid the overhead of
-> > tracing IRQFLAGS by turning the option off.
+Olaf Hering wrote:
+>  On Tue, Jul 11, Jeff Garzik wrote:
 > 
-> eh that is a different config option!
+>> Two are IMO fairly plain:
+>>
+>> * Makes sure you can boot the kernel you just built.
+> 
+> There is always some sort of prereq when new features get added.
+> Documentation/Changes has a long list. Some setup need more updates,
+> some need fewer updates. No idea what your experience is.
+> Old klibc was trivial to build (modulo that kernel header mess), and I
+> expect that kinit handles old kernels.
+> 
 
-My typo, it is TRACE_IRQFLAGS_SUPPORT in arch/x86_64/Kconfig.debug.
+"Old klibc" still exists and is the same code out of the same source tree.
 
+>> * Makes it easier to move stuff between kernel and userspace.
+> 
+> What do you have in mind here?
+> Once prepare_namespace is gone, there is no userspace code left.
+
+Things that have been bandied about, for example:
+
+	- suspend/resume
+	- partition discovery
+
+I'm sure there is more.
+
+	-hpa

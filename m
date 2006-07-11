@@ -1,77 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWGKH7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWGKIBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWGKH7F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWGKH7E
+	id S1750719AbWGKIBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 04:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWGKIBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:59:04 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:59257 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750719AbWGKH7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:59:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=R98FxtD4pF59wNfH+dExQoZV4uVVdH+Wu+/RwdPxn4pT0Hg1YciIex2h+uCiYDiYjYDOzvORPNqE8PIwz7jNYEYxQpB6WoFkcF92sTnZqtn09iaZ9qusJ1sMHLMmxaZRylpc8l7VFcBKDcNP+yl4KaQmpaPKPvuCuZDv+RBVmWw=
-Message-ID: <b0943d9e0607110059v5bb8732en674ad17702aded17@mail.gmail.com>
-Date: Tue, 11 Jul 2006 08:59:00 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 03/10] Add the memory allocation/freeing hooks for kmemleak
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <84144f020607102317r60d797eakdf20107e158ec251@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 04:01:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58824 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750719AbWGKIBq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 04:01:46 -0400
+Date: Tue, 11 Jul 2006 01:01:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@openvz.org>
+Cc: linux-kernel@vger.kernel.org, devel@openvz.org, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] fdset's leakage
+Message-Id: <20060711010104.16ed5d4b.akpm@osdl.org>
+In-Reply-To: <44B258E3.7070708@openvz.org>
+References: <44B258E3.7070708@openvz.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <20060710220957.5191.54019.stgit@localhost.localdomain>
-	 <84144f020607102317r60d797eakdf20107e158ec251@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka,
+On Mon, 10 Jul 2006 17:40:51 +0400
+Kirill Korotaev <dev@openvz.org> wrote:
 
-On 11/07/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> On 7/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > diff --git a/mm/slab.c b/mm/slab.c
-> > index 85c2e03..2752272 100644
-> > --- a/mm/slab.c
-> > +++ b/mm/slab.c
-> > @@ -2967,6 +2967,7 @@ #endif
-> >                 STATS_INC_ALLOCMISS(cachep);
-> >                 objp = cache_alloc_refill(cachep, flags);
-> >         }
-> > +       memleak_erase(&ac->entry[ac->avail]);
-> >         return objp;
-> >  }
->
-> Can't we tell the GC not to scan any of the array cache structs? You
-> could put that in alloc_arraycache(), I think.
+> Andrew,
+> 
+> Another patch from Alexey Kuznetsov fixing memory leak in alloc_fdtable().
+> 
+> [PATCH] fdset's leakage
+> 
+> When found, it is obvious. nfds calculated when allocating fdsets
+> is rewritten by calculation of size of fdtable, and when we are
+> unlucky, we try to free fdsets of wrong size.
+> 
+> Found due to OpenVZ resource management (User Beancounters).
+> 
+> Signed-Off-By: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+> Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+> 
+> 
+> diff -urp linux-2.6-orig/fs/file.c linux-2.6/fs/file.c
+> --- linux-2.6-orig/fs/file.c	2006-07-10 12:10:51.000000000 +0400
+> +++ linux-2.6/fs/file.c	2006-07-10 14:47:01.000000000 +0400
+> @@ -277,11 +277,13 @@ static struct fdtable *alloc_fdtable(int
+>  	} while (nfds <= nr);
+>  	new_fds = alloc_fd_array(nfds);
+>  	if (!new_fds)
+> -		goto out;
+> +		goto out2;
+>  	fdt->fd = new_fds;
+>  	fdt->max_fds = nfds;
+>  	fdt->free_files = NULL;
+>  	return fdt;
+> +out2:
+> +	nfds = fdt->max_fdset;
+>  out:
+>    	if (new_openset)
+>    		free_fdset(new_openset, nfds);
 
-Yes, we can. I'll give it a try before updating the patches.
+OK, that was a simple fix.  And if we need this fix backported to 2.6.17.x
+then it'd be best to go with the simple fix.
 
-> > @@ -3209,7 +3211,11 @@ static void __cache_free(struct kmem_cac
-> >   */
-> >  void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
-> >  {
-> > -       return __cache_alloc(cachep, flags, __builtin_return_address(0));
-> > +       void *ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
-> > +
-> > +       memleak_alloc(ptr, obj_size(cachep), 1);
->
-> Can you move memleak_alloc() call to __cache_alloc() instead to avoid
-> duplication?
+And I think we do need to backport this to 2.6.17.x because NR_OPEN can be
+really big, and vmalloc() is not immortal.
 
-It might clutter the code because __cache_alloc is used by kmalloc as
-well and the exact size information is lost. It would be to
-explicitely give the type information to kmemleak in kmalloc and have
-memleak_alloc called in __cache_alloc (with slight overhead of calling
-kmemleak functions twice). The other option is to pass an extra
-argument (guessed typeid) to __cache_alloc but this means adding extra
-ifdefs.
+But the code in there is really sick.   In all cases we do:
 
-Thanks.
+	free_fdset(foo->open_fds, foo->max_fdset);
+	free_fdset(foo->close_on_exec, foo->max_fdset);
 
--- 
-Catalin
+How much neater and more reliable would it be to do:
+
+	free_fdsets(foo);
+
+?
+
+Also,
+
+	nfds = NR_OPEN_DEFAULT;
+	/*
+	 * Expand to the max in easy steps, and keep expanding it until
+	 * we have enough for the requested fd array size.
+	 */
+	do {
+#if NR_OPEN_DEFAULT < 256
+		if (nfds < 256)
+			nfds = 256;
+		else
+#endif
+		if (nfds < (PAGE_SIZE / sizeof(struct file *)))
+			nfds = PAGE_SIZE / sizeof(struct file *);
+		else {
+			nfds = nfds * 2;
+			if (nfds > NR_OPEN)
+				nfds = NR_OPEN;
+  		}
+	} while (nfds <= nr);
+
+
+That's going to take a long time to compute if nr > NR_OPEN.  I just fixed
+a similar infinite loop in this function.  Methinks this
+
+	nfds = max(NR_OPEN_DEFAULT, 256);
+	nfds = max(nfds, PAGE_SIZE/sizeof(struct file *));
+	nfds = max(nfds, round_up_pow_of_two(nr + 1));
+	nfds = min(nfds, NR_OPEN);
+
+is clearer and less buggy.  I _think_ it's also equivalent (as long as
+NR_OPEN>256).  But please check my logic.
+
+

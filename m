@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWGKNyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWGKNy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWGKNyL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 09:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWGKNyL
+	id S1750795AbWGKNy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 09:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWGKNy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 09:54:11 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:4817 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750792AbWGKNyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 09:54:09 -0400
-Date: Tue, 11 Jul 2006 09:54:30 -0400
-From: Mike Grundy <grundym@us.ibm.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH] kprobes for s390 architecture
-Message-ID: <20060711135430.GA5070@localhost.localdomain>
-Mail-Followup-To: Heiko Carstens <heiko.carstens@de.ibm.com>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	Jan Glauber <jan.glauber@de.ibm.com>, linux-kernel@vger.kernel.org,
-	systemtap@sources.redhat.com
-References: <20060623150344.GL9446@osiris.boeblingen.de.ibm.com> <OF44DB398C.F7A51098-ON88257196.007CD277-88257196.007DC8F0@us.ibm.com> <20060623222106.GA25410@osiris.ibm.com> <20060624113641.GB10403@osiris.ibm.com> <1151421789.5390.65.camel@localhost> <20060628055857.GA9452@osiris.boeblingen.de.ibm.com> <20060707172333.GA12068@localhost.localdomain> <20060707172555.GA10452@osiris.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060707172555.GA10452@osiris.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 11 Jul 2006 09:54:58 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:7440 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750795AbWGKNy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 09:54:58 -0400
+Date: Tue, 11 Jul 2006 09:54:56 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Fredrik Roubert <roubert@df.lth.se>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       <linux-input@atrey.karlin.mff.cuni.cz>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
+In-Reply-To: <Pine.LNX.4.64.0607102356460.17704@scrub.home>
+Message-ID: <Pine.LNX.4.44L0.0607110950480.6422-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07, 2006 at 07:25:55PM +0200, Heiko Carstens wrote:
-> > ok, I tried, but my "better ideas" made things worse. stop_machine_run() wins:
-> How fast is this if you have to exchange several hundred instructions?
+On Mon, 10 Jul 2006, Roman Zippel wrote:
 
-I did a little measuring. On average stop_machine_run() adds 8.7 msec of
-overhead on a 4-way config. Of that %57 was sub-msec overhead. For the times
-where overhead was measurable, the average was 20.2 msec, lowest at 10msec
-highest at 100msec. That's on a z800 under vm and I have no idea how many real
-cpus the machine has :-)
+> Hi,
+> 
+> On Mon, 10 Jul 2006, Fredrik Roubert wrote:
+> 
+> > > Before 2.6.18-rc1, I used to be able to use it as follows:
+> > >
+> > > 	Press and hold an Alt key,
+> > > 	Press and hold the SysRq key,
+> > > 	Release the Alt key,
+> > > 	Press and release some hot key like S or T or 7,
+> > > 	Repeat the previous step as many times as desired,
+> > > 	Release the SysRq key.
+> > >
+> > > This scheme doesn't work any more,
+> > 
+> > The SysRq code has been updated to make it useable with keyboards that
+> > are broken in other ways than your. With the new behaviour, you should
+> > be able to use Magic SysRq with your keyboard in this way:
 
--- 
-Thanks
-Mike
+Thanks to everyone who replied.  Holding down the Alt key instead of the 
+SysRq key does indeed make everything work well.
 
-=========================================
-Michael Grundy - grundym@us.ibm.com
-Advanced Linux Response Team (ALRT)
-http://ltc.linux.ibm.com/teamweb/alrt/
-845-435-8842 (T/L 295)
+> Apparently it changes existing well documented behaviour, which is a 
+> really bad idea.
 
-If at first you don't succeed, call in an air strike.
+In this case it's not all that bad, because Alt-SysRq is used only by a 
+relatively small community of developers (it is a debugging tool, after 
+all).
+
+Changing well documented behavior wouldn't be so bad if the changes were
+also well documented and easily available for perusal.  Perhaps there
+should be an area on www.kernel.org devoted to listing the new features
+and changes added by each kernel release.
+
+Alan Stern
 

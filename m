@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWGKRA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWGKRCS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWGKRA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWGKRA4
+	id S1751118AbWGKRCS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:02:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGKRCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:00:56 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:36051 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751087AbWGKRAz (ORCPT
+	Tue, 11 Jul 2006 13:02:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751101AbWGKRCQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:00:55 -0400
-Subject: Re: Linux v2.6.18-rc1
-From: Steve Fox <drfickle@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1152566236.1576.100.camel@localhost.localdomain>
-References: <Pine.LNX.4.64.0607052115210.12404@g5.osdl.org>
-	 <pan.2006.07.07.15.41.35.528827@us.ibm.com>
-	 <1152441242.4128.33.camel@localhost.localdomain>
-	 <1152537672.28828.4.camel@farscape.rchland.ibm.com>
-	 <1152542413.27368.131.camel@localhost.localdomain>
-	 <1152566236.1576.100.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Jul 2006 12:00:52 -0500
-Message-Id: <1152637252.2853.5.camel@flooterbu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 11 Jul 2006 13:02:16 -0400
+Date: Tue, 11 Jul 2006 10:02:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel@vger.kernel.org, efault@gmx.de
+Subject: Re: [patch] i386: handle_BUG(): don't print garbage if debug info
+ unavailable
+In-Reply-To: <44B382DD.5070202@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0607110959160.5623@g5.osdl.org>
+References: <200607101034_MC3-1-C497-51F7@compuserve.com>
+ <20060711012755.59965932.akpm@osdl.org> <44B382DD.5070202@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 07:17 +1000, Benjamin Herrenschmidt wrote:
 
-> it's most certainly an irq problem as I just rewrote the irq logic of
-> powerpc :) There have been some issues and I've just sent some new
-> patches fixing them, let's see if that's enough. I'll give a js20 a try
-> today at work.
 
-FWIW, I tried applying the 3 non-Apple-specific patches posted on 7/10
-but this didn't help.
+On Tue, 11 Jul 2006, Nick Piggin wrote:
+> 
+> OK but you don't need a do/while(0) here.
 
--- 
+Actually, the way Andrew wrote it, it _is_ needed. It does two things:
 
-Steve Fox
-IBM Linux Technology Center
+ - it's the block scope that allows the private variables
+ - if the "get_user()" fails, the "break" means that you don't have to 
+   have a goto.
+
+That said, I think it's wrong to use "__get_user()", which can hang on the 
+MM semaphore if something is bogus. We should probably mark us as being 
+"in_atomic()" to make sure that the page fault handler, if it is entered, 
+will not try to get the semaphore or page anything in.
+
+But that's a separate issue.
+
+		Linus

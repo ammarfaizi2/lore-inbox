@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWGKMrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWGKMql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWGKMrn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 08:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWGKMrn
+	id S1751255AbWGKMql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 08:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWGKMqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 08:47:43 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39953 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751264AbWGKMrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 08:47:42 -0400
-Date: Tue, 11 Jul 2006 14:47:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Shaohua Li <shaohua.li@intel.com>,
-       Tigran Aivazian <tigran@veritas.com>, Greg KH <greg@kroah.com>
-Subject: [-mm patch] MICROCODE should select FW_LOADER
-Message-ID: <20060711124741.GM13938@stusta.de>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
+	Tue, 11 Jul 2006 08:46:30 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:46817 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751264AbWGKMqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 08:46:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=baRS1UgV1A+lVkfLha/pkKO/dvdo+bq4dXE4976KMc3u67w4qtziVssdNuAKsMaVlKuTDALxeNXUAjRaN+laTMI+FhC68iyy8FijCgR7dnqm1N18e5+PWeU5qdBkJGc2hQO7CehoXvk/WYvGEneNQabvpjxWGFuzbyCAgtuRsiY=
+Message-ID: <6bffcb0e0607110546r11d2f619pbcd1205999253bd@mail.gmail.com>
+Date: Tue, 11 Jul 2006 14:46:14 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-mm6:
->...
-> +x86-microcode-add-sysfs-and-hotplug-support-fix-fix.patch
-> 
->  Fix x86-microcode-add-sysfs-and-hotplug-support.patch some more.
->...
+On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Hi Catalin,
+>
+> On 11/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > This is a new version (0.8) of the kernel memory leak detector. See
+> > the Documentation/kmemleak.txt file for a more detailed
+> > description. The patches are downloadable from (the whole patch or the
+> > broken-out series):
+> >
+> > http://homepage.ntlworld.com/cmarinas/kmemleak/patch-2.6.18-rc1-kmemleak-0.8.bz2
+> > http://homepage.ntlworld.com/cmarinas/kmemleak/patches-kmemleak-0.8.tar.bz2
+> >
+>
+> Unfortunately, it doesn't compile for me.
+>
+> make O=/dir
+> [..]
+> CC      arch/i386/kernel/alternative.o
+[snip]
 
-FW_LOADER is a helper variable that should be select'ed.
+When I set DEBUG_KEEP_INIT=n everything works fine.
 
-Please replace this patch with the patch below.
+Here is the culprit 08-kmemleak-keep-init.patch
 
-cu
-Adrian
+Regards,
+Michal
 
-
-<--  snip  -->
-
-
-MICROCODE requires FW_LOADER.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- arch/i386/Kconfig   |    1 +
- arch/x86_64/Kconfig |    1 +
- 2 files changed, 2 insertions(+)
-
---- linux-2.6.18-rc1-mm1-full/arch/i386/Kconfig.old	2006-07-11 00:12:53.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/arch/i386/Kconfig	2006-07-11 00:13:17.000000000 +0200
-@@ -399,6 +399,7 @@
- 
- config MICROCODE
- 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
-+	select FW_LOADER
- 	---help---
- 	  If you say Y here and also to "/dev file system support" in the
- 	  'File systems' section, you will be able to update the microcode on
---- linux-2.6.18-rc1-mm1-full/arch/x86_64/Kconfig.old	2006-07-11 00:13:30.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/arch/x86_64/Kconfig	2006-07-11 00:13:43.000000000 +0200
-@@ -163,6 +163,7 @@
- 
- config MICROCODE
- 	tristate "/dev/cpu/microcode - Intel CPU microcode support"
-+	select FW_LOADER
- 	---help---
- 	  If you say Y here the 'File systems' section, you will be
- 	  able to update the microcode on Intel processors. You will
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

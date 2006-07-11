@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWGKOEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWGKOFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWGKOEL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 10:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWGKOEL
+	id S1750807AbWGKOFS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 10:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWGKOFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 10:04:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28065 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750800AbWGKOEK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 10:04:10 -0400
-Date: Tue, 11 Jul 2006 10:02:57 -0400
-From: Alan Cox <alan@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1: drivers/ide/pci/jmicron.c warning
-Message-ID: <20060711140257.GA6820@devserv.devel.redhat.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <20060711125258.GN13938@stusta.de>
+	Tue, 11 Jul 2006 10:05:18 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8607 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750807AbWGKOFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 10:05:17 -0400
+Date: Tue, 11 Jul 2006 09:04:52 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] EXPORT_UNUSED_SYMBOL{,GPL} {,un}register_die_notifier
+Message-ID: <20060711140452.GA19238@sgi.com>
+References: <20060630113317.GV19712@stusta.de> <20060630203546.93a7bd87.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060711125258.GN13938@stusta.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060630203546.93a7bd87.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 02:52:58PM +0200, Adrian Bunk wrote:
->   CC      drivers/ide/pci/jmicron.o
-> drivers/ide/pci/jmicron.c: In function ???ata66_jmicron???:
-> drivers/ide/pci/jmicron.c:99: warning: control reaches end of non-void function
+On Fri, Jun 30, 2006 at 08:35:46PM -0700, Andrew Morton wrote:
+> On Fri, 30 Jun 2006 13:33:17 +0200
+> Adrian Bunk <bunk@stusta.de> wrote:
+> 
+> > -EXPORT_SYMBOL(register_die_notifier);
+> > +EXPORT_UNUSED_SYMBOL(register_die_notifier);  /*  June 2006  */
+> > -EXPORT_SYMBOL(unregister_die_notifier);
+> > +EXPORT_UNUSED_SYMBOL(unregister_die_notifier);  /*  June 2006  */
+> 
+> I'd expect there are any number of low-level debugging quick-hacky modules
+> around which want to hook into here.
+> 
+> We can try it I guess, but I expect we'll hear about it.
 
-If your gcc does this please file a gcc bug report
+The XPC module, which is in the community tree, references both symbols.
+See arch/ia64/sn/kernel/xpc_main.c for details.
 
-> At least from gcc's perspective, this warning is correct, and it should 
-> therefore be fixed.
-
-No. port_type is an enum. Each enum value in question is present in the 
-switch (and gcc knows this), each has a return. Your compiler is buggy.
+Dean

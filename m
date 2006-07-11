@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWGKLPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWGKLSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWGKLPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 07:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWGKLPt
+	id S1751042AbWGKLSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 07:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWGKLSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 07:15:49 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:60177 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751037AbWGKLPs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 07:15:48 -0400
-Date: Tue, 11 Jul 2006 21:15:25 +1000
-To: Andrew Morton <akpm@osdl.org>
-Cc: nagar@watson.ibm.com, linux-kernel@vger.kernel.org, jlan@sgi.com,
-       csturtiv@sgi.com, pj@sgi.com, balbir@in.ibm.com, sekharan@us.ibm.com,
-       hadi@cyberus.ca, netdev@vger.kernel.org
-Subject: Re: [Patch 6/6] per task delay accounting taskstats interface: fix clone skbs for each listener
-Message-ID: <20060711111525.GA11175@gondor.apana.org.au>
-References: <20060711030524.39abc3d5.akpm@osdl.org> <E1G0FU2-0002oE-00@gondolin.me.apana.org.au> <20060711035731.63c087b3.akpm@osdl.org>
+	Tue, 11 Jul 2006 07:18:15 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:5033 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751041AbWGKLSO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 07:18:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=D8zFYVVsFd6dS8rX298ahPL6Tcr5lmgPYkqoAIUd1FC71KVUKuUnAFbTV5wSPTWCOB/CGWVPmKc0OhiKcc19uXthPZqpJ478iK9TyBvqZBjO1C4TBL4NlGnlyeLxr4tLS430q2ZDGcG752YoY4zUaRY4NxUhAxZU81nQSgZwWho=
+Date: Tue, 11 Jul 2006 13:18:05 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: atlka@pg.gda.pl, rlrevell@joe-job.com, galibert@pobox.com,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+Message-Id: <20060711131805.543307f8.diegocg@gmail.com>
+In-Reply-To: <Pine.LNX.4.61.0607111110280.9147@tm8103.perex-int.cz>
+References: <20060707231716.GE26941@stusta.de>
+	<p737j2potzr.fsf@verdi.suse.de>
+	<1152458300.28129.45.camel@mindpipe>
+	<20060710132810.551a4a8d.atlka@pg.gda.pl>
+	<1152571717.19047.36.camel@mindpipe>
+	<44B2E4FF.9000502@pg.gda.pl>
+	<20060710235934.GC26528@dspnet.fr.eu.org>
+	<1152578344.21909.12.camel@mindpipe>
+	<20060711085952.f1254229.atlka@pg.gda.pl>
+	<Pine.LNX.4.61.0607110937160.9147@tm8103.perex-int.cz>
+	<20060711110811.947e15ed.atlka@pg.gda.pl>
+	<Pine.LNX.4.61.0607111110280.9147@tm8103.perex-int.cz>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711035731.63c087b3.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 03:57:31AM -0700, Andrew Morton wrote:
->
-> > >>       down_write(&listeners->sem);
-> > >>       list_for_each_entry_safe(s, tmp, &listeners->list, list) {
-> > >> -             ret = genlmsg_unicast(skb, s->pid);
-> > >> +             skb_next = NULL;
-> > >> +             if (!list_islast(&s->list, &listeners->list)) {
-> > >> +                     skb_next = skb_clone(skb_cur, GFP_KERNEL);
-> > > 
-> > > If we do a GFP_KERNEL allocation with this semaphore held, and the
-> > > oom-killer tries to kill something to satisfy the allocation, and the
-> > > killed task gets stuck on that semaphore, I wonder of the box locks up.
-> > 
-> > We do GFP_KERNEL inside semaphores/mutexes in lots of places.  So if this
-> > can deadlock with the oom-killer we probably should fix that, preferably
-> > by having GFP_KERNEL fail in that case.
+El Tue, 11 Jul 2006 11:52:56 +0200 (CEST),
+Jaroslav Kysela <perex@suse.cz> escribió:
+
+
+> > Kernel redirector is not a bad solution - there should be some kind of 
+> > interface for such redirectors for different purposes. netlink device 
+> > maybe? For example you should redirect all these traffic to some RT 
+> > daemon doing all job.
 > 
-> This lock is special, in that it's taken on the exit() path (I think).  So
-> it can block tasks which are trying to exit.
+> I would prefer probably a network lowlevel ALSA driver. You'll get the 
+> network transparency as benefit.
 
-Sorry, missed the context.
 
-If there is a deadlock then it's not just this allocation that you
-need worry about.  There is also an allocation within genlmsg_uniast
-that would be GFP_KERNEL.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Shouldn't the plan9 filesystem (the implementation merged in Linux) be able
+to do networking transparency already? It should be able to export /dev
+devices nodes through the network transparently, AFAIK.

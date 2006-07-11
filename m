@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWGKCLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWGKCJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbWGKCLF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 22:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWGKCLF
+	id S964941AbWGKCJc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 22:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWGKCJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 22:11:05 -0400
-Received: from pool-72-66-204-177.ronkva.east.verizon.net ([72.66.204.177]:11204
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S965076AbWGKCLB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 22:11:01 -0400
-Message-Id: <200607110209.k6B29psN007504@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: =?ISO-8859-2?Q?Adam_Tla=B3ka?= <atlka@pg.gda.pl>
-Cc: Lee Revell <rlrevell@joe-job.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-In-Reply-To: Your message of "Tue, 11 Jul 2006 01:38:39 +0200."
-             <44B2E4FF.9000502@pg.gda.pl>
-From: Valdis.Kletnieks@vt.edu
-References: <20060707231716.GE26941@stusta.de> <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe> <20060710132810.551a4a8d.atlka@pg.gda.pl> <1152571717.19047.36.camel@mindpipe>
-            <44B2E4FF.9000502@pg.gda.pl>
+	Mon, 10 Jul 2006 22:09:32 -0400
+Received: from xenotime.net ([66.160.160.81]:22186 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964941AbWGKCJc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 22:09:32 -0400
+Date: Mon, 10 Jul 2006 19:12:18 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matt LaPlante <kernel1@cyberdogtech.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 18-rc1] Fix typos in /Documentation : 'A'
+Message-Id: <20060710191218.d8ea2b6c.rdunlap@xenotime.net>
+In-Reply-To: <20060710210755.abb2af5d.kernel1@cyberdogtech.com>
+References: <20060710130549.ed48127a.kernel1@cyberdogtech.com>
+	<20060710103433.37420ae2.rdunlap@xenotime.net>
+	<20060710210755.abb2af5d.kernel1@cyberdogtech.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152583790_4450P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 10 Jul 2006 22:09:51 -0400
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152583790_4450P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Mon, 10 Jul 2006 21:07:55 -0400 Matt LaPlante wrote:
 
-On Tue, 11 Jul 2006 01:38:39 +0200, =3D?ISO-8859-2?Q?Adam_Tla=3DB3ka?=3D =
-said:
-> U=BFytkownik Lee Revell napisa=B3:
->
-> > esd and artsd are no longer needed since ALSA began to enable softwar=
-e
-> > mixing by default in release 1.0.9.
->  >
->=20
-> So why they are still exist in so many Linux distributions?
+> On Mon, 10 Jul 2006 10:34:33 -0700
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> 
+> > On Mon, 10 Jul 2006 13:05:49 -0400 Matt LaPlante wrote:
+> > 
+> > > This patch fixes typos in various Documentation txts. This patch addresses some words starting with the letter 'A'.
+> > > 
+> > > Signed-off-by: Matt LaPlante <kernel1@cyberdogtech.com>
+> > 
+> > Hi,
+> > Looks mostly good.  I think it would be OK to fix other typos
+> > on the same lines as the patches... see below.
+> 
+> The updated patch below fixes two of the three issues you mentioned.  I don't know what you'd want done with the dead URL, that file doesn't have a whole lot else in it, and I don’t know what the new URL would be.  
+> 
+> I agree fixing other typos is a worthy cause, though currently I haven't really made any changes other than spelling for a couple reasons:
+> 
+> 1- I'm detecting the spelling errors by scripting with aspell and custom wordlists.  This method doesn't reveal grammatical errors often, and I'm not reading much of the actual documents except to get context for the spelling errors.  (I _am_ making all changes manually, not scripting the actual corrections).
+> 
+> 2- Spelling errors are really hard to dispute (except for some nationality issues)...things are either spelled wrong or right.  I would be more hesitant to change actual grammar where I could also unwittingly change the meaning of a technical document (which I often don't have indepth knowledge of to begin with).
+> 
+> I'll certainly be willing to more thoroughly read through and correct the docs later on (and I'm sure I could learn quite a bit in the process).  I thought this round of tackling the most obvious errors assisted by scripting would be a good way to get acquainted with the patching process.
 
-As soon as somebody writes a patch to make the e16 window manager talk AL=
-SA
-rather than use esd, I'm heaving esd over the side.
+OK, thanks.
 
-Of course, I've been saying that since ALSA 1.0.9 came out.  (And don't
-suggest I write it myself - I could if I was motivated enough, but I'm no=
-t
-motivated at the current time. :)
+Acked-by: Randy Dunlap <rdunlap@xenotime.net>
 
---==_Exmh_1152583790_4450P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEswhucC3lWbTT17ARAhdwAKD6LORdtti4AHXf2rkazFe9VVvmVwCcCZR4
-MKS1rlYYDh5NQaOKL8sZ9o4=
-=HPen
------END PGP SIGNATURE-----
-
---==_Exmh_1152583790_4450P--
+---
+~Randy

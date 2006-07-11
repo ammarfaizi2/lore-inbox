@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbWGKHY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWGKH3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965248AbWGKHY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbWGKHY1
+	id S1030318AbWGKH3i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965250AbWGKH3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:24:27 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57832 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965248AbWGKHY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:24:26 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sysctl:  Scream if someone uses sys_sysctl
-References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
-	<20060710211951.7bf8320b.akpm@osdl.org>
-Date: Tue, 11 Jul 2006 01:23:45 -0600
-In-Reply-To: <20060710211951.7bf8320b.akpm@osdl.org> (Andrew Morton's message
-	of "Mon, 10 Jul 2006 21:19:51 -0700")
-Message-ID: <m1lkr0haf2.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 03:29:38 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:64418 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S965237AbWGKH3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:29:37 -0400
+In-Reply-To: <m1veq4iri1.fsf@ebiederm.dsl.xmission.com>
+References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com> <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com> <1152571162.1576.122.camel@localhost.localdomain> <m14pxolryw.fsf@ebiederm.dsl.xmission.com> <1152595205.6346.26.camel@localhost.localdomain> <m1veq4iri1.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <9ABD3384-5829-4365-988C-43310D374CE5@kernel.crashing.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
+Date: Tue, 11 Jul 2006 09:29:29 +0200
+To: ebiederm@xmission.com (Eric W. Biederman)
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> As for supporting multiple irqs in plain MSI mode, I don't think
+> we want to do that.  The problem is that multiple interrupts
+> in msi mode cannot be individually routed.
 
-As far as I can tell we never use sys_sysctl so I never expect to see
-these messages.  But if we do see these it means that there are user
-space applications that need to be fixed before we can safely
-remove sys_sysctl.
+On some(/many/most) platforms that isn't a problem.  Platforms
+for which it is can just refuse to allocate more than one MSI
+at once.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
+> I think we really want
+> to encourage vendors who are building cards with multiple MSI irqs
+> to use MSI-X.  MSI-X has a lot fewer ugly special cases and all
+> architectures can individually route the irqs.
 
-Since this patch was trivial I just wipped up this incremental
-version.  The code compiles is all I know.
+We still should support whatever hardware already exists, if
+possible.
 
- kernel/sysctl.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+> If there are interesting cards that support just MSI mode and really
+> need more than one irq I would be happy to reconsider that decision
+> but my impression was that plain MSI was basically not quite flexible
+> enough to really be interesting, and supporting just one MSI irq was
+> ok but any more would lead to all kinds of strange special cases.
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 42610e6..6e7f13a 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1306,6 +1306,11 @@ asmlinkage long sys_sysctl(struct __sysc
- 	struct __sysctl_args tmp;
- 	int error;
- 
-+	if (printk_ratelimit())
-+		printk(KERN_INFO
-+			"warning: process `%s' used the obsolete sysctl "
-+			"system call\n", current->comm);
-+
- 	if (copy_from_user(&tmp, args, sizeof(tmp)))
- 		return -EFAULT;
- 
-@@ -2688,6 +2693,10 @@ #else /* CONFIG_SYSCTL_SYSCALL */
- 
- asmlinkage long sys_sysctl(struct __sysctl_args __user *args)
- {
-+	if (printk_ratelimit())
-+		printk(KERN_INFO
-+			"warning: process `%s' used the removed sysctl "
-+			"system call\n", current->comm);
- 	return -ENOSYS;
- }
- 
--- 
-1.4.1.gac83a
+Individual drivers can deal with those special cases if they are device-
+specific; and the platform can just refuse to do more than one MSI if
+something platform-specific would prevent correct operation.
+
+It would be nice to have the MSI and MSI-X interfaces have the same
+calling convention; in fact, they can probably be folded into one.
+
+
+Segher
 

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWGKPEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWGKPGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWGKPEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWGKPEk
+	id S1751275AbWGKPGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWGKPGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:04:40 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:21154 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1750970AbWGKPEj
+	Tue, 11 Jul 2006 11:06:37 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:57036 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751275AbWGKPGg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:04:39 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.6/1.7):. Processed in 1.633789 secs Process 7846)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Robin Holt" <holt@sgi.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <nickpiggin@yahoo.com.au>,
-       "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>,
-       <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Tue, 11 Jul 2006 20:38:54 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMEEJMDCAA.abum@aftek.com>
+	Tue, 11 Jul 2006 11:06:36 -0400
+Message-ID: <44B3BE71.3050803@fr.ibm.com>
+Date: Tue, 11 Jul 2006 17:06:25 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Kirill Korotaev <dev@sw.ru>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Pavel Emelianov <xemul@openvz.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 7/7] forbid the use of the unshare syscall on ipc
+ namespaces
+References: <20060711075051.382004000@localhost.localdomain> <20060711075433.856729000@localhost.localdomain> <44B3B16D.8050100@sw.ru>
+In-Reply-To: <44B3B16D.8050100@sw.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-Reply-To: <BKEKJNIHLJDCFGDBOHGMMEJLDCAA.abum@aftek.com>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kirill Korotaev wrote:
 
-I am not sure about x86, but on ia64, you would be very hard pressed
-for this application to actually run you out of memory.  With the
-memset commented out, you would be allocating vmas, etc, but you
-would not be actually putting pages behind those virtual addresses.
+> This patch looks as an overkill for me.
 
----------------------------  test1.c  ----------------------------------
+it's a standalone patch. It can be dropped. I think there is some value to
+it as we already agree
 
-#include<stdio.h>
-#include<string.h>
+> If you really care about things you describe, you can forbid unsharing
+> in cases:
+> 
+> 1.
+>        undo_list = tsk->sysvsem.undo_list;
+>        if (undo_list)
+>                REFUSE_UNSHARE;
+> 2. vma exists with vma->vm_ops == &shm_vm_ops;
+> 3. file opened with f_op == &shm_file_operations
 
-main()
-{
-	char* buff;
-	int count;
+and there are also the netlink sockets mq_notify.
 
-	count=0;
-	while(1)
-	{
-		printf("\nOOM Test: Counter = %d", count);
-		buff = (char*) malloc(1024);
-	//	memset(buff,'\0',1024);
-		count++;
+OK, so we agree that ipc namespaces cannot be unshared without extra
+checks. I like the firewall approach : it's not safe, don't allow it. Which
+is what the patch is doing : we can't unshare ipc namespace safely so let's
+just forbid it :
 
-		if (buff==NULL)
-		{
-			printf("\nOOM Test: Memory allocation error");
-		}
-	}
-}
+	if (unshare_flags & CLONE_NEWIPC)
+		goto bad_unshare_out;
 
----------------------------  test1.c  ----------------------------------
+simple, nop ? :)
 
->The funniest part is that with memset commented out_of_memory observed,
-contrary to my expectation.
->
->I don't know why. It shouldn't have. I am running the application on an ARM
-target.
+> I also dislike exec() operation for such sort of things since you can
+> have no executable at hands due to changed fs namespace.
 
->Regards,
->Abu.
+what do you mean ? fs namespace doesn't change bc you need it to load the
+new process image/interpreter.
 
-I fail to understand that why the OS doesn't return NULL as per man pages of
-malloc. It insteat results in OOM.
-
-~Abu.
-
+C.

@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWGKPDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWGKPEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWGKPDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWGKPDy
+	id S1750974AbWGKPEk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWGKPEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:03:54 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:63690 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750970AbWGKPDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:03:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XXB1/Z1QQU/NXRKztyhst5OXvcXsRlnq0LmkcGvGavDj94d/x+HOBZbUWjhw2yB50ePFU0cMmwoUhMCspzt1bysVCqzjEx5YzWTHfh06kAmAmNcsOErGbn8U23VDu1b8DvoJvYux/2/G0v/qkqRQWxA4vlfacxz/qvrhaG86tlo=
-Message-ID: <9e4733910607110803me340cbdg52b91933a6a2bbfe@mail.gmail.com>
-Date: Tue, 11 Jul 2006 11:03:52 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH] fbdev: Statically link the framebuffer notification functions
-Cc: "Andrew Morton" <akpm@osdl.org>, rdunlap@xenotime.net, mreuther@umich.edu,
-       linux-kernel@vger.kernel.org, zap@homelink.ru
-In-Reply-To: <44B3BACF.4000305@gmail.com>
+	Tue, 11 Jul 2006 11:04:40 -0400
+Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:21154 "EHLO
+	mail.aftek.com") by vger.kernel.org with ESMTP id S1750970AbWGKPEj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:04:39 -0400
+X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
+X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.6/1.7):. Processed in 1.633789 secs Process 7846)
+From: "Abu M. Muttalib" <abum@aftek.com>
+To: "Robin Holt" <holt@sgi.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <nickpiggin@yahoo.com.au>,
+       "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>,
+       <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
+Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
+Date: Tue, 11 Jul 2006 20:38:54 +0530
+Message-ID: <BKEKJNIHLJDCFGDBOHGMEEJMDCAA.abum@aftek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200607100833.00461.mreuther@umich.edu>
-	 <44B34D68.3080602@gmail.com> <20060711032817.94c78ae0.akpm@osdl.org>
-	 <44B39D4D.8060209@gmail.com>
-	 <9e4733910607110621i720db936sebdd0bcb60fab4ad@mail.gmail.com>
-	 <44B3AA51.1040003@gmail.com>
-	 <9e4733910607110646m7f95581cl52669daddf5f2fa1@mail.gmail.com>
-	 <44B3B6ED.9020705@gmail.com>
-	 <9e4733910607110743w29573c02h981324a110adba11@mail.gmail.com>
-	 <44B3BACF.4000305@gmail.com>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+In-Reply-To: <BKEKJNIHLJDCFGDBOHGMMEJLDCAA.abum@aftek.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/11/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> > The code looks ok but this sure smells like inter_module_*.
+
+I am not sure about x86, but on ia64, you would be very hard pressed
+for this application to actually run you out of memory.  With the
+memset commented out, you would be allocating vmas, etc, but you
+would not be actually putting pages behind those virtual addresses.
+
+---------------------------  test1.c  ----------------------------------
+
+#include<stdio.h>
+#include<string.h>
+
+main()
+{
+	char* buff;
+	int count;
+
+	count=0;
+	while(1)
+	{
+		printf("\nOOM Test: Counter = %d", count);
+		buff = (char*) malloc(1024);
+	//	memset(buff,'\0',1024);
+		count++;
+
+		if (buff==NULL)
+		{
+			printf("\nOOM Test: Memory allocation error");
+		}
+	}
+}
+
+---------------------------  test1.c  ----------------------------------
+
+>The funniest part is that with memset commented out_of_memory observed,
+contrary to my expectation.
 >
-> I assure you, there is no smell of inter_module_* here. What scenario
-> are you afraid of?
+>I don't know why. It shouldn't have. I am running the application on an ARM
+target.
 
-Dangling references during the load/unload process. That was
-inter_module's problem.
+>Regards,
+>Abu.
 
->
-> > I guess
-> > inter_module had to deal with arbitrary users and this code is dealing
-> > with a fixed set of clients which makes it more manageable.
-> >
-> > Have you considered making this a generic service and not fb specific?
-> >
->
-> It's basically a wrapper to the notifier_call_chain, that's as generic
-> as it can get. And yes, it's not fb_specific (meaning, there's no need
-> for the client module to know fbdev internals), that's why the lcd and
-> backlight subsystem can take advantage of it.
+I fail to understand that why the OS doesn't return NULL as per man pages of
+malloc. It insteat results in OOM.
 
-The generic code could create notifier chains with a name. The modules
-would then use the name to attach. Now you don't need the fb_notifier
-code.
+~Abu.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWGKUIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWGKUI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWGKUIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWGKUIP
+	id S1751214AbWGKUI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWGKUI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:08:15 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63898 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751213AbWGKUIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:08:14 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Horms <horms@verge.net.au>
-Cc: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Subject: Re: [PATCH] i386 kexec:  Allow the kexec on panic support to compile on voyager.
-References: <20060711123017.5F15A3403D@koto.vergenet.net>
-Date: Tue, 11 Jul 2006 14:07:24 -0600
-In-Reply-To: <20060711123017.5F15A3403D@koto.vergenet.net>
-	(horms@verge.net.au's message of "Tue, 11 Jul 2006 21:30:17 +0900
-	(JST)")
-Message-ID: <m1ejwrgb2b.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 11 Jul 2006 16:08:57 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:694 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1751214AbWGKUI4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:08:56 -0400
+Date: Tue, 11 Jul 2006 13:00:27 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 adds smp_call_function_single
+Message-ID: <20060711200027.GB29402@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20060711132422.GB28851@frankl.hpl.hp.com> <20060711175239.GI5362@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711175239.GI5362@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms <horms@verge.net.au> writes:
+Dave,
 
-> On Mon, 10 Jul 2006 16:37:49 -0600, Eric W. Biederman wrote:
->> 
->> This patch removes the foolish assumption that SMP implied local
->> apics.  That assumption is not-true on the Voyager subarch.  This
->> makes that dependency explicit, and allows the code to build.
->
-> Doesn't only a small portion of the code in question rely
-> on CONFIG_X86_LOCAL_APIC? Is just a workaround until proper
-> voager support materialises?
+On Tue, Jul 11, 2006 at 01:52:39PM -0400, Dave Jones wrote:
+> On Tue, Jul 11, 2006 at 06:24:22AM -0700, Stephane Eranian wrote:
+>  > Hello,
+>  > 
+>  > Continiung the series of small patches necessary for the perfmon subsystem, here
+>  > is a patch that adds support for the smp_call_function_single() function for i386.
+>  > It exists for almost all other architectures but i386. The perfmon subsystem
+>  > needs it in one case to free some state on a designated remote CPU.
+>  > 
+>  > Changelog:
+>  > 	- adds smp_call_function_single() to i386 tree. This function
+>  > 	  is used to invoked a procedure on a designated remote CPU.
+> 
+> The naming seems a little strange to me.  Something like
+> run_on_cpu() would be clearer.  Less keystrokes too :)
+> 
 
-Essentially, but it is correct for the code to stay this way.
+I agree with you that the name is a bit long but I did not invent it.
+The same function name is used for this functionality on IA-64 and X86-64.
 
->> What gets disabled is just an optimization to get better crash
->> dumps so the support should work if there is a kernel that will
->> initialization on the voyager subarch under those harsh conditions.
->
-> By that do you mean, a crash kernel that is able to boot even
-> though the non-crashing CPUs have not been shutdown?
-
-I simply mean a crash kernel that is able to boot.
-
->> Hopefully we can figure out how to initialize apics in init_IRQ
->> and remove the need to disable io_apics and this dependency.
->
-> That does sound nice. Do you have any ideas on how that could be 
-> made to happen?
-
-My patch for that got reverted because it wouldn't boot on Linus's
-SMP laptop.  It appeared to be some weird ACPI problem.  I didn't
-receive any bug reports otherwise.
-
-So I suspect the steps are:
-1) Unify SMP and non-SMP apic initialization so it is the exact same
-   code.
-2) Move the unified code up in the boot sequence into init_IRQs.
-
-It is something that needs to be done very delicately.
-
-Eric
+--
+-Stephane

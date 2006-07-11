@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWGKHzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWGKHzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWGKHzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWGKHyo
+	id S1750716AbWGKHzO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWGKHzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:54:44 -0400
-Received: from cimai.net4.nerim.net ([62.212.121.89]:52119 "EHLO
+	Tue, 11 Jul 2006 03:55:09 -0400
+Received: from cimai.net4.nerim.net ([62.212.121.89]:56983 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750707AbWGKHym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:54:42 -0400
+	id S1750717AbWGKHy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:54:58 -0400
 From: Cedric Le Goater <clg@fr.ibm.com>
-Message-Id: <20060711075413.264879000@localhost.localdomain>
+Message-Id: <20060711075425.246261000@localhost.localdomain>
 References: <20060711075051.382004000@localhost.localdomain>
 User-Agent: quilt/0.45-1
-Date: Tue, 11 Jul 2006 09:50:54 +0200
+Date: Tue, 11 Jul 2006 09:50:57 +0200
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>,
        Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
@@ -21,12 +21,17 @@ Cc: Andrew Morton <akpm@osdl.org>, Cedric Le Goater <clg@fr.ibm.com>,
        Herbert Poetzl <herbert@13thfloor.at>,
        Sam Vilain <sam.vilain@catalyst.net.nz>,
        "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: [PATCH -mm 3/7] add execns syscall to x86_64
-Content-Disposition: inline; filename=execns-syscall-x86_64.patch
+Subject: [PATCH -mm 6/7] add the user namespace to the execns syscall
+Content-Disposition: inline; filename=user-namespace-add-execns-syscall.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the execns() syscall to the x86_64 architecture.
+This patch allows a process to unshare its user namespace through
+the execns() syscall.
+
+It also forbids the use of the unshare() syscall on user namespaces.
+The purpose of this restriction is to prevent inconsistencies in the
+accounting for each process.
 
 Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
 Cc: Andrew Morton <akpm@osdl.org>
@@ -39,141 +44,92 @@ Cc: Serge E. Hallyn <serue@us.ibm.com>
 Cc: Dave Hansen <haveblue@us.ibm.com>
 
 ---
- arch/x86_64/kernel/entry.S      |   30 ++++++++++++++++++++++++++++++
- arch/x86_64/kernel/functionlist |    3 +++
- arch/x86_64/kernel/process.c    |   25 +++++++++++++++++++++++++
- include/asm-x86_64/unistd.h     |    4 +++-
- 4 files changed, 61 insertions(+), 1 deletion(-)
+ fs/exec.c     |   22 ++++++++++++++++++----
+ kernel/fork.c |    5 +++++
+ 2 files changed, 23 insertions(+), 4 deletions(-)
 
-Index: 2.6.18-rc1-mm1/arch/x86_64/kernel/entry.S
+Index: 2.6.18-rc1-mm1/fs/exec.c
 ===================================================================
---- 2.6.18-rc1-mm1.orig/arch/x86_64/kernel/entry.S
-+++ 2.6.18-rc1-mm1/arch/x86_64/kernel/entry.S
-@@ -453,6 +453,21 @@ ENTRY(stub_execve)
- 	CFI_ENDPROC
- END(stub_execve)
- 	
-+ENTRY(stub_execns)
-+	CFI_STARTPROC
-+	popq %r11
-+	CFI_ADJUST_CFA_OFFSET -8
-+	CFI_REGISTER rip, r11
-+	SAVE_REST
-+	FIXUP_TOP_OF_STACK %r11
-+	call sys_execns
-+	RESTORE_TOP_OF_STACK %r11
-+	movq %rax,RAX(%rsp)
-+	RESTORE_REST
-+	jmp int_ret_from_sys_call
-+	CFI_ENDPROC
-+END(stub_execns)
-+
- /*
-  * sigreturn is special because it needs to restore all registers on return.
-  * This cannot be done with SYSRET, so use the IRET return path instead.
-@@ -1014,6 +1029,21 @@ ENTRY(execve)
- 	CFI_ENDPROC
- ENDPROC(execve)
+--- 2.6.18-rc1-mm1.orig/fs/exec.c
++++ 2.6.18-rc1-mm1/fs/exec.c
+@@ -1254,6 +1254,7 @@ int do_execns(int unshare_flags, char * 
+ 	struct nsproxy *new_nsproxy = NULL, *old_nsproxy = NULL;
+ 	struct uts_namespace *uts, *new_uts = NULL;
+ 	struct ipc_namespace *ipc, *new_ipc = NULL;
++	struct user_namespace *user, *new_user = NULL;
  
-+ENTRY(execns)
-+	CFI_STARTPROC
-+	FAKE_STACK_FRAME $0
-+	SAVE_ALL
-+	call sys_execns
-+	movq %rax, RAX(%rsp)
-+	RESTORE_REST
-+	testq %rax,%rax
-+	je int_ret_from_sys_call
-+	RESTORE_ARGS
-+	UNFAKE_STACK_FRAME
-+	ret
-+	CFI_ENDPROC
-+ENDPROC(execns)
+ 	err = unshare_utsname(unshare_flags, &new_uts);
+ 	if (err)
+@@ -1261,24 +1262,27 @@ int do_execns(int unshare_flags, char * 
+ 	err = unshare_ipcs(unshare_flags, &new_ipc);
+ 	if (err)
+ 		goto bad_execns_cleanup_uts;
++	err = unshare_user_ns(unshare_flags, &new_user);
++	if (err)
++		goto bad_execns_cleanup_ipc;
+ 
+-	if (new_uts || new_ipc) {
++	if (new_uts || new_ipc || new_user) {
+ 		old_nsproxy = current->nsproxy;
+ 		new_nsproxy = dup_namespaces(old_nsproxy);
+ 		if (!new_nsproxy) {
+ 			err = -ENOMEM;
+-			goto bad_execns_cleanup_ipc;
++			goto bad_execns_cleanup_user;
+ 		}
+ 	}
+ 
+ 	err = do_execve(filename, argv, envp, regs);
+ 	if (err)
+-		goto bad_execns_cleanup_ipc;
++		goto bad_execns_cleanup_user;
+ 
+ 	/* make sure all files are flushed */
+ 	flush_all_old_files(current->files);
+ 
+-	if (new_uts || new_ipc) {
++	if (new_uts || new_ipc || new_user) {
+ 
+ 		task_lock(current);
+ 
+@@ -1299,12 +1303,22 @@ int do_execns(int unshare_flags, char * 
+ 			new_ipc = ipc;
+ 		}
+ 
++		if (new_user) {
++			user = current->nsproxy->user_ns;
++			current->nsproxy->user_ns = new_user;
++			new_user = user;
++		}
 +
- KPROBE_ENTRY(page_fault)
- 	errorentry do_page_fault
- END(page_fault)
-Index: 2.6.18-rc1-mm1/arch/x86_64/kernel/functionlist
+ 		task_unlock(current);
+ 	}
+ 
+ 	if (new_nsproxy)
+ 		put_nsproxy(new_nsproxy);
+ 
++bad_execns_cleanup_user:
++	if (new_user)
++		put_user_ns(new_user);
++
+ bad_execns_cleanup_ipc:
+ 	if (new_ipc)
+ 		put_ipc_ns(new_ipc);
+Index: 2.6.18-rc1-mm1/kernel/fork.c
 ===================================================================
---- 2.6.18-rc1-mm1.orig/arch/x86_64/kernel/functionlist
-+++ 2.6.18-rc1-mm1/arch/x86_64/kernel/functionlist
-@@ -551,6 +551,7 @@
- *(.text.sys_getdents)
- *(.text.sys_dup)
- *(.text.stub_execve)
-+*(.text.stub_execns)
- *(.text.sha_transform)
- *(.text.radix_tree_tag_clear)
- *(.text.put_unused_fd)
-@@ -678,6 +679,7 @@
- *(.text.__find_symbol)
- *(.text.do_futex)
- *(.text.do_execve)
-+*(.text.do_execns)
- *(.text.dirty_writeback_centisecs_handler)
- *(.text.dev_watchdog)
- *(.text.can_share_swap_page)
-@@ -1098,6 +1100,7 @@
- *(.text.sys_fstat)
- *(.text.sysfs_readdir)
- *(.text.sys_execve)
-+*(.text.sys_execns)
- *(.text.sysenter_tracesys)
- *(.text.sys_chown)
- *(.text.stub_clone)
-Index: 2.6.18-rc1-mm1/arch/x86_64/kernel/process.c
-===================================================================
---- 2.6.18-rc1-mm1.orig/arch/x86_64/kernel/process.c
-+++ 2.6.18-rc1-mm1/arch/x86_64/kernel/process.c
-@@ -697,6 +697,31 @@ long sys_execve(char __user *name, char 
- 	return error;
- }
+--- 2.6.18-rc1-mm1.orig/kernel/fork.c
++++ 2.6.18-rc1-mm1/kernel/fork.c
+@@ -1615,6 +1615,11 @@ asmlinkage long sys_unshare(unsigned lon
+ 				CLONE_NEWUTS|CLONE_NEWIPC))
+ 		goto bad_unshare_out;
  
-+/*
-+ * sys_execns() executes a new program and unshares selected
-+ * namespaces.
-+ */
-+asmlinkage
-+long sys_execns(int flags, char __user *name, char __user * __user *argv,
-+		char __user * __user *envp, struct pt_regs regs)
-+{
-+	long error;
-+	char * filename;
++	/* Also return -EINVAL for all unsharable namespaces. May be a
++	 * -EACCES would be more appropriate ? */
++	if (unshare_flags & CLONE_NEWUSER)
++		goto bad_unshare_out;
 +
-+	filename = getname(name);
-+	error = PTR_ERR(filename);
-+	if (IS_ERR(filename))
-+		return error;
-+	error = do_execns(flags, filename, argv, envp, &regs);
-+	if (error == 0) {
-+		task_lock(current);
-+		current->ptrace &= ~PT_DTRACE;
-+		task_unlock(current);
-+	}
-+	putname(filename);
-+	return error;
-+}
-+
- void set_personality_64bit(void)
- {
- 	/* inherit personality from parent */
-Index: 2.6.18-rc1-mm1/include/asm-x86_64/unistd.h
-===================================================================
---- 2.6.18-rc1-mm1.orig/include/asm-x86_64/unistd.h
-+++ 2.6.18-rc1-mm1/include/asm-x86_64/unistd.h
-@@ -619,10 +619,12 @@ __SYSCALL(__NR_sync_file_range, sys_sync
- __SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages		279
- __SYSCALL(__NR_move_pages, sys_move_pages)
-+#define __NR_execns		280
-+__SYSCALL(__NR_execns, stub_execns)
- 
- #ifdef __KERNEL__
- 
--#define __NR_syscall_max __NR_move_pages
-+#define __NR_syscall_max __NR_execns
- #include <linux/err.h>
- 
- #ifndef __NO_STUBS
+ 	if ((err = unshare_thread(unshare_flags)))
+ 		goto bad_unshare_out;
+ 	if ((err = unshare_fs(unshare_flags, &new_fs)))
 
 --

@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbWGKGPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWGKGRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbWGKGPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbWGKGPT
+	id S965151AbWGKGRk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWGKGRk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:15:19 -0400
-Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:64645 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S965048AbWGKGPS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:15:18 -0400
-Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
-	(2.6.18-rc1-i386) - safe_smp_processor_id
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
-       James.Bottomley@steeleye.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-In-Reply-To: <9807.1152593732@kao2.melbourne.sgi.com>
-References: <9807.1152593732@kao2.melbourne.sgi.com>
-Content-Type: text/plain
-Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
-	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
-	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
-Date: Tue, 11 Jul 2006 15:15:14 +0900
-Message-Id: <1152598514.2414.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Tue, 11 Jul 2006 02:17:40 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:49088 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965151AbWGKGRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:17:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=CA0CUsPPOIocCheL/y8Isq/Fs6KoqPwlFa5hlhc9K/SW8p2ppnOEE5GlWGex6ShiOK3VzVDncBuFATupUJU+Cmmwmbz2LXcfYWbSDTOwrvObBdoM4uX6A0g1it98BF0bGXjAH5l02Whjr+u3qbxRuTFdYc0uTQLu/rAtKOlGqHo=
+Message-ID: <84144f020607102317r60d797eakdf20107e158ec251@mail.gmail.com>
+Date: Tue, 11 Jul 2006 09:17:38 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 03/10] Add the memory allocation/freeing hooks for kmemleak
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060710220957.5191.54019.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <20060710220957.5191.54019.stgit@localhost.localdomain>
+X-Google-Sender-Auth: ae2a5565d9b785c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith!
+Hi Catalin
 
-On Tue, 2006-07-11 at 14:55 +1000, Keith Owens wrote:
-> Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao (on Tue, 11 Jul 2006 13:21:01 +0900) wrote:
-> >That is a good idea, but I have on concern. In mach-default by default
-> >we use __send_IPI_shortcut (no_broadcast==0) instead of send_IPI_mask.
-> >Is it always safe to ignore the no_broadcast setting? In other words,
-> >can __send_IPI_shortcut be replaced by send_IPI_mask safely?
-> 
-> It is always safe to use send_IPI_mask.  It is not used by default
-> because of concerns that send_IPI_mask may be slower than using a
-> broadcast, although I do not know if anybody has measurements to back
-> up that concern.  OTOH I can guarantee that sending NMI as a broadcast
-> has problems, it breaks some Dell Xeon servers[1].  My fix was to never
-> broadcast NMI, from 2.6.18-rc1 NMI_VECTOR always uses a mask[2] and
-> crash was changed accordingly[3].
-> 
-> [1] http://marc.theaimsgroup.com/?t=114828920800003&r=1&w=2
-> [2] http://marc.theaimsgroup.com/?t=115103727400006&r=1&w=2
-> [3] http://marc.theaimsgroup.com/?t=115096703800003&r=1&w=2
+On 7/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> diff --git a/mm/slab.c b/mm/slab.c
+> index 85c2e03..2752272 100644
+> --- a/mm/slab.c
+> +++ b/mm/slab.c
+> @@ -2967,6 +2967,7 @@ #endif
+>                 STATS_INC_ALLOCMISS(cachep);
+>                 objp = cache_alloc_refill(cachep, flags);
+>         }
+> +       memleak_erase(&ac->entry[ac->avail]);
+>         return objp;
+>  }
 
-Thank you for the links (I had forgotten about that thread) and
-comments!
-I prepared new patches and hopefully I got it right this time, Do they
-look good this time (PATCH 4/4 in particular)?
+Can't we tell the GC not to scan any of the array cache structs? You
+could put that in alloc_arraycache(), I think.
 
-Thank you in advance,
+> @@ -3209,7 +3211,11 @@ static void __cache_free(struct kmem_cac
+>   */
+>  void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+>  {
+> -       return __cache_alloc(cachep, flags, __builtin_return_address(0));
+> +       void *ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
+> +
+> +       memleak_alloc(ptr, obj_size(cachep), 1);
 
-Fernando
-
+Can you move memleak_alloc() call to __cache_alloc() instead to avoid
+duplication?

@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWGKVUN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWGKV0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWGKVUN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWGKVUN
+	id S1751306AbWGKV0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWGKV0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:20:13 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:31467 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932134AbWGKVUM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:20:12 -0400
-Message-ID: <44B415FE.1010700@zytor.com>
-Date: Tue, 11 Jul 2006 14:19:58 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ramdisk blocksize Kconfig entry
-References: <20060711171722.E1710004@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060711171722.E1710004@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 17:26:52 -0400
+Received: from mx1.suse.de ([195.135.220.2]:54208 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751306AbWGKV0v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 17:26:51 -0400
+Date: Tue, 11 Jul 2006 14:22:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Olaf Hering <olh@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, klibc@zytor.com,
+       Jeff Garzik <jeff@garzik.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060711212232.GA32698@kroah.com>
+References: <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de> <44B3EC5A.1010100@zytor.com> <20060711200640.GA17653@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711200640.GA17653@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
-> This patch makes the ramdisk blocksize configurable at kernel
-> compilation time rather than only at boot or module load time,
-> like a couple of the other ramdisk options.  I found this handy
-> awhile back but thought little of it, until recently asked by a
-> few of the testing folks here to be able to do the same thing
-> for their automated test setups.
-> 
-> The Kconfig comment is largely lifted from comments in rd.c,
-> and hopefully this will increase the chances of making folks
-> aware that the default value often isn't a great choice here
-> (for increasing values of PAGE_SIZE, even moreso).
+On Tue, Jul 11, 2006 at 10:06:40PM +0200, Olaf Hering wrote:
+> And to give a negative example for great regression test opportunities:
+> You guessed it, SLES10 has a udev that cant handle kernels before 2.6.15.
+> Great job. I could slap them all day...
 
-This seems a bit odd to me... the sizes of most block devices is set by 
-the filesystem, not hard-coded; the need for this implies something more 
-fundamental is wrong.
+Just to be specific, the udev in SLES10 can handle older kernels than
+2.6.15 just fine, it's just the boot scripts around it are not written
+to do so.
 
-	-hpa
+Other distros happily run newer udev versions on older kernels just
+fine, so don't try blaming the main udev program on this please...
 
+thanks,
 
+greg k-h

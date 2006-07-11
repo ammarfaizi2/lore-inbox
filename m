@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWGKHrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWGKHsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWGKHrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWGKHrz
+	id S1750701AbWGKHsk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWGKHsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:47:55 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:42276 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750700AbWGKHry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:47:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PsW4S0HXTajMKd10Yae3BZ90EgZ/NeiYR+bFQStwC5pwBfEoqcZp/vS22rZ2TbudbKbiMu6EjUmQdp/cUyzqbP5vKahKRj3XOqblSQvzJy7uoysNUu9fiaDLky0HWS8Z5f8JdI3gEK5ZBA7qS7vryHcG18jmk68ijssViCzqpnA=
-Message-ID: <b0943d9e0607110047x5f494981h1925c950d34459f0@mail.gmail.com>
-Date: Tue, 11 Jul 2006 08:47:53 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] Fix a memory leak in the i386 setup code
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200607110025.57812.rjw@sisk.pl>
+	Tue, 11 Jul 2006 03:48:40 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:36810 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750701AbWGKHsj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:48:39 -0400
+Date: Tue, 11 Jul 2006 09:48:35 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] 'volatile' in userspace
+In-Reply-To: <44B29461.40605@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr>
+References: <44B0FAD5.7050002@argo.co.il>  <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>
+  <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com> 
+ <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com>
+ <44B29461.40605@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060710221308.5351.78741.stgit@localhost.localdomain>
-	 <200607110025.57812.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/07/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> Does x86_64 need a similar fix?
-
-Doesn't look like it needs this.
-
-> On Tuesday 11 July 2006 00:13, Catalin Marinas wrote:
-> > --- a/arch/i386/kernel/setup.c
-> > +++ b/arch/i386/kernel/setup.c
-> > @@ -1327,7 +1327,10 @@ #endif
-> >               res->start = e820.map[i].addr;
-> >               res->end = res->start + e820.map[i].size - 1;
-> >               res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
-> > -             request_resource(&iomem_resource, res);
-> > +             if (request_resource(&iomem_resource, res)) {
-> > +                     kfree(res);
-> > +                     continue;
-> > +             }
-> >               if (e820.map[i].type == E820_RAM) {
-> >                       /*
-> >                        *  We don't know which RAM region contains kernel data,
 >
-> Evidently res is used if e820.map[i].type == E820_RAM, so it should
-> be freed later on, it seems.
+> What's wrong with _exit(exec() == -1 ? 0 : errno);
+> and picking up the status with wait(2) ?
+>
+The exec'd application may return regular error codes, which would 
+interfere. IIRC /usr/sbin/useradd has different exit codes depending on 
+what failed (providing some option, failure to create account, failure to 
+create home dir, etc.). Now if you exit(errno) instead, you have an 
+overlap.
+And your code is somewhat wrong. Given that exec() would stand for 
+execve(someprogram_and_args_here), if it returned -1 you would return 0, 
+indicating success. Can't be. And if exec() does not return -1, which it 
+never should, you return errno, which never reaches anyone.
 
-The "if" block I added has a "continue" and therefore the E820_RAM
-case is skipped. There is no point in requesting a resource with "res"
-as parent when "res" couldn't be successfully acquired.
 
+Jan Engelhardt
 -- 
-Catalin

@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWGKGNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbWGKGPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWGKGNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWGKGNf
+	id S965048AbWGKGPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbWGKGPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:13:35 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:47260 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S965045AbWGKGNe convert rfc822-to-8bit
+	Tue, 11 Jul 2006 02:15:19 -0400
+Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:64645 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S965048AbWGKGPS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:13:34 -0400
-Date: Tue, 11 Jul 2006 08:15:28 +0200
-From: Adam =?ISO-8859-2?B?VGxhs2th?= <atlka@pg.gda.pl>
-To: Valdis.Kletnieks@vt.edu
-Cc: alsa-devel@alsa-project.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       rlrevell@joe-job.com, perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-Message-Id: <20060711081528.4d3ab197.atlka@pg.gda.pl>
-In-Reply-To: <200607110209.k6B29psN007504@turing-police.cc.vt.edu>
-References: <20060707231716.GE26941@stusta.de>
-	<p737j2potzr.fsf@verdi.suse.de>
-	<1152458300.28129.45.camel@mindpipe>
-	<20060710132810.551a4a8d.atlka@pg.gda.pl>
-	<1152571717.19047.36.camel@mindpipe>
-	<44B2E4FF.9000502@pg.gda.pl>
-	<200607110209.k6B29psN007504@turing-police.cc.vt.edu>
-Organization: Gdansk University of Technology
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Tue, 11 Jul 2006 02:15:18 -0400
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
+	(2.6.18-rc1-i386) - safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
+       James.Bottomley@steeleye.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <9807.1152593732@kao2.melbourne.sgi.com>
+References: <9807.1152593732@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Tue, 11 Jul 2006 15:15:14 +0900
+Message-Id: <1152598514.2414.66.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jul 2006 22:09:51 -0400
-Valdis.Kletnieks@vt.edu wrote:
+Hi Keith!
 
-> On Tue, 11 Jul 2006 01:38:39 +0200, =?ISO-8859-2?Q?Adam_Tla=B3ka?= said:
-> > U¿ytkownik Lee Revell napisa³:
-> >
-> > > esd and artsd are no longer needed since ALSA began to enable software
-> > > mixing by default in release 1.0.9.
-> >  >
-> > 
-> > So why they are still exist in so many Linux distributions?
+On Tue, 2006-07-11 at 14:55 +1000, Keith Owens wrote:
+> Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao (on Tue, 11 Jul 2006 13:21:01 +0900) wrote:
+> >That is a good idea, but I have on concern. In mach-default by default
+> >we use __send_IPI_shortcut (no_broadcast==0) instead of send_IPI_mask.
+> >Is it always safe to ignore the no_broadcast setting? In other words,
+> >can __send_IPI_shortcut be replaced by send_IPI_mask safely?
 > 
-> As soon as somebody writes a patch to make the e16 window manager talk ALSA
-> rather than use esd, I'm heaving esd over the side.
-
-Sorry to say but it is just not that way. Window manager is for managing windows
-and it shouldn't depend on any audio system. It should use an external app using exec call
-to play sounds (aplay, sox, wavplay etc.) configured by some config option.
-Generally it is a big mess in may distros where desktop apps depends on sound.
-Yes, it is nice to have sound but it is not absolutly needed to use an editor for example. 
-
-> Of course, I've been saying that since ALSA 1.0.9 came out.  (And don't
-> suggest I write it myself - I could if I was motivated enough, but I'm not
-> motivated at the current time. :)
+> It is always safe to use send_IPI_mask.  It is not used by default
+> because of concerns that send_IPI_mask may be slower than using a
+> broadcast, although I do not know if anybody has measurements to back
+> up that concern.  OTOH I can guarantee that sending NMI as a broadcast
+> has problems, it breaks some Dell Xeon servers[1].  My fix was to never
+> broadcast NMI, from 2.6.18-rc1 NMI_VECTOR always uses a mask[2] and
+> crash was changed accordingly[3].
 > 
+> [1] http://marc.theaimsgroup.com/?t=114828920800003&r=1&w=2
+> [2] http://marc.theaimsgroup.com/?t=115103727400006&r=1&w=2
+> [3] http://marc.theaimsgroup.com/?t=115096703800003&r=1&w=2
 
-If you are the author then I just suggest to use exec(3) call, for example:
+Thank you for the links (I had forgotten about that thread) and
+comments!
+I prepared new patches and hopefully I got it right this time, Do they
+look good this time (PATCH 4/4 in particular)?
 
-if (!fork()){
-	execvp("aplay","beep.wav");
-	exit(0);
-}
+Thank you in advance,
 
-Simple, and you don't need to know anything about sound programming ;-).
+Fernando
 
-Regards
--- 
-Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl

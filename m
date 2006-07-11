@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWGKTef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWGKTgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWGKTef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWGKTef
+	id S1751212AbWGKTgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWGKTgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:34:35 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:34264 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751205AbWGKTee (ORCPT
+	Tue, 11 Jul 2006 15:36:37 -0400
+Received: from mga01.intel.com ([192.55.52.88]:9016 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751143AbWGKTgg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:34:34 -0400
-Date: Tue, 11 Jul 2006 21:34:23 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: RFC: cleaning up the in-kernel headers
-Message-ID: <20060711193423.GA9685@mars.ravnborg.org>
-References: <20060711160639.GY13938@stusta.de> <1152635323.3373.211.camel@pmac.infradead.org> <20060711173301.GA27818@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060711173301.GA27818@infradead.org>
-User-Agent: Mutt/1.5.11
+	Tue, 11 Jul 2006 15:36:36 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="96413952:sNHT15528422"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: 2.6.17-mm6: BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
+Date: Tue, 11 Jul 2006 15:36:30 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6F3153D@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.17-mm6: BUG: spinlock wrong CPU on CPU#1, kacpid_notify/7105
+Thread-Index: AcalIDeuXC/B7GlZRWGcU7Tw32wgMgAAQLkQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       "Jeremy Fitzhardinge" <jeremy@goop.org>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Jul 2006 19:36:33.0331 (UTC) FILETIME=[50B6F830:01C6A521]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 06:33:01PM +0100, Christoph Hellwig wrote:
-> On Tue, Jul 11, 2006 at 05:28:43PM +0100, David Woodhouse wrote:
-> > It would be nice in the general case if we could actually _compile_ each
-> > header file, standalone. There may be some cases where that doesn't
-> > work, but it's a useful goal in most cases, for bother exported headers
-> > _and_ the in-kernel version. For the former case it would be nice to add
-> > it to 'make headers_check' once it's realistic to do so.
-> 
-> That would be extremly valueable.  Maybe one of the kbuild gurus could
-> cook up a make checkheaders rule that does this?
-JÃrn Engel IIRC created a perl scrip that did this a year or two ago.
-Try googling a bit.
 
-	Sam
+>I think the patch I posted on Friday will solve this issue:
+>
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=115230920629981&w=2
+>
+>It is included in 2.6.18-rc1-mm1.
+
+FYI, this is included in 2.6.18-rc1-git4

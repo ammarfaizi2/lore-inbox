@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWGKSEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWGKSFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWGKSEt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSEt
+	id S1751103AbWGKSFo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWGKSFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:04:49 -0400
-Received: from mga02.intel.com ([134.134.136.20]:39035 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751169AbWGKSEs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:04:48 -0400
-X-IronPort-AV: i="4.06,223,1149490800"; 
-   d="scan'208"; a="63600465:sNHT12700329418"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: Intel ICH7 82801GBM/GHM
-Date: Tue, 11 Jul 2006 10:59:17 -0700
-Message-ID: <39B20DF628532344BC7A2692CB6AEE070A683F@orsmsx420.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: Intel ICH7 82801GBM/GHM
-Thread-Index: AcalE7qArdAmGO8qSoSbtyev3SFvXQ==
-From: "Gaston, Jason D" <jason.d.gaston@intel.com>
-To: <bojan@rexursive.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Jul 2006 17:59:18.0826 (UTC) FILETIME=[BB1428A0:01C6A513]
+	Tue, 11 Jul 2006 14:05:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42682 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751165AbWGKSFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:05:44 -0400
+Subject: Re: [PATCH] irqtrace-option-off-compile-fix
+From: Arjan van de Ven <arjan@infradead.org>
+To: tim.c.chen@linux.intel.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
+In-Reply-To: <1152635804.7654.44.camel@localhost.localdomain>
+References: <1152577120.7654.9.camel@localhost.localdomain>
+	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
+	 <1152635003.7654.40.camel@localhost.localdomain>
+	 <1152637993.3128.96.camel@laptopd505.fenrus.org>
+	 <1152635804.7654.44.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 20:05:41 +0200
+Message-Id: <1152641141.3128.104.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bojan,
+On Tue, 2006-07-11 at 09:36 -0700, Tim Chen wrote:
+> On Tue, 2006-07-11 at 19:13 +0200, Arjan van de Ven wrote:
+> > On Tue, 2006-07-11 at 09:23 -0700, Tim Chen wrote:
+> > > I was testing on x86_64 and turned off the option in
+> > > arch/x86_64/Kconfig.debug. 
+> > > 
+> > > When the option is turned off, the following functions become undefined:
+> > > local_irq_disable()           
+> > > local_irq_enable()             
+> > > local_irq_save(flags)          
+> > > local_irq_restore(flags)       
+> > > safe_halt() 
+> > > local_save_flags()
+> > > irqs_disabled()
+> > > irqs_disabled_flags(flags)                   
+> > > 
+> > > It seems plausible that some users may want to avoid the overhead of
+> > > tracing IRQFLAGS by turning the option off.
+> > 
+> > eh that is a different config option!
+> 
+> My typo, it is TRACE_IRQFLAGS_SUPPORT in arch/x86_64/Kconfig.debug.
 
-27c4 is the ICH7M SATA (IDE mode) controller DeviceID.
 
-If you change the mode from IDE to AHCI in BIOS, this will change to
-27c5, which is the ICH7M SATA (AHCI mode) controller DeviceID.
+that should never ever be user setable. That just says if you have
+support for the api.
 
-Jason
+The one you want is CONFIG_TRACE_IRQFLAGS .. which is the one that
+actually turns the tracing on
 
 
-> Does anyone know if this chip, which goes by PCI ID 8086:27c4 (as
-listed 
-> in ata_piix.c) is something that ahci.c can also drive? It isn't
-listed 
-> explicity in ahci.c file, but ata_piix.c file says it's identical to 
-> ICH6M, which is listed in ahci.c.
 

@@ -1,111 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWGKT5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWGKT7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWGKT5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWGKT5S
+	id S932128AbWGKT7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWGKT7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:57:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37042 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932112AbWGKT5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:57:17 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
-	<m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
-	<1152571162.1576.122.camel@localhost.localdomain>
-	<m14pxolryw.fsf@ebiederm.dsl.xmission.com>
-	<1152595205.6346.26.camel@localhost.localdomain>
-	<m1veq4iri1.fsf@ebiederm.dsl.xmission.com>
-	<9ABD3384-5829-4365-988C-43310D374CE5@kernel.crashing.org>
-	<m18xn0h99q.fsf@ebiederm.dsl.xmission.com>
-	<1152609347.6346.38.camel@localhost.localdomain>
-Date: Tue, 11 Jul 2006 13:56:26 -0600
-In-Reply-To: <1152609347.6346.38.camel@localhost.localdomain> (Benjamin
-	Herrenschmidt's message of "Tue, 11 Jul 2006 19:15:46 +1000")
-Message-ID: <m1irm3gbkl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 11 Jul 2006 15:59:41 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:6312 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932128AbWGKT7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:59:41 -0400
+Message-ID: <44B40320.40005@garzik.org>
+Date: Tue, 11 Jul 2006 15:59:28 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Olaf Hering <olh@suse.de>,
+       Michael Tokarev <mjt@tls.msk.ru>, Roman Zippel <zippel@linux-m68k.org>,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de> <44B3E814.3060004@zytor.com> <20060711181055.GC16869@suse.de> <44B3EB28.1050007@zytor.com> <20060711191548.GA17585@suse.de> <Pine.LNX.4.64.0607111226320.5623@g5.osdl.org> <44B3FE34.9000704@zytor.com> <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607111249380.5623@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Linus Torvalds wrote:
+> 
+> On Tue, 11 Jul 2006, H. Peter Anvin wrote:
+>> Does that mean "in kernel space", "in the kernel distribution" or "in memory
+>> completely under the control by the kernel?"  That is really what this is
+>> about.
+> 
+> I think it's all about kernel space.
+> 
+> Moving the default parsing to user space would add exactly _zero_ 
+> advantage, and would add totally unnecessary complexity (ie now we need to 
+> make sure that hotplug does it right - and the hotplug routines suddenly 
+> change between the boot phase and the actual install).
 
->> Examples? details? patches?
->> 
->> Part of the problem with plain MSI is that you can't mask irqs at the
->> source, in a generic way.
->
-> This is an interesting point, because this shows precisely the different
-> of approach between most HW PPC implementations vs what x86 does and
-> what the current code does...
->
-> Our MSIs are always routed as just additional sources to an existing IRQ
-> controller that will itself then handle things like masking, affinity,
-> etc...
+With LVM (default RHEL and Fedora installs encourage you in that 
+direction) and EVMS (device mapper), these issues already exist.
 
-Interesting.  In the short term I can see how that is a sane design.
-In the long term that appears to require more hardware and be a
-bottle neck on the number of irqs you can have so I don't expect
-the current ppc model to be the long term one.  
+Today's default install has "partition" parsing in both the kernel and 
+userspace...  talk about complexity :)
 
-Does the current ppc model give hypervisors more control then they
-would get without going through an existing interrupt controller?
-
-> Thus, we don't need nor want any kind of generic MSI code setting up an
-> irq_chip with enable/disable functions etc... Those should stay the ones
-> from the system's main PIC, maybe a different version of them, but
-> that's up to the system PIC to set that up.
-
-For the hypertransport case I have coded it this way and I think there
-are good general cleanliness arguments for making this change to x86 as
-well.  I think doing so actually winds up being less code.
-
-> That's one of the reason why I think we need to work the MSI arch side
-> API such that the MSI "controller" is the one to setup the irq_desc. The
-> "generic" mask/unmask/etc... using the MSI(X) config space can be
-> provided as optional helpers but it should be under arch, or more
-> specifically MSI controller control to pick up how to setup the irq_desc
-> and its associated irq_chip.
->
-> Another one is the fact that we have multiple different MSI mecanisms on
-> the same machines (like the Apple Quad G5 which have on one side an MSI
-> "register" that devices write to and that triggers sources on the MPIC,
-> and on the other side, HT interrupts which can be generated from MSIs by
-> the broadcom HT<->PCIe bridge). Thus that msi_ops stucture I've seen
-> around shall really be per PCI host bridge at the very least. One
-> propsal I have, but I didn't have time to actually implement it, was to
-> have the msi_ops pointer be a field in pci_bus that is inherited by
-> default. That is, the arch can call pci_set_msi_ops() on a given bus and
-> this will propagate to childs.
+	Jeff
 
 
-So to be very concise what I did on the HT side is that I have a function:
-arch_setup_ht_irq(struct pci_dev, int irq).
-That is used by the arch code to setup the irq_chip handler and the rest.
-
-There are helper functions:
-void write_ht_irq_low(unsigned int irq, u32 data);
-void write_ht_irq_high(unsigned int irq, u32 data);
-u32 read_ht_irq_low(unsigned int irq);
-u32 read_ht_irq_high(unsigned int irq);
-
-That read and write the individual hypertransport irq routing values per irq.
-
-I suspect this is the right general direction to move the msi code to.
-
-The combination allows an architecture to take bus specific details into
-an account, and have it's own irq handler methods.  At the same time
-it is still the generic infrastructure controlling access to the
-chip registers.
-
-So I honest expect things like msi_ops to become an arch specific detail.
-At the very least I think it is too early to start generalizing that way
-if we really don't need to.
-
-Eric

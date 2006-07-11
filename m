@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWGKXX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWGKXXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWGKXX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGKXXA
+	id S932245AbWGKXXi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWGKXX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:23:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8872 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932235AbWGKXW7 (ORCPT
+	Tue, 11 Jul 2006 19:23:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51378 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932237AbWGKXXL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:22:59 -0400
-Date: Tue, 11 Jul 2006 15:59:09 -0700
-From: Greg KH <greg@kroah.com>
-To: David Miller <davem@davemloft.net>
-Cc: akpm@osdl.org, efault@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled /sbin/ifup
-Message-ID: <20060711225909.GK18838@kroah.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <1152469329.9254.15.camel@Homer.TheSimpsons.net> <20060709135148.60561e69.akpm@osdl.org> <20060709.173212.112177014.davem@davemloft.net>
+	Tue, 11 Jul 2006 19:23:11 -0400
+Date: Tue, 11 Jul 2006 16:23:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@redhat.com>
+Cc: bunk@stusta.de, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1: drivers/ide/pci/jmicron.c warning
+Message-Id: <20060711162328.6a771ce2.akpm@osdl.org>
+In-Reply-To: <20060711231014.GA30186@devserv.devel.redhat.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	<20060711125258.GN13938@stusta.de>
+	<20060711140257.GA6820@devserv.devel.redhat.com>
+	<20060711221045.GC13938@stusta.de>
+	<20060711231014.GA30186@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060709.173212.112177014.davem@davemloft.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 05:32:12PM -0700, David Miller wrote:
-> From: Andrew Morton <akpm@osdl.org>
-> Date: Sun, 9 Jul 2006 13:51:48 -0700
+Alan Cox <alan@redhat.com> wrote:
+>
+> I'd say that gcc warning in the case that all the enum values are enumerated
+> and have returns is a broken warning irrespective of that so I won't "fix" it
+> because it isn't broken. Its just like various other bogus gcc warnings
 > 
->  ...
-> > > As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
->  ...
-> > I'd be suspecting
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
-> 
-> Oh well, it means we can't apply that patch as it does break
-> things.
 
-Ugh, that stinks.  I'll work on fixing up those helper applications so
-this doesn't happen, and try to get an update into the 10.1 pipeline
+But we work around gcc problems all the time.
 
-So, I guess I'll just carry this forward for the next 6 months or so
-till SuSE 10.0 support goes away.
+Warnings like this have a cost - they make the build noisy and that causes
+people to miss real bugs which the compiler is trying to tell them about.
 
-> Greg, do you test on SuSE installations? :-)
+So if we can implement a low-cost fix for this then we should do so.
 
-Heh, most of the time yes, but this stuff only on a Gentoo box for some
-reason.  Sorry about that.
 
-thanks,
+--- a/drivers/ide/pci/jmicron.c~a
++++ a/drivers/ide/pci/jmicron.c
+@@ -94,8 +94,9 @@ static int __devinit ata66_jmicron(ide_h
+ 			return 0;
+ 		return 1;
+ 	case PORT_SATA:
+-		return 1;
++		break;
+ 	}
++	return 1; /* Avoid bogus "control reaches end of non-void function" */
+ }
+ 
+ static void jmicron_tuneproc (ide_drive_t *drive, byte mode_wanted)
+_
 
-greg k-h

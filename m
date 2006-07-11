@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWGKSnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWGKSoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWGKSnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWGKSnP
+	id S932083AbWGKSoY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWGKSoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:43:15 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:34059 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751178AbWGKSnO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:43:14 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-Date: Tue, 11 Jul 2006 19:43:41 +0100
-User-Agent: KMail/1.9.3
-Cc: "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
-       linux-kernel@vger.kernel.org
-References: <1152635563.4f13f77cjsmidt@byu.edu> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com>
-In-Reply-To: <44B3ED29.4040801@gmail.com>
+	Tue, 11 Jul 2006 14:44:24 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:34229 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751178AbWGKSoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:44:23 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="433741135:sNHT31217542"
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, sean.hefty@intel.com, rolandd@cisco.com,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: infiniband patch series
+X-Message-Flag: Warning: May contain useful information
+References: <20060710211151.4213742b.akpm@osdl.org>
+	<20060711050055.GA16064@mellanox.co.il>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 11 Jul 2006 11:44:19 -0700
+Message-ID: <adapsgc0ynw.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607111943.41107.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Jul 2006 18:44:21.0500 (UTC) FILETIME=[05FF7BC0:01C6A51A]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 19:25, Alon Bar-Lev wrote:
-> Alistair John Strachan wrote:
-> > On Tuesday 11 July 2006 18:12, John W. Linville wrote:
-> >> On Tue, Jul 11, 2006 at 10:32:43AM -0600, Joseph Michael Smidt wrote:
-> >>> Will 2.6.18 or 2.6.19 support Intel Wireless 3945ABG?  Please cc me
-> >>> since I am not subscribed.   Thanks.
-> >>
-> >> It will not be in 2.6.18.  Making 2.6.19 is not out of the question,
-> >> but it may take some work.
-> >
-> > Has some agreement been met regarding the mandatory use of the binary
-> > regulatory daemon? The webpage seems to suggest it is still necessary,
-> > and I'm sure that would disqualify merging the driver with Linux proper.
->
-> Why not?
-> The whole point is running a system that you know you can support for many
-> years, even without a vendor support...
-> And to have a system that you know exactly what running in it...
-> Having a binary closed source violate this.
->
-> Also there is no good reason why supplying this daemon as closed source...
-> All they wish is people don't mess with their frequencies, and sooner or
-> later someone will...
+    Andrew> Sure.  Although I am a little surprised to be be receiving
+    Andrew> them while Roland is in
+    Andrew> taking-time-off-but-not-really-doing-so mode.
 
-Don't misinterpret me, that's exactly my feeling too. Ignoring the politics 
-and questionable legality entirely, as a matter of practicality, when Intel 
-inevitably abandon these cards 5 years from now and their daemon rots, will I 
-still be able to use my wireless card? I think not.
+    Michael> Well, I don't know what's up either, but Roland acked
+    Michael> patches explicitly so I figured that's what he wants,
+    Michael> too.
 
-Also, I can't see any reason why a mini-pci version of this couldn't work in a 
-system other than x86/x86-64, even if Intel don't design such machines.
+I'm in steal-10-minutes-to-read-email-every-now-and-then-mode, so I'd
+rather let someone else handle all the patch merging etc.
 
-In my view, it would be unacceptable to merge.
+I'll be back for real after Ottawa I guess...
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+ - R.

@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWGKSDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWGKSEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWGKSDx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWGKSDx
+	id S1751167AbWGKSEV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:03:53 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:55305 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751150AbWGKSDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:03:52 -0400
-Date: Tue, 11 Jul 2006 14:03:50 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Matt Helsley <matthltc@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>, <tytso@us.ibm.com>,
-       Darren Hart <dvhltc@us.ibm.com>, <oleg@tv-sign.ru>,
-       Jes Sorensen <jes@sgi.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: SRCU-based notifier chains
-In-Reply-To: <20060711173906.GC1288@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0607111357300.18796-100000@iolanthe.rowland.org>
+	Tue, 11 Jul 2006 14:04:21 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:16547 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751167AbWGKSEU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:04:20 -0400
+Message-ID: <44B3E814.3060004@zytor.com>
+Date: Tue, 11 Jul 2006 11:04:04 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Olaf Hering <olh@suse.de>
+CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de>
+In-Reply-To: <20060711180126.GB16869@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006, Paul E. McKenney wrote:
+Olaf Hering wrote:
+> But for the partition discovery (the ROOT_DEV users) its likely less than
+> 100 lines of code. And after all, root= exists. Probably not a big loss if
+> that code just disappears.
 
-> Looks sane to me.  A couple of minor comments interspersed.
+Partition discovery is not "the ROOT_DEV users".  It's the mapping of 
+certain chunks of disk to partitions.
 
-Okay, I'll submit it with a proper writeup.
-
-> > +/*
-> > + *	SRCU notifier chain routines.    Registration and unregistration
-> > + *	use a mutex, and call_chain is synchronized by SRCU (no locks).
-> > + */
-> 
-> Hmmm...  Probably my just failing to pay attention, but haven't noticed
-> the double-header-comment style before.
-
-As far as I know, I made it up.  It seemed appropriate, since the first 
-header applies to the entire group of three routines that follow whereas 
-the second header is kerneldoc just for the next function.
-
-> >  /*
-> > - * Notifier chains are of three types:
-> > + * Notifier chains are of four types:
-> 
-> Is it possible to subsume one of the other three types?
-> 
-> Might not be, but have to ask...
-
-In principle we could replace blocking notifiers, but in practice we
-can't.
-
-We can't just substitute one for the other for two reasons: SRCU notifiers
-need special initialization which the blocking notifiers don't have, and
-SRCU notifiers have different time/space tradeoffs which might not be
-appropriate for all existing blocking notifiers.
-
-Alan Stern
-
+	-hpa

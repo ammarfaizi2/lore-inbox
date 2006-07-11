@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWGKHoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWGKHrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWGKHoA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWGKHoA
+	id S1750700AbWGKHrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750701AbWGKHrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:44:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54843 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030208AbWGKHn6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:43:58 -0400
-Date: Tue, 11 Jul 2006 09:46:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Srinivas Ganji <srinivasganji.linux@gmail.com>
+	Tue, 11 Jul 2006 03:47:55 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:42276 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750700AbWGKHry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:47:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PsW4S0HXTajMKd10Yae3BZ90EgZ/NeiYR+bFQStwC5pwBfEoqcZp/vS22rZ2TbudbKbiMu6EjUmQdp/cUyzqbP5vKahKRj3XOqblSQvzJy7uoysNUu9fiaDLky0HWS8Z5f8JdI3gEK5ZBA7qS7vryHcG18jmk68ijssViCzqpnA=
+Message-ID: <b0943d9e0607110047x5f494981h1925c950d34459f0@mail.gmail.com>
+Date: Tue, 11 Jul 2006 08:47:53 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] Fix a memory leak in the i386 setup code
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spinlock Related Debug Messages in Block Driver
-Message-ID: <20060711074637.GT5210@suse.de>
-References: <4dccc9070607102303v380281adp3943e1d58fad8d0@mail.gmail.com> <20060711071753.GS5210@suse.de> <4dccc9070607110042r78aeb843gb7b23d70505dfcec@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <200607110025.57812.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4dccc9070607110042r78aeb843gb7b23d70505dfcec@mail.gmail.com>
+References: <20060710221308.5351.78741.stgit@localhost.localdomain>
+	 <200607110025.57812.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11 2006, Srinivas Ganji wrote:
-> On 7/11/06, Jens Axboe <axboe@suse.de> wrote:
-> >On Tue, Jul 11 2006, Srinivas Ganji wrote:
-> >> Dear All,
-> >>
-> >> I implemented the sample block driver for the removable devices and
-> >> the code contains no statements related to the spin lock except a lock
-> >> to the blk_init_queue API as shown below.
-> >>
-> >> spinlock_t qlock;
-> >> gDisk->blkqueue = blk_init_queue(do_my_request, &gDisk->qlock);
-> >>
-> >> The kernel version is 2.6.10.
-> >>
-> >> Everything works fine but when I try to copy a file of huge size
-> >> (about 100MB), the following debug messages are getting displayed on
-> >> the console:
-> >>
-> >> Fc3: drivers/block/ll_rw_blk.c: 2351: spin_lock already locked by the
-> >> drivers.
-> >> Fc3: drivers/block/ll_rw_blk.c: 2468: spin_unlock not locked by the 
-> >drivers.
-> >>
-> >> In spite of these debug messages; the file is getting copied 
-> >successfully.
-> >> I studied the Block driver 16th chapter in LDD third edition.
-> >>
-> >> Can any one provide a pointer to these debug messages. Do I need to
-> >> implement any patches for the kernel.
-> >
-> >You need to initialize the lock passed to blk_init_queue() first. See eg
-> >spin_lock_init(), or one of the static initializers
-> >(SPIN_LOCK_UNLOCKED).
-> >
-> >--
-> >Jens Axboe
-> 
-> Dear Jen,
-> 
-> Thanks for  your reply.
-> I used the spin_lock_init API before blk_init_queue API. Even though I
-> got the error.
-> 
-> Is there any other reason for gertting the error messages?
+On 10/07/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> Does x86_64 need a similar fix?
 
-Then it's probably a bug in your driver. I cannot say more without
-seeing the source.
+Doesn't look like it needs this.
+
+> On Tuesday 11 July 2006 00:13, Catalin Marinas wrote:
+> > --- a/arch/i386/kernel/setup.c
+> > +++ b/arch/i386/kernel/setup.c
+> > @@ -1327,7 +1327,10 @@ #endif
+> >               res->start = e820.map[i].addr;
+> >               res->end = res->start + e820.map[i].size - 1;
+> >               res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
+> > -             request_resource(&iomem_resource, res);
+> > +             if (request_resource(&iomem_resource, res)) {
+> > +                     kfree(res);
+> > +                     continue;
+> > +             }
+> >               if (e820.map[i].type == E820_RAM) {
+> >                       /*
+> >                        *  We don't know which RAM region contains kernel data,
+>
+> Evidently res is used if e820.map[i].type == E820_RAM, so it should
+> be freed later on, it seems.
+
+The "if" block I added has a "continue" and therefore the E820_RAM
+case is skipped. There is no point in requesting a resource with "res"
+as parent when "res" couldn't be successfully acquired.
 
 -- 
-Jens Axboe
-
+Catalin

@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWGKOwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWGKOyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWGKOwz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 10:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWGKOwz
+	id S1750942AbWGKOyj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 10:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWGKOyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 10:52:55 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:58271 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1750872AbWGKOwy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 10:52:54 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.6/1.7):. Processed in 4.410849 secs Process 5546)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: "Robin Holt" <holt@sgi.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <nickpiggin@yahoo.com.au>,
-       "Robert Hancock" <hancockr@shaw.ca>, <chase.venters@clientec.com>,
-       <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
-Subject: RE: Commenting out out_of_memory() function in __alloc_pages()
-Date: Tue, 11 Jul 2006 20:27:07 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMMEJLDCAA.abum@aftek.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 11 Jul 2006 10:54:39 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:63352 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750872AbWGKOyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 10:54:38 -0400
+Subject: Re: [PATCH -mm 2/7] add execns syscall to s390
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+In-Reply-To: <44B3B95E.6020206@fr.ibm.com>
+References: <20060711075051.382004000@localhost.localdomain>
+	 <20060711075409.113248000@localhost.localdomain>
+	 <1152625488.18034.13.camel@localhost>  <44B3B95E.6020206@fr.ibm.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Tue, 11 Jul 2006 16:54:35 +0200
+Message-Id: <1152629675.18034.23.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-In-Reply-To: <20060707095441.GA3913@lnx-holt.americas.sgi.com>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The funniest part is that with memset commented out_of_memory observed,
-contrary to my expectation.
+On Tue, 2006-07-11 at 16:44 +0200, Cedric Le Goater wrote:
+> Thanks !
+> 
+> Both patches are in my patchset now which compiles and boots fine on s390x.
+> I'll build 32 bits binaries to try them.
+> 
+> Why did you protect sys32_execns, sys_execns and compat_do_execns () with
+> #ifdef CONFIG_UTS_NS ? Did you need to ?
 
-I don't know why. It shouldn't have. I am running the application on an ARM
-target.
+Yes, without the #ifdefs I get compile time warnings.
 
-Regards,
-Abu.
+-- 
+blue skies,
+  Martin.
 
------Original Message-----
-From: Robin Holt [mailto:holt@sgi.com]
-Sent: Friday, July 07, 2006 3:25 PM
-To: Abu M. Muttalib
-Cc: kernelnewbies@nl.linux.org; linux-newbie@vger.kernel.org;
-linux-kernel@vger.kernel.org; linux-mm
-Subject: Re: Commenting out out_of_memory() function in __alloc_pages()
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
+"Reality continues to ruin my life." - Calvin.
 
-I am not sure about x86, but on ia64, you would be very hard pressed
-for this application to actually run you out of memory.  With the
-memset commented out, you would be allocating vmas, etc, but you
-would not be actually putting pages behind those virtual addresses.
-
-Thanks,
-Robin
-
----------------------------  test1.c  ----------------------------------
-
-#include<stdio.h>
-#include<string.h>
-
-main()
-{
-	char* buff;
-	int count;
-
-	count=0;
-	while(1)
-	{
-		printf("\nOOM Test: Counter = %d", count);
-		buff = (char*) malloc(1024);
-	//	memset(buff,'\0',1024);
-		count++;
-
-		if (buff==NULL)
-		{
-			printf("\nOOM Test: Memory allocation error");
-		}
-	}
-}
 

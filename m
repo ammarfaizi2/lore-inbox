@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWGKRCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWGKREw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWGKRCS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGKRCR
+	id S1751109AbWGKREw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWGKREw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:02:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45226 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751101AbWGKRCQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:02:16 -0400
-Date: Tue, 11 Jul 2006 10:02:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel@vger.kernel.org, efault@gmx.de
-Subject: Re: [patch] i386: handle_BUG(): don't print garbage if debug info
- unavailable
-In-Reply-To: <44B382DD.5070202@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0607110959160.5623@g5.osdl.org>
-References: <200607101034_MC3-1-C497-51F7@compuserve.com>
- <20060711012755.59965932.akpm@osdl.org> <44B382DD.5070202@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Jul 2006 13:04:52 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:32158 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751109AbWGKREv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:04:51 -0400
+Subject: Re: [PATCH] irqtrace-option-off-compile-fix
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
+In-Reply-To: <1152601989.3128.10.camel@laptopd505.fenrus.org>
+References: <1152577120.7654.9.camel@localhost.localdomain>
+	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: Intel
+Date: Tue, 11 Jul 2006 09:23:22 -0700
+Message-Id: <1152635003.7654.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was testing on x86_64 and turned off the option in
+arch/x86_64/Kconfig.debug. 
 
+When the option is turned off, the following functions become undefined:
+local_irq_disable()           
+local_irq_enable()             
+local_irq_save(flags)          
+local_irq_restore(flags)       
+safe_halt() 
+local_save_flags()
+irqs_disabled()
+irqs_disabled_flags(flags)                   
 
-On Tue, 11 Jul 2006, Nick Piggin wrote:
+It seems plausible that some users may want to avoid the overhead of
+tracing IRQFLAGS by turning the option off.
+
+Regards,
+Tim Chen
+
+On Tue, 2006-07-11 at 09:13 +0200, Arjan van de Ven wrote:
+> On Mon, 2006-07-10 at 17:18 -0700, Tim Chen wrote:
+> > When CONFIG_TRACE_IRQFLAGS_SUPPORT is turned off, the latest kernel has
+> > compile errors.  The patch below fix the problems.
 > 
-> OK but you don't need a do/while(0) here.
+> 
+> Hi,
+> 
+> which architecture did you see this on? (asking because IA64 and PPC
+> compile just fine without this, and for x86 and x86-64 this is not an
+> option you can turn off as user, it's not a user selectable config
+> option but it's a "I have this feature in arch" option)
+> 
+> Greetings,
+>    Arjan van de Ven
 
-Actually, the way Andrew wrote it, it _is_ needed. It does two things:
-
- - it's the block scope that allows the private variables
- - if the "get_user()" fails, the "break" means that you don't have to 
-   have a goto.
-
-That said, I think it's wrong to use "__get_user()", which can hang on the 
-MM semaphore if something is bogus. We should probably mark us as being 
-"in_atomic()" to make sure that the page fault handler, if it is entered, 
-will not try to get the semaphore or page anything in.
-
-But that's a separate issue.
-
-		Linus

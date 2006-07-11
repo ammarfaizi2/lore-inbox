@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWGKSPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWGKSRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWGKSPz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWGKSPz
+	id S932067AbWGKSRe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWGKSRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:15:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42191 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751176AbWGKSPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:15:54 -0400
-Date: Tue, 11 Jul 2006 20:15:52 +0200
-From: Olaf Hering <olh@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
+	Tue, 11 Jul 2006 14:17:34 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:26316 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932067AbWGKSRd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:17:33 -0400
+Message-ID: <44B3EB28.1050007@zytor.com>
+Date: Tue, 11 Jul 2006 11:17:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
        Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
        klibc@zytor.com, linux-kernel@vger.kernel.org
 Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711181552.GD16869@suse.de>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <44B3E7D5.8070100@zytor.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com> <20060711180126.GB16869@suse.de> <44B3E814.3060004@zytor.com> <20060711181055.GC16869@suse.de>
+In-Reply-To: <20060711181055.GC16869@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jul 11, H. Peter Anvin wrote:
+Olaf Hering wrote:
+> Now I'm confused.
+> Is the kernel partition code supposed to go at some point?
+> Some people suggested that, but Linus was not convinced.
 
-> Olaf Hering wrote:
-> >
-> >There is always some sort of prereq when new features get added.
-> >Documentation/Changes has a long list. Some setup need more updates,
-> >some need fewer updates. No idea what your experience is.
-> >Old klibc was trivial to build (modulo that kernel header mess), and I
-> >expect that kinit handles old kernels.
-> >
-> 
-> One more thing on this subject... "modulo that kernel header mess" is 
-> just as much a reflection of the fact that the Linux ABI really isn't 
-> particularly stable.  glibc contains a huge amount of code to deal with 
-> different kernel versions.  klibc will not be doing this; in general old 
-> klibcs should continue to work (but may not compile against a newer 
-> kernel), but a newer klibc may not work on an older kernel.
+It's a proposal, and I personally think it makes sense.  If done, it is 
+obviously very important that it doesn't change the overall operation of 
+the system.
 
-"It would be nice if ..." someone can build a list of things that
-changed over time. Say from 2.0.0 to 2.6.18. Just struct layouts and defines.
+> If you mean just 'interpreting the partition table', thats not hard
+> either. I just poked at such code in yaboot a few weeks ago.
 
-I havent tried it, but one would hope that the /bin/ls from SuSE 5.3 still
-works today.  Guess its time for me to actually try that the next days.
+It's not hard; any of the partition table stuff, but we have quite a 
+proliferation of them.  It'd be even easier in userspace.
+
+	-hpa

@@ -1,70 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWGKTz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWGKT4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWGKTz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGKTz6
+	id S932119AbWGKT4r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGKT4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:55:58 -0400
-Received: from [212.33.164.213] ([212.33.164.213]:57874 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932114AbWGKTz5 (ORCPT
+	Tue, 11 Jul 2006 15:56:47 -0400
+Received: from [212.33.164.213] ([212.33.164.213]:59666 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932119AbWGKT4q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:55:57 -0400
+	Tue, 11 Jul 2006 15:56:46 -0400
 From: Al Boldi <a1426z@gawab.com>
-To: linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VFS: FS CoW using redirection
-Date: Tue, 11 Jul 2006 22:57:08 +0300
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality permits it
+Date: Tue, 11 Jul 2006 22:57:22 +0300
 User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-References: <200607082041.54489.a1426z@gawab.com> <a4e6962a0607081132u4558473cgf89b8b25fcea317d@mail.gmail.com> <200607091550.36407.a1426z@gawab.com>
-In-Reply-To: <200607091550.36407.a1426z@gawab.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="windows-1256"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607112257.08071.a1426z@gawab.com>
+Message-Id: <200607112257.22069.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Eric Van Hensbergen wrote:
-> > On 7/8/06, Al Boldi <a1426z@gawab.com> wrote:
-> > > Copy on Write is a neat way to quickly achieve a semi-clustered
-> > > system, by mounting any shared FS read-only and redirecting writes to
-> > > some perClient FS.
-> > >
-> > > Would this redirection be easy to implement into the VFS?
-> >
-> > There are a variety of solutions that have been proposed or are
-> > available to do this sort of thing.  You may want to start by looking
-> > at unionfs and mapfs.  There are also folks looking at doing this from
-> > the block layer (look at the dm-userspace + cowd as well as evms and
-> > lvm snapshots).
+Frank van Maarseveen wrote:
 >
-> The idea here, is to do things completely transparent while being as
-> unintrusive as possible, by relying on the current FS infrastructure, w/o
-> introducing another VFS.
+> Do not randomize stack location unless current->personality permits it.
 >
-> Consider something simple like this:
+> Signed-off-by: Frank van Maarseveen <frankvm@frankvm.com>
+> ---
 >
-> VFS - anyFS1 (r/w) used normally, unless ENotFound, then redirect read to
->     \              anyFS2, or CoW from anyFS2 to anyFS1.
->       anyFS2 (r/o) used normally.
+> The problem seems also present in
 >
-> i.e: Does the VFS provide hooks for perMount Handlers?
+>         arch/um/kernel/process_kern.c
+>         arch/x86_64/kernel/process.c
+>
+>  arch/i386/kernel/process.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+>
+> diff -rup a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+> --- a/arch/i386/kernel/process.c        2006-06-23 16:08:13.000000000
+> +0200 +++ b/arch/i386/kernel/process.c        2006-07-11
+> 14:39:20.000000000 +0200 @@ -38,6 +38,7 @@
+>  #include <linux/kallsyms.h>
+>  #include <linux/ptrace.h>
+>  #include <linux/random.h>
+> +#include <linux/personality.h>
+>
+>  #include <asm/uaccess.h>
+>  #include <asm/pgtable.h>
+> @@ -898,7 +899,7 @@ asmlinkage int sys_get_thread_area(struc
+>
+>  unsigned long arch_align_stack(unsigned long sp)
+>  {
+> -       if (randomize_va_space)
+> +       if (!(current->personality & ADDR_NO_RANDOMIZE) &&
+> randomize_va_space) sp -= get_random_int() % 8192;
+>         return sp & ~0xf;
+>  }
 
-Silence is probably an indication that the VFS does not provide hooks.
+It still blips on my system.
 
-The question then:
+echo 0 > /proc/sys/kernel/randomize_va_space makes the blips go away.
 
-1. Would it be difficult to introduce perMount Handler hooks into the VFS?
-
-2. Would it be easier to replace the current VFS with one that offers a more 
-flexible/open configuration?
-
-3. Would these changes be welcome, or is the VFS considered to be a forbidden 
-zone?
-
+???
 
 Thanks!
 

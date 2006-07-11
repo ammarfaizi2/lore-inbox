@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWGKTJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWGKTNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWGKTJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGKTJ6
+	id S932105AbWGKTNv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWGKTNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:09:58 -0400
-Received: from mail.gmx.net ([213.165.64.21]:48029 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932096AbWGKTJ5 (ORCPT
+	Tue, 11 Jul 2006 15:13:51 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:37565 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932105AbWGKTNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:09:57 -0400
-X-Authenticated: #5039886
-Date: Tue, 11 Jul 2006 21:09:49 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] 'volatile' in userspace
-Message-ID: <20060711190949.GA8373@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-References: <44B0FAD5.7050002@argo.co.il> <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com> <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com> <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com> <44B29461.40605@yahoo.com.au> <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr> <44B39151.10600@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44B39151.10600@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Y-GMX-Trusted: 0
+	Tue, 11 Jul 2006 15:13:50 -0400
+Subject: Re: 18rc1 soft lockup
+From: john stultz <johnstul@us.ibm.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060711190346.GK5362@redhat.com>
+References: <20060711190346.GK5362@redhat.com>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 12:13:47 -0700
+Message-Id: <1152645227.760.9.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.07.11 21:53:53 +1000, Nick Piggin wrote:
-> Jan Engelhardt wrote:
-> >>What's wrong with _exit(exec() == -1 ? 0 : errno);
-> >>and picking up the status with wait(2) ?
-> >>
-> >
-> >The exec'd application may return regular error codes, which would 
-> >interfere. IIRC /usr/sbin/useradd has different exit codes depending on 
-> >what failed (providing some option, failure to create account, failure to 
-> >create home dir, etc.). Now if you exit(errno) instead, you have an 
-> >overlap.
+On Tue, 2006-07-11 at 15:03 -0400, Dave Jones wrote:
+> Just saw this during boot of a HT P4 box.
 > 
-> You're right. Maybe you could return -ve or with a high bit set,
-> but I guess you may not know what the app will return.
-> 
-> But I don't see how the volatile or pipe solutions are any better
-> though: it would seem that both result in undefined behaviour
-> according to my vfork man page. At least the wait() solution is
-> defined (and workable, if you know what the target might return).
+> BUG: soft lockup detected on CPU#0!
+>  [<c04051af>] show_trace_log_lvl+0x54/0xfd
+>  [<c0405766>] show_trace+0xd/0x10
+>  [<c0405885>] dump_stack+0x19/0x1b
+>  [<c0450ec7>] softlockup_tick+0xa5/0xb9
+>  [<c042d496>] run_local_timers+0x12/0x14
+>  [<c042d81b>] update_process_times+0x3c/0x61
+>  [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
+>  [<c0404ada>] apic_timer_interrupt+0x2a/0x30
 
-The volatile solution is buggy according to the vfork man page, but the
-pipe solution is fine, it doesn't use vfork at all ;)
+That's clocksource_adjust/lost tick bug. Roman's fix landed in Linus'
+-git yesterday.
 
-Björn
+thanks
+-john
+

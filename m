@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWGKSB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWGKSCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWGKSB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSB3
+	id S1751166AbWGKSCR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWGKSCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:01:29 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:57036 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751159AbWGKSB2 (ORCPT
+	Tue, 11 Jul 2006 14:02:16 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:1626 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751166AbWGKSCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:01:28 -0400
-Date: Tue, 11 Jul 2006 20:01:26 +0200
-From: Olaf Hering <olh@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
+	Tue, 11 Jul 2006 14:02:15 -0400
+Message-ID: <44B3E7A2.1070102@tls.msk.ru>
+Date: Tue, 11 Jul 2006 22:02:10 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
 Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711180126.GB16869@suse.de>
-References: <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de> <44B3E40E.2090306@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <44B3E40E.2090306@zytor.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3E3E0.1050100@tls.msk.ru> <20060711175249.GA16869@suse.de>
+In-Reply-To: <20060711175249.GA16869@suse.de>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jul 11, H. Peter Anvin wrote:
+Olaf Hering wrote:
+>  On Tue, Jul 11, Michael Tokarev wrote:
+> 
+>> Olaf Hering wrote:
+>> []
+>>> To create the initrd you needed a loop file, at least for ext2, minix etc.
+>> It's just damn trivial to pack your files into cpio archive and gzip it.
+> 
+> The point is not how trivial it is. The point is how much has to change
+> that you can run 2.6.42 on an 42 year old installation with the tools
+> that were available at that time.
 
-> It's a deployment problem, arguably especially for people who 
-> cross-compile.  You have two major pieces of code (kernel and klibc) 
-> which have to be changed at the same time, with different maintainers 
-> and reviewers.
+I'd say you've ZERO chance to run just new kernel.  You will need more
+recent glibc, never softraid tools, you will discover that /dev/hdXX are
+all gone, and so on.
 
-Why is that a problem? You cant rip code from the kernel before the main
-kinit has support for that removed feature. Thats obvious.
-I dont use suspend, so I dont know how the existing in-kernel code has to
-look in kinit.
-But for the partition discovery (the ROOT_DEV users) its likely less than
-100 lines of code. And after all, root= exists. Probably not a big loss if
-that code just disappears.
+> Obiviously you cant be bothered to install newer packages, like kinit.rpm.
+> Basic backwards compatibilty. Its not a term from the klingon dictionary.
 
-I dont get your point.
+Well.  I'd say it's not that obvious.  For example, I can't boot redhat-6.0
+system with current 2.6 kernel (I once tried that, probably with 2.6.9 or
+something - there were quite.. some problems.  Upgrading several packages,
+including glibc compiled against 2.6 kernel, solved that. Some stuff was
+still broken, but I didn't try hard).  BTW, devfs is just one example...
+try to boot a one-year-old gentoo distro (not 42, but 1) with current
+2.6 without devfs... ;)
+
+Another point is: why the heck you want to boot such 42-years-old system
+with current "best, grestest" kernel, anyway?
+
+> Btw, kinit is already taken, some kerberos thing.
+
+Heh. Yes it is.
+
+/mjt

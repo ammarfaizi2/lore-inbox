@@ -1,71 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWGKEuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWGKEuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965110AbWGKEuH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 00:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWGKEuH
+	id S965164AbWGKEuv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 00:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWGKEuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 00:50:07 -0400
-Received: from xenotime.net ([66.160.160.81]:42888 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965110AbWGKEuF (ORCPT
+	Tue, 11 Jul 2006 00:50:50 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:56196 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965169AbWGKEut (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 00:50:05 -0400
-Date: Mon, 10 Jul 2006 21:52:53 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Matt Reuther <mreuther@umich.edu>
-Cc: adaplas@gmail.com, akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] appledisplay/backlight (Depmod errors on
- 2.6.17.4/2.6.18-rc1/2.6.18-rc1-mm1)
-Message-Id: <20060710215253.1fcaab57.rdunlap@xenotime.net>
-In-Reply-To: <200607102327.38426.mreuther@umich.edu>
-References: <200607100833.00461.mreuther@umich.edu>
-	<20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>
-	<44B27931.30609@gmail.com>
-	<200607102327.38426.mreuther@umich.edu>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 11 Jul 2006 00:50:49 -0400
+Subject: Re: [Patch 0/6] delay accounting & taskstats fixes
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Jay Lan <jlan@sgi.com>,
+       Chris Sturtivant <csturtiv@sgi.com>, Paul Jackson <pj@sgi.com>,
+       Balbir Singh <balbir@in.ibm.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>
+In-Reply-To: <1152591838.14142.114.camel@localhost.localdomain>
+References: <1152591838.14142.114.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1152593446.14142.151.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 11 Jul 2006 00:50:46 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >> CONFIG_FB=n, CONFIG_BACKLIGHT_CLASS_DEVICE=m should not be possible in
-> > >> 2.6.18-rc1-mm1 and 2.6.18-rc1.  Can you run kconfig again?
-> > >>
-> > >> Tony
-> >
-> > I tested with make menuconfig, and it's not possible to set lcd/backlight
-> > options if CONFIG_FB is not set.
+On Tue, 2006-07-11 at 00:23, Shailabh Nagar wrote:
+> Some results showing the cpumask feature 
+> works as expected will follow separately.
 
-Tony, it is possiblle when the USB APPLEDISPLAY option is set and it selects
-backlight options without regard for FB.
- 
-> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
-> needs unknown symbol fb_unregister_client
-> WARNING: /lib/modules/2.6.18-rc1-mm1/kernel/drivers/video/backlight/backlight.ko 
-> needs unknown symbol fb_register_client
+To illustrate the basic premise behind the cpumask changes
+namely, reducing the number of cpus results in fewer overflow
+conditions, Chandra ran the following experiment on an
+8-way PIII box:
 
-This patch fixes it for me.  Is it the right thing to do?
----
+- "mkthreads 1000 1000" (the program which only forks/exits) with
+minimum time spent inside the thread function. This is basically an exit
+rate that is higher than the 1000/cpu/sec discussed earlier.
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+- A slightly modified version of the getdelays.c example that is 
+included in patch 2/6 in this series of postings. Modification was
+to print only the number of receives and number of ENOBUFS seen. 
 
-appledisplay calls fb_register_client() so needs to depend on FB.
+The -m parameter specifies the cpumask, 
+-r parameter is the size of the socket receive buffer 
+-l results in listening for exit data
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/usb/misc/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2618-rc1mm1.orig/drivers/usb/misc/Kconfig
-+++ linux-2618-rc1mm1/drivers/usb/misc/Kconfig
-@@ -163,7 +163,7 @@ config USB_IDMOUSE
- 
- config USB_APPLEDISPLAY
- 	tristate "Apple Cinema Display support"
--	depends on USB
-+	depends on USB && FB
- 	select BACKLIGHT_LCD_SUPPORT
- 	select BACKLIGHT_CLASS_DEVICE
- 	help
+The following sets of runs are self-explanatory.
+Initial run emulates the earlier behaviour where one listener
+receives data for all cpus. As the number of cpus to which it
+listens is reduced, the ENOBUFS reduce.
+
+Similarly, increasing the receive buffer size also cuts down 
+on the ENOBUFS, further helped by reducing number of cpus listened
+to. The final data point, not shown here, is when the receive 
+buffer size is set to some high number like 8K when the ENOBUFS aren't
+seen at all.
+
+
+===================================
+
+Each output shows 
+stats <number of msgs rcvd> enobufs <num of enobufs seen>
+cumulatively
+
+elm3b94:/tmp # ./getdelays -m 0-7 -r 512 -l
+cpumask 0-7 maskset 1
+receive buf size 512
+listen forever
+ stats 100000, enobufs 2540
+ stats 200000, enobufs 5701
+ stats 300000, enobufs 8482
+ stats 400000, enobufs 11332
+ stats 500000, enobufs 14256
+ stats 600000, enobufs 17150
+ stats 700000, enobufs 19981
+ stats 800000, enobufs 22971
+ stats 900000, enobufs 26324
+ stats 1000000, enobufs 29291
+
+elm3b94:/tmp # ./getdelays -m 0-3 -r 512 -l
+cpumask 0-3 maskset 1
+receive buf size 512
+listen forever
+ stats 100000, enobufs 831
+ stats 200000, enobufs 1772
+ stats 300000, enobufs 2728
+ stats 400000, enobufs 3820
+ stats 500000, enobufs 5030
+ stats 600000, enobufs 6501
+ stats 700000, enobufs 7885
+ stats 800000, enobufs 8971
+ stats 900000, enobufs 10262
+ stats 1000000, enobufs 11786
+
+elm3b94:/tmp # ./getdelays -m 2-3 -r 512 -l
+cpumask 2-3 maskset 1
+receive buf size 512
+listen forever
+ stats 100000, enobufs 106
+ stats 200000, enobufs 206
+ stats 300000, enobufs 313
+ stats 400000, enobufs 389
+ stats 500000, enobufs 477
+ stats 600000, enobufs 676
+ stats 700000, enobufs 860
+ stats 800000, enobufs 1048
+ stats 900000, enobufs 1189
+ stats 1000000, enobufs 1303
+
+elm3b94:/tmp # ./getdelays -m 0 -r 512 -l
+cpumask 0 maskset 1
+receive buf size 512
+listen forever
+ stats 100000, enobufs 100
+ stats 200000, enobufs 162
+ stats 300000, enobufs 302
+ stats 400000, enobufs 399
+ stats 500000, enobufs 507
+ stats 600000, enobufs 571
+ stats 700000, enobufs 666
+ stats 800000, enobufs 725
+ stats 900000, enobufs 821
+ stats 1000000, enobufs 909
+
+================= with recv buf size 2048
+
+elm3b94:/tmp # ./getdelays -m 0-7 -r 2048 -l
+cpumask 0-7 maskset 1
+receive buf size 2048
+listen forever
+ stats 100000, enobufs 35
+ stats 200000, enobufs 88
+ stats 300000, enobufs 123
+ stats 400000, enobufs 138
+ stats 500000, enobufs 155
+ stats 600000, enobufs 191
+ stats 700000, enobufs 223
+ stats 800000, enobufs 238
+ stats 900000, enobufs 280
+ stats 1000000, enobufs 319
+
+
+elm3b94:/tmp # ./getdelays -m 4-7 -r 2048 -l
+cpumask 4-7 maskset 1
+receive buf size 2048
+listen forever
+ stats 100000, enobufs 10
+ stats 200000, enobufs 17
+ stats 300000, enobufs 28
+ stats 400000, enobufs 35
+ stats 500000, enobufs 49
+ stats 600000, enobufs 63
+ stats 700000, enobufs 80
+ stats 800000, enobufs 94
+ stats 900000, enobufs 114
+ stats 1000000, enobufs 138
+
+elm3b94:/tmp # ./getdelays -m 2-3 -r 2048 -l
+cpumask 2-3 maskset 1
+receive buf size 2048
+listen forever
+ stats 100000, enobufs 5
+ stats 200000, enobufs 6
+ stats 300000, enobufs 10
+ stats 400000, enobufs 14
+ stats 500000, enobufs 19
+ stats 600000, enobufs 33
+ stats 700000, enobufs 38
+ stats 800000, enobufs 43
+ stats 900000, enobufs 54
+ stats 1000000, enobufs 59
+
+
+elm3b94:/tmp # ./getdelays -m 1 -r 2048 -l
+cpumask 1 maskset 1
+receive buf size 2048
+listen forever
+ stats 100000, enobufs 3
+ stats 200000, enobufs 6
+ stats 300000, enobufs 19
+ stats 400000, enobufs 25
+ stats 500000, enobufs 30
+ stats 600000, enobufs 31
+ stats 700000, enobufs 33
+ stats 800000, enobufs 45
+ stats 900000, enobufs 48
+ stats 1000000, enobufs 52
+
 

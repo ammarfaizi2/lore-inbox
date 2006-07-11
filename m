@@ -1,119 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWGKUTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWGKUVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWGKUTq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWGKUTq
+	id S1751259AbWGKUVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWGKUVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:19:46 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:43455 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750949AbWGKUTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:19:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=i6wuweSxY4fvxgGNKjn5XNNfzjKO/SiRcQI5ZSMul0p1+QMi7wUYsdXZ7dUD/gTpwg092/synazgLcxWmIVgi5URPG0Toeud4HIOpbQW6uTVtj3ub3sCTgk8LC2j//IGkCXNwwfI7lRmLHNUMcPkFphgQ9q89zL5ieDz3WFWu48=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-To: andrea@cpushare.com
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-Date: Tue, 11 Jul 2006 16:19:35 -0400
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
-       linux-kernel@vger.kernel.org, mingo@elte.hu
-References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random>
-In-Reply-To: <20060711041600.GC7192@opteron.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 11 Jul 2006 16:21:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62952 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751223AbWGKUVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:21:06 -0400
+Date: Tue, 11 Jul 2006 13:21:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Keith Mannthey" <kmannth@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: 2.6.18-rc1-mm1 panic on boot x86_64 NMI watchdog detected
+ LOCKUP
+Message-Id: <20060711132102.acb46e5c.akpm@osdl.org>
+In-Reply-To: <a762e240607111112v1bd28135hf99fdf0cc08a6d52@mail.gmail.com>
+References: <a762e240607111112v1bd28135hf99fdf0cc08a6d52@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 11 Jul 2006 11:13:00 -0700
+"Keith Mannthey" <kmannth@gmail.com> wrote:
 
-On Tuesday 11 July 2006 00:16, andrea@cpushare.com wrote:
 > Hello,
+>   I just tried booting 2.6.18-rc1-mm1 (I was booting 2.6.17-mm6 just
+> fine) and got the following error on boot.
 > 
-> On Mon, Jul 10, 2006 at 09:59:09PM -0400, Andrew James Wade wrote:
-> > It's probably not worth the complication, but I suppose that could be
-> > reduced to one cacheline by lazily enabling the TSC access.
+> CPU 15: synchronized TSC with CPU 0 (last diff 49 cycles, maxerr 4698 cycles)
+> Brought up 16 CPUs
+> testing NMI watchdog ... OK.
+> time.c: Using 333.333333 MHz WALL PIT GTOD PIT/HPET timer.
+> time.c: Detected 3002.570 MHz processor.
+> migration_cost=9,1121,16845
+> checking if image is initramfs... it is
+> Freeing initrd memory: 2770k freed
+> NMI Watchdog detected LOCKUP on CPU 8
+> CPU 8
+> Modules linked in:
+> Pid: 51, comm: khelper Not tainted 2.6.18-rc1-mm1-smp #2
+> RIP: 0010:[<ffffffff803dd6f5>]  [<ffffffff803dd6f5>]
+> .text.lock.spinlock+0x31/0x8a
+> RSP: 0000:ffff81065f91be70  EFLAGS: 00000086
+> RAX: 0000000000000000 RBX: ffff810476ce3380 RCX: 0000000000000000
+> RDX: ffff81046fad4108 RSI: ffff81046fad4000 RDI: ffff810476ce3384
+> RBP: ffff810476ce3380 R08: 0000000000000000 R09: 000000000036f849
+> R10: 0000000000000000 R11: 0000000000000002 R12: ffff81065f91bf04
+> R13: ffff81065f91bef8 R14: ffff810476dcdd18 R15: ffffffff8023f7a8
+> FS:  0000000000000000(0000) GS:ffff810476f79140(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000000 CR3: 0000000000201000 CR4: 00000000000006e0
+> Process khelper (pid: 51, threadinfo ffff81065f91a000, task ffff81046fedd080)
+> Stack:  ffffffff803dd040 ffff81047003f8c0 ffff81065f91bef8 ffff810476dcdd18
+>  0000000000000246 ffff81046fad4108 ffff810476ce3380 ffff81046fad4108
+>  ffffffff8025b211 0000000000000000 0000000000000000 ffff81046fedd080
+> Call Trace:
+>  [<ffffffff803dd040>] __down_read+0x12/0x9a
+>  [<ffffffff8025b211>] taskstats_exit_alloc+0x59/0x8a
+>  [<ffffffff80232e89>] do_exit+0x178/0x8f6
+>  [<ffffffff8023f940>] request_module+0x0/0x150
+>  [<ffffffff8020a05a>] child_rip+0x8/0x12
+>  [<ffffffff8023f7a8>] __call_usermodehelper+0x0/0x47
+>  [<ffffffff8023f866>] ____call_usermodehelper+0x0/0xda
+>  [<ffffffff8020a052>] child_rip+0x0/0x12
 > 
-> Yep, OTOH lazily enabling means generating exception faults and
-> enter/exit kernels that takes order of magnitude more time and stall the
-> pipeline unlike the two cacheline touches.
-
-But only if SECCOMP code runs, otherwise it's never needed. OTOH, if it
-can't reduce the number of cacheline touches over a tuned seccomp common
-case, there's no benefit either.
-
-> > I disagree with this wording. First, for most users the worry isn't so
-> > much covert channels, as it is side channels. In other words, the
-> > worry is not so much that data is sent to the SECCOMP process
-> > secretly, as that the data could be sensitive. Second, the feature
 > 
-> Well, this comes as a news because with covert channel I always meant
-> your "side channel" and only in timing context. Perhaps it was just me
-> misunderstanding ;).  But we obviously agree, I meant your side channel
-> if you're the one right about the wording.
-
-I'm not an expert, but I believe I'm using the terminology correctly.
-
-> > closes one only one type of side-channel; others may still exist. It's
-> > quite possible for cpu bugs or undefined behaviour to reveal internal
+> Code: 7e f9 e9 d3 fe ff ff f3 90 83 3b 00 7e f9 e9 da fe ff ff e8
+> console shuts up ...
 > 
-> Well math guarantees and unpredictable hardware issues don't go well
-> together.
-
-Yes. By necessity any proofs about software must make assumptions that
-aren't quite valid. Such proofs can still be useful of course. I think
-we're in agreement.
-
-> If there are cpu bugs the least thing anybody (not just the 
-> seccomp users) can care about is the covert channel.
 > 
-> > cpu state (possibly affected by another process) without otherwise
-> > being security risks. (In my uninformed opinion). I wouldn't worry
+> Any ideas, have we seen this?  I can attach config and full dmesg if needed.
 > 
-> Any bug that affects seccomp security is always a security bug for
-> everyone else too (in terms of multiuser security of course).
 
-Yes. But it is possible for the only exploitable side-effect of a bug
-to be the opening of a side-channel. The incorrect fp initialization
-being almost a case in point; all programs outside the jail would
-likely ignore initial values in mmx registers, but they would still be
-vulnerable to their floating point state being read. That's probably
-not useful information to an attacker. Many other side channels are
-likely similar, in that the information revealed is not actually
-useful to the attacker. f00f also has very limited security
-implications, as I understand it.
+Thanks.  Shailabh sent the below patch through yesterday.  It looks awfully
+similar.
 
-The various software and hardware caches will open a plethora of
-timing side channels, almost all useless to an attacker in that the
-revealed information is uninteresting/useless. At least I would hope
-so. The downside of security is that it is hard to be sure.
+From: Shailabh Nagar <nagar@watson.ibm.com>
 
-> The opposite isn't true, a security bug for everyone, is pratically
-> never a bug for seccomp.
+Shift initialization of semaphores taken on exit() path to earlier in the
+bootup sequence.  Without this fix, booting on large cpu machines hangs at
+down_read() called on one of the per-cpu semaphores declared in taskstats.
 
-Ah, fail safe. Nice property to have. From my observation, userspace
-does appear to have something of that property with regards to cpu
-bugs as well. What I recall from the errata sheets is that many of the
-bugs could only be triggered from privileged code.
+Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-...
+ kernel/taskstats.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-> It's all a matter of probability,
-> if it's more likely that you're being hit by an asteroid, then that your 
-> CPU has a bug that allows an attacker to execute code outside seccomp, I
-> think you should be fine ;).
+diff -puN kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix-2 kernel/taskstats.c
+--- a/kernel/taskstats.c~per-task-delay-accounting-taskstats-interface-control-exit-data-through-cpumasks-fix-2
++++ a/kernel/taskstats.c
+@@ -501,15 +501,20 @@ static struct genl_ops taskstats_ops = {
+ /* Needed early in initialization */
+ void __init taskstats_init_early(void)
+ {
++	unsigned int i;
++
+ 	taskstats_cache = kmem_cache_create("taskstats_cache",
+ 						sizeof(struct taskstats),
+ 						0, SLAB_PANIC, NULL, NULL);
++	for_each_possible_cpu(i) {
++		INIT_LIST_HEAD(&(per_cpu(listener_array, i).list));
++		init_rwsem(&(per_cpu(listener_array, i).sem));
++	}
+ }
+ 
+ static int __init taskstats_init(void)
+ {
+ 	int rc;
+-	unsigned int i;
+ 
+ 	rc = genl_register_family(&family);
+ 	if (rc)
+@@ -519,11 +524,6 @@ static int __init taskstats_init(void)
+ 	if (rc < 0)
+ 		goto err;
+ 
+-	for_each_possible_cpu(i) {
+-		INIT_LIST_HEAD(&(per_cpu(listener_array, i).list));
+-		init_rwsem(&(per_cpu(listener_array, i).sem));
+-	}
+-
+ 	family_registered = 1;
+ 	return 0;
+ err:
+_
 
-And that's where fail-safe and simple design comes in. In this
-application an oops is better than a jail-break by orders of
-magnitude. But then that's why you wrote seccomp instead of using
-ptrace in the first place.
-
-Andrew Wade

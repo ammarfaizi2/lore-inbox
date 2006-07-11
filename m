@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWGKUyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWGKU4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWGKUyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWGKUyJ
+	id S1751316AbWGKU4n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWGKU4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:54:09 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:41169 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751157AbWGKUyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:54:08 -0400
-Message-ID: <44B41144.5030709@gentoo.org>
-Date: Tue, 11 Jul 2006 21:59:48 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
-MIME-Version: 1.0
-To: Michael Buesch <mb@bu3sch.de>
-CC: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@ucw.cz>,
-       yi.zhu@intel.com, jketreno@linux.intel.com,
-       Netdev list <netdev@vger.kernel.org>, linville@tuxdriver.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
-References: <20060710152032.GA8540@elf.ucw.cz> <200607102305.06572.mb@bu3sch.de> <44B3912F.3010300@gentoo.org> <200607112239.17405.mb@bu3sch.de>
-In-Reply-To: <200607112239.17405.mb@bu3sch.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 11 Jul 2006 16:56:43 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2211
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751316AbWGKU4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:56:42 -0400
+Date: Tue, 11 Jul 2006 13:57:29 -0700 (PDT)
+Message-Id: <20060711.135729.104381402.davem@davemloft.net>
+To: bos@serpentine.com
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
+ keep cache pressure down
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
+References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch wrote:
-> Yes. We have a PROM that is readable without firmware.
-> (And we actually do this and did it forever. So I don't know
-> where your assumption comes from ;) )
+From: Bryan O'Sullivan <bos@serpentine.com>
+Date: Tue, 11 Jul 2006 13:50:55 -0700
 
-It wasn't an assumption: I was stating something about the Intel cards. 
-It is not possible to determine the MAC address for ipw2100/ipw2200 
-until the firmware is loaded.
+> This copy routine is memcpy-compatible, but on some architectures will use
+> cache-bypassing loads to avoid bringing the source data into the cache.
+> 
+> One case where this is useful is when a device issues a DMA to a memory
+> region, and the CPU must copy the DMAed data elsewhere before doing any
+> work with it.  Since the source data is read-once, write-never from the
+> CPU's perspective, caching those addresses can only evict potentially
+> useful data.
+> 
+> We provide an x86_64 implementation that uses SSE non-temporal loads,
+> and a generic version that falls back to plain memcpy.
+> 
+> Implementors for other arches should not use cache-bypassing stores to
+> the destination, as in most cases, the destination is accessed almost
+> immediately after a copy finishes.
+> 
+> Signed-off-by: Ralph Campbell <ralph.campbell@qlogic.com>
+> Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
-Daniel
+Please don't use a weak attribute, and instead use the same
+"__HAVE_ARCH_FOO" cpp test scheme used for the other string
+operations to allow a platform to override the default
+implementation in lib/string.x

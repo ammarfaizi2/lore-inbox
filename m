@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWGKTS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWGKTVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWGKTS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWGKTS6
+	id S1751187AbWGKTVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGKTVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:18:58 -0400
-Received: from main.gmane.org ([80.91.229.2]:9399 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750740AbWGKTS5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:18:57 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-Date: Tue, 11 Jul 2006 21:18:19 +0200
-Message-ID: <pan.2006.07.11.19.18.18.366194@free.fr>
-References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711171238.GA26186@tuxdriver.com> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com> <1152644119.18028.46.camel@localhost.localdomain>
+	Tue, 11 Jul 2006 15:21:51 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:37043 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751187AbWGKTVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:21:50 -0400
+Subject: core-iscsi-dv.sh and Core-iSCSI-tools v3.5 released!
+From: "Nicholas A. Bellinger" <nab@kernel.org>
+To: Core-iSCSI <Core-iSCSI@googlegroups.com>
+Cc: iet-dev <iscsitarget-devel@lists.sourceforge.net>,
+       Open iSCSI <open-iscsi@googlegroups.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 12:12:32 -0700
+Message-Id: <1152645152.4955.0.camel@haakon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Tue, 11 Jul 2006 19:55:19 +0100, Alan Cox a écrit :
+Greetings all,
 
-> Ar Maw, 2006-07-11 am 21:25 +0300, ysgrifennodd Alon Bar-Lev:
->> And to have a system that you know exactly what running in it...
->> Having a binary closed source violate this.
-> 
-> Also if the binary only chunk of code is neccessary to make the open
-> source bit work then its a derivative work as I understand the
-> situation, which makes it all rather questionable from a licensing
-> perspsective.
-> 
-> Hopefully Intel will find a sensible solution to the problem or someone
-> will just reverse engineer it away.
-> 
-Well openbsd guys already reversed engineer it :
-http://kerneltrap.org/node/6650
+Core-iSCSI-tools v3.5 has been released:
+
+http://www.kernel.org/pub/linux/utils/storage/iscsi/core-iscsi-tools-v3.5.tar.bz2
+
+The core-iscsi-dv.sh domain validation script has been released at:
+
+http://www.linux-iscsi.org/index.php/Core-iscsi-dv
+
+Note that this script is primarly oriented for iSCSI vendors and
+developers for testing data IO using a CLI program accepting a block
+device as an arguement.  This tool will be run a pre-calculated number
+of times each time negotiating a different set of RFC-3720 parameter
+keys until the configuration space has been exhausted.
+
+Currently, v1.0 uses a simple dd_read() to read a few sectors from the
+iSCSI CHANNEL+LUN blockdevice that is passed as arguements into the
+script.  This script can be easily modified for new script routines that
+call any of the large number of available data integrity tools.  Futher
+integration of publically available test tools is something that will be
+ongoing for the core-iscsi-dv project.
+
+For limitations, warnings and general usage please refer to README:
+
+http://www.linux-iscsi.org/files/core-iscsi-dv/README
+
+Thanks,
+
+-- 
+Nicholas A. Bellinger <nab@kernel.org>
 

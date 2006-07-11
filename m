@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbWGKGVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbWGKGWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965217AbWGKGVx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWGKGVx
+	id S965219AbWGKGWE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbWGKGWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:21:53 -0400
-Received: from ns.oss.ntt.co.jp ([222.151.198.98]:7302 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S965217AbWGKGVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:21:53 -0400
-Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
-	(2.6.18-rc1-i386) -	safe_smp_processor_id
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
-       fastboot@lists.osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <1152565096.4027.4.camel@mulgrave.il.steeleye.com>
-References: <1152517852.2120.107.camel@localhost.localdomain>
-	 <1152540988.7275.7.camel@mulgrave.il.steeleye.com>
-	 <m1irm5nwyw.fsf@ebiederm.dsl.xmission.com>
-	 <1152565096.4027.4.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain
-Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
-	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
-	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
-Date: Tue, 11 Jul 2006 15:21:50 +0900
-Message-Id: <1152598910.2414.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Tue, 11 Jul 2006 02:22:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44013 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965219AbWGKGWC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:22:02 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: Agenda for NUMA BOF @OLS & NUMA paper
+Date: Tue, 11 Jul 2006 08:22:52 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Marcelo Tosatti <marcelo@kvack.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Paul Jackson <pj@sgi.com>, dgc@sgi.com,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Lee Schermerhorn <Lee.Schermerhorn@hp.com>, jes@sgi.com,
+       Adam Litke <agl@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
+       steiner@sgi.com, Peter Zijlstra <a.p.zijlstra@chello.nl>, akpm@osdl.org
+References: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607110822.53711.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+On Monday 10 July 2006 21:22, Christoph Lameter wrote:
 
-Thank you for taking the time to review the code!
+> Here is a one liner for each subject that may be useful to discuss. I'd be
+> interested in hearing if there are any other issues that would need our
+> attention or maybe some of these are not that important (Probably too many
+> subjects already ...). Maybe this thread will allow those who will not be
+> at the OLS to give us some imput.
 
-On Mon, 2006-07-10 at 15:58 -0500, James Bottomley wrote:
-> On Mon, 2006-07-10 at 12:20 -0600, Eric W. Biederman wrote:
-> > I agree that it shows the problem, and that voyager is different from the
-> > rest of the x86 implementations. 
-> 
-> As a non-apic based SMP implementation, I don't think there was ever any
-> dissent about the latter.
-> 
-> > At least for things like the cpumask_t density of processor ids
-> > is still an interesting property.  The basic issue is that apicids are
-> > not in general dense on x86.  Not being able compile with support
-> > for only two cpus because your cpus happen to be apicid 0 and apicid
-> > 6 by default is an issue.
-> 
-> Density or lack of it is pretty much irrelevant nowadays since the CPU
-> map iterators are sparse efficient.  Whether x86 PC chooses to avail
-> itself of this or not is the business of the PC subarch maintainers.
-> The vast marjority of non-x86 SMP implementations still have sparse (or
-> at least physical only) CPU maps.
-> 
-> > To some extent this also shows the mess that the x86 subarch code is
-> > because it is never clear if code is implemented in a subarchitecture
-> > or not.
-> 
-> Erm, it does?  How?  My statement is that introducing subarch specific
-> #defines into subarch independent header files is a problem (which it
-> is).  If you grep for subarch defines in the rest of the arch
-> independent headers, I don't believe you'll find any.  This would rather
-> tend to show that for the last seven years, the subarch interface has
-> been remarkably effective ....
-> 
-> > Fernando can you just put a trivial voyager specific definition of
-> > safe_smp_processor_id in mach-voyager/voyager_smp.c.  It isn't a fast
-> > path so the little extra overhead of making two separate functions
-> > is not an issue and then the generic header doesn't have to have
-> > subarch breakage.  Just a definition of safe_smp_processor_id().
-> 
-> Yes, that should work.
-Done. I hope I got it right this time. Anyway, if there is something
-incorrect in the new patches (1/4 and 2/4 in particular) let me know.
+Sounds reasonable, although it would be a lot of things to discuss.
+Ok most of A doesn't seem to be directly NUMA related.
+Does B mean you want to work on that?  My impression was always
+that doing it automatically in the kernel was more a deadend.
 
-Regards,
-
-Fernando
-
+-Andi

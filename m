@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWGKSiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWGKSnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWGKSiM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWGKSiL
+	id S932079AbWGKSnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWGKSnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:38:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19842 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932084AbWGKSiJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:38:09 -0400
-Date: Tue, 11 Jul 2006 11:37:54 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: David Mosberger-Tang <David.Mosberger@acm.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Luck, Tony" <tony.luck@intel.com>,
-       John Daiker <jdaiker@osdl.org>, John Hawkes <hawkes@sgi.com>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Dan Higgins <djh@sgi.com>
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-Message-ID: <20060711183754.GB734242@sgi.com>
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com> <yq04py4i9p7.fsf@jaguar.mkp.net> <1151578928.23785.0.camel@localhost.localdomain> <44A3AFFB.2000203@sgi.com> <1151578513.3122.22.camel@laptopd505.fenrus.org> <20060708001427.GA723842@sgi.com> <1152340963.3120.0.camel@laptopd505.fenrus.org> <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com> <20060710202228.GA732959@sgi.com> <ed5aea430607102001g514bfa97jf82c25a038e9c436@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 14:43:15 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:34059 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751178AbWGKSnO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:43:14 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: Re: Will there be Intel Wireless 3945ABG support?
+Date: Tue, 11 Jul 2006 19:43:41 +0100
+User-Agent: KMail/1.9.3
+Cc: "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
+       linux-kernel@vger.kernel.org
+References: <1152635563.4f13f77cjsmidt@byu.edu> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com>
+In-Reply-To: <44B3ED29.4040801@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <ed5aea430607102001g514bfa97jf82c25a038e9c436@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200607111943.41107.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 09:01:53PM -0600, David Mosberger-Tang wrote:
-> Note that Alan didn't claim that *all* (Linux-supported) architectures
-> expose a constant user HZ, only the "mainstream" ones.  I won't get
-> into the debate as to what qualifies as "mainstream", but clearly IA64
-> does not (and should not) expose a constant value, since there were no
-> legacy-binary-issue and we chose to insist that apps should uses
-> sysconf() or equivalent if they need to know the clocktick.
-> 
->  --david
+On Tuesday 11 July 2006 19:25, Alon Bar-Lev wrote:
+> Alistair John Strachan wrote:
+> > On Tuesday 11 July 2006 18:12, John W. Linville wrote:
+> >> On Tue, Jul 11, 2006 at 10:32:43AM -0600, Joseph Michael Smidt wrote:
+> >>> Will 2.6.18 or 2.6.19 support Intel Wireless 3945ABG?  Please cc me
+> >>> since I am not subscribed.   Thanks.
+> >>
+> >> It will not be in 2.6.18.  Making 2.6.19 is not out of the question,
+> >> but it may take some work.
+> >
+> > Has some agreement been met regarding the mandatory use of the binary
+> > regulatory daemon? The webpage seems to suggest it is still necessary,
+> > and I'm sure that would disqualify merging the driver with Linux proper.
+>
+> Why not?
+> The whole point is running a system that you know you can support for many
+> years, even without a vendor support...
+> And to have a system that you know exactly what running in it...
+> Having a binary closed source violate this.
+>
+> Also there is no good reason why supplying this daemon as closed source...
+> All they wish is people don't mess with their frequencies, and sooner or
+> later someone will...
 
+Don't misinterpret me, that's exactly my feeling too. Ignoring the politics 
+and questionable legality entirely, as a matter of practicality, when Intel 
+inevitably abandon these cards 5 years from now and their daemon rots, will I 
+still be able to use my wireless card? I think not.
 
-Okay.  So what do you think about changing the value in param.h from
-1024, so that it matches the new common value of 250, or is it best
-just to leave it at 1024 and let applications that use it get the wrong
-result?
+Also, I can't see any reason why a mini-pci version of this couldn't work in a 
+system other than x86/x86-64, even if Intel don't design such machines.
 
-jeremy
+In my view, it would be unacceptable to merge.
+
+-- 
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

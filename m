@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWGKWVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWGKWW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWGKWVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWGKWVk
+	id S932207AbWGKWW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWGKWW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:21:40 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:29595 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932204AbWGKWVi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:21:38 -0400
-Date: Wed, 12 Jul 2006 00:21:31 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Pavel Machek <pavel@ucw.cz>
-cc: Fredrik Roubert <roubert@df.lth.se>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-In-Reply-To: <20060711124105.GA2474@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.64.0607120016490.12900@scrub.home>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
- <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home>
- <20060711124105.GA2474@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Jul 2006 18:22:28 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:47003 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932208AbWGKWW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:22:27 -0400
+Date: Tue, 11 Jul 2006 23:22:02 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Will there be Intel Wireless 3945ABG support?
+Message-ID: <20060711222202.GA5064@srcf.ucam.org>
+References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711171238.GA26186@tuxdriver.com> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com> <1152644119.18028.46.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152644119.18028.46.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jul 11, 2006 at 07:55:19PM +0100, Alan Cox wrote:
 
-On Tue, 11 Jul 2006, Pavel Machek wrote:
+> Hopefully Intel will find a sensible solution to the problem or someone
+> will just reverse engineer it away.
 
-> > Apparently it changes existing well documented behaviour, which is a 
-> > really bad idea.
-> 
-> _well documented_? Where was it documented? Anyway, 2.6.17 behaviour
-> does not work on _many_ keyboards, like for example thinkpad x32...
+The ipw3945_daemon.h file includes a pretty full description of what the 
+daemon has to do, and all the structures have nice friendly names. 
+There's also a changelog of the protocol. It shouldn't take someone 
+long.
 
-Documentation/sysrq.txt and this was working on _many_ more keyboards just 
-fine.
-The fact is this patch changes existing behaviour, it either needs to be
-fixed or reverted. Adding new features is one thing, breaking existing 
-features is not acceptable without a very good reason.
-
-bye, Roman
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

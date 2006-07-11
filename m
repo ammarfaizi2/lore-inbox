@@ -1,46 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWGKPob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWGKPpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWGKPob (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWGKPob
+	id S1751305AbWGKPpG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWGKPpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:44:31 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53172 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751300AbWGKPoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:44:30 -0400
-Date: Tue, 11 Jul 2006 08:43:46 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Marcelo Tosatti <marcelo@kvack.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Paul Jackson <pj@sgi.com>, dgc@sgi.com,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Lee Schermerhorn <Lee.Schermerhorn@hp.com>, jes@sgi.com,
-       Adam Litke <agl@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       steiner@sgi.com, Peter Zijlstra <a.p.zijlstra@chello.nl>, akpm@osdl.org
-Subject: Re: Agenda for NUMA BOF @OLS & NUMA paper
-In-Reply-To: <200607110822.53711.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0607110842310.13404@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0607101146170.5556@schroedinger.engr.sgi.com>
- <200607110822.53711.ak@suse.de>
+	Tue, 11 Jul 2006 11:45:06 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:43959 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751302AbWGKPpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:45:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=IjCz1wFqUnjdOn1np7bsrHWcgRYPmsz1//qxPFRCVxe9PpEtMTgQn1v0+odkRYquLSCskPFynZxVFWjJTsQaplip5k28PVT8rAx1Ki/xCn90v+e67YwNOjQiYE5IlF3FlHUx+N3jyMDlKq4ednwX0jsathMGAv+JDbOutDFlqe0=
+Message-ID: <44B3C781.8060005@gmail.com>
+Date: Tue, 11 Jul 2006 17:45:05 +0200
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@stusta.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove mentionings of devfs in documentation
+References: <20060711152546.GV13938@stusta.de>
+In-Reply-To: <20060711152546.GV13938@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006, Andi Kleen wrote:
+Hi Adrian,
 
-> Sounds reasonable, although it would be a lot of things to discuss.
-> Ok most of A doesn't seem to be directly NUMA related.
+Adrian Bunk:
+> Now that devfs is removed, there's no longer any need to document how to 
+> do this or that with devfs.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+[snip]
+> --- linux-2.6.18-rc1-mm1-full/Documentation/ABI/obsolete/devfs	2006-07-09 11:22:37.000000000 +0200
+> +++ /dev/null	2006-04-23 00:42:46.000000000 +0200
+> @@ -1,13 +0,0 @@
+> -What:		devfs
+> -Date:		July 2005
+> -Contact:	Greg Kroah-Hartman <gregkh@suse.de>
+> -Description:
+> -	devfs has been unmaintained for a number of years, has unfixable
+> -	races, contains a naming policy within the kernel that is
+> -	against the LSB, and can be replaced by using udev.
+> -	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
+> -	along with the the assorted devfs function calls throughout the
+> -	kernel tree.
+> -
+> -Users:
+> -
 
-Its performance related.
+According to Documentation/ABI/README
+"  removed/
+        This directory contains a list of the old interfaces that have
+        been removed from the kernel.
+"
 
-> Does B mean you want to work on that?  My impression was always
-> that doing it automatically in the kernel was more a deadend.
+we should add devfs to removed/
 
-No I just want to discuss where we are going with this because some 
-people have shown an interest. This is a list of talking points not a list 
-of things to do.
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)
+
+Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+
+diff -uprN -X linux-work-clean/Documentation/dontdiff linux-work-clean/Documentation/ABI/removed/devfs linux-work5/Documentation/ABI/removed/devfs
+--- linux-work-clean/Documentation/ABI/removed/devfs	1970-01-01 01:00:00.000000000 +0100
++++ linux-work5/Documentation/ABI/removed/devfs	2006-07-11 17:35:30.000000000 +0200
+@@ -0,0 +1,13 @@
++What:		devfs
++Date:		July 2005
++Contact:	Greg Kroah-Hartman <gregkh@suse.de>
++Description:
++	devfs has been unmaintained for a number of years, has unfixable
++	races, contains a naming policy within the kernel that is
++	against the LSB, and can be replaced by using udev.
++	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
++	along with the the assorted devfs function calls throughout the
++	kernel tree.
++
++Users:
++
+

@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWGKSzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWGKS4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWGKSzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWGKSzg
+	id S1751180AbWGKS4i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWGKS4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:55:36 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:54468 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932089AbWGKSzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:55:35 -0400
-Date: Tue, 11 Jul 2006 14:55:32 -0400
-From: Andy Gay <andy@andynet.net>
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
-	transfers
-In-reply-to: <874pxof0xl.fsf@javad.com>
-To: Sergei Organov <osv@javad.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Message-id: <1152644133.20072.323.camel@tahini.andynet.net>
-MIME-version: 1.0
-X-Mailer: Evolution 2.4.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<874pxof0xl.fsf@javad.com>
+	Tue, 11 Jul 2006 14:56:37 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35342 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751180AbWGKS4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:56:37 -0400
+Date: Tue, 11 Jul 2006 19:56:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: John Stoffel <john@stoffel.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.18-rc1-mm1 - bad serial port count messages
+Message-ID: <20060711185630.GA1240@flint.arm.linux.org.uk>
+Mail-Followup-To: John Stoffel <john@stoffel.org>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <17587.42397.168635.821696@stoffel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17587.42397.168635.821696@stoffel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 22:31 +0400, Sergei Organov wrote:
-> Andy Gay <andy@andynet.net> writes:
-> > Adapted from an earlier patch by Greg KH <gregkh@suse.de>.
-> > That patch added multiple read urbs and larger transfer buffers to allow
-> > data transfers at full EvDO speed.
+On Tue, Jul 11, 2006 at 09:20:29AM -0400, John Stoffel wrote:
+> I'm getting the following messages in dmesg:
 > 
-> Below are two more problems with the patch, one of which existed in the
-> original Greg's patch resulting in return with "Message too long"
-> (EMSGSIZE) from driver's open() function.
-> 
-> [...]
-> 
-> > +		/* something happened, so free up the memory for this urb /*
-> 
-> There should be '*/' at the end of this line, not '/*', otherwise the
-> driver even doesn't compile.
+>   uart_close: bad serial port count; tty->count is 1, state->count is 0
+>   uart_close: bad serial port count for ttyS0: -1
+>   uart_close: bad serial port count for ttyS0: -1
 
-Sure. I posted an updated version including that fix -
-http://lkml.org/lkml/2006/7/3/280
+I assume that it's 100% reproducable, and doesn't happen with mainline?
 
-> 
-> [...]
-> > +static int airprime_open(struct usb_serial_port *port, struct file *filp)
-> > +{
-> [...]
-> > +		usb_fill_bulk_urb(urb, serial->dev,
-> > +				  usb_rcvbulkpipe(serial->dev,
-> > +						  port->bulk_out_endpointAddress),
-> 
-> Here, it should obviously be port->bulk_in_endpointAddress, not
-> port->bulk_out_endpointAddress, otherwise devices that have endpoints
-> numeration like, say 0x01-out, 0x82-in (unlike more usual usual
-> 0x01-out, 0x81-in), won't work returning -EMSGSIZE from open().
+I'm not aware of any serial core patches in -mm which would produce this
+type of breakage - maybe there's something funny with the tty layer in
+that it's trying to close the port more times than it's been opened...
+Hmm.
 
-Sounds correct. Good catch!
-
-> 
-> After these fixes, I've been able to run the driver with my own USB
-> device and achieved about 320 Kbytes/s read speed. That's still not very
-> exciting as I have another driver here in development that seems to be
-> able to do about 650 Kbytes/s with the same device.
-> 
-Nice. That's over 5Mbits/sec!
-
-Is that on an EvDO network? I didn't know they could go that fast. The
-EvDO network I'm testing on can only manage about 1Mbit/sec at best.
-
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

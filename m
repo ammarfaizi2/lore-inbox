@@ -1,88 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWGKNqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWGKNq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWGKNqK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 09:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWGKNqJ
+	id S1750784AbWGKNq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 09:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWGKNq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 09:46:09 -0400
-Received: from thunk.org ([69.25.196.29]:56250 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750777AbWGKNqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 09:46:08 -0400
-Date: Tue, 11 Jul 2006 09:45:54 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org, klibc@zytor.com, torvalds@osdl.org
-Subject: Re: klibc and what's the next step?
-Message-ID: <20060711134554.GC24029@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Olaf Hering <olaf@aepfle.de>, "H. Peter Anvin" <hpa@zytor.com>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
-	klibc@zytor.com, torvalds@osdl.org
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de>
+	Tue, 11 Jul 2006 09:46:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:1007 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750784AbWGKNq4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 09:46:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l1wlvnpGYnIklWND3qgIwzm/bLnaKRfTb1EzWn+ZXro88rxBt1ptdBt6rghwJXCILon+BKh8vxAi5E1U0K/W2Ai/qb7ldg4IO+9CYq4SiYUdD+P77V6FvRBgRM2nbMSeFZtgbkZml+G2Ky4X0DPZ/ysBgt6gJfPIzcoV6y+/ppg=
+Message-ID: <9e4733910607110646m7f95581cl52669daddf5f2fa1@mail.gmail.com>
+Date: Tue, 11 Jul 2006 09:46:54 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: [PATCH] fbdev: Statically link the framebuffer notification functions
+Cc: "Andrew Morton" <akpm@osdl.org>, rdunlap@xenotime.net, mreuther@umich.edu,
+       linux-kernel@vger.kernel.org, zap@homelink.ru
+In-Reply-To: <44B3AA51.1040003@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060711044834.GA11694@suse.de>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+References: <200607100833.00461.mreuther@umich.edu>
+	 <20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>
+	 <44B27931.30609@gmail.com> <200607102327.38426.mreuther@umich.edu>
+	 <20060710215253.1fcaab57.rdunlap@xenotime.net>
+	 <44B34D68.3080602@gmail.com> <20060711032817.94c78ae0.akpm@osdl.org>
+	 <44B39D4D.8060209@gmail.com>
+	 <9e4733910607110621i720db936sebdd0bcb60fab4ad@mail.gmail.com>
+	 <44B3AA51.1040003@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 06:48:34AM +0200, Olaf Hering wrote:
-> One is the kind that builds static kernels and uses no initrd of any kind.
-> For those people, the code and interfaces behind prepare_namespace() has
-> not changed in a long time.
-> They will install that kinit binary once and it will continue to work with
-> kernels from 2.6.6 and later, when "/init" support was merged. Or rather
-> from 2.6.1x when CONFIG_INITRAMFS_SOURCE was introduced.
-> 
-> The other group is the one that uses some sort of initrd (loop mount or cpio),
-> created with tools from their distribution.
-> Again, they should install that kinit binary as well because kinit emulates
-> the loop mount handling of /initrd.image. This is for older distributions
-> that still create a loop mounted initrd.
+On 7/11/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Jon Smirl wrote:
+> > On 7/11/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
+> >> The backlight and lcd subsystems can be notified by the framebuffer layer
+> >> of blanking events.  However, these subsystems, as a whole, can function
+> >> independently from the framebuffer layer. But in order to enable to
+> >> the lcd and backlight subsystems, the framebuffer has to be compiled
+> >> also,
+> >> effectively sucking in a huge amount of unneeded code. Besides, the
+> >> dependency
+> >> is introducing a lot of compilation problems.
+> >
+> > This code is effectively rebuilding a fb specific version of
+> > inter_module_get/put., something that was removed earlier.
+>
+> Huh? I don't see any semblance of inter_module_* or symbol_* in there.
+> Read the patch again.
 
-Kinit SHOULD be merged into the kernel, and the responsibility of
-creating the initrd/initramfs image should be moved from the
-distribution into the kernel build process.  There can and should be a
-way for distro's to add their own "value add specials" into the
-initrd/initramfs image, but we have to take over creating the base
-initial userspace environment.  It's not just uswsusp (still not
-convinced it's a good idea, but if we're going to do it we have to
-wrest control of the initramfs away from the distro's), but finding
-and mounting iSCSI disks, LVM setup, etc.
+You are providing a fixed point to do a rendezvous between modules
+without refcount tracking. That's what inter_module did. The symbol is
+being passed implicitly via the entry point names.
 
-> In earlier mails you stated that having kinit/klibc in the kernel sources
-> would make it easier to keep up with interface changes.
-> What interface changes did you have in mind, and can you name any relevant
-> interface changes that were made after 2.6.0 which would break an external
-> kinit?
+Just wrap fb_notifier in a module and it will get tracked.
 
-When you load a SCSI driver (the one that bit me was the MPT Fusion
-driver), it no longer waits for SCSI bus probe to finish before
-returning.  So the RHEL4 initrd fails to find the root filesystem, and
-bombs out.  This change was definitely made after 2.6.0, and is an
-example of the sort of change which wouldn't have happened if kinit
-was under the kernel sources and not supplied by the distro.
+>
+> Tony
+>
+>
+>
 
-> As others have stated in this thread, the code behind prepare_namespace() is 
-> very simple. It doesnt know anything abould lvm etc, nor about mount by
-> filesystem UUID/LABEL nor does it know how to deal with properly with new
-> technologies like iSCSI, evms, persistant storage device names, usb-storage,
-> sbp2 or async device probing.
-> Should all that knowledge end up in the kernel source on day?
 
-Some of this will probably need to be farmed out into files provided
-by external packages, but I **hope** that they are true upstream
-external packages, and not distro-specific specials, which is one of
-the reasons why the current initrd/initramfs situation is
-so.... unsatisfactory.  Clearly some kernel-mandated interface for
-other packages to insert scripts and binaries during the early-boot
-process would be a good thing; but the core initramfs functionality
-should IMHO belong to the kernel.
-
-						- Ted
+-- 
+Jon Smirl
+jonsmirl@gmail.com

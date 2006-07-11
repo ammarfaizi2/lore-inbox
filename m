@@ -1,86 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbWGKEUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWGKEVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbWGKEUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 00:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWGKEU3
+	id S965129AbWGKEVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 00:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWGKEVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 00:20:29 -0400
-Received: from pool-72-66-204-177.ronkva.east.verizon.net ([72.66.204.177]:1221
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S965136AbWGKEU2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 00:20:28 -0400
-Message-Id: <200607110420.k6B4KMZM013584@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18-rc1-mm1 - VPN chewing CPU like crazy..
-From: Valdis.Kletnieks@vt.edu
+	Tue, 11 Jul 2006 00:21:07 -0400
+Received: from ns.oss.ntt.co.jp ([222.151.198.98]:27524 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP id S965129AbWGKEVG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 00:21:06 -0400
+Subject: Re: [Fastboot] [PATCH 1/3] stack overflow safe kdump
+	(2.6.18-rc1-i386) - safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Keith Owens <kaos@ocs.com.au>, akpm@osdl.org, James.Bottomley@steeleye.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <m1u05ppu6h.fsf@ebiederm.dsl.xmission.com>
+References: <5742.1152520068@ocs3.ocs.com.au>
+	 <1152526550.3003.24.camel@localhost.localdomain>
+	 <m1u05ppu6h.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=utf-8
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Tue, 11 Jul 2006 13:21:01 +0900
+Message-Id: <1152591661.2414.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1152591622_4450P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Jul 2006 00:20:22 -0400
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1152591622_4450P
-Content-Type: text/plain; charset=us-ascii
+Hi Eric!
 
-(This is *NOT* new with 2.6.18-rc1-mm1, I've seen it a few times before, no
-idea when it started... I think I've seen it as far back as 2.6.16-mm2 or so).
+On Mon, 2006-07-10 at 05:37 -0600, Eric W. Biederman wrote:
+> Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> writes:
+> 
+> > Hi Keith,
+> >
+> > Thank you for the comments.
+> >
+> > On Mon, 2006-07-10 at 18:27 +1000, Keith Owens wrote:
+> >> Fernando Luis Vazquez Cao (on Mon, 10 Jul 2006 16:50:52 +0900) wrote:
+> >> >On the event of a stack overflow critical data that usually resides at
+> >> >the bottom of the stack is likely to be stomped and, consequently, its
+> >> >use should be avoided.
+> >> >
+> >> >In particular, in the i386 and IA64 architectures the macro
+> >> >smp_processor_id ultimately makes use of the "cpu" member of struct
+> >> >thread_info which resides at the bottom of the stack. x86_64, on the
+> >> >other hand, is not affected by this problem because it benefits from
+> >> >the use of the PDA infrastructure.
+> >> >
+> >> >To circumvent this problem I suggest implementing
+> >> >"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+> >> >IA64 and use it as a replacement for smp_processor_id in the reboot path
+> >> >to the dump capture kernel. This is a possible implementation for i386.
+> >> 
+> >> I agree with avoiding the use of thread_info when the stack might be
+> >> corrupt.  However your patch results in reading apic data and scanning
+> >> NR_CPU sized tables for each IPI that is sent, which will slow down the
+> >> sending of all IPIs, not just dump.
+> > This patch only affects IPIs sent using send_IPI_allbutself which is
+> > rarely called, so the impact in performance should be negligible.
+> 
+> Well smp_call_function uses it so I don't know if rarely called applies.
+> 
+> However when called with the NMI vector every instance of send_IPI_allbutself
+> transforms this into send_IPI_mask.  Which is why we need to know our current
+> cpu in the first place.
+> 
+> Therefore why don't we just do that explicitly in crash.c
+> i.e.
+> 
+> static void smp_send_nmi_allbutself(void)
+> {
+> 	cpumask_t mask = cpu_online_map;
+> 	cpu_clear(safe_smp_processor_id(), mask);
+> 	send_IPI_mask(mask, NMI_VECTOR);
+> }
+> 
+> That will guarantee that any effects this code paranoia may have
+> are only seen in the crash dump path.
 
-Most of the time, the VPN comes up just fine.
+That is a good idea, but I have on concern. In mach-default by default
+we use __send_IPI_shortcut (no_broadcast==0) instead of send_IPI_mask.
+Is it always safe to ignore the no_broadcast setting? In other words,
+can __send_IPI_shortcut be replaced by send_IPI_mask safely?
 
-Jul 10 22:44:28 turing-police kernel: [ 7180.696000] CSLIP: code copyright 1989 Regents of the University of California
-Jul 10 22:44:28 turing-police kernel: [ 7180.701000] PPP generic driver version 2.4.2
-Jul 10 23:00:26 turing-police kernel: [ 8137.903000] PPP MPPE Compression module registered
+The implementation of send_IPI_allbutself in the different architectures
+follows:
 
-However, sometimes (usually when restarting after the VPN gets dropped due to
-a network burp, etc), it will start up, get connected, and then the the first
-(or one of the first) data packets over the VPN will suddenly spike the
-CPU to 100% (about 50% userspace and 50% kernel).  A quick oprofile check
-shows the kernel CPU getting sucked:
+smp_send_nmi_allbutself
+  send_IPI_allbutself
 
-samples  %        image name               app name                 symbol name
-10901    18.2805  arc4.ko                  arc4                     .text
-5046      8.4619  ppp_async.ko             ppp_async                ppp_async_push
-4865      8.1584  pptp                     pptp                     (no symbols)
-4382      7.3484  arc4.ko                  arc4                     arc4_set_key
-4331      7.2629  vmlinux                  vmlinux                  sha_transform
-4203      7.0482  libfb.so                 libfb.so                 fbCopyAreammx
-3342      5.6044  vmlinux                  vmlinux                  ecb_process
-1324      2.2203  libgdk_imlib.so.1.9.13   libgdk_imlib.so.1.9.13   (no symbols)
-1149      1.9268  ip_tables.ko             ip_tables                ipt_do_table
-1071      1.7960  vmlinux                  vmlinux                  local_bh_enable
-848       1.4221  vmlinux                  vmlinux                  acpi_pm_read
-816       1.3684  vmlinux                  vmlinux                  __local_bh_disable
-698       1.1705  vmlinux                  vmlinux                  n_tty_receive_buf
-651       1.0917  vmlinux                  vmlinux                  do_page_fault
+* mach-bigsmp
+send_IPI_allbutself
+  cpu_clear(smp_processor_id(), mask)
+  send_IPI_mask
+    send_IPI_mask_sequence
+      apic_wait_icr_idle
 
-(pptp is the userspace control process)
+* mach-default
+send_IPI_allbutself
+  __local_send_IPI_allbutself
+    if (no_broadcast) {
+      cpu_clear(smp_processor_id(), mask)
+      send_IPI_mask(mask, vector)
+        send_IPI_mask_bitmask
+          apic_wait_icr_idle
+    } else {
+      __send_IPI_shortcut(APIC_DEST_ALLBUT, vector)
+        apic_wait_icr_idle
+    }
 
-gkrellm reports that about 4 mbytes/sec is being sent on ppp0 - but shows
-zero traffic on eth0 (the underlying interface).  When working properly,
-both ppp0 and eth0 show the traffic.
+* mach-es7000
+send_IPI_allbutself
+  cpu_clear(smp_processor_id(), mask);
+  send_IPI_mask
+    send_IPI_mask_sequence
+      apic_wait_icr_idle
 
-This continues until I get fed up and manually take the VPN down, at which
-point it happily gets rid of ppp0 and CPU load returns to normal.
+* mach-numaq
+send_IPI_allbutself
+  cpu_clear(smp_processor_id(), mask)
+  send_IPI_mask
+    send_IPI_mask_sequence
+      apic_wait_icr_idle
 
-I haven't found a clean way to reproduce it - sometimes I won't see it for
-2-3 weeks, then it will pop up several times in an evening.
+* mach-summit
+send_IPI_allbutself
+  cpu_clear(smp_processor_id(), mask)
+  send_IPI_mask
+    send_IPI_mask_sequence
+      apic_wait_icr_idle
 
-Any suggestions/hints (besides rebuilding the implicated .ko with debugging
-symbols so oprofile can be more granular - that's already on the to-do list)?
+Regards,
 
---==_Exmh_1152591622_4450P
-Content-Type: application/pgp-signature
+Fernando
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> 
+> 
+> >> It would be far cheaper to define
+> >> a per-cpu variable containing the logical cpu number, set that variable
+> >> once as each cpu is brought up and just read it in cases where you
+> >> might not trust the integrity of struct thread_info.  safe_smp_processor_id()
+> >> resolves to just a read of the per cpu variable.
+> > But to read a per-cpu variable you need to index the corresponding array
+> > with processor id of the current CPU (see code below), but that is
+> > precisely what we are trying to figure out. Anyway as
+> > send_IPI_allbutself is not a fast path (correct if this assumption is
+> > wrong) the current implementation of safe_smp_processor_id should be
+> > fine.
+> >
+> > #define get_cpu_var(var) (*({ preempt_disable();
+> > &__get_cpu_var(var); }))
+> > #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+> >
+> > Am I missing something obvious?
+> 
+> No.  Except that other architectures have cheaper per pointers so they
+> don't have that problem.
+> 
+> Eric
 
-iD8DBQFEsycGcC3lWbTT17ARApBXAJ9gh4RB5n26Xonpo/EYNOK9Gd8ywgCgvZnt
-qbQsM6cXTnEAu7rZO81Co+g=
-=vr0g
------END PGP SIGNATURE-----
-
---==_Exmh_1152591622_4450P--

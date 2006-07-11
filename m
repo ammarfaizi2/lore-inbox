@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWGKWm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWGKWnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWGKWm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWGKWm7
+	id S932223AbWGKWnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWGKWnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:42:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60301 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932221AbWGKWm6 (ORCPT
+	Tue, 11 Jul 2006 18:43:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4007 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932223AbWGKWnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:42:58 -0400
-Date: Wed, 12 Jul 2006 00:42:25 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
-Cc: Fredrik Roubert <roubert@df.lth.se>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <20060711224225.GC1732@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home>
+	Tue, 11 Jul 2006 18:43:19 -0400
+Date: Tue, 11 Jul 2006 15:39:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Sam Ravnborg <sam@ravnborg.org>,
+       hch@infradead.org, dwmw2@infradead.org, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+In-Reply-To: <44B41FB1.7050704@zytor.com>
+Message-ID: <Pine.LNX.4.64.0607111537080.5623@g5.osdl.org>
+References: <20060711160639.GY13938@stusta.de> <1152635323.3373.211.camel@pmac.infradead.org>
+ <20060711173301.GA27818@infradead.org> <20060711193423.GA9685@mars.ravnborg.org>
+ <20060711194107.GA10733@mars.ravnborg.org> <20060711134106.18f6dd2e.rdunlap@xenotime.net>
+ <20060711213733.GB21448@wohnheim.fh-wedel.de> <44B41FB1.7050704@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607120016490.12900@scrub.home>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-07-12 00:21:31, Roman Zippel wrote:
-> Hi,
+
+
+On Tue, 11 Jul 2006, H. Peter Anvin wrote:
 > 
-> On Tue, 11 Jul 2006, Pavel Machek wrote:
-> 
-> > > Apparently it changes existing well documented behaviour, which is a 
-> > > really bad idea.
-> > 
-> > _well documented_? Where was it documented? Anyway, 2.6.17 behaviour
-> > does not work on _many_ keyboards, like for example thinkpad x32...
-> 
-> Documentation/sysrq.txt and this was working on _many_ more keyboards just 
-> fine.
-> The fact is this patch changes existing behaviour, it either needs to be
-> fixed or reverted. Adding new features is one thing, breaking existing 
-> features is not acceptable without a very good reason.
+> #1 I doubt the time taken to look at include files that are #ifndef'd in their
+> entirety is significant (I think there is special code in gcc to handle this
+> case fast.)
 
-Your "well documented" is sentence "you may have better luck
-with"... okay, but we now have better sentence. Document it better.
+Correct. Don't worry about multiple includes.
 
-BTW I believe that original way (alt down, sysrq down, b down) still
-works before and after the patch.
+HOWEVER. If you can avoid the include entirely, that can be an absolutely 
+huge timesaver. Much of the compile time is from just parsing the things 
+the first time around (rather than parsing it over and over), and if you 
+don't strictly need a header, avoiding parsing it in the first place is a 
+big big issue.
 
-Here's patch that updates docs with now-working trick.
+For example, if a header only needs a structure to be declared because it 
+uses a pointer to it, then rather than including the header file that 
+declares that structure fully, just doing a
 
-Signed-off-by: Pavel Machek <pavel@suse.cz> 
+	struct task_struct;
 
-diff --git a/Documentation/sysrq.txt b/Documentation/sysrq.txt
-index e0188a2..58e04c0 100644
---- a/Documentation/sysrq.txt
-+++ b/Documentation/sysrq.txt
-@@ -43,7 +43,7 @@ On x86   - You press the key combo 'ALT-
-            keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
-            also known as the 'Print Screen' key. Also some keyboards cannot
- 	   handle so many keys being pressed at the same time, so you might
--	   have better luck with "press Alt", "press SysRq", "release Alt",
-+	   have better luck with "press Alt", "press SysRq", "release SysRq",
- 	   "press <command key>", release everything.
- 
- On SPARC - You press 'ALT-STOP-<command key>', I believe.
+to say that "there is such a thing as a 'struct task_struct'" can be a 
+huge time-saver.
 
+Of course, anything that actually needs to look past the pointer will need 
+to get the full declaration..
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+		Linus

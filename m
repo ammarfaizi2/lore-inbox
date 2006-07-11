@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWGKQYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWGKQ27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWGKQYH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 12:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWGKQYG
+	id S1750764AbWGKQ27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 12:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWGKQ27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 12:24:06 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5528 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750735AbWGKQYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 12:24:05 -0400
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-From: Arjan van de Ven <arjan@infradead.org>
-To: andrea@cpushare.com
-Cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060711161311.GK7192@opteron.random>
-References: <20060629180706.64a58f95.akpm@osdl.org>
-	 <20060630014050.GI19712@stusta.de> <20060630045228.GA14677@opteron.random>
-	 <20060630094753.GA14603@elte.hu> <20060630145825.GA10667@opteron.random>
-	 <20060711073625.GA4722@elte.hu> <20060711141709.GE7192@opteron.random>
-	 <1152628374.3128.66.camel@laptopd505.fenrus.org>
-	 <20060711153117.GJ7192@opteron.random>
-	 <1152633242.3128.81.camel@laptopd505.fenrus.org>
-	 <20060711161311.GK7192@opteron.random>
+	Tue, 11 Jul 2006 12:28:59 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:27617 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1750764AbWGKQ26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 12:28:58 -0400
+Subject: Re: RFC: cleaning up the in-kernel headers
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+In-Reply-To: <20060711160639.GY13938@stusta.de>
+References: <20060711160639.GY13938@stusta.de>
 Content-Type: text/plain
-Date: Tue, 11 Jul 2006 18:23:52 +0200
-Message-Id: <1152635032.3128.89.camel@laptopd505.fenrus.org>
+Date: Tue, 11 Jul 2006 17:28:43 +0100
+Message-Id: <1152635323.3373.211.camel@pmac.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 18:13 +0200, andrea@cpushare.com wrote:
-> On Tue, Jul 11, 2006 at 05:54:02PM +0200, Arjan van de Ven wrote:
-> > Ehm I wasn't aware all linux vendors in the world owe that to you, or
-> > that you own their kernel configuration
+On Tue, 2006-07-11 at 18:06 +0200, Adrian Bunk wrote:
+> I'd like to cleanup the mess of the in-kernel headers, based on the 
+> following rules:
+> - every header should #include everything it uses
+> - remove unneeded #include's from headers
 > 
-> I perfectly know nobody owes anything to me, I said I didn't expect it
-> because it sounds very weird having to take an anti-fedora position in a
-> project like CPUShare. 
+> This would also remove all the implicit rules "before #include'ing 
+> header foo.h, you must #include header bar.h" you usually only see
+> when the compilation fails.
+> 
+> There might be exceptions (e.g. for avoiding circular #include's) but 
+> these would be special cases.
 
-it sounds very weird taking an anti-fedora position without even having
-asked Fedora to turn it on. But maybe that's just me.
+Seems eminently sensible. Please make sure you don't introduce
+regressions in the output of 'make headers_install' by unconditionally
+including files which don't exist in the export -- if something is only
+_used_ within #ifdef __KERNEL__ then it should only be #included within
+#ifdef __KERNEL__ too.
 
+It would be nice in the general case if we could actually _compile_ each
+header file, standalone. There may be some cases where that doesn't
+work, but it's a useful goal in most cases, for bother exported headers
+_and_ the in-kernel version. For the former case it would be nice to add
+it to 'make headers_check' once it's realistic to do so.
 
+I still think it would be quite nice if we could _eliminate_ some of
+those ifdefs, to be honest -- but I'm not overly bothered about that
+now, because 'make headers_install' works well enough.
+
+-- 
+dwmw2
 

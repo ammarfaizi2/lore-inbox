@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWGKTub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWGKTux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWGKTub (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWGKTub
+	id S932108AbWGKTux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWGKTux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:50:31 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:8345 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932107AbWGKTua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:50:30 -0400
-Date: Tue, 11 Jul 2006 21:45:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] irqtrace-option-off-compile-fix
-Message-ID: <20060711194505.GA25611@elte.hu>
-References: <1152577120.7654.9.camel@localhost.localdomain> <1152601989.3128.10.camel@laptopd505.fenrus.org> <1152635003.7654.40.camel@localhost.localdomain> <1152637993.3128.96.camel@laptopd505.fenrus.org> <1152635804.7654.44.camel@localhost.localdomain> <1152641141.3128.104.camel@laptopd505.fenrus.org> <1152644540.3578.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 15:50:53 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:42306 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932108AbWGKTuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:50:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jd59PLU56pgx/Ts2Zc551tx5CG8dzxAF251Ec/6iJVHF2kbu6zw0g9s18uR4ugGSLhlI8E7VWCfKHV3pJaXJDlHdhK/CgxKy7KC0gxbTEAiRK+U7U+SKzrJIOnhEx3O0VII2UuGbIJg6pP2kUlpzcRJD3rN5CTXJ3Ez2Dr8b6aE=
+Message-ID: <a36005b50607111250k70598c31nbc9c0de661dba9e6@mail.gmail.com>
+Date: Tue, 11 Jul 2006 12:50:50 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
+Cc: "Cedric Le Goater" <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>, "Kirill Korotaev" <dev@openvz.org>,
+       "Andrey Savochkin" <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Herbert Poetzl" <herbert@13thfloor.at>,
+       "Sam Vilain" <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Dave Hansen" <haveblue@us.ibm.com>
+In-Reply-To: <44B3EDBA.4090109@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1152644540.3578.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060711075051.382004000@localhost.localdomain>
+	 <44B3EA16.1090208@zytor.com> <44B3ED3B.3010401@fr.ibm.com>
+	 <44B3EDBA.4090109@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/11/06, H. Peter Anvin <hpa@zytor.com> wrote:
+> How about execveu()?  -n looked a bit weird to me, mostly because the
+> "le" form would be execlen() which looks like something completely
+> different...
 
-* Tim Chen <tim.c.chen@linux.intel.com> wrote:
+I would prefer a more general parameter.  With this extension it is
+expected to have six new interfaces.  I really don't want to repeat
+this if somebody comes up with yet another nice extension.
 
-> > The one you want is CONFIG_TRACE_IRQFLAGS .. which is the one that 
-> > actually turns the tracing on
-> 
-> I could not turn off CONFIG_TRACE_IRQFLAGS_SUPPORT in .config 
-> directly. The command "scripts/kconfig/conf -s arch/x86_64/Kconfig" in 
-> Makefile overwrites changes made to CONFIG_TRACE_IRQFLAGS_SUPPORT in 
-> .config file.  So this is always turned on in .config if the option 
-> TRACE_IRQFLAGS_SUPPORT is set in arch/x86_64/Kconfig.debug.  I may be 
-> missing something.  Any suggestions?
-
-correct, that flag is always set - it signals towards the core kernel 
-that the architecture in question (x86_64) that it has trace-irqflags 
-support. NOTE: this does not mean that irqflags tracing is turned on - 
-that is another option: CONFIG_TRACE_IRQFLAGS.
-
-unsetting the support flag makes no sense and will likely break the 
-build. There is no overhead from irqflags tracing if it's turned off. 
-(even if the CONFIG_TRACE_IRQFLAGS_SUPPORT option is set)
-
-does this explain things? We could rename the boolean value to 
-CONFIG_TRACE_IRQFLAGS_SUPPORT_AVAILABLE perhaps, to avoid future 
-confusion.
-
-	Ingo
+So, how about generalizing the parameter.  Make is a 'flags'
+parameter, assign a number of bits to the unshare functionality and
+leave the rest available.  Use a 'f' suffix, perhaps.  Then in future
+more bits can be defined and, if necessary, additional parameters can
+be added depending on set flags.  The userspace prototypes can then if
+absolutely necessary be extended with an ellipsis.  Not nice but not
+as bad as adding more and more intefaces.

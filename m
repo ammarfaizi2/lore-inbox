@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWGKSoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWGKSox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWGKSoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWGKSoY
+	id S932090AbWGKSox (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGKSox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:44:24 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:34229 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1751178AbWGKSoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:44:23 -0400
-X-IronPort-AV: i="4.06,230,1149490800"; 
-   d="scan'208"; a="433741135:sNHT31217542"
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andrew Morton <akpm@osdl.org>, sean.hefty@intel.com, rolandd@cisco.com,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: infiniband patch series
-X-Message-Flag: Warning: May contain useful information
-References: <20060710211151.4213742b.akpm@osdl.org>
-	<20060711050055.GA16064@mellanox.co.il>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 11 Jul 2006 11:44:19 -0700
-Message-ID: <adapsgc0ynw.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 11 Jul 2006 14:44:53 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:25714 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932101AbWGKSow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 14:44:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=KQgEDpqoLLgPyukeMav75eOfUrGCITq++pWFacK+9Lo3p/PuTuS6qTQCP8lAq87AoVSCWmgD5VNLTsd7ZlK+10tTxoS3Abq+lgKcBYcndwv10sBlDM+E+MNoAtCoiNFZnJouKPB4clf6AJyjgVFKtYf7OcGvz0Q+uf/HHlFnGYo=  ;
+Message-ID: <44B39151.10600@yahoo.com.au>
+Date: Tue, 11 Jul 2006 21:53:53 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Jul 2006 18:44:21.0500 (UTC) FILETIME=[05FF7BC0:01C6A51A]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] 'volatile' in userspace
+References: <44B0FAD5.7050002@argo.co.il>  <MDEHLPKNGKAHNMBLJOLKMEPGNAAB.davids@webmaster.com>  <20060709195114.GB17128@thunk.org> <20060709204006.GA5242@nospam.com>  <20060710034250.GA15138@thunk.org> <bda6d13a0607101000w6ec403bbq7ac0fe66c09c6080@mail.gmail.com> <44B29461.40605@yahoo.com.au> <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0607110945580.30961@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> Sure.  Although I am a little surprised to be be receiving
-    Andrew> them while Roland is in
-    Andrew> taking-time-off-but-not-really-doing-so mode.
+Jan Engelhardt wrote:
+>>What's wrong with _exit(exec() == -1 ? 0 : errno);
+>>and picking up the status with wait(2) ?
+>>
+> 
+> The exec'd application may return regular error codes, which would 
+> interfere. IIRC /usr/sbin/useradd has different exit codes depending on 
+> what failed (providing some option, failure to create account, failure to 
+> create home dir, etc.). Now if you exit(errno) instead, you have an 
+> overlap.
 
-    Michael> Well, I don't know what's up either, but Roland acked
-    Michael> patches explicitly so I figured that's what he wants,
-    Michael> too.
+You're right. Maybe you could return -ve or with a high bit set,
+but I guess you may not know what the app will return.
 
-I'm in steal-10-minutes-to-read-email-every-now-and-then-mode, so I'd
-rather let someone else handle all the patch merging etc.
+But I don't see how the volatile or pipe solutions are any better
+though: it would seem that both result in undefined behaviour
+according to my vfork man page. At least the wait() solution is
+defined (and workable, if you know what the target might return).
 
-I'll be back for real after Ottawa I guess...
+> And your code is somewhat wrong. Given that exec() would stand for 
+> execve(someprogram_and_args_here), if it returned -1 you would return 0, 
+> indicating success. Can't be. And if exec() does not return -1, which it 
+> never should, you return errno, which never reaches anyone.
 
- - R.
+Yeah, thinko.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

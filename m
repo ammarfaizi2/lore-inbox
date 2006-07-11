@@ -1,45 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWGKAjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWGKBAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWGKAjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 20:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWGKAjP
+	id S1751395AbWGKBAB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 21:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWGKBAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 20:39:15 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:7131 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751376AbWGKAjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 20:39:14 -0400
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: Adam Tla?ka <atlka@pg.gda.pl>, ak@suse.de, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, perex@suse.cz, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20060710235934.GC26528@dspnet.fr.eu.org>
-References: <20060707231716.GE26941@stusta.de>
-	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>
-	 <20060710132810.551a4a8d.atlka@pg.gda.pl>
-	 <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl>
-	 <20060710235934.GC26528@dspnet.fr.eu.org>
+	Mon, 10 Jul 2006 21:00:01 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:10657 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751395AbWGKBAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 21:00:00 -0400
+Subject: [PATCH] irqtrace-option-off-compile-fix
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu, akpm@osdl.org
 Content-Type: text/plain
-Date: Mon, 10 Jul 2006 20:39:03 -0400
-Message-Id: <1152578344.21909.12.camel@mindpipe>
+Organization: Intel
+Date: Mon, 10 Jul 2006 17:18:40 -0700
+Message-Id: <1152577120.7654.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 01:59 +0200, Olivier Galibert wrote:
-> ALSA lib has something like 7 different methods just to play a sound.
-> Their view of "low level" is quite interesting.  Using it is pure
-> hell.  Debugging what you've done is worse.  And don't bother to hope
-> that your code will still work in six months.
-> 
+When CONFIG_TRACE_IRQFLAGS_SUPPORT is turned off, the latest kernel has
+compile errors.  The patch below fix the problems.
 
-A small FAQ:
+Regards,
+Tim Chen
 
-Q: But OSS is kewl and ALSA sucks!
-A: The decision for the OSS->ALSA move was four years ago.
-   If ALSA sucks, please help to improve ALSA.
+
+Signed-off-by: Tim Chen <tim.c.chen@intel.com>
+diff --git a/include/linux/irqflags.h b/include/linux/irqflags.h
+index 412e025..2dd865f 100644
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -41,10 +41,10 @@
+ # define INIT_TRACE_IRQFLAGS
+ #endif
+ 
+-#ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+-
+ #include <asm/irqflags.h>
+ 
++#ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
++
+ #define local_irq_enable() \
+ 	do { trace_hardirqs_on(); raw_local_irq_enable(); } while (0)
+ #define local_irq_disable() \
+@@ -62,24 +62,24 @@
+ 			raw_local_irq_restore(flags);		\
+ 		}						\
+ 	} while (0)
++#define safe_halt()						\
++	do {							\
++		trace_hardirqs_on();				\
++		raw_safe_halt();				\
++	} while (0)
++
+ #else /* !CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ /*
+  * The local_irq_*() APIs are equal to the raw_local_irq*()
+  * if !TRACE_IRQFLAGS.
+  */
+-# define raw_local_irq_disable()	local_irq_disable()
+-# define raw_local_irq_enable()		local_irq_enable()
+-# define raw_local_irq_save(flags)	local_irq_save(flags)
+-# define raw_local_irq_restore(flags)	local_irq_restore(flags)
++#define local_irq_disable()		raw_local_irq_disable()
++#define local_irq_enable()		raw_local_irq_enable()
++#define local_irq_save(flags)		raw_local_irq_save(flags)
++#define local_irq_restore(flags)	raw_local_irq_restore(flags)
++#define safe_halt()			raw_safe_halt()
+ #endif /* CONFIG_TRACE_IRQFLAGS_SUPPORT */
+ 
+-#ifdef CONFIG_TRACE_IRQFLAGS_SUPPORT
+-#define safe_halt()						\
+-	do {							\
+-		trace_hardirqs_on();				\
+-		raw_safe_halt();				\
+-	} while (0)
+-
+ #define local_save_flags(flags)		raw_local_save_flags(flags)
+ 
+ #define irqs_disabled()						\
+@@ -91,6 +91,5 @@
+ })
+ 
+ #define irqs_disabled_flags(flags)	raw_irqs_disabled_flags(flags)
+-#endif		/* CONFIG_X86 */
+ 
+ #endif
 
 

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWGKVfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWGKViM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWGKVfU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWGKVfU
+	id S1750836AbWGKViM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWGKViM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:35:20 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:14998 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750772AbWGKVfT (ORCPT
+	Tue, 11 Jul 2006 17:38:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12237 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750836AbWGKViL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:35:19 -0400
-Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
-	keep cache pressure down
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, arjan@infradead.org
-In-Reply-To: <20060711140951.f22847d8.rdunlap@xenotime.net>
-References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-	 <20060711140951.f22847d8.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 14:35:19 -0700
-Message-Id: <1152653719.16499.41.camel@chalcedony.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 17:38:11 -0400
+Date: Tue, 11 Jul 2006 23:37:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 on thinkpad x32
+Message-ID: <20060711213738.GA1732@elf.ucw.cz>
+References: <20060709225208.GA1787@elf.ucw.cz> <20060711123048.522ba85c.kristen.c.accardi@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711123048.522ba85c.kristen.c.accardi@intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 14:09 -0700, Randy.Dunlap wrote:
+HI!
 
-> space after commas, please.
+> > * acpi problems are gone, good -- it now boots with acpi=off and boots
+> > with enabled pci hotplugging.
+> > 
+> > 	(that uncovered other problem where machine dies if I try to
+> > 	undock it... This has worked before. I'll report it properly.)
+> >
+> 
+> When you get your report for this ready, try to observe whether it happens
+> if you boot undocked, then dock and then undock, or whether it will
+> happen if you boot docked, then undock.  I do have an outstanding issue
+> with some docks that have ide ports on the station where if you boot
+> docked, then undock, we can't properly remove the ide device.  I am 
+> working on that one, but it's not solved yet.
 
-Yep.
-
-> Currently kernel-doc function description is limited to one line.
-
-Ugh, OK.  What about "Memory copy, bypassing CPU cache for loads" for
-the one-liner?  And a suitably modified first paragraph to make it clear
-that on some arches, it falls back to memcpy.
-
-Thanks,
-
-	<b
-
+I guess you can disregard this. I have mess between -rc1 and
+-rc1-mm1. -rc1 has some lockups that may be because of hotplug, but
+-rc1-mm1 seems to be okay.
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWGKW0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWGKW1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWGKW0h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWGKW0h
+	id S932084AbWGKW1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWGKW1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:26:37 -0400
-Received: from mx1.suse.de ([195.135.220.2]:10698 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932210AbWGKW0g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:26:36 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
-References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Jul 2006 00:26:32 +0200
-In-Reply-To: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <p73ac7fok13.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 11 Jul 2006 18:27:20 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8712 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932084AbWGKW1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:27:19 -0400
+Date: Wed, 12 Jul 2006 00:27:18 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+Message-ID: <20060711222718.GF13938@stusta.de>
+References: <20060711160639.GY13938@stusta.de> <20060711170725.GD5362@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711170725.GD5362@redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+On Tue, Jul 11, 2006 at 01:07:25PM -0400, Dave Jones wrote:
+>...
+> ghviz & hviz from http://www.kernel.org/pub/linux/kernel/people/acme/
+> are invaluable for eyeballing include dependancies btw.
+> They need graphviz installed, and run like so..
+> 
+> ghviz include/linux/sched.h 10
+> 
+> to produce a pretty graph.
 
-> Since sys_sysctl is deprecated start allow it to be compiled out.
-> This should catch any remaining user space code that cares,
+I'll need something like this. It's not exactly what I have in mind but 
+a good starting point.
 
-I tried this long ago, but found that glibc uses sysctl in each
-program to get the kernel version. It probably handles ENOSYS,
-but there might be slowdowns or subtle problems from it not knowing
-the kernel version.
+>...
+> 		Dave
 
-So I think it's ok to remove the big sysctl, but at a very minimal
-replacement that just handles (CTL_KERN, KERN_VERSION) is needed.
+cu
+Adrian
 
-Also it's useful to printk for the rest at least for some time 
-so we know what uses it.
+-- 
 
--Andi
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

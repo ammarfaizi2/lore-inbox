@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWGKXzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWGKX4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWGKXzT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWGKXzS
+	id S932274AbWGKX4B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWGKX4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:55:18 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:53987 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932271AbWGKXzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:55:16 -0400
-Message-ID: <44B43A30.1040006@zytor.com>
-Date: Tue, 11 Jul 2006 16:54:24 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711171238.GA26186@tuxdriver.com> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com> <1152644119.18028.46.camel@localhost.localdomain> <20060711222202.GA5064@srcf.ucam.org>
-In-Reply-To: <20060711222202.GA5064@srcf.ucam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 19:56:00 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:8089 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932274AbWGKXz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:55:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=EH5sZWWehsfM4GwWhxwVdVlpiAUBEWvGNaNxiJVvUEDlz9ZNgDTZUukK19jvppYTFlkfxHL0J9Wq8/7MnbAz70IIwajbLIKKfVHzyeKZfHRzGa588ld3EmSMhT/9Zb2dofdyhvnMXJVlkzOdCJXNqsOECnzjXLVMy+Uuqbn3jP8=
+Date: Tue, 11 Jul 2006 16:55:53 -0700
+From: Clay Barnes <clay.barnes@gmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>
+Subject: Re: short term task list for Reiser4
+Message-ID: <20060711235553.GH9220@HAL_5000D.tc.ph.cox.net>
+References: <44B42064.4070802@namesys.com>
+	<20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
+	<44B43019.9010402@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B43019.9010402@namesys.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Tue, Jul 11, 2006 at 07:55:19PM +0100, Alan Cox wrote:
-> 
->> Hopefully Intel will find a sensible solution to the problem or someone
->> will just reverse engineer it away.
-> 
-> The ipw3945_daemon.h file includes a pretty full description of what the 
-> daemon has to do, and all the structures have nice friendly names. 
-> There's also a changelog of the protocol. It shouldn't take someone 
-> long.
-> 
+On 16:11 Tue 11 Jul     , Hans Reiser wrote:
+> Clay Barnes wrote:
+> >On 15:04 Tue 11 Jul     , Hans Reiser wrote:
+> >>6) optimize fsync --- substantive task which requires using fixed area
+> >>for write twice logging, and using write twice logging for fsync'd
+> >>data.  It might require creating mount options to choose whether to
+> >>optimize for serialized sequential fsyncs vs. lazy fsyncs.
+> >With the serialized sequential fsync, is that essentially what I was
+> >talking about earlier with slowly streaming dirty writes to disk when
+> >the HDD is idle?  If that's the case, I don't see the advantage in having
+> >lazy fsyncs
+> if you are optimizing throughput rather than latency, then you let
+> things get to disk whenever they get there, and you let the app hang
+> while it waits. A mailer processing many requests in parallel might find
+> 30 seconds of latency to be just fine but a database might find 3
+> seconds of latency to be too much. (I make up these examples, mailer
+> programmers please correct me.)
+I see your point, but here's where I'm still uncertain:
 
-It's already been done, too.
+If you have a lazy write policy, what exactly is gained by intentionally
+delaying writes (beyond a certain size that is necessary to make things
+like dancing trees actually effecient)?  If you trickle some data to
+disk, then when memory pressure causes (or an app calls) a big sync,
+then you have less to actually write.  What I'm suggesting, now, is not
+a major write policy change, but rather a light process that is limited
+to extremely low resource use (I/O, CPU, etc.).  It would take some of
+the edge off of major syncs, and for many (most?) non-server users, it
+could wholly eliminate memory pressure-induced heavy syncs.
 
-	-hpa
+--Clay

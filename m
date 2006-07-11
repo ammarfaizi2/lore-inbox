@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965335AbWGJX7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWGKAIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965335AbWGJX7k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 19:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965336AbWGJX7j
+	id S1751079AbWGKAIf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 20:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWGKAIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 19:59:39 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:17161 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S965335AbWGJX7j (ORCPT
+	Mon, 10 Jul 2006 20:08:35 -0400
+Received: from mail.suse.de ([195.135.220.2]:57478 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751079AbWGKAIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 19:59:39 -0400
-Date: Tue, 11 Jul 2006 01:59:35 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Adam Tla?ka <atlka@pg.gda.pl>
-Cc: Lee Revell <rlrevell@joe-job.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-Message-ID: <20060710235934.GC26528@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Adam Tla?ka <atlka@pg.gda.pl>, Lee Revell <rlrevell@joe-job.com>,
-	ak@suse.de, linux-kernel@vger.kernel.org,
-	alsa-devel@alsa-project.org, perex@suse.cz,
-	alan@lxorguk.ukuu.org.uk
-References: <20060707231716.GE26941@stusta.de> <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe> <20060710132810.551a4a8d.atlka@pg.gda.pl> <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B2E4FF.9000502@pg.gda.pl>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 10 Jul 2006 20:08:35 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: John Linville <linville@tuxdriver.com>, linux-kernel@vger.kernel.org
+Subject: Re: Error in git pull
+References: <44B2D122.6010005@lwfinger.net>
+X-Yow: Could I have a drug overdose?
+Date: Tue, 11 Jul 2006 02:08:24 +0200
+In-Reply-To: <44B2D122.6010005@lwfinger.net> (Larry Finger's message of "Mon,
+	10 Jul 2006 17:13:54 -0500")
+Message-ID: <jeac7hatqf.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 01:38:39AM +0200, Adam Tla?ka wrote:
-> Sorry but is a Windows solution the best on the whole world?
+Larry Finger <Larry.Finger@lwfinger.net> writes:
 
-ALSA, with its "the API is a DLL", is a Windows solution.
+> I just pulled your latest changes from the wireless-2.6 repository. When I
+> did so, I got the following git error:
+>
+> finger@larrylap:~/wireless-2.6> git pull
+> Unpacking 22599 objects
+>  100% (22599/22599) done
+> error: no such remote ref refs/heads/zd1211rw
+> * refs/heads/origin: does not fast forward to branch 'master' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-2.6;
+>   not updating.
+>
+> Is there any way for me to recover without pulling the entire tree again?
 
+Use git reset --hard with the id of the head of the remote branch.
 
-> >esd and artsd are no longer needed since ALSA began to enable software
-> >mixing by default in release 1.0.9.
-> 
-> So why they are still exist in so many Linux distributions?
+Andreas.
 
-That's an extremely recent change in distribution-time.
-
-
-> Format changing, resampling, mixing and supporting additional plugins
-> does not seems to be just low level HAL for hw device. It creates some 
-> kind of virtual functionality which means more then this provided by 
-> hardware device itself.
-
-ALSA lib has something like 7 different methods just to play a sound.
-Their view of "low level" is quite interesting.  Using it is pure
-hell.  Debugging what you've done is worse.  And don't bother to hope
-that your code will still work in six months.
-
-  OG.
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

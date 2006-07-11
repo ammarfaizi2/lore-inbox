@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGKLOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWGKLPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWGKLOw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 07:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWGKLOw
+	id S1751038AbWGKLPt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 07:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWGKLPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 07:14:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:48772 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751033AbWGKLOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 07:14:51 -0400
-Subject: Re: lockdep: bdev->bd_mutex deadlock
-From: Arjan van de Ven <arjan@infradead.org>
-To: Peter Jones <pjones@redhat.com>
-Cc: mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-In-Reply-To: <1152287003.14409.2.camel@localhost.localdomain>
-References: <1152221477.25480.9.camel@localhost.localdomain>
-	 <1152257687.3111.23.camel@laptopd505.fenrus.org>
-	 <1152287003.14409.2.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 13:14:46 +0200
-Message-Id: <1152616486.3128.34.camel@laptopd505.fenrus.org>
+	Tue, 11 Jul 2006 07:15:49 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:60177 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751037AbWGKLPs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 07:15:48 -0400
+Date: Tue, 11 Jul 2006 21:15:25 +1000
+To: Andrew Morton <akpm@osdl.org>
+Cc: nagar@watson.ibm.com, linux-kernel@vger.kernel.org, jlan@sgi.com,
+       csturtiv@sgi.com, pj@sgi.com, balbir@in.ibm.com, sekharan@us.ibm.com,
+       hadi@cyberus.ca, netdev@vger.kernel.org
+Subject: Re: [Patch 6/6] per task delay accounting taskstats interface: fix clone skbs for each listener
+Message-ID: <20060711111525.GA11175@gondor.apana.org.au>
+References: <20060711030524.39abc3d5.akpm@osdl.org> <E1G0FU2-0002oE-00@gondolin.me.apana.org.au> <20060711035731.63c087b3.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711035731.63c087b3.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-07 at 11:43 -0400, Peter Jones wrote:
-> <4> [<c05ebd9d>] mutex_lock+0x21/0x24
-> <4> [<c04c4acf>] blkdev_ioctl+0x5dd/0x732
-> <4> [<c046323b>] block_ioctl+0x16/0x1b
+On Tue, Jul 11, 2006 at 03:57:31AM -0700, Andrew Morton wrote:
+>
+> > >>       down_write(&listeners->sem);
+> > >>       list_for_each_entry_safe(s, tmp, &listeners->list, list) {
+> > >> -             ret = genlmsg_unicast(skb, s->pid);
+> > >> +             skb_next = NULL;
+> > >> +             if (!list_islast(&s->list, &listeners->list)) {
+> > >> +                     skb_next = skb_clone(skb_cur, GFP_KERNEL);
+> > > 
+> > > If we do a GFP_KERNEL allocation with this semaphore held, and the
+> > > oom-killer tries to kill something to satisfy the allocation, and the
+> > > killed task gets stuck on that semaphore, I wonder of the box locks up.
+> > 
+> > We do GFP_KERNEL inside semaphores/mutexes in lots of places.  So if this
+> > can deadlock with the oom-killer we probably should fix that, preferably
+> > by having GFP_KERNEL fail in that case.
+> 
+> This lock is special, in that it's taken on the exit() path (I think).  So
+> it can block tasks which are trying to exit.
 
+Sorry, missed the context.
 
-From: Arjan van de Ven <arjan@linux.intel.com>
-Subject: lockdep: annotate the BLKPG_DEL_PARTITION ioctl
+If there is a deadlock then it's not just this allocation that you
+need worry about.  There is also an allocation within genlmsg_uniast
+that would be GFP_KERNEL.
 
-The delete partition IOCTL takes the bd_mutex for both the disk and the partition;
-these have an obvious hierarchical relationship and this patch annotates this
-relationship for lockdep.
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Index: linux-2.6.18-rc1/block/ioctl.c
-===================================================================
---- linux-2.6.18-rc1.orig/block/ioctl.c
-+++ linux-2.6.18-rc1/block/ioctl.c
-@@ -72,7 +72,7 @@ static int blkpg_ioctl(struct block_devi
- 			bdevp = bdget_disk(disk, part);
- 			if (!bdevp)
- 				return -ENOMEM;
--			mutex_lock(&bdevp->bd_mutex);
-+			mutex_lock_nested(&bdevp->bd_mutex, BD_MUTEX_PARTITION);
- 			if (bdevp->bd_openers) {
- 				mutex_unlock(&bdevp->bd_mutex);
- 				bdput(bdevp);
-@@ -82,7 +82,7 @@ static int blkpg_ioctl(struct block_devi
- 			fsync_bdev(bdevp);
- 			invalidate_bdev(bdevp, 0);
- 
--			mutex_lock(&bdev->bd_mutex);
-+			mutex_lock_nested(&bdev->bd_mutex, BD_MUTEX_WHOLE);
- 			delete_partition(disk, part);
- 			mutex_unlock(&bdev->bd_mutex);
- 			mutex_unlock(&bdevp->bd_mutex);
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

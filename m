@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWGKO4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWGKPDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWGKO4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 10:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWGKO4H
+	id S1750965AbWGKPDB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:03:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWGKPDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 10:56:07 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:47372 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750950AbWGKO4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 10:56:06 -0400
-Date: Tue, 11 Jul 2006 10:56:05 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       <matthltc@us.ibm.com>, <dipankar@in.ibm.com>, <mingo@elte.hu>,
-       <tytso@us.ibm.com>, <dvhltc@us.ibm.com>, <jes@sgi.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] srcu-3: RCU variant permitting read-side blocking
-In-Reply-To: <20060711172530.GA93@oleg>
-Message-ID: <Pine.LNX.4.44L0.0607111044021.6494-100000@iolanthe.rowland.org>
+	Tue, 11 Jul 2006 11:03:00 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:45718 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750965AbWGKPDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:03:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IWK8Zz9qoCXBXkZv1P763HrVxT9xjJVHp5V1H54MGDQt5xiNokFjio37HCcBZnhFtnH3mBfOfrJtJC8NXQd1hxkQQ9FPlM8/eezV4YD/mdi45z/wYr47p5yQi8d0lIJ1oLrBPs4kTBDyVU2Xttd7JSn2NIOllcVRlGRXTBgJpYg=
+Message-ID: <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+Date: Tue, 11 Jul 2006 17:02:59 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
+	 <b0943d9e0607110556v50185b9i5443dabedba46152@mail.gmail.com>
+	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
+	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
+	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006, Oleg Nesterov wrote:
+On 11/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > System hangs when I try "cat /sys/kernel/debug/memleak". Here is what
+> > I found in a log file.
+>
+> Can you disable DEBUG_MEMLEAK_ORPHAN_FREEING? That's mainly used for
+> debugging but I don't think it is was causing the hang. I haven't
+> changed the locking mechanism since version 0.7 but maybe some other
+> bug made its way in.
 
-> Let's look at the 3-rd synchronize_sched() call.
-> 
-> Suppose that the reader writes to the rcu-protected memory and then
-> does srcu_read_unlock(). It is possible that the writer sees the result
-> of srcu_read_unlock() (so that srcu_readers_active_idx() returns 0)
-> but does not see other writes yet. The writer does synchronize_sched(),
-> the reader (according to 2) above) does mb(). But this doesn't guarantee
-> that all preceding mem ops were finished, so it is possible that
-> synchronize_srcu() returns and probably frees that memory too early.
-> 
-> If it were possible to "insert" mb() into srcu_read_unlock() before ->c[]--,
-> we are ok, but synchronize_sched() is a "shot in the dark".
-> 
-> In a similar manner, the 2-nd synchronize_sched() requires (I think) that
-> all changes which were done by the current CPU should be visible to other
-> CPUs before return.
-> 
-> Does it make sense?
+It is DEBUG_MEMLEAK_ORPHAN_FREEING issue. Disabling it solved the problem.
 
-Yes, it's a valid concern.
+orphan pointer 0xc6113bec (size 28):
+  c017392a: <__kmalloc_track_caller>
+  c01631b1: <__kzalloc>
+  c010b7d7: <legacy_init_iomem_resources>
+  c010b89c: <request_standard_resources>
+  c0100b8b: <do_initcalls>
+  c0100c3d: <do_basic_setup>
+  c0100cdb: <init>
 
-Paul will correct me if this is wrong...  As I understand it, the code 
-which responds to a synchronize_sched() call (that is, the code which runs 
-on other CPUs) does lots of stuff, involving context changes and 
-who-knows-what else.  There are lots of memory barriers in there, buried 
-in the middle, along with plenty of other memory reads and writes.
+This is most common
+orphan pointer 0xf5a6fd60 (size 39):
+  c0173822: <__kmalloc>
+  c01df500: <context_struct_to_string>
+  c01df679: <security_sid_to_context>
+  c01d7eee: <selinux_socket_getpeersec_dgram>
+  f884f019: <unix_get_peersec_dgram>
+  f8850698: <unix_dgram_sendmsg>
+  c02a88c2: <sock_sendmsg>
+  c02a9c7a: <sys_sendto>
 
-In outline, the reader's CPU responds to synchronize_sched() something 
-like this:
+cat /tmp/ml.txt | grep -c selinux_socket_getpeersec_dgram
+8442
 
-	At the next safe time (context switch):
-		mb();
-		Tell the writer's CPU that the preempt count on
-			the reader's CPU is 0
+>
+> --
+> Catalin
+>
 
-Since that "tell the writer's CPU" step won't complete until after the 
-mb() has forced all preceding memory operations to complete, we are safe.
+Regards,
+Michal
 
-So perhaps the documentation for synchronize_sched() and synchronize_rcu()  
-should say that when the call returns, all CPUs (including the caller's)
-will have executed a memory barrier and so will have completed all memory
-operations that started before the synchronize_xxx() call was issued.
-
-Alan Stern
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

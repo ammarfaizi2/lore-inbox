@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWGKTAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWGKTDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWGKTAe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGKTAd
+	id S1751182AbWGKTDy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWGKTDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:00:33 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:8876 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750841AbWGKTAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:00:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=opfEehkv6u48+FHpI9vDeswSsCZBGsU5rXw9PdT1ZofP89YoialadrFusUcUL501LAzuHdIMlaC4k1VlKHfGCaBN7clsfLuni1HPwRd+8tjaUMMH4BJDsVFBoh/qqjvnDnW0DsH3NMDVwB6Bll87rIaoMtqy6GosPnjLeiNR1pI=
-Message-ID: <a762e240607111200v743bb598pa9717ce3087bfd51@mail.gmail.com>
-Date: Tue, 11 Jul 2006 12:00:31 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1 panic on boot x86_64 NMI watchdog detected LOCKUP
-Cc: "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <a762e240607111125y1f9a67eleadbd1fffd053be6@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 15:03:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16068 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751182AbWGKTDx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:03:53 -0400
+Date: Tue, 11 Jul 2006 15:03:46 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 18rc1 soft lockup
+Message-ID: <20060711190346.GK5362@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <a762e240607111112v1bd28135hf99fdf0cc08a6d52@mail.gmail.com>
-	 <a762e240607111125y1f9a67eleadbd1fffd053be6@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also just tested 2.6.18-rc1 and it booted just fine with same basic
-config. Must be something in -mm.
+Just saw this during boot of a HT P4 box.
 
-Keith
+BUG: soft lockup detected on CPU#0!
+ [<c04051af>] show_trace_log_lvl+0x54/0xfd
+ [<c0405766>] show_trace+0xd/0x10
+ [<c0405885>] dump_stack+0x19/0x1b
+ [<c0450ec7>] softlockup_tick+0xa5/0xb9
+ [<c042d496>] run_local_timers+0x12/0x14
+ [<c042d81b>] update_process_times+0x3c/0x61
+ [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
+ [<c0404ada>] apic_timer_interrupt+0x2a/0x30
+BUG: soft lockup detected on CPU#1!
+ [<c04051af>] show_trace_log_lvl+0x54/0xfd
+ [<c0405766>] show_trace+0xd/0x10
+ [<c0405885>] dump_stack+0x19/0x1b
+ [<c0450ec7>] softlockup_tick+0xa5/0xb9
+ [<c042d496>] run_local_timers+0x12/0x14
+ [<c042d81b>] update_process_times+0x3c/0x61
+ [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
+ [<c0404ada>] apic_timer_interrupt+0x2a/0x30
+BUG: soft lockup detected on CPU#0!
+ [<c04051af>] show_trace_log_lvl+0x54/0xfd
+ [<c0405766>] show_trace+0xd/0x10
+ [<c0405885>] dump_stack+0x19/0x1b
+ [<c0450ec7>] softlockup_tick+0xa5/0xb9
+ [<c042d496>] run_local_timers+0x12/0x14
+ [<c042d81b>] update_process_times+0x3c/0x61
+ [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
+ [<c0404ada>] apic_timer_interrupt+0x2a/0x30
+
+It then continued booting just fine..
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

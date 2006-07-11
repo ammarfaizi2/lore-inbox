@@ -1,94 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWGKVHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWGKVPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWGKVHG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWGKVHF
+	id S932131AbWGKVPt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWGKVPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:07:05 -0400
-Received: from xenotime.net ([66.160.160.81]:56019 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932123AbWGKVHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:07:04 -0400
-Date: Tue, 11 Jul 2006 14:09:51 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, arjan@infradead.org
-Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
- keep cache pressure down
-Message-Id: <20060711140951.f22847d8.rdunlap@xenotime.net>
-In-Reply-To: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 11 Jul 2006 17:15:49 -0400
+Received: from mxl145v64.mxlogic.net ([208.65.145.64]:3482 "EHLO
+	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
+	id S932131AbWGKVPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 17:15:48 -0400
+Date: Wed, 12 Jul 2006 00:16:20 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Zach Brown <zach.brown@oracle.com>, Sean Hefty <sean.hefty@intel.com>,
+       Hal Rosenstock <halr@voltaire.com>, Roland Dreier <rolandd@cisco.com>
+Cc: openib-general@openib.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: ipoib lockdep warning
+Message-ID: <20060711211620.GB21546@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <44B405C8.4040706@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B405C8.4040706@oracle.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 11 Jul 2006 21:20:57.0250 (UTC) FILETIME=[E64D2820:01C6A52F]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 13:50:55 -0700 Bryan O'Sullivan wrote:
+Quoting r. Zach Brown <zach.brown@oracle.com>:
+> BC:
+> 
+> query_idr.lock is taken with interrupts enabled and so is implicitly
+> ordered before dev->_xmit_lock which is taken in interrupt context.
+> 
+> ipoib_mcast_join_task()
+>   ipoib_mcast_join()
+>     ib_sa_mcmember_rec_query()
+>       send_mad()
+>         idr_pre_get(&query_idr)
+>           spin_lock(&idp->lock)
 
-> diff -r c5610179c494 -r da0cd816c4cb include/linux/string.h
-> --- a/include/linux/string.h	Tue Jul 11 13:40:19 2006 -0700
-> +++ b/include/linux/string.h	Tue Jul 11 13:41:40 2006 -0700
-> @@ -85,6 +85,7 @@ extern void * memset(void *,int,__kernel
->  #ifndef __HAVE_ARCH_MEMCPY
->  extern void * memcpy(void *,const void *,__kernel_size_t);
->  #endif
-> +extern void * memcpy_cachebypass(void *,const void *,__kernel_size_t);
+Got to check, but if that's true we have a simple deadlock here:
+ib_sa_mcmember_rec_query might get called from interrupt
+context as well, deadlocking on idp->lock?
 
-space after commas, please.
+Sean?
 
->  #ifndef __HAVE_ARCH_MEMMOVE
->  extern void * memmove(void *,const void *,__kernel_size_t);
->  #endif
-> diff -r c5610179c494 -r da0cd816c4cb lib/string.c
-> --- a/lib/string.c	Tue Jul 11 13:40:19 2006 -0700
-> +++ b/lib/string.c	Tue Jul 11 13:41:40 2006 -0700
-> @@ -509,6 +509,38 @@ EXPORT_SYMBOL(memcpy);
->  EXPORT_SYMBOL(memcpy);
->  #endif
->  
-> +void *memcpy_cachebypass(void *dest, const void *src, size_t count)
-> +	__attribute__((weak));
-> +
-> +/**
-> + * memcpy_cachebypass - Copy one area of memory to another, if possible
-> + * bypassing the CPU's cache when loading the copied-from data
+> I can imagine all sorts of potential fixes (block ints when calling idr?
+>  reorder acquiry in ipoib_mcast_restart_task()?) but I'm operating on a
+> partial view of the paths here so I wasn't comfortable suggesting a fix.
+>  I wouldn't be surprised to hear that there are circumstances that both
+> lockdep and I don't know about that stop this from being a problem :).
 
-Currently kernel-doc function description is limited to one line.
-If you can't shorten it, just omit it completely and make it the first
-paragraph after the parameters.
+Awesome, thanks for the analysis! Your help is very much appreciated.
 
-> + * @dest: Where to copy to
-> + * @src: Where to copy from (bypassing the CPU's cache, if possible)
-> + * @count: The size of the area.
-> + *
-> + * This memcpy-compatible routine is intended for use when the CPU
-> + * only reads the source data once.  It is useful when, for example, a
-> + * hardware device writes to a memory region, and the CPU needs to
-> + * copy this data somewhere else before working on it.  In such a
-> + * case, caching the source addresses only serves to evict possibly
-> + * useful data that will probably have to be reloaded.
-> + *
-> + * An arch-specific implementation should not attempt to bypass the
-> + * cache when storing to the destination, as copied data is usually
-> + * accessed almost immediately after a copy finishes.
-> + *
-> + * This routine does not *guarantee* that the source addresses won't
-> + * be cached; a user of this code must not rely on this behaviour for
-> + * correctness.  It should only be used in cases where it provides a
-> + * measurable performance improvement.
-> + */
-> +void *memcpy_cachebypass(void *dest, const void *src, size_t count)
-> +{
-> +	return memcpy(dest, src, count);
-> +}
-> +EXPORT_SYMBOL_GPL(memcpy_cachebypass);
-> +
->  #ifndef __HAVE_ARCH_MEMMOVE
->  /**
->   * memmove - Copy one area of memory to another
-
----
-~Randy
+-- 
+MST

@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWGKKXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWGKK2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWGKKXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 06:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWGKKXF
+	id S1750961AbWGKK2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 06:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWGKK2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 06:23:05 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:37092 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750956AbWGKKXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 06:23:04 -0400
-Date: Tue, 11 Jul 2006 12:23:02 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       R.E.Wolff@BitWizard.nl
-Subject: Re: [Ubuntu PATCH] Add Specialix IO8+ card support hotplug support
-Message-ID: <20060711102302.GD26621@bitwizard.nl>
-References: <44A98274.2010904@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 06:28:24 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18960 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750958AbWGKK2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 06:28:24 -0400
+Date: Tue, 11 Jul 2006 12:28:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Adam =?utf-8?Q?Tla=C5=82ka?= <atlka@pg.gda.pl>
+Cc: Jaroslav Kysela <perex@suse.cz>, alsa-devel@alsa-project.org,
+       rlrevell@joe-job.com, galibert@pobox.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+Message-ID: <20060711102822.GK13938@stusta.de>
+References: <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe> <20060710132810.551a4a8d.atlka@pg.gda.pl> <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl> <20060710235934.GC26528@dspnet.fr.eu.org> <1152578344.21909.12.camel@mindpipe> <20060711085952.f1254229.atlka@pg.gda.pl> <Pine.LNX.4.61.0607110937160.9147@tm8103.perex-int.cz> <20060711110811.947e15ed.atlka@pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <44A98274.2010904@oracle.com>
-Organization: BitWizard.nl
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060711110811.947e15ed.atlka@pg.gda.pl>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 03, 2006 at 01:47:48PM -0700, Randy Dunlap wrote:
-> Patch Description:
-> Add "Specialix IO8+ card support" hotplug support
+On Tue, Jul 11, 2006 at 11:08:10AM +0200, Adam Tlałka wrote:
+> On Tue, 11 Jul 2006 09:58:26 +0200 (CEST)
+> Jaroslav Kysela <perex@suse.cz> wrote:
+>...
+> > You're a bit mixing things:
+> > 
+> > a) we're not trying to be more compatible than OSS code in kernel, if you 
+> >    like to do the mixing in kernel, simply write a new ALSA lowlevel 
+> >    driver which will do it; I'm sure when the quality of your code will be 
+> >    good,  we'll include it to the ALSA tree, but we are not going this
+> >    way unless someone else will maintain this code
+> 
+> OSS kernel compatibility is only partial and aoss method is not fully compatible either
 
-Looks good (untested). 
+Except for some corner cases, ALSA is capable of emulating the 
+in-kernel OSS.
 
-	Roger. 
+And considering the low number of applications that are still OSS-only, 
+I doubt it's really that important improving the OSS emulation even 
+further.
 
-> 
-> patch location:
-> http://www.kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-dapper.git;a=commitdiff;h=d795cfc591bb44f6b3d86d8f054a227cecb44bb4
-> 
-> ---
->  drivers/char/specialix.c |    7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> --- linux-2617-g21.orig/drivers/char/specialix.c
-> +++ linux-2617-g21/drivers/char/specialix.c
-> @@ -2584,6 +2584,13 @@ static void __exit specialix_exit_module
->  	func_exit();
->  }
->  
-> +static struct pci_device_id specialx_pci_tbl[] __devinitdata = {
-> +	{ PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_SPECIALIX_IO8,
-> +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(pci, specialx_pci_tbl);
-> +
->  module_init(specialix_init_module);
->  module_exit(specialix_exit_module);
->  
-> 
+But this is open source software, so feel free to send patches.
+
+> I will try to write some code but I have very little free time for that so I am trying
+> to convince people to rethinking the case 
+>...
+
+This is not how open source software works.
+
+If you think something is missing, you have to implement it.
+
+If you spend your "very little free time" on such discussions instead, 
+you are not only wasting the time you could spend on implementing what 
+you are thinking of but also the limited time of other developers.
+
+> Regards
+
+cu
+Adrian
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

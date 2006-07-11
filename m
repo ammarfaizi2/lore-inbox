@@ -1,90 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbWGKGn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbWGKGtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965226AbWGKGn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965227AbWGKGn3
+	id S965080AbWGKGtu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWGKGtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:43:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22680 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965226AbWGKGn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:43:28 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] msi: Only keep one msi_desc in each slab entry.
-References: <m1veq5m87s.fsf@ebiederm.dsl.xmission.com>
-	<84144f020607102303o3e379e95qc58cec97cbfd7d0c@mail.gmail.com>
-Date: Tue, 11 Jul 2006 00:42:43 -0600
-In-Reply-To: <84144f020607102303o3e379e95qc58cec97cbfd7d0c@mail.gmail.com>
-	(Pekka Enberg's message of "Tue, 11 Jul 2006 09:03:43 +0300")
-Message-ID: <m1k66kiqvw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 11 Jul 2006 02:49:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:19691 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965080AbWGKGtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:49:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=lqHCBFbS67x1KJQ1vWkZT/4yPi4voTR2jugpOz122PEcgm1huXAGbnoJia4bjDpQ7sK+O7n0qqYb9JWkoYHsUUsx88UpjtW0M/zMDQJcxCXm1QiWSdV8oFqbvWbWbewv7DNR1WwsE+wAZBUITmX2QXpobWOG4J3HVg0Z3QnE+pA=
+Message-ID: <84144f020607102349u62a59b26va0cec06c6d15e178@mail.gmail.com>
+Date: Tue, 11 Jul 2006 09:49:47 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 07/10] Remove some of the kmemleak false positives
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060710221037.5191.75356.stgit@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <20060710221037.5191.75356.stgit@localhost.localdomain>
+X-Google-Sender-Auth: 5261c00933d85f4b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Pekka Enberg" <penberg@cs.helsinki.fi> writes:
-
-> On 7/11/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
->>
->> It looks like someone confused kmem_cache_create with a different
->> allocator and was attempting to give it knowledge of how many cache
->> entries there were.
->>
->> With the unfortunate result that each slab entry was big enough to
->> hold every irq.
->>
->> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
->> ---
->>  drivers/pci/msi.c |    4 ++--
->>  1 files changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
->> index 0cd4a3e..082e942 100644
->> --- a/drivers/pci/msi.c
->> +++ b/drivers/pci/msi.c
->> @@ -40,13 +40,13 @@ msi_register(struct msi_ops *ops)
->>
->> static void msi_cache_ctor(void *p, kmem_cache_t *cache, unsigned long flags)
->>  {
->> -       memset(p, 0, NR_IRQS * sizeof(struct msi_desc));
->> +       memset(p, 0, sizeof(struct msi_desc));
+On 7/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> @@ -166,6 +166,9 @@ struct platform_device *platform_device_
+>         struct platform_object *pa;
 >
-> You can use kmem_cache_zalloc() for this.
+>         pa = kzalloc(sizeof(struct platform_object) + strlen(name), GFP_KERNEL);
+> +       /* kmemleak cannot guess the object type because the block
+> +        * size is different from the object size */
+> +       memleak_typeid(pa, struct platform_object);
 
-Please look at what the code changes.
-Please recognize how very bad the current code is behaving.
+AFAICT, we about 300 kmalloc and kzalloc calls in the kernel that
+would need this annotation. If we really can't fix the detector to
+deal with these, I would prefer we introduce another memory allocator
+function such as:
 
-As for the rest sure go ahead and create a patch to address it
-but that really is a separate issue and thus a separate patch.
+    void *kzalloc_extra(size_t obj_size, size_t nr_extra, gfp_t flags);
 
-I'm just trying to keep the kernel from calling BUG_ON the first
-time a msi irq is allocated on a kernel with a maximum NR_CPUS
-configuration, and from wasting memory the rest of the time.
+That would do the right thing for memleak too.
 
-Or you know how bad the msi code is when every patch to fix a major
-issue is followed up comments on how to improve the code even further.
-
-Eric
-
->>  }
->>
->>  static int msi_cache_init(void)
->>  {
->>         msi_cachep = kmem_cache_create("msi_cache",
->> -                       NR_IRQS * sizeof(struct msi_desc),
->> +                       sizeof(struct msi_desc),
->>                         0, SLAB_HWCACHE_ALIGN, msi_cache_ctor, NULL);
->>         if (!msi_cachep)
->>                 return -ENOMEM;
->> --
->> 1.4.1.gac83a
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
+                                     Pekka

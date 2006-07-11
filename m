@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWGKRww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWGKRzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWGKRww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGKRww
+	id S1751125AbWGKRzE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWGKRzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:52:52 -0400
-Received: from ns2.suse.de ([195.135.220.15]:46283 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750885AbWGKRwv (ORCPT
+	Tue, 11 Jul 2006 13:55:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45972 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751125AbWGKRzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:52:51 -0400
-Date: Tue, 11 Jul 2006 19:52:49 +0200
-From: Olaf Hering <olh@suse.de>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
-       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711175249.GA16869@suse.de>
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3E3E0.1050100@tls.msk.ru>
+	Tue, 11 Jul 2006 13:55:02 -0400
+Date: Tue, 11 Jul 2006 13:52:39 -0400
+From: Dave Jones <davej@redhat.com>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 adds smp_call_function_single
+Message-ID: <20060711175239.GI5362@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stephane Eranian <eranian@hpl.hp.com>, linux-kernel@vger.kernel.org
+References: <20060711132422.GB28851@frankl.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44B3E3E0.1050100@tls.msk.ru>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20060711132422.GB28851@frankl.hpl.hp.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jul 11, Michael Tokarev wrote:
+On Tue, Jul 11, 2006 at 06:24:22AM -0700, Stephane Eranian wrote:
+ > Hello,
+ > 
+ > Continiung the series of small patches necessary for the perfmon subsystem, here
+ > is a patch that adds support for the smp_call_function_single() function for i386.
+ > It exists for almost all other architectures but i386. The perfmon subsystem
+ > needs it in one case to free some state on a designated remote CPU.
+ > 
+ > Changelog:
+ > 	- adds smp_call_function_single() to i386 tree. This function
+ > 	  is used to invoked a procedure on a designated remote CPU.
 
-> Olaf Hering wrote:
-> []
-> > To create the initrd you needed a loop file, at least for ext2, minix etc.
-> 
-> It's just damn trivial to pack your files into cpio archive and gzip it.
+The naming seems a little strange to me.  Something like
+run_on_cpu() would be clearer.  Less keystrokes too :)
 
-The point is not how trivial it is. The point is how much has to change
-that you can run 2.6.42 on an 42 year old installation with the tools
-that were available at that time.
-Obiviously you cant be bothered to install newer packages, like kinit.rpm.
-Basic backwards compatibilty. Its not a term from the klingon dictionary.
+		Dave
 
-Btw, kinit is already taken, some kerberos thing.
+-- 
+http://www.codemonkey.org.uk

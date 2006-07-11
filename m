@@ -1,72 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWGKXie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWGKXnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWGKXie (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWGKXie
+	id S932255AbWGKXnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGKXnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:38:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7607 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932251AbWGKXid (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:38:33 -0400
-Date: Tue, 11 Jul 2006 16:42:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: nickpiggin@yahoo.com.au, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, efault@gmx.de
-Subject: Re: [patch] i386: handle_BUG(): don't print garbage if debug info
- unavailable
-Message-Id: <20060711164208.323dada1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607110959160.5623@g5.osdl.org>
-References: <200607101034_MC3-1-C497-51F7@compuserve.com>
-	<20060711012755.59965932.akpm@osdl.org>
-	<44B382DD.5070202@yahoo.com.au>
-	<Pine.LNX.4.64.0607110959160.5623@g5.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 19:43:20 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:58232 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S932255AbWGKXnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:43:20 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="328436970:sNHT31095694"
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [openib-general] ipoib lockdep warning
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 11 Jul 2006 16:43:18 -0700
+In-Reply-To: <44B433CE.1030103@oracle.com> (Zach Brown's message of "Tue, 11 Jul 2006 16:27:10 -0700")
+Message-ID: <adasll7zp0p.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Jul 2006 23:43:19.0112 (UTC) FILETIME=[C9A5DC80:01C6A543]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> That said, I think it's wrong to use "__get_user()", which can hang on the 
-> MM semaphore if something is bogus. We should probably mark us as being 
-> "in_atomic()" to make sure that the page fault handler, if it is entered, 
-> will not try to get the semaphore or page anything in.
+Hmm, good point.
 
-This?
+It sort of seems to me like the idr interfaces are broken by design.
+Internally, lib/idr.c uses bare spin_lock(&idp->lock) with no
+interrupt disabling or anything in both the idr_pre_get() and
+idr_get_new() code paths.  But idr_pre_get() is supposed to be called
+in a context that can sleep, while idr_get_new() is supposed to be
+called with locks held to serialize things (at least according to
+http://lwn.net/Articles/103209/).
 
+So, ugh... maybe the best thing to do is change lib/idr.c to use
+spin_lock_irqsave() internally?
 
---- a/include/linux/uaccess.h~add-probe_kernel_address
-+++ a/include/linux/uaccess.h
-@@ -19,4 +19,26 @@ static inline unsigned long __copy_from_
- 
- #endif		/* ARCH_HAS_NOCACHE_UACCESS */
- 
-+/**
-+ * probe_kernel_address(): safely attempt to read from a location
-+ * @addr: address to read from - its type is type typeof(retval)*
-+ * @retval: read into this variable
-+ *
-+ * Safely read from address @addr into variable @revtal.  If a kernel fault
-+ * happens, handle that and return -EFAULT.
-+ * We ensure that the __get_user() is executed in atomic context so that
-+ * do_page_fault() doesn't attempt to take mmap_sem.  This makes
-+ * probe_kernel_address() suitable for use within regions where the caller
-+ * already holds mmap_sem, or other locks which nest inside mmap_sem.
-+ */
-+#define probe_kernel_address(addr, retval)		\
-+	({						\
-+		long ret;				\
-+							\
-+		inc_preempt_count();			\
-+		ret = __get_user(retval, addr);		\
-+		dec_preempt_count();			\
-+		ret;					\
-+	})
-+
- #endif		/* __LINUX_UACCESS_H__ */
-_
-
+ - R.

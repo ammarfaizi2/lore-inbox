@@ -1,643 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWGKIGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWGKISO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWGKIGn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 04:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWGKIGn
+	id S1750738AbWGKISO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 04:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWGKISO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 04:06:43 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:29418 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S1750728AbWGKIGm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 04:06:42 -0400
-From: Herbert Valerio Riedel <hvr@gnu.org>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: linux-kernel@vger.kernel.org, khali@linux-fr.org,
-       Johan Ronkainen <jr@mpoli.fi>, akpm@osdl.org
-Subject: [PATCH] RTC subsystem, Add ISL1208 support
-Message-Id: <E1G0DGP-0003fs-Mn@fencepost.gnu.org>
-Date: Tue, 11 Jul 2006 04:06:37 -0400
+	Tue, 11 Jul 2006 04:18:14 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:11975 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750738AbWGKISN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 04:18:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nNArQ14Jz04fvVz2F6fW9HxCgBkt5VlD5C55nA/3sQnaLKoP1Wp3KtssxoQKUfSpWEvVOtVP1hJ/nC5xirXxxowPUESIA2abjbEmYGz9jasTqJudV65eVmWtvTuhmrRfHZ2z0EYfPlcwDatHyHDJVAVrm2RE28RSr4RiGjyZjA8=
+Message-ID: <b0943d9e0607110118p5b9dfc28qb377b61e59ec7535@mail.gmail.com>
+Date: Tue, 11 Jul 2006 09:18:12 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 07/10] Remove some of the kmemleak false positives
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <84144f020607102349u62a59b26va0cec06c6d15e178@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <20060710221037.5191.75356.stgit@localhost.localdomain>
+	 <84144f020607102349u62a59b26va0cec06c6d15e178@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for the I2C-attached Intersil ISL1208 RTC chip.
+On 11/07/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+> On 7/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> > @@ -166,6 +166,9 @@ struct platform_device *platform_device_
+> >         struct platform_object *pa;
+> >
+> >         pa = kzalloc(sizeof(struct platform_object) + strlen(name), GFP_KERNEL);
+> > +       /* kmemleak cannot guess the object type because the block
+> > +        * size is different from the object size */
+> > +       memleak_typeid(pa, struct platform_object);
+>
+> AFAICT, we about 300 kmalloc and kzalloc calls in the kernel that
+> would need this annotation.
 
-Signed-off-by: Herbert Valerio Riedel <hvr@gnu.org>
----
-this is a resend of the rfc-patch sent on 25.6., updated to current HEAD;
-and with a typo fixed which was noticed by Johan Ronkainen
+Most of them wouldn't need this annotation. The problem here is that
+the stored pointer is usually pointing to &pa->pdev.dev and "pa" is
+accessed via two container_of macros. There might be a few more cases
+like this which I didn't find but I don't expect a large number.
 
- drivers/rtc/Kconfig       |   10 +
- drivers/rtc/Makefile      |    1 
- include/linux/i2c-id.h    |    1 
- drivers/rtc/rtc-isl1208.c |  556 +++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 568 insertions(+), 0 deletions(-)
- create drivers/rtc/rtc-isl1208.c
+> If we really can't fix the detector to deal with these,
 
-Index: b/drivers/rtc/Kconfig
-===================================================================
---- a/drivers/rtc/Kconfig	2006-07-11 09:58:41.000000000 +0200
-+++ b/drivers/rtc/Kconfig	2006-07-11 09:58:51.000000000 +0200
-@@ -121,6 +121,16 @@
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ds1553.
- 
-+config RTC_DRV_ISL1208
-+	tristate "Intersil 1208"
-+	depends on RTC_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the
-+	  Intersil 1208 RTC chip.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-isl1208.
-+
- config RTC_DRV_DS1672
- 	tristate "Dallas/Maxim DS1672"
- 	depends on RTC_CLASS && I2C
-Index: b/drivers/rtc/Makefile
-===================================================================
---- a/drivers/rtc/Makefile	2006-07-11 09:58:41.000000000 +0200
-+++ b/drivers/rtc/Makefile	2006-07-11 09:58:51.000000000 +0200
-@@ -12,6 +12,7 @@
- obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
- 
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
-+obj-$(CONFIG_RTC_DRV_ISL1208)	+= rtc-isl1208.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1307)	+= rtc-ds1307.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
-Index: b/include/linux/i2c-id.h
-===================================================================
---- a/include/linux/i2c-id.h	2006-07-11 09:58:41.000000000 +0200
-+++ b/include/linux/i2c-id.h	2006-07-11 09:58:51.000000000 +0200
-@@ -115,6 +115,7 @@
- #define I2C_DRIVERID_BT866	85	/* Conexant bt866 video encoder */
- #define I2C_DRIVERID_KS0127	86	/* Samsung ks0127 video decoder */
- #define I2C_DRIVERID_TLV320AIC23B 87	/* TI TLV320AIC23B audio codec  */
-+#define I2C_DRIVERID_ISL1208	88	/* Intersil ISL1208 RTC		*/
- 
- #define I2C_DRIVERID_I2CDEV	900
- #define I2C_DRIVERID_ARP        902    /* SMBus ARP Client              */
-Index: b/drivers/rtc/rtc-isl1208.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ b/drivers/rtc/rtc-isl1208.c	2006-07-11 09:58:51.000000000 +0200
-@@ -0,0 +1,556 @@
-+/*
-+ * Intersil ISL1208 rtc class driver
-+ *
-+ * Copyright 2005,2006 Hebert Valerio Riedel <hvr@gnu.org>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/bcd.h>
-+#include <linux/rtc.h>
-+
-+#define DRV_NAME "isl1208"
-+#define DRV_VERSION "0.2"
-+
-+/* Register map */
-+/* rtc section */
-+#define ISL1208_REG_SC  0x00
-+#define ISL1208_REG_MN  0x01
-+#define ISL1208_REG_HR  0x02
-+#define ISL1208_REG_HR_MIL     (1<<7) /* 24h/12h mode */
-+#define ISL1208_REG_HR_PM      (1<<5) /* PM/AM bit in 12h mode */
-+#define ISL1208_REG_DT  0x03
-+#define ISL1208_REG_MO  0x04
-+#define ISL1208_REG_YR  0x05
-+#define ISL1208_REG_DW  0x06
-+#define ISL1208_RTC_SECTION_LEN 7
-+
-+/* control/status section */
-+#define ISL1208_REG_SR  0x07
-+#define ISL1208_REG_SR_ARST    (1<<7) /* auto reset */
-+#define ISL1208_REG_SR_XTOSCB  (1<<6) /* crystal oscillator */
-+#define ISL1208_REG_SR_WRTC    (1<<4) /* write rtc */
-+#define ISL1208_REG_SR_ALM     (1<<2) /* alarm */
-+#define ISL1208_REG_SR_BAT     (1<<1) /* battery */
-+#define ISL1208_REG_SR_RTCF    (1<<0) /* rtc fail */
-+#define ISL1208_REG_INT 0x08
-+#define ISL1208_REG_09  0x09 /* reserved */
-+#define ISL1208_REG_ATR 0x0a
-+#define ISL1208_REG_DTR 0x0b
-+
-+/* alarm section */
-+#define ISL1208_REG_SCA 0x0c
-+#define ISL1208_REG_MNA 0x0d
-+#define ISL1208_REG_HRA 0x0e
-+#define ISL1208_REG_DTA 0x0f
-+#define ISL1208_REG_MOA 0x10
-+#define ISL1208_REG_DWA 0x11
-+#define ISL1208_ALARM_SECTION_LEN 6
-+
-+/* user section */
-+#define ISL1208_REG_USR1 0x12
-+#define ISL1208_REG_USR2 0x13
-+#define ISL1208_USR_SECTION_LEN 2
-+
-+/* i2c configuration */
-+#define ISL1208_I2C_ADDR 0xde
-+
-+static unsigned short normal_i2c[] = {
-+	ISL1208_I2C_ADDR>>1, I2C_CLIENT_END
-+};
-+I2C_CLIENT_INSMOD; /* defines addr_data */
-+
-+static int isl1208_attach_adapter (struct i2c_adapter *adapter);
-+static int isl1208_detach_client (struct i2c_client *client);
-+
-+static struct i2c_driver isl1208_driver = {
-+	.driver		= {
-+		.name	= DRV_NAME,
-+	},
-+	.id		= I2C_DRIVERID_ISL1208,
-+	.attach_adapter = &isl1208_attach_adapter,
-+	.detach_client	= &isl1208_detach_client,
-+};
-+
-+/* block read */
-+static int
-+isl1208_i2c_read_regs (struct i2c_client *client, u8 reg, u8 buf[],
-+		       unsigned len)
-+{
-+	u8 reg_addr[1] = { reg };
-+	struct i2c_msg msgs[2] = {
-+		{ client->addr, client->flags, sizeof(reg_addr), reg_addr },
-+		{ client->addr, client->flags | I2C_M_RD, len, buf }
-+	};
-+
-+	BUG_ON(len == 0);
-+	BUG_ON(reg > ISL1208_REG_USR2);
-+	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
-+
-+	if (i2c_transfer (client->adapter, msgs, 2) < 0)
-+		return -EIO;
-+	return 0;
-+}
-+
-+/* block write */
-+static int
-+isl1208_i2c_set_regs (struct i2c_client *client, u8 reg, u8 const buf[],
-+		       unsigned len)
-+{
-+	u8 i2c_buf[ISL1208_REG_USR2 + 2];
-+	struct i2c_msg msgs[1] = {
-+		{ client->addr, client->flags, len + 1, i2c_buf }
-+	};
-+
-+	BUG_ON(len == 0);
-+	BUG_ON(reg > ISL1208_REG_USR2);
-+	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
-+
-+	i2c_buf[0] = reg;
-+	memcpy(&i2c_buf[1], &buf[0], len);
-+
-+	if (i2c_transfer (client->adapter, msgs, 1) < 0)
-+		return -EIO;
-+	return 0;
-+}
-+
-+/* simple check to see wether we have a isl1208 */
-+static int isl1208_i2c_validate_client(struct i2c_client *client)
-+{
-+	u8 regs[ISL1208_RTC_SECTION_LEN] = { 0, };
-+	u8 zero_mask[ISL1208_RTC_SECTION_LEN] = {
-+		0x80, 0x80, 0x40, 0xc0, 0xe0, 0x00, 0xf8
-+	};
-+	int i;
-+
-+	if (isl1208_i2c_read_regs(client, 0, regs, ISL1208_RTC_SECTION_LEN))
-+		return -EIO;
-+
-+	for (i = 0; i < ISL1208_RTC_SECTION_LEN; ++i) {
-+		if (regs[i] & zero_mask[i]) /* check if bits are cleared */
-+			return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
-+static int isl1208_i2c_get_sr(struct i2c_client *client)
-+{
-+	return i2c_smbus_read_byte_data (client, ISL1208_REG_SR);
-+}
-+
-+static int isl1208_i2c_get_atr(struct i2c_client *client)
-+{
-+	int atr = i2c_smbus_read_byte_data (client, ISL1208_REG_ATR);
-+	if (atr < 0)
-+		return -1;
-+
-+	/* The 6bit value in the ATR register controls the load
-+	 * capacitance C_load * in steps of 0.25pF
-+	 *
-+	 * bit (1<<5) of the ATR register is inverted
-+	 *
-+	 * C_load(ATR=0x20) =  4.50pF
-+	 * C_load(ATR=0x00) = 12.50pF
-+	 * C_load(ATR=0x1f) = 20.25pF
-+	 *
-+	 */
-+
-+	atr &= 0x3f; /* mask out lsb */
-+	atr ^= 1<<5; /* invert 6th bit */
-+	atr += 2*9; /* add offset of 4.5pF; unit[atr] = 0.25pF */
-+
-+	return atr;
-+}
-+
-+static int isl1208_i2c_get_dtr(struct i2c_client *client)
-+{
-+	int dtr = i2c_smbus_read_byte_data (client, ISL1208_REG_DTR);
-+	if (dtr < 0)
-+		return -1;
-+
-+	/* dtr encodes adjustments of {-60,-40,-20,0,20,40,60} ppm */
-+	dtr = ((dtr & 0x3) * 20) * (dtr & (1<<2) ? -1 : 1);
-+
-+	return dtr;
-+}
-+
-+static int isl1208_i2c_get_usr(struct i2c_client *client)
-+{
-+	u8 buf[ISL1208_USR_SECTION_LEN] = { 0, };
-+
-+	if (isl1208_i2c_read_regs (client, ISL1208_REG_USR1, buf,
-+				   ISL1208_USR_SECTION_LEN))
-+		return -EIO;
-+
-+	return (buf[1] << 8) | buf[0];
-+}
-+
-+static int isl1208_i2c_set_usr(struct i2c_client *client, u16 usr)
-+{
-+	u8 buf[ISL1208_USR_SECTION_LEN];
-+
-+	buf[0] = usr & 0xff;
-+	buf[1] = (usr >> 8) & 0xff;
-+
-+	return isl1208_i2c_set_regs (client, ISL1208_REG_USR1, buf,
-+				     ISL1208_USR_SECTION_LEN);
-+}
-+
-+static int isl1208_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	struct i2c_client *const client = to_i2c_client(dev);
-+	int sr, dtr, atr, usr;
-+
-+	if ((sr = isl1208_i2c_get_sr(client)) < 0) {
-+		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	seq_printf(seq, "status_reg\t:%s%s%s%s%s%s (0x%.2x)\n",
-+		   (sr & ISL1208_REG_SR_RTCF) ? " RTCF" : "",
-+		   (sr & ISL1208_REG_SR_BAT) ? " BAT" : "",
-+		   (sr & ISL1208_REG_SR_ALM) ? " ALM" : "",
-+		   (sr & ISL1208_REG_SR_WRTC) ? " WRTC" : "",
-+		   (sr & ISL1208_REG_SR_XTOSCB) ? " XTOSCB" : "",
-+		   (sr & ISL1208_REG_SR_ARST) ? " ARST" : "",
-+		   sr);
-+
-+	seq_printf(seq, "batt_status\t: %s\n",
-+		   (sr & ISL1208_REG_SR_RTCF) ? "bad" : "okay");
-+
-+	dtr = isl1208_i2c_get_dtr(client);
-+	if (dtr != -1)
-+		seq_printf(seq, "digital_trim\t: %d ppm\n", dtr);
-+
-+	atr = isl1208_i2c_get_atr(client);
-+	if (atr != -1)
-+		seq_printf(seq, "analog_trim\t: %d.%.2d pF\n",
-+			   atr>>2, (atr&0x3)*25);
-+
-+	usr = isl1208_i2c_get_usr(client);
-+	if (usr != -1)
-+		seq_printf(seq, "user_data\t: 0x%.4x\n", usr);
-+
-+	return 0;
-+}
-+
-+
-+static int isl1208_i2c_read_time(struct i2c_client *client,
-+				 struct rtc_time *tm)
-+{
-+	int sr;
-+	u8 regs[ISL1208_RTC_SECTION_LEN] = { 0, };
-+
-+	if ((sr = isl1208_i2c_get_sr(client)) < 0) {
-+		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	if (isl1208_i2c_read_regs(client, 0, regs, ISL1208_RTC_SECTION_LEN))
-+	{
-+		dev_err(&client->dev, "%s: reading RTC section failed\n",
-+			__func__);
-+		return -EIO;
-+	}
-+
-+	tm->tm_sec = BCD2BIN(regs[ISL1208_REG_SC]);
-+	tm->tm_min = BCD2BIN(regs[ISL1208_REG_MN]);
-+	{ /* HR field has a more complex interpretation */
-+		const u8 _hr = regs[ISL1208_REG_HR];
-+		if (_hr & ISL1208_REG_HR_MIL) /* 24h format */
-+			tm->tm_hour = BCD2BIN(_hr & 0x3f);
-+		else { // 12h format
-+			tm->tm_hour = BCD2BIN(_hr & 0x1f);
-+			if (_hr & ISL1208_REG_HR_PM) /* PM flag set */
-+				tm->tm_hour += 12;
-+		}
-+	}
-+
-+	tm->tm_mday = BCD2BIN(regs[ISL1208_REG_DT]);
-+	tm->tm_mon = BCD2BIN(regs[ISL1208_REG_MO]) - 1; /* rtc starts at 1 */
-+	tm->tm_year = BCD2BIN(regs[ISL1208_REG_YR]) + 100;
-+	tm->tm_wday = BCD2BIN(regs[ISL1208_REG_DW]);
-+
-+	return 0;
-+}
-+
-+static int isl1208_i2c_read_alarm(struct i2c_client *client,
-+				  struct rtc_wkalrm *alarm)
-+{
-+	struct rtc_time *const tm = &alarm->time;
-+	u8 regs[ISL1208_ALARM_SECTION_LEN] = { 0, };
-+	int sr;
-+
-+	if ((sr = isl1208_i2c_get_sr(client)) < 0) {
-+		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	if (isl1208_i2c_read_regs(client, ISL1208_REG_SCA, regs,
-+				  ISL1208_ALARM_SECTION_LEN))
-+	{
-+		dev_err(&client->dev, "%s: reading alarm section failed\n",
-+			__func__);
-+		return -EIO;
-+	}
-+
-+	/* MSB of each alarm register is an enable bit */
-+	tm->tm_sec  = BCD2BIN(regs[ISL1208_REG_SCA-ISL1208_REG_SCA] & 0x7f);
-+	tm->tm_min  = BCD2BIN(regs[ISL1208_REG_MNA-ISL1208_REG_SCA] & 0x7f);
-+	tm->tm_hour = BCD2BIN(regs[ISL1208_REG_HRA-ISL1208_REG_SCA] & 0x3f);
-+	tm->tm_mday = BCD2BIN(regs[ISL1208_REG_DTA-ISL1208_REG_SCA] & 0x3f);
-+	tm->tm_mon  = BCD2BIN(regs[ISL1208_REG_MOA-ISL1208_REG_SCA] & 0x1f)-1;
-+	tm->tm_wday = BCD2BIN(regs[ISL1208_REG_DWA-ISL1208_REG_SCA] & 0x03);
-+
-+	return 0;
-+}
-+
-+static int isl1208_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return isl1208_i2c_read_time(to_i2c_client(dev), tm);
-+}
-+
-+static int isl1208_i2c_set_time(struct i2c_client *client,
-+				struct rtc_time const *tm)
-+{
-+	int sr;
-+	u8 regs[ISL1208_RTC_SECTION_LEN] = { 0, };
-+
-+	regs[ISL1208_REG_SC] = BIN2BCD(tm->tm_sec);
-+	regs[ISL1208_REG_MN] = BIN2BCD(tm->tm_min);
-+	regs[ISL1208_REG_HR] = BIN2BCD(tm->tm_hour) | ISL1208_REG_HR_MIL;
-+
-+	regs[ISL1208_REG_DT] = BIN2BCD(tm->tm_mday);
-+	regs[ISL1208_REG_MO] = BIN2BCD(tm->tm_mon + 1);
-+	regs[ISL1208_REG_YR] = BIN2BCD(tm->tm_year - 100);
-+
-+	regs[ISL1208_REG_DW] = BIN2BCD(tm->tm_wday & 7);
-+
-+	if ((sr = isl1208_i2c_get_sr(client)) < 0) {
-+		dev_err(&client->dev, "%s: reading SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	/* set WRTC */
-+	if (i2c_smbus_write_byte_data (client, ISL1208_REG_SR,
-+				       sr | ISL1208_REG_SR_WRTC) < 0) {
-+		dev_err(&client->dev, "%s: writing SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	/* write RTC registers */
-+	if (isl1208_i2c_set_regs(client, 0, regs, ISL1208_RTC_SECTION_LEN)) {
-+		dev_err(&client->dev, "%s: writing RTC section failed\n",
-+			__func__);
-+		return -EIO;
-+	}
-+
-+	/* clear WRTC again */
-+	if (i2c_smbus_write_byte_data (client, ISL1208_REG_SR,
-+				       sr & ~ISL1208_REG_SR_WRTC) < 0) {
-+		dev_err(&client->dev, "%s: writing SR failed\n", __func__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static int isl1208_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return isl1208_i2c_set_time(to_i2c_client(dev), tm);
-+}
-+
-+static int isl1208_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alarm)
-+{
-+	return isl1208_i2c_read_alarm(to_i2c_client(dev), alarm);
-+}
-+
-+static struct rtc_class_ops isl1208_rtc_ops = {
-+	.proc		= isl1208_rtc_proc,
-+	.read_time	= isl1208_rtc_read_time,
-+	.set_time	= isl1208_rtc_set_time,
-+	.read_alarm	= isl1208_rtc_read_alarm,
-+	//.set_alarm	= isl1208_rtc_set_alarm,
-+};
-+
-+/* sysfs interface */
-+
-+static ssize_t isl1208_sysfs_show_atrim(struct device *dev,
-+					struct device_attribute *attr,
-+					char *buf)
-+{
-+	int atr;
-+
-+	if ((atr = isl1208_i2c_get_atr(to_i2c_client(dev))) == -1)
-+		return -EIO;
-+
-+	return sprintf(buf, "%d.%.2d pF\n", atr>>2, (atr&0x3)*25);
-+}
-+static DEVICE_ATTR(atrim, S_IRUGO, isl1208_sysfs_show_atrim, NULL);
-+
-+static ssize_t isl1208_sysfs_show_dtrim(struct device *dev,
-+					struct device_attribute *attr,
-+					char *buf)
-+{
-+	int dtr;
-+
-+	if ((dtr = isl1208_i2c_get_dtr(to_i2c_client(dev))) == -1)
-+		return -EIO;
-+
-+	return sprintf(buf, "%d ppm\n", dtr);
-+}
-+static DEVICE_ATTR(dtrim, S_IRUGO, isl1208_sysfs_show_dtrim, NULL);
-+
-+static ssize_t isl1208_sysfs_show_usr(struct device *dev,
-+				       struct device_attribute *attr,
-+				       char *buf)
-+{
-+	int usr;
-+
-+	if ((usr = isl1208_i2c_get_usr(to_i2c_client(dev))) < 0)
-+		return -EIO;
-+
-+	return sprintf(buf, "0x%.4x\n", usr);
-+}
-+
-+static ssize_t isl1208_sysfs_store_usr(struct device *dev,
-+				       struct device_attribute *attr,
-+				       const char *buf, size_t count)
-+{
-+	int usr = -1;
-+
-+	if (buf[0] == '0' && (buf[1] == 'x' || buf[1] == 'X')) {
-+		if (sscanf(buf, "%x", &usr) != 1)
-+			return -EINVAL;
-+	}
-+	else
-+		if (sscanf(buf, "%d", &usr) != 1)
-+			return -EINVAL;
-+
-+	if (usr < 0 || usr > 0xffff)
-+		return -EINVAL;
-+
-+	return isl1208_i2c_set_usr(to_i2c_client(dev), usr) ? -EIO : count;
-+}
-+static DEVICE_ATTR(usr, S_IRUGO | S_IWUSR, isl1208_sysfs_show_usr,
-+		   isl1208_sysfs_store_usr);
-+
-+static int
-+isl1208_probe (struct i2c_adapter *adapter, int addr, int kind)
-+{
-+	int rc = 0;
-+	struct i2c_client *new_client = NULL;
-+	struct rtc_device *rtc = NULL;
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
-+		rc = -ENODEV;
-+		goto failout;
-+	}
-+
-+	if (!(new_client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
-+		rc = -ENOMEM;
-+		goto failout;
-+	}
-+
-+	new_client->addr = addr;
-+	new_client->adapter = adapter;
-+	new_client->driver = &isl1208_driver;
-+	new_client->flags = 0;
-+	strcpy (new_client->name, DRV_NAME);
-+
-+	if (kind < 0) {
-+		if ((rc = isl1208_i2c_validate_client(new_client)) < 0)
-+			goto failout;
-+	}
-+
-+	if ((rc = i2c_attach_client(new_client)))
-+		goto failout;
-+
-+	dev_info(&new_client->dev,
-+		 "chip found, driver version " DRV_VERSION "\n");
-+
-+	rtc = rtc_device_register(isl1208_driver.driver.name,
-+				  &new_client->dev,
-+				  &isl1208_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(rtc)) {
-+		rc = PTR_ERR(rtc);
-+		goto failout_detach;
-+	}
-+
-+	i2c_set_clientdata(new_client, rtc);
-+
-+	if ((rc = isl1208_i2c_get_sr (new_client)) < 0) {
-+		dev_err(&new_client->dev, "reading status failed\n");
-+		goto failout_unregister;
-+	}
-+
-+	if (rc & ISL1208_REG_SR_RTCF)
-+		dev_warn(&new_client->dev, "rtc power failure detected, "
-+			 "please set clock.\n");
-+
-+	device_create_file(&new_client->dev, &dev_attr_atrim);
-+	device_create_file(&new_client->dev, &dev_attr_dtrim);
-+	device_create_file(&new_client->dev, &dev_attr_usr);
-+
-+	return 0;
-+
-+ failout_unregister:
-+	rtc_device_unregister(rtc);
-+ failout_detach:
-+	i2c_detach_client(new_client);
-+ failout:
-+	kfree(new_client);
-+	return rc;
-+}
-+
-+static int
-+isl1208_attach_adapter (struct i2c_adapter *adapter)
-+{
-+	return i2c_probe (adapter, &addr_data, isl1208_probe);
-+}
-+
-+static int
-+isl1208_detach_client(struct i2c_client *client)
-+{
-+	int rc;
-+	struct rtc_device *const rtc = i2c_get_clientdata(client);
-+
-+	if (rtc)
-+		rtc_device_unregister(rtc); /* do we need to kfree? */
-+
-+	if ((rc = i2c_detach_client(client)))
-+		return rc;
-+
-+	kfree(client);
-+
-+	return 0;
-+}
-+
-+/* module management */
-+
-+static int __init isl1208_init(void)
-+{
-+	return i2c_add_driver(&isl1208_driver);
-+}
-+
-+static void __exit isl1208_exit(void)
-+{
-+	i2c_del_driver(&isl1208_driver);
-+}
-+
-+MODULE_AUTHOR("Herbert Valerio Riedel <hvr@gnu.org>");
-+MODULE_DESCRIPTION("Intersil ISL1208 RTC driver");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
-+
-+module_init(isl1208_init);
-+module_exit(isl1208_exit);
+As I posted a few weeks ago, this cannot be done without introducing a
+lot of false negatives.
+
+> I would prefer we introduce another memory allocator
+> function such as:
+>
+>     void *kzalloc_extra(size_t obj_size, size_t nr_extra, gfp_t flags);
+>
+> That would do the right thing for memleak too.
+
+There is another case where extra bytes are added in front of the
+structure for alignment (the function could have "before" and "after"
+arguments). As I said above there aren't many places where kmemleak
+needs this.
+
+As Ingo said in the past, we could better go for precise type
+identification/checking in kmalloc and both the kernel and kmemleak
+would benefit from this  (but that's a pretty large patch).
+
 -- 
-
+Catalin

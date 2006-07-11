@@ -1,102 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWGKWti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWGKWya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932228AbWGKWti (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWGKWti
+	id S932229AbWGKWya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWGKWya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:49:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:62337 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932228AbWGKWth
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:49:37 -0400
-Subject: [PATCH] improve timekeeping resume robustness
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz,
-       Mikael Pettersson <mikpe@it.uu.se>,
-       Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <200607102336.k6ANaFpx020663@harpo.it.uu.se>
-References: <200607102336.k6ANaFpx020663@harpo.it.uu.se>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 15:49:34 -0700
-Message-Id: <1152658174.4852.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 18:54:30 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:27947 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S932229AbWGKWy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:54:29 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="433803758:sNHT31854394"
+To: "Zach Brown" <zach.brown@oracle.com>
+Cc: openib-general@openib.org,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Arjan van de Ven" <arjan@infradead.org>, "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: [openib-general] ipoib lockdep warning
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 11 Jul 2006 15:54:26 -0700
+Message-ID: <adawtajzra5.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Jul 2006 22:54:27.0612 (UTC) FILETIME=[F65675C0:01C6A53C]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 01:36 +0200, Mikael Pettersson wrote:
-> With this patch my Latitude resumes OK from APM suspend again.
+No time to really look at this in detail, but I think the issue is a
+slightly bogus conversion to netif_tx_lock().  Can you try this patch
+and see if things are better?
 
-This patch (against current git tree) resolves problems seen w/ APM
-suspend.
-
-Due to resume initialization ordering, its possible we could get a timer
-interrupt before the timekeeping resume() function is called. This patch
-ensures we don't do any timekeeping accounting before we're fully
-resumed.
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 2a87430..6ffff03 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -968,6 +968,7 @@ void __init timekeeping_init(void)
- }
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+index ab40488..ddd1946 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+@@ -820,9 +820,8 @@ void ipoib_mcast_restart_task(void *dev_
  
+ 	ipoib_mcast_stop_thread(dev, 0);
  
-+static int timekeeping_suspended;
- /*
-  * timekeeping_resume - Resumes the generic timekeeping subsystem.
-  * @dev:	unused
-@@ -983,6 +984,18 @@ static int timekeeping_resume(struct sys
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	/* restart the last cycle value */
- 	clock->cycle_last = clocksource_read(clock);
-+	clock->error = 0;
-+	timekeeping_suspended = 0;
-+	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	return 0;
-+}
-+
-+static int timekeeping_suspend(struct sys_device *dev, pm_message_t state)
-+{
-+	unsigned long flags;
-+
-+	write_seqlock_irqsave(&xtime_lock, flags);
-+	timekeeping_suspended = 1;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
- 	return 0;
- }
-@@ -990,6 +1003,7 @@ static int timekeeping_resume(struct sys
- /* sysfs resume/suspend bits for timekeeping */
- static struct sysdev_class timekeeping_sysclass = {
- 	.resume		= timekeeping_resume,
-+	.suspend	= timekeeping_suspend,
- 	set_kset_name("timekeeping"),
- };
+-	local_irq_save(flags);
+ 	netif_tx_lock(dev);
+-	spin_lock(&priv->lock);
++	spin_lock_irqsave(&priv->lock, flags);
  
-@@ -1099,14 +1113,17 @@ static void clocksource_adjust(struct cl
- static void update_wall_time(void)
- {
- 	cycle_t offset;
--
--	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
-+	
-+	/* Make sure we're fully resumed: */
-+	if (unlikely(timekeeping_suspended))
-+		return;
+ 	/*
+ 	 * Unfortunately, the networking core only gives us a list of all of
+@@ -893,9 +892,8 @@ void ipoib_mcast_restart_task(void *dev_
+ 		}
+ 	}
  
- #ifdef CONFIG_GENERIC_TIME
- 	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
- #else
- 	offset = clock->cycle_interval;
- #endif
-+	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
+-	spin_unlock(&priv->lock);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 	netif_tx_unlock(dev);
+-	local_irq_restore(flags);
  
- 	/* normally this loop will run just once, however in the
- 	 * case of lost or late ticks, it will accumulate correctly.
-
-
+ 	/* We have to cancel outside of the spinlock */
+ 	list_for_each_entry_safe(mcast, tmcast, &remove_list, list) {

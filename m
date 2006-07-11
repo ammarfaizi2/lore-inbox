@@ -1,111 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbWGKF0x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWGKFcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965057AbWGKF0x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 01:26:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWGKF0w
+	id S965211AbWGKFcR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 01:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbWGKFcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 01:26:52 -0400
-Received: from xenotime.net ([66.160.160.81]:19614 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965057AbWGKF0w (ORCPT
+	Tue, 11 Jul 2006 01:32:17 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:62607 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S965073AbWGKFcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 01:26:52 -0400
-Date: Mon, 10 Jul 2006 22:29:38 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Bill Ryder <bryder@wetafx.co.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x
- kernels
-Message-Id: <20060710222938.6810a7e1.rdunlap@xenotime.net>
-In-Reply-To: <44B32888.6050406@wetafx.co.nz>
-References: <44B32888.6050406@wetafx.co.nz>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 11 Jul 2006 01:32:16 -0400
+Date: Tue, 11 Jul 2006 09:31:57 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [ACRYPTO] new release of asynchronous crrypto layer.
+Message-ID: <20060711053157.GA6451@2ka.mipt.ru>
+References: <20060710091353.GA19863@2ka.mipt.ru> <E1G0AHY-0002BE-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <E1G0AHY-0002BE-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 11 Jul 2006 09:31:58 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 16:26:48 +1200 Bill Ryder wrote:
+On Tue, Jul 11, 2006 at 02:55:36PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
+> Hi Evgeniy:
 
-> Hello all,
+Hi Herbert.
+
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >
+> > * IPsec ESP4 port to acrypto
 > 
-> I've read all the stuff on submitting patches and this seems to be the
-> place.
-> 
-> Please CC me on any replies to this (although I do watch this through
-> list with  gmane)
-> 
-> Here's the patch description. I've attached the patch. Hopefully I've
-> followed the rules in Documentation/Submit* - apart from CC'ing Linus).
+> I noticed a bug in the ESP IV processing.  When you do ESP asynchronously,
+> you can no longer use the last block of the previous packet as the IV of
+> the next.  This is because the next packet may have started processing
+> before the last packet has even been finalised.
 
-6) No MIME, no links, no compression, no attachments.  Just plain text.
+I cought that bug too, so IV being used is always copied into old_iv variable,
+so integrity is stated.
 
-Attachments make it difficult to review/comment.
+> A simple solution is to generate a random IV.
 
-You'll likely need to coax Andrew into merging/testing it in -mm
-rather than sending it to Linus.
+Yes, it could be done too.
+But actually neither random IV, nor IV created from encrypted previous packet, 
+nor IV created from unencrypted previous packet are forbidden by spec. 
+Initial implementation used constant IV there at all.
 
-> Summary:
-> 
-> Patch to allow the option of not sorting a process's supplemental
-> (also known ask secondary aka supplementary) group list. 
-> 
-> Setting the kernel config option of UNSORTED_SUPPLEMENTAL_GROUPLIST
-> will allow the use of setgroups(2) to reorder a supplemental
-> group list to work around the NFS AUTH_UNIX 16 group limit. 
-> 
-> In fact I  think this should be the default option because anyone using
-> setgroups
-> may get an unpleasant surprise with 2.6.x. But for now this patch makes
-> it an option.
-> 
-> Longer version:
-> 
-> Like many places Weta Digital (we did the VFX for Lord of the Rings,
-> King Kong etc)
-> uses supplemental group lists to allow users access to multiple
-> directories and files (films mostly in our
-> case) . Unfortunately NFSv2 and NFSv3 AUTH_UNIX flavour authentication
-> is hardcoded to only support 16 supplemental groups. Since we currently
-> have some users and processes which need to be in more than 16 groups
-> we use setgroups to build a list of groups that a process requires when
-> they access data on nfs exported filesystems.
-> 
-> This worked fine for the 2.4.x kernels. 2.6.x is designed to handle
-> thousands of groups for a single user. To support that the kernel was
-> changed to sort the group list, then use a binary search to decide if
-> a user was in the correct group. Unfortunately this BREAKS the use of
-> setgroups(2) to put the 16 most important groups first. 
-> 
-> This patch provides the option of not sorting that list. The help
-> describes the pitfalls of not sorting the groups (performance when
-> there are a lot of groups).
-
-Patch comments:
-
-Keep Kconfig help text to less than 80 columns so that it fits in
-an xterm without requiring left/right scrolling.
-
-Keep source code/comments within 80 columns (for xterms again).
-So this comment needs to be broken/split:
-
-+/* if USE_UNSORTED_SUPPLEMENTAL_GROUPS is set this is a linear search. If not it's a binary search */
-
-In the groups_search() function, all data needs to be declared
-before any executable code statements.
-
-Lines like this:
-+#ifdef USE_UNSORTED_SUPPLEMENTAL_GROUPS
-
-should be:
-+#ifdef CONFIG_USE_UNSORTED_SUPPLEMENTAL_GROUPS
-
-i.e., the config system prefixes all config symbols with CONFIG_.
-
-Was it tested like this?
-Look at Documentation/SubmitChecklist along with
-Documentation/SubmittingPatches.
-
----
-~Randy
+-- 
+	Evgeniy Polyakov

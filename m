@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWGKSWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWGKS0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWGKSWo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWGKSWo
+	id S932078AbWGKS0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 14:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWGKS0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:22:44 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:2772 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932077AbWGKSWn
+	Tue, 11 Jul 2006 14:26:12 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:37764 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932078AbWGKS0K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:22:43 -0400
-Message-ID: <44B3EC5A.1010100@zytor.com>
-Date: Tue, 11 Jul 2006 11:22:18 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
+	Tue, 11 Jul 2006 14:26:10 -0400
+Message-ID: <44B3ED3B.3010401@fr.ibm.com>
+Date: Tue, 11 Jul 2006 20:26:03 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de>
-In-Reply-To: <20060711181552.GD16869@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
+References: <20060711075051.382004000@localhost.localdomain> <44B3EA16.1090208@zytor.com>
+In-Reply-To: <44B3EA16.1090208@zytor.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
-> "It would be nice if ..." someone can build a list of things that
-> changed over time. Say from 2.0.0 to 2.6.18. Just struct layouts and defines.
+H. Peter Anvin wrote:
+
+> I would like give a strong objection to the naming.  The -ve() suffix in
+> execve() isn't jettisonable; it indicates its position within a family
+> of functions (only one of which is a true system call.)
 > 
-> I havent tried it, but one would hope that the /bin/ls from SuSE 5.3 still
-> works today.  Guess its time for me to actually try that the next days.
+> execven() would be better name (the -n argument coming after then -e
+> argument).  The library could then provide execlen(), execlpn() etc as
+> appropriate.
 
-You know how much code there is in glibc to make your /bin/ls still work?
+I agree. execns() is a shortcut.
 
-That being said, it in general isn't a problem to continue to use the 
-same exact sets of system calls, but that also means skipping any new 
-functionality.  In recent memory that includes things like 64-bit file 
-offsets and high signals, even more recently it means things like 
-openat() and splice().  A full-blown libc also has to deal with 
-LinuxThreads version NPTL.  Etc.
+This service behaves like execve() if the flag argument is 0, so I guess we
+should keep the execve- prefix. However, we could be a bit more explicit on
+the nature of this service and call it execve_unshare().
 
-Again, I fully expect that klibc-0.1 still works on the current kernels, 
-but current klibc wouldn't work on 2.4 kernels.
+thanks,
 
-	-hpa
+C.

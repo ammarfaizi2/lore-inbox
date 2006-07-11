@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWGKWcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWGKWdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWGKWcm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWGKWcm
+	id S1751325AbWGKWdx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWGKWdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:32:42 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:17142 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S932220AbWGKWcl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:32:41 -0400
-Message-ID: <44B426CB.4010405@pg.gda.pl>
-Date: Wed, 12 Jul 2006 00:31:39 +0200
-From: =?ISO-8859-2?Q?Adam_Tla=B3ka?= <atlka@pg.gda.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; pl-PL; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+	Tue, 11 Jul 2006 18:33:53 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:64988 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751325AbWGKWdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:33:52 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Date: Wed, 12 Jul 2006 00:34:01 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org
+References: <20060627133321.GB3019@elf.ucw.cz> <200607112354.56078.rjw@sisk.pl> <200607120801.24239.ncunningham@linuxmail.org>
+In-Reply-To: <200607120801.24239.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Valdis.Kletnieks@vt.edu, alsa-devel@alsa-project.org,
-       linux-kernel@vger.kernel.org, perex@suse.cz, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
-References: <20060707231716.GE26941@stusta.de>	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>	 <20060710132810.551a4a8d.atlka@pg.gda.pl>	 <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl>	 <200607110209.k6B29psN007504@turing-police.cc.vt.edu>	 <20060711081528.4d3ab197.atlka@pg.gda.pl>	 <200607111430.k6BEUUus006736@turing-police.cc.vt.edu> <1152637064.21909.61.camel@mindpipe>
-In-Reply-To: <1152637064.21909.61.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607120034.01339.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Lee Revell napisa³:
-> On Tue, 2006-07-11 at 10:30 -0400, Valdis.Kletnieks@vt.edu wrote:
->> On Tue, 11 Jul 2006 08:15:28 +0200, Adam =?ISO-8859-2?B?VGxhs2th?= said:
->>> Sorry to say but it is just not that way. Window manager is for managing windows
->>> and it shouldn't depend on any audio system. It should use an external app using exec call
->>> to play sounds (aplay, sox, wavplay etc.) configured by some config option.
->> So what you're saying is that something like 'esd' *is* needed.  (It's
->> certainly silly to keep doing fork/exec for every little sound sample when
->> you can just leave the app running and hand it requests...)
+On Wednesday 12 July 2006 00:01, Nigel Cunningham wrote:
+> On Wednesday 12 July 2006 07:54, Rafael J. Wysocki wrote:
+> > On Tuesday 11 July 2006 14:45, Nigel Cunningham wrote:
+> > > On Sunday 09 July 2006 04:52, Rafael J. Wysocki wrote:
+> > > > Well, I tried really hard to justify the patch that allowed swsusp to
+> > > > create bigger images and 10% was the greatest speedup I could get out
+> > > > of it and, let me repeat, _with_ compression and async I/O.  I tried to
+> > > > simulate different workloads etc., but I couldn't get more than 10%
+> > > > speedup (the biggest image I got was as big as 80% of RAM) - counting
+> > > > the time from issuing the suspend command to getting back _responsive_
+> > > > system after resume.
+> > >
+> > > Was that 10% speedup on suspend or resume, or both? With LZF, I see
+> > > approximately double the speed with both reading and writing:
+> >
+> > I was not referring to the speedup of writing and/or reading.
+> >
+> > The exercise was to measure the time needed to suspend the system and get
+> > it back in a responsive state.  I measured the time elapsed between
+> > triggering the suspend and the moment at which I could switch between some
+> > applications in X without any noticeable lag due to faulting in some pages
+> > (that is a bit subjective, I must admit, but I was willing to show that
+> > bigger images make substantial difference).
+> >
+> > I tested uswsusp with compression (LZF) and two image sizes: 120 MB and
+> > (IIRC) about 220 MB on a 256 MB box.  The result of the measurement for the
+> > 120 MB image has always been greater than for the 220 MB image, but the
+> > difference has never been greater than 10%.
 > 
-> That approach also won't be reliable as it ignores the realtime
-> constraint that is inherent in audio playback.  It will probably work on
-> a fast/lightly loaded machine but will glitch out under load.
+> Ah ok. Are you sure you're getting that sort of throughput with LZF though - 
+> if you're not, you might be underestimating the advantage.
 
-Yes, that is true. It was just simple example how you can get simple 
-sound effects without many lines of code. In case of heavy load or too 
-many events in short period of time this method is not working correctly 
-but this is not the main functionality of a window manager program.
-Anyway you can aggregate events if there are too many of them and play 
-only one sound or not play anything at all. For this kind of program
-it is quite acceptable and not breaks main functionality.
+Certainly I don't get that kind of speedup for writing.  For reading I do.
 
-> It's how GDM plays startup/shutdown sounds and it sucks - on shutdown
-> the sound is choppy.  You either need a dedicated daemon running
-> SCHED_FIFO or an RT thread for reliable audio playback.
-
-True - and that makes things more complicated. I don't know if it is 
-worth it just for bells and whistles. In other cases you do need to 
-program more sophisticated sound support and RT thread probably will be 
-your solution. Or some kind of sound server which holds your sound 
-samples so you can fire them at the proper time.
-ALSA lib is a low level library. Sometimes we need more abstract 
-functions like load(s, "sound.wav) and then play(s) without bothering 
-about all these parameters settings. So maybe OpenAL is a some kind of a 
-solution but I don't know its current status.
-
-Regards
--- 
-Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
-Computer Center,  Gdañsk University of Technology, Poland
-PGP public key:   finger atlka@sunrise.pg.gda.pl
+Greetings,
+Rafael

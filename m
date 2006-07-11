@@ -1,57 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWGKVpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWGKVpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbWGKVpv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWGKVpq
+	id S932135AbWGKVpX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGKVpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:45:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25036 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932132AbWGKVpa (ORCPT
+	Tue, 11 Jul 2006 17:45:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23244 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751333AbWGKVpS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:45:30 -0400
-Date: Tue, 11 Jul 2006 14:42:26 +0200
+	Tue, 11 Jul 2006 17:45:18 -0400
+Date: Tue, 11 Jul 2006 15:32:28 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Fredrik Roubert <roubert@df.lth.se>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <20060711124226.GB2474@elf.ucw.cz>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, yi.zhu@intel.com,
+       jketreno@linux.intel.com, Netdev list <netdev@vger.kernel.org>,
+       linville@tuxdriver.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
+Message-ID: <20060711133227.GA1650@elf.ucw.cz>
+References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com> <200607102305.06572.mb@bu3sch.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607102356460.17704@scrub.home>
+In-Reply-To: <200607102305.06572.mb@bu3sch.de>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > Before 2.6.18-rc1, I used to be able to use it as follows:
-> > >
-> > > 	Press and hold an Alt key,
-> > > 	Press and hold the SysRq key,
-> > > 	Release the Alt key,
-> > > 	Press and release some hot key like S or T or 7,
-> > > 	Repeat the previous step as many times as desired,
-> > > 	Release the SysRq key.
-> > >
-> > > This scheme doesn't work any more,
+On Mon 2006-07-10 23:05:06, Michael Buesch wrote:
+> On Monday 10 July 2006 19:53, you wrote:
+> > Pavel Machek wrote:
+> > > Kconfig currently allows compiling IPW_2100 and IPW_2200 into kernel
+> > > (not as a module). Unfortunately, such configuration does not work,
+> > > because these drivers need a firmware, and it can't be loaded by
+> > > userspace loader when userspace is not running.
 > > 
-> > The SysRq code has been updated to make it useable with keyboards that
-> > are broken in other ways than your. With the new behaviour, you should
-> > be able to use Magic SysRq with your keyboard in this way:
+> > False, initramfs...
 > 
-> Apparently it changes existing well documented behaviour, which is a 
-> really bad idea.
+> Does the ipw driver _really_ need the firmware on insmod time?
+> bcm43xx, for example, loads the firmware on "ifconfig up" time.
+> If ipw really needs the firmware on insmod, is it possible to
+> defer it to later at "ifconfig up" time?
 
-(Actually, I do not care much if current approach stays or goes, but
-many keyboards can't use sysrq as a modifier, and that needs to be
-somehow solved. 2.6.18-rc1 behaviour provides a solution.)
+Probably not. This (very dirty) hack implements that (with some level
+of success -- ifconfig down/ifconfig up is enough to get wireless
+working).
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
 									Pavel
+
+--- clean-mm/drivers/net/wireless/ipw2200.c	2006-07-11 15:22:50.000000000 +0200
++++ linux-mm/drivers/net/wireless/ipw2200.c	2006-07-11 14:38:01.000000000 +0200
+@@ -97,6 +97,7 @@
+ static int bt_coexist = 0;
+ static int hwcrypto = 0;
+ static int roaming = 1;
++static int needs_reinit = 1;
+ static const char ipw_modes[] = {
+ 	'a', 'b', 'g', '?'
+ };
+@@ -10013,10 +10014,20 @@
+ 	sys_config->silence_threshold = 0x1e;
+ }
+ 
++static int ipw_pci_suspend(struct pci_dev *pdev, pm_message_t state);
++static int ipw_pci_resume(struct pci_dev *pdev);
++
+ static int ipw_net_open(struct net_device *dev)
+ {
+ 	struct ipw_priv *priv = ieee80211_priv(dev);
+ 	IPW_DEBUG_INFO("dev->open\n");
++
++	if (needs_reinit) {
++		printk("ipw: Delayed loading the firmware\n");
++		ipw_pci_suspend(priv->pci_dev, PMSG_FREEZE);
++		ipw_pci_resume(priv->pci_dev);
++	}
++
+ 	/* we should be verifying the device is ready to be opened */
+ 	mutex_lock(&priv->mutex);
+ 	if (!(priv->status & STATUS_RF_KILL_MASK) &&
+@@ -11295,7 +11306,8 @@
+ 
+ 	if (ipw_up(priv)) {
+ 		mutex_unlock(&priv->mutex);
+-		return -EIO;
++		needs_reinit = 1;
++		return 0;
+ 	}
+ 
+ 	mutex_unlock(&priv->mutex);
+
+
 -- 
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

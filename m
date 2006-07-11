@@ -1,65 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWGKNmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWGKNnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWGKNmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 09:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWGKNmL
+	id S1750778AbWGKNnF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 09:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWGKNnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 09:42:11 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:3810 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750775AbWGKNmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 09:42:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NfMpnxYUIzDfcSHvv9JsDCg0I5enkVSNXy4qWSr/k8R5/xBGod6Du4wBwggpyX/knNAG8OunmW5dKgBbPxVZG6GliRjrSUUWAlhIVWzu87DYIDqZsyN1ULTgK7P2Sk3qlv+u/J1Wut2L2wVEJXWuOzcF8uYN3J/2w10uwEe7Mfo=
-Message-ID: <9e4733910607110642p598e2288x93302d79aa22377f@mail.gmail.com>
-Date: Tue, 11 Jul 2006 09:42:08 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Paulo Marques" <pmarques@grupopie.com>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Theodore Tso" <tytso@mit.edu>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <44B3A484.5000002@grupopie.com>
+	Tue, 11 Jul 2006 09:43:04 -0400
+Received: from h216-18-124-229.gtcust.grouptelecom.net ([216.18.124.229]:16774
+	"EHLO mail.max-t.com") by vger.kernel.org with ESMTP
+	id S1750764AbWGKNnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 09:43:01 -0400
+Date: Tue, 11 Jul 2006 09:40:49 -0400 (EDT)
+From: Stephane Doyon <sdoyon@max-t.com>
+X-X-Sender: sdoyon@madrid.max-t.internal
+To: Nathan Scott <nathans@sgi.com>
+cc: Christoph Hellwig <hch@infradead.org>, Suzuki <suzuki@in.ibm.com>,
+       linux-fsdevel@vger.kernel.org,
+       "linux-aio kvack.org" <linux-aio@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
+       akpm@osdl.org, xfs@oss.sgi.com
+In-Reply-To: <20060711101817.B1702118@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.64.0607110928010.3327@madrid.max-t.internal>
+References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org>
+ <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org>
+ <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo>
+ <Pine.LNX.4.64.0607101152040.3709@madrid.max-t.internal>
+ <20060711101817.B1702118@wobbly.melbourne.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
-	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
-	 <20060711012904.GD30332@thunk.org>
-	 <9e4733910607101916y4638c097ie26ae63a9949bc3e@mail.gmail.com>
-	 <1152612752.18028.3.camel@localhost.localdomain>
-	 <9e4733910607110528t73d5d7dai73efd59caddb9d25@mail.gmail.com>
-	 <44B3A484.5000002@grupopie.com>
+X-SA-Exim-Connect-IP: 192.168.1.189
+X-SA-Exim-Mail-From: sdoyon@max-t.com
+Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SA-Exim-Version: 4.1 (built Thu, 08 Sep 2005 14:17:48 -0500)
+X-SA-Exim-Scanned: Yes (on mail.max-t.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/11/06, Paulo Marques <pmarques@grupopie.com> wrote:
-> Jon Smirl wrote:
-> >[...]
-> >  extern struct tty_driver *ptm_driver;        /* Unix98 pty masters; for /dev/ptmx */
-> > @@ -158,21 +157,21 @@ static struct tty_struct *alloc_tty_stru
-> >  {
-> >       struct tty_struct *tty;
-> >
-> > -     tty = kmalloc(sizeof(struct tty_struct), GFP_KERNEL);
-> > -     if (tty)
-> > -             memset(tty, 0, sizeof(struct tty_struct));
-> > +     tty = kmalloc(sizeof(*tty), GFP_KERNEL);
->                ^^^^^^^
-> kzalloc?
+On Tue, 11 Jul 2006, Nathan Scott wrote:
 
-It needs to be cleaned up. Right now it clears the struct twice before
-using it, once in tty_alloc and another in tty_init.
+> On Mon, Jul 10, 2006 at 12:46:23PM -0400, Stephane Doyon wrote:
+>> Hi,
+>
+> Hi Stephane,
+>
+>> A few months back, a fix was introduced for a mutex double unlock warning
+>> related to direct I/O in XFS. I believe that fix has a lock ordering
+>> problem that can cause a deadlock.
+>>
+>> The problem was that __blockdev_direct_IO() would unlock the i_mutex in
+>> the READ and DIO_OWN_LOCKING case, and the mutex would be unlocked again
+>> in xfs_read() soon after returning from __generic_file_aio_read(). Because
+>> there are lots of execution paths down from __generic_file_aio_read() that
+>> do not consistently release the i_mutex, the safest fix was deemed to be
+>> to reacquire the i_mutex before returning from __blockdev_direct_IO(). At
+>> this point however, the reader is holding an xfs ilock, and AFAICT the
+>> i_mutex is usually taken BEFORE the xfs ilock.
+>
+> That is correct, yes.  Hmm.  Subtle.  Painful.  Thanks for the detailed
+> report and your analysis.
+>
+>> We are seeing a deadlock between a process writing and another process
+>> reading the same file, when the reader is using direct I/O. (The writer
+>
+> Is that a direct writer or a buffered writer?
 
-> I don't know this code very well, so you might be actually changing the
-> initialization here. On the other hand, this might be just a simple bug...
+Whichever, both cases trigger the deadlock.
 
+>> must apparently be growing the file, using either direct or buffered
+>> I/O.) Something like this, on XFS:
+>> (dd if=/dev/zero of=f bs=128K count=5000 & ) ; sleep 1 ; dd of=/dev/null
+>> if=f iflag=direct bs=128K count=5000
+>>
+>> Seen on kernels 2.6.16 and 2.6.17.
+>>
+>> The deadlock scenario appears to be this:
+>> -The reader goes into xfs_read(), takes the i_mutex and then an xfs_ilock
+>> XFS_IOLOCK_SHARED, then calls down to __generic_file_aio_read() which
+>> eventually goes down to __blockdev_direct_IO(). In there it drops the
+>> i_mutex.
+>> -The writer goes into xfs_write() and obtains the i_mutex. It then tries
+>> to get an xfs_ilock XFS_ILOCK_EXCL and must wait on it since it's held by
+>> the reader.
+>> -The reader, still in __blockdev_direct_IO(), executes directio_worker()
+>> and then tries to reacquire the i_mutex, and must wait on it because the
+>> writer has it.
+>>
+>> And so we have a deadlock.
+>
+> *nod*.  This will require some thought, I'm not sure I like the sound of
+> your suggested workaround there a whole lot, unfortunately, but maybe it
+> is all we can do at this stage.  Let me ponder further and get back to you
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Thank you.
+
+> (but if you want to prototype your fix further, that'd be most welcome, of
+> course).
+
+Sure, well it's not very subtle. The below patch is what I'm using for 
+now. I haven't seen problems with it yet but it hasn't been seriously 
+tested.
+
+I'm assuming that it's OK to keep holding the i_mutex during the call to 
+direct_io_worker(), because in the DIO_LOCKING case, direct_io_worker() 
+is called with the i_mutex held, and XFS touches i_mutex only in 
+xfs_read() and xfs_write(), so opefully nothing will conflict.
+
+Signed-off-by: Stephane Doyon <sdoyon@max-t.com>
+--- linux/fs/direct-io.c.orig	2006-07-11 09:23:20.000000000 -0400
++++ linux/fs/direct-io.c	2006-07-11 09:27:54.000000000 -0400
+@@ -1191,7 +1191,6 @@ __blockdev_direct_IO(int rw, struct kioc
+  	loff_t end = offset;
+  	struct dio *dio;
+  	int release_i_mutex = 0;
+-	int acquire_i_mutex = 0;
+
+  	if (rw & WRITE)
+  		current->flags |= PF_SYNCWRITE;
+@@ -1254,11 +1253,6 @@ __blockdev_direct_IO(int rw, struct kioc
+  				goto out;
+  			}
+
+-			if (dio_lock_type == DIO_OWN_LOCKING) {
+-				mutex_unlock(&inode->i_mutex);
+-				acquire_i_mutex = 1;
+-			}
+-		}
+
+  		if (dio_lock_type == DIO_LOCKING)
+  			down_read(&inode->i_alloc_sem);
+@@ -1282,8 +1276,6 @@ __blockdev_direct_IO(int rw, struct kioc
+  out:
+  	if (release_i_mutex)
+  		mutex_unlock(&inode->i_mutex);
+-	else if (acquire_i_mutex)
+-		mutex_lock(&inode->i_mutex);
+  	if (rw & WRITE)
+  		current->flags &= ~PF_SYNCWRITE;
+  	return retval;

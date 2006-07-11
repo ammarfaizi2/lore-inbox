@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWGKR0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWGKRac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWGKR0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWGKR0V
+	id S1751074AbWGKRac (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWGKRac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:26:21 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:47497 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1751131AbWGKR0V (ORCPT
+	Tue, 11 Jul 2006 13:30:32 -0400
+Received: from mail.suse.de ([195.135.220.2]:5276 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751074AbWGKRab (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:26:21 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH] fdset's leakage
-Date: Tue, 11 Jul 2006 19:26:36 +0200
-User-Agent: KMail/1.9.1
-Cc: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, devel@openvz.org, kuznet@ms2.inr.ac.ru
-References: <44B258E3.7070708@openvz.org> <44B369BF.6000104@openvz.org> <Pine.LNX.4.58.0607110912490.16191@shell3.speakeasy.net>
-In-Reply-To: <Pine.LNX.4.58.0607110912490.16191@shell3.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 13:30:31 -0400
+Date: Tue, 11 Jul 2006 19:30:30 +0200
+From: Olaf Hering <olh@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060711173030.GA16693@suse.de>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200607111926.36388.dada1@cosmosbay.com>
+In-Reply-To: <44B3DEA0.3010106@zytor.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 18:13, Vadim Lobanov wrote:
-> > unsinged long round_up_pow_of_two(unsigned long x)
-> > {
-> >   unsigned long res = 1 << BITS_PER_LONG;
->
-> You'll get a zero here. Should be 1 << (BITS_PER_LONG - 1).
->
+ On Tue, Jul 11, H. Peter Anvin wrote:
 
-Nope. It wont work on 64 bits platform :)
+> "Old klibc" still exists and is the same code out of the same source tree.
 
-You want  1UL << (BITS_PER_LONG - 1).
+I meant more the "easy to build" part.
 
-But the roundup_pow_of_two() function is already defined in 
-include/linux/kernel.h and uses fls_long()
+> >>* Makes it easier to move stuff between kernel and userspace.
+> >
+> >What do you have in mind here?
+> >Once prepare_namespace is gone, there is no userspace code left.
+> 
+> Things that have been bandied about, for example:
+> 
+> 	- suspend/resume
+> 	- partition discovery
+> 
+> I'm sure there is more.
 
-Eric
+Do you plan to share source files betweek kernel and kinit? Or how is it
+harder for external kinit to handle that?

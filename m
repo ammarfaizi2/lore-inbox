@@ -1,137 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWGKCMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWGKCQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965075AbWGKCMo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 22:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWGKCMo
+	id S965077AbWGKCQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 22:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWGKCQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 22:12:44 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:20105 "EHLO
+	Mon, 10 Jul 2006 22:16:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:51854 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965075AbWGKCMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 22:12:43 -0400
+	id S965077AbWGKCQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 22:16:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=osXmEwe45o7MJLxz7uIJVMy3fEF73EhzV15oHxkGAvFxz9mmVQw0rFoA7j/LEJLWRucPMPzWZV7wyRaCwpazObxrkheAjagKFM8vnJgCXsvxnrQ2gzGvifxRafFfdE96mwk/FT+9/jyexPGhGXK53Hdh2Am0ALTjvbTWLg3tx00=
-Message-ID: <489ecd0c0607101912t4225e551sa608faa769f09064@mail.gmail.com>
-Date: Tue, 11 Jul 2006 10:12:41 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: "David Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] Fix an inproper alignment accessing in irda protocol stack
-Cc: samuel@sortiz.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060617.221435.48805608.davem@davemloft.net>
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M0oHvsdT5b3qGY658lY1qEQnVDgRvRMhh8BM0ITrDVoaKUY6eXNfN3VZviVwRqEQtBz23a8carutsaoFgMmlvFySOGLWRIt3vsBmJhQTOWvvjTcOJ9MokApFCTpPGIkoP6P3v3ZwLfy+dqsbIjq89NsnF9PGdZT5eonRjPSxuGM=
+Message-ID: <9e4733910607101916y4638c097ie26ae63a9949bc3e@mail.gmail.com>
+Date: Mon, 10 Jul 2006 22:16:55 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Theodore Tso" <tytso@mit.edu>, "Jon Smirl" <jonsmirl@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+In-Reply-To: <20060711012904.GD30332@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <489ecd0c0606080015v4815d0f3wa3d28c564eaf6885@mail.gmail.com>
-	 <489ecd0c0606131929l5311bdb9g1e903904f0d8fb2b@mail.gmail.com>
-	 <20060617.221435.48805608.davem@davemloft.net>
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
+	 <1152552806.27368.187.camel@localhost.localdomain>
+	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
+	 <1152554708.27368.202.camel@localhost.localdomain>
+	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
+	 <1152573312.27368.212.camel@localhost.localdomain>
+	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
+	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
+	 <20060711012904.GD30332@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On 7/10/06, Theodore Tso <tytso@mit.edu> wrote:
+> On Mon, Jul 10, 2006 at 07:49:31PM -0400, Jon Smirl wrote:
+> > How about the use of lock/unlock_kernel(). Is there some hidden global
+> > synchronization going on? Every time lock/unlock_kernel() is used
+> > there is a tty_struct available. My first thought would be to turn
+> > this into a per tty spinlock. Looking at where it is used it looks
+> > like it was added to protect all of the VFS calls. I see no obvious
+> > coordination with other ttys that isn't handled by other locks.
+>
+> No, it was just a case of not being worth it to get rid of the BKL for
+> the tty subsystem, since opening and closing tty's isn't exactly a
+> common event.  Switching it to use a per-tty spinlock makes sense if
+> we're going to rototill the code, but to be honest it's probably not
+> going to make a noticeable difference on any benchmark and most
+> workloads.
 
-  There is another same unaligend issue in irda stack to be fixed:
-
-Signed-off-by: Luke Yang <luke.adi@gmail.com>
-
---- linux-2.6.x/net/irda/discovery.c    2006-03-22 18:32:37.000000000 +0800
-+++ ../../uClinux-dist/linux-2.6.x/net/irda/discovery.c 2006-06-30
-18:07:46.000000000 +0800
-@@ -38,6 +38,7 @@
- #include <net/irda/irlmp.h>
-
- #include <net/irda/discovery.h>
-+#include <asm/unaligned.h>
-
- /*
-  * Function irlmp_add_discovery (cachelog, discovery)
-@@ -86,7 +87,7 @@
-                         */
-                        hashbin_remove_this(cachelog, (irda_queue_t *) node);
-                        /* Check if hints bits are unchanged */
--                       if(u16ho(node->data.hints) == u16ho(new->data.hints))
-+                       if(get_unaligned(node->data.hints) ==
-get_unaligned(new->data.hints))
-                                /* Set time of first discovery for this node */
-                                new->firststamp = node->firststamp;
-                        kfree(node);
-@@ -280,7 +281,7 @@
-                /* Mask out the ones we don't want :
-                 * We want to match the discovery mask, and to get only
-                 * the most recent one (unless we want old ones) */
--               if ((u16ho(discovery->data.hints) & mask) &&
-+               if ((get_unaligned(discovery->data.hints) & mask) &&
-                    ((old_entries) ||
-                     ((jiffies - discovery->firststamp) < j_timeout)) ) {
-                        /* Create buffer as needed.
-
-
-Regards,
-Luke Yang
-
-On 6/18/06, David Miller <davem@davemloft.net> wrote:
-> From: "Luke Yang" <luke.adi@gmail.com>
-> Date: Wed, 14 Jun 2006 10:29:19 +0800
->
-> > --- net/irda/irlmp.c.old        2006-06-08 14:49:20.000000000 +0800
-> > +++ net/irda/irlmp.c    2006-06-14 10:00:22.000000000 +0800
-> > @@ -849,7 +849,10 @@
-> >         }
-> >
-> >         /* Construct new discovery info to be used by IrLAP, */
-> > -       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
-> > +       irlmp->discovery_cmd.data.hints[0] = \
-> > +               le16_to_cpu(irlmp->hints.word) & 0xff;
-> > +       irlmp->discovery_cmd.data.hints[1] = \
-> > +               (le16_to_cpu(irlmp->hints.word) & 0xff00) >> 8;
-> >
-> >         /*
-> >          *  Set character set for device name (we use ASCII), and
->
-> I decided in the end to fix this differently.
->
-> We have a portable unaligned access interface, via get_unaligned() and
-> put_unaligned() in asm/unaligned.h, which makes sure there is no
-> penalty for platforms whose cpu does unaligned memory accesses
-> transparently.
->
-> diff --git a/net/irda/irlmp.c b/net/irda/irlmp.c
-> index c19e9ce..57ea160 100644
-> --- a/net/irda/irlmp.c
-> +++ b/net/irda/irlmp.c
-> @@ -44,6 +44,8 @@
->  #include <net/irda/irlmp.h>
->  #include <net/irda/irlmp_frame.h>
->
-> +#include <asm/unaligned.h>
-> +
->  static __u8 irlmp_find_free_slsap(void);
->  static int irlmp_slsap_inuse(__u8 slsap_sel);
->
-> @@ -840,6 +842,7 @@ void irlmp_do_expiry(void)
->  void irlmp_do_discovery(int nslots)
->  {
->         struct lap_cb *lap;
-> +       __u16 *data_hintsp;
->
->         /* Make sure the value is sane */
->         if ((nslots != 1) && (nslots != 6) && (nslots != 8) && (nslots != 16)){
-> @@ -849,7 +852,8 @@ void irlmp_do_discovery(int nslots)
->         }
->
->         /* Construct new discovery info to be used by IrLAP, */
-> -       u16ho(irlmp->discovery_cmd.data.hints) = irlmp->hints.word;
-> +       data_hintsp = (__u16 *) irlmp->discovery_cmd.data.hints;
-> +       put_unaligned(irlmp->hints.word, data_hintsp);
->
->         /*
->          *  Set character set for device name (we use ASCII), and
->
-
+I'm not looking for performance gains, I'm looking more to isolate the
+tty code down to a minimal set of interactions with the rest of the
+kernel. RIght now it is all intertwined.
 
 -- 
-Best regards,
-Luke Yang
-luke.adi@gmail.com
+Jon Smirl
+jonsmirl@gmail.com

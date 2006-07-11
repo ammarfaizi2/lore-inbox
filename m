@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWGKX1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWGKX2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWGKX1z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWGKX1z
+	id S932247AbWGKX2m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWGKX2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:27:55 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36872 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932243AbWGKX1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:27:54 -0400
-Date: Wed, 12 Jul 2006 01:27:50 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm1: drivers/ide/pci/jmicron.c warning
-Message-ID: <20060711232750.GH13938@stusta.de>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <20060711125258.GN13938@stusta.de> <20060711140257.GA6820@devserv.devel.redhat.com> <20060711221045.GC13938@stusta.de> <20060711231014.GA30186@devserv.devel.redhat.com> <20060711162328.6a771ce2.akpm@osdl.org>
+	Tue, 11 Jul 2006 19:28:42 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:29659
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S932247AbWGKX2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:28:40 -0400
+Message-ID: <44B43409.2020401@microgate.com>
+Date: Tue, 11 Jul 2006 18:28:09 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711162328.6a771ce2.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jon Smirl <jonsmirl@gmail.com>, Theodore Tso <tytso@mit.edu>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>	 <1152552806.27368.187.camel@localhost.localdomain>	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>	 <1152554708.27368.202.camel@localhost.localdomain>	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>	 <1152573312.27368.212.camel@localhost.localdomain>	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>	 <20060711012904.GD30332@thunk.org>	 <20060711194456.GA3677@flint.arm.linux.org.uk>	 <9e4733910607111508x526ee642p5b587698306b22d3@mail.gmail.com> <1152657465.18028.72.camel@localhost.localdomain>
+In-Reply-To: <1152657465.18028.72.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 04:23:28PM -0700, Andrew Morton wrote:
-> Alan Cox <alan@redhat.com> wrote:
-> >
-> > I'd say that gcc warning in the case that all the enum values are enumerated
-> > and have returns is a broken warning irrespective of that so I won't "fix" it
-> > because it isn't broken. Its just like various other bogus gcc warnings
-> > 
+Alan Cox wrote:
+> Ar Maw, 2006-07-11 am 18:08 -0400, ysgrifennodd Jon Smirl:
 > 
-> But we work around gcc problems all the time.
-> 
-> Warnings like this have a cost - they make the build noisy and that causes
-> people to miss real bugs which the compiler is trying to tell them about.
-> 
-> So if we can implement a low-cost fix for this then we should do so.
+>>What about adjusting things so the BKL isn't required? I tried
+>>completely removing it and died in release_dev. tty_mutex is already
+>>locks a lot of stuff, maybe it can be adjusted to allow removal of the
+>>BKL.
 > 
 > 
-> --- a/drivers/ide/pci/jmicron.c~a
-> +++ a/drivers/ide/pci/jmicron.c
-> @@ -94,8 +94,9 @@ static int __devinit ata66_jmicron(ide_h
->  			return 0;
->  		return 1;
->  	case PORT_SATA:
-> -		return 1;
-> +		break;
+> Thats what is happening currently. However it is being done piece by
+> piece, slowly and carefully.
 
-The part above isn't required to avoid the warning, and it does IMHO 
-decrease readability.
+I hate to chime in since I don't have time in the near term
+to contribute to the subject, but I do like the idea of removing
+the BKL dependence as a first step. I find its semantics akward to keep
+track of, and error prone. More explicit locking, even global, would clear things
+up for a later push to finer grained (per tty?) locking (where appropriate).
 
->  	}
-> +	return 1; /* Avoid bogus "control reaches end of non-void function" */
->...
+Making the necessary changes to all the individual drivers,
+as Russel's comment about explicitly dropping the new lock when
+sleeping pointed out, would be a time consuming (and probably
+tedious) task.
 
-This is what is required to fix the warning.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--
+Paul
 

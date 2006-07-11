@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWGKQFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWGKQGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWGKQFd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 12:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWGKQFd
+	id S1751026AbWGKQGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 12:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWGKQGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 12:05:33 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29854 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751088AbWGKQFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 12:05:32 -0400
-Subject: Re: [2.6 patch] drivers/ide/: cleanups
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44B3B61B.4010206@tls.msk.ru>
-References: <20060711141637.GS13938@stusta.de> <44B3B61B.4010206@tls.msk.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Jul 2006 17:20:04 +0100
-Message-Id: <1152634804.18028.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 11 Jul 2006 12:06:41 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22020 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751026AbWGKQGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 12:06:40 -0400
+Date: Tue, 11 Jul 2006 18:06:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org, akpm@osdl.org
+Subject: RFC: cleaning up the in-kernel headers
+Message-ID: <20060711160639.GY13938@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-07-11 am 18:30 +0400, ysgrifennodd Michael Tokarev:
-> Adrian Bunk wrote:
-> > This patch contains the following clenups:
-> > - setup-pci.c: #if 0 the unused ide_pci_unregister_driver()
-> 
-> Hmm.  So, ide drivers will be unloadable forever, without
-> a chance to fix it someday? ;)
+I'd like to cleanup the mess of the in-kernel headers, based on the 
+following rules:
+- every header should #include everything it uses
+- remove unneeded #include's from headers
 
-If you want removable IDE drivers use 2.4-ac or follow the libata work.
-drivers/ide is on its way out. In fact Adrian, just deleting that
-function would be a better patch.
+This would also remove all the implicit rules "before #include'ing 
+header foo.h, you must #include header bar.h" you usually only see when 
+the compilation fails.
 
-Alan
+There might be exceptions (e.g. for avoiding circular #include's) but 
+these would be special cases.
+
+As a side effect, this might also lead to additional cleanups.
+
+This might cause some breakages, but it should usually only be compile 
+breakages I'll fix as soon as I see them (or anyone else reports them 
+to me).
+
+My plan is to create a git tree where I'll work on this that will be 
+included in -mm.
+
+Is this OK for everyone?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

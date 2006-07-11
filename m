@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWGKMoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWGKMrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWGKMoD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 08:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWGKMnm
+	id S1751264AbWGKMrn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 08:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWGKMrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 08:43:42 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:14035 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751253AbWGKMnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 08:43:40 -0400
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: [PATCH 5/7] AVR32: Always enable CONFIG_EMBEDDED
-Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Tue, 11 Jul 2006 14:43:20 +0200
-Message-Id: <1152621802839-git-send-email-hskinnemoen@atmel.com>
-X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11526218021659-git-send-email-hskinnemoen@atmel.com>
-References: <11526218021728-git-send-email-hskinnemoen@atmel.com> <11526218022840-git-send-email-hskinnemoen@atmel.com> <11526218024091-git-send-email-hskinnemoen@atmel.com> <11526218021811-git-send-email-hskinnemoen@atmel.com> <11526218021659-git-send-email-hskinnemoen@atmel.com>
+	Tue, 11 Jul 2006 08:47:43 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39953 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751264AbWGKMrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 08:47:42 -0400
+Date: Tue, 11 Jul 2006 14:47:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Shaohua Li <shaohua.li@intel.com>,
+       Tigran Aivazian <tigran@veritas.com>, Greg KH <greg@kroah.com>
+Subject: [-mm patch] MICROCODE should select FW_LOADER
+Message-ID: <20060711124741.GM13938@stusta.de>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If CONFIG_EMBEDDED is not defined, we are unable to deselect some
-options which are unnecessary on most AVR32 setups. This patch
-unconditionally selects CONFIG_EMBEDDED so that "make allnoconfig"
-produces something closer to a minimal setup.
+On Sun, Jul 09, 2006 at 02:11:06AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-mm6:
+>...
+> +x86-microcode-add-sysfs-and-hotplug-support-fix-fix.patch
+> 
+>  Fix x86-microcode-add-sysfs-and-hotplug-support.patch some more.
+>...
 
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+FW_LOADER is a helper variable that should be select'ed.
+
+Please replace this patch with the patch below.
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+MICROCODE requires FW_LOADER.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
 ---
- arch/avr32/Kconfig |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/arch/avr32/Kconfig b/arch/avr32/Kconfig
-index b12216a..dd3190b 100644
---- a/arch/avr32/Kconfig
-+++ b/arch/avr32/Kconfig
-@@ -8,6 +8,9 @@ mainmenu "Linux Kernel Configuration"
- config AVR32
- 	bool
- 	default y
-+	# With EMBEDDED=n, we get lots of stuff automatically selected
-+	# that we usually don't need on AVR32.
-+	select EMBEDDED
- 	help
- 	  AVR32 is a high-performance 32-bit RISC microprocessor core,
- 	  designed for cost-sensitive embedded applications, with particular
--- 
-1.4.0
+ arch/i386/Kconfig   |    1 +
+ arch/x86_64/Kconfig |    1 +
+ 2 files changed, 2 insertions(+)
+
+--- linux-2.6.18-rc1-mm1-full/arch/i386/Kconfig.old	2006-07-11 00:12:53.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/arch/i386/Kconfig	2006-07-11 00:13:17.000000000 +0200
+@@ -399,6 +399,7 @@
+ 
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
++	select FW_LOADER
+ 	---help---
+ 	  If you say Y here and also to "/dev file system support" in the
+ 	  'File systems' section, you will be able to update the microcode on
+--- linux-2.6.18-rc1-mm1-full/arch/x86_64/Kconfig.old	2006-07-11 00:13:30.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/arch/x86_64/Kconfig	2006-07-11 00:13:43.000000000 +0200
+@@ -163,6 +163,7 @@
+ 
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel CPU microcode support"
++	select FW_LOADER
+ 	---help---
+ 	  If you say Y here the 'File systems' section, you will be
+ 	  able to update the microcode on Intel processors. You will
 

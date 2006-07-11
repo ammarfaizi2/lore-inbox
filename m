@@ -1,95 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWGKWJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWGKWKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWGKWJD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWGKWJB
+	id S932190AbWGKWKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWGKWKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:09:01 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:33236 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932169AbWGKWJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:09:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bQSNgtYHGUHRqHGThuO1+H8Ov2PcI402c30jvI8TKuRtHz7bWc4dWbjVKWHRvqtR1Tq37T7hAlFmYWeMxV7ADeGh+VU69cnloU2e+o3GtRrivGi47kT4hGwJsJxFVLscSRK61esbm64FTsQ2Qn7GEH+Cn+cvJeX5P8vYKFGhuiw=
-Message-ID: <9e4733910607111508x526ee642p5b587698306b22d3@mail.gmail.com>
-Date: Tue, 11 Jul 2006 18:08:59 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Jon Smirl" <jonsmirl@gmail.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: tty's use of file_list_lock and file_move
-In-Reply-To: <20060711194456.GA3677@flint.arm.linux.org.uk>
+	Tue, 11 Jul 2006 18:10:47 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52999 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932190AbWGKWKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:10:46 -0400
+Date: Wed, 12 Jul 2006 00:10:45 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1: drivers/ide/pci/jmicron.c warning
+Message-ID: <20060711221045.GC13938@stusta.de>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <20060711125258.GN13938@stusta.de> <20060711140257.GA6820@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152552806.27368.187.camel@localhost.localdomain>
-	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
-	 <1152554708.27368.202.camel@localhost.localdomain>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
-	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
-	 <20060711012904.GD30332@thunk.org>
-	 <20060711194456.GA3677@flint.arm.linux.org.uk>
+In-Reply-To: <20060711140257.GA6820@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/11/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> On Mon, Jul 10, 2006 at 09:29:04PM -0400, Theodore Tso wrote:
-> > On Mon, Jul 10, 2006 at 07:49:31PM -0400, Jon Smirl wrote:
-> > > How about the use of lock/unlock_kernel(). Is there some hidden global
-> > > synchronization going on? Every time lock/unlock_kernel() is used
-> > > there is a tty_struct available. My first thought would be to turn
-> > > this into a per tty spinlock. Looking at where it is used it looks
-> > > like it was added to protect all of the VFS calls. I see no obvious
-> > > coordination with other ttys that isn't handled by other locks.
-> >
-> > No, it was just a case of not being worth it to get rid of the BKL for
-> > the tty subsystem, since opening and closing tty's isn't exactly a
-> > common event.  Switching it to use a per-tty spinlock makes sense if
-> > we're going to rototill the code, but to be honest it's probably not
-> > going to make a noticeable difference on any benchmark and most
-> > workloads.
->
-> It's not that simple - remember that you must be able to open a tty
-> in non-blocking mode while someone else is opening the same tty in
-> blocking mode, _and_ succeed.  (iow, the getty waiting for call-in
-> and you want to dial out case.)
->
-> If we go for merely replacing BKL with some other lock, each tty
-> driver has to be able to drop that lock when it decides to sleep due
-> to no carrier in its open method... which is kind'a yuck.
+On Tue, Jul 11, 2006 at 10:02:57AM -0400, Alan Cox wrote:
+> On Tue, Jul 11, 2006 at 02:52:58PM +0200, Adrian Bunk wrote:
+> >   CC      drivers/ide/pci/jmicron.o
+> > drivers/ide/pci/jmicron.c: In function ???ata66_jmicron???:
+> > drivers/ide/pci/jmicron.c:99: warning: control reaches end of non-void function
+> 
+> If your gcc does this please file a gcc bug report
+> 
+> > At least from gcc's perspective, this warning is correct, and it should 
+> > therefore be fixed.
+> 
+> No. port_type is an enum. Each enum value in question is present in the 
+> switch (and gcc knows this), each has a return. Your compiler is buggy.
 
-Directly replacing BKL was my first strategy but that looks to be
-hard. Some of the sleeps are in the line discipline code which means I
-have to find all of them. After replacing BKL I'd try to simplify the
-locking.
+I'm not a C expert myself, so I asked a gcc developer on irc.
 
-What about adjusting things so the BKL isn't required? I tried
-completely removing it and died in release_dev. tty_mutex is already
-locks a lot of stuff, maybe it can be adjusted to allow removal of the
-BKL.
+The problem is that C allows you to assign other values than the ones 
+listed in the enum to the variable.
 
-I'm also trying to decide if read/write really need BKL when they are
-called. Read/write already uses the atomic_read/write_lock mutexes.
-
-read_chan has this comment:
- *	Perform reads for the line discipline. We are guaranteed that the
- *	line discipline will not be closed under us but we may get multiple
- *	parallel readers and must handle this ourselves. We may also get
- *	a hangup. Always called in user context, may sleep.
-
-But read_chan is always called from tty_io.c with BKL held. So is
-atomic_read_lock really doing anything or is it masked by BKL?
-
-I see why no one works on this code, it is very intertwined with the
-rest of the kernel and a lot of the reasons for locking are
-non-obvious.
+cu
+Adrian
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

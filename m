@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWGKUhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWGKUoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWGKUhm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWGKUhm
+	id S1751297AbWGKUoE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWGKUoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:37:42 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:35806
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1750870AbWGKUhl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:37:41 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Daniel Drake <dsd@gentoo.org>
-Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
-Date: Tue, 11 Jul 2006 22:39:17 +0200
-User-Agent: KMail/1.9.1
-References: <20060710152032.GA8540@elf.ucw.cz> <200607102305.06572.mb@bu3sch.de> <44B3912F.3010300@gentoo.org>
-In-Reply-To: <44B3912F.3010300@gentoo.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@ucw.cz>,
-       yi.zhu@intel.com, jketreno@linux.intel.com,
-       Netdev list <netdev@vger.kernel.org>, linville@tuxdriver.com,
-       kernel list <linux-kernel@vger.kernel.org>
+	Tue, 11 Jul 2006 16:44:04 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:62943 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751297AbWGKUoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:44:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dHkB4MIvQqKJ1dPf0guUn++mujZr2j+vVknPyGsagqlQjQBJ7DwEfqI3whvQ+XlW+p+NVSrF4Rhzl+yxhN+m06VAnEDGbi6iLS3b5KZ4Nu8KSaWSZXzZ3E6NiTNMg2y3ESsuLbWhb5SWpgL7CCRw11ZcHrXZSEWuZy09LywVs44=
+Message-ID: <a762e240607111344n73434f33n8297e92c0cc0b30@mail.gmail.com>
+Date: Tue, 11 Jul 2006 13:44:01 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Shailabh Nagar" <nagar@watson.ibm.com>
+Subject: Re: 2.6.18-rc1-mm1 panic on boot x86_64 NMI watchdog detected LOCKUP
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <44B408D6.1090505@watson.ibm.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607112239.17405.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a762e240607111112v1bd28135hf99fdf0cc08a6d52@mail.gmail.com>
+	 <20060711132102.acb46e5c.akpm@osdl.org>
+	 <44B408D6.1090505@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 13:53, you wrote:
-> Michael Buesch wrote:
-> > Does the ipw driver _really_ need the firmware on insmod time?
-> > bcm43xx, for example, loads the firmware on "ifconfig up" time.
-> > If ipw really needs the firmware on insmod, is it possible to
-> > defer it to later at "ifconfig up" time?
-> 
-> Is bcm43xx able to get the MAC address before the firmware is loaded?
+On 7/11/06, Shailabh Nagar <nagar@watson.ibm.com> wrote:
+> Andrew Morton wrote:
+> > Thanks.  Shailabh sent the below patch through yesterday.  It looks awfully
+> > similar.
+>
+>
+> Yes, this lockup on boot is caused by not initializing the per-cpu
+> semaphores early enough. The patch below should fix it.
+>
 
-Yes. We have a PROM that is readable without firmware.
-(And we actually do this and did it forever. So I don't know
-where your assumption comes from ;) )
+Thanks.  I applied the patch and the system booted :)
 
-> Last time I checked, if the MAC address is only discovered after the 
-> interface is created (as would be the case with ipw loading firmware on 
-> ifconfig up, I think), interface renaming does not work.
-
--- 
-Greetings Michael.
+Keith

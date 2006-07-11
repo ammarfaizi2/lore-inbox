@@ -1,243 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWGKUuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWGKUu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWGKUuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWGKUuz
+	id S1751310AbWGKUu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWGKUu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:50:55 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:39821 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751309AbWGKUuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:50:54 -0400
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 11 Jul 2006 16:50:58 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:19179 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1751310AbWGKUu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:50:57 -0400
+Message-ID: <44B40F2C.1050309@bootc.net>
+Date: Tue, 11 Jul 2006 21:50:52 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, ben-linux@fluff.org, rpurdie@rpsys.net,
+       Jim Cromie <jim.cromie@gmail.com>
+Subject: [PATCH] net48xx LED cleanups
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH] Add memcpy_cachebypass,
-	a copy routine that tries to keep cache pressure down
-X-Mercurial-Node: da0cd816c4cb37c4376bcae33220a201280f6e3e
-Message-Id: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-Date: Tue, 11 Jul 2006 13:50:55 -0700
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: linux-kernel@vger.kernel.org
-Cc: davem@davemloft.net, arjan@infradead.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This copy routine is memcpy-compatible, but on some architectures will use
-cache-bypassing loads to avoid bringing the source data into the cache.
+Add the DRVNAME define to remove the two separate references of the driver name 
+by string, and move the .driver.owner into the existing .driver sub-structure 
+(or whatever it's called).
 
-One case where this is useful is when a device issues a DMA to a memory
-region, and the CPU must copy the DMAed data elsewhere before doing any
-work with it.  Since the source data is read-once, write-never from the
-CPU's perspective, caching those addresses can only evict potentially
-useful data.
+Signed-off-by: Chris Boot <bootc@bootc.net>
 
-We provide an x86_64 implementation that uses SSE non-temporal loads,
-and a generic version that falls back to plain memcpy.
+diff --git a/drivers/leds/leds-net48xx.c b/drivers/leds/leds-net48xx.c
+index 35ee52f..713c4a8 100644
+--- a/drivers/leds/leds-net48xx.c
++++ b/drivers/leds/leds-net48xx.c
+@@ -18,6 +18,7 @@
+  #include <asm/io.h>
+  #include <linux/scx200_gpio.h>
 
-Implementors for other arches should not use cache-bypassing stores to
-the destination, as in most cases, the destination is accessed almost
-immediately after a copy finishes.
++#define DRVNAME "net48xx-led"
+  #define NET48XX_ERROR_LED_GPIO	20
 
-Signed-off-by: Ralph Campbell <ralph.campbell@qlogic.com>
-Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
+  static struct platform_device *pdev;
+@@ -66,13 +67,13 @@ static int net48xx_led_remove(struct pla
+  }
 
-diff -r c5610179c494 -r da0cd816c4cb include/linux/string.h
---- a/include/linux/string.h	Tue Jul 11 13:40:19 2006 -0700
-+++ b/include/linux/string.h	Tue Jul 11 13:41:40 2006 -0700
-@@ -85,6 +85,7 @@ extern void * memset(void *,int,__kernel
- #ifndef __HAVE_ARCH_MEMCPY
- extern void * memcpy(void *,const void *,__kernel_size_t);
- #endif
-+extern void * memcpy_cachebypass(void *,const void *,__kernel_size_t);
- #ifndef __HAVE_ARCH_MEMMOVE
- extern void * memmove(void *,const void *,__kernel_size_t);
- #endif
-diff -r c5610179c494 -r da0cd816c4cb lib/string.c
---- a/lib/string.c	Tue Jul 11 13:40:19 2006 -0700
-+++ b/lib/string.c	Tue Jul 11 13:41:40 2006 -0700
-@@ -509,6 +509,38 @@ EXPORT_SYMBOL(memcpy);
- EXPORT_SYMBOL(memcpy);
- #endif
- 
-+void *memcpy_cachebypass(void *dest, const void *src, size_t count)
-+	__attribute__((weak));
-+
-+/**
-+ * memcpy_cachebypass - Copy one area of memory to another, if possible
-+ * bypassing the CPU's cache when loading the copied-from data
-+ * @dest: Where to copy to
-+ * @src: Where to copy from (bypassing the CPU's cache, if possible)
-+ * @count: The size of the area.
-+ *
-+ * This memcpy-compatible routine is intended for use when the CPU
-+ * only reads the source data once.  It is useful when, for example, a
-+ * hardware device writes to a memory region, and the CPU needs to
-+ * copy this data somewhere else before working on it.  In such a
-+ * case, caching the source addresses only serves to evict possibly
-+ * useful data that will probably have to be reloaded.
-+ *
-+ * An arch-specific implementation should not attempt to bypass the
-+ * cache when storing to the destination, as copied data is usually
-+ * accessed almost immediately after a copy finishes.
-+ *
-+ * This routine does not *guarantee* that the source addresses won't
-+ * be cached; a user of this code must not rely on this behaviour for
-+ * correctness.  It should only be used in cases where it provides a
-+ * measurable performance improvement.
-+ */
-+void *memcpy_cachebypass(void *dest, const void *src, size_t count)
-+{
-+	return memcpy(dest, src, count);
-+}
-+EXPORT_SYMBOL_GPL(memcpy_cachebypass);
-+
- #ifndef __HAVE_ARCH_MEMMOVE
- /**
-  * memmove - Copy one area of memory to another
-diff -r c5610179c494 -r da0cd816c4cb arch/x86_64/lib/memcpy_cachebypass.S
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/arch/x86_64/lib/memcpy_cachebypass.S	Tue Jul 11 13:41:40 2006 -0700
-@@ -0,0 +1,142 @@
-+/*
-+ * Copyright (c) 2006 QLogic, Inc.  All Rights Reserved.
-+ *
-+ * This file is free software; you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software Foundation,
-+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
-+ */
-+
-+/*
-+ * memcpy_cachebypass - memcpy-compatible copy routine, using streaming loads
-+ * @dest: destination address
-+ * @src: source address (will not be cached)
-+ * @count: number of bytes to copy
-+ *
-+ * Use streaming loads and normal stores for a special-case copy where
-+ * we know we won't be reading the source again, but will be reading the
-+ * destination again soon.
-+ */
-+	.text
-+	.p2align 4,,15
-+	/* rdi  destination, rsi source, rdx count */
-+	.globl	memcpy_cachebypass
-+	.type	memcpy_cachebypass, @function
-+memcpy_cachebypass:
-+	movq	%rdi, %rax
-+.L5:
-+	cmpq	$15, %rdx
-+	ja	.L34
-+.L3:
-+	cmpl	$8, %edx	/* rdx is 0..15 */
-+	jbe	.L9
-+.L6:
-+	testb	$8, %dxl	/* rdx is 3,5,6,7,9..15 */
-+	je	.L13
-+	movq	(%rsi), %rcx
-+	addq	$8, %rsi
-+	movq	%rcx, (%rdi)
-+	addq	$8, %rdi
-+.L13:
-+	testb	$4, %dxl
-+	je	.L15
-+	movl	(%rsi), %ecx
-+	addq	$4, %rsi
-+	movl	%ecx, (%rdi)
-+	addq	$4, %rdi
-+.L15:
-+	testb	$2, %dxl
-+	je	.L17
-+	movzwl	(%rsi), %ecx
-+	addq	$2, %rsi
-+	movw	%cx, (%rdi)
-+	addq	$2, %rdi
-+.L17:
-+	testb	$1, %dxl
-+	je	.L33
-+.L1:
-+	movzbl	(%rsi), %ecx
-+	movb	%cl, (%rdi)
-+.L33:
-+	ret
-+.L34:
-+	cmpq	$63, %rdx	/* rdx is > 15 */
-+	ja	.L64
-+	movl	$16, %ecx	/* rdx is 16..63 */
-+.L25:
-+	movq	8(%rsi), %r8
-+	movq	(%rsi), %r9
-+	addq	%rcx, %rsi
-+	movq	%r8, 8(%rdi)
-+	movq	%r9, (%rdi)
-+	addq	%rcx, %rdi
-+	subq	%rcx, %rdx
-+	cmpl	%edx, %ecx	/* is rdx >= 16? */
-+	jbe	.L25
-+	jmp	.L3		/* rdx is 0..15 */
-+	.p2align 4,,7
-+.L64:
-+	movl	$64, %ecx
-+.L42:
-+	prefetchnta	128(%rsi)
-+	movq	(%rsi), %r8
-+	movq	8(%rsi), %r9
-+	movq	16(%rsi), %r10
-+	movq	24(%rsi), %r11
-+	subq	%rcx, %rdx
-+	movq	%r8, (%rdi)
-+	movq	32(%rsi), %r8
-+	movq	%r9, 8(%rdi)
-+	movq	40(%rsi), %r9
-+	movq	%r10, 16(%rdi)
-+	movq	48(%rsi), %r10
-+	movq	%r11, 24(%rdi)
-+	movq	56(%rsi), %r11
-+	addq	%rcx, %rsi
-+	movq	%r8, 32(%rdi)
-+	movq	%r9, 40(%rdi)
-+	movq	%r10, 48(%rdi)
-+	movq	%r11, 56(%rdi)
-+	addq	%rcx, %rdi
-+	cmpq	%rdx, %rcx	/* is rdx >= 64? */
-+	jbe	.L42
-+	sfence
-+	orl	%edx, %edx
-+	je	.L33
-+	jmp	.L5
-+.L9:
-+	jmp	*.L12(,%rdx,8)	/* rdx is 0..8 */
-+	.section	.rodata
-+	.align 8
-+	.align 4
-+.L12:
-+	.quad	.L33
-+	.quad	.L1
-+	.quad	.L2
-+	.quad	.L6
-+	.quad	.L4
-+	.quad	.L6
-+	.quad	.L6
-+	.quad	.L6
-+	.quad	.L8
-+	.text
-+.L2:
-+	movzwl	(%rsi), %ecx
-+	movw	%cx, (%rdi)
-+	ret
-+.L4:
-+	movl	(%rsi), %ecx
-+	movl	%ecx, (%rdi)
-+	ret
-+.L8:
-+	movq	(%rsi), %rcx
-+	movq	%rcx, (%rdi)
-+	ret
+  static struct platform_driver net48xx_led_driver = {
+-	.driver.owner	= THIS_MODULE,
+  	.probe		= net48xx_led_probe,
+  	.remove		= net48xx_led_remove,
+  	.suspend	= net48xx_led_suspend,
+  	.resume		= net48xx_led_resume,
+  	.driver		= {
+-		.name = "net48xx-led",
++		.name		= DRVNAME,
++		.owner		= THIS_MODULE,
+  	},
+  };
+
+@@ -89,7 +90,7 @@ static int __init net48xx_led_init(void)
+  	if (ret < 0)
+  		goto out;
+
+-	pdev = platform_device_register_simple("net48xx-led", -1, NULL, 0);
++	pdev = platform_device_register_simple(DRVNAME, -1, NULL, 0);
+  	if (IS_ERR(pdev)) {
+  		ret = PTR_ERR(pdev);
+  		platform_driver_unregister(&net48xx_led_driver);
+
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

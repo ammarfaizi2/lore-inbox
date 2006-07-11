@@ -1,196 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965164AbWGKEuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWGKEyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965164AbWGKEuv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 00:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWGKEuu
+	id S965209AbWGKEyB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 00:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965207AbWGKEyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 00:50:50 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56196 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965169AbWGKEut (ORCPT
+	Tue, 11 Jul 2006 00:54:01 -0400
+Received: from waha.wetafx.co.nz ([210.55.0.200]:23216 "EHLO waha.wetafx.co.nz")
+	by vger.kernel.org with ESMTP id S965209AbWGKEyA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 00:50:49 -0400
-Subject: Re: [Patch 0/6] delay accounting & taskstats fixes
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Jay Lan <jlan@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Paul Jackson <pj@sgi.com>,
-       Balbir Singh <balbir@in.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>
-In-Reply-To: <1152591838.14142.114.camel@localhost.localdomain>
-References: <1152591838.14142.114.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1152593446.14142.151.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 11 Jul 2006 00:50:46 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 00:54:00 -0400
+Message-ID: <44B32888.6050406@wetafx.co.nz>
+Date: Tue, 11 Jul 2006 16:26:48 +1200
+From: Bill Ryder <bryder@wetafx.co.nz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 Thunderbird/1.5.0.4 Mnenhy/0.7.4.0
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x kernels
+Content-Type: multipart/mixed;
+ boundary="------------060909080303020303050002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 00:23, Shailabh Nagar wrote:
-> Some results showing the cpumask feature 
-> works as expected will follow separately.
+This is a multi-part message in MIME format.
+--------------060909080303020303050002
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-To illustrate the basic premise behind the cpumask changes
-namely, reducing the number of cpus results in fewer overflow
-conditions, Chandra ran the following experiment on an
-8-way PIII box:
+Hello all,
 
-- "mkthreads 1000 1000" (the program which only forks/exits) with
-minimum time spent inside the thread function. This is basically an exit
-rate that is higher than the 1000/cpu/sec discussed earlier.
+I've read all the stuff on submitting patches and this seems to be the
+place.
 
-- A slightly modified version of the getdelays.c example that is 
-included in patch 2/6 in this series of postings. Modification was
-to print only the number of receives and number of ENOBUFS seen. 
+Please CC me on any replies to this (although I do watch this through
+list with  gmane)
 
-The -m parameter specifies the cpumask, 
--r parameter is the size of the socket receive buffer 
--l results in listening for exit data
+Here's the patch description. I've attached the patch. Hopefully I've
+followed the rules in Documentation/Submit* - apart from CC'ing Linus).
 
+Summary:
 
-The following sets of runs are self-explanatory.
-Initial run emulates the earlier behaviour where one listener
-receives data for all cpus. As the number of cpus to which it
-listens is reduced, the ENOBUFS reduce.
+Patch to allow the option of not sorting a process's supplemental
+(also known ask secondary aka supplementary) group list. 
 
-Similarly, increasing the receive buffer size also cuts down 
-on the ENOBUFS, further helped by reducing number of cpus listened
-to. The final data point, not shown here, is when the receive 
-buffer size is set to some high number like 8K when the ENOBUFS aren't
-seen at all.
+Setting the kernel config option of UNSORTED_SUPPLEMENTAL_GROUPLIST
+will allow the use of setgroups(2) to reorder a supplemental
+group list to work around the NFS AUTH_UNIX 16 group limit. 
 
+In fact I  think this should be the default option because anyone using
+setgroups
+may get an unpleasant surprise with 2.6.x. But for now this patch makes
+it an option.
 
-===================================
+Longer version:
 
-Each output shows 
-stats <number of msgs rcvd> enobufs <num of enobufs seen>
-cumulatively
+Like many places Weta Digital (we did the VFX for Lord of the Rings,
+King Kong etc)
+uses supplemental group lists to allow users access to multiple
+directories and files (films mostly in our
+case) . Unfortunately NFSv2 and NFSv3 AUTH_UNIX flavour authentication
+is hardcoded to only support 16 supplemental groups. Since we currently
+have some users and processes which need to be in more than 16 groups
+we use setgroups to build a list of groups that a process requires when
+they access data on nfs exported filesystems.
 
-elm3b94:/tmp # ./getdelays -m 0-7 -r 512 -l
-cpumask 0-7 maskset 1
-receive buf size 512
-listen forever
- stats 100000, enobufs 2540
- stats 200000, enobufs 5701
- stats 300000, enobufs 8482
- stats 400000, enobufs 11332
- stats 500000, enobufs 14256
- stats 600000, enobufs 17150
- stats 700000, enobufs 19981
- stats 800000, enobufs 22971
- stats 900000, enobufs 26324
- stats 1000000, enobufs 29291
+This worked fine for the 2.4.x kernels. 2.6.x is designed to handle
+thousands of groups for a single user. To support that the kernel was
+changed to sort the group list, then use a binary search to decide if
+a user was in the correct group. Unfortunately this BREAKS the use of
+setgroups(2) to put the 16 most important groups first. 
 
-elm3b94:/tmp # ./getdelays -m 0-3 -r 512 -l
-cpumask 0-3 maskset 1
-receive buf size 512
-listen forever
- stats 100000, enobufs 831
- stats 200000, enobufs 1772
- stats 300000, enobufs 2728
- stats 400000, enobufs 3820
- stats 500000, enobufs 5030
- stats 600000, enobufs 6501
- stats 700000, enobufs 7885
- stats 800000, enobufs 8971
- stats 900000, enobufs 10262
- stats 1000000, enobufs 11786
+This patch provides the option of not sorting that list. The help
+describes the pitfalls of not sorting the groups (performance when
+there are a lot of groups).
 
-elm3b94:/tmp # ./getdelays -m 2-3 -r 512 -l
-cpumask 2-3 maskset 1
-receive buf size 512
-listen forever
- stats 100000, enobufs 106
- stats 200000, enobufs 206
- stats 300000, enobufs 313
- stats 400000, enobufs 389
- stats 500000, enobufs 477
- stats 600000, enobufs 676
- stats 700000, enobufs 860
- stats 800000, enobufs 1048
- stats 900000, enobufs 1189
- stats 1000000, enobufs 1303
-
-elm3b94:/tmp # ./getdelays -m 0 -r 512 -l
-cpumask 0 maskset 1
-receive buf size 512
-listen forever
- stats 100000, enobufs 100
- stats 200000, enobufs 162
- stats 300000, enobufs 302
- stats 400000, enobufs 399
- stats 500000, enobufs 507
- stats 600000, enobufs 571
- stats 700000, enobufs 666
- stats 800000, enobufs 725
- stats 900000, enobufs 821
- stats 1000000, enobufs 909
-
-================= with recv buf size 2048
-
-elm3b94:/tmp # ./getdelays -m 0-7 -r 2048 -l
-cpumask 0-7 maskset 1
-receive buf size 2048
-listen forever
- stats 100000, enobufs 35
- stats 200000, enobufs 88
- stats 300000, enobufs 123
- stats 400000, enobufs 138
- stats 500000, enobufs 155
- stats 600000, enobufs 191
- stats 700000, enobufs 223
- stats 800000, enobufs 238
- stats 900000, enobufs 280
- stats 1000000, enobufs 319
+----
+Bill Ryder
+System Engineer
+Weta Digital
 
 
-elm3b94:/tmp # ./getdelays -m 4-7 -r 2048 -l
-cpumask 4-7 maskset 1
-receive buf size 2048
-listen forever
- stats 100000, enobufs 10
- stats 200000, enobufs 17
- stats 300000, enobufs 28
- stats 400000, enobufs 35
- stats 500000, enobufs 49
- stats 600000, enobufs 63
- stats 700000, enobufs 80
- stats 800000, enobufs 94
- stats 900000, enobufs 114
- stats 1000000, enobufs 138
-
-elm3b94:/tmp # ./getdelays -m 2-3 -r 2048 -l
-cpumask 2-3 maskset 1
-receive buf size 2048
-listen forever
- stats 100000, enobufs 5
- stats 200000, enobufs 6
- stats 300000, enobufs 10
- stats 400000, enobufs 14
- stats 500000, enobufs 19
- stats 600000, enobufs 33
- stats 700000, enobufs 38
- stats 800000, enobufs 43
- stats 900000, enobufs 54
- stats 1000000, enobufs 59
 
 
-elm3b94:/tmp # ./getdelays -m 1 -r 2048 -l
-cpumask 1 maskset 1
-receive buf size 2048
-listen forever
- stats 100000, enobufs 3
- stats 200000, enobufs 6
- stats 300000, enobufs 19
- stats 400000, enobufs 25
- stats 500000, enobufs 30
- stats 600000, enobufs 31
- stats 700000, enobufs 33
- stats 800000, enobufs 45
- stats 900000, enobufs 48
- stats 1000000, enobufs 52
+--------------060909080303020303050002
+Content-Type: text/x-patch;
+ name="linux-2.6.18-rc1.unsorted_groups.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.18-rc1.unsorted_groups.patch"
 
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/arch/i386/Kconfig linux-2.6.18-rc1.unsorted_groups/arch/i386/Kconfig
+--- linux-2.6.18-rc1.orig/arch/i386/Kconfig	2006-07-07 13:12:20.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/arch/i386/Kconfig	2006-07-07 11:46:34.000000000 +1200
+@@ -258,6 +258,7 @@ config SCHED_MC
+ 	  increased overhead in some places. If unsure say N here.
+ 
+ source "kernel/Kconfig.preempt"
++source "kernel/Kconfig.unsortedgroups"
+ 
+ config X86_UP_APIC
+ 	bool "Local APIC support on uniprocessors"
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/arch/mips/Kconfig linux-2.6.18-rc1.unsorted_groups/arch/mips/Kconfig
+--- linux-2.6.18-rc1.orig/arch/mips/Kconfig	2006-07-07 13:12:22.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/arch/mips/Kconfig	2006-07-07 11:46:34.000000000 +1200
+@@ -1820,6 +1820,7 @@ config HZ
+ 	default 1024 if HZ_1024
+ 
+ source "kernel/Kconfig.preempt"
++source "kernel/Kconfig.unsortedgroups"
+ 
+ config RTC_DS1742
+ 	bool "DS1742 BRAM/RTC support"
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/arch/parisc/Kconfig linux-2.6.18-rc1.unsorted_groups/arch/parisc/Kconfig
+--- linux-2.6.18-rc1.orig/arch/parisc/Kconfig	2006-07-07 13:12:23.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/arch/parisc/Kconfig	2006-07-07 11:46:34.000000000 +1200
+@@ -220,6 +220,7 @@ config NODES_SHIFT
+ source "kernel/Kconfig.preempt"
+ source "kernel/Kconfig.hz"
+ source "mm/Kconfig"
++source "kernel/Kconfig.unsortedgroups"
+ 
+ config COMPAT
+ 	def_bool y
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/arch/powerpc/Kconfig linux-2.6.18-rc1.unsorted_groups/arch/powerpc/Kconfig
+--- linux-2.6.18-rc1.orig/arch/powerpc/Kconfig	2006-07-07 13:12:23.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/arch/powerpc/Kconfig	2006-07-07 11:46:34.000000000 +1200
+@@ -593,6 +593,7 @@ config HIGHMEM
+ source kernel/Kconfig.hz
+ source kernel/Kconfig.preempt
+ source "fs/Kconfig.binfmt"
++source "kernel/Kconfig.unsortedgroups"
+ 
+ # We optimistically allocate largepages from the VM, so make the limit
+ # large enough (16MB). This badly named config option is actually
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/arch/x86_64/Kconfig linux-2.6.18-rc1.unsorted_groups/arch/x86_64/Kconfig
+--- linux-2.6.18-rc1.orig/arch/x86_64/Kconfig	2006-07-07 13:12:26.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/arch/x86_64/Kconfig	2006-07-07 11:46:34.000000000 +1200
+@@ -273,6 +273,8 @@ config SCHED_MC
+ 	  increased overhead in some places. If unsure say N here.
+ 
+ source "kernel/Kconfig.preempt"
++source "kernel/Kconfig.unsortedgroups"
++
+ 
+ config NUMA
+        bool "Non Uniform Memory Access (NUMA) Support"
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/kernel/Kconfig.unsortedgroups linux-2.6.18-rc1.unsorted_groups/kernel/Kconfig.unsortedgroups
+--- linux-2.6.18-rc1.orig/kernel/Kconfig.unsortedgroups	1970-01-01 12:00:00.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/kernel/Kconfig.unsortedgroups	2006-07-07 11:46:34.000000000 +1200
+@@ -0,0 +1,16 @@
++#
++# Groups order
++#
++config USE_UNSORTED_SUPPLEMENTAL_GROUPS
++	bool "Use unsorted supplemental groups"
++	help
++
++	 If you need to use setgroups(2) to order a process's supplemental group list so that you can 
++         choose which 16 groups are sent during a NFSv2 or NFSv3 AUTH_UNIX (the default authentication protocol)
++         transaction you need to say Y here.
++
++         If you do not have users with more than 16 groups who need to access NFS you don't need this.
++
++         Do not set this option if you are going to have users in thousands of secondary groups. The default 
++	 kernel implementation sorts the groups and then binary searches them for membership. This option forces 
++  	 the search to be linear.
+diff -uprN -X linux-2.6.18-rc1.orig/Documentation/dontdiff linux-2.6.18-rc1.orig/kernel/sys.c linux-2.6.18-rc1.unsorted_groups/kernel/sys.c
+--- linux-2.6.18-rc1.orig/kernel/sys.c	2006-07-07 13:12:44.000000000 +1200
++++ linux-2.6.18-rc1.unsorted_groups/kernel/sys.c	2006-07-11 14:45:08.007916000 +1200
+@@ -1535,14 +1535,22 @@ static void groups_sort(struct group_inf
+ 	}
+ }
+ 
+-/* a simple bsearch */
++/* if USE_UNSORTED_SUPPLEMENTAL_GROUPS is set this is a linear search. If not it's a binary search */
+ int groups_search(struct group_info *group_info, gid_t grp)
+ {
+-	unsigned int left, right;
+ 
+ 	if (!group_info)
+ 		return 0;
+ 
++#ifdef USE_UNSORTED_SUPPLEMENTAL_GROUPS
++	unsigned int i;
++
++	for (i=0; i < group_info->ngroups; i++)
++		if (GROUP_AT(group_info,i) == grp)
++			return 1;
++#else
++	unsigned int left, right;
++
+ 	left = 0;
+ 	right = group_info->ngroups;
+ 	while (left < right) {
+@@ -1555,6 +1563,7 @@ int groups_search(struct group_info *gro
+ 		else
+ 			return 1;
+ 	}
++#endif
+ 	return 0;
+ }
+ 
+@@ -1568,7 +1577,10 @@ int set_current_groups(struct group_info
+ 	if (retval)
+ 		return retval;
+ 
++#ifndef USE_UNSORTED_SUPPLEMENTAL_GROUPS
+ 	groups_sort(group_info);
++#endif
++
+ 	get_group_info(group_info);
+ 
+ 	task_lock(current);
 
+--------------060909080303020303050002--

@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWGKBP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWGKB3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbWGKBP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 21:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWGKBP4
+	id S964965AbWGKB3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 21:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWGKB3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 21:15:56 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:54088 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965056AbWGKBPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 21:15:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QbQWRRP3OFAKs1RZSKpHXrA4rOKPDKPsBoLnUG5E4ZG+xrCVNT7UHBnQz7y0gzdlWzZaHvu/wrwO6njXpPB6PyT+KpEl7UeZAj4hUUIUcKabT9nUmSRxeEMJr81EzUqEpuX5kTAir4ESwvOhS4ufigYWHwUs/EG2DTtkBEfGeNY=
-Message-ID: <e1e1d5f40607101815u51ec0d2ej49a8e91907e051f3@mail.gmail.com>
-Date: Mon, 10 Jul 2006 21:15:54 -0400
-From: "Daniel Bonekeeper" <thehazard@gmail.com>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: Automatic Kernel Bug Report
-Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       "Pavel Machek" <pavel@ucw.cz>, "Adrian Bunk" <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1152574888.19047.44.camel@mindpipe>
+	Mon, 10 Jul 2006 21:29:10 -0400
+Received: from thunk.org ([69.25.196.29]:57301 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S964965AbWGKB3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 21:29:09 -0400
+Date: Mon, 10 Jul 2006 21:29:04 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+Message-ID: <20060711012904.GD30332@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com> <1152552806.27368.187.camel@localhost.localdomain> <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com> <1152554708.27368.202.camel@localhost.localdomain> <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com> <1152573312.27368.212.camel@localhost.localdomain> <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com> <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e1e1d5f40607090145k365c0009ia3448d71290154c@mail.gmail.com>
-	 <20060709191107.GN13938@stusta.de>
-	 <e1e1d5f40607091301j723b92bje147932a4395775c@mail.gmail.com>
-	 <200607092019.k69KJt66005527@turing-police.cc.vt.edu>
-	 <e1e1d5f40607091327y3db1cbdco89ebdb04cda60ce0@mail.gmail.com>
-	 <20060710081131.GA2251@elf.ucw.cz>
-	 <e1e1d5f40607101040u3baf0da7r43d5538700b02e2@mail.gmail.com>
-	 <200607101759.k6AHxbda012403@turing-police.cc.vt.edu>
-	 <e1e1d5f40607101505peb27581n729bcb14842d2956@mail.gmail.com>
-	 <1152574888.19047.44.camel@mindpipe>
+In-Reply-To: <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/10/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2006-07-10 at 18:05 -0400, Daniel Bonekeeper wrote:
-> > That's a good example. Another example: a little while ago
-> > (http://lkml.org/lkml/2006/7/1/70) Daniel Drake from Gentoo was
-> > reporting a problem where page_mapcount(page) was getting negative. As
-> > it turned out, it was related with a nVidia proprietary driver that
-> > the machine was running. With the system, we just needed to search for
-> > "Eeek! page_mapcount(page) went negative! (-1)" on kernels 2.6.16.19
-> > (maybe too generic), and he would see that lots of people reporting
-> > that has, between other things, nVidia drivers running. It's already a
-> > clue on where to start looking for. The same applies for lots of other
-> > stuff.
->
-> That sounds backwards to me - any kernel bug reporting system should
-> immediately discard bug reports with the nvidia driver loaded, as such a
-> kernel is not debuggable.
+On Mon, Jul 10, 2006 at 07:49:31PM -0400, Jon Smirl wrote:
+> How about the use of lock/unlock_kernel(). Is there some hidden global
+> synchronization going on? Every time lock/unlock_kernel() is used
+> there is a tty_struct available. My first thought would be to turn
+> this into a per tty spinlock. Looking at where it is used it looks
+> like it was added to protect all of the VFS calls. I see no obvious
+> coordination with other ttys that isn't handled by other locks.
 
-Our job is to do kernel, and anything related to it should not be discarded.
-The system has to have the flexibility to provide the same information
-ignoring tainted configurations, if it's that what you need. ("provide
-mechanism, not policy")
+No, it was just a case of not being worth it to get rid of the BKL for
+the tty subsystem, since opening and closing tty's isn't exactly a
+common event.  Switching it to use a per-tty spinlock makes sense if
+we're going to rototill the code, but to be honest it's probably not
+going to make a noticeable difference on any benchmark and most
+workloads.
 
-Daniel
-
--- 
-What this world needs is a good five-dollar plasma weapon.
+						- Ted

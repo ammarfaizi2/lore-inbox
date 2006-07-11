@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWGKTDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWGKTFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWGKTDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWGKTDy
+	id S1751186AbWGKTFv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWGKTFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:03:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16068 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751182AbWGKTDx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:03:53 -0400
-Date: Tue, 11 Jul 2006 15:03:46 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 18rc1 soft lockup
-Message-ID: <20060711190346.GK5362@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Tue, 11 Jul 2006 15:05:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30734 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751186AbWGKTFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:05:50 -0400
+Date: Tue, 11 Jul 2006 20:05:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+Message-ID: <20060711190544.GB1240@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+	torvalds@osdl.org, akpm@osdl.org
+References: <20060711160639.GY13938@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060711160639.GY13938@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just saw this during boot of a HT P4 box.
+On Tue, Jul 11, 2006 at 06:06:39PM +0200, Adrian Bunk wrote:
+> My plan is to create a git tree where I'll work on this that will be 
+> included in -mm.
+> 
+> Is this OK for everyone?
 
-BUG: soft lockup detected on CPU#0!
- [<c04051af>] show_trace_log_lvl+0x54/0xfd
- [<c0405766>] show_trace+0xd/0x10
- [<c0405885>] dump_stack+0x19/0x1b
- [<c0450ec7>] softlockup_tick+0xa5/0xb9
- [<c042d496>] run_local_timers+0x12/0x14
- [<c042d81b>] update_process_times+0x3c/0x61
- [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
- [<c0404ada>] apic_timer_interrupt+0x2a/0x30
-BUG: soft lockup detected on CPU#1!
- [<c04051af>] show_trace_log_lvl+0x54/0xfd
- [<c0405766>] show_trace+0xd/0x10
- [<c0405885>] dump_stack+0x19/0x1b
- [<c0450ec7>] softlockup_tick+0xa5/0xb9
- [<c042d496>] run_local_timers+0x12/0x14
- [<c042d81b>] update_process_times+0x3c/0x61
- [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
- [<c0404ada>] apic_timer_interrupt+0x2a/0x30
-BUG: soft lockup detected on CPU#0!
- [<c04051af>] show_trace_log_lvl+0x54/0xfd
- [<c0405766>] show_trace+0xd/0x10
- [<c0405885>] dump_stack+0x19/0x1b
- [<c0450ec7>] softlockup_tick+0xa5/0xb9
- [<c042d496>] run_local_timers+0x12/0x14
- [<c042d81b>] update_process_times+0x3c/0x61
- [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
- [<c0404ada>] apic_timer_interrupt+0x2a/0x30
+Sure, provided it's also tested on non-x86 architectures as well.
 
-It then continued booting just fine..
+At the moment, someone did a "clean up" of linux/tty.h includes
+which has broken the 99% of the ARM defconfigs, and despite this
+patch being in -mm and allegedly fixed by akpm for ARM, the result
+is still massive breakage.
 
-		Dave
+Hence, -mm is probably far too different from mainline for include
+cleanups to be properly tested before they're sent to Linus - iow
+they need an additional level of testing against Linus' tree _prior_
+to being submitted to Linus.
+
+Apart from that, I've no problem with anyone who wants to clean up
+the include mess.
 
 -- 
-http://www.codemonkey.org.uk
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

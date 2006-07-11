@@ -1,98 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWGKVpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWGKVsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWGKVpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGKVpU
+	id S932139AbWGKVsE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWGKVsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:45:20 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23244 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751333AbWGKVpS (ORCPT
+	Tue, 11 Jul 2006 17:48:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56982 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932138AbWGKVsA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:45:18 -0400
-Date: Tue, 11 Jul 2006 15:32:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, yi.zhu@intel.com,
-       jketreno@linux.intel.com, Netdev list <netdev@vger.kernel.org>,
-       linville@tuxdriver.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
-Message-ID: <20060711133227.GA1650@elf.ucw.cz>
-References: <20060710152032.GA8540@elf.ucw.cz> <44B2940A.2080102@pobox.com> <200607102305.06572.mb@bu3sch.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607102305.06572.mb@bu3sch.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 11 Jul 2006 17:48:00 -0400
+Date: Tue, 11 Jul 2006 14:51:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: kkeil@suse.de, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       i4ldeveloper@listserv.isdn4linux.de,
+       linux-usb-devel@lists.sourceforge.net, hjlipp@web.de
+Subject: Re: [mm Patch] isdn4linux: Gigaset driver: fix __must_check warning
+Message-Id: <20060711145117.25dd09f2.akpm@osdl.org>
+In-Reply-To: <20060711115359.C9A4D1B8F4F@gx110.ts.pxnet.com>
+References: <20060711115359.C9A4D1B8F4F@gx110.ts.pxnet.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-07-10 23:05:06, Michael Buesch wrote:
-> On Monday 10 July 2006 19:53, you wrote:
-> > Pavel Machek wrote:
-> > > Kconfig currently allows compiling IPW_2100 and IPW_2200 into kernel
-> > > (not as a module). Unfortunately, such configuration does not work,
-> > > because these drivers need a firmware, and it can't be loaded by
-> > > userspace loader when userspace is not running.
-> > 
-> > False, initramfs...
+Tilman Schmidt <tilman@imap.cc> wrote:
+>
+> This patch to the Siemens Gigaset driver fixes the compile warning
+> "ignoring return value of 'class_device_create_file', declared with
+> attribute warn_unused_result" appearing with CONFIG_ENABLE_MUST_CHECK=y
+> in release 2.6.18-rc1-mm1.
 > 
-> Does the ipw driver _really_ need the firmware on insmod time?
-> bcm43xx, for example, loads the firmware on "ifconfig up" time.
-> If ipw really needs the firmware on insmod, is it possible to
-> defer it to later at "ifconfig up" time?
+> Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+> Acked-by: Hansjoerg Lipp <hjlipp@web.de>
+> ---
+> 
+>  proc.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.6.18-rc1-orig/drivers/isdn/gigaset/proc.c	2006-07-09 17:19:49.000000000 +0200
+> +++ linux-2.6.18-rc1-mm1-work/drivers/isdn/gigaset/proc.c	2006-07-09 18:31:15.000000000 +0200
+> @@ -83,5 +83,6 @@ void gigaset_init_dev_sysfs(struct cards
+>  		return;
+>  
+>  	gig_dbg(DEBUG_INIT, "setting up sysfs");
+> -	class_device_create_file(cs->class, &class_device_attr_cidmode);
+> +	if (class_device_create_file(cs->class, &class_device_attr_cidmode))
+> +		dev_warn(cs->dev, "could not create sysfs attribute\n");
+>  }
 
-Probably not. This (very dirty) hack implements that (with some level
-of success -- ifconfig down/ifconfig up is enough to get wireless
-working).
+hm.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+With this change we'll emit a warning (actually it's an error - I'll make
+it dev_err(), OK?) and then we'll continue execution, pretending that the
+sysfs file actually got registered.  Later, we'll try to unregister a
+not-registered sysfs file.
 
-									Pavel
+So it's all a bit flakey when you look at it in a dumb fashion.
 
---- clean-mm/drivers/net/wireless/ipw2200.c	2006-07-11 15:22:50.000000000 +0200
-+++ linux-mm/drivers/net/wireless/ipw2200.c	2006-07-11 14:38:01.000000000 +0200
-@@ -97,6 +97,7 @@
- static int bt_coexist = 0;
- static int hwcrypto = 0;
- static int roaming = 1;
-+static int needs_reinit = 1;
- static const char ipw_modes[] = {
- 	'a', 'b', 'g', '?'
- };
-@@ -10013,10 +10014,20 @@
- 	sys_config->silence_threshold = 0x1e;
- }
- 
-+static int ipw_pci_suspend(struct pci_dev *pdev, pm_message_t state);
-+static int ipw_pci_resume(struct pci_dev *pdev);
-+
- static int ipw_net_open(struct net_device *dev)
- {
- 	struct ipw_priv *priv = ieee80211_priv(dev);
- 	IPW_DEBUG_INFO("dev->open\n");
-+
-+	if (needs_reinit) {
-+		printk("ipw: Delayed loading the firmware\n");
-+		ipw_pci_suspend(priv->pci_dev, PMSG_FREEZE);
-+		ipw_pci_resume(priv->pci_dev);
-+	}
-+
- 	/* we should be verifying the device is ready to be opened */
- 	mutex_lock(&priv->mutex);
- 	if (!(priv->status & STATUS_RF_KILL_MASK) &&
-@@ -11295,7 +11306,8 @@
- 
- 	if (ipw_up(priv)) {
- 		mutex_unlock(&priv->mutex);
--		return -EIO;
-+		needs_reinit = 1;
-+		return 0;
- 	}
- 
- 	mutex_unlock(&priv->mutex);
+But I think the patch is OK - if that class_device_create_file() fails,
+then there's some other bug somewhere, and the warning you've added is
+sufficient - it tells the developers what the initial failure was, when it
+happens.  So later, if someone reports a crash, we'll see that warning in
+their logs and it'll lead us to the real bug.  We certainly couldn't
+justify adding additional code which attempts to "continue working" if the
+class_device_create_file() fails, because it just shouldn't fail.
 
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+It's probable that the message will never come out ever, so it's not worth
+adding a ton of code to support this.
+
+It'd be better if we had a class_device_create_file_warn() which does the
+warning for you: its semantics are "this is expected to succeed".  But if
+we do that to class_device_create_file() then we'd need to do it to 200
+other things too.
+

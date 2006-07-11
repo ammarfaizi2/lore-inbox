@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWGKKnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWGKKvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWGKKnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 06:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWGKKnU
+	id S1750995AbWGKKvw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 06:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWGKKvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 06:43:20 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44726 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750996AbWGKKnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 06:43:19 -0400
-Subject: Re: system 'date apis' in linux kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: chinmaya@innomedia.soft.net
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <44B3805C.9000608@innomedia.soft.net>
-References: <44B3805C.9000608@innomedia.soft.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Jul 2006 12:01:16 +0100
-Message-Id: <1152615677.18028.10.camel@localhost.localdomain>
+	Tue, 11 Jul 2006 06:51:52 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:58601 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750995AbWGKKvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 06:51:51 -0400
+Date: Tue, 11 Jul 2006 12:51:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060711105130.GA15759@mars.ravnborg.org>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711044834.GA11694@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-07-11 am 16:11 +0530, ysgrifennodd Chinmaya Mishra:
-> Hi. . . .
+On Tue, Jul 11, 2006 at 06:48:34AM +0200, Olaf Hering wrote:
 > 
-> In the Linux kernel is there any apis are available
-> which takes an unsigned long as an argument and
-> return the date in string format. Just like ctime() in
-> user space.
+> 24-klibc-basic-build-infrastructure.patch forces the klibc build, even for
+> setups where it is not required. CONFIG_KLIBC, if it ever gets merged, should
+> be optional.
 
-No, and thats an extremely complex process so best kept outside of the
-kernel.
+Thats a 10 linier to usr/Kconfig - not a big deal to fix.
+And agreed it shall not be compiled if not used/necessary.
 
-In particular the kernel has no idea about
-- Summer time shifting
-- Leap second rules for different timezones
-- Locales
+So this part is more of a 'we shall fix' issue, and has nothing to do
+with the direction of the future.
 
+	Sam

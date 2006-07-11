@@ -1,49 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWGKWqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWGKWti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWGKWqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWGKWqH
+	id S932228AbWGKWti (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWGKWti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:46:07 -0400
-Received: from xenotime.net ([66.160.160.81]:12724 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751340AbWGKWqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:46:05 -0400
-Date: Tue, 11 Jul 2006 15:48:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, arjan@infradead.org
-Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
- keep cache pressure down
-Message-Id: <20060711154852.7d03937b.rdunlap@xenotime.net>
-In-Reply-To: <1152653719.16499.41.camel@chalcedony.pathscale.com>
-References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
-	<20060711140951.f22847d8.rdunlap@xenotime.net>
-	<1152653719.16499.41.camel@chalcedony.pathscale.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 11 Jul 2006 18:49:38 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:62337 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932228AbWGKWth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:49:37 -0400
+Subject: [PATCH] improve timekeeping resume robustness
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz,
+       Mikael Pettersson <mikpe@it.uu.se>,
+       Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <200607102336.k6ANaFpx020663@harpo.it.uu.se>
+References: <200607102336.k6ANaFpx020663@harpo.it.uu.se>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 15:49:34 -0700
+Message-Id: <1152658174.4852.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 14:35:19 -0700 Bryan O'Sullivan wrote:
+On Tue, 2006-07-11 at 01:36 +0200, Mikael Pettersson wrote:
+> With this patch my Latitude resumes OK from APM suspend again.
 
-> On Tue, 2006-07-11 at 14:09 -0700, Randy.Dunlap wrote:
-> 
-> > space after commas, please.
-> 
-> Yep.
-> 
-> > Currently kernel-doc function description is limited to one line.
-> 
-> Ugh, OK.  What about "Memory copy, bypassing CPU cache for loads" for
-> the one-liner?  And a suitably modified first paragraph to make it clear
-> that on some arches, it falls back to memcpy.
+This patch (against current git tree) resolves problems seen w/ APM
+suspend.
 
-Yep, that sounds good.
+Due to resume initialization ordering, its possible we could get a timer
+interrupt before the timekeeping resume() function is called. This patch
+ensures we don't do any timekeeping accounting before we're fully
+resumed.
 
-Thanks.
----
-~Randy
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 2a87430..6ffff03 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -968,6 +968,7 @@ void __init timekeeping_init(void)
+ }
+ 
+ 
++static int timekeeping_suspended;
+ /*
+  * timekeeping_resume - Resumes the generic timekeeping subsystem.
+  * @dev:	unused
+@@ -983,6 +984,18 @@ static int timekeeping_resume(struct sys
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	/* restart the last cycle value */
+ 	clock->cycle_last = clocksource_read(clock);
++	clock->error = 0;
++	timekeeping_suspended = 0;
++	write_sequnlock_irqrestore(&xtime_lock, flags);
++	return 0;
++}
++
++static int timekeeping_suspend(struct sys_device *dev, pm_message_t state)
++{
++	unsigned long flags;
++
++	write_seqlock_irqsave(&xtime_lock, flags);
++	timekeeping_suspended = 1;
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	return 0;
+ }
+@@ -990,6 +1003,7 @@ static int timekeeping_resume(struct sys
+ /* sysfs resume/suspend bits for timekeeping */
+ static struct sysdev_class timekeeping_sysclass = {
+ 	.resume		= timekeeping_resume,
++	.suspend	= timekeeping_suspend,
+ 	set_kset_name("timekeeping"),
+ };
+ 
+@@ -1099,14 +1113,17 @@ static void clocksource_adjust(struct cl
+ static void update_wall_time(void)
+ {
+ 	cycle_t offset;
+-
+-	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
++	
++	/* Make sure we're fully resumed: */
++	if (unlikely(timekeeping_suspended))
++		return;
+ 
+ #ifdef CONFIG_GENERIC_TIME
+ 	offset = (clocksource_read(clock) - clock->cycle_last) & clock->mask;
+ #else
+ 	offset = clock->cycle_interval;
+ #endif
++	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
+ 
+ 	/* normally this loop will run just once, however in the
+ 	 * case of lost or late ticks, it will accumulate correctly.
+
+

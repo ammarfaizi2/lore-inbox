@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWGKXXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWGKXW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWGKXXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWGKXXA
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:23:00 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7336 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932234AbWGKXW6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932232AbWGKXW6 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 11 Jul 2006 19:22:58 -0400
-Date: Tue, 11 Jul 2006 16:18:44 -0700
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWGKXW5
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 11 Jul 2006 19:22:57 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5544 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932232AbWGKXW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:22:56 -0400
+Date: Tue, 11 Jul 2006 16:00:55 -0700
 From: Greg KH <greg@kroah.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Implement class_device_update_dev() function
-Message-ID: <20060711231844.GE18973@kroah.com>
-References: <1152226792.29643.8.camel@localhost> <20060706235745.GA13548@kroah.com> <1152258152.3693.8.camel@localhost>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       mingo@redhat.com, Reuben Farrelly <reuben-lkml@reub.net>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: 2.6.18-rc1-mm1
+Message-ID: <20060711230055.GL18838@kroah.com>
+References: <CFF307C98FEABE47A452B27C06B85BB6ECF9C0@hdsmsx411.amr.corp.intel.com> <1152521329.4874.3.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1152258152.3693.8.camel@localhost>
+In-Reply-To: <1152521329.4874.3.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 07, 2006 at 09:42:32AM +0200, Marcel Holtmann wrote:
-> Hi Greg,
-> 
-> > > for the Bluetooth subsystem integration into the driver model it is
-> > > required that we can update the device of a class device at any time.
+On Mon, Jul 10, 2006 at 10:48:49AM +0200, Arjan van de Ven wrote:
+> On Sun, 2006-07-09 at 13:47 -0400, Brown, Len wrote:
+> > >> 2. Onto some more minor warnings:
+> > >> 
+> > >> ACPI: bus type pci registered
+> > >> PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved
+> > >> PCI: Not using MMCONFIG.
+> > >> PCI: Using configuration type 1
+> > >> ACPI: Interpreter enabled
+> > >> 
+> > >> Is there any way to verify that there really is a BIOS bug 
+> > >there?  If it is, is there anyone within Intel or are there any
+> > >known contacts 
+> > >who can push and poke > to get this looked at/fixed?
+> > >(It's a new Intel board, I'd hope they could get it right..).
 > > 
-> > You can?  Ick.
-> > 
-> > That messes with my "get rid of struct class_device" plans a bit...
+> > Arjan should probably comment on that one.
 > 
-> this must not be a class device, but at the moment TTY, network and
-> input are still class devices. The Bluetooth subsystem moved away from
-> using class devices.
+> I could.. but please next time if you want to CC me use an email address
+> I actually read ;)
 > 
-> > > For the RFCOMM TTY device for example we create the TTY device and only
-> > > when it got opened we create the Bluetooth connection. Once this new
-> > > connection has been created we have a device to attach to the class
-> > > device of the TTY.
-> > > 
-> > > I came up with the attached patch and it worked fine with the Bluetooth
-> > > RFCOMM layer.
-> > 
-> > But userspace should also find out about this change, and this patch
-> > prevents that from happening.  What about just tearing down the class
-> > device and creating a new one?  That way userspace knows about the new
-> > linkage properly, and any device naming and permission issues can be
-> > handled anew?
-> 
-> This won't work for Bluetooth. We create the TTY and its class device
-> with tty_register_device() and then the device node is present. Then at
-> some point later we open that device and the Bluetooth connection gets
-> established. Only when the connection has been established we know the
-> device that represents it. So tearing down the class device and creating
-> a new one will screw up the application that is using this device node.
+> Greg has a patch to relax this check, and Rajesh has a further patch to
+> relax it more.
 
-So to start with, you have a class device with no attached "struct
-device"?  And then after opening the device node, you want to create the
-symlink?
+Hm, no, my patch should already be in 2.6.18-rc1, I don't have any
+pending MMCONFIG patches in my queue or tree.
 
-> Would reissuing the uevent of the class device help here?
-
-Not really, because as you state, we aren't changing the class device
-itself, and throwing another uevent for it would probably just confuse
-userspace :)
+So if you think I'm missing one, please resend it to me.
 
 thanks,
 

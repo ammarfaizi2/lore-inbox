@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWGKGRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbWGKGTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWGKGRk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWGKGRk
+	id S965220AbWGKGTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbWGKGTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:17:40 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:49088 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965151AbWGKGRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:17:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=CA0CUsPPOIocCheL/y8Isq/Fs6KoqPwlFa5hlhc9K/SW8p2ppnOEE5GlWGex6ShiOK3VzVDncBuFATupUJU+Cmmwmbz2LXcfYWbSDTOwrvObBdoM4uX6A0g1it98BF0bGXjAH5l02Whjr+u3qbxRuTFdYc0uTQLu/rAtKOlGqHo=
-Message-ID: <84144f020607102317r60d797eakdf20107e158ec251@mail.gmail.com>
-Date: Tue, 11 Jul 2006 09:17:38 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 03/10] Add the memory allocation/freeing hooks for kmemleak
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060710220957.5191.54019.stgit@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 02:19:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58789 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965213AbWGKGTm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:19:42 -0400
+Date: Mon, 10 Jul 2006 23:19:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, Paul Mackerras <paulus@samba.org>,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 - VPN chewing CPU like crazy..
+Message-Id: <20060710231939.256a017a.akpm@osdl.org>
+In-Reply-To: <200607110420.k6B4KMZM013584@turing-police.cc.vt.edu>
+References: <200607110420.k6B4KMZM013584@turing-police.cc.vt.edu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <20060710220957.5191.54019.stgit@localhost.localdomain>
-X-Google-Sender-Auth: ae2a5565d9b785c0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Catalin
 
-On 7/11/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> diff --git a/mm/slab.c b/mm/slab.c
-> index 85c2e03..2752272 100644
-> --- a/mm/slab.c
-> +++ b/mm/slab.c
-> @@ -2967,6 +2967,7 @@ #endif
->                 STATS_INC_ALLOCMISS(cachep);
->                 objp = cache_alloc_refill(cachep, flags);
->         }
-> +       memleak_erase(&ac->entry[ac->avail]);
->         return objp;
->  }
+(cc's added)
 
-Can't we tell the GC not to scan any of the array cache structs? You
-could put that in alloc_arraycache(), I think.
+On Tue, 11 Jul 2006 00:20:22 -0400
+Valdis.Kletnieks@vt.edu wrote:
 
-> @@ -3209,7 +3211,11 @@ static void __cache_free(struct kmem_cac
->   */
->  void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
->  {
-> -       return __cache_alloc(cachep, flags, __builtin_return_address(0));
-> +       void *ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
-> +
-> +       memleak_alloc(ptr, obj_size(cachep), 1);
+> (This is *NOT* new with 2.6.18-rc1-mm1, I've seen it a few times before, no
+> idea when it started... I think I've seen it as far back as 2.6.16-mm2 or so).
+> 
+> Most of the time, the VPN comes up just fine.
+> 
+> Jul 10 22:44:28 turing-police kernel: [ 7180.696000] CSLIP: code copyright 1989 Regents of the University of California
+> Jul 10 22:44:28 turing-police kernel: [ 7180.701000] PPP generic driver version 2.4.2
+> Jul 10 23:00:26 turing-police kernel: [ 8137.903000] PPP MPPE Compression module registered
+> 
+> However, sometimes (usually when restarting after the VPN gets dropped due to
+> a network burp, etc), it will start up, get connected, and then the the first
+> (or one of the first) data packets over the VPN will suddenly spike the
+> CPU to 100% (about 50% userspace and 50% kernel).  A quick oprofile check
+> shows the kernel CPU getting sucked:
+> 
+> samples  %        image name               app name                 symbol name
+> 10901    18.2805  arc4.ko                  arc4                     .text
+> 5046      8.4619  ppp_async.ko             ppp_async                ppp_async_push
+> 4865      8.1584  pptp                     pptp                     (no symbols)
+> 4382      7.3484  arc4.ko                  arc4                     arc4_set_key
+> 4331      7.2629  vmlinux                  vmlinux                  sha_transform
+> 4203      7.0482  libfb.so                 libfb.so                 fbCopyAreammx
+> 3342      5.6044  vmlinux                  vmlinux                  ecb_process
+> 1324      2.2203  libgdk_imlib.so.1.9.13   libgdk_imlib.so.1.9.13   (no symbols)
+> 1149      1.9268  ip_tables.ko             ip_tables                ipt_do_table
+> 1071      1.7960  vmlinux                  vmlinux                  local_bh_enable
+> 848       1.4221  vmlinux                  vmlinux                  acpi_pm_read
+> 816       1.3684  vmlinux                  vmlinux                  __local_bh_disable
+> 698       1.1705  vmlinux                  vmlinux                  n_tty_receive_buf
+> 651       1.0917  vmlinux                  vmlinux                  do_page_fault
+> 
+> (pptp is the userspace control process)
+> 
+> gkrellm reports that about 4 mbytes/sec is being sent on ppp0 - but shows
+> zero traffic on eth0 (the underlying interface).  When working properly,
+> both ppp0 and eth0 show the traffic.
+> 
+> This continues until I get fed up and manually take the VPN down, at which
+> point it happily gets rid of ppp0 and CPU load returns to normal.
+> 
+> I haven't found a clean way to reproduce it - sometimes I won't see it for
+> 2-3 weeks, then it will pop up several times in an evening.
+> 
+> Any suggestions/hints (besides rebuilding the implicated .ko with debugging
+> symbols so oprofile can be more granular - that's already on the to-do list)?
+> 
 
-Can you move memleak_alloc() call to __cache_alloc() instead to avoid
-duplication?
+I'd suggest you whack sysrq-T 5-10 times when it happens, capture a few
+stack traces.
+

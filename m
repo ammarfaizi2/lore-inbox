@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWGKWlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWGKWm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWGKWlm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWGKWlm
+	id S932221AbWGKWm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWGKWm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:41:42 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:58759 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932217AbWGKWlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:41:40 -0400
-X-Sasl-enc: NqRgrcOaWhiTyboEFjOJF2zEaO/uG5DZT6Gi+jUdjgok 1152657695
-Message-ID: <44B4297E.3040802@imap.cc>
-Date: Wed, 12 Jul 2006 00:43:10 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Tue, 11 Jul 2006 18:42:59 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60301 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932221AbWGKWm6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:42:58 -0400
+Date: Wed, 12 Jul 2006 00:42:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
+Cc: Fredrik Roubert <roubert@df.lth.se>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+Message-ID: <20060711224225.GC1732@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kkeil@suse.de, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, hjlipp@web.de
-Subject: Re: [mm Patch] isdn4linux: Gigaset driver: fix __must_check warning
-References: <20060711115359.C9A4D1B8F4F@gx110.ts.pxnet.com> <20060711145117.25dd09f2.akpm@osdl.org>
-In-Reply-To: <20060711145117.25dd09f2.akpm@osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD508CBDE3C4EC1E2C82AF433"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607120016490.12900@scrub.home>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD508CBDE3C4EC1E2C82AF433
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Wed 2006-07-12 00:21:31, Roman Zippel wrote:
+> Hi,
+> 
+> On Tue, 11 Jul 2006, Pavel Machek wrote:
+> 
+> > > Apparently it changes existing well documented behaviour, which is a 
+> > > really bad idea.
+> > 
+> > _well documented_? Where was it documented? Anyway, 2.6.17 behaviour
+> > does not work on _many_ keyboards, like for example thinkpad x32...
+> 
+> Documentation/sysrq.txt and this was working on _many_ more keyboards just 
+> fine.
+> The fact is this patch changes existing behaviour, it either needs to be
+> fixed or reverted. Adding new features is one thing, breaking existing 
+> features is not acceptable without a very good reason.
 
-On 11.07.2006 23:51, Andrew Morton wrote:
+Your "well documented" is sentence "you may have better luck
+with"... okay, but we now have better sentence. Document it better.
 
-> Tilman Schmidt <tilman@imap.cc> wrote:
->=20
->>-	class_device_create_file(cs->class, &class_device_attr_cidmode);
->>+	if (class_device_create_file(cs->class, &class_device_attr_cidmode))
->>+		dev_warn(cs->dev, "could not create sysfs attribute\n");
->=20
-> With this change we'll emit a warning (actually it's an error - I'll ma=
-ke
-> it dev_err(), OK?)
+BTW I believe that original way (alt down, sysrq down, b down) still
+works before and after the patch.
 
-Fine with me. It's not fatal to the driver which is quite capable of
-operating without that sysfs file, but ok, it *is* an error, and in
-fact, if class_device_create_file() fails there must be something
-seriously wrong.
+Here's patch that updates docs with now-working trick.
 
-> and then we'll continue execution, pretending that the
-> sysfs file actually got registered.  Later, we'll try to unregister a
-> not-registered sysfs file.
+Signed-off-by: Pavel Machek <pavel@suse.cz> 
 
-Well, from my reading of the source, class_device_remove_file() should
-be able to cope with that. The alternative would be to save off the
-fact that the original creation failed somewhere in the driver data,
-for the sole purpose of avoiding calling class_device_remove_file()
-for it later.
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+diff --git a/Documentation/sysrq.txt b/Documentation/sysrq.txt
+index e0188a2..58e04c0 100644
+--- a/Documentation/sysrq.txt
++++ b/Documentation/sysrq.txt
+@@ -43,7 +43,7 @@ On x86   - You press the key combo 'ALT-
+            keyboards may not have a key labeled 'SysRq'. The 'SysRq' key is
+            also known as the 'Print Screen' key. Also some keyboards cannot
+ 	   handle so many keys being pressed at the same time, so you might
+-	   have better luck with "press Alt", "press SysRq", "release Alt",
++	   have better luck with "press Alt", "press SysRq", "release SysRq",
+ 	   "press <command key>", release everything.
+ 
+ On SPARC - You press 'ALT-STOP-<command key>', I believe.
 
 
---------------enigD508CBDE3C4EC1E2C82AF433
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEtCmIMdB4Whm86/kRAp4UAJwNv9mKJ/5dhbwgEmr7ueIZmDXfEQCdH31m
-VrER0QLluXaW5NmJ3h+ie5s=
-=q1eA
------END PGP SIGNATURE-----
-
---------------enigD508CBDE3C4EC1E2C82AF433--
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

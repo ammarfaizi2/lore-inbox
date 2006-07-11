@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWGKRNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWGKRNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWGKRNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGKRNN
+	id S1751114AbWGKRNR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWGKRNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:13:13 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:42511 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751092AbWGKRNM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:13:12 -0400
-Date: Tue, 11 Jul 2006 13:12:43 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: joesmidt@byu.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-Message-ID: <20060711171238.GA26186@tuxdriver.com>
-References: <1152635563.4f13f77cjsmidt@byu.edu>
+	Tue, 11 Jul 2006 13:13:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41186 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751114AbWGKRNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:13:16 -0400
+Subject: Re: [PATCH] irqtrace-option-off-compile-fix
+From: Arjan van de Ven <arjan@infradead.org>
+To: tim.c.chen@linux.intel.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
+In-Reply-To: <1152635003.7654.40.camel@localhost.localdomain>
+References: <1152577120.7654.9.camel@localhost.localdomain>
+	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
+	 <1152635003.7654.40.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 19:13:13 +0200
+Message-Id: <1152637993.3128.96.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152635563.4f13f77cjsmidt@byu.edu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 10:32:43AM -0600, Joseph Michael Smidt wrote:
-> Will 2.6.18 or 2.6.19 support Intel Wireless 3945ABG?  Please cc me since I am not subscribed.   Thanks.
+On Tue, 2006-07-11 at 09:23 -0700, Tim Chen wrote:
+> I was testing on x86_64 and turned off the option in
+> arch/x86_64/Kconfig.debug. 
+> 
+> When the option is turned off, the following functions become undefined:
+> local_irq_disable()           
+> local_irq_enable()             
+> local_irq_save(flags)          
+> local_irq_restore(flags)       
+> safe_halt() 
+> local_save_flags()
+> irqs_disabled()
+> irqs_disabled_flags(flags)                   
+> 
+> It seems plausible that some users may want to avoid the overhead of
+> tracing IRQFLAGS by turning the option off.
 
-It will not be in 2.6.18.  Making 2.6.19 is not out of the question,
-but it may take some work.
+eh that is a different config option!
 
-Hth!
-
-John
--- 
-John W. Linville
-linville@tuxdriver.com

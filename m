@@ -1,97 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWGKWB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWGKWEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWGKWB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWGKWB2
+	id S932170AbWGKWEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWGKWEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:01:28 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:45001 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S932161AbWGKWB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:01:27 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Wed, 12 Jul 2006 08:01:19 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org
-References: <20060627133321.GB3019@elf.ucw.cz> <200607112245.11462.ncunningham@linuxmail.org> <200607112354.56078.rjw@sisk.pl>
-In-Reply-To: <200607112354.56078.rjw@sisk.pl>
+	Tue, 11 Jul 2006 18:04:20 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:44417 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932170AbWGKWET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:04:19 -0400
+Message-ID: <44B42064.4070802@namesys.com>
+Date: Tue, 11 Jul 2006 15:04:20 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1921069.iL5TM7Y7Ua";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Reiserfs mail-list <Reiserfs-List@namesys.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: short term task list for Reiser4
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607120801.24239.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1921069.iL5TM7Y7Ua
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Please feel free to comment on this list and the order of its tasks:
 
-Hi.
+0) fix all bugs as they arise
 
-On Wednesday 12 July 2006 07:54, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Tuesday 11 July 2006 14:45, Nigel Cunningham wrote:
-> > On Sunday 09 July 2006 04:52, Rafael J. Wysocki wrote:
-> > > Well, I tried really hard to justify the patch that allowed swsusp to
-> > > create bigger images and 10% was the greatest speedup I could get out
-> > > of it and, let me repeat, _with_ compression and async I/O.  I tried =
-to
-> > > simulate different workloads etc., but I couldn't get more than 10%
-> > > speedup (the biggest image I got was as big as 80% of RAM) - counting
-> > > the time from issuing the suspend command to getting back _responsive_
-> > > system after resume.
-> >
-> > Was that 10% speedup on suspend or resume, or both? With LZF, I see
-> > approximately double the speed with both reading and writing:
->
-> I was not referring to the speedup of writing and/or reading.
->
-> The exercise was to measure the time needed to suspend the system and get
-> it back in a responsive state.  I measured the time elapsed between
-> triggering the suspend and the moment at which I could switch between some
-> applications in X without any noticeable lag due to faulting in some pages
-> (that is a bit subjective, I must admit, but I was willing to show that
-> bigger images make substantial difference).
->
-> I tested uswsusp with compression (LZF) and two image sizes: 120 MB and
-> (IIRC) about 220 MB on a 256 MB box.  The result of the measurement for t=
-he
-> 120 MB image has always been greater than for the 220 MB image, but the
-> difference has never been greater than 10%.
+1) get batch_write into the -mm kernel --- small task
 
-Ah ok. Are you sure you're getting that sort of throughput with LZF though =
-=2D=20
-if you're not, you might be underestimating the advantage.
+2) get read optimization code into the -mm kernel (coded and probably
+debugged but not fully tested and not sent in yet) --- small task
 
-Regards,
+3) get EVERYTHING into wiki (migration has started already, thanks flx).
 
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
+4) review complaints of pauses while using reiser4 --- size of task
+unknown, and it is also unknown how much we may have fixed it while
+writing recent patches.
 
---nextPart1921069.iL5TM7Y7Ua
-Content-Type: application/pgp-signature
+5) review crypt-compress code --- full code review --- substantive task
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+6) optimize fsync --- substantive task which requires using fixed area
+for write twice logging, and using write twice logging for fsync'd
+data.  It might require creating mount options to choose whether to
+optimize for serialized sequential fsyncs vs. lazy fsyncs.
 
-iD8DBQBEtB+0N0y+n1M3mo0RAkcwAKC+FFH5/TcNF4VERv0d65iB3EdzNwCdFHaS
-aEMUdZUfWrxIyl6ulHIOwvQ=
-=JZkT
------END PGP SIGNATURE-----
+7) review all of our installation instructions --- I am already doing
+that, but volunteers who will help out our wiki would be sorely
+appreciated.  Installing reiser4 as the root for each distro needs
+step-by-step instructions.
 
---nextPart1921069.iL5TM7Y7Ua--
+8) review our kernel documentation --- I should do that but when will I
+have time?
+
+Unfortunately, our code stability is going to decrease for a bit due to
+all these changes to the read and write code --- no way to cure that but
+passage of time.   On the other hand, our CPU usage went way down. 
+Reiser4's only performance weakness now is fsync.  
+
+Once the crypt-compress code is ready, we will release Reiser4.1-beta
+(with plugins, releasing a beta means telling users that if they mount
+-o reiser4.1-beta then cryptcompress will be their default plugin, and
+if they don't, then they are using Reiser4.0 still).  Doubling our
+performance and halving our disk usage is going to be fun.

@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWGKPpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWGKPpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWGKPpG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWGKPpG
+	id S1751301AbWGKPpB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWGKPpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:45:06 -0400
+	Tue, 11 Jul 2006 11:45:01 -0400
 Received: from nz-out-0102.google.com ([64.233.162.206]:43959 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751302AbWGKPpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:45:03 -0400
+	id S1751303AbWGKPo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:44:59 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IjCz1wFqUnjdOn1np7bsrHWcgRYPmsz1//qxPFRCVxe9PpEtMTgQn1v0+odkRYquLSCskPFynZxVFWjJTsQaplip5k28PVT8rAx1Ki/xCn90v+e67YwNOjQiYE5IlF3FlHUx+N3jyMDlKq4ednwX0jsathMGAv+JDbOutDFlqe0=
-Message-ID: <44B3C781.8060005@gmail.com>
-Date: Tue, 11 Jul 2006 17:45:05 +0200
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=h6gQtZQkHCpQVTsIKlbJJ1HQRKWD3oJgqhi9q0NsP0bpmQlpggg71s5B7uj7zW0YGnc/Rjm5r9mTfutsgSzIW7MOlQ1Bpkofcp6+uh0oHuNgjdABuHca5sk/IpKGbbZVuB5BsYkClHuR6Ye46EnjtWfo13CKtH1Bm2qpLo7zgJU=
+Message-ID: <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
+Date: Tue, 11 Jul 2006 16:44:59 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove mentionings of devfs in documentation
-References: <20060711152546.GV13938@stusta.de>
-In-Reply-To: <20060711152546.GV13938@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
+	 <b0943d9e0607110556v50185b9i5443dabedba46152@mail.gmail.com>
+	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
+	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
+	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> It is DEBUG_MEMLEAK_ORPHAN_FREEING issue. Disabling it solved the
+> problem.
 
-Adrian Bunk:
-> Now that devfs is removed, there's no longer any need to document how to 
-> do this or that with devfs.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-[snip]
-> --- linux-2.6.18-rc1-mm1-full/Documentation/ABI/obsolete/devfs	2006-07-09 11:22:37.000000000 +0200
-> +++ /dev/null	2006-04-23 00:42:46.000000000 +0200
-> @@ -1,13 +0,0 @@
-> -What:		devfs
-> -Date:		July 2005
-> -Contact:	Greg Kroah-Hartman <gregkh@suse.de>
-> -Description:
-> -	devfs has been unmaintained for a number of years, has unfixable
-> -	races, contains a naming policy within the kernel that is
-> -	against the LSB, and can be replaced by using udev.
-> -	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
-> -	along with the the assorted devfs function calls throughout the
-> -	kernel tree.
-> -
-> -Users:
-> -
+OK, thanks for trying.
 
-According to Documentation/ABI/README
-"  removed/
-        This directory contains a list of the old interfaces that have
-        been removed from the kernel.
-"
+> orphan pointer 0xc6113bec (size 28):
+>   c017392a: <__kmalloc_track_caller>
+>   c01631b1: <__kzalloc>
+>   c010b7d7: <legacy_init_iomem_resources>
+>   c010b89c: <request_standard_resources>
+>   c0100b8b: <do_initcalls>
+>   c0100c3d: <do_basic_setup>
+>   c0100cdb: <init>
 
-we should add devfs to removed/
+That's a real leak. I posted a patch last night that solves this issue
+- http://lkml.org/lkml/2006/7/10/370
 
-Regards,
-Michal
+> This is most common
+> orphan pointer 0xf5a6fd60 (size 39):
+>   c0173822: <__kmalloc>
+>   c01df500: <context_struct_to_string>
+>   c01df679: <security_sid_to_context>
+>   c01d7eee: <selinux_socket_getpeersec_dgram>
+>   f884f019: <unix_get_peersec_dgram>
+>   f8850698: <unix_dgram_sendmsg>
+>   c02a88c2: <sock_sendmsg>
+>   c02a9c7a: <sys_sendto>
+
+Looking at the call trace, the pointer to the memory allocated in
+context_struct_to_string() is stored in the "cb" variable in struct
+sk_buff (argument passed to selinux_socket_getpeersec_dgram from
+unix_get_peersec_dgram).
+
+This pointer should be found when scanning the "struct sk_buff"
+blocks, unless you also get a comparable number of "struct sk_buff"
+reports (from __alloc_skb). If not, it might be a real leak.
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
-
-Signed-off-by: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-
-diff -uprN -X linux-work-clean/Documentation/dontdiff linux-work-clean/Documentation/ABI/removed/devfs linux-work5/Documentation/ABI/removed/devfs
---- linux-work-clean/Documentation/ABI/removed/devfs	1970-01-01 01:00:00.000000000 +0100
-+++ linux-work5/Documentation/ABI/removed/devfs	2006-07-11 17:35:30.000000000 +0200
-@@ -0,0 +1,13 @@
-+What:		devfs
-+Date:		July 2005
-+Contact:	Greg Kroah-Hartman <gregkh@suse.de>
-+Description:
-+	devfs has been unmaintained for a number of years, has unfixable
-+	races, contains a naming policy within the kernel that is
-+	against the LSB, and can be replaced by using udev.
-+	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
-+	along with the the assorted devfs function calls throughout the
-+	kernel tree.
-+
-+Users:
-+
-
+Catalin

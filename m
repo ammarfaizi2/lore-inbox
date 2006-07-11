@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWGKGAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWGKGCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWGKGAc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 02:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWGKGAc
+	id S965095AbWGKGCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 02:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbWGKGCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 02:00:32 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:20710 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932472AbWGKGAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 02:00:32 -0400
-Message-ID: <44B33E7B.3040504@fr.ibm.com>
-Date: Tue, 11 Jul 2006 08:00:27 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Chuck Ebbert <76306.1226@compuserve.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: 2.6.18-rc1-mm1
-References: <200607102302_MC3-1-C4A4-1385@compuserve.com> <20060710201506.7abbca37.rdunlap@xenotime.net>
-In-Reply-To: <20060710201506.7abbca37.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 11 Jul 2006 02:02:10 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:23562 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932482AbWGKGCJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 02:02:09 -0400
+Date: Tue, 11 Jul 2006 16:01:46 +1000
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [ACRYPTO] new release of asynchronous crrypto layer.
+Message-ID: <20060711060146.GA8931@gondor.apana.org.au>
+References: <20060710091353.GA19863@2ka.mipt.ru> <E1G0AHY-0002BE-00@gondolin.me.apana.org.au> <20060711053157.GA6451@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711053157.GA6451@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Mon, 10 Jul 2006 22:58:50 -0400 Chuck Ebbert wrote:
+Hi Evgeniy:
+
+On Tue, Jul 11, 2006 at 09:31:57AM +0400, Evgeniy Polyakov wrote:
+>
+> > I noticed a bug in the ESP IV processing.  When you do ESP asynchronously,
+> > you can no longer use the last block of the previous packet as the IV of
+> > the next.  This is because the next packet may have started processing
+> > before the last packet has even been finalised.
 > 
->> On Sun, 9 Jul 2006 02:11:06 -0700, Andrew morton wrote:
->>
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
->> Warnings(?) during build:
->>
->> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/ipconfig' given more than once in the same rule.
->> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/nfsmount' given more than once in the same rule.
->> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/run-init' given more than once in the same rule.
->> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/fstype' given more than once in the same rule.
+> I cought that bug too, so IV being used is always copied into old_iv variable,
+> so integrity is stated.
+
+My point is that it is possible for two packets to use the same IV
+under this scheme, which defeats the purpose of IVs.
+
+> > A simple solution is to generate a random IV.
 > 
-> Yes, and these:
-> 
-> fs/ecryptfs/main.c:327: warning: format ‘%d’ expects type ‘int’, but argument 3 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1599: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1621: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1628: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1635: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1642: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1649: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> fs/ecryptfs/crypto.c:1656: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
-> drivers/acpi/executer/exmutex.c:268: warning: format ‘%X’ expects type ‘unsigned int’, but argument 4 has type ‘struct task_struct *’
-> drivers/acpi/executer/exmutex.c:268: warning: format ‘%X’ expects type ‘unsigned int’, but argument 6 has type ‘struct task_struct *’
+> Yes, it could be done too.
+> But actually neither random IV, nor IV created from encrypted previous packet, 
+> nor IV created from unencrypted previous packet are forbidden by spec. 
+> Initial implementation used constant IV there at all.
 
-and these :
+True.  However, using the same IV more than once is definitely not a good
+idea.
 
-arch/i386/kernel/io_apic.c:2431: warning: 'vector' might be used
-uninitialized in this function
-drivers/scsi/libata-core.c:3055: warning: unused variable `i'
-drivers/acpi/utilities/utmutex.c:260: warning: cast from pointer to integer
-of different size
-arch/s390/hypfs/inode.c:432: warning: initialization from incompatible
-pointer type
-arch/s390/hypfs/inode.c:433: warning: initialization from incompatible
-pointer type
-
-C.
-
----
- drivers/scsi/libata-core.c |    1 -
- 1 file changed, 1 deletion(-)
-
-Index: 2.6.18-rc1-mm1/drivers/scsi/libata-core.c
-===================================================================
---- 2.6.18-rc1-mm1.orig/drivers/scsi/libata-core.c
-+++ 2.6.18-rc1-mm1/drivers/scsi/libata-core.c
-@@ -3052,7 +3052,6 @@ static void ata_dev_xfermask(struct ata_
-        struct ata_port *ap = dev->ap;
-        struct ata_host_set *hs = ap->host_set;
-        unsigned long xfer_mask;
--       int i;
-
-        /* Controller modes available */
-        xfer_mask = ata_pack_xfermask(ap->pio_mask,
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

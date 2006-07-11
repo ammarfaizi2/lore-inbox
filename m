@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWGKIEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGKIFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWGKIEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 04:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWGKIEM
+	id S1750726AbWGKIFv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 04:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWGKIFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 04:04:12 -0400
-Received: from www.tglx.de ([213.239.205.147]:986 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1750731AbWGKIEJ (ORCPT
+	Tue, 11 Jul 2006 04:05:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52170 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750726AbWGKIFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 04:04:09 -0400
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: john stultz <johnstul@us.ibm.com>, Pavel Machek <pavel@ucw.cz>,
-       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0607110054180.12900@scrub.home>
-References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
-	 <1152554328.5320.6.camel@localhost.localdomain>
-	 <20060710180839.GA16503@elf.ucw.cz>
-	 <Pine.LNX.4.64.0607110035300.17704@scrub.home>
-	 <1152571816.9062.29.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0607110054180.12900@scrub.home>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 10:07:09 +0200
-Message-Id: <1152605229.32107.88.camel@localhost.localdomain>
+	Tue, 11 Jul 2006 04:05:50 -0400
+Date: Tue, 11 Jul 2006 01:05:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
+Message-Id: <20060711010548.b6e4138e.akpm@osdl.org>
+In-Reply-To: <m14pxoh92e.fsf@ebiederm.dsl.xmission.com>
+References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
+	<20060710211951.7bf8320b.akpm@osdl.org>
+	<m1bqrwiq74.fsf@ebiederm.dsl.xmission.com>
+	<20060711000434.6c25d9c2.akpm@osdl.org>
+	<m14pxoh92e.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman,
+On Tue, 11 Jul 2006 01:52:57 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-On Tue, 2006-07-11 at 00:59 +0200, Roman Zippel wrote:
-> > The timer interrupt is re-enabled, via the timer_sysclass::resume hook,
-> > while the timekeeping code is re-enabled via the
-> > timekeeping_sysclass::resume hook. The issue being that I'm not sure
-> > there's a defined way to specify the .resume calling order.
-> > 
-> > The timekeeping_suspended flag is a bit heavy handed, but I think it
-> > might be the safest bet (assuming Mikael finds it works for him).
+> As far as I can tell we never use sys_sysctl so I never expect to see
+> these messages.  But if we do see these it means that there are user
+> space applications that need to be fixed before we can safely
+> remove sys_sysctl.
 > 
-> As temporary measure it's ok, but please add a comment, that it's there 
-> because of broken suspend/resume ordering.
-> That's another reason why I think that keeping interrupt handling and 
-> timekeeping separate is illusionary.
+> Limited to only 5 messages in case something like glibc is using sys_sysctl.
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> ---
+>  kernel/sysctl.c |   12 ++++++++++++
+>  1 files changed, 12 insertions(+), 0 deletions(-)
+> 
+> diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+> index 42610e6..b7f7dcb 100644
+> --- a/kernel/sysctl.c
+> +++ b/kernel/sysctl.c
+> @@ -1303,9 +1303,15 @@ int do_sysctl(int __user *name, int nlen
+>  
+>  asmlinkage long sys_sysctl(struct __sysctl_args __user *args)
+>  {
+> +	static int msg_count;
+>  	struct __sysctl_args tmp;
+>  	int error;
+>  
+> +	if (msg_count++ < 5)
+> +		printk(KERN_INFO
+> +			"warning: process `%s' used the obsolete sysctl "
+> +			"system call\n", current->comm);
+> +
+>  	if (copy_from_user(&tmp, args, sizeof(tmp)))
+>  		return -EFAULT;
 
-It is not illusionary at all and we have to find a way to handle this.
+That'll print it five times per 4 billion calls ;)
 
-Forcing time keeping to be bound on some interrupt handling is the wrong
-design and in the way of tickless systems.
+> @@ -2688,6 +2694,12 @@ #else /* CONFIG_SYSCTL_SYSCALL */
+>  
+>  asmlinkage long sys_sysctl(struct __sysctl_args __user *args)
+>  {
+> +	static int msg_count;
+> +
+> +	if (msg_coutn++ < 5)
 
-When there is a system where the time source is bound to an interrupt
-event then the handling code for that time source has to cope with the
-problem instead of enforcing this not generally valid scenario on
-everything. We can of course add helpers into the generic part of the
-time keeping code to make this easier.
+That'll have trouble compiling.
 
-The majority of machines has stand alone time sources and there is no
-need to enforce artificial interrupt relations on them.
-
-Please accept that the "tick" is not the holy grail of Linux. We have
-already way too much historic tick ballast all over the place, so we
-really want to avoid that when we design replacement functionality.
-
-	tglx
-
+Go to bed, man.  I'll fix it up.
 

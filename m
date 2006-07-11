@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWGKUW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWGKUWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWGKUW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWGKUW0
+	id S1751126AbWGKUWG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWGKUWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:22:26 -0400
-Received: from mail.suse.de ([195.135.220.2]:32697 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751137AbWGKUWZ (ORCPT
+	Tue, 11 Jul 2006 16:22:05 -0400
+Received: from waha.wetafx.co.nz ([210.55.0.200]:4483 "EHLO waha.wetafx.co.nz")
+	by vger.kernel.org with ESMTP id S1751126AbWGKUWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:22:25 -0400
-Date: Tue, 11 Jul 2006 22:22:23 +0200
-From: Olaf Hering <olh@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711202223.GA17928@suse.de>
-References: <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de> <44B3EC5A.1010100@zytor.com> <20060711200640.GA17653@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060711200640.GA17653@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Tue, 11 Jul 2006 16:22:04 -0400
+Message-ID: <44B40869.6030103@wetafx.co.nz>
+Date: Wed, 12 Jul 2006 08:22:01 +1200
+From: Bill Ryder <bryder@wetafx.co.nz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.4) Gecko/20060516 Thunderbird/1.5.0.4 Mnenhy/0.7.4.0
+MIME-Version: 1.0
+To: ray-gmail@madrabbit.org
+Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH 2.6.18-rc1] Make group sorting optional in the 2.6.x kernels
+References: <44B32888.6050406@wetafx.co.nz> <2c0942db0607111109n14353c50wdaf144214d572ffe@mail.gmail.com>
+In-Reply-To: <2c0942db0607111109n14353c50wdaf144214d572ffe@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jul 11, Olaf Hering wrote:
 
-> My point is:
 
-Of course thats not the only one.
-If nothing changes in userspace, it still has to be build with every new
-kernel no matter how many other kernel changes were just added.
-I remember it took some time to build klibc-0.123.
-And if klibc really depends on kernel headers, and I do git-bisect on a
-slower box, thats a waste of time. That really asks for an external
-binary. Or CONFIG_KLIBC=n, if thats not convincing.
+Ray Lee wrote:
+> In addition to Randy's fine comments...
+>
+>
+>
+> It seems there's a third way to do this that would maintain
+> setgroups(2) compatibility and speed when you have a lot of groups.
+At least for NFS which is the problem here.
+>
+> Maintain the list of groups such that the first sixteen correspond to
+> what setgroups(2) requested, and keep the rest sorted. A search for
+> groups would then linearly check each of the first sixteen entries
+> then, if there's more, binary search the remainder from 16 to
+> group_info->ngroups.
+That's a great idea.
+
+I'll do that instead.
+
+And next time I won't attach the patch :-)
+
+
+
+
+
+

@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWGKV0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWGKV2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWGKV0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWGKV0w
+	id S1751313AbWGKV2l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWGKV2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:26:52 -0400
-Received: from mx1.suse.de ([195.135.220.2]:54208 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751306AbWGKV0v (ORCPT
+	Tue, 11 Jul 2006 17:28:41 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:30699 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751313AbWGKV2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:26:51 -0400
-Date: Tue, 11 Jul 2006 14:22:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olh@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, klibc@zytor.com,
-       Jeff Garzik <jeff@garzik.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [klibc] klibc and what's the next step?
-Message-ID: <20060711212232.GA32698@kroah.com>
-References: <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de> <44B3EC5A.1010100@zytor.com> <20060711200640.GA17653@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711200640.GA17653@suse.de>
-User-Agent: Mutt/1.5.11
+	Tue, 11 Jul 2006 17:28:40 -0400
+Message-ID: <44B41803.8040900@fr.ibm.com>
+Date: Tue, 11 Jul 2006 23:28:35 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
+References: <20060711075051.382004000@localhost.localdomain> <m164i3gad1.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m164i3gad1.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 10:06:40PM +0200, Olaf Hering wrote:
-> And to give a negative example for great regression test opportunities:
-> You guessed it, SLES10 has a udev that cant handle kernels before 2.6.15.
-> Great job. I could slap them all day...
+Hello eric,
 
-Just to be specific, the udev in SLES10 can handle older kernels than
-2.6.15 just fine, it's just the boot scripts around it are not written
-to do so.
+Eric W. Biederman wrote:
 
-Other distros happily run newer udev versions on older kernels just
-fine, so don't try blaming the main udev program on this please...
+>> The following patchset adds the user namespace and a new syscall execns.
+>>
+>> The user namespace will allow a process to unshare its user_struct table,
+>> resetting at the same time its own user_struct and all the associated
+>> accounting.
+>>
+>> The purpose of execns is to make sure that a process unsharing a namespace
+>> is free from any reference in the previous namespace. the execve() semantic
+>> seems to be the best candidate as it already flushes the previous process
+>> context.
+>>
+>> Thanks for reviewing, sharing, flaming !
+> 
+> 
+> I haven't had a chance to do a thorough review yet but why is
+> this needed?
+> 
+> What can be left shared by switching to a new namespace and then
+> execing an executable?
+> 
+> Is it not possible to ensure what you are trying to ensure with
+> a good user space executable?
 
-thanks,
+unshare() is unsafe for some namespaces because namespaces can reference
+each other. For the ipc namespace, example are shm ids vs. vma, sem ids vs.
+semundos, msq vs. netlink sockets. for the user namespace, open files. So
+it seems reasonable to provide a way to unshare namespaces from a clean
+process context.
 
-greg k-h
+Now, if you try to do that from user space, you will call unshare() then
+execve(), which leaves plenty of room and time for nasty things to happen
+in between the 2 calls.
+
+C.
+

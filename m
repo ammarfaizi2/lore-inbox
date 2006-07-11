@@ -1,86 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965170AbWGKFVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965057AbWGKF0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965170AbWGKFVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 01:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbWGKFVE
+	id S965057AbWGKF0x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 01:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWGKF0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 01:21:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15032 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965170AbWGKFVD (ORCPT
+	Tue, 11 Jul 2006 01:26:52 -0400
+Received: from xenotime.net ([66.160.160.81]:19614 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965057AbWGKF0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 01:21:03 -0400
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Olson <olson@unixfolk.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m14pxolryw.fsf@ebiederm.dsl.xmission.com>
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
-	 <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
-	 <1152571162.1576.122.camel@localhost.localdomain>
-	 <m14pxolryw.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 15:20:05 +1000
-Message-Id: <1152595205.6346.26.camel@localhost.localdomain>
+	Tue, 11 Jul 2006 01:26:52 -0400
+Date: Mon, 10 Jul 2006 22:29:38 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Bill Ryder <bryder@wetafx.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x
+ kernels
+Message-Id: <20060710222938.6810a7e1.rdunlap@xenotime.net>
+In-Reply-To: <44B32888.6050406@wetafx.co.nz>
+References: <44B32888.6050406@wetafx.co.nz>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 11 Jul 2006 16:26:48 +1200 Bill Ryder wrote:
 
-> I didn't really expect you to have an immediate use, but the
-> confirmation is nice.  The interesting part is how I have factored out
-> the arch specific details. I believe this is close to the direction
-> you envisioned for msi.  If you could look at the basic structure
-> and confirm that the structure looks properly arch neutral that
-> would be appreciated.  As time permits I want to make the msi code
-> look more the this hypertransport irq code.
+> Hello all,
+> 
+> I've read all the stuff on submitting patches and this seems to be the
+> place.
+> 
+> Please CC me on any replies to this (although I do watch this through
+> list with  gmane)
+> 
+> Here's the patch description. I've attached the patch. Hopefully I've
+> followed the rules in Documentation/Submit* - apart from CC'ing Linus).
 
-Ok, I'll try to have a second look in the plane :) (I'm flying off
-tomorrow). If you are interested in the new IRQ infrastructure I did for
-powerpc, it's now upstream (read comments in arch/powerpc/kernel/irq.c).
-My idea for MSIs etc... is that I've completley disconnected linux
-interrupt numbers and HW vector numbers for a given controller. Thus I
-can allocate linux virtual irq numbers (including linear ranges of them
-if we ever want to handle multiple MSIs (not MSI-X) etc.. However, it's
-up to a given irq controller to handle it's own allocation of vectors
-for those MSIs. Some controllers may have a fixed set of vectors
-reserved for MSIs, or in some cases, like pSeries LPAR, the firmware
-controls everything and just hands me a bunch of vectors for devices,
-etc... 
+6) No MIME, no links, no compression, no attachments.  Just plain text.
 
-That also mean that the allocation of vectors for a given controller
-that can do MSI will be handled completely locally to the driver of that
-controller. For example, on the Quad G5, I will have the MPIC driver
-locally have a bitmap of what irq sources are used by LSIs and HT
-interrupts coming from IO-APICs (pretty much the same as LSIs as far as
-the driver is concerned) and will implement a local allocator to handle
-the allocation of the remaining sources by MSI capable devices.
+Attachments make it difficult to review/comment.
 
-One problem I have at this point is with multiple MSIs. Our current
-interface, pci_enable_msi(), is pretty much documented as only ever
-enabling one MSI and I don't quite understand why we did that in the
-first place. It seems ok to me to define that it can enable 2^N MSIs as
-requested by the device with consecutive numbers starting at pdev->irq.
-Now if we don't want to change that, I would propose that we define a
-new interface, pci_enable_msi_multi(pdev, order, array) to which we can
-pass a requested count (order) which has to be <= to the device number
-of requested MSIs (so the driver can ask for less if it knows it doesn't
-need as much as the device asks for) and the actual interrupts infos are
-returned via an array identical to the one used for MSI-X. That way,
-even if hardware MSI vectors still have to be naturally aligned on the
-number requested and consecutive, the returned linux IRQ numbers don't
-have to. In addition, by holding the list of IRQs in the same data
-structure as MSI-X, this simplifies drivers who want to implement both
-modes.
+You'll likely need to coax Andrew into merging/testing it in -mm
+rather than sending it to Linus.
 
-I don't have time to work much on the MSI aspect of things before OLS
-though and I'll be away after that until end of august with only
-intermittent internet access, so we'll talk about it again either at OLS
-itself if we find some time, or when I'm back.
+> Summary:
+> 
+> Patch to allow the option of not sorting a process's supplemental
+> (also known ask secondary aka supplementary) group list. 
+> 
+> Setting the kernel config option of UNSORTED_SUPPLEMENTAL_GROUPLIST
+> will allow the use of setgroups(2) to reorder a supplemental
+> group list to work around the NFS AUTH_UNIX 16 group limit. 
+> 
+> In fact I  think this should be the default option because anyone using
+> setgroups
+> may get an unpleasant surprise with 2.6.x. But for now this patch makes
+> it an option.
+> 
+> Longer version:
+> 
+> Like many places Weta Digital (we did the VFX for Lord of the Rings,
+> King Kong etc)
+> uses supplemental group lists to allow users access to multiple
+> directories and files (films mostly in our
+> case) . Unfortunately NFSv2 and NFSv3 AUTH_UNIX flavour authentication
+> is hardcoded to only support 16 supplemental groups. Since we currently
+> have some users and processes which need to be in more than 16 groups
+> we use setgroups to build a list of groups that a process requires when
+> they access data on nfs exported filesystems.
+> 
+> This worked fine for the 2.4.x kernels. 2.6.x is designed to handle
+> thousands of groups for a single user. To support that the kernel was
+> changed to sort the group list, then use a binary search to decide if
+> a user was in the correct group. Unfortunately this BREAKS the use of
+> setgroups(2) to put the 16 most important groups first. 
+> 
+> This patch provides the option of not sorting that list. The help
+> describes the pitfalls of not sorting the groups (performance when
+> there are a lot of groups).
 
-Cheers,
-Ben.
+Patch comments:
 
+Keep Kconfig help text to less than 80 columns so that it fits in
+an xterm without requiring left/right scrolling.
 
+Keep source code/comments within 80 columns (for xterms again).
+So this comment needs to be broken/split:
+
++/* if USE_UNSORTED_SUPPLEMENTAL_GROUPS is set this is a linear search. If not it's a binary search */
+
+In the groups_search() function, all data needs to be declared
+before any executable code statements.
+
+Lines like this:
++#ifdef USE_UNSORTED_SUPPLEMENTAL_GROUPS
+
+should be:
++#ifdef CONFIG_USE_UNSORTED_SUPPLEMENTAL_GROUPS
+
+i.e., the config system prefixes all config symbols with CONFIG_.
+
+Was it tested like this?
+Look at Documentation/SubmitChecklist along with
+Documentation/SubmittingPatches.
+
+---
+~Randy

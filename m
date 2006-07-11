@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWGKREw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWGKRG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWGKREw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWGKREw
+	id S1751101AbWGKRG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGKRG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:04:52 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:32158 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751109AbWGKREv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:04:51 -0400
-Subject: Re: [PATCH] irqtrace-option-off-compile-fix
-From: Tim Chen <tim.c.chen@linux.intel.com>
-Reply-To: tim.c.chen@linux.intel.com
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org
-In-Reply-To: <1152601989.3128.10.camel@laptopd505.fenrus.org>
-References: <1152577120.7654.9.camel@localhost.localdomain>
-	 <1152601989.3128.10.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Intel
-Date: Tue, 11 Jul 2006 09:23:22 -0700
-Message-Id: <1152635003.7654.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+	Tue, 11 Jul 2006 13:06:28 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:44705 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751101AbWGKRG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:06:27 -0400
+Message-ID: <44B3DA77.50103@garzik.org>
+Date: Tue, 11 Jul 2006 13:05:59 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: "H. Peter Anvin" <hpa@zytor.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de>
+In-Reply-To: <20060711164040.GA16327@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was testing on x86_64 and turned off the option in
-arch/x86_64/Kconfig.debug. 
-
-When the option is turned off, the following functions become undefined:
-local_irq_disable()           
-local_irq_enable()             
-local_irq_save(flags)          
-local_irq_restore(flags)       
-safe_halt() 
-local_save_flags()
-irqs_disabled()
-irqs_disabled_flags(flags)                   
-
-It seems plausible that some users may want to avoid the overhead of
-tracing IRQFLAGS by turning the option off.
-
-Regards,
-Tim Chen
-
-On Tue, 2006-07-11 at 09:13 +0200, Arjan van de Ven wrote:
-> On Mon, 2006-07-10 at 17:18 -0700, Tim Chen wrote:
-> > When CONFIG_TRACE_IRQFLAGS_SUPPORT is turned off, the latest kernel has
-> > compile errors.  The patch below fix the problems.
+Olaf Hering wrote:
+>  On Tue, Jul 11, H. Peter Anvin wrote:
 > 
+>> When you say "loop mount code" I presume you mean legacy initrd support 
+>> (which doesn't use loop mounting.)  Legacy initrd support is provided to 
+>> be as compatible as possible, obviously.
 > 
-> Hi,
+> Yes.
+> To create the initrd you needed a loop file, at least for ext2, minix etc.
 > 
-> which architecture did you see this on? (asking because IA64 and PPC
-> compile just fine without this, and for x86 and x86-64 this is not an
-> option you can turn off as user, it's not a user selectable config
-> option but it's a "I have this feature in arch" option)
-> 
-> Greetings,
->    Arjan van de Ven
+> But so far, the arguments are not convincing that kinit has to be in the
+> kernel tree.
+
+Two are IMO fairly plain:
+
+* Makes sure you can boot the kernel you just built.
+
+* Makes it easier to move stuff between kernel and userspace.
+
 

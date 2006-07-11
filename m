@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWGKVy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWGKVyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWGKVy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWGKVy5
+	id S932158AbWGKVyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWGKVys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:54:57 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:53005 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932159AbWGKVyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:54:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YltCRtXlOl2CplgmpODwddMX/sNz6B21vQamVcNZHzX6d4E4bQN29HJNPt+r/Tpjz38koy20WJwNkl1UANCa/96/zf0xhNbugN+9ITMN2QgrEZ8S1j7cB0q83UxySGxDJrFiLCXnb13D0x+/zpC0bF+wOTL31CE0pf6+G7TYV/0=
-Message-ID: <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
-Date: Tue, 11 Jul 2006 22:54:55 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+	Tue, 11 Jul 2006 17:54:48 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:24284 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932158AbWGKVyr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 17:54:47 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Date: Tue, 11 Jul 2006 23:54:55 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
+       linux-kernel@vger.kernel.org
+References: <20060627133321.GB3019@elf.ucw.cz> <200607082052.02557.rjw@sisk.pl> <200607112245.11462.ncunningham@linuxmail.org>
+In-Reply-To: <200607112245.11462.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
-	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
-	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
-	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
-	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
-	 <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
-	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
-	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
-	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+Message-Id: <200607112354.56078.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal,
+Hi,
 
-On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> On 11/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> > It looks like there are some reports in __alloc_skb. Please try the
-> > attached patch.
->
-> Here is the result
-> http://www.stardust.webpages.pl/files/o_bugs/kml/ml4.txt
+On Tuesday 11 July 2006 14:45, Nigel Cunningham wrote:
+> On Sunday 09 July 2006 04:52, Rafael J. Wysocki wrote:
+> > Well, I tried really hard to justify the patch that allowed swsusp to
+> > create bigger images and 10% was the greatest speedup I could get out of it
+> > and, let me repeat, _with_ compression and async I/O.  I tried to simulate
+> > different workloads etc., but I couldn't get more than 10% speedup (the
+> > biggest image I got was as big as 80% of RAM) - counting the time from
+> > issuing the suspend command to getting back _responsive_ system after
+> > resume.
+> 
+> Was that 10% speedup on suspend or resume, or both? With LZF, I see 
+> approximately double the speed with both reading and writing:
 
-Some of the __alloc_skb disappeared but there are still a lot of
-context_struct_to_string (812). Could you let it running for a bit to
-get more reported leaks (few thousands) and send me the contents of
-the /proc/slabinfo file (together with the memleak file)? I want to
-make sure whether it is a kmemleak problem or not.
+I was not referring to the speedup of writing and/or reading.
 
-Thanks.
+The exercise was to measure the time needed to suspend the system and get
+it back in a responsive state.  I measured the time elapsed between triggering
+the suspend and the moment at which I could switch between some applications
+in X without any noticeable lag due to faulting in some pages (that is a bit
+subjective, I must admit, but I was willing to show that bigger images make
+substantial difference).
 
--- 
-Catalin
+I tested uswsusp with compression (LZF) and two image sizes: 120 MB and
+(IIRC) about 220 MB on a 256 MB box.  The result of the measurement for the
+120 MB image has always been greater than for the 220 MB image, but the
+difference has never been greater than 10%.
+
+Greetings,
+Rafael

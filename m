@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWGKVPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWGKVUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWGKVPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWGKVPt
+	id S932134AbWGKVUN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWGKVUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:15:49 -0400
-Received: from mxl145v64.mxlogic.net ([208.65.145.64]:3482 "EHLO
-	p02c11o141.mxlogic.net") by vger.kernel.org with ESMTP
-	id S932131AbWGKVPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:15:48 -0400
-Date: Wed, 12 Jul 2006 00:16:20 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Zach Brown <zach.brown@oracle.com>, Sean Hefty <sean.hefty@intel.com>,
-       Hal Rosenstock <halr@voltaire.com>, Roland Dreier <rolandd@cisco.com>
-Cc: openib-general@openib.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: ipoib lockdep warning
-Message-ID: <20060711211620.GB21546@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <44B405C8.4040706@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B405C8.4040706@oracle.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 11 Jul 2006 21:20:57.0250 (UTC) FILETIME=[E64D2820:01C6A52F]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+	Tue, 11 Jul 2006 17:20:13 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:31467 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932134AbWGKVUM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 17:20:12 -0400
+Message-ID: <44B415FE.1010700@zytor.com>
+Date: Tue, 11 Jul 2006 14:19:58 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] ramdisk blocksize Kconfig entry
+References: <20060711171722.E1710004@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060711171722.E1710004@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Zach Brown <zach.brown@oracle.com>:
-> BC:
+Nathan Scott wrote:
+> This patch makes the ramdisk blocksize configurable at kernel
+> compilation time rather than only at boot or module load time,
+> like a couple of the other ramdisk options.  I found this handy
+> awhile back but thought little of it, until recently asked by a
+> few of the testing folks here to be able to do the same thing
+> for their automated test setups.
 > 
-> query_idr.lock is taken with interrupts enabled and so is implicitly
-> ordered before dev->_xmit_lock which is taken in interrupt context.
-> 
-> ipoib_mcast_join_task()
->   ipoib_mcast_join()
->     ib_sa_mcmember_rec_query()
->       send_mad()
->         idr_pre_get(&query_idr)
->           spin_lock(&idp->lock)
+> The Kconfig comment is largely lifted from comments in rd.c,
+> and hopefully this will increase the chances of making folks
+> aware that the default value often isn't a great choice here
+> (for increasing values of PAGE_SIZE, even moreso).
 
-Got to check, but if that's true we have a simple deadlock here:
-ib_sa_mcmember_rec_query might get called from interrupt
-context as well, deadlocking on idp->lock?
+This seems a bit odd to me... the sizes of most block devices is set by 
+the filesystem, not hard-coded; the need for this implies something more 
+fundamental is wrong.
 
-Sean?
+	-hpa
 
-> I can imagine all sorts of potential fixes (block ints when calling idr?
->  reorder acquiry in ipoib_mcast_restart_task()?) but I'm operating on a
-> partial view of the paths here so I wasn't comfortable suggesting a fix.
->  I wouldn't be surprised to hear that there are circumstances that both
-> lockdep and I don't know about that stop this from being a problem :).
 
-Awesome, thanks for the analysis! Your help is very much appreciated.
-
--- 
-MST

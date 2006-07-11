@@ -1,60 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWGKJ0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWGKJ2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWGKJ0z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 05:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWGKJ0z
+	id S1750827AbWGKJ2V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 05:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWGKJ2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 05:26:55 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:37333 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750817AbWGKJ0y (ORCPT
+	Tue, 11 Jul 2006 05:28:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6120 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750827AbWGKJ2V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 05:26:54 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm 1/2] swsusp: clean up browsing of pfns
-Date: Tue, 11 Jul 2006 11:27:11 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200607102240.45365.rjw@sisk.pl> <20060711015941.d35f0b7d.akpm@osdl.org> <20060711090525.GE1787@elf.ucw.cz>
-In-Reply-To: <20060711090525.GE1787@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 11 Jul 2006 05:28:21 -0400
+Date: Tue, 11 Jul 2006 02:28:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@openvz.org>
+Cc: linux-kernel@vger.kernel.org, devel@openvz.org, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] fdset's leakage
+Message-Id: <20060711022808.f043dda7.akpm@osdl.org>
+In-Reply-To: <44B369BF.6000104@openvz.org>
+References: <44B258E3.7070708@openvz.org>
+	<20060711010104.16ed5d4b.akpm@osdl.org>
+	<44B369BF.6000104@openvz.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607111127.11511.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 11:05, Pavel Machek wrote:
-> On Tue 2006-07-11 01:59:41, Andrew Morton wrote:
-> > On Tue, 11 Jul 2006 10:34:15 +0200
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > 
-> > > Hi!
-> > > 
-> > > > Clean up some loops over pfns for each zone in snapshot.c: reduce the number
-> > > > of additions to perform, rework detection of saveable pages and make the code
-> > > > a bit less difficult to understand, hopefully.
-> > > 
-> > > Also remove the BUG_ON() so that you can solve Andrew's monster
-> > > machine problem.
-> > 
-> > I don't understand your comment.  I assume you're adding an explanation for
-> > the removal of:
-> > 
-> > -	BUG_ON(PageReserved(page) && PageNosave(page));
-> > 
-> > from saveable_page().
-> 
-> Yes.
-> 
-> > But my emt64 test box is oopsing when touching a hole in the memory-map; it
-> > isn't going BUG() (any more than usual ;))
-> 
-> Well, it would go BUG() with patch Rafael has somewhere on the
-> disk. Next step is having pages both reserved and nosave, I believe.
+On Tue, 11 Jul 2006 13:05:03 +0400
+Kirill Korotaev <dev@openvz.org> wrote:
 
-Yes.
+> Andrew,
+> 
+> > But the code in there is really sick.   In all cases we do:
+> > 
+> > 	free_fdset(foo->open_fds, foo->max_fdset);
+> > 	free_fdset(foo->close_on_exec, foo->max_fdset);
+> > 
+> > How much neater and more reliable would it be to do:
+> > 
+> > 	free_fdsets(foo);
+> > 
+> > ?
+> agree. should I prepare a patch?
 
-Rafael
+Is OK, I'll take care of it later.  We want to let your current patch bake
+as-is in mainline for a while so that we can backport it into 2.6.17.x with
+more confidence.  That's a bit excessive in this case, but the principle is
+good.
+
+> > Also,
+> > 
+> > 	nfds = NR_OPEN_DEFAULT;
+> > 	/*
+> > 	 * Expand to the max in easy steps, and keep expanding it until
+> > 	 * we have enough for the requested fd array size.
+> > 	 */
+> > 	do {
+> > #if NR_OPEN_DEFAULT < 256
+> > 		if (nfds < 256)
+> > 			nfds = 256;
+> > 		else
+> > #endif
+> > 		if (nfds < (PAGE_SIZE / sizeof(struct file *)))
+> > 			nfds = PAGE_SIZE / sizeof(struct file *);
+> > 		else {
+> > 			nfds = nfds * 2;
+> > 			if (nfds > NR_OPEN)
+> > 				nfds = NR_OPEN;
+> >   		}
+> > 	} while (nfds <= nr);
+> > 
+> > 
+> > That's going to take a long time to compute if nr > NR_OPEN.  I just fixed
+> > a similar infinite loop in this function.  Methinks this
+> > 
+> > 	nfds = max(NR_OPEN_DEFAULT, 256);
+> > 	nfds = max(nfds, PAGE_SIZE/sizeof(struct file *));
+> > 	nfds = max(nfds, round_up_pow_of_two(nr + 1));
+> > 	nfds = min(nfds, NR_OPEN);
+> > 
+> > is clearer and less buggy.  I _think_ it's also equivalent (as long as
+> > NR_OPEN>256).  But please check my logic.
+> Yeah, I also noticed these nasty loops but was too lazy to bother :)
+> Too much crap for my nerves :)
+> 
+> Your logic looks fine for me.
+
+I usually get that stuff wrong.
+
+> Do we have already round_up_pow_of_two() function
+
+yep, in kernel.h.
+

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWGKFcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWGKFxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWGKFcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 01:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbWGKFcR
+	id S932378AbWGKFxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 01:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWGKFxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 01:32:17 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:62607 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S965073AbWGKFcQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 01:32:16 -0400
-Date: Tue, 11 Jul 2006 09:31:57 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
-Subject: Re: [ACRYPTO] new release of asynchronous crrypto layer.
-Message-ID: <20060711053157.GA6451@2ka.mipt.ru>
-References: <20060710091353.GA19863@2ka.mipt.ru> <E1G0AHY-0002BE-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <E1G0AHY-0002BE-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 11 Jul 2006 09:31:58 +0400 (MSD)
+	Tue, 11 Jul 2006 01:53:33 -0400
+Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:36251 "EHLO
+	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932378AbWGKFxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 01:53:33 -0400
+Date: Mon, 10 Jul 2006 22:53:32 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: Remove redundant might_sleep() in user accessors.
+Message-ID: <Pine.LNX.4.58.0607102244590.29091@shell3.speakeasy.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 02:55:36PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
-> Hi Evgeniy:
+Hi,
 
-Hi Herbert.
+On i386, the user space accessor functions copy_from/to_user() both
+invoke might_sleep(), do a quick sanity check, and then pass the work on
+to their __copy_from/to_user() counterparts, which again invoke
+might_sleep(). Given that no actual work happens between these two
+calls, it is best to eliminate one of the redundant might_sleep()s.
 
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> > * IPsec ESP4 port to acrypto
-> 
-> I noticed a bug in the ESP IV processing.  When you do ESP asynchronously,
-> you can no longer use the last block of the previous packet as the IV of
-> the next.  This is because the next packet may have started processing
-> before the last packet has even been finalised.
+Please apply.
 
-I cought that bug too, so IV being used is always copied into old_iv variable,
-so integrity is stated.
+Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
 
-> A simple solution is to generate a random IV.
-
-Yes, it could be done too.
-But actually neither random IV, nor IV created from encrypted previous packet, 
-nor IV created from unencrypted previous packet are forbidden by spec. 
-Initial implementation used constant IV there at all.
-
--- 
-	Evgeniy Polyakov
+diff -Npru linux-2.6.18-rc1/arch/i386/lib/usercopy.c linux-new/arch/i386/lib/usercopy.c
+--- linux-2.6.18-rc1/arch/i386/lib/usercopy.c	2006-07-06 20:20:55.000000000 -0700
++++ linux-new/arch/i386/lib/usercopy.c	2006-07-10 19:03:47.000000000 -0700
+@@ -843,7 +843,6 @@ unsigned long __copy_from_user_ll_nocach
+ unsigned long
+ copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+-	might_sleep();
+ 	BUG_ON((long) n < 0);
+ 	if (access_ok(VERIFY_WRITE, to, n))
+ 		n = __copy_to_user(to, from, n);
+@@ -870,7 +869,6 @@ EXPORT_SYMBOL(copy_to_user);
+ unsigned long
+ copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+-	might_sleep();
+ 	BUG_ON((long) n < 0);
+ 	if (access_ok(VERIFY_READ, from, n))
+ 		n = __copy_from_user(to, from, n);

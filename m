@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWGKRG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWGKRIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWGKRG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGKRG2
+	id S1751119AbWGKRIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWGKRIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:06:28 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44705 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751101AbWGKRG1 (ORCPT
+	Tue, 11 Jul 2006 13:08:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8154 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751119AbWGKRIj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:06:27 -0400
-Message-ID: <44B3DA77.50103@garzik.org>
-Date: Tue, 11 Jul 2006 13:05:59 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de>
-In-Reply-To: <20060711164040.GA16327@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 11 Jul 2006 13:08:39 -0400
+Date: Tue, 11 Jul 2006 13:07:25 -0400
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: RFC: cleaning up the in-kernel headers
+Message-ID: <20060711170725.GD5362@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org,
+	akpm@osdl.org
+References: <20060711160639.GY13938@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711160639.GY13938@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
->  On Tue, Jul 11, H. Peter Anvin wrote:
-> 
->> When you say "loop mount code" I presume you mean legacy initrd support 
->> (which doesn't use loop mounting.)  Legacy initrd support is provided to 
->> be as compatible as possible, obviously.
-> 
-> Yes.
-> To create the initrd you needed a loop file, at least for ext2, minix etc.
-> 
-> But so far, the arguments are not convincing that kinit has to be in the
-> kernel tree.
+On Tue, Jul 11, 2006 at 06:06:39PM +0200, Adrian Bunk wrote:
+ > I'd like to cleanup the mess of the in-kernel headers, based on the 
+ > following rules:
+ > - every header should #include everything it uses
+ > - remove unneeded #include's from headers
+ > 
+ > This would also remove all the implicit rules "before #include'ing 
+ > header foo.h, you must #include header bar.h" you usually only see when 
+ > the compilation fails.
 
-Two are IMO fairly plain:
+You may want to add as a secondary goal, splitting up some of the
+huge 3-headed monster include files like sched.h
+(It's better than it used to be, but it still sucks, and that thing
+#include's the world).  Worst, iirc module.h pulls it in, which means
+everything built as a module is pulling in hundreds of includes
+even though most of the time, it'll never use anything from the
+indirect ones.
 
-* Makes sure you can boot the kernel you just built.
+ghviz & hviz from http://www.kernel.org/pub/linux/kernel/people/acme/
+are invaluable for eyeballing include dependancies btw.
+They need graphviz installed, and run like so..
 
-* Makes it easier to move stuff between kernel and userspace.
+ghviz include/linux/sched.h 10
 
+to produce a pretty graph.
 
+ > There might be exceptions (e.g. for avoiding circular #include's) but 
+ > these would be special cases.
+
+In many cases, adding forward references is a lot cleaner than
+adding dozens of indirect include dependancies.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

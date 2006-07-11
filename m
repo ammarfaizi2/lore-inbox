@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWGKXFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWGKXLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWGKXFM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWGKXFL
+	id S1751345AbWGKXLW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWGKXLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:05:11 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:5814 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751343AbWGKXFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:05:09 -0400
-Subject: [BUG] Two BUG warnings in net/core/dev.c
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: netdev@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 16:05:06 -0700
-Message-Id: <1152659106.5364.7.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 11 Jul 2006 19:11:21 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.192.81]:51082 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751345AbWGKXLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 19:11:21 -0400
+Message-ID: <44B43019.9010402@namesys.com>
+Date: Tue, 11 Jul 2006 16:11:21 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Clay Barnes <clay.barnes@gmail.com>
+CC: Reiserfs mail-list <Reiserfs-List@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>
+Subject: Re: short term task list for Reiser4
+References: <44B42064.4070802@namesys.com> <20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
+In-Reply-To: <20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both of these were seen on my laptop w/ the current (as of this writing)
--git tree using the e1000 driver after a suspend/resume cycle.
+Clay Barnes wrote:
 
-thanks
--john
+>On 15:04 Tue 11 Jul     , Hans Reiser wrote:
+>  
+>
+>>
+>>6) optimize fsync --- substantive task which requires using fixed area
+>>for write twice logging, and using write twice logging for fsync'd
+>>data.  It might require creating mount options to choose whether to
+>>optimize for serialized sequential fsyncs vs. lazy fsyncs.
+>>    
+>>
+>With the serialized sequential fsync, is that essentially what I was
+>talking about earlier with slowly streaming dirty writes to disk when
+>the HDD is idle?  If that's the case, I don't see the advantage in having
+>lazy fsyncs
+>
+if you are optimizing throughput rather than latency, then you let
+things get to disk whenever they get there, and you let the app hang
+while it waits. A mailer processing many requests in parallel might find
+30 seconds of latency to be just fine but a database might find 3
+seconds of latency to be too much. (I make up these examples, mailer
+programmers please correct me.)
 
-BUG: warning at net/core/dev.c:1171/skb_checksum_help()
- [<c0103d69>] show_trace_log_lvl+0x149/0x170
- [<c01052bb>] show_trace+0x1b/0x20
- [<c01052e4>] dump_stack+0x24/0x30
- [<c03c7523>] skb_checksum_help+0x163/0x170
- [<c0439c15>] ip_nat_fn+0x1a5/0x210
- [<c0439fa5>] ip_nat_local_fn+0x65/0xf0
- [<c03db140>] nf_iterate+0x60/0x90
- [<c03db1cc>] nf_hook_slow+0x5c/0x100
- [<c03eca51>] ip_queue_xmit+0x1f1/0x4c0
- [<c03fd2af>] tcp_transmit_skb+0x3bf/0x7d0
- [<c03ff32f>] tcp_push_one+0x9f/0x120
- [<c03f4943>] tcp_sendmsg+0x393/0xbf0
- [<c0411595>] inet_sendmsg+0x35/0x60
- [<c03be06d>] sock_sendmsg+0xcd/0x100
- [<c03be3e3>] sys_sendto+0xd3/0x100
- [<c03be442>] sys_send+0x32/0x40
- [<c03bea32>] sys_socketcall+0x142/0x260
- [<c010320d>] sysenter_past_esp+0x56/0x8d
- [<b7fa8410>] 0xb7fa8410
+> except in situations where you want to keep the HDD spun down
+>as much as possible.
+>
+No, that is not when you do it.
 
-
-BUG: warning at net/core/dev.c:1225/skb_gso_segment()
- [<c0103d69>] show_trace_log_lvl+0x149/0x170
- [<c01052bb>] show_trace+0x1b/0x20
- [<c01052e4>] dump_stack+0x24/0x30
- [<c03c8e8a>] skb_gso_segment+0x20a/0x210
- [<c03ca3bf>] dev_hard_start_xmit+0x15f/0x300
- [<c03d6cab>] __qdisc_run+0x7b/0x1f0
- [<c03ca687>] dev_queue_xmit+0x127/0x310
- [<c03d0ccc>] neigh_resolve_output+0xec/0x2a0
- [<c03ed490>] ip_output+0x170/0x260
- [<c03ecb06>] ip_queue_xmit+0x2a6/0x4c0
- [<c03fd2af>] tcp_transmit_skb+0x3bf/0x7d0
- [<c03ff32f>] tcp_push_one+0x9f/0x120
- [<c03f4943>] tcp_sendmsg+0x393/0xbf0
- [<c0411595>] inet_sendmsg+0x35/0x60
- [<c03be06d>] sock_sendmsg+0xcd/0x100
- [<c03be3e3>] sys_sendto+0xd3/0x100
- [<c03be442>] sys_send+0x32/0x40
- [<c03bea32>] sys_socketcall+0x142/0x260
- [<c010320d>] sysenter_past_esp+0x56/0x8d
- [<b7fa8410>] 0xb7fa8410
-
+>I've been meaning to hose my laptop (assuming I fix one problem with my
+>desktop), so I am willing to help write Gentoo install docs (or possibly
+>Arch Linux).  I can also test exsiting instructions.
+>  
+>
+That would be way cool.
+<http://wiki.namesys.com/Reiser4-GettingStarted#preview>
 

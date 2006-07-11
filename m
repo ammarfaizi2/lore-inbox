@@ -1,71 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbWGKCvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWGKDCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965090AbWGKCvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 22:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWGKCvo
+	id S932374AbWGKDCF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 23:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWGKDCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 22:51:44 -0400
-Received: from 206-124-142-26.buici.com ([206.124.142.26]:38086 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S965090AbWGKCvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 22:51:43 -0400
-Date: Mon, 10 Jul 2006 19:51:43 -0700
-From: Marc Singer <elf@buici.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
-Message-ID: <20060711025142.GB31463@buici.com>
-References: <20060709000703.GA9806@cerise.buici.com> <44B0774E.5010103@yahoo.com.au> <20060710025103.GC28166@cerise.buici.com> <44B1FAE4.9070903@yahoo.com.au> <20060710162600.GB18728@flint.arm.linux.org.uk> <44B28F93.9020304@yahoo.com.au>
+	Mon, 10 Jul 2006 23:02:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:1991 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932374AbWGKDCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 23:02:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=akphvvyWIWJkGO23zGIdvAEBf+qo6boyf0qklea4fx2KWgzAZmgH0aHk7KnKZtIlL1P2/muzwM1oTprfI9nedLnkHV3LL7LHfqRlLzjLkQ7qCsbaJMfqBvG3x08NjzPqN9EEU4GxGN8Or+hfkgMdXhJg2bVtP1o2JqXHYUT87VQ=
+Message-ID: <ed5aea430607102001g514bfa97jf82c25a038e9c436@mail.gmail.com>
+Date: Mon, 10 Jul 2006 21:01:53 -0600
+From: "David Mosberger-Tang" <David.Mosberger@acm.org>
+To: "Jeremy Higdon" <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Jes Sorensen" <jes@sgi.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Luck, Tony" <tony.luck@intel.com>, "John Daiker" <jdaiker@osdl.org>,
+       "John Hawkes" <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Jack Steiner" <steiner@sgi.com>,
+       "Dan Higgins" <djh@sgi.com>
+In-Reply-To: <20060710202228.GA732959@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44B28F93.9020304@yahoo.com.au>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <yq04py4i9p7.fsf@jaguar.mkp.net>
+	 <1151578928.23785.0.camel@localhost.localdomain>
+	 <44A3AFFB.2000203@sgi.com>
+	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
+	 <20060708001427.GA723842@sgi.com>
+	 <1152340963.3120.0.camel@laptopd505.fenrus.org>
+	 <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
+	 <20060710202228.GA732959@sgi.com>
+X-Google-Sender-Auth: 3db5ec7f3fd8c4f1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 03:34:11AM +1000, Nick Piggin wrote:
-> >So I'll mask off __GFP_COMP for the time being in the ARM dma allocator
-> >with a note to this effect?
-> 
-> I believe that should do the trick, yes (AFAIK, nobody yet is
-> explicitly relying on a compound page from the dma allocator).
-> 
-> Marc can hopefully confim the fix.
+On 7/10/06, Jeremy Higdon <jeremy@sgi.com> wrote:
+> On Sat, Jul 08, 2006 at 07:07:14AM -0600, David Mosberger-Tang wrote:
+> > Nothing is broken.  Read Alan's statement carefully...
+> >
+> >  --david
+>
+> His statement can be read a couple of ways.
 
-The patch, attached, works in that there is no BUG_ON() trap.
+Alan said:
 
->From c13ac90b1dd6e5fab63182ce323673cdffb0b55f Mon Sep 17 00:00:00 2001
-Date: Mon, 10 Jul 2006 19:38:47 -0700
-Subject: [PATCH] Drop __GFP_COMP for DMA memory allocations
----
- arch/arm/mm/consistent.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+--------------------------------------------------------------
+From: Alan Cox <alan_at_lxorguk.ukuu.org.uk>
+Date: 2006-06-29 21:02:08
 
-Hack for incompatible __GFP_COMP flag making its way into the ARM DMA
-consistent memory allocator.
+Ar Iau, 2006-06-29 am 05:37 -0400, ysgrifennodd Jes Sorensen:
+> You have my vote for that one. Anything else is just going to cause
+> those broken userapps to continue doing the wrong thing. We should
+> really do this on all archs though.
 
-Signed-off-by: Marc Singer <elf@buici.com>
+No need, all current mainstream architectures expose a constant user HZ.
 
-diff --git a/arch/arm/mm/consistent.c b/arch/arm/mm/consistent.c
-index 50e6b6b..7b7cc4e 100644
---- a/arch/arm/mm/consistent.c
-+++ b/arch/arm/mm/consistent.c
-@@ -153,6 +153,13 @@ __dma_alloc(struct device *dev, size_t s
- 	unsigned long order;
- 	u64 mask = ISA_DMA_THRESHOLD, limit;
- 
-+	/* Following is a work-around (a.k.a. hack) to prevent pages
-+	 * with __GFP_COMP being passed to split_page() which cannot
-+	 * handle them.  The real problem is that this flag probably
-+	 * should be 0 on ARM as it is not supported on this
-+	 * platform--see CONFIG_HUGETLB_PAGE. */
-+	gfp &= ~(__GFP_COMP);
-+
- 	if (!consistent_pte[0]) {
- 		printk(KERN_ERR "%s: not initialised\n", __func__);
- 		dump_stack();
+Alan
+--------------------------------------------------------------
+
+Note that Alan didn't claim that *all* (Linux-supported) architectures
+expose a constant user HZ, only the "mainstream" ones.  I won't get
+into the debate as to what qualifies as "mainstream", but clearly IA64
+does not (and should not) expose a constant value, since there were no
+legacy-binary-issue and we chose to insist that apps should uses
+sysconf() or equivalent if they need to know the clocktick.
+
+  --david
 -- 
-1.4.0
-
-
+Mosberger Consulting LLC, http://www.mosberger-consulting.com/

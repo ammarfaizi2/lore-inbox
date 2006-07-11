@@ -1,309 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWGKHEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWGKHEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWGKHEX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 03:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWGKHEX
+	id S1030221AbWGKHEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 03:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGKHEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 03:04:23 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:53484 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030219AbWGKHEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 03:04:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=e7qn2+PAxXYt98a0gsxmGknChCvdVfUMz4yTYosO9TnUZkdYco2GH64+ZqLBI0ZgePsRNOExib1oefMTTH38pOCA4VYkPFVsbPLZH89YWDEEJoXWyhSFginNCOrtb53FVBXpMDVbFSXR/ckcKmZdAU53B5rqZhsEec4fMxRJwz8=
-Message-ID: <44B34D68.3080602@gmail.com>
-Date: Tue, 11 Jul 2006 15:04:08 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Matt Reuther <mreuther@umich.edu>, akpm@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Zabolotny <zap@homelink.ru>
-Subject: [PATCH] backlight: lcd: Remove dependency from the framebuffer layer
-References: <200607100833.00461.mreuther@umich.edu>	<20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>	<44B27931.30609@gmail.com>	<200607102327.38426.mreuther@umich.edu> <20060710215253.1fcaab57.rdunlap@xenotime.net>
-In-Reply-To: <20060710215253.1fcaab57.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 11 Jul 2006 03:04:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9397 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030221AbWGKHEg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 03:04:36 -0400
+Date: Tue, 11 Jul 2006 00:04:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
+Message-Id: <20060711000434.6c25d9c2.akpm@osdl.org>
+In-Reply-To: <m1bqrwiq74.fsf@ebiederm.dsl.xmission.com>
+References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
+	<20060710211951.7bf8320b.akpm@osdl.org>
+	<m1bqrwiq74.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The backlight and layer should be independent from the framebuffer layer.
-It can use the services offered by the framebuffer, but its absence should
-not prevent the backlight/lcd layer from functioning.
+On Tue, 11 Jul 2006 00:57:35 -0600
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > On Mon, 10 Jul 2006 16:38:59 -0600
+> > ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> >> Since sys_sysctl is deprecated start allow it to be compiled out.
+> >
+> > This could be a tough one to get rid of (looks at sys_bdflush() again).
+> >
+> > I'd suggest we put a sys_bdflush()-style warning in there, see what that
+> > flushes out.
+> 
+> Sounds sane.  I know I have booted several kernels with it compiled out
+> but just because you can do without it doesn't mean that something
+> isn't using it.
+> 
+> Hmm.  The question is where do I want the put the warning message?
+> 
+> When the code is compiled out?
+> When the code is compiled in?
 
-Oops, the previous patch has extraneous characters. Use this instead.
+Both.  We want to find out who is using it.
 
-Tony
+> Probably both places at this point, and using the rate limited printk
+> I think instead of just the 5 printks that sys_bdflush uses...
 
- drivers/video/Kconfig               |    2 -
- drivers/video/backlight/Kconfig     |    4 +-
- drivers/video/backlight/backlight.c |   85 ++++++++++++++++++++++-------------
- drivers/video/backlight/lcd.c       |   76 +++++++++++++++++++------------
- 4 files changed, 103 insertions(+), 64 deletions(-)
-
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index c51a54b..9d9d02a 100644
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -1622,7 +1622,7 @@ if FB || SGI_NEWPORT_CONSOLE
- 	source "drivers/video/logo/Kconfig"
- endif
- 
--if FB && SYSFS
-+if SYSFS
- 	source "drivers/video/backlight/Kconfig"
- endif
- 
-diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index 022f9d3..02f1529 100644
---- a/drivers/video/backlight/Kconfig
-+++ b/drivers/video/backlight/Kconfig
-@@ -10,7 +10,7 @@ menuconfig BACKLIGHT_LCD_SUPPORT
- 
- config BACKLIGHT_CLASS_DEVICE
-         tristate "Lowlevel Backlight controls"
--	depends on BACKLIGHT_LCD_SUPPORT && FB
-+	depends on BACKLIGHT_LCD_SUPPORT
- 	default m
- 	help
- 	  This framework adds support for low-level control of the LCD
-@@ -26,7 +26,7 @@ config BACKLIGHT_DEVICE
- 
- config LCD_CLASS_DEVICE
-         tristate "Lowlevel LCD controls"
--	depends on BACKLIGHT_LCD_SUPPORT && FB
-+	depends on BACKLIGHT_LCD_SUPPORT
- 	default m
- 	help
- 	  This framework adds support for low-level control of LCD.
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 27597c5..6766dfb 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -14,6 +14,57 @@ #include <linux/ctype.h>
- #include <linux/err.h>
- #include <linux/fb.h>
- 
-+
-+#if defined(CONFIG_FB) || (defined(CONFIG_FB_MODULE) && \
-+			   defined(CONFIG_BACKLIGHT_CLASS_DEVICE_MODULE))
-+/* This callback gets called when something important happens inside a
-+ * framebuffer driver. We're looking if that important event is blanking,
-+ * and if it is, we're switching backlight power as well ...
-+ */
-+static int fb_notifier_callback(struct notifier_block *self,
-+				unsigned long event, void *data)
-+{
-+	struct backlight_device *bd;
-+	struct fb_event *evdata =(struct fb_event *)data;
-+
-+	/* If we aren't interested in this event, skip it immediately ... */
-+	if (event != FB_EVENT_BLANK)
-+		return 0;
-+
-+	bd = container_of(self, struct backlight_device, fb_notif);
-+	down(&bd->sem);
-+	if (bd->props)
-+		if (!bd->props->check_fb ||
-+		    bd->props->check_fb(evdata->info)) {
-+			bd->props->fb_blank = *(int *)evdata->data;
-+			if (likely(bd->props && bd->props->update_status))
-+				bd->props->update_status(bd);
-+		}
-+	up(&bd->sem);
-+	return 0;
-+}
-+
-+static int backlight_register_fb(struct backlight_device *bd)
-+{
-+	memset(&bd->fb_notif, 0, sizeof(bd->fb_notif));
-+	bd->fb_notif.notifier_call = fb_notifier_callback;
-+
-+	return fb_register_client(&bd->fb_notif);
-+}
-+
-+static void backlight_unregister_fb(struct backlight_device *bd)
-+{
-+	fb_unregister_client(&bd->fb_notif);
-+}
-+#else
-+static inline int backlight_register_fb(struct backlight_device *bd)
-+{
-+	return 0;
-+}
-+
-+#define backlight_unregister_fb(...) do { } while (0)
-+#endif /* CONFIG_FB */
-+
- static ssize_t backlight_show_power(struct class_device *cdev, char *buf)
- {
- 	int rc = -ENXIO;
-@@ -151,33 +202,6 @@ static struct class_device_attribute bl_
- 	DECLARE_ATTR(max_brightness, 0444, backlight_show_max_brightness, NULL),
- };
- 
--/* This callback gets called when something important happens inside a
-- * framebuffer driver. We're looking if that important event is blanking,
-- * and if it is, we're switching backlight power as well ...
-- */
--static int fb_notifier_callback(struct notifier_block *self,
--				unsigned long event, void *data)
--{
--	struct backlight_device *bd;
--	struct fb_event *evdata =(struct fb_event *)data;
--
--	/* If we aren't interested in this event, skip it immediately ... */
--	if (event != FB_EVENT_BLANK)
--		return 0;
--
--	bd = container_of(self, struct backlight_device, fb_notif);
--	down(&bd->sem);
--	if (bd->props)
--		if (!bd->props->check_fb ||
--		    bd->props->check_fb(evdata->info)) {
--			bd->props->fb_blank = *(int *)evdata->data;
--			if (likely(bd->props && bd->props->update_status))
--				bd->props->update_status(bd);
--		}
--	up(&bd->sem);
--	return 0;
--}
--
- /**
-  * backlight_device_register - create and register a new object of
-  *   backlight_device class.
-@@ -215,10 +239,7 @@ error:		kfree(new_bd);
- 		return ERR_PTR(rc);
- 	}
- 
--	memset(&new_bd->fb_notif, 0, sizeof(new_bd->fb_notif));
--	new_bd->fb_notif.notifier_call = fb_notifier_callback;
--
--	rc = fb_register_client(&new_bd->fb_notif);
-+	rc = backlight_register_fb(new_bd);
- 	if (unlikely(rc))
- 		goto error;
- 
-@@ -268,7 +289,7 @@ void backlight_device_unregister(struct 
- 	bd->props = NULL;
- 	up(&bd->sem);
- 
--	fb_unregister_client(&bd->fb_notif);
-+	backlight_unregister_fb(bd);
- 
- 	class_device_unregister(&bd->class_dev);
- }
-diff --git a/drivers/video/backlight/lcd.c b/drivers/video/backlight/lcd.c
-index bc8ab00..cab36a4 100644
---- a/drivers/video/backlight/lcd.c
-+++ b/drivers/video/backlight/lcd.c
-@@ -14,6 +14,51 @@ #include <linux/ctype.h>
- #include <linux/err.h>
- #include <linux/fb.h>
- 
-+#if defined(CONFIG_FB) || (defined(CONFIG_FB_MODULE) && \
-+			   defined(CONFIG_LCD_CLASS_DEVICE_MODULE))
-+/* This callback gets called when something important happens inside a
-+ * framebuffer driver. We're looking if that important event is blanking,
-+ * and if it is, we're switching lcd power as well ...
-+ */
-+static int fb_notifier_callback(struct notifier_block *self,
-+				 unsigned long event, void *data)
-+{
-+	struct lcd_device *ld;
-+	struct fb_event *evdata =(struct fb_event *)data;
-+
-+	/* If we aren't interested in this event, skip it immediately ... */
-+	if (event != FB_EVENT_BLANK)
-+		return 0;
-+
-+	ld = container_of(self, struct lcd_device, fb_notif);
-+	down(&ld->sem);
-+	if (ld->props)
-+		if (!ld->props->check_fb || ld->props->check_fb(evdata->info))
-+			ld->props->set_power(ld, *(int *)evdata->data);
-+	up(&ld->sem);
-+	return 0;
-+}
-+
-+static int lcd_register_fb(struct lcd_device *ld)
-+{
-+	memset(&ld->fb_notif, 0, sizeof(&ld->fb_notif));
-+	ld->fb_notif.notifier_call = fb_notifier_callback;
-+	return fb_register_client(&ld->fb_notif);
-+}
-+
-+static void lcd_unregister_fb(struct lcd_device *ld)
-+{
-+	fb_unregister_client(&ld->fb_notif);
-+}
-+#else
-+static int lcd_register_fb(struct lcd_device *ld)
-+{
-+	return 0;
-+}
-+
-+#define lcd_unregister_fb(...) do { } while (0)
-+#endif /* CONFIG_FB */
-+
- static ssize_t lcd_show_power(struct class_device *cdev, char *buf)
- {
- 	int rc;
-@@ -127,29 +172,6 @@ static struct class_device_attribute lcd
- 	DECLARE_ATTR(max_contrast, 0444, lcd_show_max_contrast, NULL),
- };
- 
--/* This callback gets called when something important happens inside a
-- * framebuffer driver. We're looking if that important event is blanking,
-- * and if it is, we're switching lcd power as well ...
-- */
--static int fb_notifier_callback(struct notifier_block *self,
--				 unsigned long event, void *data)
--{
--	struct lcd_device *ld;
--	struct fb_event *evdata =(struct fb_event *)data;
--
--	/* If we aren't interested in this event, skip it immediately ... */
--	if (event != FB_EVENT_BLANK)
--		return 0;
--
--	ld = container_of(self, struct lcd_device, fb_notif);
--	down(&ld->sem);
--	if (ld->props)
--		if (!ld->props->check_fb || ld->props->check_fb(evdata->info))
--			ld->props->set_power(ld, *(int *)evdata->data);
--	up(&ld->sem);
--	return 0;
--}
--
- /**
-  * lcd_device_register - register a new object of lcd_device class.
-  * @name: the name of the new object(must be the same as the name of the
-@@ -186,10 +208,8 @@ error:		kfree(new_ld);
- 		return ERR_PTR(rc);
- 	}
- 
--	memset(&new_ld->fb_notif, 0, sizeof(new_ld->fb_notif));
--	new_ld->fb_notif.notifier_call = fb_notifier_callback;
-+	rc = lcd_register_fb(new_ld);
- 
--	rc = fb_register_client(&new_ld->fb_notif);
- 	if (unlikely(rc))
- 		goto error;
- 
-@@ -232,9 +252,7 @@ void lcd_device_unregister(struct lcd_de
- 	down(&ld->sem);
- 	ld->props = NULL;
- 	up(&ld->sem);
--
--	fb_unregister_client(&ld->fb_notif);
--
-+	lcd_unregister_fb(ld);
- 	class_device_unregister(&ld->class_dev);
- }
- EXPORT_SYMBOL(lcd_device_unregister);
+No, I think five is enough.  If something's using sys_sysctl() then it
+might be using it a lot - there's no point in irritating people over it.

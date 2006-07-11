@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWGKNeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWGKNh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWGKNeP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 09:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWGKNeP
+	id S1750768AbWGKNh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 09:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWGKNh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 09:34:15 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1686 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750766AbWGKNeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 09:34:14 -0400
-Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to change
-	pstate at same time
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-Cc: Andi Kleen <ak@suse.de>, "Deguara, Joachim" <joachim.deguara@amd.com>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       cpufreq@lists.linux.org.uk
-In-Reply-To: <84EA05E2CA77634C82730353CBE3A84303218EA4@SAUSEXMB1.amd.com>
-References: <84EA05E2CA77634C82730353CBE3A84303218EA4@SAUSEXMB1.amd.com>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 15:34:10 +0200
-Message-Id: <1152624850.3128.45.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 11 Jul 2006 09:37:57 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12306 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750768AbWGKNh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 09:37:56 -0400
+Date: Tue, 11 Jul 2006 15:37:55 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arch/arm/kernel/bios32.c: no need to set isa_bridge
+Message-ID: <20060711133755.GO13938@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since this assignment was the only place on !alpha where isa_bridge was 
+touched, it didn't have any effect.
 
-> Customers in the field seem to want to use TSC for gtod,
-> so I want to know how awful an idea that is.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-in userspace or in the kernel? And do you happen to know why they don't
-want to use hpet?
+---
 
-Greetings,
-    Arjan van de Ven
+This patch was already sent on:
+- 1 May 2006
+
+--- linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/bios32.c.old	2006-04-27 23:11:07.000000000 +0200
++++ linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/bios32.c	2006-04-27 23:12:15.000000000 +0200
+@@ -371,17 +371,6 @@
+ 			features &= ~(PCI_COMMAND_SERR | PCI_COMMAND_PARITY);
+ 
+ 		switch (dev->class >> 8) {
+-#if defined(CONFIG_ISA) || defined(CONFIG_EISA)
+-		case PCI_CLASS_BRIDGE_ISA:
+-		case PCI_CLASS_BRIDGE_EISA:
+-			/*
+-			 * If this device is an ISA bridge, set isa_bridge
+-			 * to point at this device.  We will then go looking
+-			 * for things like keyboard, etc.
+-			 */
+-			isa_bridge = dev;
+-			break;
+-#endif
+ 		case PCI_CLASS_BRIDGE_PCI:
+ 			pci_read_config_word(dev, PCI_BRIDGE_CONTROL, &status);
+ 			status |= PCI_BRIDGE_CTL_PARITY|PCI_BRIDGE_CTL_MASTER_ABORT;
 

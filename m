@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWGKV2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWGKVaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWGKV2l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 17:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWGKV2l
+	id S1751319AbWGKVaG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 17:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWGKVaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 17:28:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:30699 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751313AbWGKV2k (ORCPT
+	Tue, 11 Jul 2006 17:30:06 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:52629 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751319AbWGKVaC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 17:28:40 -0400
-Message-ID: <44B41803.8040900@fr.ibm.com>
-Date: Tue, 11 Jul 2006 23:28:35 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
-References: <20060711075051.382004000@localhost.localdomain> <m164i3gad1.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m164i3gad1.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 11 Jul 2006 17:30:02 -0400
+Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
+	keep cache pressure down
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+In-Reply-To: <20060711.135729.104381402.davem@davemloft.net>
+References: <da0cd816c4cb37c4376b.1152651055@localhost.localdomain>
+	 <20060711.135729.104381402.davem@davemloft.net>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 14:30:01 -0700
+Message-Id: <1152653401.16499.35.camel@chalcedony.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello eric,
+On Tue, 2006-07-11 at 13:57 -0700, David Miller wrote:
 
-Eric W. Biederman wrote:
+> Please don't use a weak attribute, and instead use the same
+> "__HAVE_ARCH_FOO" cpp test scheme used for the other string
+> operations to allow a platform to override the default
+> implementation in lib/string.x
 
->> The following patchset adds the user namespace and a new syscall execns.
->>
->> The user namespace will allow a process to unshare its user_struct table,
->> resetting at the same time its own user_struct and all the associated
->> accounting.
->>
->> The purpose of execns is to make sure that a process unsharing a namespace
->> is free from any reference in the previous namespace. the execve() semantic
->> seems to be the best candidate as it already flushes the previous process
->> context.
->>
->> Thanks for reviewing, sharing, flaming !
-> 
-> 
-> I haven't had a chance to do a thorough review yet but why is
-> this needed?
-> 
-> What can be left shared by switching to a new namespace and then
-> execing an executable?
-> 
-> Is it not possible to ensure what you are trying to ensure with
-> a good user space executable?
+I'm a bit confused.
 
-unshare() is unsafe for some namespaces because namespaces can reference
-each other. For the ipc namespace, example are shm ids vs. vma, sem ids vs.
-semundos, msq vs. netlink sockets. for the user namespace, open files. So
-it seems reasonable to provide a way to unshare namespaces from a clean
-process context.
+The last time I tried submitting a patch that followed that style (for
+__iowrite_copy*), it got NAKed for propagating preprocessor abuse (Linus
+roundly flamed someone for a similar patch a few weeks before I
+submitted mine), and Andrew suggested that I use the same scheme that
+this patch uses.
 
-Now, if you try to do that from user space, you will call unshare() then
-execve(), which leaves plenty of room and time for nasty things to happen
-in between the 2 calls.
+So whose instructions do I follow?  Yours of today, or Andrew's and
+Linus's of a few months ago?
 
-C.
+	<b
 

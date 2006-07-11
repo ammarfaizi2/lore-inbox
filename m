@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWGKKhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWGKKnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbWGKKhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 06:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWGKKhK
+	id S1750997AbWGKKnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 06:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWGKKnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 06:37:10 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:55995 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750976AbWGKKhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 06:37:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=iUu3+fEnEnoBgZwb/XkvEz6XD78zCLGNHuiN29iHTNAfmwt86MIEZO+Uge2vMxqAdUbhA9rSByJPCydTzuBJvYMCN7o7QH+fq52AUMwLdxW7TFEBrP7Nn9UWos9VL1e+Q2l3rWJB3YmhngsWHWZ/9n2Gy0fr/G5v8WQLuTLVxVU=
-Message-ID: <44B37F44.5080501@gmail.com>
-Date: Tue, 11 Jul 2006 18:36:52 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: rdunlap@xenotime.net, mreuther@umich.edu, linux-kernel@vger.kernel.org,
-       zap@homelink.ru
-Subject: Re: [PATCH] backlight: lcd: Remove dependency from the framebuffer
- layer
-References: <200607100833.00461.mreuther@umich.edu>	<20060710113212.5ddn42t40ks44s00@engin.mail.umich.edu>	<44B27931.30609@gmail.com>	<200607102327.38426.mreuther@umich.edu>	<20060710215253.1fcaab57.rdunlap@xenotime.net>	<44B34D68.3080602@gmail.com> <20060711032817.94c78ae0.akpm@osdl.org>
-In-Reply-To: <20060711032817.94c78ae0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 11 Jul 2006 06:43:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44726 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750996AbWGKKnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 06:43:19 -0400
+Subject: Re: system 'date apis' in linux kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: chinmaya@innomedia.soft.net
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <44B3805C.9000608@innomedia.soft.net>
+References: <44B3805C.9000608@innomedia.soft.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 11 Jul 2006 12:01:16 +0100
+Message-Id: <1152615677.18028.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 11 Jul 2006 15:04:08 +0800
-> "Antonino A. Daplas" <adaplas@gmail.com> wrote:
+Ar Maw, 2006-07-11 am 16:11 +0530, ysgrifennodd Chinmaya Mishra:
+> Hi. . . .
 > 
->> +#if defined(CONFIG_FB) || (defined(CONFIG_FB_MODULE) && \
->> +			   defined(CONFIG_BACKLIGHT_CLASS_DEVICE_MODULE))
-> 
-> Peeking at CONFIG_FB_MODULE like this is considered sinful.
-> 
-> <tries to remember why>
-> 
-> Because someone might build a CONFIG_FB=n, CONFIG_FB_MODULE=n kernel, then
-> later build the fbdev module for that kernel only to find that the
-> backlight driver doesn't know that the fbdev module is available.
-> 
-> Or something like that.  It's pretty contrived, and I really doubt that
-> anyone's going to try to cobble together a kernel like that.
-> 
-> Or maybe there's a better reason...
+> In the Linux kernel is there any apis are available
+> which takes an unsigned long as an argument and
+> return the date in string format. Just like ctime() in
+> user space.
 
-That's the simplest method I can think of to prevent impossible
-combinations such as CONFIG_FB=m, CONFIG_BACKLIGHT_CLASS_DEVICE=y
-without having to use 'depend' or 'select' in Kconfig, or God forbid,
-inter_module_get().
+No, and thats an extremely complex process so best kept outside of the
+kernel.
 
-I should have added a comment that I also don't like the hackishness
-of this method.
-
-Thinking about this a little more carefully now, how about we just statically
-link the fb notification?
- 
-I'll see if I can send an update for that.
-
-Tony
-
- 
+In particular the kernel has no idea about
+- Summer time shifting
+- Leap second rules for different timezones
+- Locales
 

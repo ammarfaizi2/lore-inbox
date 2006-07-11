@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWGKXW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWGKXX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWGKXW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 19:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWGKXW5
+	id S932240AbWGKXX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 19:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGKXXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 19:22:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5544 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932232AbWGKXW4 (ORCPT
+	Tue, 11 Jul 2006 19:23:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8872 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932235AbWGKXW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 19:22:56 -0400
-Date: Tue, 11 Jul 2006 16:00:55 -0700
+	Tue, 11 Jul 2006 19:22:59 -0400
+Date: Tue, 11 Jul 2006 15:59:09 -0700
 From: Greg KH <greg@kroah.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       mingo@redhat.com, Reuben Farrelly <reuben-lkml@reub.net>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: 2.6.18-rc1-mm1
-Message-ID: <20060711230055.GL18838@kroah.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6ECF9C0@hdsmsx411.amr.corp.intel.com> <1152521329.4874.3.camel@laptopd505.fenrus.org>
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, efault@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled /sbin/ifup
+Message-ID: <20060711225909.GK18838@kroah.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <1152469329.9254.15.camel@Homer.TheSimpsons.net> <20060709135148.60561e69.akpm@osdl.org> <20060709.173212.112177014.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1152521329.4874.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <20060709.173212.112177014.davem@davemloft.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 10:48:49AM +0200, Arjan van de Ven wrote:
-> On Sun, 2006-07-09 at 13:47 -0400, Brown, Len wrote:
-> > >> 2. Onto some more minor warnings:
-> > >> 
-> > >> ACPI: bus type pci registered
-> > >> PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved
-> > >> PCI: Not using MMCONFIG.
-> > >> PCI: Using configuration type 1
-> > >> ACPI: Interpreter enabled
-> > >> 
-> > >> Is there any way to verify that there really is a BIOS bug 
-> > >there?  If it is, is there anyone within Intel or are there any
-> > >known contacts 
-> > >who can push and poke > to get this looked at/fixed?
-> > >(It's a new Intel board, I'd hope they could get it right..).
-> > 
-> > Arjan should probably comment on that one.
+On Sun, Jul 09, 2006 at 05:32:12PM -0700, David Miller wrote:
+> From: Andrew Morton <akpm@osdl.org>
+> Date: Sun, 9 Jul 2006 13:51:48 -0700
 > 
-> I could.. but please next time if you want to CC me use an email address
-> I actually read ;)
+>  ...
+> > > As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
+>  ...
+> > I'd be suspecting
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
 > 
-> Greg has a patch to relax this check, and Rajesh has a further patch to
-> relax it more.
+> Oh well, it means we can't apply that patch as it does break
+> things.
 
-Hm, no, my patch should already be in 2.6.18-rc1, I don't have any
-pending MMCONFIG patches in my queue or tree.
+Ugh, that stinks.  I'll work on fixing up those helper applications so
+this doesn't happen, and try to get an update into the 10.1 pipeline
 
-So if you think I'm missing one, please resend it to me.
+So, I guess I'll just carry this forward for the next 6 months or so
+till SuSE 10.0 support goes away.
+
+> Greg, do you test on SuSE installations? :-)
+
+Heh, most of the time yes, but this stuff only on a Gentoo box for some
+reason.  Sorry about that.
 
 thanks,
 

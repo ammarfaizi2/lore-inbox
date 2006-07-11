@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWGKWFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWGKWHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWGKWFj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWGKWFi
+	id S932184AbWGKWHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWGKWHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:05:38 -0400
-Received: from mail.suse.de ([195.135.220.2]:22214 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932184AbWGKWFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:05:35 -0400
-Date: Tue, 11 Jul 2006 15:01:17 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: Opinions on removing /proc/tty?
-Message-ID: <20060711220117.GD663@kroah.com>
-References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <20060707223043.31488bca.rdunlap@xenotime.net> <9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com> <20060708220414.c8f1476e.rdunlap@xenotime.net> <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com> <44B0D55D.2010400@gmail.com> <9e4733910607090645l236f17f1sb9778f0fc6c6ca01@mail.gmail.com> <20060709103529.bf8a46a4.rdunlap@xenotime.net> <44B191CF.2090506@gmail.com> <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com>
+	Tue, 11 Jul 2006 18:07:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57316
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932184AbWGKWHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:07:24 -0400
+Date: Tue, 11 Jul 2006 15:08:10 -0700 (PDT)
+Message-Id: <20060711.150810.13051231.davem@davemloft.net>
+To: bos@serpentine.com
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [PATCH] Add memcpy_cachebypass, a copy routine that tries to
+ keep cache pressure down
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1152655509.16499.49.camel@chalcedony.pathscale.com>
+References: <1152653401.16499.35.camel@chalcedony.pathscale.com>
+	<20060711.145751.77136364.davem@davemloft.net>
+	<1152655509.16499.49.camel@chalcedony.pathscale.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 09, 2006 at 08:44:24PM -0400, Jon Smirl wrote:
-> Much simpler solution:
-> 
-> cat /sys/class/graphics/fb0/modes
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> mode_string
-> ...
+From: Bryan O'Sullivan <bos@serpentine.com>
+Date: Tue, 11 Jul 2006 15:05:08 -0700
 
-How do you handle the issue when this file overflows a PAGE_SIZE buffer?
+> Well, exactly this scheme seems to work for __iowrite_copy*.  There's a
+> weak generic version and a strong version in arch/x86_64/lib that
+> overrides it, and it gets picked up at kernel link time.
 
-> echo mode_string >/sys/class/graphics/fb0/mode
+It is linked in as an object, not into the library archive,
+that's why that one works like that.
 
-Yeah, that initially looks very simple, but again, it violates the sysfs
-rules.  No matter how stupid you think they are, it still doesn't
-matter...
-
-If you really don't like it, make a fbfs, it's only about 200 lines of
-code...
-
-thanks,
-
-greg k-h
+That is why io.o is added to the "obj-y" variable instead of the
+"lib-y" variable.  It is also necessary to link these things
+in as objects when module exports are present, because if there
+is no in-kernel reference to the function, you won't get the
+function nor it's module export :)

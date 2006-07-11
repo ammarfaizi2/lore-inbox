@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWGKTVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWGKT0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWGKTVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWGKTVv
+	id S1751195AbWGKT0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGKT0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:21:51 -0400
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:37043 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751187AbWGKTVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:21:50 -0400
-Subject: core-iscsi-dv.sh and Core-iSCSI-tools v3.5 released!
-From: "Nicholas A. Bellinger" <nab@kernel.org>
-To: Core-iSCSI <Core-iSCSI@googlegroups.com>
-Cc: iet-dev <iscsitarget-devel@lists.sourceforge.net>,
-       Open iSCSI <open-iscsi@googlegroups.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 12:12:32 -0700
-Message-Id: <1152645152.4955.0.camel@haakon>
+	Tue, 11 Jul 2006 15:26:12 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:983 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751192AbWGKT0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:26:11 -0400
+Date: Tue, 11 Jul 2006 12:26:07 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-mm6: BUG: spinlock wrong CPU on CPU#1,
+ kacpid_notify/7105
+Message-Id: <20060711122607.a290f3e6.kristen.c.accardi@intel.com>
+In-Reply-To: <44B08F3F.1080704@goop.org>
+References: <44B08F3F.1080704@goop.org>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.19; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all,
+On Sat, 08 Jul 2006 22:08:15 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-Core-iSCSI-tools v3.5 has been released:
+> [ Repost: got linux-acpi's address wrong. ]
+> 
+> I just got this while undocking my machine.  Thinkpad X60, Core Duo CPU.
+>
 
-http://www.kernel.org/pub/linux/utils/storage/iscsi/core-iscsi-tools-v3.5.tar.bz2
+Hi Jeremy,
+I think the patch I posted on Friday will solve this issue:
 
-The core-iscsi-dv.sh domain validation script has been released at:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115230920629981&w=2
 
-http://www.linux-iscsi.org/index.php/Core-iscsi-dv
+It is included in 2.6.18-rc1-mm1.
 
-Note that this script is primarly oriented for iSCSI vendors and
-developers for testing data IO using a CLI program accepting a block
-device as an arguement.  This tool will be run a pre-calculated number
-of times each time negotiating a different set of RFC-3720 parameter
-keys until the configuration space has been exhausted.
+Let me know if this works for you.
 
-Currently, v1.0 uses a simple dd_read() to read a few sectors from the
-iSCSI CHANNEL+LUN blockdevice that is passed as arguements into the
-script.  This script can be easily modified for new script routines that
-call any of the large number of available data integrity tools.  Futher
-integration of publically available test tools is something that will be
-ongoing for the core-iscsi-dv project.
-
-For limitations, warnings and general usage please refer to README:
-
-http://www.linux-iscsi.org/files/core-iscsi-dv/README
-
-Thanks,
-
--- 
-Nicholas A. Bellinger <nab@kernel.org>
-
+Kristen

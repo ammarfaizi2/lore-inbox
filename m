@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWGKRrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWGKRww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWGKRrU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 13:47:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWGKRrU
+	id S1750885AbWGKRww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 13:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGKRww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 13:47:20 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:63401 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751153AbWGKRrT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 13:47:19 -0400
-Message-ID: <44B3E40E.2090306@zytor.com>
-Date: Tue, 11 Jul 2006 10:46:54 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
-       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
-       klibc@zytor.com, linux-kernel@vger.kernel.org
+	Tue, 11 Jul 2006 13:52:52 -0400
+Received: from ns2.suse.de ([195.135.220.15]:46283 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750885AbWGKRwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 13:52:51 -0400
+Date: Tue, 11 Jul 2006 19:52:49 +0200
+From: Olaf Hering <olh@suse.de>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
+       torvalds@osdl.org, klibc@zytor.com, linux-kernel@vger.kernel.org
 Subject: Re: [klibc] klibc and what's the next step?
-References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3DEA0.3010106@zytor.com> <20060711173030.GA16693@suse.de>
-In-Reply-To: <20060711173030.GA16693@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060711175249.GA16869@suse.de>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3E3E0.1050100@tls.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <44B3E3E0.1050100@tls.msk.ru>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
->  On Tue, Jul 11, H. Peter Anvin wrote:
-> 
->> "Old klibc" still exists and is the same code out of the same source tree.
-> 
-> I meant more the "easy to build" part.
-> 
->>>> * Makes it easier to move stuff between kernel and userspace.
->>> What do you have in mind here?
->>> Once prepare_namespace is gone, there is no userspace code left.
->> Things that have been bandied about, for example:
->>
->> 	- suspend/resume
->> 	- partition discovery
->>
->> I'm sure there is more.
-> 
-> Do you plan to share source files betweek kernel and kinit? Or how is it
-> harder for external kinit to handle that?
+ On Tue, Jul 11, Michael Tokarev wrote:
 
-It's a deployment problem, arguably especially for people who 
-cross-compile.  You have two major pieces of code (kernel and klibc) 
-which have to be changed at the same time, with different maintainers 
-and reviewers.
+> Olaf Hering wrote:
+> []
+> > To create the initrd you needed a loop file, at least for ext2, minix etc.
+> 
+> It's just damn trivial to pack your files into cpio archive and gzip it.
 
-	-hpa
+The point is not how trivial it is. The point is how much has to change
+that you can run 2.6.42 on an 42 year old installation with the tools
+that were available at that time.
+Obiviously you cant be bothered to install newer packages, like kinit.rpm.
+Basic backwards compatibilty. Its not a term from the klingon dictionary.
 
+Btw, kinit is already taken, some kerberos thing.

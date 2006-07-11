@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWGKPzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWGKP6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWGKPzi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 11:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWGKPzi
+	id S1751083AbWGKP6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 11:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWGKP6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 11:55:38 -0400
-Received: from mga01.intel.com ([192.55.52.88]:37726 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750758AbWGKPzh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 11:55:37 -0400
-X-IronPort-AV: i="4.06,229,1149490800"; 
-   d="scan'208"; a="96311191:sNHT13194712797"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: oops in current -git
-Date: Tue, 11 Jul 2006 11:55:10 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6F3116F@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: oops in current -git
-Thread-Index: AcakaYRSQLxW3pGGTXSl/stA3+M4+QAmMTBw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jeff Garzik" <jeff@garzik.org>, "Netdev List" <netdev@vger.kernel.org>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Jul 2006 15:55:13.0583 (UTC) FILETIME=[655E3BF0:01C6A502]
+	Tue, 11 Jul 2006 11:58:05 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19852 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751083AbWGKP6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 11:58:03 -0400
+Subject: Re: [discuss] Re: [PATCH] Allow all Opteron processors to change
+	pstate at same time
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, Joachim Deguara <joachim.deguara@amd.com>,
+       Mark Langsdorf <mark.langsdorf@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+In-Reply-To: <1152623675.3128.41.camel@laptopd505.fenrus.org>
+References: <Pine.LNX.4.64.0607061519040.9066@solonow.amd.com>
+	 <p73fyhdpqe1.fsf@verdi.suse.de> <1152622554.4489.32.camel@lapdog.site>
+	 <200607111507.39079.ak@suse.de>
+	 <1152623675.3128.41.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 11 Jul 2006 17:15:38 +0100
+Message-Id: <1152634538.18028.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try latest -mm, latest ACPI patch, or
-try CONFIG_ACPI_BATTERY=n
+Ar Maw, 2006-07-11 am 15:14 +0200, ysgrifennodd Arjan van de Ven:
+> if you have per cpu offset and speed, then you don't even need to tie
+> all frequencies together... sounds like the best solution to me..
 
--Len
+CPU clocks on some systems are not stable relative to one another. Doing
+the maths only works if you know the divergence isn't cause by
+independant clock sources
+

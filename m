@@ -1,49 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWGKWHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWGKWJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWGKWHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWGKWHw
+	id S932169AbWGKWJD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:09:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWGKWJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:07:52 -0400
-Received: from ns2.suse.de ([195.135.220.15]:41451 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932185AbWGKWHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:07:51 -0400
-Date: Tue, 11 Jul 2006 15:03:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Mike Galbraith <efault@gmx.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Opinions on removing /proc/tty?
-Message-ID: <20060711220332.GE663@kroah.com>
-References: <9e4733910607071956q284a2173rfcdb2cfe4efb62b4@mail.gmail.com> <1152344452.7922.11.camel@Homer.TheSimpsons.net> <9e4733910607080712y248f61b9q7444b754516c4d6a@mail.gmail.com> <1152370102.27368.5.camel@localhost.localdomain> <9e4733910607080920t51957e28sa131f86876219891@mail.gmail.com> <20060708172047.GA23882@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 18:09:01 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:33236 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932169AbWGKWJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:09:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bQSNgtYHGUHRqHGThuO1+H8Ov2PcI402c30jvI8TKuRtHz7bWc4dWbjVKWHRvqtR1Tq37T7hAlFmYWeMxV7ADeGh+VU69cnloU2e+o3GtRrivGi47kT4hGwJsJxFVLscSRK61esbm64FTsQ2Qn7GEH+Cn+cvJeX5P8vYKFGhuiw=
+Message-ID: <9e4733910607111508x526ee642p5b587698306b22d3@mail.gmail.com>
+Date: Tue, 11 Jul 2006 18:08:59 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Theodore Tso" <tytso@mit.edu>, "Jon Smirl" <jonsmirl@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+In-Reply-To: <20060711194456.GA3677@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060708172047.GA23882@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
+	 <1152552806.27368.187.camel@localhost.localdomain>
+	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
+	 <1152554708.27368.202.camel@localhost.localdomain>
+	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
+	 <1152573312.27368.212.camel@localhost.localdomain>
+	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
+	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
+	 <20060711012904.GD30332@thunk.org>
+	 <20060711194456.GA3677@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 06:20:47PM +0100, Russell King wrote:
-> On Sat, Jul 08, 2006 at 12:20:06PM -0400, Jon Smirl wrote:
-> > I'll put together a patch making it mountable. Is there any specific
-> > info that needs to be added to sysfs?
-> 
-> Adding info to the sysfs side of tty devices is rather fraught (or was
-> last time I looked - I'd like to do exactly that with serial_core.)
-> 
-> Unfortunately, until it becomes easier (and maybe it recently has now
-> that tty_register_device returns the class device struct), /proc/tty
-> needs to stay.  But... I heard that Greg wants to remove struct
-> class_device...
+On 7/11/06, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Mon, Jul 10, 2006 at 09:29:04PM -0400, Theodore Tso wrote:
+> > On Mon, Jul 10, 2006 at 07:49:31PM -0400, Jon Smirl wrote:
+> > > How about the use of lock/unlock_kernel(). Is there some hidden global
+> > > synchronization going on? Every time lock/unlock_kernel() is used
+> > > there is a tty_struct available. My first thought would be to turn
+> > > this into a per tty spinlock. Looking at where it is used it looks
+> > > like it was added to protect all of the VFS calls. I see no obvious
+> > > coordination with other ttys that isn't handled by other locks.
+> >
+> > No, it was just a case of not being worth it to get rid of the BKL for
+> > the tty subsystem, since opening and closing tty's isn't exactly a
+> > common event.  Switching it to use a per-tty spinlock makes sense if
+> > we're going to rototill the code, but to be honest it's probably not
+> > going to make a noticeable difference on any benchmark and most
+> > workloads.
+>
+> It's not that simple - remember that you must be able to open a tty
+> in non-blocking mode while someone else is opening the same tty in
+> blocking mode, _and_ succeed.  (iow, the getty waiting for call-in
+> and you want to dial out case.)
+>
+> If we go for merely replacing BKL with some other lock, each tty
+> driver has to be able to drop that lock when it decides to sleep due
+> to no carrier in its open method... which is kind'a yuck.
 
-Yes I do want to remove it, but anything that you add to the
-class_device will still work just fine, I'm not wanting to break
-userspace tools anymore :)
+Directly replacing BKL was my first strategy but that looks to be
+hard. Some of the sleeps are in the line discipline code which means I
+have to find all of them. After replacing BKL I'd try to simplify the
+locking.
 
-And it should be pretty easy to do, now that we do return the
-class_device that you need to have to add files to.
+What about adjusting things so the BKL isn't required? I tried
+completely removing it and died in release_dev. tty_mutex is already
+locks a lot of stuff, maybe it can be adjusted to allow removal of the
+BKL.
 
-thanks,
+I'm also trying to decide if read/write really need BKL when they are
+called. Read/write already uses the atomic_read/write_lock mutexes.
 
-greg k-h
+read_chan has this comment:
+ *	Perform reads for the line discipline. We are guaranteed that the
+ *	line discipline will not be closed under us but we may get multiple
+ *	parallel readers and must handle this ourselves. We may also get
+ *	a hangup. Always called in user context, may sleep.
+
+But read_chan is always called from tty_io.c with BKL held. So is
+atomic_read_lock really doing anything or is it masked by BKL?
+
+I see why no one works on this code, it is very intertwined with the
+rest of the kernel and a lot of the reasons for locking are
+non-obvious.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

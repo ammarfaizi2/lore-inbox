@@ -1,46 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWGKBs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbWGKB7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbWGKBs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jul 2006 21:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWGKBs0
+	id S965049AbWGKB7T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jul 2006 21:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWGKB7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jul 2006 21:48:26 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:29613 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S965050AbWGKBs0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jul 2006 21:48:26 -0400
-Message-ID: <44B30356.8060404@zytor.com>
-Date: Mon, 10 Jul 2006 18:48:06 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Mon, 10 Jul 2006 21:59:19 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:35890 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965049AbWGKB7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jul 2006 21:59:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=owkwX0rviUJjD4qPoq0R502s2cGaXxX7DzUcbsoX/+gLw93MwRBtNH3VgZLZO1j1QbRMUjf4qfEx2akrkKkvvU0vnM6hWn62J0tcAFOipGasr6h/Yy/cYCx2CJ77I5Syjo09preGjKiDIYs/jwz3GG704b/zQF5GVbOjk+c+xAE=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Andrea Arcangeli <andrea@cpushare.com>
+Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
+Date: Mon, 10 Jul 2006 21:59:09 -0400
+User-Agent: KMail/1.9.1
+Cc: Lee Revell <rlrevell@joe-job.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+References: <20060629192121.GC19712@stusta.de> <1151679780.32444.21.camel@mindpipe> <20060708092313.GD5135@opteron.random>
+In-Reply-To: <20060708092313.GD5135@opteron.random>
 MIME-Version: 1.0
-To: Albert Cahalan <acahalan@gmail.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, ray-gmail@madrabbit.org,
-       Jon Smirl <jonsmirl@gmail.com>, Greg KH <greg@kroah.com>,
-       alan@lxorguk.ukuu.org.uk, efault@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: Opinions on removing /proc/tty?
-References: <787b0d920607082230w676ddc62u57962f1fc08cf009@mail.gmail.com>	 <9e4733910607090704r68602194h3d2a1a91a4909984@mail.gmail.com>	 <787b0d920607090923p65c417f2v71c8e72bf786f995@mail.gmail.com>	 <2c0942db0607091000m259c1ed5m960821eb5237c4b0@mail.gmail.com>	 <787b0d920607091226sb1db56dg9c0267f6ae8e2dc7@mail.gmail.com>	 <20060709193133.GA32457@flint.arm.linux.org.uk>	 <787b0d920607091257u52198c55sb8973a39bff3fcc8@mail.gmail.com>	 <Pine.LNX.4.61.0607101601470.5071@yvahk01.tjqt.qr>	 <787b0d920607100806u613e7594nb6a7a1e2965e11a6@mail.gmail.com>	 <Pine.LNX.4.61.0607110015030.5420@yvahk01.tjqt.qr> <787b0d920607101807j2804023v17f7643bffeb2456@mail.gmail.com>
-In-Reply-To: <787b0d920607101807j2804023v17f7643bffeb2456@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
-> 
-> On any of Linux, MacOS, Solaris, NetBSD, OpenBSD:
-> 
-> $ ls /dev/tty /dev/ctty
-> ls: /dev/ctty: No such file or directory
-> /dev/tty
-> 
-> Lord only knows why FreeBSD has both.
-> Unlike Linux, they don't supply a man page.
-> On a Linux system, "man 4 tty" is useful.
-> On a Solaris system, "man -s 7d tty" is useful.
+On Saturday 08 July 2006 05:23, Andrea Arcangeli wrote:
+..
+> (note that unless you sell cpu through CPUShare
+> actively this overhead consists in two cacheline touches per context
+> switch),
 
-On System V, /dev/ctty is the primary console device (meaning that 
-unlike /dev/console, it cannot be redirected.)
+It's probably not worth the complication, but I suppose that could be
+reduced to one cacheline by lazily enabling the TSC access.
 
-	-hpa
+...
+> +	  This feature mathematically prevents covert channels
+> +	  for tasks running under SECCOMP.
 
+I disagree with this wording. First, for most users the worry isn't so
+much covert channels, as it is side channels. In other words, the
+worry is not so much that data is sent to the SECCOMP process
+secretly, as that the data could be sensitive. Second, the feature
+closes one only one type of side-channel; others may still exist. It's
+quite possible for cpu bugs or undefined behaviour to reveal internal
+cpu state (possibly affected by another process) without otherwise
+being security risks. (In my uninformed opinion). I wouldn't worry
+about such side channels myself, but they do likely exist.
+
+Suggested wording as a patch against 2.6.18-rc1-mm1:
+------
+
+Change help text for SECCOMP_DISABLE_TSC to warn about
+side channels (the larger concern) instead of covert channels.
+
+signed-off-by: Andrew Wade <andrew.j.wade@gmail.com>
+---
+
+diff -rupN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2006-07-10 21:00:37.000000000 -0400
++++ b/arch/i386/Kconfig	2006-07-10 21:37:12.000000000 -0400
+@@ -748,12 +748,12 @@ config SECCOMP_DISABLE_TSC
+ 	depends on SECCOMP
+ 	default n
+ 	help
+-	  This feature mathematically prevents covert channels
+-	  for tasks running under SECCOMP. This can generate
+-	  a minuscule overhead in the scheduler.
++	  This feature closes potential side channels for tasks
++	  running under SECCOMP. Enabling this can generate a
++	  miniscule overhead in the scheduler.
+ 
+ 	  If you care most about performance say N. Say Y only if you're
+-	  paranoid about covert channels.
++	  paranoid about security.
+ 
+ config VGA_NOPROBE
+        bool "Don't probe VGA at boot" if EMBEDDED
+diff -rupN a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig	2006-07-10 21:00:40.000000000 -0400
++++ b/arch/x86_64/Kconfig	2006-07-10 21:44:59.000000000 -0400
+@@ -537,12 +537,12 @@ config SECCOMP_DISABLE_TSC
+ 	depends on SECCOMP
+ 	default n
+ 	help
+-	  This feature mathematically prevents covert channels
+-	  for tasks running under SECCOMP. This can generate
+-	  a minuscule overhead in the scheduler.
++	  This feature closes potential side channels for tasks
++	  running under SECCOMP. Enabling this can generate a
++	  miniscule overhead in the scheduler.
+ 
+ 	  If you care most about performance say N. Say Y only if you're
+-	  paranoid about covert channels.
++	  paranoid about security.
+ 
+ source kernel/Kconfig.hz
+ 

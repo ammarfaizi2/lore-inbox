@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWGKS4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWGKTAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWGKS4i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 14:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWGKS4h
+	id S1750841AbWGKTAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGKTAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 14:56:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35342 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751180AbWGKS4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 14:56:37 -0400
-Date: Tue, 11 Jul 2006 19:56:30 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: John Stoffel <john@stoffel.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.18-rc1-mm1 - bad serial port count messages
-Message-ID: <20060711185630.GA1240@flint.arm.linux.org.uk>
-Mail-Followup-To: John Stoffel <john@stoffel.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <17587.42397.168635.821696@stoffel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Jul 2006 15:00:33 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:8876 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750841AbWGKTAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:00:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=opfEehkv6u48+FHpI9vDeswSsCZBGsU5rXw9PdT1ZofP89YoialadrFusUcUL501LAzuHdIMlaC4k1VlKHfGCaBN7clsfLuni1HPwRd+8tjaUMMH4BJDsVFBoh/qqjvnDnW0DsH3NMDVwB6Bll87rIaoMtqy6GosPnjLeiNR1pI=
+Message-ID: <a762e240607111200v743bb598pa9717ce3087bfd51@mail.gmail.com>
+Date: Tue, 11 Jul 2006 12:00:31 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm1 panic on boot x86_64 NMI watchdog detected LOCKUP
+Cc: "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <a762e240607111125y1f9a67eleadbd1fffd053be6@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <17587.42397.168635.821696@stoffel.org>
-User-Agent: Mutt/1.4.1i
+References: <a762e240607111112v1bd28135hf99fdf0cc08a6d52@mail.gmail.com>
+	 <a762e240607111125y1f9a67eleadbd1fffd053be6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 09:20:29AM -0400, John Stoffel wrote:
-> I'm getting the following messages in dmesg:
-> 
->   uart_close: bad serial port count; tty->count is 1, state->count is 0
->   uart_close: bad serial port count for ttyS0: -1
->   uart_close: bad serial port count for ttyS0: -1
+Also just tested 2.6.18-rc1 and it booted just fine with same basic
+config. Must be something in -mm.
 
-I assume that it's 100% reproducable, and doesn't happen with mainline?
-
-I'm not aware of any serial core patches in -mm which would produce this
-type of breakage - maybe there's something funny with the tty layer in
-that it's trying to close the port more times than it's been opened...
-Hmm.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Keith

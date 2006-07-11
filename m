@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWGKTpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWGKTub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWGKTpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 15:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWGKTpJ
+	id S932107AbWGKTub (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 15:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWGKTub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 15:45:09 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52748 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932124AbWGKTpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 15:45:08 -0400
-Date: Tue, 11 Jul 2006 20:44:57 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Theodore Tso <tytso@mit.edu>, Jon Smirl <jonsmirl@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: tty's use of file_list_lock and file_move
-Message-ID: <20060711194456.GA3677@flint.arm.linux.org.uk>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com> <1152552806.27368.187.camel@localhost.localdomain> <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com> <1152554708.27368.202.camel@localhost.localdomain> <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com> <1152573312.27368.212.camel@localhost.localdomain> <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com> <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com> <20060711012904.GD30332@thunk.org>
+	Tue, 11 Jul 2006 15:50:31 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:8345 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932107AbWGKTua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 15:50:30 -0400
+Date: Tue, 11 Jul 2006 21:45:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] irqtrace-option-off-compile-fix
+Message-ID: <20060711194505.GA25611@elte.hu>
+References: <1152577120.7654.9.camel@localhost.localdomain> <1152601989.3128.10.camel@laptopd505.fenrus.org> <1152635003.7654.40.camel@localhost.localdomain> <1152637993.3128.96.camel@laptopd505.fenrus.org> <1152635804.7654.44.camel@localhost.localdomain> <1152641141.3128.104.camel@laptopd505.fenrus.org> <1152644540.3578.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060711012904.GD30332@thunk.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1152644540.3578.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 10, 2006 at 09:29:04PM -0400, Theodore Tso wrote:
-> On Mon, Jul 10, 2006 at 07:49:31PM -0400, Jon Smirl wrote:
-> > How about the use of lock/unlock_kernel(). Is there some hidden global
-> > synchronization going on? Every time lock/unlock_kernel() is used
-> > there is a tty_struct available. My first thought would be to turn
-> > this into a per tty spinlock. Looking at where it is used it looks
-> > like it was added to protect all of the VFS calls. I see no obvious
-> > coordination with other ttys that isn't handled by other locks.
+
+* Tim Chen <tim.c.chen@linux.intel.com> wrote:
+
+> > The one you want is CONFIG_TRACE_IRQFLAGS .. which is the one that 
+> > actually turns the tracing on
 > 
-> No, it was just a case of not being worth it to get rid of the BKL for
-> the tty subsystem, since opening and closing tty's isn't exactly a
-> common event.  Switching it to use a per-tty spinlock makes sense if
-> we're going to rototill the code, but to be honest it's probably not
-> going to make a noticeable difference on any benchmark and most
-> workloads.
+> I could not turn off CONFIG_TRACE_IRQFLAGS_SUPPORT in .config 
+> directly. The command "scripts/kconfig/conf -s arch/x86_64/Kconfig" in 
+> Makefile overwrites changes made to CONFIG_TRACE_IRQFLAGS_SUPPORT in 
+> .config file.  So this is always turned on in .config if the option 
+> TRACE_IRQFLAGS_SUPPORT is set in arch/x86_64/Kconfig.debug.  I may be 
+> missing something.  Any suggestions?
 
-It's not that simple - remember that you must be able to open a tty
-in non-blocking mode while someone else is opening the same tty in
-blocking mode, _and_ succeed.  (iow, the getty waiting for call-in
-and you want to dial out case.)
+correct, that flag is always set - it signals towards the core kernel 
+that the architecture in question (x86_64) that it has trace-irqflags 
+support. NOTE: this does not mean that irqflags tracing is turned on - 
+that is another option: CONFIG_TRACE_IRQFLAGS.
 
-If we go for merely replacing BKL with some other lock, each tty
-driver has to be able to drop that lock when it decides to sleep due
-to no carrier in its open method... which is kind'a yuck.
+unsetting the support flag makes no sense and will likely break the 
+build. There is no overhead from irqflags tracing if it's turned off. 
+(even if the CONFIG_TRACE_IRQFLAGS_SUPPORT option is set)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+does this explain things? We could rename the boolean value to 
+CONFIG_TRACE_IRQFLAGS_SUPPORT_AVAILABLE perhaps, to avoid future 
+confusion.
+
+	Ingo

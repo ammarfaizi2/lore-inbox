@@ -1,93 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWGKW3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWGKWcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWGKW3N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 18:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWGKW3N
+	id S932220AbWGKWcm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 18:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWGKWcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 18:29:13 -0400
-Received: from wx-out-0102.google.com ([66.249.82.203]:29579 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932208AbWGKW3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 18:29:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=NUyZ72Gj3UsGXCVRYZMfDyRSaq0bzqMabhaVem15dzu9lgLHnFT+GWoMKRT5HK+X1mm+o3cAeIRvK1jRewP5bmwZPmLLjzCDegwgqncHf5VoKgX38NYeH7aoIlmEUYOh2j4y84MqihuSINhwdw/N0CJbBovSHPyzzOmmhzgOxnE=
-Date: Tue, 11 Jul 2006 15:29:03 -0700
-From: Clay Barnes <clay.barnes@gmail.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Reiserfs mail-list <Reiserfs-List@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: short term task list for Reiser4
-Message-ID: <20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>
-References: <44B42064.4070802@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B42064.4070802@namesys.com>
-User-Agent: Mutt/1.5.11
+	Tue, 11 Jul 2006 18:32:42 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:17142 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S932220AbWGKWcl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 18:32:41 -0400
+Message-ID: <44B426CB.4010405@pg.gda.pl>
+Date: Wed, 12 Jul 2006 00:31:39 +0200
+From: =?ISO-8859-2?Q?Adam_Tla=B3ka?= <atlka@pg.gda.pl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; pl-PL; rv:1.8.0.4) Gecko/20060516 SeaMonkey/1.0.2
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Valdis.Kletnieks@vt.edu, alsa-devel@alsa-project.org,
+       linux-kernel@vger.kernel.org, perex@suse.cz, alan@lxorguk.ukuu.org.uk
+Subject: Re: [Alsa-devel] OSS driver removal, 2nd round (v2)
+References: <20060707231716.GE26941@stusta.de>	 <p737j2potzr.fsf@verdi.suse.de> <1152458300.28129.45.camel@mindpipe>	 <20060710132810.551a4a8d.atlka@pg.gda.pl>	 <1152571717.19047.36.camel@mindpipe> <44B2E4FF.9000502@pg.gda.pl>	 <200607110209.k6B29psN007504@turing-police.cc.vt.edu>	 <20060711081528.4d3ab197.atlka@pg.gda.pl>	 <200607111430.k6BEUUus006736@turing-police.cc.vt.edu> <1152637064.21909.61.camel@mindpipe>
+In-Reply-To: <1152637064.21909.61.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15:04 Tue 11 Jul     , Hans Reiser wrote:
-> Please feel free to comment on this list and the order of its tasks:
+U¿ytkownik Lee Revell napisa³:
+> On Tue, 2006-07-11 at 10:30 -0400, Valdis.Kletnieks@vt.edu wrote:
+>> On Tue, 11 Jul 2006 08:15:28 +0200, Adam =?ISO-8859-2?B?VGxhs2th?= said:
+>>> Sorry to say but it is just not that way. Window manager is for managing windows
+>>> and it shouldn't depend on any audio system. It should use an external app using exec call
+>>> to play sounds (aplay, sox, wavplay etc.) configured by some config option.
+>> So what you're saying is that something like 'esd' *is* needed.  (It's
+>> certainly silly to keep doing fork/exec for every little sound sample when
+>> you can just leave the app running and hand it requests...)
 > 
-> 0) fix all bugs as they arise
-> 
-> 1) get batch_write into the -mm kernel --- small task
-> 
-> 2) get read optimization code into the -mm kernel (coded and probably
-> debugged but not fully tested and not sent in yet) --- small task
-> 
-> 3) get EVERYTHING into wiki (migration has started already, thanks flx).
-> 
-> 4) review complaints of pauses while using reiser4 --- size of task
-> unknown, and it is also unknown how much we may have fixed it while
-> writing recent patches.
-> 
-> 5) review crypt-compress code --- full code review --- substantive task
-> 
-> 6) optimize fsync --- substantive task which requires using fixed area
-> for write twice logging, and using write twice logging for fsync'd
-> data.  It might require creating mount options to choose whether to
-> optimize for serialized sequential fsyncs vs. lazy fsyncs.
-With the serialized sequential fsync, is that essentially what I was
-talking about earlier with slowly streaming dirty writes to disk when
-the HDD is idle?  If that's the case, I don't see the advantage in having
-lazy fsyncs except in situations where you want to keep the HDD spun down
-as much as possible.  If you keep as much of the writes in RAM as you
-would have if you used lazy fsyncs, then you get the same temporal
-locality speed up, with the added advantages that you can clear the RAM
-under memory pressure immediately and crashes result in lower likelyhood
-of data loss than with lazy fsync.  I suppose it isn't a bad idea to give
-people more options (unless you're a GNOME UI developer :-P), but at the
-very least I think that slow streaming to disk would be a very wise
-default option.
+> That approach also won't be reliable as it ignores the realtime
+> constraint that is inherent in audio playback.  It will probably work on
+> a fast/lightly loaded machine but will glitch out under load.
 
-My CS focus is Human Interfaces, so I may be way out of my league here
-with FSs, but I thought I'd still throw in my two cents.
-> 
-> 7) review all of our installation instructions --- I am already doing
-> that, but volunteers who will help out our wiki would be sorely
-> appreciated.  Installing reiser4 as the root for each distro needs
-> step-by-step instructions.
-I've been meaning to hose my laptop (assuming I fix one problem with my
-desktop), so I am willing to help write Gentoo install docs (or possibly
-Arch Linux).  I can also test exsiting instructions.
-> 
-> 8) review our kernel documentation --- I should do that but when will I
-> have time?
-> 
-> Unfortunately, our code stability is going to decrease for a bit due to
-> all these changes to the read and write code --- no way to cure that but
-> passage of time.   On the other hand, our CPU usage went way down. 
-> Reiser4's only performance weakness now is fsync.  
-> 
-> Once the crypt-compress code is ready, we will release Reiser4.1-beta
-> (with plugins, releasing a beta means telling users that if they mount
-> -o reiser4.1-beta then cryptcompress will be their default plugin, and
-> if they don't, then they are using Reiser4.0 still).  Doubling our
-> performance and halving our disk usage is going to be fun.
+Yes, that is true. It was just simple example how you can get simple 
+sound effects without many lines of code. In case of heavy load or too 
+many events in short period of time this method is not working correctly 
+but this is not the main functionality of a window manager program.
+Anyway you can aggregate events if there are too many of them and play 
+only one sound or not play anything at all. For this kind of program
+it is quite acceptable and not breaks main functionality.
 
+> It's how GDM plays startup/shutdown sounds and it sucks - on shutdown
+> the sound is choppy.  You either need a dedicated daemon running
+> SCHED_FIFO or an RT thread for reliable audio playback.
 
---Clay
+True - and that makes things more complicated. I don't know if it is 
+worth it just for bells and whistles. In other cases you do need to 
+program more sophisticated sound support and RT thread probably will be 
+your solution. Or some kind of sound server which holds your sound 
+samples so you can fire them at the proper time.
+ALSA lib is a low level library. Sometimes we need more abstract 
+functions like load(s, "sound.wav) and then play(s) without bothering 
+about all these parameters settings. So maybe OpenAL is a some kind of a 
+solution but I don't know its current status.
+
+Regards
+-- 
+Adam Tla³ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+Computer Center,  Gdañsk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl

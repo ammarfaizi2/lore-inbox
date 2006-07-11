@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWGKUP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWGKURO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWGKUP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWGKUP2
+	id S1751097AbWGKURO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWGKURO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:15:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34065 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750844AbWGKUP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:15:27 -0400
-Date: Tue, 11 Jul 2006 21:15:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: John Stoffel <john@stoffel.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.18-rc1-mm1 - bad serial port count messages
-Message-ID: <20060711201521.GC3677@flint.arm.linux.org.uk>
-Mail-Followup-To: John Stoffel <john@stoffel.org>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <17587.42397.168635.821696@stoffel.org> <20060711185630.GA1240@flint.arm.linux.org.uk> <17588.997.688135.786150@stoffel.org>
+	Tue, 11 Jul 2006 16:17:14 -0400
+Received: from p5488A9E0.dip0.t-ipconnect.de ([84.136.169.224]:3053 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S1751222AbWGKURN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:17:13 -0400
+Date: Tue, 11 Jul 2006 20:16:15 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Will there be Intel Wireless 3945ABG support?
+Message-ID: <20060711201615.GB11871@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
+	Alon Bar-Lev <alon.barlev@gmail.com>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	"John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
+	linux-kernel@vger.kernel.org
+References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711171238.GA26186@tuxdriver.com> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17588.997.688135.786150@stoffel.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <44B3ED29.4040801@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 04:02:45PM -0400, John Stoffel wrote:
-> I thought I saw something float by where someone had raised some new
-> locking or count variables?  I dunno... I'll work on it tonight and
-> see what happens after another reboot.
+On Tue, Jul 11, 2006 at 09:25:45PM +0300, Alon Bar-Lev wrote:
+> 
+> Also there is no good reason why supplying this daemon as closed source... 
+> All they
+> wish is people don't mess with their frequencies, and sooner or later 
+> someone will...
 
-Those are probably changes in the tty layer - Jon Smirl is attempting
-some tty changes.
+Using interesting frequencies or output power would be fun for
+radio amateurs (like me). 2.4GHz is one of our playgrounds after all :-)
+
+Just because Joe Average isn't allowed to use such features doesn't
+mean that there aren't any legitimate users for it.
+ 
+Preventing the accidental use of unauthorized features would be enough, 
+I think (warnings that force you to look up the manual to find out the
+correct --force option or similar)
+I expect developers to be sensible enough to only offer 'public legal'
+values in the default options list.
+
+just my 2 cents,
+Thorsten
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

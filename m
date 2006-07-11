@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGKUCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGKUGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWGKUCt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 16:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWGKUCt
+	id S1751140AbWGKUGm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 16:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGKUGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 16:02:49 -0400
-Received: from mxsf18.cluster1.charter.net ([209.225.28.218]:55193 "EHLO
-	mxsf18.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751213AbWGKUCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 16:02:48 -0400
-X-IronPort-AV: i="4.06,230,1149480000"; 
-   d="scan'208"; a="387608855:sNHT20976968"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17588.997.688135.786150@stoffel.org>
-Date: Tue, 11 Jul 2006 16:02:45 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.18-rc1-mm1 - bad serial port count messages
-In-Reply-To: <20060711185630.GA1240@flint.arm.linux.org.uk>
-References: <17587.42397.168635.821696@stoffel.org>
-	<20060711185630.GA1240@flint.arm.linux.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Tue, 11 Jul 2006 16:06:42 -0400
+Received: from mx1.suse.de ([195.135.220.2]:31159 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751140AbWGKUGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 16:06:41 -0400
+Date: Tue, 11 Jul 2006 22:06:40 +0200
+From: Olaf Hering <olh@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Michael Tokarev <mjt@tls.msk.ru>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060711200640.GA17653@suse.de>
+References: <20060711044834.GA11694@suse.de> <44B37D9D.8000505@tls.msk.ru> <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de> <44B3EC5A.1010100@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <44B3EC5A.1010100@zytor.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Tue, Jul 11, H. Peter Anvin wrote:
 
-Russell> On Tue, Jul 11, 2006 at 09:20:29AM -0400, John Stoffel wrote:
->> I'm getting the following messages in dmesg:
->> 
->> uart_close: bad serial port count; tty->count is 1, state->count is 0
->> uart_close: bad serial port count for ttyS0: -1
->> uart_close: bad serial port count for ttyS0: -1
+> Olaf Hering wrote:
+> >"It would be nice if ..." someone can build a list of things that
+> >changed over time. Say from 2.0.0 to 2.6.18. Just struct layouts and 
+> >defines.
+> >
+> >I havent tried it, but one would hope that the /bin/ls from SuSE 5.3 still
+> >works today.  Guess its time for me to actually try that the next days.
+> 
+> You know how much code there is in glibc to make your /bin/ls still work?
 
-Russell> I assume that it's 100% reproducable, and doesn't happen with
-Russell> mainline?
+I heard about that, but did never inspect that code.
 
-Not sure, haven't rebooted yet to make sure it happens again.  The
-hardware is a Dell Dimension 630, Dual Xeon PIII 550mhz, 768mb of
-RAM.  It's been my main machine for a number of years now.  
+My point is:
+I see all day that people use some fixed distro for kernel development,
+thats their stable base. In my case, 2.4.19 based SLES8 for 2.6
+development. 2.6.5 based SLES9 for todays kernel. In a few weeks, they
+will move on to 2.6.16 based SLES10. Same thing with other distros.
 
-Russell> I'm not aware of any serial core patches in -mm which would
-Russell> produce this type of breakage - maybe there's something funny
-Russell> with the tty layer in that it's trying to close the port more
-Russell> times than it's been opened...  Hmm.
+This means their tools continue to work, eventually they have to upgrade
+a few things to test newly added features. Thats what everyone on this
+list does all day. It means also that regression testing is possible.
+One can even boot a 2.4 kernel in SLES9 to try things out, despite the
+fact that many boot scripts rely on sysfs. So I dont see why a kinit
+that knows about a range of kernels should not be possible. No idea how
+hairy device-mapper, lvm or evms support is, the "standard" tools
+appearently cope with interface changes.
+If you decide to drop support for 2.6.16 in 3 years, thats ok. But not
+in 3 months please.
 
-I thought I saw something float by where someone had raised some new
-locking or count variables?  I dunno... I'll work on it tonight and
-see what happens after another reboot.
-
-John
+And to give a negative example for great regression test opportunities:
+You guessed it, SLES10 has a udev that cant handle kernels before 2.6.15.
+Great job. I could slap them all day...

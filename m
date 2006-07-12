@@ -1,90 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWGLG7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGLHI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWGLG7T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWGLG7S
+	id S1750759AbWGLHI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWGLHI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:59:18 -0400
-Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:53397 "EHLO
-	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
-	id S1750737AbWGLG7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:59:18 -0400
-Subject: Re: [PATCH 1/4] stack overflow safe kdump (2.6.18-rc1-i386) -
-	safe_smp_processor_id
-From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
-	<fernando@oss.ntt.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, ak@suse.de,
-       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org
-In-Reply-To: <20060711234605.86fd8c98.akpm@osdl.org>
-References: <1152597918.2414.54.camel@localhost.localdomain>
-	 <20060711234605.86fd8c98.akpm@osdl.org>
-Content-Type: text/plain; charset=utf-8
-Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
-	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
-	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
-Date: Wed, 12 Jul 2006 15:59:12 +0900
-Message-Id: <1152687552.3699.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 8bit
+	Wed, 12 Jul 2006 03:08:56 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:53398 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750759AbWGLHIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:08:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Uw4YQzdPpXwQVZ3yxwPzbhQQ68Kd6YzTRtuA2BJqyYKr+phulXJNQYjBfd/LEmjcByBFrM/XP45uMgOEo7fZ9w9PnR23i+z/ugpfv2cqOQuZuA/5lkCHBlPHhT7SZsOs6QemJqaWVwfyM6Bh6DnVPkAgM3MaVyZJuRQ0GIRFVCY=
+Message-ID: <40a4ed590607120008y3f78ed4co6de7e1a9ad820110@mail.gmail.com>
+Date: Wed, 12 Jul 2006 09:08:55 +0200
+From: "Zeno Davatz" <zdavatz@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at mm/rmap.c:493!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 23:46 -0700, Andrew Morton wrote:
-> On Tue, 11 Jul 2006 15:05:18 +0900
-> Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> wrote:
-> > ...
-> 
-> With CONFIG_SMP=n:
-> 
-> arch/i386/kernel/crash.c: In function 'crash_save_self':
-> arch/i386/kernel/crash.c:91: warning: implicit declaration of function 'safe_smp_processor_id'
-> 
-> And it fails to link.
-Thank you for catching this! I had only tried i386-SMP and voyager-SMP
-configurations. I will try several UP configurations and see if it
-compiles properly.
-
-Sorry for the trouble.
-
- - Fernando
-
-> > --- linux-2.6.18-rc1/include/asm-i386/smp.h	2006-07-11 10:11:44.000000000 +0900
-> > +++ linux-2.6.18-rc1-sof/include/asm-i386/smp.h	2006-07-11 14:05:28.000000000 +0900
-> > @@ -89,12 +89,14 @@ static __inline int logical_smp_processo
-> >  
-> >  #endif
-> >  
-> > +extern int safe_smp_processor_id(void);
-> >  extern int __cpu_disable(void);
-> >  extern void __cpu_die(unsigned int cpu);
-> >  #endif /* !__ASSEMBLY__ */
-> >  
-> >  #else /* CONFIG_SMP */
-> >  
-> > +#define safe_smp_processor_id()		0
-> >  #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
-> >  
-> >  #define NO_PROC_ID		0xFF		/* No processor magic marker */
-> 
-> The reason for this is that include/linux/smp.h only includes asm/smp.h if
-> CONFIG_SMP=y.  This is not the cleverest thing we've ever done.
-> 
-> I fixed that in cowardly fashion:
-> 
-> 
-> --- a/arch/i386/kernel/crash.c~stack-overflow-safe-kdump-crash_use_safe_smp_processor_id-fix
-> +++ a/arch/i386/kernel/crash.c
-> @@ -23,6 +23,7 @@
->  #include <asm/hw_irq.h>
->  #include <asm/apic.h>
->  #include <asm/kdebug.h>
-> +#include <asm/smp.h>
->  
->  #include <mach_ipi.h>
->  
-> _
-> 
-
+------------[ cut here ]------------
+kernel BUG at mm/rmap.c:493!
+invalid operand: 0000 [#2]
+PREEMPT SMP
+Modules linked in: usbcore
+CPU:    0
+EIP:    0060:[<c01569f9>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.12.2)
+EIP is at page_remove_rmap+0x39/0x50
+eax: ffffffff   ebx: d6e6020c   ecx: c1b28440   edx: c1b28440
+esi: c1b28440   edi: b7083000   ebp: 00000020   esp: d6abfb94
+ds: 007b   es: 007b   ss: 0068
+Process cc1 (pid: 11671, threadinfo=d6abe000 task=d73b1040)
+Stack: 00000010 d6e6020c c014fd5d c1b28440 00000000 d6f79b70 b7089000 b7089000
+       b7088fff c014ff55 c200f900 d6f79b70 b7081000 b7089000 00000000 00008000
+       b7089000 b7089000 f7687bcc c0150076 c200f900 f7687bcc b7081000 b7089000
+Call Trace:
+ [<c014fd5d>] zap_pte_range+0xed/0x250
+ [<c014ff55>] unmap_page_range+0x95/0xc0
+ [<c0150076>] unmap_vmas+0xf6/0x280
+ [<c0154bdf>] exit_mmap+0x9f/0x190
+ [<c011ba18>] mmput+0x38/0xa0
+ [<c0120bd7>] do_exit+0xb7/0x370
+ [<c01046a8>] die+0x188/0x190
+ [<c011610a>] do_page_fault+0x2da/0x5d5
+ [<c01337bf>] autoremove_wake_function+0x2f/0x60
+ [<c0119206>] scheduler_tick+0xb6/0x430
+ [<c0127b06>] run_timer_softirq+0x126/0x1c0
+ [<c0123506>] __do_softirq+0xd6/0xf0
+ [<c0115e30>] do_page_fault+0x0/0x5d5
+ [<c0103ebb>] error_code+0x4f/0x54
+ [<c0145ddc>] buffered_rmqueue+0x6c/0x230
+ [<c0146457>] __alloc_pages+0x407/0x430
+ [<c0151675>] do_anonymous_page+0x95/0x180
+ [<c01517c0>] do_no_page+0x60/0x330
+ [<c014f8e5>] pte_alloc_map+0x95/0xd0
+ [<c0151c96>] handle_mm_fault+0xf6/0x170
+ [<c01530be>] vma_adjust+0x1ce/0x380
+ [<c0115fcc>] do_page_fault+0x19c/0x5d5
+ [<c0119206>] scheduler_tick+0xb6/0x430
+ [<c0127b06>] run_timer_softirq+0x126/0x1c0
+ [<c0123506>] __do_softirq+0xd6/0xf0
+ [<c0115e30>] do_page_fault+0x0/0x5d5
+ [<c0103ebb>] error_code+0x4f/0x54
+Code: f0 83 42 08 ff 0f 98 c0 84 c0 74 1b 8b 42 08 40 78 19 c7 04 24
+10 00 00 00 b8 ff ff ff ff 89 44 24 04 e8 bb fe fe ff 83 c4 08 c3 <0f>
+0b ed 01 c7 f2 38 c0 eb dd 0f 0b ea 01 c7 f2 38 c0 eb c1 8d
+ <6>note: cc1[11671] exited with preempt_count 2

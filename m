@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWGLMqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWGLMrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWGLMqb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 08:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWGLMqa
+	id S1751359AbWGLMrj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 08:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWGLMrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 08:46:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:52149 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751341AbWGLMqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 08:46:30 -0400
-Subject: Re: [BUG] 2.6.18-rc1-mm1: as usual can not boot
-From: Arjan van de Ven <arjan@infradead.org>
-To: Paul Drynoff <pauldrynoff@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060712121704.def30154.pauldrynoff@gmail.com>
-References: <20060712095933.57d2a595.pauldrynoff@gmail.com>
-	 <20060712001232.a31285e3.akpm@osdl.org>
-	 <20060712113718.8e5e3af7.pauldrynoff@gmail.com>
-	 <1152690358.3217.20.camel@laptopd505.fenrus.org>
-	 <20060712121704.def30154.pauldrynoff@gmail.com>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 14:46:24 +0200
-Message-Id: <1152708385.3217.34.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 12 Jul 2006 08:47:39 -0400
+Received: from blk-222-25-130.eastlink.ca ([24.222.25.130]:53821 "EHLO
+	tick.funktronics.ca") by vger.kernel.org with ESMTP
+	id S1751359AbWGLMri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 08:47:38 -0400
+From: James Oakley <joakley@solutioninc.com>
+Organization: SolutionInc
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Wed, 12 Jul 2006 09:47:13 -0300
+User-Agent: KMail/1.9.3
+References: <89E85E0168AD994693B574C80EDB9C27043F5D1C@uk-email.terastack.bluearc.com>
+In-Reply-To: <89E85E0168AD994693B574C80EDB9C27043F5D1C@uk-email.terastack.bluearc.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200607120947.13627.joakley@solutioninc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-12 at 12:17 +0400, Paul Drynoff wrote:
-> On Wed, 12 Jul 2006 09:45:58 +0200
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> > On Wed, 2006-07-12 at 11:37 +0400, Paul Drynoff wrote:
-> > > On Wed, 12 Jul 2006 00:12:32 -0700
-> > > Andrew Morton <akpm@osdl.org> wrote:
-> > > 
-> > > > On Wed, 12 Jul 2006 09:59:33 +0400
-> > > > Paul Drynoff <pauldrynoff@gmail.com> wrote:
-> > > > 
-> > 
-> > Hi, I havent followed your saga much, but in the past I've seen cases
-> > where such kind of thing went away when AGP was set to be built into the
-> > kernel, rather than as a module or not even built at all.
-> > 
-> > I don't know what your AGP setting is but if it's not built in it's
-> > worth a shot to set it to be built in.
-> > 
-> 
-> thanks for reply,
-> 
-> At now I build all in kernel (without modules) for debuging purposes,
-> I have 
-> $ grep -i AGP .config
-> CONFIG_AGP=y
-> # CONFIG_AGP_ALI is not set
-> # CONFIG_AGP_ATI is not set
-> # CONFIG_AGP_AMD is not set
-> # CONFIG_AGP_AMD64 is not set
-> # CONFIG_AGP_INTEL is not set
-> # CONFIG_AGP_NVIDIA is not set
-> # CONFIG_AGP_SIS is not set
-> # CONFIG_AGP_SWORKS is not set
-> # CONFIG_AGP_VIA is not set
-> # CONFIG_AGP_EFFICEON is not set
+On Wednesday 12 July 2006 4:58 am, Andy Chittenden wrote:
+> I tried to install the linux-image-2.6.17-1-amd64-k8-smp debian package
+> on a ASUS M2NPV-VM motherboard based system and it hung during boot. The
+> last message on the console was:
+>
+> io scheduler cfq registered
+>
+> Anyone got any suggestions? Unfortunately, this is a production server
+> so I'm going to get very little time on it to try things out. For the
+> moment, I've reverted to 2.6.16 where it seems basically stable (there
+> are occasional hangs with the hard disk light hard on which is why I
+> tried out 2.6.17).
 
-please also turn on the AGP driver for the chipset you have ;)
+I just installed SUSE 10.1 on that very motherboard. It seems to work fine. I 
+can even run windows under Xen using the SVM on the processor.
 
+The kernel I'm currently running is 2.6.16.21.
 
+-- 
+James Oakley
+Engineering - SolutionInc Ltd.
+joakley@solutioninc.com
+http://www.solutioninc.com

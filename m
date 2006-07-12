@@ -1,71 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWGLXcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWGLXbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWGLXcE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWGLXcB
+	id S932258AbWGLXbU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 19:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWGLXbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:32:01 -0400
-Received: from ns1.suse.de ([195.135.220.2]:36237 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932206AbWGLXb7 (ORCPT
+	Wed, 12 Jul 2006 19:31:06 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9101 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932258AbWGLXat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:31:59 -0400
-From: Andi Kleen <ak@suse.de>
-To: Theodore Tso <tytso@mit.edu>
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-Date: Thu, 13 Jul 2006 01:31:46 +0200
-User-Agent: KMail/1.9.3
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com> <20060712232414.GI9040@thunk.org>
-In-Reply-To: <20060712232414.GI9040@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607130131.46753.ak@suse.de>
+	Wed, 12 Jul 2006 19:30:49 -0400
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 4/5] [PATCH] remove kernel/power/pm.c:pm_unregister_all()
+Reply-To: Greg KH <greg@kroah.com>
+Date: Wed, 12 Jul 2006 16:26:53 -0700
+Message-Id: <11527468231110-git-send-email-greg@kroah.com>
+X-Mailer: git-send-email 1.4.1
+In-Reply-To: <11527468203373-git-send-email-greg@kroah.com>
+References: <20060712232343.GA22672@kroah.com> <1152746814664-git-send-email-greg@kroah.com> <11527468173384-git-send-email-greg@kroah.com> <11527468203373-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 July 2006 01:24, Theodore Tso wrote:
+From: Adrian Bunk <bunk@stusta.de>
 
-> Um, if glibc is using sys_sysctl, then that's a pretty good reason.
-> Once we remove it from the kernel, then people will be forced to
-> upgrade glibc's before they can install a newer kernel.  Can we please
-> give people some time for an version of glibc with this change to make
-> it out to most deployed systems, first?  It's really annoying when
-> it's not possible to install a stock kernel.org kernel on a system,
-> and often upgrading glibc is not a trivial thing to do on a
-> distribution userspace, especially if there is a concern for ISV
-> compatibility.  (Especially if C++ code is involved, unfortunately.)
+Remove the deprecated and no longer used pm_unregister_all().
 
-glibc still works, just slower. But I think the best strategy 
-is just to emulate the single sysctl glibc is using and printk
-for the rest.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ include/linux/pm_legacy.h |    7 -------
+ kernel/power/pm.c         |   37 -------------------------------------
+ 2 files changed, 0 insertions(+), 44 deletions(-)
 
-> What we should do is what we've done in the past before removing a
-> system call like this.  printk a deprecation warning no more than n
-> times an hours with the process name using the deprecated interface.
-
-We did this some time ago, but Andrew took it out (partly because
-the original code was somewhat broken and the printk tended to trigger
-too often in crashme) 
-
-Hopefully he puts it back in now.
-
-> P.S.  I happen to be one those developers who think the binary
-> interface is not so bad, and for compared to reading from /proc/sys,
-> the sysctl syscall *is* faster.  But at the same there, there really
-> isn't anything where really does require that kind of speed, so that
-> point is moot.  But at the same time, what is the cost of leaving
-> sys_sysctl in the kernel for an extra 6-12 months, or even longer,
-> starting from now?  
-
-The numerical namespace for sysctl is unsalvagable imho. e.g. distributions
-regularly break it because there is no central repository of numbers
-so it's not very usable anyways in practice.
+diff --git a/include/linux/pm_legacy.h b/include/linux/pm_legacy.h
+index 78027c5..514729a 100644
+--- a/include/linux/pm_legacy.h
++++ b/include/linux/pm_legacy.h
+@@ -15,11 +15,6 @@ struct pm_dev __deprecated *
+ pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
  
--Andi
+ /*
+- * Unregister all devices with matching callback
+- */
+-void __deprecated pm_unregister_all(pm_callback callback);
+-
+-/*
+  * Send a request to all devices
+  */
+ int __deprecated pm_send_all(pm_request_t rqst, void *data);
+@@ -35,8 +30,6 @@ static inline struct pm_dev *pm_register
+ 	return NULL;
+ }
+ 
+-static inline void pm_unregister_all(pm_callback callback) {}
+-
+ static inline int pm_send_all(pm_request_t rqst, void *data)
+ {
+ 	return 0;
+diff --git a/kernel/power/pm.c b/kernel/power/pm.c
+index 84063ac..c50d152 100644
+--- a/kernel/power/pm.c
++++ b/kernel/power/pm.c
+@@ -75,42 +75,6 @@ struct pm_dev *pm_register(pm_dev_t type
+ 	return dev;
+ }
+ 
+-static void __pm_unregister(struct pm_dev *dev)
+-{
+-	if (dev) {
+-		list_del(&dev->entry);
+-		kfree(dev);
+-	}
+-}
+-
+-/**
+- *	pm_unregister_all - unregister all devices with matching callback
+- *	@callback: callback function pointer
+- *
+- *	Unregister every device that would call the callback passed. This
+- *	is primarily meant as a helper function for loadable modules. It
+- *	enables a module to give up all its managed devices without keeping
+- *	its own private list.
+- */
+- 
+-void pm_unregister_all(pm_callback callback)
+-{
+-	struct list_head *entry;
+-
+-	if (!callback)
+-		return;
+-
+-	mutex_lock(&pm_devs_lock);
+-	entry = pm_devs.next;
+-	while (entry != &pm_devs) {
+-		struct pm_dev *dev = list_entry(entry, struct pm_dev, entry);
+-		entry = entry->next;
+-		if (dev->callback == callback)
+-			__pm_unregister(dev);
+-	}
+-	mutex_unlock(&pm_devs_lock);
+-}
+-
+ /**
+  *	pm_send - send request to a single device
+  *	@dev: device to send to
+@@ -239,7 +203,6 @@ int pm_send_all(pm_request_t rqst, void 
+ }
+ 
+ EXPORT_SYMBOL(pm_register);
+-EXPORT_SYMBOL(pm_unregister_all);
+ EXPORT_SYMBOL(pm_send_all);
+ EXPORT_SYMBOL(pm_active);
+ 
+-- 
+1.4.1
+

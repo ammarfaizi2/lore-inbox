@@ -1,103 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWGLG5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWGLG7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWGLG5y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWGLG5y
+	id S1750737AbWGLG7T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWGLG7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:57:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3770 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750732AbWGLG5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:57:54 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Olson <olson@unixfolk.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
-	<m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
-	<p734pxnojyt.fsf@verdi.suse.de>
-	<m1wtajed4d.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
-Date: Wed, 12 Jul 2006 00:56:42 -0600
-In-Reply-To: <Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com> (Dave
-	Olson's message of "Tue, 11 Jul 2006 23:10:53 -0700 (PDT)")
-Message-ID: <m1psgbcnv9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 02:59:18 -0400
+Received: from serv1.oss.ntt.co.jp ([222.151.198.98]:53397 "EHLO
+	serv1.oss.ntt.co.jp") by vger.kernel.org with ESMTP
+	id S1750737AbWGLG7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:59:18 -0400
+Subject: Re: [PATCH 1/4] stack overflow safe kdump (2.6.18-rc1-i386) -
+	safe_smp_processor_id
+From: Fernando Luis =?ISO-8859-1?Q?V=E1zquez?= Cao 
+	<fernando@oss.ntt.co.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, ak@suse.de,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+In-Reply-To: <20060711234605.86fd8c98.akpm@osdl.org>
+References: <1152597918.2414.54.camel@localhost.localdomain>
+	 <20060711234605.86fd8c98.akpm@osdl.org>
+Content-Type: text/plain; charset=utf-8
+Organization: =?UTF-8?Q?NTT=E3=82=AA=E3=83=BC=E3=83=97=E3=83=B3=E3=82=BD=E3=83=BC?=
+	=?UTF-8?Q?=E3=82=B9=E3=82=BD=E3=83=95=E3=83=88=E3=82=A6=E3=82=A7?=
+	=?UTF-8?Q?=E3=82=A2=E3=82=BB=E3=83=B3=E3=82=BF?=
+Date: Wed, 12 Jul 2006 15:59:12 +0900
+Message-Id: <1152687552.3699.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Olson <olson@unixfolk.com> writes:
+On Tue, 2006-07-11 at 23:46 -0700, Andrew Morton wrote:
+> On Tue, 11 Jul 2006 15:05:18 +0900
+> Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> wrote:
+> > ...
+> 
+> With CONFIG_SMP=n:
+> 
+> arch/i386/kernel/crash.c: In function 'crash_save_self':
+> arch/i386/kernel/crash.c:91: warning: implicit declaration of function 'safe_smp_processor_id'
+> 
+> And it fails to link.
+Thank you for catching this! I had only tried i386-SMP and voyager-SMP
+configurations. I will try several UP configurations and see if it
+compiles properly.
 
-> On Tue, 11 Jul 2006, Eric W. Biederman wrote:
-> | There is a hypertransport capability that implements a rough equivalent
-> | of a per device ioapic.  It is quite similar to MSI but with a different
-> | register level interface.
->
-> It's really just the same as MSI, and is set up and handled pretty
-> much the same way.
+Sorry for the trouble.
 
-No it is not just the same.  There is not global enable bit, only
-per irq enables.  There is always a mask bit.  The ht irq generates
-a 0 byte (with magic defines for the 32 byte enables) write while an
-msi generates a 4 byte write with no byte enables.  With ht irqs
-the maximum number of irqs is 120 not the one with plain MSI or
-the 4k with MSI-X.
+ - Fernando
 
-But from the perspective of using them in a driver the concept really
-is the same.
-
-
-> | Since native hypertransport devices do not implement a pin emulation mode
-> | as native pci express devices do so if you want an interrupt you must support
-> | the native hypertransport method.
->
-> Right.
->
-> | The pathscale ipath-ht400 driver already in the kernel tree uses these
-> | and uses so an ugly hack to make work that broke in the last round of
-> | the msi cleanups.  I also know of a driver under development for a
-> | device that uses these as well.
->
-> Umm, it's not broken by any of the the MSI cleanups, at least
-> through last week's 2.6.18.
-
-The code that breaks it is only in -mm.  It's scheduled for 2.6.19.
-All of the MSI magic in ioapic land on i386 and x86_64 is deleted.
-The code just needs to age a bit and let the few unexpected
-corner case crop up, and get sorted out.
-
-Hopefully fixing the ipath driver is one of the things we can sort out.
-
-> | So I want to use this so I can get irqs from native hypertransport
-> | devices.
->
-> This part I never really quite understood.  Why do you want a separate
-> interface than the existing request_irq().
-
-request_irq is still needed.  The question is how do you get the irq.
-
-> and pci_enable_msi()? 
-
-The HT and msi semantics are moderately different, but I have
-implemented the equivalent of pci_enable/disable_msi.  So the
-code is not a pci standard but just a ht standard I didn't use the
-pci prefix.
-
->  Yes,
-> there needs to be some HT-specific implementation behind it, but I
-> don't see a reason for a whole new interface.  Most of the rest of
-> the HT stuff is setup via the pci_* functions, so why not the interrupts?
-
-The reason I did not reuse code from msi.c is that the code in msi.c
-is absolutely terrible.  Also note that even the different flavors
-of msi have their own enable/disable routines.
-
-I expect I will make msi.c match htirq.c instead of the other way around.
-Of course I don't expect the interface exported to drivers to change.
-
-Eric
-
+> > --- linux-2.6.18-rc1/include/asm-i386/smp.h	2006-07-11 10:11:44.000000000 +0900
+> > +++ linux-2.6.18-rc1-sof/include/asm-i386/smp.h	2006-07-11 14:05:28.000000000 +0900
+> > @@ -89,12 +89,14 @@ static __inline int logical_smp_processo
+> >  
+> >  #endif
+> >  
+> > +extern int safe_smp_processor_id(void);
+> >  extern int __cpu_disable(void);
+> >  extern void __cpu_die(unsigned int cpu);
+> >  #endif /* !__ASSEMBLY__ */
+> >  
+> >  #else /* CONFIG_SMP */
+> >  
+> > +#define safe_smp_processor_id()		0
+> >  #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+> >  
+> >  #define NO_PROC_ID		0xFF		/* No processor magic marker */
+> 
+> The reason for this is that include/linux/smp.h only includes asm/smp.h if
+> CONFIG_SMP=y.  This is not the cleverest thing we've ever done.
+> 
+> I fixed that in cowardly fashion:
+> 
+> 
+> --- a/arch/i386/kernel/crash.c~stack-overflow-safe-kdump-crash_use_safe_smp_processor_id-fix
+> +++ a/arch/i386/kernel/crash.c
+> @@ -23,6 +23,7 @@
+>  #include <asm/hw_irq.h>
+>  #include <asm/apic.h>
+>  #include <asm/kdebug.h>
+> +#include <asm/smp.h>
+>  
+>  #include <mach_ipi.h>
+>  
+> _
+> 
 

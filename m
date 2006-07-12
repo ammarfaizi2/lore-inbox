@@ -1,83 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWGLVD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWGLVEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWGLVD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:03:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGLVD7
+	id S932261AbWGLVEw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGLVEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:03:59 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:1973 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S932230AbWGLVD6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:03:58 -0400
-Date: Wed, 12 Jul 2006 22:01:23 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@vaio.testbed.de
-To: kay.sievers@suse.de
-cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [x86_64] strange delays since 2.6.15 (was: Re: ohci1394: aborting
- transmission)
-In-Reply-To: <Pine.NEB.4.64.0607121247410.2796@vaio.testbed.de>
-Message-ID: <Pine.NEB.4.64.0607122134150.3497@vaio.testbed.de>
-References: <Pine.LNX.4.64.0607100527200.10447@sheep.housecafe.de>
- <44B203F4.1030903@s5r6.in-berlin.de> <Pine.LNX.4.64.0607100852390.13858@sheep.housecafe.de>
- <44B253CE.3030308@s5r6.in-berlin.de> <Pine.NEB.4.64.0607121247410.2796@vaio.testbed.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Jul 2006 17:04:52 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:35716
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S932261AbWGLVEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:04:51 -0400
+Date: Wed, 12 Jul 2006 23:05:45 +0200
+From: andrea@cpushare.com
+To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+Cc: Lee Revell <rlrevell@joe-job.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Andrew Morton <akpm@osdl.org>, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060712210545.GB24367@opteron.random>
+References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hello,
 
-I am still having these strange boot-delays which I reported in [0] when 
-I was under the assumption that ohci1394 was to blame, simply because 
-"ohci1394: aborting transmission" was the last message before the 
-3minute delay during bootup happened. I've found out that the actual 
-problem started way earlier (2.6.14->2.6.15) and I have bisected my way 
-down to this patchset:
+On Tue, Jul 11, 2006 at 04:19:35PM -0400, Andrew James Wade wrote:
+> But only if SECCOMP code runs, otherwise it's never needed. OTOH, if it
+> can't reduce the number of cacheline touches over a tuned seccomp common
+> case, there's no benefit either.
 
-a7fd67062efc5b0fc9a61368c607fa92d1d57f9e is first bad commit
-diff-tree a7fd67062efc5b0fc9a61368c607fa92d1d57f9e (from 
-d8539d81aeee4dbdc0624a798321e822fb2df7ae)
-Author: Kay Sievers <kay.sievers@suse.de>
-Date:   Sat Oct 1 14:49:43 2005 +0200
+Yep.
 
-     [PATCH] add sysfs attr to re-emit device hotplug event
+> I'm not an expert, but I believe I'm using the terminology correctly.
 
-     A "coldplug + udevstart" can be simple like this:
-       for i in /sys/block/*/*/uevent; do echo 1 > $i; done
-       for i in /sys/class/*/*/uevent; do echo 1 > $i; done
-       for i in /sys/bus/*/devices/*/uevent; do echo 1 > $i; done
+Nobody else answered so you must be right then ;).
 
-     Signed-off-by: Kay Sievers <kay.sievers@suse.de>
-     Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> Yes. By necessity any proofs about software must make assumptions that
+> aren't quite valid. Such proofs can still be useful of course. I think
+> we're in agreement.
 
-:040000 040000 7edb92ad6f55113bac2e1919e6b2364e17dfaa0b 43b3108675db828a2ce7df87f08a26aa7d7ac0fc M      drivers
-:040000 040000 382f692398a9fe4bea4ab5333dea67f8151b0b82 58bb09d0051236695e6987f12e389ce75387ddf7 M      fs
-:040000 040000 72bcc7fddd5087cadf70b9d2582c7faea7ebb364 2ec812818920645cb58f1694818019516ea6e3b6 M      include
+We are.
 
-Wtihout this patch, booting is fine, no delays. With this patchset, I 
-notice a 3 minute delay.
+> useful to the attacker. f00f also has very limited security
+> implications, as I understand it.
 
-However, as the patch-description tells me, it only introduces something 
-in /sys/..../*/uevent and the delay is in fact triggered by userspace!
-My distribution of choice (Ubuntu/6.06 LTS) does "something" in /sys 
-during execution of /etc/init.d/udev (from: udev-079-0ubuntu34). Please 
-see this url for details, logs, .config and more:
+f00f has very limited implications and it would be immediately stopped
+from creating further damage (I could even autodetect it with some
+clever heuristic). In fact on architectures with the NX bit the stack
+can be marked not executable too, so then I could make self-modifying
+code impossible, and in turn I would be able to filter out bytecode
+reliably on the server. So even if a CPU has a bug not possible to
+workaround in the kernel (like with the idt marked readonly) I could
+prevent such a bug to be exploited thanks to the NX bit. The only
+self-modifying code allowed currently is on the user stack and nothing
+else. I didn't bother to enable the NX bit yet because most i686
+misses it and there are not (yet) security related bugs that requires
+bytecode filtering to be workarounded (and if they will appear, it
+means such a cpu will be insecure for multiuser systems on linux
+without any hope of software workarounds, only my special seccomp
+usage could prevent such a CPU bug to trigger by filtering the
+bytecode).
 
-http://nerdbynature.de/bits/2.6.15/
+> The various software and hardware caches will open a plethora of
+> timing side channels, almost all useless to an attacker in that the
+> revealed information is uninteresting/useless. At least I would hope
+> so. The downside of security is that it is hard to be sure.
 
-Many thanks for hints on what to do here. This issue is 100% 
-reproducible and is kinda annoying now that I happen to be on-site when 
-the machine boots up. As mentioned earlier I had no access to the box 
-for a few months and did not pay attention to the boot-process and did 
-not track -current too, that's why I'm whining about 2.6.15-problems 
-when we're actually at 2.6.18-* already....
+The whole point of the tsc disable was exactly to be sure there are no
+timing side channels. If they can't access an accurate source of time
+information the very bytecode that attempts to measure the time will
+simply get killed instantly.
 
-Thanks,
-Christian.
+Measuring time through the network currently is impractical, the rtt is
+too huge for that (though perhaps 10 years from now we'll have to
+rethink about this).
 
-[0] http://www.ussg.iu.edu/hypermail/linux/kernel/0607.1/1708.html
--- 
-BOFH excuse #156:
+> Ah, fail safe. Nice property to have. From my observation, userspace
+> does appear to have something of that property with regards to cpu
+> bugs as well. What I recall from the errata sheets is that many of the
+> bugs could only be triggered from privileged code.
 
-Zombie processes haunting the computer
+Right.
+
+> And that's where fail-safe and simple design comes in. In this
+> application an oops is better than a jail-break by orders of
+
+An oops or more generically a system crash.
+
+> magnitude. But then that's why you wrote seccomp instead of using
+> ptrace in the first place.
+
+Exactly ;).

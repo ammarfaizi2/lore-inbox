@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWGLAQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWGLAQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWGLAQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGLAQX
+	id S932290AbWGLAQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGLAQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:16:23 -0400
-Received: from 58.105.229.78.optusnet.com.au ([58.105.229.78]:36522 "EHLO
-	adsl-kenny.stuart.id.au") by vger.kernel.org with ESMTP
-	id S932287AbWGLAQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:16:22 -0400
-Subject: Problems with oom killer
-From: Russell Stuart <russell-lkml@stuart.id.au>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 10:15:12 +1000
-Message-Id: <1152663312.4267.20.camel@ras.pc.brisbane.lube>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 20:16:46 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16540 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932290AbWGLAQo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:16:44 -0400
+Date: Wed, 12 Jul 2006 02:16:38 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+In-Reply-To: <20060711165003.25265bb7.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0607120213060.12900@scrub.home>
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
+ <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home>
+ <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home>
+ <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home>
+ <20060711165003.25265bb7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The oom killer is being run, and I can't figure out why.
-As far as I can see there is plenty of memory available.
-Attached are some logs that show that state of the machine
-when the oom killer runs.
+Hi,
 
-Background info: The machine has 2Gb of RAM, and 2Gb of
-swap.  The oom killer consistently strikes when the
-machine is doing a backup.  The backup consists of
-mkfs'ing an ext3 partition, and then copying the files
-across.  The oom killer does its stuff during the mkfs.
-It goes away ones the next ext3 partition is mounted
-and the backup starts.
+On Tue, 11 Jul 2006, Andrew Morton wrote:
 
-It is running the Debian stable kernel (2.6.8.1) with
-cfq on a dual core machine.  Although it shouldn't be,
-it appears the machine is used a very high load at the
-time because the shell script attached is supposed to
-run every 5 seconds, yet at the time the oom condition
-happens there is approx 10 minute delay between runs.
+> > On Wed, 12 Jul 2006, Pavel Machek wrote:
+> > 
+> > > BTW I believe that original way (alt down, sysrq down, b down) still
+> > > works before and after the patch.
+> > 
+> > No, it doesn't.
+> > 
+> > > Here's patch that updates docs with now-working trick.
+> > 
+> > NACK.
+> > 
+> 
+> Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
+> which it *did not work at all*.  If that makes it harder to type but still
+> possible to type on other machines, well, we win.
 
-Two other odd things: there are many other machines
-that are identical software wise, as in installed from 
-the same DVD image, and doing an identical backup.  
-This is the only one with the issue.  This box has
-just been replaced and a fresh install done.  The 
-previous box (completely different hardware) had the
-same issue.
+Why can't we even _try_ to preserve compatibility? :-(
 
-Any clues would be appreciated.
-
---
-
-Regards,
-Russell Stuart
-
+bye, Roman

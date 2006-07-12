@@ -1,43 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWGLXVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWGLXYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWGLXVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWGLXVH
+	id S1751475AbWGLXYq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 19:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWGLXYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:21:07 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:43959 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751424AbWGLXVG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:21:06 -0400
-Message-ID: <44B58396.7080703@zytor.com>
-Date: Wed, 12 Jul 2006 16:19:50 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Wed, 12 Jul 2006 19:24:46 -0400
+Received: from thunk.org ([69.25.196.29]:22698 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751475AbWGLXYp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 19:24:45 -0400
+Date: Wed, 12 Jul 2006 19:24:14 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Ulrich Drepper <drepper@redhat.com>,
        Arjan van de Ven <arjan@infradead.org>,
-       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>,
        "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+       Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>	 <1152739766.3217.83.camel@laptopd505.fenrus.org>	 <m1bqru8p36.fsf@ebiederm.dsl.xmission.com>	 <1152741665.3217.85.camel@laptopd505.fenrus.org>	 <44B57191.5000802@zytor.com>  <m1zmfe794e.fsf@ebiederm.dsl.xmission.com> <1152745664.22943.115.camel@localhost.localdomain>
-In-Reply-To: <1152745664.22943.115.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060712232414.GI9040@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
+	Andi Kleen <ak@suse.de>
+References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <20060710155051.326e49da.rdunlap@xenotime.net> <m1veq4kcij.fsf@ebiederm.dsl.xmission.com> <1152601640.3128.7.camel@laptopd505.fenrus.org> <m1irm2bxk3.fsf_-_@ebiederm.dsl.xmission.com> <44B5283E.7090806@redhat.com> <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> [Disclaimer: There is a patent issue around this technique but its not
-> one that will impact GPL code as permissions are given for GPL use.]
-> 
+On Wed, Jul 12, 2006 at 11:42:47AM -0600, Eric W. Biederman wrote:
+> Unless a darn good reason for keeping it is found, sys_sysctl won't be
+> in the kernel several months from now.  And uname is faster by a large
+> margin than /proc.
 
-glibc is (and has to be) LGPL.
+Um, if glibc is using sys_sysctl, then that's a pretty good reason.
+Once we remove it from the kernel, then people will be forced to
+upgrade glibc's before they can install a newer kernel.  Can we please
+give people some time for an version of glibc with this change to make
+it out to most deployed systems, first?  It's really annoying when
+it's not possible to install a stock kernel.org kernel on a system,
+and often upgrading glibc is not a trivial thing to do on a
+distribution userspace, especially if there is a concern for ISV
+compatibility.  (Especially if C++ code is involved, unfortunately.)
 
-Anyway, it seems absolutely insane that having a programmable threshold 
-for spinning is patented...
+> Right now because there has been a deprecated note in
+> "include/linux/sysctl.h" since 2003 people currently feel fine with
+> letting sys_sysctl code bit rot.  I am trying to resolve that
+> situation most likely by just updating the few stray pieces of user
+> space that care and then cutting out that chunk of kernel code.
 
-	-hpa
+What we should do is what we've done in the past before removing a
+system call like this.  printk a deprecation warning no more than n
+times an hours with the process name using the deprecated interface.
+A deprecated note in a header isn't necessarily something which will
+be noticed by userspace programmers.  Heck, it isn't even in
+Documentation/feature-removal-schedule.txt yet.
+
+If people want to remove it, let's please do this in an orderly
+fashion, and with ample warning that people besides kernel developers
+will actually *notice*.
+
+						- Ted
+
+P.S.  I happen to be one those developers who think the binary
+interface is not so bad, and for compared to reading from /proc/sys,
+the sysctl syscall *is* faster.  But at the same there, there really
+isn't anything where really does require that kind of speed, so that
+point is moot.  But at the same time, what is the cost of leaving
+sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+starting from now?  
+
+Or if we going to remove parts of sysctl, can we at least keep enough
+there so that existing glibc systems don't break?

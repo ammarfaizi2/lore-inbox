@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWGLQxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWGLQyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbWGLQxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 12:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWGLQxW
+	id S1751461AbWGLQyo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 12:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWGLQyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 12:53:22 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:27815 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751354AbWGLQxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 12:53:22 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-	b=sZC0WTGvTHO927UxoENeRujc2K7tcnj4ggdwbGCxrMzeqmQN2mnO2chrKyDuqAtjy
-	BQqt8fIX5IF9RMek4qqsw==
-Message-ID: <44B528F4.6080409@google.com>
-Date: Wed, 12 Jul 2006 09:53:08 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: 2.6.18-rc1-git4 and 2.6.18-rc1-mm1 OOM's on boot
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jul 2006 12:54:44 -0400
+Received: from ns.suse.de ([195.135.220.2]:32713 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751461AbWGLQyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 12:54:43 -0400
+Date: Wed, 12 Jul 2006 18:54:23 +0200
+From: Olaf Hering <olh@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, klibc@zytor.com,
+       Jeff Garzik <jeff@garzik.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [klibc] klibc and what's the next step?
+Message-ID: <20060712165423.GA25071@suse.de>
+References: <20060711112746.GA14059@suse.de> <44B3D0A0.7030409@zytor.com> <20060711164040.GA16327@suse.de> <44B3DA77.50103@garzik.org> <20060711171624.GA16554@suse.de> <44B3E7D5.8070100@zytor.com> <20060711181552.GD16869@suse.de> <44B3EC5A.1010100@zytor.com> <20060711200640.GA17653@suse.de> <20060711212232.GA32698@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060711212232.GA32698@kroah.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--git3 was fine
-(bootlog for git3: http://test.kernel.org/abat/40748/debug/console.log)
+ On Tue, Jul 11, Greg KH wrote:
 
--mm1 has the same issue
+> On Tue, Jul 11, 2006 at 10:06:40PM +0200, Olaf Hering wrote:
+> > And to give a negative example for great regression test opportunities:
+> > You guessed it, SLES10 has a udev that cant handle kernels before 2.6.15.
+> > Great job. I could slap them all day...
+> 
+> Just to be specific, the udev in SLES10 can handle older kernels than
+> 2.6.15 just fine, it's just the boot scripts around it are not written
+> to do so.
 
-Slightly different manifestations across 2 boots
-
-http://test.kernel.org/abat/40760/debug/console.log
-http://test.kernel.org/abat/40837/debug/console.log
-
-32GB NUMA-Q system w/16 processors.
-
-
-Swap cache: add 0, delete 0, find 0/0, race 0+0
-Free swap  = 0kB
-Total swap = 0kB
-Free swap:            0kB
-8321024 pages of RAM
-8159232 pages of HIGHMEM
-133127 reserved pages
-3739 pages shared
-0 pages swap cached
-208 pages dirty
-0 pages writeback
-1135 pages mapped
-24266 pages slab
-76 pages pagetables
-Out of Memory: Kill process 1 (init) score 0 and children.
-No available memory (MPOL_BIND): Killed process 1267 (rc).
--- 0:conmux-control -- time-stamp -- Jul/12/06  2:00:36 --
--- 0:conmux-control -- time-stamp -- Jul/12/06  2:09:55 --
-(bot:conmon-payload) disconnected
+What difference does that make exactly? "It doesnt work."

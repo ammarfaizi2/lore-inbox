@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWGLHYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWGLH05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWGLHYR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWGLHYR
+	id S1750782AbWGLH05 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWGLH05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:24:17 -0400
-Received: from mga05.intel.com ([192.55.52.89]:44727 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750781AbWGLHYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:24:16 -0400
-X-IronPort-AV: i="4.06,231,1149490800"; 
-   d="scan'208"; a="96736388:sNHT25275446"
-Subject: Re: [PATCH 3/5] PCI-Express AER implemetation: export
-	pcie_port_bus_type
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
-References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
-	 <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1152688926.28493.223.camel@ymzhang-perf.sh.intel.com>
+	Wed, 12 Jul 2006 03:26:57 -0400
+Received: from mail.df.lth.se ([194.47.250.12]:932 "EHLO df.lth.se")
+	by vger.kernel.org with ESMTP id S1750782AbWGLH04 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:26:56 -0400
+Date: Wed, 12 Jul 2006 09:26:28 +0200
+From: Fredrik Roubert <roubert@df.lth.se>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, pavel@ucw.cz, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+Message-ID: <20060712072628.GB5869@igloo.df.lth.se>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Andrew Morton <akpm@osdl.org>, pavel@ucw.cz,
+	stern@rowland.harvard.edu, dmitry.torokhov@gmail.com,
+	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home> <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home> <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 12 Jul 2006 15:22:06 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607120213060.12900@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-PGP-Public-Key: http://www.df.lth.se/~roubert/pubkey.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+On Wed 12 Jul 02:16 CEST 2006, Roman Zippel wrote:
 
-Patch 3 exports pcie_port_bus_type. AER driver could be compiled
-as a module and it needs to access pcie_port_bus_type.
+> > Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
+> > which it *did not work at all*.  If that makes it harder to type but still
+> > possible to type on other machines, well, we win.
+>
+> Why can't we even _try_ to preserve compatibility? :-(
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+First, please note that the documented behaviour (You press the key
+combo 'ALT-SysRq-<command key>'.) still works.
 
----
+The problem at hand is that not all keyboards can handle this many keys
+pressed at once, and that there also are keyboards broken in other ways.
 
---- linux-2.6.17/drivers/pci/pcie/portdrv_bus.c	2006-06-22 16:26:43.000000000 +0800
-+++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_bus.c	2006-06-22 16:46:29.000000000 +0800
-@@ -76,3 +76,6 @@ static int pcie_port_bus_resume(struct d
- 		driver->resume(pciedev);
- 	return 0;
- }
-+
-+EXPORT_SYMBOL(pcie_port_bus_type);
-+
+The work-around suggested in the documentation ([Y]ou might have better
+luck with "press Alt", "press SysRq", "release Alt", "press <command
+key>", release everything.) does not work with keyboards that sends the
+make and break codes for SysRq immediately after another, and this was
+the reason for changing the behaviour (for broken keyboards) in
+2.6.18-rc1. The new behaviour works with every keyboard the people
+involved in this discussion has heard of.
+
+That the documentation wasn't updated with the new work-around key
+combination for broken keyboards was a mistake.
+
+Cheers // Fredrik Roubert
+
+-- 
+Visserij 192  |  +32 473 344527 / +46 708 776974
+BE-9000 Gent  |  http://www.df.lth.se/~roubert/

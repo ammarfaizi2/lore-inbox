@@ -1,70 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWGLSTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWGLSSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWGLSTf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGLSTa
+	id S932379AbWGLSSv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWGLSRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:19:30 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:51104 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932419AbWGLSTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:19:25 -0400
-Date: Wed, 12 Jul 2006 14:12:02 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.18-rc1-mm1
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjan@infradead.org>, "Brown, Len" <len.brown@intel.com>,
-       linux-acpi <linux-acpi@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       Reuben Farrelly <reuben-lkml@reub.net>,
-       Randy Dunlap <rdunlap@xenotime.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-Message-ID: <200607121415_MC3-1-C4C4-EE7F@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Wed, 12 Jul 2006 14:17:48 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:60901 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932380AbWGLSRa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:17:30 -0400
+Subject: [RFC][PATCH 21/27] elevate write count for do_sys_utime() and touch_atime()
+To: viro@ftp.linux.org.uk
+Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Wed, 12 Jul 2006 11:17:24 -0700
+References: <20060712181709.5C1A4353@localhost.localdomain>
+In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
+Message-Id: <20060712181724.4FB246B0@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060711230055.GL18838@kroah.com>
 
-On Tue, 11 Jul 2006 16:00:55 -0700, Greg KH wrote:
 
-> > > >> PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved
-> > > >> PCI: Not using MMCONFIG.
-> > > >> PCI: Using configuration type 1
-> > > >> ACPI: Interpreter enabled
-> > > >> 
-> > > >> Is there any way to verify that there really is a BIOS bug 
-> > > >there?  If it is, is there anyone within Intel or are there any
-> > > >known contacts 
-> > > >who can push and poke > to get this looked at/fixed?
-> > > >(It's a new Intel board, I'd hope they could get it right..).
-> > > 
-> > > Arjan should probably comment on that one.
-> > 
-> > I could.. but please next time if you want to CC me use an email address
-> > I actually read ;)
-> > 
-> > Greg has a patch to relax this check, and Rajesh has a further patch to
-> > relax it more.
-> 
-> Hm, no, my patch should already be in 2.6.18-rc1, I don't have any
-> pending MMCONFIG patches in my queue or tree.
-> 
-> So if you think I'm missing one, please resend it to me.
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-What happened to:
+ lxc-dave/fs/inode.c |    9 +++++++--
+ lxc-dave/fs/open.c  |   16 +++++++++++-----
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
-        http://lkml.org/2006/6/26/640
-
-        [patch 0/2] PCI: improve extended config space verification - take #2
-
-I tested the first round of this patchset on i386 and it worked for me (TM).
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+diff -puN fs/inode.c~C-elevate-writers-opens-part2-do_sys_utime fs/inode.c
+--- lxc/fs/inode.c~C-elevate-writers-opens-part2-do_sys_utime	2006-07-12 11:09:23.000000000 -0700
++++ lxc-dave/fs/inode.c	2006-07-12 11:09:38.000000000 -0700
+@@ -1191,10 +1191,13 @@ void touch_atime(struct vfsmount *mnt, s
+ 	if (IS_RDONLY(inode))
+ 		return;
+ 
++	if (mnt_want_write(mnt))
++		return;
++
+ 	if ((inode->i_flags & S_NOATIME) ||
+ 	    (inode->i_sb->s_flags & MS_NOATIME) ||
+ 	    ((inode->i_sb->s_flags & MS_NODIRATIME) && S_ISDIR(inode->i_mode)))
+-		return;
++		goto out;
+ 
+ 	/*
+ 	 * We may have a NULL vfsmount when coming from NFSD
+@@ -1202,13 +1205,15 @@ void touch_atime(struct vfsmount *mnt, s
+ 	if (mnt &&
+ 	    ((mnt->mnt_flags & MNT_NOATIME) ||
+ 	     ((mnt->mnt_flags & MNT_NODIRATIME) && S_ISDIR(inode->i_mode))))
+-		return;
++		goto out;
+ 
+ 	now = current_fs_time(inode->i_sb);
+ 	if (!timespec_equal(&inode->i_atime, &now)) {
+ 		inode->i_atime = now;
+ 		mark_inode_dirty_sync(inode);
+ 	}
++out:
++	mnt_drop_write(mnt);
+ }
+ 
+ EXPORT_SYMBOL(touch_atime);
+diff -puN fs/open.c~C-elevate-writers-opens-part2-do_sys_utime fs/open.c
+--- lxc/fs/open.c~C-elevate-writers-opens-part2-do_sys_utime	2006-07-12 11:09:37.000000000 -0700
++++ lxc-dave/fs/open.c	2006-07-12 11:09:38.000000000 -0700
+@@ -384,16 +384,20 @@ asmlinkage long sys_utime(char __user * 
+ 		goto out;
+ 	inode = nd.dentry->d_inode;
+ 
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		goto dput_and_out;
++
+ 	error = -EROFS;
+ 	if (IS_RDONLY(inode))
+-		goto dput_and_out;
++		goto mnt_drop_write_and_out;
+ 
+ 	/* Don't worry, the checks are done in inode_change_ok() */
+ 	newattrs.ia_valid = ATTR_CTIME | ATTR_MTIME | ATTR_ATIME;
+ 	if (times) {
+ 		error = -EPERM;
+ 		if (IS_APPEND(inode) || IS_IMMUTABLE(inode))
+-			goto dput_and_out;
++			goto mnt_drop_write_and_out;
+ 
+ 		error = get_user(newattrs.ia_atime.tv_sec, &times->actime);
+ 		newattrs.ia_atime.tv_nsec = 0;
+@@ -401,21 +405,23 @@ asmlinkage long sys_utime(char __user * 
+ 			error = get_user(newattrs.ia_mtime.tv_sec, &times->modtime);
+ 		newattrs.ia_mtime.tv_nsec = 0;
+ 		if (error)
+-			goto dput_and_out;
++			goto mnt_drop_write_and_out;
+ 
+ 		newattrs.ia_valid |= ATTR_ATIME_SET | ATTR_MTIME_SET;
+ 	} else {
+                 error = -EACCES;
+                 if (IS_IMMUTABLE(inode))
+-                        goto dput_and_out;
++			goto mnt_drop_write_and_out;
+ 
+ 		if (current->fsuid != inode->i_uid &&
+ 		    (error = vfs_permission(&nd, MAY_WRITE)) != 0)
+-			goto dput_and_out;
++			goto mnt_drop_write_and_out;
+ 	}
+ 	mutex_lock(&inode->i_mutex);
+ 	error = notify_change(nd.dentry, &newattrs);
+ 	mutex_unlock(&inode->i_mutex);
++mnt_drop_write_and_out:
++	mnt_drop_write(nd.mnt);
+ dput_and_out:
+ 	path_release(&nd);
+ out:
+_

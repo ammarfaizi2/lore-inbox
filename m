@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWGLVOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWGLVTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWGLVOG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:14:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWGLVOG
+	id S932454AbWGLVTf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWGLVTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:14:06 -0400
-Received: from soundwarez.org ([217.160.171.123]:28560 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S932398AbWGLVOE (ORCPT
+	Wed, 12 Jul 2006 17:19:35 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:28627 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932454AbWGLVTe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:14:04 -0400
-Subject: Re: [x86_64] strange delays since 2.6.15 (was: Re: ohci1394:
-	aborting transmission)
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: kay.sievers@suse.de, linux-kernel@vger.kernel.org, gregkh@suse.de
-In-Reply-To: <Pine.NEB.4.64.0607122134150.3497@vaio.testbed.de>
-References: <Pine.LNX.4.64.0607100527200.10447@sheep.housecafe.de>
-	 <44B203F4.1030903@s5r6.in-berlin.de>
-	 <Pine.LNX.4.64.0607100852390.13858@sheep.housecafe.de>
-	 <44B253CE.3030308@s5r6.in-berlin.de>
-	 <Pine.NEB.4.64.0607121247410.2796@vaio.testbed.de>
-	 <Pine.NEB.4.64.0607122134150.3497@vaio.testbed.de>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 23:14:08 +0200
-Message-Id: <1152738848.3195.32.camel@pim.off.vrfy.org>
+	Wed, 12 Jul 2006 17:19:34 -0400
+Date: Wed, 12 Jul 2006 23:13:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+Cc: andrea@cpushare.com, Lee Revell <rlrevell@joe-job.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060712211358.GA10811@elte.hu>
+References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-12 at 22:01 +0100, Christian Kujau wrote:
-> Hello all,
-> 
-> I am still having these strange boot-delays which I reported in [0] when 
-> I was under the assumption that ohci1394 was to blame, simply because 
-> "ohci1394: aborting transmission" was the last message before the 
-> 3minute delay during bootup happened. I've found out that the actual 
-> problem started way earlier (2.6.14->2.6.15) and I have bisected my way 
-> down to this patchset:
-> 
-> a7fd67062efc5b0fc9a61368c607fa92d1d57f9e is first bad commit
-> diff-tree a7fd67062efc5b0fc9a61368c607fa92d1d57f9e (from 
-> d8539d81aeee4dbdc0624a798321e822fb2df7ae)
-> Author: Kay Sievers <kay.sievers@suse.de>
-> Date:   Sat Oct 1 14:49:43 2005 +0200
-> 
->      [PATCH] add sysfs attr to re-emit device hotplug event
 
-Looks like a broken udev/system-init setup, which may hang until a
-timeout, while it tries to coldplug devices. When you back out the
-patch, coldplug will just fail, that's why the behavior is different.
+* Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 
-I'm pretty sure, it has nothing to do with this patch itself. You may
-want to look in your bootscripts where it hangs, not in the kernel.
+> And that's where fail-safe and simple design comes in. In this 
+> application an oops is better than a jail-break by orders of 
+> magnitude. But then that's why you wrote seccomp instead of using 
+> ptrace in the first place.
 
-Kay
+actually, the client side of ptrace isnt all that more complex. I guess 
+one of the main problems with using ptrace was that it has no catchy 
+name that Andrea could claim for his project and that it couldnt be 
+patented ;-)
 
+Andrea could have isolated the 'client side' functionality of ptrace 
+(which is often confused with the 'server side' of ptrace - where the 
+overwhelming majority of ptrace security holes were located) and he 
+could have made it simple to review, to get a comparable 'feeling' of 
+security. [User Mode Linux uses the client-side ptrace model to execute 
+untrusted code.]
+
+Andrea could also have extended ptrace to solve whatever marginal 
+problems he has with ptrace. [in fact such extension of ptrace was 
+posted recently, see Roland McGrath's utrace framework!]
+
+But he chose not to do so - and that has nothing to do with being unable 
+to improve ptrace - it evidently is improvable. So i see SECCOMP being 
+the result of the NIH syndrome.
+
+	Ingo

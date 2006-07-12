@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWGLQtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWGLQxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWGLQtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 12:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWGLQtn
+	id S1751354AbWGLQxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 12:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWGLQxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 12:49:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25530 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751161AbWGLQtm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 12:49:42 -0400
-Message-ID: <44B5283E.7090806@redhat.com>
-Date: Wed, 12 Jul 2006 09:50:06 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 12 Jul 2006 12:53:22 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:27815 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751354AbWGLQxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 12:53:22 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+	b=sZC0WTGvTHO927UxoENeRujc2K7tcnj4ggdwbGCxrMzeqmQN2mnO2chrKyDuqAtjy
+	BQqt8fIX5IF9RMek4qqsw==
+Message-ID: <44B528F4.6080409@google.com>
+Date: Wed, 12 Jul 2006 09:53:08 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> 	<20060710155051.326e49da.rdunlap@xenotime.net> 	<m1veq4kcij.fsf@ebiederm.dsl.xmission.com> 	<1152601640.3128.7.camel@laptopd505.fenrus.org> <m1irm2bxk3.fsf_-_@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1irm2bxk3.fsf_-_@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig68D77FADE050ECCB63732D2F"
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.18-rc1-git4 and 2.6.18-rc1-mm1 OOM's on boot
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig68D77FADE050ECCB63732D2F
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+-git3 was fine
+(bootlog for git3: http://test.kernel.org/abat/40748/debug/console.log)
 
-Eric W. Biederman wrote:
-> But uname is noticeably faster than sysctl and uname is more portable
-> across linux flavors.  So updating the glibc pthread code to use
-> uname looks like the right way to implement is_smp_system.=20
+-mm1 has the same issue
 
-This is (was?) not the universal through.  We used uname at some point
-but then I did some profiling and sysctl turned out to be faster.
+Slightly different manifestations across 2 boots
 
-If the reverse is true now I can certainly look into changing this but
-the evidence and ideally has to be there.  The simplicity of the uname
-code should mean that it's faster.
+http://test.kernel.org/abat/40760/debug/console.log
+http://test.kernel.org/abat/40837/debug/console.log
 
-In a year or two I'll remove the test anyway.  By then there will likely
-not be any UP kernels on reasonable machines anymore and I can drop all
-the conditional code.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+32GB NUMA-Q system w/16 processors.
 
 
---------------enig68D77FADE050ECCB63732D2F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEtSg+2ijCOnn/RHQRAvJ5AKCfxH3bGX0o3kndJC/xc0yeIZQ9EACgueKP
-/zmuqElb6mUJS9n4pIAor48=
-=nQJl
------END PGP SIGNATURE-----
-
---------------enig68D77FADE050ECCB63732D2F--
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap  = 0kB
+Total swap = 0kB
+Free swap:            0kB
+8321024 pages of RAM
+8159232 pages of HIGHMEM
+133127 reserved pages
+3739 pages shared
+0 pages swap cached
+208 pages dirty
+0 pages writeback
+1135 pages mapped
+24266 pages slab
+76 pages pagetables
+Out of Memory: Kill process 1 (init) score 0 and children.
+No available memory (MPOL_BIND): Killed process 1267 (rc).
+-- 0:conmux-control -- time-stamp -- Jul/12/06  2:00:36 --
+-- 0:conmux-control -- time-stamp -- Jul/12/06  2:09:55 --
+(bot:conmon-payload) disconnected

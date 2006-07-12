@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWGLBTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWGLBcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWGLBTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 21:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWGLBTV
+	id S1750948AbWGLBcw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 21:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWGLBcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 21:19:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62870
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932341AbWGLBTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 21:19:20 -0400
-Date: Tue, 11 Jul 2006 18:19:51 -0700 (PDT)
-Message-Id: <20060711.181951.56872620.davem@davemloft.net>
-To: jketreno@linux.intel.com
-Cc: alan@lxorguk.ukuu.org.uk, alon.barlev@gmail.com, s0348365@sms.ed.ac.uk,
-       linville@tuxdriver.com, joesmidt@byu.net, linux-kernel@vger.kernel.org
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <44B443E4.1000707@linux.intel.com>
-References: <44B3ED29.4040801@gmail.com>
-	<1152644119.18028.46.camel@localhost.localdomain>
-	<44B443E4.1000707@linux.intel.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 21:32:52 -0400
+Received: from compunauta.com ([69.36.170.169]:40068 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S1750948AbWGLBcw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 21:32:52 -0400
+From: Gustavo Guillermo =?iso-8859-15?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with 2.6.11/12/13/14/15
+Date: Tue, 11 Jul 2006 20:32:50 -0500
+User-Agent: KMail/1.8.2
+References: <200607111906.06343.gustavo@compunauta.com>
+In-Reply-To: <200607111906.06343.gustavo@compunauta.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607112032.51788.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Ketrenos <jketreno@linux.intel.com>
-Date: Tue, 11 Jul 2006 17:35:48 -0700
+Reviewing my experiments I was discover that the problem start at 2.6.16, 
+cause going forward from 2.6.11 to 2.6.15 there is no problem in smp or 
+single mode.
 
-> The obvious distinction between scsi firmware and the regulatory
-> daemon blob being discussed here is that the regulatory daemon runs
-> on the host vs. an adapter.  However, if you consider the
-> communication interface between the kernel and the user space daemon
-> to be analogous to the communication interface between the kernel
-> driver and the firmware that runs on an adapter, then the
-> distinction of running on the host is irrelevant.
+El Martes, 11 de Julio de 2006 19:06, Gustavo Guillermo Pérez escribió:
+> Hello list, I was trying to use a newer kernel on a gentoo installation,
+> and I've downloaded a lastest kernel 2.6.17/16 getting a hardlock on boot
+> time, with or without smp mode, controlled by BIOS or by smp kernel option
+> I got 1 penguin or 2 penguins as processors get detected, it just hang
+> after frame buffer or agp detection, but using vga=0 to not see any frame
+> buffer I got a so faster oops and kernel panic and machine reboots, then I
+> can't see anything on the screen, just with frame buffer enabled, but with
+> frame buffer enabled does not work SySREQ, is just a hang.
+>
+> Attached .config file used, cat /proc/cpuinfo with 2.6.11 that was the
+> kernel that can be built for, and lspci, and verbose lspci.
+>
+> The config file is the same used for the tests, with or without frame
+> buffer enabled is the same.
+>
+> BIOS VERSION NT94510J.15A.0065.2005.1103.1803
+>
+> I'll going to upgrade the bios.
+>
+> Processor type: Intel (R) Pentium(R) D CPU 2.80GHz
+> Intel (R) EM64T Capable.
+>
+> Using 512MB of DDR2 Dual Channel,
+> ASL0 256MB
+> ASL1 Not Installed
+> BSL0 256MB
+> BSL1 Not Installed
 
-The core issue is whether the userland blob could stand alone and is
-something that could exist independant of Linux and the kernel side
-GPL'd driver.
-
-Difficult areas arise when you design a set of interfaces specifically
-to talk to the binary blob, and which exist for no other purpose and
-do not provide some well defined "standard" API such as the SCSI
-command set, as an example.  It is just a backdoor into the binary
-blob, and therefore this could make it more likely to be considered
-a derivative work.
-
-Firmware that runs on the card is also a tricky area, and not everyone
-agrees on that issue as well.
-
-Unfortunately, none of this is fun stuff :-/
+-- 
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

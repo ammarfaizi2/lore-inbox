@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWGLA3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWGLAeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWGLA3R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWGLA3R
+	id S932111AbWGLAeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWGLAeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:29:17 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:57501 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932293AbWGLA3Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:29:16 -0400
-Message-ID: <44B44218.40408@zytor.com>
-Date: Tue, 11 Jul 2006 17:28:08 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Cedric Le Goater <clg@fr.ibm.com>
-CC: Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
-References: <20060711075051.382004000@localhost.localdomain>	 <44B3EA16.1090208@zytor.com> <44B3ED3B.3010401@fr.ibm.com>	 <44B3EDBA.4090109@zytor.com> <a36005b50607111250k70598c31nbc9c0de661dba9e6@mail.gmail.com> <44B41D39.801@fr.ibm.com>
-In-Reply-To: <44B41D39.801@fr.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 20:34:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64199 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932111AbWGLAeM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:34:12 -0400
+Date: Tue, 11 Jul 2006 17:37:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+Message-Id: <20060711173735.43e9af94.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607120213060.12900@scrub.home>
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
+	<20060710094414.GD1640@igloo.df.lth.se>
+	<Pine.LNX.4.64.0607102356460.17704@scrub.home>
+	<20060711124105.GA2474@elf.ucw.cz>
+	<Pine.LNX.4.64.0607120016490.12900@scrub.home>
+	<20060711224225.GC1732@elf.ucw.cz>
+	<Pine.LNX.4.64.0607120132440.12900@scrub.home>
+	<20060711165003.25265bb7.akpm@osdl.org>
+	<Pine.LNX.4.64.0607120213060.12900@scrub.home>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater wrote:
+Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> Hi,
 > 
-> How's that ?
+> On Tue, 11 Jul 2006, Andrew Morton wrote:
 > 
-> int execvef(int flags, const char *filename, char *const argv [], char
-> *const envp[]);
+> > > On Wed, 12 Jul 2006, Pavel Machek wrote:
+> > > 
+> > > > BTW I believe that original way (alt down, sysrq down, b down) still
+> > > > works before and after the patch.
+> > > 
+> > > No, it doesn't.
+> > > 
+> > > > Here's patch that updates docs with now-working trick.
+> > > 
+> > > NACK.
+> > > 
+> > 
+> > Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
+> > which it *did not work at all*.  If that makes it harder to type but still
+> > possible to type on other machines, well, we win.
 > 
-> initially, flags would be :
-> 
-> #define EXECVEF_NEWNS	0x00000100
-> #define EXECVEF_NEWIPC	0x00000200
-> #define EXECVEF_NEWUTS	0x00000400
-> #define EXECVEF_NEWUSER	0x00000800
-> 
-> execvef() would behave like execve() if flags == 0 and would return EINVAL
-> if flags is invalid. unshare of a namespace can fail and usually returns
-> ENOMEM.
+> Why can't we even _try_ to preserve compatibility? :-(
 > 
 
-To be more specific, I guess, what I'm proposing is:
+It would of course be good if we could do that.  If it's impossible to
+retain the old behaviour without breaking those oddball keyboards then
+we're screwed.
 
-int execxveat(int flags, int dirfd, const char *filename,
-	      char * const *argv, char * const *envp);
-
-... with the -x- for the flags field; that can be dropped since it's 
-already established that -at() variants can take additional flags.
-
-	-hpa
-
+IOW, someone needs to find a way to make the new code work like the old
+code without re-breaking Pavel's keyboard.  But the bitchin-to-patchin
+ratio here seems to exclude that outcome.

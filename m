@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWGLHWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWGLHYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWGLHWH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWGLHWH
+	id S1750781AbWGLHYR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWGLHYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:22:07 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:55261
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750777AbWGLHWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:22:06 -0400
-Date: Wed, 12 Jul 2006 00:22:55 -0700 (PDT)
-Message-Id: <20060712.002255.45063957.davem@davemloft.net>
-To: kaos@ocs.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse annotation question 
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <28491.1152686564@kao2.melbourne.sgi.com>
-References: <20060711.231409.121242621.davem@davemloft.net>
-	<28491.1152686564@kao2.melbourne.sgi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 12 Jul 2006 03:24:17 -0400
+Received: from mga05.intel.com ([192.55.52.89]:44727 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750781AbWGLHYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:24:16 -0400
+X-IronPort-AV: i="4.06,231,1149490800"; 
+   d="scan'208"; a="96736388:sNHT25275446"
+Subject: Re: [PATCH 3/5] PCI-Express AER implemetation: export
+	pcie_port_bus_type
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
+In-Reply-To: <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
+References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
+	 <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
+Content-Type: text/plain
+Message-Id: <1152688926.28493.223.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 12 Jul 2006 15:22:06 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keith Owens <kaos@ocs.com.au>
-Date: Wed, 12 Jul 2006 16:42:44 +1000
+From: Zhang, Yanmin <yanmin.zhang@intel.com>
 
-> I tried various combinations of __force, but kept getting this:
-> 
-> warning: incorrect type in argument 1 (different address spaces)
->    expected unsigned long *addr
->    got unsigned long [noderef] [force] *[addressable] bsp<asn:1>
-> 
-> What finally worked was
-> 
->  	unsigned long i, *bsp, __user *ubsp;
-> 	...
-> 	ubsp = (unsigned long __user *) bsp;
-> 	put_user(*contents, ubsp);
-> 
+Patch 3 exports pcie_port_bus_type. AER driver could be compiled
+as a module and it needs to access pcie_port_bus_type.
 
-Right, I guess if you try to do the cast in the put_user() macro
-argument, you'll run into troubles because the __chk_user_ptr(ptr)
-call wants an absolutely pure __user pointer, not one that is part of
-a __force cast.
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+
+---
+
+--- linux-2.6.17/drivers/pci/pcie/portdrv_bus.c	2006-06-22 16:26:43.000000000 +0800
++++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_bus.c	2006-06-22 16:46:29.000000000 +0800
+@@ -76,3 +76,6 @@ static int pcie_port_bus_resume(struct d
+ 		driver->resume(pciedev);
+ 	return 0;
+ }
++
++EXPORT_SYMBOL(pcie_port_bus_type);
++

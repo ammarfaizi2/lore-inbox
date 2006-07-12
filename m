@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWGLNcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWGLNg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWGLNcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 09:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWGLNcF
+	id S1751364AbWGLNg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 09:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWGLNg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 09:32:05 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:63139 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751253AbWGLNcE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 09:32:04 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
-Date: Wed, 12 Jul 2006 15:32:05 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com> <p73ac7fok13.fsf@verdi.suse.de> <m1sll7ecr4.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1sll7ecr4.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200607121532.05227.ak@suse.de>
+	Wed, 12 Jul 2006 09:36:28 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27606 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751364AbWGLNg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 09:36:27 -0400
+Subject: PATCH: Minimal fix for sysrq on serial console hang
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Jul 2006 14:54:21 +0100
+Message-Id: <1152712461.22943.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 July 2006 05:13, Eric W. Biederman wrote:
-> Andi Kleen <ak@suse.de> writes:
-> > ebiederm@xmission.com (Eric W. Biederman) writes:
-> >> Since sys_sysctl is deprecated start allow it to be compiled out.
-> >> This should catch any remaining user space code that cares,
-> >
-> > I tried this long ago, but found that glibc uses sysctl in each
-> > program to get the kernel version. It probably handles ENOSYS,
-> > but there might be slowdowns or subtle problems from it not knowing
-> > the kernel version.
-> >
-> > So I think it's ok to remove the big sysctl, but at a very minimal
-> > replacement that just handles (CTL_KERN, KERN_VERSION) is needed.
->
-> If glibc is looking at kernel.osrelease it might make sense.
-> If glibc is looking at kernel.version which is just the build number
-> and date I can't imagine a correct usage.
+When I originally did this change I used oops_in_progress as a locking
+guide. However it turns out there is one other place that turns all the
+locking on its head and that is sysrq.
 
-It's KERN_VERSION 
+The fix below is a minimal fix to avoid this hanging and worst case may
+lead to the very rare stuck character as it did pre 2.6.16 anyway but
+only when using sysrq [which right now hangs the box]
 
->From my /bin/ls:
+The right fix is probably to unlock on the sysrq path and relock and
+reconfigure the uart but thats more complex and not low risk at this
+point in time although I will revisit it after (or during KS/OLS)
+depending on rmk's view.
 
-_sysctl({{CTL_KERN, KERN_VERSION}, 2, 0xbfc8e1e0, 30, (nil), 0}) = 0
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-> If this usage is still common in glibc we can decide what to do
-> when the warnings pop up.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc1/drivers/serial/8250.c linux-2.6.18-rc1/drivers/serial/8250.c
+--- linux.vanilla-2.6.18-rc1/drivers/serial/8250.c	2006-07-12 12:16:47.000000000 +0100
++++ linux-2.6.18-rc1/drivers/serial/8250.c	2006-07-12 12:21:10.000000000 +0100
+@@ -2240,10 +2240,12 @@
+ 
+ 	touch_nmi_watchdog();
+ 
+-	if (oops_in_progress) {
+-		locked = spin_trylock_irqsave(&up->port.lock, flags);
+-	} else
+-		spin_lock_irqsave(&up->port.lock, flags);
++	/*
++	 *	This can occur during an oops, in which case we want to
++	 *	do our best, or sysrq which is hairier and eventually needs
++	 *	a nicer solution
++	 */
++	locked = spin_trylock_irqsave(&up->port.lock, flags);
+ 
+ 	/*
+ 	 *	First save the IER then disable the interrupts
 
-printk for everything would annoy basically everybody. Not a good idea.
-
--Andi

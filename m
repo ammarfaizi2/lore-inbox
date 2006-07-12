@@ -1,110 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWGLSVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWGLSWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWGLSVu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWGLSVp
+	id S932349AbWGLSWW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWGLSVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:21:45 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:37529 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932347AbWGLSRX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:21:43 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:17564 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932349AbWGLSRX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 12 Jul 2006 14:17:23 -0400
-Subject: [RFC][PATCH 11/27] elevate write count during entire ncp_ioctl()
+Subject: [RFC][PATCH 07/27] kill open files traverse on remount ro
 To: viro@ftp.linux.org.uk
 Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 12 Jul 2006 11:17:17 -0700
+Date: Wed, 12 Jul 2006 11:17:15 -0700
 References: <20060712181709.5C1A4353@localhost.localdomain>
 In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-Message-Id: <20060712181717.D47355F7@localhost.localdomain>
+Message-Id: <20060712181715.08110A55@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Some ioctls need write access, but others don't.  Make a helper
-function to decide when write access is needed, and take it.
+Now that we have the sb writer count, we don't need to
+go looking at all of the individual open files.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/ncpfs/ioctl.c |   55 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 54 insertions(+), 1 deletion(-)
+ lxc-dave/fs/file_table.c    |   25 -------------------------
+ lxc-dave/fs/super.c         |    1 -
+ lxc-dave/include/linux/fs.h |    2 --
+ 3 files changed, 28 deletions(-)
 
-diff -puN fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers fs/ncpfs/ioctl.c
---- lxc/fs/ncpfs/ioctl.c~C-elevate-writers-file_permission-callers	2006-07-12 11:09:15.000000000 -0700
-+++ lxc-dave/fs/ncpfs/ioctl.c	2006-07-12 11:09:28.000000000 -0700
-@@ -15,6 +15,7 @@
- #include <linux/ioctl.h>
- #include <linux/time.h>
- #include <linux/mm.h>
-+#include <linux/mount.h>
- #include <linux/highuid.h>
- #include <linux/vmalloc.h>
- 
-@@ -182,7 +183,7 @@ ncp_get_charsets(struct ncp_server* serv
+diff -puN fs/file_table.c~C-kill-open-file-traverse-on-remount-ro fs/file_table.c
+--- lxc/fs/file_table.c~C-kill-open-file-traverse-on-remount-ro	2006-07-12 11:09:15.000000000 -0700
++++ lxc-dave/fs/file_table.c	2006-07-12 11:09:24.000000000 -0700
+@@ -269,31 +269,6 @@ void file_kill(struct file *file)
+ 	}
  }
- #endif /* CONFIG_NCPFS_NLS */
  
--int ncp_ioctl(struct inode *inode, struct file *filp,
-+static int __ncp_ioctl(struct inode *inode, struct file *filp,
- 	      unsigned int cmd, unsigned long arg)
+-int fs_may_remount_ro(struct super_block *sb)
+-{
+-	struct list_head *p;
+-
+-	/* Check that no files are currently opened for writing. */
+-	file_list_lock();
+-	list_for_each(p, &sb->s_files) {
+-		struct file *file = list_entry(p, struct file, f_u.fu_list);
+-		struct inode *inode = file->f_dentry->d_inode;
+-
+-		/* File with pending delete? */
+-		if (inode->i_nlink == 0)
+-			goto too_bad;
+-
+-		/* Writeable file? */
+-		if (S_ISREG(inode->i_mode) && (file->f_mode & FMODE_WRITE))
+-			goto too_bad;
+-	}
+-	file_list_unlock();
+-	return 1; /* Tis' cool bro. */
+-too_bad:
+-	file_list_unlock();
+-	return 0;
+-}
+-
+ void __init files_init(unsigned long mempages)
+ { 
+ 	int n; 
+diff -puN fs/super.c~C-kill-open-file-traverse-on-remount-ro fs/super.c
+--- lxc/fs/super.c~C-kill-open-file-traverse-on-remount-ro	2006-07-12 11:09:22.000000000 -0700
++++ lxc-dave/fs/super.c	2006-07-12 11:09:24.000000000 -0700
+@@ -555,7 +555,6 @@ static void sb_mounts_clear_flag(struct 
+ 
+ static int sb_remount_ro(struct super_block *sb)
  {
- 	struct ncp_server *server = NCP_SERVER(inode);
-@@ -653,3 +654,55 @@ outrel:			
- /* #endif */
- 	return -EINVAL;
- }
-+
-+static int ncp_ioctl_need_write(unsigned int cmd)
-+{
-+	switch (cmd) {
-+	case NCP_IOC_GET_FS_INFO:
-+	case NCP_IOC_GET_FS_INFO_V2:
-+	case NCP_IOC_NCPREQUEST:
-+	case NCP_IOC_SETDENTRYTTL:
-+	case NCP_IOC_SIGN_INIT:
-+	case NCP_IOC_LOCKUNLOCK:
-+	case NCP_IOC_SET_SIGN_WANTED:
-+		return 1;
-+	case NCP_IOC_GETOBJECTNAME:
-+	case NCP_IOC_SETOBJECTNAME:
-+	case NCP_IOC_GETPRIVATEDATA:
-+	case NCP_IOC_SETPRIVATEDATA:
-+	case NCP_IOC_SETCHARSETS:
-+	case NCP_IOC_GETCHARSETS:
-+	case NCP_IOC_CONN_LOGGED_IN:
-+	case NCP_IOC_GETDENTRYTTL:
-+	case NCP_IOC_GETMOUNTUID2:
-+	case NCP_IOC_SIGN_WANTED:
-+	case NCP_IOC_GETROOT:
-+	case NCP_IOC_SETROOT:
-+		return 0;
-+	default:
-+		/* unkown IOCTL command, assume write */
-+		WARN_ON(1);
-+	}
-+	return 1;
-+}
-+
-+int ncp_ioctl(struct inode *inode, struct file *filp,
-+	      unsigned int cmd, unsigned long arg)
-+{
-+	int ret;
-+
-+	if (ncp_ioctl_need_write(cmd)) {
-+		/*
-+		 * inside the ioctl(), any failures which
-+		 * are because of file_permission() are
-+		 * -EACCESS, so it seems consistent to keep
-+		 *  that here.
-+		 */
-+		if (mnt_want_write(filp->f_vfsmnt))
-+			return -EACCES;
-+	}
-+	ret = __ncp_ioctl(inode, filp, cmd, arg);
-+	if (ncp_ioctl_need_write(cmd))
-+		mnt_drop_write(filp->f_vfsmnt);
-+	return ret;
-+}
+-	return fs_may_remount_ro(sb);
+ 	spin_lock(&sb->s_mnt_writers_lock);
+ 	if (atomic_read(&sb->s_mnt_writers) > 0) {
+ 		spin_unlock(&sb->s_mnt_writers_lock);
+diff -puN include/linux/fs.h~C-kill-open-file-traverse-on-remount-ro include/linux/fs.h
+--- lxc/include/linux/fs.h~C-kill-open-file-traverse-on-remount-ro	2006-07-12 11:09:23.000000000 -0700
++++ lxc-dave/include/linux/fs.h	2006-07-12 11:09:24.000000000 -0700
+@@ -1584,8 +1584,6 @@ extern const struct file_operations read
+ extern const struct file_operations write_fifo_fops;
+ extern const struct file_operations rdwr_fifo_fops;
+ 
+-extern int fs_may_remount_ro(struct super_block *);
+-
+ /*
+  * return READ, READA, or WRITE
+  */
 _

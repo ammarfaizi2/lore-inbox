@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWGLGK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWGLGNV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWGLGK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWGLGK4
+	id S932449AbWGLGNV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWGLGNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:10:56 -0400
-Received: from osa.unixfolk.com ([209.204.179.118]:61102 "EHLO
-	osa.unixfolk.com") by vger.kernel.org with ESMTP id S932442AbWGLGKz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:10:55 -0400
-Date: Tue, 11 Jul 2006 23:10:53 -0700 (PDT)
-From: Dave Olson <olson@unixfolk.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-In-Reply-To: <m1wtajed4d.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
- <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com> <p734pxnojyt.fsf@verdi.suse.de>
- <m1wtajed4d.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Jul 2006 02:13:21 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58515
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932449AbWGLGNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:13:20 -0400
+Date: Tue, 11 Jul 2006 23:14:09 -0700 (PDT)
+Message-Id: <20060711.231409.121242621.davem@davemloft.net>
+To: kaos@ocs.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sparse annotation question
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <27360.1152683223@kao2.melbourne.sgi.com>
+References: <27360.1152683223@kao2.melbourne.sgi.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006, Eric W. Biederman wrote:
-| There is a hypertransport capability that implements a rough equivalent
-| of a per device ioapic.  It is quite similar to MSI but with a different
-| register level interface.
+From: Keith Owens <kaos@ocs.com.au>
+Date: Wed, 12 Jul 2006 15:47:03 +1000
 
-It's really just the same as MSI, and is set up and handled pretty
-much the same way.
+> func (long regno, unsigned long *contents)
+> {
+> 	unsigned long i, *bsp;
+> 	mm_segment_t old_fs;
+> 	bsp = <expression involving only kernel variables>;
+> 	old_fs = set_fs(KERNEL_DS);
+> 	for (i = 0; i < (regno - 32); ++i)
+> 		bsp = ia64_rse_skip_regs(bsp, 1);
+> 	put_user(*contents, bsp);
+> 	set_fs(old_fs);
+> }
+> 
+> sparse is complaining that the second parameter to put_user() is not
+> marked as __user.  How do I tell sparse to ignore this case?  Marking
+> bsp as __user does not work, sparse then complains about incorrect type
+> in assignment (different address spaces).
 
-| Since native hypertransport devices do not implement a pin emulation mode
-| as native pci express devices do so if you want an interrupt you must support
-| the native hypertransport method.
+Since, in this case, you "know what you are doing" you can force the
+matter by using the __force keyword as well as __user.
 
-Right.
-
-| The pathscale ipath-ht400 driver already in the kernel tree uses these
-| and uses so an ugly hack to make work that broke in the last round of
-| the msi cleanups.  I also know of a driver under development for a
-| device that uses these as well.
-
-Umm, it's not broken by any of the the MSI cleanups, at least
-through last week's 2.6.18.
-
-| So I want to use this so I can get irqs from native hypertransport
-| devices.
-
-This part I never really quite understood.  Why do you want a separate
-interface than the existing request_irq() and pci_enable_msi()?  Yes,
-there needs to be some HT-specific implementation behind it, but I
-don't see a reason for a whole new interface.  Most of the rest of
-the HT stuff is setup via the pci_* functions, so why not the interrupts?
-
-Dave Olson
-olson@unixfolk.com
-http://www.unixfolk.com/dave

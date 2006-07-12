@@ -1,153 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWGLSZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWGLS0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWGLSZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWGLSYJ
+	id S932307AbWGLS0e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWGLS0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:24:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:26265 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932331AbWGLSRV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:17:21 -0400
-Subject: [RFC][PATCH 09/27] elevate writer count for chown and friends
+	Wed, 12 Jul 2006 14:26:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:56455 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932307AbWGLSRS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:17:18 -0400
+Subject: [RFC][PATCH 04/27] reintroduce list of vfsmounts over superblock
 To: viro@ftp.linux.org.uk
 Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 12 Jul 2006 11:17:16 -0700
+Date: Wed, 12 Jul 2006 11:17:12 -0700
 References: <20060712181709.5C1A4353@localhost.localdomain>
 In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-Message-Id: <20060712181716.05BDA4FD@localhost.localdomain>
+Message-Id: <20060712181712.117FC9F6@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-chown/chmod,etc... don't call permission in the same way
-that the normal "open for write" calls do.  They still
-write to the filesystem, so bump the write count during
-these operations.
+We're moving a big chunk of the burden of keeping people from
+writing to r/o filesystems from the superblock into the
+vfsmount.  This requires that we consult the superblock's
+vfsmounts when things like remounts occur.
+
+So, introduce a list of vfsmounts hanging off the superblock.
+We'll use this in a bit.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/open.c |   38 +++++++++++++++++++++++++++++++++-----
- 1 files changed, 33 insertions(+), 5 deletions(-)
+ lxc-dave/fs/namespace.c        |   12 ++++++++++++
+ lxc-dave/fs/super.c            |    1 +
+ lxc-dave/include/linux/fs.h    |    1 +
+ lxc-dave/include/linux/mount.h |    1 +
+ 4 files changed, 15 insertions(+)
 
-diff -puN fs/open.c~C-elevate-writers-chown-and-friends fs/open.c
---- lxc/fs/open.c~C-elevate-writers-chown-and-friends	2006-07-12 11:09:17.000000000 -0700
-+++ lxc-dave/fs/open.c	2006-07-12 11:09:26.000000000 -0700
-@@ -644,9 +644,12 @@ asmlinkage long sys_fchmod(unsigned int 
- 	err = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out_putf;
-+	err = mnt_want_write(file->f_vfsmnt);
-+	if (err)
-+		goto out_putf;
- 	err = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto out_putf;
-+		goto out_drop_write;
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
- 		mode = inode->i_mode;
-@@ -655,6 +658,8 @@ asmlinkage long sys_fchmod(unsigned int 
- 	err = notify_change(dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
+diff -puN fs/namespace.c~C-reintroduce-list-of-vfsmounts-over-superblock fs/namespace.c
+--- lxc/fs/namespace.c~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
++++ lxc-dave/fs/namespace.c	2006-07-12 11:09:21.000000000 -0700
+@@ -85,10 +85,18 @@ struct vfsmount *alloc_vfsmnt(const char
+ 	return mnt;
+ }
  
-+out_drop_write:
-+	mnt_drop_write(file->f_vfsmnt);
- out_putf:
- 	fput(file);
- out:
-@@ -674,13 +679,16 @@ asmlinkage long sys_fchmodat(int dfd, co
- 		goto out;
- 	inode = nd.dentry->d_inode;
++void add_mount_to_sb_list(struct vfsmount *mnt, struct super_block *sb)
++{
++	spin_lock(&vfsmount_lock);
++	list_add(&mnt->mnt_sb_list, &sb->s_vfsmounts);
++	spin_unlock(&vfsmount_lock);
++}
++
+ int simple_set_mnt(struct vfsmount *mnt, struct super_block *sb)
+ {
+ 	mnt->mnt_sb = sb;
+ 	mnt->mnt_root = dget(sb->s_root);
++	add_mount_to_sb_list(mnt, sb);
+ 	return 0;
+ }
  
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto dput_and_out;
- 	error = -EROFS;
- 	if (IS_RDONLY(inode))
--		goto dput_and_out;
-+		goto out_drop_write;
+@@ -96,6 +104,9 @@ EXPORT_SYMBOL(simple_set_mnt);
  
- 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto dput_and_out;
-+		goto out_drop_write;
+ void free_vfsmnt(struct vfsmount *mnt)
+ {
++	spin_lock(&vfsmount_lock);
++	list_del(&mnt->mnt_sb_list);
++	spin_unlock(&vfsmount_lock);
+ 	kfree(mnt->mnt_devname);
+ 	kmem_cache_free(mnt_cache, mnt);
+ }
+@@ -249,6 +260,7 @@ static struct vfsmount *clone_mnt(struct
+ 		mnt->mnt_root = dget(root);
+ 		mnt->mnt_mountpoint = mnt->mnt_root;
+ 		mnt->mnt_parent = mnt;
++		add_mount_to_sb_list(mnt, sb);
  
- 	mutex_lock(&inode->i_mutex);
- 	if (mode == (mode_t) -1)
-@@ -690,6 +698,8 @@ asmlinkage long sys_fchmodat(int dfd, co
- 	error = notify_change(nd.dentry, &newattrs);
- 	mutex_unlock(&inode->i_mutex);
+ 		if (flag & CL_SLAVE) {
+ 			list_add(&mnt->mnt_slave, &old->mnt_slave_list);
+diff -puN fs/super.c~C-reintroduce-list-of-vfsmounts-over-superblock fs/super.c
+--- lxc/fs/super.c~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
++++ lxc-dave/fs/super.c	2006-07-12 11:09:21.000000000 -0700
+@@ -67,6 +67,7 @@ static struct super_block *alloc_super(s
+ 		INIT_LIST_HEAD(&s->s_dirty);
+ 		INIT_LIST_HEAD(&s->s_io);
+ 		INIT_LIST_HEAD(&s->s_files);
++		INIT_LIST_HEAD(&s->s_vfsmounts);
+ 		INIT_LIST_HEAD(&s->s_instances);
+ 		INIT_HLIST_HEAD(&s->s_anon);
+ 		INIT_LIST_HEAD(&s->s_inodes);
+diff -puN include/linux/fs.h~C-reintroduce-list-of-vfsmounts-over-superblock include/linux/fs.h
+--- lxc/include/linux/fs.h~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:19.000000000 -0700
++++ lxc-dave/include/linux/fs.h	2006-07-12 11:09:21.000000000 -0700
+@@ -960,6 +960,7 @@ struct super_block {
+ 	struct list_head	s_dirty;	/* dirty inodes */
+ 	struct list_head	s_io;		/* parked for writeback */
+ 	struct hlist_head	s_anon;		/* anonymous dentries for (nfs) exporting */
++	struct list_head	s_vfsmounts;
+ 	struct list_head	s_files;
  
-+out_drop_write:
-+	mnt_drop_write(nd.mnt);
- dput_and_out:
- 	path_release(&nd);
- out:
-@@ -715,7 +725,7 @@ static int chown_common(struct dentry * 
- 	error = -EROFS;
- 	if (IS_RDONLY(inode))
- 		goto out;
--	error = -EPERM;
-+ 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
- 		goto out;
- 	newattrs.ia_valid =  ATTR_CTIME;
-@@ -744,7 +754,12 @@ asmlinkage long sys_chown(const char __u
- 	error = user_path_walk(filename, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+	mnt_drop_write(nd.mnt);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -764,7 +779,12 @@ asmlinkage long sys_fchownat(int dfd, co
- 	error = __user_walk_fd(dfd, filename, follow, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+	mnt_drop_write(nd.mnt);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -778,7 +798,11 @@ asmlinkage long sys_lchown(const char __
- 	error = user_path_walk_link(filename, &nd);
- 	if (error)
- 		goto out;
-+	error = mnt_want_write(nd.mnt);
-+	if (error)
-+		goto out_release;
- 	error = chown_common(nd.dentry, user, group);
-+out_release:
- 	path_release(&nd);
- out:
- 	return error;
-@@ -794,10 +818,14 @@ asmlinkage long sys_fchown(unsigned int 
- 	file = fget(fd);
- 	if (!file)
- 		goto out;
--
-+	error = mnt_want_write(file->f_vfsmnt);
-+	if (error)
-+		goto out_fput;
- 	dentry = file->f_dentry;
- 	audit_inode(NULL, dentry->d_inode);
- 	error = chown_common(dentry, user, group);
-+	mnt_drop_write(file->f_vfsmnt);
-+out_fput:
- 	fput(file);
- out:
- 	return error;
+ 	struct block_device	*s_bdev;
+diff -puN include/linux/mount.h~C-reintroduce-list-of-vfsmounts-over-superblock include/linux/mount.h
+--- lxc/include/linux/mount.h~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
++++ lxc-dave/include/linux/mount.h	2006-07-12 11:09:21.000000000 -0700
+@@ -40,6 +40,7 @@ struct vfsmount {
+ 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
+ 	struct dentry *mnt_root;	/* root of the mounted tree */
+ 	struct super_block *mnt_sb;	/* pointer to superblock */
++	struct list_head mnt_sb_list;	/* list of all mounts on same sb */
+ 	struct list_head mnt_mounts;	/* list of children, anchored here */
+ 	struct list_head mnt_child;	/* and going through their mnt_child */
+ 	atomic_t mnt_count;
 _

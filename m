@@ -1,65 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWGLWuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWGLWys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWGLWuW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGLWuW
+	id S932413AbWGLWys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWGLWys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:50:22 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:36552 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932403AbWGLWuV (ORCPT
+	Wed, 12 Jul 2006 18:54:48 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19876 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932413AbWGLWyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:50:21 -0400
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Arjan van de Ven <arjan@infradead.org>,
-       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-In-Reply-To: <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>
-	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>
-	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
-	 <1152739766.3217.83.camel@laptopd505.fenrus.org>
-	 <m1bqru8p36.fsf@ebiederm.dsl.xmission.com>
-	 <1152741665.3217.85.camel@laptopd505.fenrus.org>
-	 <44B57191.5000802@zytor.com>  <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Jul 2006 00:07:44 +0100
-Message-Id: <1152745664.22943.115.camel@localhost.localdomain>
+	Wed, 12 Jul 2006 18:54:47 -0400
+Date: Thu, 13 Jul 2006 00:49:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060712224904.GA14500@elte.hu>
+References: <20060630014050.GI19712@stusta.de> <200607130006.12705.ak@suse.de> <20060712221910.GA12905@elte.hu> <200607130033.16555.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607130033.16555.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-07-12 am 16:26 -0600, ysgrifennodd Eric W. Biederman:
-> If the lock is not short lived then the release is like to be a long
-> ways off.  If the lock is not highly contended then you are not likely
-> to hit the window when someone else as the contended lock.
+
+* Andi Kleen <ak@suse.de> wrote:
+
 > 
-> How frequent are highly contended short lived locks in user space?
+> > > I can put in a patch into my tree for the next merge to disable the 
+> > > TSC disable code on i386 too like I did earlier for x86-64.
+> > 
+> > please do.
+> 
+> Hmm, with the new thread test as it was pointed out it can be indeed 
+> made zero cost for the common case. Perhaps that's not needed then.
 
-I'm not sure it matters.
+putting aside the fundamental fallacy of disabling TSC based timing 
+attacks while not even considering network-based timing attacks (which 
+are still very much possible), Chuck's approach of pushing the seccomp 
+TSC cr4 twiddling into the context-switch slowpath is the right 
+solution, given the circumstances. Will Chuck's patch be in 2.6.18? If 
+not then my months-old patch below should be applied.
 
-If you want to do the job right then do this
+	Ingo
 
-- Stick an indicator of how much else wants to run on this CPU in the
-vsyscall page or similar location
+----
 
-In your locks you can now do
+remove TSC-disabling logic from the context-switch hotpath. It has
+marginal security relevance. Truly paranoid users can boot with the
+TSC disabled anyway.
 
-              while(try_and_grab_lock() == FAILED) {
-                       if (kernelpage->waiting > 0)
-                              sys_somelockwaitthing()
-              }
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+----
 
-Furthermore the kernel can be intelligent about the waiting indicator
-for power or other global scheduling reasons
+ arch/i386/kernel/process.c |   29 -----------------------------
+ 1 files changed, 29 deletions(-)
 
-[Disclaimer: There is a patent issue around this technique but its not
-one that will impact GPL code as permissions are given for GPL use.]
-
-Alan
-
+Index: linux/arch/i386/kernel/process.c
+===================================================================
+--- linux.orig/arch/i386/kernel/process.c
++++ linux/arch/i386/kernel/process.c
+@@ -589,33 +589,6 @@ handle_io_bitmap(struct thread_struct *n
+ }
+ 
+ /*
+- * This function selects if the context switch from prev to next
+- * has to tweak the TSC disable bit in the cr4.
+- */
+-static inline void disable_tsc(struct task_struct *prev_p,
+-			       struct task_struct *next_p)
+-{
+-	struct thread_info *prev, *next;
+-
+-	/*
+-	 * gcc should eliminate the ->thread_info dereference if
+-	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
+-	 */
+-	prev = prev_p->thread_info;
+-	next = next_p->thread_info;
+-
+-	if (has_secure_computing(prev) || has_secure_computing(next)) {
+-		/* slow path here */
+-		if (has_secure_computing(prev) &&
+-		    !has_secure_computing(next)) {
+-			write_cr4(read_cr4() & ~X86_CR4_TSD);
+-		} else if (!has_secure_computing(prev) &&
+-			   has_secure_computing(next))
+-			write_cr4(read_cr4() | X86_CR4_TSD);
+-	}
+-}
+-
+-/*
+  *	switch_to(x,yn) should switch tasks from x to y.
+  *
+  * We fsave/fwait so that an exception goes off at the right time
+@@ -709,8 +682,6 @@ struct task_struct fastcall * __switch_t
+ 	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+ 		handle_io_bitmap(next, tss);
+ 
+-	disable_tsc(prev_p, next_p);
+-
+ 	return prev_p;
+ }
+ 

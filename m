@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWGLLiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWGLLkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWGLLiA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 07:38:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWGLLiA
+	id S1751314AbWGLLkl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 07:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGLLkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 07:38:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59915 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751270AbWGLLh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 07:37:59 -0400
-Date: Wed, 12 Jul 2006 12:37:54 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: rpurdie@rpsys.net, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix compilation on arm in -rc1-git
-Message-ID: <20060712113753.GB7908@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>, rpurdie@rpsys.net,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20060712111157.GA1978@elf.ucw.cz>
+	Wed, 12 Jul 2006 07:40:41 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41378 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751314AbWGLLkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 07:40:40 -0400
+Subject: Re: Problems with oom killer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell Stuart <russell-lkml@stuart.id.au>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1152663312.4267.20.camel@ras.pc.brisbane.lube>
+References: <1152663312.4267.20.camel@ras.pc.brisbane.lube>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Jul 2006 12:57:51 +0100
+Message-Id: <1152705471.22943.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060712111157.GA1978@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 01:11:57PM +0200, Pavel Machek wrote:
-> After latest git update, I was getting compile errors until doing:
+Ar Mer, 2006-07-12 am 10:15 +1000, ysgrifennodd Russell Stuart:
+> It is running the Debian stable kernel (2.6.8.1) with
+> cfq on a dual core machine.  Although it shouldn't be,
 
-I've sent a better fix to Linus, Andrew, lkml, etc yesterday evening -
-part of the "RFC: cleaning up the in-kernel headers" thread.
+2.6.8 certainly had problems in some cases where there was a lot of I/O
+going on and it would out-of-memory when it should have been trying
+harder to dump all the dirty pages to disk.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> Any clues would be appreciated.
+
+Not really a fix in itself but see what happens if "sync" gets called
+every 30 seconds or so during the backup that triggers the problem.
+
+Alan
+

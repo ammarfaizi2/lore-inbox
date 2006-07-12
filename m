@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWGLH05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWGLH1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWGLH05 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWGLH05
+	id S1750784AbWGLH1y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWGLH1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:26:57 -0400
-Received: from mail.df.lth.se ([194.47.250.12]:932 "EHLO df.lth.se")
-	by vger.kernel.org with ESMTP id S1750782AbWGLH04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:26:56 -0400
-Date: Wed, 12 Jul 2006 09:26:28 +0200
-From: Fredrik Roubert <roubert@df.lth.se>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, pavel@ucw.cz, stern@rowland.harvard.edu,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <20060712072628.GB5869@igloo.df.lth.se>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>, pavel@ucw.cz,
-	stern@rowland.harvard.edu, dmitry.torokhov@gmail.com,
-	linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home> <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home> <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607120213060.12900@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-PGP-Public-Key: http://www.df.lth.se/~roubert/pubkey.txt
+	Wed, 12 Jul 2006 03:27:54 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:12519 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750784AbWGLH1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:27:53 -0400
+Message-ID: <44B4A4C7.3040207@manoweb.com>
+Date: Wed, 12 Jul 2006 09:29:11 +0200
+From: Alessio Sangalli <alesan@manoweb.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Daniel Ritz <daniel.ritz-ml@swissonline.ch>, Dave Jones <davej@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+References: <200607010003.31324.daniel.ritz-ml@swissonline.ch> <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 12 Jul 02:16 CEST 2006, Roman Zippel wrote:
+Linus Torvalds wrote:
 
-> > Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
-> > which it *did not work at all*.  If that makes it harder to type but still
-> > possible to type on other machines, well, we win.
->
-> Why can't we even _try_ to preserve compatibility? :-(
+> Alessio has PCI ID 8086:7194, which is not the 82443MX_3, so you'd need 
+> something like this instead (but yes, it might indeed be the standard 
+> PIIX4 quirks).
 
-First, please note that the documented behaviour (You press the key
-combo 'ALT-SysRq-<command key>'.) still works.
+Linus, this patch *does not* work, while Daniel's is ok. It's
+puzzling... same kernel, just checked out from the git repository.
 
-The problem at hand is that not all keyboards can handle this many keys
-pressed at once, and that there also are keyboards broken in other ways.
 
-The work-around suggested in the documentation ([Y]ou might have better
-luck with "press Alt", "press SysRq", "release Alt", "press <command
-key>", release everything.) does not work with keyboards that sends the
-make and break codes for SysRq immediately after another, and this was
-the reason for changing the behaviour (for broken keyboards) in
-2.6.18-rc1. The new behaviour works with every keyboard the people
-involved in this discussion has heard of.
+> ---
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index 4364d79..0c073b4 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -401,6 +401,7 @@ static void __devinit quirk_piix4_acpi(s
+>  	piix4_io_quirk(dev, "PIIX4 devres J", 0x7c, 1 << 20);
+>  }
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	quirk_piix4_acpi );
+> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82440MX_0,	quirk_piix4_acpi );
+>  
+>  /*
+>   * ICH4, ICH4-M, ICH5, ICH5-M ACPI: Three IO regions pointed to by longwords at
+> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> index 9ae6b1a..889d4da 100644
+> --- a/include/linux/pci_ids.h
+> +++ b/include/linux/pci_ids.h
+> @@ -2205,6 +2205,7 @@ #define PCI_DEVICE_ID_INTEL_82443LX_1	0x
+>  #define PCI_DEVICE_ID_INTEL_82443BX_0	0x7190
+>  #define PCI_DEVICE_ID_INTEL_82443BX_1	0x7191
+>  #define PCI_DEVICE_ID_INTEL_82443BX_2	0x7192
+> +#define PCI_DEVICE_ID_INTEL_82440MX_0	0x7194
+>  #define PCI_DEVICE_ID_INTEL_440MX	0x7195
+>  #define PCI_DEVICE_ID_INTEL_440MX_6	0x7196
+>  #define PCI_DEVICE_ID_INTEL_82443MX_0	0x7198
 
-That the documentation wasn't updated with the new work-around key
-combination for broken keyboards was a mistake.
-
-Cheers // Fredrik Roubert
-
--- 
-Visserij 192  |  +32 473 344527 / +46 708 776974
-BE-9000 Gent  |  http://www.df.lth.se/~roubert/

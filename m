@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWGOE75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWGLCzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWGOE75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 00:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWGOE75
+	id S932129AbWGLCzF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 22:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGLCzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 00:59:57 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46295 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751324AbWGOE75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 00:59:57 -0400
-Date: Fri, 14 Jul 2006 21:59:19 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: RFC: cleaning up the in-kernel headers
-In-Reply-To: <1152937109.27135.101.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607142152420.9010@schroedinger.engr.sgi.com>
-References: <20060711160639.GY13938@stusta.de> 
- <Pine.LNX.4.64.0607131201050.28976@schroedinger.engr.sgi.com>
- <1152937109.27135.101.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Jul 2006 22:55:04 -0400
+Received: from ns.suse.de ([195.135.220.2]:37603 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932129AbWGLCzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 22:55:03 -0400
+Message-ID: <121226.1152672894714.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Wed, 12 Jul 2006 04:54:54 +0200 (CEST)
+From: Andreas Kleen <ak@suse.de>
+To: Anthony DeRobertis <asd@suespammers.org>
+Subject: Re: skge error; hangs w/ hardware memory hole
+Cc: Stephen Hemminger <shemminger@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       kevin@sysexperts.com
+In-Reply-To: <44B46276.5030006@suespammers.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-309-smp i386 (JVM 1.3.1_18)
+Organization: SuSE Linux AG
+References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net> <200607072328.51282.ak@suse.de> <44B46276.5030006@suespammers.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Jul 2006, Steven Rostedt wrote:
 
-> Are you talking about the page-flags.h or the vmstat.h?
+Spamming bug robot dropped from cc list.
 
-Both are troublesome. I forked off vmstat.hy from page-flags.h
-and all my attempts to straigthen things out results in other problems
-so I finally gave up and just did the same for vmstat.h.
+Am Mi 12.07.2006 04:46 schrieb Anthony DeRobertis <asd@suespammers.org>:
 
-> The page-flags.h has a FIXME by it to remove it, but under Adrian's
-> rules, it seems that it should still belong.  The rule is that if foo.h
-> needs bar.h to compile, then foo.h should have bar.h in it. And just
-> seeing what happens if we remove page-flags.h from mm.h, we get a
-> compile error in mm.h. Which means that that page-flags.h belongs in
-> mm.h since it wont compile without it.
+> OK, here are the results with iommu=force. All of these are copied
+> down
+> by hand, so please forgive any transcription errors:
 
-page-flags.h also seems to be included from the arches 
-for various purposes. 
+You need to use iommu=soft swiotlb=force
 
-grep page-flags include/asm-*/*
+The standard IOMMU is also broken on VIA, but forced swiotlb should
+work.
 
-include/asm-ia64/cacheflush.h:#include <linux/page-flags.h>
-include/asm-ia64/pgalloc.h:#include <linux/page-flags.h>
-include/asm-ia64/uaccess.h:#include <linux/page-flags.h>
+However it is a bit slow because it will force all IO through an
+additional copy.
+If it helps I can do a proper patch that only bounces IO > 4GB through
+the copy.
 
-grep page-flags arch/*/*/*
-arch/s390/appldata/appldata_base.c:#include <linux/page-flags.h>
+> Honestly, should I chuck this board through the window of my nearest
+> ASUS and/or VIA office, and buy an NForce board?
 
-mm.h gets too big. It would be best if we had some smaller granularity and
-page-flags.h should be pretty much stand on its own.
+We can probably get it to work, but you're clearly outside validated
+territory (= you're running the hardware in a untested by the vendor
+configuration). Normally that's not a good idea.
 
+BTW there are NForce systems with similar problems, but they are
+rare.
 
-> Now for the vmstat.h, I just tried removing that, and it seems that this
-> is a candidate to be removed from mm.h since mm.h compiles fine without
-> it. But vmstat.h doesn't compile without mm.h.  So it seems that we
-> should add mm.h to vmstat.h, remove vmstat.h from mm.h and for those .c
-> files that break, just add vmstat.h to them.
+-Andi
 
-Great if you can detangle that.
 

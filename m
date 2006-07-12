@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWGLKQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWGLKct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWGLKQd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 06:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWGLKQd
+	id S1751233AbWGLKct (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 06:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWGLKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 06:16:33 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56554 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751194AbWGLKQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 06:16:32 -0400
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
-Date: Wed, 12 Jul 2006 20:16:20 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
-       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
-       linux-kernel@vger.kernel.org
-References: <20060627133321.GB3019@elf.ucw.cz> <200607120900.49828.ncunningham@linuxmail.org> <200607121209.05766.rjw@sisk.pl>
-In-Reply-To: <200607121209.05766.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2157687.mooE20Fd64";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607122016.28280.ncunningham@linuxmail.org>
+	Wed, 12 Jul 2006 06:32:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6924 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751233AbWGLKcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 06:32:48 -0400
+Date: Wed, 12 Jul 2006 11:32:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Marc Singer <elf@buici.com>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
+Message-ID: <20060712103241.GA7908@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Marc Singer <elf@buici.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20060709000703.GA9806@cerise.buici.com> <44B0774E.5010103@yahoo.com.au> <20060710025103.GC28166@cerise.buici.com> <44B1FAE4.9070903@yahoo.com.au> <20060710162600.GB18728@flint.arm.linux.org.uk> <44B28F93.9020304@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B28F93.9020304@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2157687.mooE20Fd64
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Jul 11, 2006 at 03:34:11AM +1000, Nick Piggin wrote:
+> Russell King wrote:
+> >On Mon, Jul 10, 2006 at 04:59:48PM +1000, Nick Piggin wrote:
+> >
+> >>I guess you could do it a number of ways. Maybe having GFP_USERMAP
+> >>set __GFP_USERMAP|__GFP_COMP, and the arm dma memory allocator can
+> >>strip the __GFP_COMP.
+> >>
+> >>If you get an explicit __GFP_COMP passed down, the allocator doesn't
+> >>know whether that was because they want a user mappable area, or
+> >>really want a compound page (in which case, stripping __GFP_COMP is
+> >>the wrong thing to do).
+> >
+> >
+> >So I'll mask off __GFP_COMP for the time being in the ARM dma allocator
+> >with a note to this effect?
+> 
+> I believe that should do the trick, yes (AFAIK, nobody yet is
+> explicitly relying on a compound page from the dma allocator).
 
-Hi.
+In which case should ALSA be passing __GFP_COMP to the dma allocator ?
 
-On Wednesday 12 July 2006 20:09, Rafael J. Wysocki wrote:
-> We're doing something like you are, but I think we're using some other
-> option in LZF, because the resulting image size is 30-40% of the
-> uncompressed one. That's better for encryption later on, but obviously not
-> for speed.
-
-Maybe it's just that the caches compress better? 50% is common, but lower=20
-values are sometimes seen.
-
-Regards,
-
-Nigel
-=2D-=20
-Nigel, Michelle and Alisdair Cunningham
-5 Mitchell Street
-Cobden 3266
-Victoria, Australia
-
---nextPart2157687.mooE20Fd64
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEtMv8N0y+n1M3mo0RAg7oAKCvoOQoe8DPA4/HyTdvNjMZMzDkKwCeLjRW
-FefGyYt6Gg7wYC4U/6j+3SI=
-=kjTw
------END PGP SIGNATURE-----
-
---nextPart2157687.mooE20Fd64--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

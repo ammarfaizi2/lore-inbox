@@ -1,59 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWGLRJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWGLRLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWGLRJH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWGLRJH
+	id S1751466AbWGLRLF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWGLRLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:09:07 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:23992 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932093AbWGLRJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:09:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VpawJ+D80CaW1jhzU3l/83z+XF8hVRAVTOnEMoGncBI19Xjhv1aYzsUq461DXs7UGP7YxRo2MJhl3HDLKWWU/c6cicNSN+PkBllBAaohY3eMYHu5cWthJsQb6gjUK1j+9XY5LE+Jkp2wwfle+ryGPAFISpxiPi6ObSm4aepv7IM=
-Message-ID: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com>
-Date: Wed, 12 Jul 2006 10:09:05 -0700
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Subject: Re: annoying frequent overcurrent messages.
-Cc: "Dave Jones" <davej@redhat.com>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>,
-       "David Brownell" <david-b@pacbell.net>
-In-Reply-To: <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
+	Wed, 12 Jul 2006 13:11:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26604 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751466AbWGLRLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:11:03 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<20060712120505.GA31709@MAIL.13thfloor.at>
+Date: Wed, 12 Jul 2006 11:09:30 -0600
+In-Reply-To: <20060712120505.GA31709@MAIL.13thfloor.at> (Herbert Poetzl's
+	message of "Wed, 12 Jul 2006 14:05:05 +0200")
+Message-ID: <m1u05magxh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200607111747.13529.david-b@pacbell.net>
-	 <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> Dave Jones wrote:
-> > I have a box that's having its dmesg flooded with..
-> >
-> > hub 1-0:1.0: over-current change on port 1
-> > hub 1-0:1.0: over-current change on port 2
-> > hub 1-0:1.0: over-current change on port 1
-> > hub 1-0:1.0: over-current change on port 2
-> ...
->
-> > over and over again..
-> > The thing is, this box doesn't even have any USB devices connected to it,
-> > so there's absolutely nothing I can do to remedy this.
->
-> Since you're not using the UHCI controller on that computer, you could
-> simply rmmod uhci-hcd (or modify /etc/modprobe.conf to prevent it from
-> being loaded in the first place).  That would stop the constant interrupts
-> and the syslog spamming.
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-For the syslog spamming, you could jus emit the message once when the
-state is first noticed, then emit a everything good message when it
-clears up. There's no need to log it repeatedly during the problem
-period.
+> On Tue, Jul 11, 2006 at 09:46:01PM -0600, Eric W. Biederman wrote:
+>> Cedric Le Goater <clg@fr.ibm.com> writes:
+>> 
+>> > This patch adds the user namespace.
+>> >
+>> > Basically, it allows a process to unshare its user_struct table,
+>> > resetting at the same time its own user_struct and all the
+>> > associated accounting.
+>> >
+>> > For the moment, the root_user is added to the new user namespace
+>> > when it is cloned. An alternative behavior would be to let the
+>> > system allocate a new user_struct(0) in each new user namespace.
+>> > However, these 0 users would not have the privileges of the
+>> > root_user and it would be necessary to work on the process
+>> > capabilities to give them some permissions.
+>> 
+>> It is completely the wrong thing for a the root_user to span multiple
+>> namespaces as you describe. It is important for uid 0 in other
+>> namespaces to not have the privileges of the root_user. That is half
+>> the point.
+>>
+>> Too many files in sysfs and proc don't require caps but instead simply
+>> limit things to uid 0. Having a separate uid 0 in the different
+>> namespaces instantly makes all of these files inaccessible, and keeps
+>> processes from doing something bad.
+>
+> well, here I'd definitely prefer to fix up that 'broken'
+> entries by adding proper capability checks, and maybe
+> even a bunch of new capabilities (i.e. 64bit caps and
+> such) first, because IMHO the capability system is the
+> 'proper' method to protect them in the first place
 
-Ray
+I guess the good way to think of some of this is not as broken files.
+But rather in the plan9 model.  Initially everything on the machine is
+owned by one user (in our case root).  That user then controls who
+else gets access to files by calling chown etc.
+
+If you want access to those files in a different uid namespace someone
+needs to call chown or at least chmod on them, and I'm not
+at all certain this as a problem is limited to special files on
+a filesystem.
+
+Really when you do a proper user namespace this all comes for free.
+
+>> To a filesystem a uid does not share a uid namespace with the
+>> only things that should be accessible are those things that are
+>> readable/writeable by everyone. Unless the filesystem has provisions
+>> for storing multiple uid namespaces not files should be able to be
+>> created. Think NFS root squash.
+>
+> that's where file tagging as Linux-VServer does it can
+> be used to 'share' a partition between different guests
+> (and have separate disk limits and quotas)
+
+I completely agree we need a capability like that.  I disagree on the
+implementation because it is not general.  What we have really hit is
+the classic uid mapping problem that shows up occasionally with
+network filesystems.  That is the problem we need to solve.
+
+I'm pretty certain the current kernel key infrastructure gives us the
+infrastructure we need to do that in a general way.  At which point
+it would be a policy decision which uid to map to which other uid
+and we could easily match the current 
+
+Eric

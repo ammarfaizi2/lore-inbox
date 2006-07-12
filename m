@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWGLGC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWGLGEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWGLGC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWGLGC0
+	id S932439AbWGLGEE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWGLGED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:02:26 -0400
-Received: from rwcrmhc15.comcast.net ([216.148.227.155]:9429 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S1751351AbWGLGCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:02:25 -0400
-Date: Tue, 11 Jul 2006 23:02:48 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nicolas Pitre <nico@cam.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Update smc91x driver with ARM Versatile board info
-Message-ID: <20060712060248.GA28976@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Wed, 12 Jul 2006 02:04:03 -0400
+Received: from mga03.intel.com ([143.182.124.21]:18311 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932436AbWGLGEB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:04:01 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="64659632:sNHT2880405570"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH -mm] acpi: handle firmware_register init errors
+Date: Wed, 12 Jul 2006 02:03:47 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6F31863@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH -mm] acpi: handle firmware_register init errors
+Thread-Index: Acaldm32Ebvw6HWdRUmL/lpKnk6LKgAAXmOQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "lkml" <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
+Cc: "akpm" <akpm@osdl.org>
+X-OriginalArrivalTime: 12 Jul 2006 06:03:49.0871 (UTC) FILETIME=[F1D737F0:01C6A578]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is syntatically correct, and I'll apply it.
 
-We need to specify a Versatile-specific SMC_IRQ_FLAGS value or the new
-generic IRQ layer will complain thusly:
+For this to actually trigger, it appears that create_dir()
+would have to fail, which is hard to imagine.
 
-No IRQF_TRIGGER set_type function for IRQ 25 (<NULL>)
+One might question the value of /sys/firmware/acpi based
+on the fact that the only thing we do differently if we
+can't create it is print a message...
 
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-
-diff --git a/drivers/net/smc91x.h b/drivers/net/smc91x.h
-index b402804..4ec4b4d 100644
---- a/drivers/net/smc91x.h
-+++ b/drivers/net/smc91x.h
-@@ -354,6 +354,24 @@ #define SMC_outsw(a, r, p, l)	\
- 
- #define SMC_IRQ_FLAGS		(0)
- 
-+#elif	defined(CONFIG_ARCH_VERSATILE)
-+
-+#define SMC_CAN_USE_8BIT	1
-+#define SMC_CAN_USE_16BIT	1
-+#define SMC_CAN_USE_32BIT	1
-+#define SMC_NOWAIT		1
-+
-+#define SMC_inb(a, r)		readb((a) + (r))
-+#define SMC_inw(a, r)		readw((a) + (r))
-+#define SMC_inl(a, r)		readl((a) + (r))
-+#define SMC_outb(v, a, r)	writeb(v, (a) + (r))
-+#define SMC_outw(v, a, r)	writew(v, (a) + (r))
-+#define SMC_outl(v, a, r)	writel(v, (a) + (r))
-+#define SMC_insl(a, r, p, l)	readsl((a) + (r), p, l)
-+#define SMC_outsl(a, r, p, l)	writesl((a) + (r), p, l)
-+
-+#define SMC_IRQ_FLAGS		(0)
-+
- #else
- 
- #define SMC_CAN_USE_8BIT	1
+-Len
 
 
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-"An open heart has no possessions, only experiences" - Matt Bibbeau
+>-----Original Message-----
+>From: Randy.Dunlap [mailto:rdunlap@xenotime.net] 
+>Sent: Wednesday, July 12, 2006 1:47 AM
+>To: lkml; linux-acpi@vger.kernel.org
+>Cc: Brown, Len; akpm
+>Subject: [PATCH -mm] acpi: handle firmware_register init errors
+>
+>From: Randy Dunlap <rdunlap@xenotime.net>
+>
+>Check and handle init errors.
+>
+>Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+>---
+> drivers/acpi/bus.c |    6 +++++-
+> 1 files changed, 5 insertions(+), 1 deletion(-)
+>
+>--- linux-2618-rc1mm1.orig/drivers/acpi/bus.c
+>+++ linux-2618-rc1mm1/drivers/acpi/bus.c
+>@@ -25,6 +25,7 @@
+> #include <linux/module.h>
+> #include <linux/init.h>
+> #include <linux/ioport.h>
+>+#include <linux/kernel.h>
+> #include <linux/list.h>
+> #include <linux/sched.h>
+> #include <linux/pm.h>
+>@@ -738,7 +739,10 @@ static int __init acpi_init(void)
+> 		return -ENODEV;
+> 	}
+> 
+>-	firmware_register(&acpi_subsys);
+>+	result = firmware_register(&acpi_subsys);
+>+	if (result < 0)
+>+		printk(KERN_WARNING "%s: firmware_register error: %d\n",
+>+			__FUNCTION__, result);
+> 
+> 	result = acpi_bus_init();
+> 
+>
+>
+>---
+>

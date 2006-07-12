@@ -1,28 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWGLDdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGLDes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWGLDdV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 23:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWGLDdU
+	id S932365AbWGLDes (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 23:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWGLDes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 23:33:20 -0400
-Received: from [200.12.228.63] ([200.12.228.63]:11793 "EHLO
-	YOUR-L1RAOPVJJM.w36os.org") by vger.kernel.org with ESMTP
-	id S932379AbWGLDdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 23:33:19 -0400
-Message-ID: <82999054492869.DEE7E307B3@HW08V>
-From: "Swanson" <Swansonabsorptive@winning.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: =?ISO-8859-1?Q?=20It=92s?= possible because I always use Extrra-Time!
-Date: Tue, 11 Jul 2006 20:34:16 -0700
+	Tue, 11 Jul 2006 23:34:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13737 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932365AbWGLDer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 23:34:47 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<44B3D435.8090706@sw.ru>
+Date: Tue, 11 Jul 2006 21:33:14 -0600
+In-Reply-To: <44B3D435.8090706@sw.ru> (Kirill Korotaev's message of "Tue, 11
+	Jul 2006 20:39:17 +0400")
+Message-ID: <m1k66jebut.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: RYlpwUWWIBVl9ouNF0hiUZf5pTJbMT994Bg1
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello! Studies show this is the most common disorder affecting millions of men - and women, too! Extra-Time is ready to contribute to your durability, confidence and happiness. Everything has its time, and climax in bed shouldn't also happen too soon. Come on in: http://mahboobe.com/dll/get/ This is the ultimate thing for the two of you, making you confident and giving her everything she wants.
+Kirill Korotaev <dev@sw.ru> writes:
+
+> Another example of not so evident coupling here:
+> user structure maintains number of processes/opened files/sigpending/locked_shm
+> etc.
+> if a single user can belong to different proccess/ipc/... namespaces
+> all these becomes unusable.
+
+Why do the count of the number of objects a user has become
+unusable if they can count objects in multiple namespaces?
+
+Namespaces are about how names are looked up and how names are
+created.  Namespaces are not about the objects those names refer to.
+
+Eric
 

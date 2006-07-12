@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWGLAQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWGLAQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWGLAQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGLAQq
+	id S932288AbWGLAQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWGLAQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:16:46 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:16540 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932290AbWGLAQo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:16:44 -0400
-Date: Wed, 12 Jul 2006 02:16:38 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-In-Reply-To: <20060711165003.25265bb7.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607120213060.12900@scrub.home>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
- <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home>
- <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home>
- <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home>
- <20060711165003.25265bb7.akpm@osdl.org>
+	Tue, 11 Jul 2006 20:16:48 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:12565 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932288AbWGLAQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:16:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EgWv2gOou5reId6Ar7xruwCIr9+h+iAaaC1Znq+9bKFqsDtQFRdA6gFp6rP5dWCVVFbK3xtaKgL//xLWcdYN7/AYZlfJBmfNqE+iPiZLz8Rcn5ezxK2s2UKihhIZjVZfE8OyrK3ueOuGmbBY7U/gHHk9wONy5FynKgrXlnmQ6UQ=
+Message-ID: <a36005b50607111716t4756828dsafd740bfb90e6655@mail.gmail.com>
+Date: Tue, 11 Jul 2006 17:16:46 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <44B41EC0.70404@zytor.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060711075051.382004000@localhost.localdomain>
+	 <44B3EA16.1090208@zytor.com> <44B3ED3B.3010401@fr.ibm.com>
+	 <44B3EDBA.4090109@zytor.com>
+	 <a36005b50607111250k70598c31nbc9c0de661dba9e6@mail.gmail.com>
+	 <44B41D39.801@fr.ibm.com> <44B41EC0.70404@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 7/11/06, H. Peter Anvin <hpa@zytor.com> wrote:
+> > #define EXECVEF_NEWNS 0x00000100
+> > #define EXECVEF_NEWIPC        0x00000200
+> > #define EXECVEF_NEWUTS        0x00000400
+> > #define EXECVEF_NEWUSER       0x00000800
 
-On Tue, 11 Jul 2006, Andrew Morton wrote:
+Yes on these.
 
-> > On Wed, 12 Jul 2006, Pavel Machek wrote:
-> > 
-> > > BTW I believe that original way (alt down, sysrq down, b down) still
-> > > works before and after the patch.
-> > 
-> > No, it doesn't.
-> > 
-> > > Here's patch that updates docs with now-working trick.
-> > 
-> > NACK.
-> > 
-> 
-> Nack your nack!  The patch in 2.6.18-rc1 makes sysrq work on machines on
-> which it *did not work at all*.  If that makes it harder to type but still
-> possible to type on other machines, well, we win.
 
-Why can't we even _try_ to preserve compatibility? :-(
+> If flags comes first, I would rather like to call it execfve(), or
+> perhaps execxve() ("extended") or execove() ("options").  execfve()
+> sounds like it executes a file descriptor (which would probably be
+> called fexecve()).
 
-bye, Roman
+I think execfve is fine.
+
+
+> Perhaps more seriously, if we're adding more functionality already, it
+> should acquire -at functionality (execveat) and take a directory argument.
+
+We have fexecve already.  Adding -at variants is probably not the best
+idea, it's confusing.  Note, that fexecve only takes a file
+descriptor, not a file descriptor plus file name.
+
+The only reason I could see for changing this is thatfexecve depends
+on /proc.  But there is so much other functionality which won't work
+if /proc isn't mounted that I'd rank this low.  I'm fine with just
+adding execfve.

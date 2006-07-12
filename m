@@ -1,94 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWGLSRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWGLSRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWGLSRR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWGLSRR
+	id S932306AbWGLSRP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGLSRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:17:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:57571 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932310AbWGLSRQ
+	Wed, 12 Jul 2006 14:17:15 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:58029 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932306AbWGLSRP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:17:16 -0400
-Subject: [RFC][PATCH 02/27] r/o bind mount prepwork: move open_namei()'s vfs_create()
+	Wed, 12 Jul 2006 14:17:15 -0400
+Subject: [RFC][PATCH 00/27] Mount writer count and read-only bind mounts (v4)
 To: viro@ftp.linux.org.uk
 Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 12 Jul 2006 11:17:11 -0700
-References: <20060712181709.5C1A4353@localhost.localdomain>
-In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-Message-Id: <20060712181711.7CD44827@localhost.localdomain>
+Date: Wed, 12 Jul 2006 11:17:09 -0700
+Message-Id: <20060712181709.5C1A4353@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tries to incorporate comments from Al:
+http://article.gmane.org/gmane.linux.kernel/421029
 
-The code around vfs_create() in open_namei() is getting a
-bit too complex.  Right now, there is at least the reference
-count on the dentry, and the i_mutex to worry about.  Soon,
-we'll also have mnt_writecount.
+Al wrote:
+>  b) figuring out what (if anything) should be done with
+>  propagation when we have shared subtrees... (not trivial at all)
 
-So, break the vfs_create() call out of open_namei(), and
-into a helper function.  This duplicates the call to
-may_open(), but that isn't such a bad thing since the
-arguments (acc_mode and flag) were being heavily massaged
-anyway.
+Talked with Ram:  Shared subtrees are about having identical views
+into the filesystem.  Changing the mount permissions doesn't affect
+the view of the filesystem, so it should not be propagated.  
 
-Later in the series, we'll add the mnt_writecount handling
-around this new function call.
+The things that probably need the heaviest review in here are the
+i_nlink monitoring patch (including the inode state flag patches 03
+and 06) and the new MNT_SB_WRITABLE flag (patch 05).  
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/namei.c |   30 ++++++++++++++++++++----------
- 1 files changed, 20 insertions(+), 10 deletions(-)
+The following series implements read-only bind mounts.  This feature
+allows a read-only view into a read-write filesystem.  In the process
+of doing that, it also provides infrastructure for keeping track of
+the number of writers to any given mount.  In this version, if there
+are writers on a superblock, the filesystem may not be remounted 
+r/o.  The same goes for MS_BIND mounts, and writers on a vfsmount.
 
-diff -puN fs/namei.c~B-prepwork-cleanup-open_namei fs/namei.c
---- lxc/fs/namei.c~B-prepwork-cleanup-open_namei	2006-07-12 11:09:17.000000000 -0700
-+++ lxc-dave/fs/namei.c	2006-07-12 11:09:18.000000000 -0700
-@@ -1580,6 +1580,24 @@ int may_open(struct nameidata *nd, int a
- 	return 0;
- }
- 
-+static int open_namei_create(struct nameidata *nd, struct path *path,
-+				int flag, int mode)
-+{
-+	int error;
-+	struct dentry *dir = nd->dentry;
-+
-+	if (!IS_POSIXACL(dir->d_inode))
-+		mode &= ~current->fs->umask;
-+	error = vfs_create(dir->d_inode, path->dentry, mode, nd);
-+	mutex_unlock(&dir->d_inode->i_mutex);
-+	dput(nd->dentry);
-+	nd->dentry = path->dentry;
-+	if (error)
-+		return error;
-+	/* Don't check for write permission, don't truncate */
-+	return may_open(nd, 0, flag & ~O_TRUNC);
-+}
-+
- /*
-  *	open_namei()
-  *
-@@ -1661,18 +1679,10 @@ do_last:
- 
- 	/* Negative dentry, just create the file */
- 	if (!path.dentry->d_inode) {
--		if (!IS_POSIXACL(dir->d_inode))
--			mode &= ~current->fs->umask;
--		error = vfs_create(dir->d_inode, path.dentry, mode, nd);
--		mutex_unlock(&dir->d_inode->i_mutex);
--		dput(nd->dentry);
--		nd->dentry = path.dentry;
-+		error = open_namei_create(nd, &path, flag, mode);
- 		if (error)
- 			goto exit;
--		/* Don't check for write permission, don't truncate */
--		acc_mode = 0;
--		flag &= ~O_TRUNC;
--		goto ok;
-+		return 0;
- 	}
- 
- 	/*
-_
+This has a number of uses.  It allows chroots to have parts of
+filesystems writable.  It will be useful for containers in the future
+and is intended to replace patches that vserver has had out of the
+tree for several years.  It allows security enhancement by making
+sure that parts of your filesystem read-only, when you don't want
+to have entire new filesystems mounted, or when you want atime
+selectively updated.
+
+This set makes no attempt to keep the return codes for these
+r/o bind mounts the same as for a real r/o filesystem or device.
+It would require significantly more code and be quite a bit more
+invasive.
+
+Using this feature requires two steps:
+
+	mount --bind /source /dest
+	mount -o remount,ro  /dest
+
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>

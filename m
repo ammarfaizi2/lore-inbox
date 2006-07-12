@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWGLRVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWGLRVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWGLRVE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:21:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGLRVE
+	id S932126AbWGLRVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWGLRVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:21:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:19402 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932138AbWGLRVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:21:01 -0400
+	Wed, 12 Jul 2006 13:21:14 -0400
+Received: from wx-out-0102.google.com ([66.249.82.198]:62850 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932126AbWGLRVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:21:12 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=ersR+9tF15JFLLAtCXL3l2CxC+3VrtUiBTZbI7Kd8qMjAerS0Ze0NoaDCilQSXWhF/dZG+MhEdlJAESY+ayISR7KABWRLzdd9XfRkipPQ6sKEEG2lHGwoFxVigYVMSWRscKPFDCAFArFrDB/fG6x5PQdQXgGW6vR9JxwXE9G1lQ=
-Message-ID: <44B52F84.1090003@gmail.com>
-Date: Wed, 12 Jul 2006 11:21:08 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=AC4Dd3+nNvmCk7vfbbHE3u7BF0TK4/1w7b/QV44/g737H/D2rMSW27UFkR6W0R/nFq4hE3U5bK185rbh3ZWdNTtN9lyAqhws2Q939Qk6FQlNE6rIGIfKJGeJ6M+4lU/ElvD5GOerQg65W3vSNr/sQlTNxiqcL8Mg8hKurVPniW8=
+Message-ID: <c770ab230607121021k550c3d2epf6acefa8fed491a1@mail.gmail.com>
+Date: Wed, 12 Jul 2006 13:21:11 -0400
+From: "Johnny Lever" <johnny.lever@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5] PCI-Express AER implemetation: AER core and aerdriver
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [ patch -mm1 02/03 ] gpio: cosmetics - remove needless newlines
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>With Arjan's comments, I changed EXPORT_SYMBOL to EXPORT_SYMBOL_GPL.
+Sorry for flooding your emailbox again. :)
 
-2 - pure cosmetics - lose needless newlines.
+I think we should have "moron-proof" review system on LKML. Simplest
+way to get started is to ignore the EXPORT_SYMBOL_GPL "missionaries"
+trying to 'convert' code without giving proper thought to its
+implications or without ascertaining the correctness of the
+conversion.
 
-3 - rename EXPORTed  gpio vtables  from {scx200,pc8736x}_access to  
-_gpio_ops
-new name is much closer to the vtable-name struct nsc_gpio_ops, should 
-be clearer.
-Also rename the _fops vtable var to _fileops to better disambiguate it 
-from the gpio vtable.
+Dimwits.
 
-Signed-off-by  Jim Cromie  <jim.cromie@gmail.com>
-
----
-
-$ diffstat diff.cosmetic-1
- nsc_gpio.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-
-diff -ruNp -X dontdiff -X exclude-diffs a0-nohilo/drivers/char/nsc_gpio.c a0-1-cosmetic/drivers/char/nsc_gpio.c
---- a0-nohilo/drivers/char/nsc_gpio.c	2006-07-12 09:18:19.000000000 -0600
-+++ a0-1-cosmetic/drivers/char/nsc_gpio.c	2006-07-12 10:27:46.000000000 -0600
-@@ -68,13 +68,11 @@ ssize_t nsc_gpio_write(struct file *file
- 			amp->gpio_config(m, ~1, 0);
- 			break;
- 		case 'T':
--			dev_dbg(dev, "GPIO%d output is push pull\n",
--			       m);
-+			dev_dbg(dev, "GPIO%d output is push pull\n", m);
- 			amp->gpio_config(m, ~2, 2);
- 			break;
- 		case 't':
--			dev_dbg(dev, "GPIO%d output is open drain\n",
--			       m);
-+			dev_dbg(dev, "GPIO%d output is open drain\n", m);
- 			amp->gpio_config(m, ~2, 0);
- 			break;
- 		case 'P':
-
-
+Johnny

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWGLFGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWGLFJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWGLFGr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 01:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWGLFGr
+	id S932430AbWGLFJs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 01:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWGLFJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 01:06:47 -0400
-Received: from xenotime.net ([66.160.160.81]:11672 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932406AbWGLFGr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 01:06:47 -0400
-Date: Tue, 11 Jul 2006 22:09:34 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mchehab@infradead.org
-Subject: Re: [PATCH -mm] bttv: must_check fixes
-Message-Id: <20060711220934.3e99565e.rdunlap@xenotime.net>
-In-Reply-To: <20060711220148.13257f96.akpm@osdl.org>
-References: <20060711204421.be13dec9.rdunlap@xenotime.net>
-	<20060711220148.13257f96.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 12 Jul 2006 01:09:48 -0400
+Received: from mga05.intel.com ([192.55.52.89]:44683 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932430AbWGLFJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 01:09:47 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="96691540:sNHT28801409"
+Subject: Re: [PATCH 1/6] PCI-Express AER implemetation
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Tom Long Nguyen <tom.l.nguyen@intel.com>
+In-Reply-To: <20060712041847.GA20793@kroah.com>
+References: <1152668200.28493.178.camel@ymzhang-perf.sh.intel.com>
+	 <20060712041847.GA20793@kroah.com>
+Content-Type: text/plain
+Message-Id: <1152680856.28493.204.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 12 Jul 2006 13:07:36 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 22:01:48 -0700 Andrew Morton wrote:
-
-> On Tue, 11 Jul 2006 20:44:21 -0700
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+On Wed, 2006-07-12 at 12:18, Greg KH wrote:
+> On Wed, Jul 12, 2006 at 09:36:40AM +0800, Zhang, Yanmin wrote:
+> > I changed a little about the patches, so resend and cc to Greg.
+> > 
+> > Greg,
+> > 
+> > Could you consider for your testing tree?
 > 
-> > Check all __must_check warnings in bttv.
-> 
-> Thanks.
-> 
-> The descriptions do rather miss the point: the objective is not to squish the
-> __must_check warnings - it is to detect and handler error conditions.
+> Two comments on this series:
+Thanks for your kind comments!
 
-Ack.  Will fix my fingers.
+>   - the pci_regs.h change I can take right now, that's in the standard
+>     so it can't hurt to add it now, right?  Is this ok?
+It's ok.
 
----
-~Randy
+> 
+>   - the patches break the build if you try to build things without the
+>     whole series applied.  That's not good for users running 'git
+>     bisect' on Linus's tree.  Can you redo the series so this doesn't
+>     happen?
+I will try to separate them more reasonably, but the new
+patch might be too big to be sent to LKML.

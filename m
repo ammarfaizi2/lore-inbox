@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWGLCvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWGLDGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWGLCvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 22:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWGLCvN
+	id S932355AbWGLDGv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 23:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWGLDGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 22:51:13 -0400
-Received: from xenotime.net ([66.160.160.81]:32456 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932356AbWGLCvN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 22:51:13 -0400
-Date: Tue, 11 Jul 2006 19:54:01 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Gustavo Guillermo =?ISO-8859-1?B?UOlyZXo=?= 
-	<gustavo@compunauta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with
- 2.6.11/12/13/14/15
-Message-Id: <20060711195401.1045c8dd.rdunlap@xenotime.net>
-In-Reply-To: <200607112104.03673.gustavo@compunauta.com>
-References: <200607111906.06343.gustavo@compunauta.com>
-	<200607112032.51788.gustavo@compunauta.com>
-	<200607112104.03673.gustavo@compunauta.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 11 Jul 2006 23:06:51 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33230 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932355AbWGLDGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 23:06:50 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: Dave Olson <olson@unixfolk.com>, <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
+Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
+References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
+	<m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
+	<p734pxnojyt.fsf@verdi.suse.de>
+Date: Tue, 11 Jul 2006 21:05:54 -0600
+In-Reply-To: <p734pxnojyt.fsf@verdi.suse.de> (Andi Kleen's message of "12 Jul
+	2006 00:27:54 +0200")
+Message-ID: <m1wtajed4d.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 21:04:02 -0500 Gustavo Guillermo Pérez wrote:
+Andi Kleen <ak@suse.de> writes:
 
-> booting kernel 2.6.15 with all drivers compiled, and loading Intelfb agp-intel 
-> the oops appears, I'm using an extra NVidia card.
-> 
-> Deleting the intel810 and friends the oops disappear.
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+>
+>> This patch implements two functions ht_create_irq and ht_destroy_irq
+>> for use by drivers.  Several other functions are implemented as helpers
+>> for arch specific irq_chip handlers.
+>
+> What do you want to use it for? Normally all HT configuration should be handled
+> by the BIOS and not messed with by the kernel.
 
-Can you capture any oops messages?  (without using any
-proprietary drivers)
+I don't believe this is a typical HT configuration as you are thinking of it.
 
+There is a hypertransport capability that implements a rough equivalent
+of a per device ioapic.  It is quite similar to MSI but with a different
+register level interface.
 
-> El Martes, 11 de Julio de 2006 20:32, Gustavo Guillermo Pérez escribió:
-> > Reviewing my experiments I was discover that the problem start at 2.6.16,
-> > cause going forward from 2.6.11 to 2.6.15 there is no problem in smp or
-> > single mode.
-> >
-> > El Martes, 11 de Julio de 2006 19:06, Gustavo Guillermo Pérez escribió:
-> > > Hello list, I was trying to use a newer kernel on a gentoo installation,
-> > > and I've downloaded a lastest kernel 2.6.17/16 getting a hardlock on boot
-> > > time, with or without smp mode, controlled by BIOS or by smp kernel
-> > > option I got 1 penguin or 2 penguins as processors get detected, it just
-> > > hang after frame buffer or agp detection, but using vga=0 to not see any
-> > > frame buffer I got a so faster oops and kernel panic and machine reboots,
-> > > then I can't see anything on the screen, just with frame buffer enabled,
-> > > but with frame buffer enabled does not work SySREQ, is just a hang.
-> > >
-> > > Attached .config file used, cat /proc/cpuinfo with 2.6.11 that was the
-> > > kernel that can be built for, and lspci, and verbose lspci.
-> > >
-> > > The config file is the same used for the tests, with or without frame
-> > > buffer enabled is the same.
-> > >
-> > > BIOS VERSION NT94510J.15A.0065.2005.1103.1803
-> > >
-> > > I'll going to upgrade the bios.
-> > >
-> > > Processor type: Intel (R) Pentium(R) D CPU 2.80GHz
-> > > Intel (R) EM64T Capable.
-> > >
-> > > Using 512MB of DDR2 Dual Channel,
-> > > ASL0 256MB
-> > > ASL1 Not Installed
-> > > BSL0 256MB
-> > > BSL1 Not Installed
-> 
-> -- 
-> Gustavo Guillermo Pérez
-> Compunauta uLinux
-> www.compunauta.com
+Since native hypertransport devices do not implement a pin emulation mode
+as native pci express devices do so if you want an interrupt you must support
+the native hypertransport method.
 
----
-~Randy
+The pathscale ipath-ht400 driver already in the kernel tree uses these
+and uses so an ugly hack to make work that broke in the last round of
+the msi cleanups.  I also know of a driver under development for a
+device that uses these as well.
+
+So I want to use this so I can get irqs from native hypertransport
+devices.
+
+Eric

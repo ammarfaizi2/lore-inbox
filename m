@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWGLVdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWGLVdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbWGLVdX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWGLVdW
+	id S1751439AbWGLVdw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWGLVdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:33:22 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:1631 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S1751426AbWGLVdW (ORCPT
+	Wed, 12 Jul 2006 17:33:52 -0400
+Received: from xenotime.net ([66.160.160.81]:32450 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751439AbWGLVdv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:33:22 -0400
-Message-ID: <44B56A99.2060402@tls.msk.ru>
-Date: Thu, 13 Jul 2006 01:33:13 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Jakub Jelinek <jakub@redhat.com>,
-       Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>	<44B54EA4.5060506@redhat.com>	<20060712195349.GW3823@sunsite.mff.cuni.cz>	<44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 12 Jul 2006 17:33:51 -0400
+Date: Wed, 12 Jul 2006 14:36:38 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Martin Bligh <mbligh@google.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: e1000 problems in 2.6.18-rc1-mm1
+Message-Id: <20060712143638.3a1ea590.rdunlap@xenotime.net>
+In-Reply-To: <44B52D3E.90206@google.com>
+References: <44B52D3E.90206@google.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-[]
-> Glibc just wants to know if our kernel is SMP so it can know if it is
-> ok to busy wait for a bit waiting for a mutex.  Or if busy waiting is
-> a complete loss.
+On Wed, 12 Jul 2006 10:11:26 -0700 Martin Bligh wrote:
 
-BTW, with smp-alternatives thing merged, "SMP or not" may not be that
-simple question anymore.
+> PPC64 lpar (power4)
+> Works fine in -git4
+> (http://test.kernel.org/abat/40893/debug/console.log)
+> Finds the e1000
+> 
+> Intel(R) PRO/1000 Network Driver - version 7.1.9-k2
+> Copyright (c) 1999-2006 Intel Corporation.
+> e1000: 0002:21:01.0: e1000_probe: (PCI-X:133MHz:64-bit) 00:02:55:d3:37:4a
+> e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+> 
+> ....
+> 
+> Setting up network interfaces:
+>      lo
+>      lo        IP address: 127.0.0.1/8
+> 7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0      device: Intel Corp. 
+> 82545EM Gigabit Ethernet Controller (Copper) (rev 01)
+>      eth0      configuration: eth-id-00:02:55:d3:37:4a
+> e1000: eth0: e1000_watchdog: NIC Link is Up 100 Mbps Full Duplex
+>      eth0      IP address: 9.47.92.101/24
+> 7[?25l[1A[80C[10D[1;32mdone[m8[?25h    tunl0
+>      tunl0     No configuration found for tunl0
+> 7[?25l[1A[80C[10D[1munused[m8[?25hSetting up service network  .  .  .  . 
+>   .  .  .  .  .  .  .  .  .  .  .  .7[?25l[80C[10D[1;32mdone[m8[?25h
+> 
+> 
+> -----------------------------------------------
+> 
+> In -mm1 it seems to not find the e1000:
+> (http://test.kernel.org/abat/40934/debug/console.log)
+> 
+> Intel(R) PRO/1000 Network Driver - version 7.1.9-k2
+> Copyright (c) 1999-2006 Intel Corporation.
+> e1000: 0002:21:01.0: e1000_probe: (PCI-X:133MHz:64-bit) 00:02:55:d3:37:4a
+> e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+> 
+> ...
+> 
+> Setting up network interfaces:
+>      lo
+>      lo        IP address: 127.0.0.1/8
+> 7[?25l[1A[80C[10D[1;32mdone[m8[?25h    eth0
+>      eth0      No configuration found for eth0
+> 7[?25l[1A[80C[10D[1munused[m8[?25h    tunl0
+>      tunl0     No configuration found for tunl0
+> 7[?25l[1A[80C[10D[1munused[m8[?25hWaiting for mandatory devices: 
+> eth-id-00:02:55:d3:37:4a
+> 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+>      eth-id-00:02:55:d3:37:4a            No interface found
+> 7[?25l[1A[80C[10D[1;31mfailed[m8[?25hSetting up service network  .  .  . 
+>   .  .  .  .  .  .  .  .  .  .  .  .  .7[?25l[80C[10D[1;31mfailed[m8[?25h
+> -
 
-I for one stopped compiling UP and SMP kernels for x86 since 2.6.17,
-because SMP kernel works just fine on UP, including benchmarks (as
-opposed to SMP kernel w/o smp-alternatives).  But I don't remember
-if uname shows SMP in this case or not (don't have any running UP
-machine with that kernel right now).
+lkml thread:
+Subject: Re: 2.6.18-rc1-mm1:  /sys/class/net/ethN becoming symlink befuddled /sbin/ifup
 
-But the thing is: smp-alternatives + cpu-hotplug changes things at
-runtime...
+akpm's answer:
+I'd be suspecting
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
 
-/mjt
+already confirmed:
+Yeah, that and gregkh-driver-class_device_rename-remove.patch brought it
+back to reality.
+
+---
+~Randy

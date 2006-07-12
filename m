@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWGLJJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWGLJJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbWGLJJt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 05:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWGLJJt
+	id S1751001AbWGLJJs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 05:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWGLJJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 05:09:49 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6048 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751002AbWGLJJr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 12 Jul 2006 05:09:47 -0400
-Date: Wed, 12 Jul 2006 11:09:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Fredrik Roubert <roubert@df.lth.se>
-cc: Andrew Morton <akpm@osdl.org>, pavel@ucw.cz, stern@rowland.harvard.edu,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-In-Reply-To: <20060712072628.GB5869@igloo.df.lth.se>
-Message-ID: <Pine.LNX.4.64.0607121108050.12900@scrub.home>
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
- <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home>
- <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home>
- <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home>
- <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home>
- <20060712072628.GB5869@igloo.df.lth.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:21120 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751001AbWGLJJq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 05:09:46 -0400
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] [ACPI] Fix section for CPU init functions
+Date: Wed, 12 Jul 2006 11:09:51 +0200
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: linux-acpi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20060712090951.13209.74561.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The ACPI processor init functions should be marked as __cpuinit as they
+use structures marked with __cpuinitdata.
 
-On Wed, 12 Jul 2006, Fredrik Roubert wrote:
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-> The work-around suggested in the documentation ([Y]ou might have better
-> luck with "press Alt", "press SysRq", "release Alt", "press <command
-> key>", release everything.) does not work with keyboards that sends the
-> make and break codes for SysRq immediately after another, and this was
-> the reason for changing the behaviour (for broken keyboards) in
-> 2.6.18-rc1. The new behaviour works with every keyboard the people
-> involved in this discussion has heard of.
+ drivers/acpi/processor_core.c |    2 +-
+ drivers/acpi/processor_idle.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Could you please try to get both methods working?
+diff --git a/drivers/acpi/processor_core.c b/drivers/acpi/processor_core.c
+index b13d644..1908e0d 100644
+--- a/drivers/acpi/processor_core.c
++++ b/drivers/acpi/processor_core.c
+@@ -519,7 +519,7 @@ #endif
+ 
+ static void *processor_device_array[NR_CPUS];
+ 
+-static int acpi_processor_start(struct acpi_device *device)
++static int __cpuinit acpi_processor_start(struct acpi_device *device)
+ {
+ 	int result = 0;
+ 	acpi_status status = AE_OK;
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 7106606..1ecd3a7 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -1077,7 +1077,7 @@ static const struct file_operations acpi
+ 	.release = single_release,
+ };
+ 
+-int acpi_processor_power_init(struct acpi_processor *pr,
++int __cpuinit acpi_processor_power_init(struct acpi_processor *pr,
+ 			      struct acpi_device *device)
+ {
+ 	acpi_status status = 0;
 
-bye, Roman

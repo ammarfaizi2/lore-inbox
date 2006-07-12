@@ -1,34 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWGLQKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWGLQL7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWGLQKc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 12:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWGLQKc
+	id S1751449AbWGLQL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 12:11:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWGLQL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 12:10:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:55680 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751444AbWGLQKc (ORCPT
+	Wed, 12 Jul 2006 12:11:59 -0400
+Received: from outbound-haw.frontbridge.com ([12.129.219.97]:65424 "EHLO
+	outbound2-haw-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751449AbWGLQL6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 12:10:32 -0400
-Date: Wed, 12 Jul 2006 09:10:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] statistics infrastructure - update 10
-Message-Id: <20060712091024.c5bd19c7.akpm@osdl.org>
-In-Reply-To: <1152707259.3028.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-References: <1152707259.3028.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 12 Jul 2006 12:11:58 -0400
+X-BigFish: V
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Date: Wed, 12 Jul 2006 11:11:38 -0500
+Message-ID: <B3870AD84389624BAF87A3C7B831499302935A76@SAUSEXMB2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Thread-Index: AcalvIl3WTDtGRvXQ8WZBSrvZbm9OwAD7mPQ
+From: "shin, jacob" <jacob.shin@amd.com>
+To: "Deguara, Joachim" <joachim.deguara@amd.com>, "Andi Kleen" <ak@suse.de>
+cc: "Langsdorf, Mark" <mark.langsdorf@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+X-OriginalArrivalTime: 12 Jul 2006 16:11:39.0134 (UTC)
+ FILETIME=[DB3721E0:01C6A5CD]
+X-WSS-ID: 68ABC0B127K16479553-01-01
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2006 14:27:39 +0200
-Martin Peschke <mp3@de.ibm.com> wrote:
+On Wednesday, July 12, 2006 9:06 AM Joachim Deguara wrote:
 
-> +#define statistic_ptr(stat, cpu) \
-> +	((struct percpu_data*)((stat)->data))->ptrs[(cpu)]
+> Here are the further findings after letting the machine toggle between
+> 1GHz and 2.2Ghz every two seconds for roughly 24 hours.  Unfortunately
+> there is an oops after bringing CPU2 online and CPU3 will not come
+> online.  Still the differences in TSC are not bad:
 
-This would be the only part of the kernel which uses percpu_data directly -
-everything else uses the APIs (ie: per_cpu_ptr()).  How come?
+Can I get more information on how to reproduce the Oops? Kernel version?
+.config? your hardware?
+
+I have run basic set of CPU Hotplug on/offline tests, and I could not
+reproduce it..
+
+-Jacob Shin
+AMD, Inc.
+
+

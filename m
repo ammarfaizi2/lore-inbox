@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWGLOm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWGLOq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWGLOm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 10:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWGLOm1
+	id S1751381AbWGLOq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 10:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWGLOq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 10:42:27 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:38454 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751250AbWGLOm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 10:42:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=f44TlF8WJk6mRnjviE5/fCA2wJ987axxNBs8Rf2Svbegp5GQa83bjLDUHmXCR0UmmCOwelMkD1QBXXm7jCNFa5nu2tQWL+tuHcdwCT6AIo4PT0uBrY7D5pqXuFr0JEcwONI1vXlLg2nUUjzipzQJ4qlz/znEFit3u/kmc25Uxlk=
-Date: Wed, 12 Jul 2006 18:28:21 +0400
-From: Paul Drynoff <pauldrynoff@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.6.18-rc1-mm1: as usual can not boot
-Message-Id: <20060712182821.96ca8830.pauldrynoff@gmail.com>
-In-Reply-To: <1152708385.3217.34.camel@laptopd505.fenrus.org>
-References: <20060712095933.57d2a595.pauldrynoff@gmail.com>
-	<20060712001232.a31285e3.akpm@osdl.org>
-	<20060712113718.8e5e3af7.pauldrynoff@gmail.com>
-	<1152690358.3217.20.camel@laptopd505.fenrus.org>
-	<20060712121704.def30154.pauldrynoff@gmail.com>
-	<1152708385.3217.34.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 12 Jul 2006 10:46:56 -0400
+Received: from 68-191-203-42.static.stls.mo.charter.com ([68.191.203.42]:36421
+	"EHLO service.eng.exegy.net") by vger.kernel.org with ESMTP
+	id S1751381AbWGLOqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 10:46:55 -0400
+Message-ID: <44B50B5C.2090802@exegy.com>
+Date: Wed, 12 Jul 2006 09:46:52 -0500
+From: Dave Lloyd <dlloyd@exegy.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Berkley Shands <bshands@exegy.com>
+Subject: MegaRaid 8408E goes out to lunch with nr_requests > 8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jul 2006 14:46:52.0444 (UTC) FILETIME=[034FD5C0:01C6A5C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2006 14:46:24 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+This happens both on 2.6.17 and 2.6.18rc1 using the megaraid, mptsas and
+mptscsih drivers supplied with the kernel.
 
-> On Wed, 2006-07-12 at 12:17 +0400, Paul Drynoff wrote:
-> > On Wed, 12 Jul 2006 09:45:58 +0200
-> > Arjan van de Ven <arjan@infradead.org> wrote:
-> > 
-> > > On Wed, 2006-07-12 at 11:37 +0400, Paul Drynoff wrote:
-> > > > On Wed, 12 Jul 2006 00:12:32 -0700
-> > > > Andrew Morton <akpm@osdl.org> wrote:
-> > > > 
-> > > > > On Wed, 12 Jul 2006 09:59:33 +0400
-> > > > > Paul Drynoff <pauldrynoff@gmail.com> wrote:
-> > > > > 
-> > > 
-> > > Hi, I havent followed your saga much, but in the past I've seen cases
-> > > where such kind of thing went away when AGP was set to be built into the
-> > > kernel, rather than as a module or not even built at all.
-> > > 
-> > > I don't know what your AGP setting is but if it's not built in it's
-> > > worth a shot to set it to be built in.
-> > > 
-> > 
-> > thanks for reply,
-> > 
-> > At now I build all in kernel (without modules) for debuging purposes,
-> > I have 
-> > $ grep -i AGP .config
-> > CONFIG_AGP=y
-> > # CONFIG_AGP_ALI is not set
-> > # CONFIG_AGP_ATI is not set
-> > # CONFIG_AGP_AMD is not set
-> > # CONFIG_AGP_AMD64 is not set
-> > # CONFIG_AGP_INTEL is not set
-> > # CONFIG_AGP_NVIDIA is not set
-> > # CONFIG_AGP_SIS is not set
-> > # CONFIG_AGP_SWORKS is not set
-> > # CONFIG_AGP_VIA is not set
-> > # CONFIG_AGP_EFFICEON is not set
-> 
-> please also turn on the AGP driver for the chipset you have ;)
-> 
-> 
+While writing data to raid0 devs on a LSI MegaRaid 8408E controller, the
+devices will hang after somewhere between 4-7gb of data written.  If I
+dial the nr_requests back from the default down to 8, the hang will not
+occur.  The hang does occur at 16.  I haven't tested values between the
+two, but I'm not too optimistic.  From what I can see, it looks like 8
+should be a magic number to make the queue look congested more often
+than not.
 
-Actually when I boot on real machine all of them were turn on,
+Here are the messages I get when the devices go out to lunch:
+Jul 11 14:13:34 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
+Jul 11 14:13:34 systemname kernel: megasas: [ 0]waiting for 256 commands
+to complete
+Jul 11 14:13:39 systemname kernel: megasas: [ 5]waiting for 256 commands
+to complete
+Jul 11 14:13:44 systemname kernel: megasas: [10]waiting for 256 commands
+to complete
+Jul 11 14:13:49 systemname kernel: megasas: [15]waiting for 256 commands
+to complete
 
-I don't see any sense turn on it when I use `qemu',
-with such config I can boot succesefully on qemu with 2.6.18-rc1,
-but can not with 2.6.18-rc1-mm1. 
+[...]
+
+Jul 11 14:16:35 systemname kernel: megasas: [175]waiting for 256
+commands to complete
+Jul 11 14:16:35 systemname kernel: megasas: failed to do reset
+Jul 11 14:16:35 systemname kernel: sd 4:2:1:0: megasas: RESET -40216 cmd=2a
+Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
+reset failures
+Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
+Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
+reset failures
+Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
+Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
+reset failures
+Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: scsi: Device offlined -
+not ready after error recovery
+Jul 11 14:16:36 systemname last message repeated 13 times
+
+Interestingly, the machine will hang on shutdown and requires a hard
+reset to reboot.  Bummer!
+
+My next step is to try and reproduce and dig into this some in KDB.
+
+Has anyone else seen this and/or does anyone have some suggestions for
+further debugging info?
+
+-- 
+Dave Lloyd
+Test Engineer, Exegy, Inc.
+314.450.5342
+dlloyd@exegy.com
+
+
+-- 
+Dave Lloyd
+Test Engineer, Exegy, Inc.
+314.450.5342
+dlloyd@exegy.com

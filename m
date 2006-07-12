@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWGLTBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWGLTGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWGLTBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 15:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWGLTBQ
+	id S1750794AbWGLTGl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 15:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWGLTGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 15:01:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:55694 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750765AbWGLTBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 15:01:15 -0400
-Subject: Re: tool for measuring interactive responsiveness of the system
-	under load ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Yakov Lerner <iler.ml@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, mingo@redhat.com
-In-Reply-To: <f36b08ee0607121136m1cb31a9ehf735ef67aac3fc1a@mail.gmail.com>
-References: <f36b08ee0607121136m1cb31a9ehf735ef67aac3fc1a@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 21:01:12 +0200
-Message-Id: <1152730873.3217.65.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 12 Jul 2006 15:06:41 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:58811 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1750794AbWGLTGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 15:06:40 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Zach Brown <zach.brown@oracle.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [openib-general] ipoib lockdep warning
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
+	<20060712093820.GA9218@elte.hu>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 12 Jul 2006 12:06:37 -0700
+Message-ID: <adamzbewsle.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 12 Jul 2006 19:06:39.0512 (UTC) FILETIME=[4DEDA980:01C6A5E6]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-12 at 21:36 +0300, Yakov Lerner wrote:
-> I'd like to run a benchmark, a tool that measures responsiveness of
-> [simulated]  interactive  program on a loaded system.
-> My question is, which program (benchmark) exists for measuring
-> the responsiveness [of the kernel under certain load]  to interactive
-> usage ?
-> 
-> Yakov
+ > i agree that the IDR subsystem should be irq-safe if GFP_ATOMIC is 
+ > passed in. So the _irqsave()/_irqrestore() fix should be done.
 
-look at this cool tool:
-http://members.optusnet.com.au/ckolivas/interbench/
+OK, I will send the idr change to Andrew.
 
-it's really great!
+ > But i also think that you should avoid using GFP_ATOMIC for any sort of 
+ > reliable IO path and push as much work into process context as possible. 
+ > Is it acceptable for your infiniband IO model to fail with -ENOMEM if 
+ > GFP_ATOMIC happens to fail, and is the IO retried transparently?
 
+Yes, I think it's OK.  This idr use is in an inherently unreliable
+path.  With that said, as Michael pointed out, we can change things to
+use GFP_ATOMIC less.
 
+Thanks,
+  Roland

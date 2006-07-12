@@ -1,117 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWGLUpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWGLUqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWGLUpT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 16:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWGLUpS
+	id S1751229AbWGLUqe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 16:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGLUqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 16:45:18 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:15894 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1751046AbWGLUpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 16:45:17 -0400
-To: akpm@osdl.org
-Cc: "Arjan van de Ven" <arjan@infradead.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Zach Brown" <zach.brown@oracle.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
-	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
-	<20060712093820.GA9218@elte.hu>
-Subject: [PATCH] Convert idr's internal locking to _irqsave variant
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 12 Jul 2006 13:45:12 -0700
-Message-ID: <adaveq2v9gn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Wed, 12 Jul 2006 16:46:34 -0400
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:17284 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751072AbWGLUqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 16:46:33 -0400
+Date: Wed, 12 Jul 2006 16:41:15 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: system.h: remove extra semicolons and fix order
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200607121643_MC3-1-C4D3-2367@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Jul 2006 20:45:14.0154 (UTC) FILETIME=[135468A0:01C6A5F4]
-Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, the code in lib/idr.c uses a bare spin_lock(&idp->lock) to
-do internal locking.  This is a nasty trap for code that might call
-idr functions from different contexts; for example, it seems perfectly
-reasonable to call idr_get_new() from process context and idr_remove()
-from interrupt context -- but with the current locking this would lead
-to a potential deadlock.
+include/asm-i386/system.h has trailing semicolons in some of the
+macros that cause legitimate code to fail compilation, so remove
+them. Also remove extra blank lines within one group of macros.
 
-The simplest fix for this is to just convert the idr locking to use
-spin_lock_irqsave().
+And put stts() and clts() back together; they got separated somehow.
 
-In particular, this fixes a very complicated locking issue detected by
-lockdep, involving the ib_ipoib driver's priv->lock and dev->_xmit_lock,
-which get involved with the ib_sa module's query_idr.lock.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Cc: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Zach Brown <zach.brown@oracle.com>,
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
-
----
-
-diff --git a/lib/idr.c b/lib/idr.c
-index 4d09681..16d2143 100644
---- a/lib/idr.c
-+++ b/lib/idr.c
-@@ -38,14 +38,15 @@ static kmem_cache_t *idr_layer_cache;
- static struct idr_layer *alloc_layer(struct idr *idp)
- {
- 	struct idr_layer *p;
-+	unsigned long flags;
+--- 2.6.18-rc1-nb.orig/include/asm-i386/system.h
++++ 2.6.18-rc1-nb/include/asm-i386/system.h
+@@ -82,10 +82,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ #define savesegment(seg, value) \
+ 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
  
--	spin_lock(&idp->lock);
-+	spin_lock_irqsave(&idp->lock, flags);
- 	if ((p = idp->id_free)) {
- 		idp->id_free = p->ary[0];
- 		idp->id_free_cnt--;
- 		p->ary[0] = NULL;
- 	}
--	spin_unlock(&idp->lock);
-+	spin_unlock_irqrestore(&idp->lock, flags);
- 	return(p);
- }
+-/*
+- * Clear and set 'TS' bit respectively
+- */
+-#define clts() __asm__ __volatile__ ("clts")
+ #define read_cr0() ({ \
+ 	unsigned int __dummy; \
+ 	__asm__ __volatile__( \
+@@ -94,7 +90,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ 	__dummy; \
+ })
+ #define write_cr0(x) \
+-	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
  
-@@ -59,12 +60,14 @@ static void __free_layer(struct idr *idp
+ #define read_cr2() ({ \
+ 	unsigned int __dummy; \
+@@ -104,7 +100,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ 	__dummy; \
+ })
+ #define write_cr2(x) \
+-	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
  
- static void free_layer(struct idr *idp, struct idr_layer *p)
- {
-+	unsigned long flags;
+ #define read_cr3() ({ \
+ 	unsigned int __dummy; \
+@@ -114,7 +110,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ 	__dummy; \
+ })
+ #define write_cr3(x) \
+-	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
+ 
+ #define read_cr4() ({ \
+ 	unsigned int __dummy; \
+@@ -123,7 +119,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ 		:"=r" (__dummy)); \
+ 	__dummy; \
+ })
+-
+ #define read_cr4_safe() ({			      \
+ 	unsigned int __dummy;			      \
+ 	/* This could fault if %cr4 does not exist */ \
+@@ -135,15 +130,19 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ 		: "=r" (__dummy): "0" (0));	      \
+ 	__dummy;				      \
+ })
+-
+ #define write_cr4(x) \
+-	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
++	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
 +
- 	/*
- 	 * Depends on the return element being zeroed.
- 	 */
--	spin_lock(&idp->lock);
-+	spin_lock_irqsave(&idp->lock, flags);
- 	__free_layer(idp, p);
--	spin_unlock(&idp->lock);
-+	spin_unlock_irqrestore(&idp->lock, flags);
- }
++/*
++ * Clear and set 'TS' bit respectively
++ */
++#define clts() __asm__ __volatile__ ("clts")
+ #define stts() write_cr0(8 | read_cr0())
  
- /**
-@@ -168,6 +171,7 @@ static int idr_get_new_above_int(struct 
+ #endif	/* __KERNEL__ */
+ 
+ #define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory");
++	__asm__ __volatile__ ("wbinvd": : :"memory")
+ 
+ static inline unsigned long get_limit(unsigned long segment)
  {
- 	struct idr_layer *p, *new;
- 	int layers, v, id;
-+	unsigned long flags;
- 
- 	id = starting_id;
- build_up:
-@@ -191,14 +195,14 @@ build_up:
- 			 * The allocation failed.  If we built part of
- 			 * the structure tear it down.
- 			 */
--			spin_lock(&idp->lock);
-+			spin_lock_irqsave(&idp->lock, flags);
- 			for (new = p; p && p != idp->top; new = p) {
- 				p = p->ary[0];
- 				new->ary[0] = NULL;
- 				new->bitmap = new->count = 0;
- 				__free_layer(idp, new);
- 			}
--			spin_unlock(&idp->lock);
-+			spin_unlock_irqrestore(&idp->lock, flags);
- 			return -1;
- 		}
- 		new->ary[0] = p;
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

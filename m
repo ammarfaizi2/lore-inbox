@@ -1,84 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWGLOq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWGLOr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751381AbWGLOq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 10:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWGLOq4
+	id S1751383AbWGLOr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 10:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWGLOr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 10:46:56 -0400
-Received: from 68-191-203-42.static.stls.mo.charter.com ([68.191.203.42]:36421
-	"EHLO service.eng.exegy.net") by vger.kernel.org with ESMTP
-	id S1751381AbWGLOqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 10:46:55 -0400
-Message-ID: <44B50B5C.2090802@exegy.com>
-Date: Wed, 12 Jul 2006 09:46:52 -0500
-From: Dave Lloyd <dlloyd@exegy.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Wed, 12 Jul 2006 10:47:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42933 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751383AbWGLOr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 10:47:56 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
+References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
+	<p73ac7fok13.fsf@verdi.suse.de>
+	<m1sll7ecr4.fsf@ebiederm.dsl.xmission.com>
+	<200607121532.05227.ak@suse.de>
+Date: Wed, 12 Jul 2006 08:47:17 -0600
+In-Reply-To: <200607121532.05227.ak@suse.de> (Andi Kleen's message of "Wed, 12
+	Jul 2006 15:32:05 +0200")
+Message-ID: <m1ac7edgne.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Berkley Shands <bshands@exegy.com>
-Subject: MegaRaid 8408E goes out to lunch with nr_requests > 8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Jul 2006 14:46:52.0444 (UTC) FILETIME=[034FD5C0:01C6A5C2]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This happens both on 2.6.17 and 2.6.18rc1 using the megaraid, mptsas and
-mptscsih drivers supplied with the kernel.
+Andi Kleen <ak@suse.de> writes:
 
-While writing data to raid0 devs on a LSI MegaRaid 8408E controller, the
-devices will hang after somewhere between 4-7gb of data written.  If I
-dial the nr_requests back from the default down to 8, the hang will not
-occur.  The hang does occur at 16.  I haven't tested values between the
-two, but I'm not too optimistic.  From what I can see, it looks like 8
-should be a magic number to make the queue look congested more often
-than not.
+> On Wednesday 12 July 2006 05:13, Eric W. Biederman wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>> > ebiederm@xmission.com (Eric W. Biederman) writes:
+>> >> Since sys_sysctl is deprecated start allow it to be compiled out.
+>> >> This should catch any remaining user space code that cares,
+>> >
+>> > I tried this long ago, but found that glibc uses sysctl in each
+>> > program to get the kernel version. It probably handles ENOSYS,
+>> > but there might be slowdowns or subtle problems from it not knowing
+>> > the kernel version.
+>> >
+>> > So I think it's ok to remove the big sysctl, but at a very minimal
+>> > replacement that just handles (CTL_KERN, KERN_VERSION) is needed.
+>>
+>> If glibc is looking at kernel.osrelease it might make sense.
+>> If glibc is looking at kernel.version which is just the build number
+>> and date I can't imagine a correct usage.
+>
+> It's KERN_VERSION 
+>
+>>From my /bin/ls:
+>
+> _sysctl({{CTL_KERN, KERN_VERSION}, 2, 0xbfc8e1e0, 30, (nil), 0}) = 0
 
-Here are the messages I get when the devices go out to lunch:
-Jul 11 14:13:34 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
-Jul 11 14:13:34 systemname kernel: megasas: [ 0]waiting for 256 commands
-to complete
-Jul 11 14:13:39 systemname kernel: megasas: [ 5]waiting for 256 commands
-to complete
-Jul 11 14:13:44 systemname kernel: megasas: [10]waiting for 256 commands
-to complete
-Jul 11 14:13:49 systemname kernel: megasas: [15]waiting for 256 commands
-to complete
+Yep. I found it.
 
-[...]
+In glibc (2.3.6, 2.4, and CVS) nptl/sysdeps/unix/sysv/linux/smp.h
+>
+> /* Test whether the machine has more than one processor.  This is not the
+>    best test but good enough.  More complicated tests would require `malloc'
+>    which is not available at that time.  */
+> static inline int
+> is_smp_system (void)
+> {
+>   static const int sysctl_args[] = { CTL_KERN, KERN_VERSION };
+>   char buf[512];
+>   size_t reslen = sizeof (buf);
+> 
+>   /* Try reading the number using `sysctl' first.  */
+>   if (__sysctl ((int *) sysctl_args,
+> 		sizeof (sysctl_args) / sizeof (sysctl_args[0]),
+> 		buf, &reslen, NULL, 0) < 0)
+>     {
+>       /* This was not successful.  Now try reading the /proc filesystem.  */
+>       int fd = open_not_cancel_2 ("/proc/sys/kernel/version", O_RDONLY);
+>       if (__builtin_expect (fd, 0) == -1
+> 	  || (reslen = read_not_cancel (fd, buf, sizeof (buf))) <= 0)
+> 	/* This also didn't work.  We give up and say it's a UP machine.  */
+> 	buf[0] = '\0';
+> 
+>       close_not_cancel_no_status (fd);
+>     }
+> 
+>   return strstr (buf, "SMP") != NULL;
+> }
 
-Jul 11 14:16:35 systemname kernel: megasas: [175]waiting for 256
-commands to complete
-Jul 11 14:16:35 systemname kernel: megasas: failed to do reset
-Jul 11 14:16:35 systemname kernel: sd 4:2:1:0: megasas: RESET -40216 cmd=2a
-Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
-reset failures
-Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
-Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
-reset failures
-Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: megasas: RESET -40213 cmd=2a
-Jul 11 14:16:35 systemname kernel: megasas: cannot recover from previous
-reset failures
-Jul 11 14:16:35 systemname kernel: sd 4:2:0:0: scsi: Device offlined -
-not ready after error recovery
-Jul 11 14:16:36 systemname last message repeated 13 times
+So it will correctly handle that sysctl being compiled out, and
+the fallback to using /proc.  The code seems to have been
+doing that since it was added to glibc in 2000.
 
-Interestingly, the machine will hang on shutdown and requires a hard
-reset to reboot.  Bummer!
+It only uses it to see if it should busy wait when taking a mutex.
 
-My next step is to try and reproduce and dig into this some in KDB.
+If the kernel has SMP support is lousy predictor if it makes sense
+for glibc to busy wait.  Darn optimizations for the contended case.
 
-Has anyone else seen this and/or does anyone have some suggestions for
-further debugging info?
+>> If this usage is still common in glibc we can decide what to do
+>> when the warnings pop up.
+>
+> printk for everything would annoy basically everybody. Not a good idea.
 
--- 
-Dave Lloyd
-Test Engineer, Exegy, Inc.
-314.450.5342
-dlloyd@exegy.com
+Well everything isn't using pthreads.  Why ls uses pthreads
+is beyond me.
 
+Anyway it looks like it's time to send of a patch.
 
--- 
-Dave Lloyd
-Test Engineer, Exegy, Inc.
-314.450.5342
-dlloyd@exegy.com
+Eric
+

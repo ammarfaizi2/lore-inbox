@@ -1,75 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWGLVlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWGLVnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWGLVlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWGLVls
+	id S1751406AbWGLVnT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWGLVnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:41:48 -0400
-Received: from ns.suse.de ([195.135.220.2]:10112 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751435AbWGLVls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:41:48 -0400
-Date: Wed, 12 Jul 2006 14:37:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: resource_size_t and printk()
-Message-ID: <20060712213723.GB9049@kroah.com>
-References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com> <44AB3DF7.8080107@drzeus.cx> <20060711231537.GC18973@kroah.com> <44B4B041.9050808@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 17:43:19 -0400
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:8174 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751433AbWGLVnT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:43:19 -0400
+Date: Wed, 12 Jul 2006 17:37:08 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] let CONFIG_SECCOMP default to n
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Adrian Bunk <bunk@stusta.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, andrea <andrea@cpushare.com>
+Message-ID: <200607121739_MC3-1-C4D3-28B9@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44B4B041.9050808@drzeus.cx>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 10:18:09AM +0200, Pierre Ossman wrote:
-> Greg KH wrote:
-> > Good catch, care to create a patch to fix these?
-> >   
-> 
-> Included.
+In-Reply-To: <p73wtain80h.fsf@verdi.suse.de>
 
-> [PNP] Add missing casts in printk() arguments
-> 
-> Some resource_size_t values are fed to printk() without handling the fact
-> that they can have different size depending on your .config.
-> 
-> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-> ---
-> 
->  drivers/pnp/interface.c |   12 ++++++------
->  1 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
-> index 3163e3d..0c14f4f 100644
-> --- a/drivers/pnp/interface.c
-> +++ b/drivers/pnp/interface.c
-> @@ -265,8 +265,8 @@ static ssize_t pnp_show_current_resource
->  				pnp_printf(buffer," disabled\n");
->  			else
->  				pnp_printf(buffer," 0x%llx-0x%llx\n",
-> -						pnp_port_start(dev, i),
-> -						pnp_port_end(dev, i));
-> +					(long long)pnp_port_start(dev, i),
-> +					(long long)pnp_port_end(dev, i));
->  		}
->  	}
->  	for (i = 0; i < PNP_MAX_MEM; i++) {
-> @@ -276,8 +276,8 @@ static ssize_t pnp_show_current_resource
->  				pnp_printf(buffer," disabled\n");
->  			else
->  				pnp_printf(buffer," 0x%llx-0x%llx\n",
-> -						pnp_mem_start(dev, i),
-> -						pnp_mem_end(dev, i));
-> +					(long long)pnp_mem_start(dev, i),
-> +					(long long)pnp_mem_end(dev, i));
+On 12 Jul 2006 17:43:42 +0200, Andi Kleen wrote:
 
-Like Randy said, please use "unsigned long long".
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > 
+> > I really don't care about cpushare and patents for some users of the
+> > code in question. On the other hand turning on performance harming code
+> > for a tiny number of users is dumb. If it were a loadable module it
+> > would be different.
+> 
+> Actually there are some promising applications of seccomp outside
+> cpushare.
+> 
+> e.g. Andrea at some point proposed to run codecs which often
+> have security issues in a simple cpusec jail.  That's ok for 
+> them because they normally don't need to do any system calls.
+> 
+> I liked the idea. While this can be done with LSM (e.g. apparmor) too 
+> seccomp is definitely much easier and simpler and more "obviously safe"
+> than anything LSM based.
+> 
+> If the TSC disabling code is taken out the runtime overhead
+> of seccomp is also very small because it's only tested in slow
+> paths.
 
-Care to redo this?
+We can just fold the TSC disable stuff into the new thread_flags test
+at context-switch time:
 
-thanks,
+[compile tested only; requires just-sent fix to i386 system.h]
 
-greg k-h
+ arch/i386/kernel/process.c     |   61 ++++++++++++++---------------------------
+ include/asm-i386/thread_info.h |    3 +-
+ 2 files changed, 24 insertions(+), 40 deletions(-)
+
+--- 2.6.18-rc1-nb.orig/arch/i386/kernel/process.c
++++ 2.6.18-rc1-nb/arch/i386/kernel/process.c
+@@ -535,12 +535,11 @@ int dump_task_regs(struct task_struct *t
+ 	return 1;
+ }
+ 
+-static noinline void __switch_to_xtra(struct task_struct *next_p,
+-				    struct tss_struct *tss)
++static noinline void
++__switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p,
++		 struct tss_struct *tss)
+ {
+-	struct thread_struct *next;
+-
+-	next = &next_p->thread;
++	struct thread_struct *next = &next_p->thread;
+ 
+ 	if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
+ 		set_debugreg(next->debugreg[0], 0);
+@@ -552,6 +551,19 @@ static noinline void __switch_to_xtra(st
+ 		set_debugreg(next->debugreg[7], 7);
+ 	}
+ 
++	/*
++	 * Context switch may need to tweak the TSC disable bit in CR4.
++	 * The optimizer should remove this code when !CONFIG_SECCOMP.
++	 */
++	if (has_secure_computing(task_thread_info(prev_p)) ^
++	    has_secure_computing(task_thread_info(next_p))) {
++		/* prev and next are different */
++		if (has_secure_computing(task_thread_info(next_p)))
++			write_cr4(read_cr4() | X86_CR4_TSD);
++		else
++			write_cr4(read_cr4() & ~X86_CR4_TSD);
++	}
++
+ 	if (!test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
+ 		/*
+ 		 * Disable the bitmap via an invalid offset. We still cache
+@@ -561,7 +573,7 @@ static noinline void __switch_to_xtra(st
+ 		return;
+ 	}
+ 
+-	if (likely(next == tss->io_bitmap_owner)) {
++	if (likely(tss->io_bitmap_owner == next)) {
+ 		/*
+ 		 * Previous owner of the bitmap (hence the bitmap content)
+ 		 * matches the next task, we dont have to do anything but
+@@ -583,33 +595,6 @@ static noinline void __switch_to_xtra(st
+ }
+ 
+ /*
+- * This function selects if the context switch from prev to next
+- * has to tweak the TSC disable bit in the cr4.
+- */
+-static inline void disable_tsc(struct task_struct *prev_p,
+-			       struct task_struct *next_p)
+-{
+-	struct thread_info *prev, *next;
+-
+-	/*
+-	 * gcc should eliminate the ->thread_info dereference if
+-	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
+-	 */
+-	prev = task_thread_info(prev_p);
+-	next = task_thread_info(next_p);
+-
+-	if (has_secure_computing(prev) || has_secure_computing(next)) {
+-		/* slow path here */
+-		if (has_secure_computing(prev) &&
+-		    !has_secure_computing(next)) {
+-			write_cr4(read_cr4() & ~X86_CR4_TSD);
+-		} else if (!has_secure_computing(prev) &&
+-			   has_secure_computing(next))
+-			write_cr4(read_cr4() | X86_CR4_TSD);
+-	}
+-}
+-
+-/*
+  *	switch_to(x,yn) should switch tasks from x to y.
+  *
+  * We fsave/fwait so that an exception goes off at the right time
+@@ -688,13 +673,11 @@ struct task_struct fastcall * __switch_t
+ 		set_iopl_mask(next->iopl);
+ 
+ 	/*
+-	 * Now maybe handle debug registers and/or IO bitmaps
++	 * Now maybe handle debug registers, IO bitmaps, TSC disable
+ 	 */
+-	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
+-	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
+-		__switch_to_xtra(next_p, tss);
+-
+-	disable_tsc(prev_p, next_p);
++	if (unlikely(task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW_PREV ||
++		     task_thread_info(next_p)->flags & _TIF_WORK_CTXSW_NEXT))
++		__switch_to_xtra(prev_p, next_p, tss);
+ 
+ 	return prev_p;
+ }
+--- 2.6.18-rc1-nb.orig/include/asm-i386/thread_info.h
++++ 2.6.18-rc1-nb/include/asm-i386/thread_info.h
+@@ -164,7 +164,8 @@ static inline struct thread_info *curren
+ #define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP)
+ 
+ /* flags to check in __switch_to() */
+-#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
++#define _TIF_WORK_CTXSW_NEXT (_TIF_IO_BITMAP | _TIF_SECCOMP | _TIF_DEBUG)
++#define _TIF_WORK_CTXSW_PREV (_TIF_IO_BITMAP | _TIF_SECCOMP)
+ 
+ /*
+  * Thread-synchronous status.
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

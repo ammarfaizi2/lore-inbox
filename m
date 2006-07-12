@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWGLGNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWGLG3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWGLGNV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWGLGNV
+	id S1751355AbWGLG3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWGLG3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:13:21 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58515
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932449AbWGLGNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:13:20 -0400
-Date: Tue, 11 Jul 2006 23:14:09 -0700 (PDT)
-Message-Id: <20060711.231409.121242621.davem@davemloft.net>
-To: kaos@ocs.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse annotation question
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <27360.1152683223@kao2.melbourne.sgi.com>
-References: <27360.1152683223@kao2.melbourne.sgi.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 12 Jul 2006 02:29:21 -0400
+Received: from soundwarez.org ([217.160.171.123]:55722 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751355AbWGLG3U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:29:20 -0400
+Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled
+	/sbin/ifup
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
+Cc: David Miller <davem@davemloft.net>, akpm@osdl.org, efault@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060711225909.GK18838@kroah.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org>
+	 <1152469329.9254.15.camel@Homer.TheSimpsons.net>
+	 <20060709135148.60561e69.akpm@osdl.org>
+	 <20060709.173212.112177014.davem@davemloft.net>
+	 <20060711225909.GK18838@kroah.com>
+Content-Type: text/plain
+Date: Wed, 12 Jul 2006 08:29:24 +0200
+Message-Id: <1152685764.4131.38.camel@pim.off.vrfy.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Keith Owens <kaos@ocs.com.au>
-Date: Wed, 12 Jul 2006 15:47:03 +1000
-
-> func (long regno, unsigned long *contents)
-> {
-> 	unsigned long i, *bsp;
-> 	mm_segment_t old_fs;
-> 	bsp = <expression involving only kernel variables>;
-> 	old_fs = set_fs(KERNEL_DS);
-> 	for (i = 0; i < (regno - 32); ++i)
-> 		bsp = ia64_rse_skip_regs(bsp, 1);
-> 	put_user(*contents, bsp);
-> 	set_fs(old_fs);
-> }
+On Tue, 2006-07-11 at 15:59 -0700, Greg KH wrote:
+> On Sun, Jul 09, 2006 at 05:32:12PM -0700, David Miller wrote:
+> > From: Andrew Morton <akpm@osdl.org>
+> > Date: Sun, 9 Jul 2006 13:51:48 -0700
+> > 
+> >  ...
+> > > > As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
+> >  ...
+> > > I'd be suspecting
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
+> > 
+> > Oh well, it means we can't apply that patch as it does break
+> > things.
 > 
-> sparse is complaining that the second parameter to put_user() is not
-> marked as __user.  How do I tell sparse to ignore this case?  Marking
-> bsp as __user does not work, sparse then complains about incorrect type
-> in assignment (different address spaces).
+> Ugh, that stinks.  I'll work on fixing up those helper applications so
+> this doesn't happen, and try to get an update into the 10.1 pipeline
+> 
+> So, I guess I'll just carry this forward for the next 6 months or so
+> till SuSE 10.0 support goes away.
 
-Since, in this case, you "know what you are doing" you can force the
-matter by using the __force keyword as well as __user.
+Looks like an old version of libsysfs (1.3) is used and causes this
+failure.
+
+Kay
 

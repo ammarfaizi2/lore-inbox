@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWGLNKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWGLNQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWGLNKl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 09:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWGLNKl
+	id S1750956AbWGLNQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 09:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWGLNQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 09:10:41 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:6565 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750977AbWGLNKl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 09:10:41 -0400
-Message-ID: <44B4F4CA.7070106@fr.ibm.com>
-Date: Wed, 12 Jul 2006 15:10:34 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 0/7] execns syscall and user namespace
-References: <20060711075051.382004000@localhost.localdomain> <m164i3gad1.fsf@ebiederm.dsl.xmission.com> <44B4D8CD.5090701@sw.ru>
-In-Reply-To: <44B4D8CD.5090701@sw.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 12 Jul 2006 09:16:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14003 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750821AbWGLNQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 09:16:27 -0400
+Subject: Re: [PATCH 4/5] PCI-Express AER implemetation: AER core and
+	aerdriver
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
+In-Reply-To: <1152691570.28493.250.camel@ymzhang-perf.sh.intel.com>
+References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
+	 <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
+	 <1152688926.28493.223.camel@ymzhang-perf.sh.intel.com>
+	 <1152689546.28493.232.camel@ymzhang-perf.sh.intel.com>
+	 <1152691570.28493.250.camel@ymzhang-perf.sh.intel.com>
+Content-Type: text/plain
+Date: Wed, 12 Jul 2006 15:16:24 +0200
+Message-Id: <1152710184.3217.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+> + 
+> +	struct semaphore rpc_sema;	/* 
+> +					 * Semaphore access required to
+> +					 * access, add, remove, or print AER
+> +				 	 * aware devices in this RPC hierarchy
+> +					 */
 
-Kirill Korotaev wrote:
->> I haven't had a chance to do a thorough review yet but why is
->> this needed?
->>
->> What can be left shared by switching to a new namespace and then
->> execing an executable?
->>
->> Is it not possible to ensure what you are trying to ensure with
->> a good user space executable?
-> 
-> I agree with Eric. In OpenVZ we don't do exec(), because executable
-> itself ensures correct environment.
 
-Could briefly explain how the first process is started in a VPS ? Sorry for
-being lazy and not looking at the code, but it would be interesting for all
-to have some info.
+Hi, 
 
-> Do we need to overcomplicate kernel in this regard ?
+sorry to bug you again.. but is there a reason you're introducing a new
+semaphore and not a mutex? From looking at the code it could/should be a
+mutex...
 
-I don't think it's an amazing kernel overkill. Just an extension to exec
-with some flags to set up the environement in which the exec will be done.
-there might another way to do it.
+Greetings,
+   Arjan van de Ven
 
-thanks,
-
-C.

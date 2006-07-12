@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWGLVUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWGLVZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWGLVUb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWGLVUa
+	id S932289AbWGLVZB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWGLVZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:20:30 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:59017 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932455AbWGLVUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:20:30 -0400
-Date: Wed, 12 Jul 2006 23:14:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: akpm@osdl.org, Arjan van de Ven <arjan@infradead.org>,
-       Zach Brown <zach.brown@oracle.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
-Message-ID: <20060712211443.GA10944@elte.hu>
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com> <44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com> <20060712093820.GA9218@elte.hu> <adaveq2v9gn.fsf@cisco.com>
-Mime-Version: 1.0
+	Wed, 12 Jul 2006 17:25:01 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32133 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932289AbWGLVZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:25:01 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+       Roland McGrath <roland@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+References: <20060712184412.2BD57180061@magilla.sf.frob.com>
+	<44B54EA4.5060506@redhat.com>
+	<20060712195349.GW3823@sunsite.mff.cuni.cz>
+	<44B556E5.5000702@zytor.com>
+Date: Wed, 12 Jul 2006 15:23:50 -0600
+In-Reply-To: <44B556E5.5000702@zytor.com> (H. Peter Anvin's message of "Wed,
+	12 Jul 2006 13:09:09 -0700")
+Message-ID: <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adaveq2v9gn.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-* Roland Dreier <rdreier@cisco.com> wrote:
+> Jakub Jelinek wrote:
+>> On Wed, Jul 12, 2006 at 12:33:56PM -0700, Ulrich Drepper wrote:
+>>> Roland McGrath wrote:
+>>>> We could also put the uname info (modulo nodename) into the vDSO.
+>>> Or even better: real topology information.
+>> AND rather than OR would be even better.  So glibc could find kernel
+>> version, etc. and topology in the vDSO cheaply.
+>
+> Wouldn't it make more sense for this to be in ELF tags, rather than the vdso?
+> Another alternative, I guess, would be to put a pointer in the ELF tags, which
+> may point into the vdso.
 
-> Currently, the code in lib/idr.c uses a bare spin_lock(&idp->lock) to 
-> do internal locking.  This is a nasty trap for code that might call 
-> idr functions from different contexts; for example, it seems perfectly 
-> reasonable to call idr_get_new() from process context and idr_remove() 
-> from interrupt context -- but with the current locking this would lead 
-> to a potential deadlock.
-> 
-> The simplest fix for this is to just convert the idr locking to use 
-> spin_lock_irqsave().
-> 
-> In particular, this fixes a very complicated locking issue detected by 
-> lockdep, involving the ib_ipoib driver's priv->lock and 
-> dev->_xmit_lock, which get involved with the ib_sa module's 
-> query_idr.lock.
-> 
-> Cc: Arjan van de Ven <arjan@infradead.org>
-> Cc: Ingo Molnar <mingo@elte.hu>
+Cheap and simple access to topology information would be interesting.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Glibc just wants to know if our kernel is SMP so it can know if it is
+ok to busy wait for a bit waiting for a mutex.  Or if busy waiting is
+a complete loss.
 
-	Ingo
+The practical challenge is that topology information is not fixed but
+potentially varies at runtime.
+
+Ulrich what would be interesting besides the possibility of having
+multiple cpus?
+
+Eric

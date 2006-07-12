@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWGLSJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWGLSMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWGLSJN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGLSJN
+	id S932279AbWGLSMX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGLSMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:09:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52160 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932273AbWGLSJM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:09:12 -0400
-Subject: Re: annoying frequent overcurrent messages.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, ray-gmail@madrabbit.org,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-In-Reply-To: <20060712175124.GF14453@redhat.com>
-References: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com>
-	 <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
-	 <20060712175124.GF14453@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Jul 2006 19:26:25 +0100
-Message-Id: <1152728785.22943.88.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 12 Jul 2006 14:12:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27049 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932279AbWGLSMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:12:22 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<44B3D435.8090706@sw.ru> <m1k66jebut.fsf@ebiederm.dsl.xmission.com>
+	<44B4D970.90007@sw.ru>
+Date: Wed, 12 Jul 2006 12:10:37 -0600
+In-Reply-To: <44B4D970.90007@sw.ru> (Kirill Korotaev's message of "Wed, 12 Jul
+	2006 15:13:52 +0400")
+Message-ID: <m164i2ae3m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-07-12 am 13:51 -0400, ysgrifennodd Dave Jones:
-> Defective it may be, I'm not arguing that.    But spewing hundreds of
-> these an hour isn't going to make the user fix the problem (if they even can)
-> any faster.
-> 
-> *grumbles and goes to edit modprobe.conf*
+Kirill Korotaev <dev@sw.ru> writes:
 
-dmidecode
-pci svid/subdevice
+>>>Another example of not so evident coupling here:
+>>>user structure maintains number of processes/opened
+> files/sigpending/locked_shm
+>>>etc.
+>>>if a single user can belong to different proccess/ipc/... namespaces
+>>>all these becomes unusable.
+>> Why do the count of the number of objects a user has become
+>> unusable if they can count objects in multiple namespaces?
+>> Namespaces are about how names are looked up and how names are
+>> created.  Namespaces are not about the objects those names refer to.
+>
+> One example below, which I believe is a bug due to coupling.
+> Will be glad to hear your opinion on this.
+>
+> Let user u to unshare its process namespace and run e.g. httpd inside newly
+> created 2nd process namespace.
+> Now imagine that user u hits his process rlimit.
+> He can't kill his httpd's because they are in another process namespace. He can
+> kill visible to his bash processes from
+> 1st process namespace, but httpd can spawn childs more after that. So we end up
+> with the situation
+> when user u can't control his processes, nor run any other processes in his
+> bash.
 
-submit patch
+Yes, this can happen.   But as described this really is a usage problem.  I would
+expect if your uid is in use in multiple places you will have accesses to all of
+those places.  Part of this won't be clear until we sort out the process id
+namespace though.
 
-I agree entirely with the other Alan here, overcurrent is a serious item
-with a potential severity not that far below "your cpu fan seems to have
-stopped going round  [Ok]"
+> I'm fine with such situations, since we need containers mostly, but what makes
+> me
+> really afraid is that it introduces hard to find/fix/maintain issues. I have no
+> any other concerns.
 
+Hard to find and maintain problems I agree should be avoided.  There are only two
+ways I can see coping with the weird interactions that might occur.
+1) Assert weird interactions will never happen, don't worry about it,
+   and stomp on any place where they can occur.  (A fully isolated container approach).
 
-If its a dodgy board it should be possible to id and blacklist its UHCI
-controller
+2) Assume weird interactions happen and write the code so that it simply
+   works if those interactions happen, because for each namespace you have
+   made certain the code works regardless of which namespace the objects are
+   in.
 
+The second case is slightly harder.  But as far as I can tell it is more robust
+and allows for much better incremental development.
 
+Eric

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWGLG3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWGLG1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWGLG3V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWGLG3V
+	id S932451AbWGLG1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGLG1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:29:21 -0400
-Received: from soundwarez.org ([217.160.171.123]:55722 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751355AbWGLG3U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:29:20 -0400
-Subject: Re: 2.6.18-rc1-mm1: /sys/class/net/ethN becoming symlink befuddled
-	/sbin/ifup
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: David Miller <davem@davemloft.net>, akpm@osdl.org, efault@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060711225909.GK18838@kroah.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
-	 <1152469329.9254.15.camel@Homer.TheSimpsons.net>
-	 <20060709135148.60561e69.akpm@osdl.org>
-	 <20060709.173212.112177014.davem@davemloft.net>
-	 <20060711225909.GK18838@kroah.com>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 08:29:24 +0200
-Message-Id: <1152685764.4131.38.camel@pim.off.vrfy.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Wed, 12 Jul 2006 02:27:47 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:2511 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932451AbWGLG1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:27:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=JGN85NfpRixi3nrgFbgctL8kOzDXjWwwQ8RDXFEb1gENyNSgV0JiUpgod830/jKBP7snWaQpQAzKyRfo6gSctotCrEWQSFm1WxX6ZwhfywFej/iluXVLtQ2DxywM48gWuo8VR0j13UJW35JFtNvP/Fkn6eTTw+ucAW/M+tFECbE=
+Message-ID: <84144f020607112327y48d9cccueb4c5e3904d6981@mail.gmail.com>
+Date: Wed, 12 Jul 2006 09:27:46 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Theodore Tso" <tytso@mit.edu>, "Jon Smirl" <jonsmirl@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: tty's use of file_list_lock and file_move
+In-Reply-To: <20060710233944.GB30332@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
+	 <1152552806.27368.187.camel@localhost.localdomain>
+	 <9e4733910607101027g5f3386feq5fc54f7593214139@mail.gmail.com>
+	 <1152554708.27368.202.camel@localhost.localdomain>
+	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
+	 <20060710233944.GB30332@thunk.org>
+X-Google-Sender-Auth: ccb5dabe223e9da7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 15:59 -0700, Greg KH wrote:
-> On Sun, Jul 09, 2006 at 05:32:12PM -0700, David Miller wrote:
-> > From: Andrew Morton <akpm@osdl.org>
-> > Date: Sun, 9 Jul 2006 13:51:48 -0700
-> > 
-> >  ...
-> > > > As $subject says, up-to-date SuSE 10.0 /sbin/ifup became confused...
-> >  ...
-> > > I'd be suspecting
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/broken-out/gregkh-driver-network-class_device-to-device.patch.
-> > 
-> > Oh well, it means we can't apply that patch as it does break
-> > things.
-> 
-> Ugh, that stinks.  I'll work on fixing up those helper applications so
-> this doesn't happen, and try to get an update into the 10.1 pipeline
-> 
-> So, I guess I'll just carry this forward for the next 6 months or so
-> till SuSE 10.0 support goes away.
+Hi,
 
-Looks like an old version of libsysfs (1.3) is used and causes this
-failure.
+On 7/11/06, Theodore Tso <tytso@mit.edu> wrote:
+> When I wrote the do_SAK code about 12-13 years ago, tty->tty_files
+> didn't exist.  It should be safe to do this, but I'll echo Alan's
+> comment.  We really ought to implement revoke(2) at the VFS layer, and
+> then utilize to implement SAK and vhangup() functionality.
 
-Kay
+How is this supposed to work? What's stopping a process from
+re-opening the file after revoke(2) has been called? Or am I missing
+something here?
 
+                                     Pekka

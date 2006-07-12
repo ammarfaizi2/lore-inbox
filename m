@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWGLVZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWGLV23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWGLVZB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:25:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWGLVZB
+	id S1750993AbWGLV23 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWGLV23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:25:01 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32133 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932289AbWGLVZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:25:01 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>
-	<44B54EA4.5060506@redhat.com>
-	<20060712195349.GW3823@sunsite.mff.cuni.cz>
-	<44B556E5.5000702@zytor.com>
-Date: Wed, 12 Jul 2006 15:23:50 -0600
-In-Reply-To: <44B556E5.5000702@zytor.com> (H. Peter Anvin's message of "Wed,
-	12 Jul 2006 13:09:09 -0700")
-Message-ID: <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 12 Jul 2006 17:28:29 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:55709 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750788AbWGLV22 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:28:28 -0400
+Date: Wed, 12 Jul 2006 23:22:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060712212245.GB10944@elte.hu>
+References: <20060630014050.GI19712@stusta.de> <20060630045228.GA14677@opteron.random> <20060630094753.GA14603@elte.hu> <20060630145825.GA10667@opteron.random> <20060711073625.GA4722@elte.hu> <20060711141709.GE7192@opteron.random> <1152628374.3128.66.camel@laptopd505.fenrus.org> <20060711153117.GJ7192@opteron.random> <1152635055.18028.32.camel@localhost.localdomain> <p73wtain80h.fsf@verdi.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73wtain80h.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> Jakub Jelinek wrote:
->> On Wed, Jul 12, 2006 at 12:33:56PM -0700, Ulrich Drepper wrote:
->>> Roland McGrath wrote:
->>>> We could also put the uname info (modulo nodename) into the vDSO.
->>> Or even better: real topology information.
->> AND rather than OR would be even better.  So glibc could find kernel
->> version, etc. and topology in the vDSO cheaply.
->
-> Wouldn't it make more sense for this to be in ELF tags, rather than the vdso?
-> Another alternative, I guess, would be to put a pointer in the ELF tags, which
-> may point into the vdso.
+* Andi Kleen <ak@suse.de> wrote:
 
-Cheap and simple access to topology information would be interesting.
+> I liked the idea. While this can be done with LSM (e.g. apparmor) too 
+> seccomp is definitely much easier and simpler and more "obviously 
+> safe" than anything LSM based.
 
-Glibc just wants to know if our kernel is SMP so it can know if it is
-ok to busy wait for a bit waiting for a mutex.  Or if busy waiting is
-a complete loss.
+LSM is probably too heavy for this - but utrace (posted by Roland 
+McGrath a few weeks ago) is alot more focused on modularizing ptrace 
+features. utrace also solves a whole host of other issues that we have 
+with ptrace!
 
-The practical challenge is that topology information is not fixed but
-potentially varies at runtime.
+for example the first sample utrace module that Roland posted was a 
+'stop the task if it becomes undebugged, instead of letting the task run 
+away'. That solves precisely the ptrace property that Andrea complained 
+about most.
 
-Ulrich what would be interesting besides the possibility of having
-multiple cpus?
+i think Andrea didnt even try to fix/generalize ptrace perhaps because 
+that would make his 'security feature' too banal? It would also become 
+unpatentable? Even though this decision hurts the 'reach' of his project 
+fundamentally: ptrace support is everywhere, and users could very much 
+and consciously decide to run 'compatible ptrace' or 'more secure 
+ptrace' [provided by newer kernels].
 
-Eric
+Andrea's "ptrace is insecure" argument is just plain FUD: there's 
+nothing inherently insecure about the _client side_ of the ptrace APIs 
+or the client side of ptrace implementation. So my suggestion is to get 
+utrace in, to implement an utrace module that implements untrusted code 
+execution and then lets get rid of seccomp.
+
+	Ingo

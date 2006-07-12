@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWGLXbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWGLXkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWGLXbT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWGLXbI
+	id S932206AbWGLXkv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 19:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWGLXkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:31:08 -0400
-Received: from ns2.suse.de ([195.135.220.15]:8165 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932236AbWGLXaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:30:46 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Adrian Bunk <bunk@stusta.de>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 3/5] [PATCH] Driver core: bus.c cleanups
-Reply-To: Greg KH <greg@kroah.com>
-Date: Wed, 12 Jul 2006 16:26:52 -0700
-Message-Id: <11527468203373-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.1
-In-Reply-To: <11527468173384-git-send-email-greg@kroah.com>
-References: <20060712232343.GA22672@kroah.com> <1152746814664-git-send-email-greg@kroah.com> <11527468173384-git-send-email-greg@kroah.com>
+	Wed, 12 Jul 2006 19:40:51 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56251
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932206AbWGLXku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 19:40:50 -0400
+Date: Wed, 12 Jul 2006 16:40:48 -0700 (PDT)
+Message-Id: <20060712.164048.51855175.davem@davemloft.net>
+To: ralphc@pathscale.com
+Cc: rolandd@cisco.com, openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: Suggestions for how to remove bus_to_virt()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1152746967.4572.263.camel@brick.pathscale.com>
+References: <1152746967.4572.263.camel@brick.pathscale.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
+From: Ralph Campbell <ralphc@pathscale.com>
+Date: Wed, 12 Jul 2006 16:29:27 -0700
 
-This patch contains the following cleanups:
-- make the needlessly global bus_subsys static
-- #if 0 the unused find_bus()
+> Currently, the ib_ipath driver requires that the mapping be
+> one-to-one since there is no practical way to reverse IOMMU
+> mappings.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/base/bus.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+You can maintain a hash table that maps DMA addresses back to kernel
+mappings.  Depending upon your situation, you can optimize this to use
+very small keys if you have some kind of other identification method
+for your buffers.
 
-diff --git a/drivers/base/bus.c b/drivers/base/bus.c
-index 83fa8b2..2e954d0 100644
---- a/drivers/base/bus.c
-+++ b/drivers/base/bus.c
-@@ -129,7 +129,7 @@ static struct kobj_type ktype_bus = {
- 
- };
- 
--decl_subsys(bus, &ktype_bus, NULL);
-+static decl_subsys(bus, &ktype_bus, NULL);
- 
- 
- #ifdef CONFIG_HOTPLUG
-@@ -598,12 +598,13 @@ void put_bus(struct bus_type * bus)
-  *
-  *	Note that kset_find_obj increments bus' reference count.
-  */
--
-+#if 0
- struct bus_type * find_bus(char * name)
- {
- 	struct kobject * k = kset_find_obj(&bus_subsys.kset, name);
- 	return k ? to_bus(k) : NULL;
- }
-+#endif  /*  0  */
- 
- 
- /**
--- 
-1.4.1
+That would be for dynamic mappings.
 
+You were using consistent DMA memory, which I gather you're not,
+you could use the PCI DMA pool mechanism.

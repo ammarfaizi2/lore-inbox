@@ -1,31 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWGLSoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWGLSrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWGLSoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWGLSoZ
+	id S932318AbWGLSrB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWGLSrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:44:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41121 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932421AbWGLSoY (ORCPT
+	Wed, 12 Jul 2006 14:47:01 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:63448 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932318AbWGLSrA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:44:24 -0400
+	Wed, 12 Jul 2006 14:47:00 -0400
+In-Reply-To: <b0943d9e0607120333q7960077veef91d63d826003b@mail.gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Cc: "Catherine Zhang" <cxzhang@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-In-Reply-To: Ulrich Drepper's message of  Wednesday, 12 July 2006 09:50:06 -0700 <44B5283E.7090806@redhat.com>
-X-Shopping-List: (1) Bestial compulsion ghost-melts
-   (2) Educated scanty rings
-   (3) Injudicious auction beagles
-Message-Id: <20060712184412.2BD57180061@magilla.sf.frob.com>
-Date: Wed, 12 Jul 2006 11:44:12 -0700 (PDT)
+X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
+Message-ID: <OF21B3AC7B.06E232FB-ON852571A9.0050C959-852571A9.00672CEB@us.ibm.com>
+From: Xiaolan Zhang <cxzhang@us.ibm.com>
+Date: Wed, 12 Jul 2006 14:46:56 -0400
+X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
+ 07/12/2006 14:46:57,
+	Serialize complete at 07/12/2006 14:46:57
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We could also put the uname info (modulo nodename) into the vDSO.
+Catalin,
+
+I am looking into this problem.
+
+thanks,
+Catherine
+
+"Catalin Marinas" <catalin.marinas@gmail.com> wrote on 07/12/2006 06:33:54 
+AM:
+
+> Hi Catherine,
+> 
+> On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > This is most common
+> > orphan pointer 0xf5a6fd60 (size 39):
+> >   c0173822: <__kmalloc>
+> >   c01df500: <context_struct_to_string>
+> >   c01df679: <security_sid_to_context>
+> >   c01d7eee: <selinux_socket_getpeersec_dgram>
+> >   f884f019: <unix_get_peersec_dgram>
+> >   f8850698: <unix_dgram_sendmsg>
+> >   c02a88c2: <sock_sendmsg>
+> >   c02a9c7a: <sys_sendto>
+> >
+> > cat /tmp/ml.txt | grep -c selinux_socket_getpeersec_dgram
+> > 8442
+> 
+> I'm looking into the above leak report from kmemleak (the back trace
+> to the kmalloc function). The "datagram getpeersec" patch went in as
+> commit 877ce7c1b3afd69a9b1caeb1b9964c992641f52a. Have you noticed any
+> abnormal increase in the slab statistics (especially size-64)?
+> 
+> Thanks.
+> 
+> -- 
+> Catalin
+

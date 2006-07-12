@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWGLRF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWGLRJH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWGLRF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWGLRF2
+	id S932093AbWGLRJH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:09:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWGLRJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:05:28 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:61137 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751466AbWGLRF1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:05:27 -0400
-Message-ID: <44B52BD2.2030004@pobox.com>
-Date: Wed, 12 Jul 2006 13:05:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 12 Jul 2006 13:09:07 -0400
+Received: from nz-out-0102.google.com ([64.233.162.201]:23992 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932093AbWGLRJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:09:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VpawJ+D80CaW1jhzU3l/83z+XF8hVRAVTOnEMoGncBI19Xjhv1aYzsUq461DXs7UGP7YxRo2MJhl3HDLKWWU/c6cicNSN+PkBllBAaohY3eMYHu5cWthJsQb6gjUK1j+9XY5LE+Jkp2wwfle+ryGPAFISpxiPi6ObSm4aepv7IM=
+Message-ID: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com>
+Date: Wed, 12 Jul 2006 10:09:05 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Subject: Re: annoying frequent overcurrent messages.
+Cc: "Dave Jones" <davej@redhat.com>,
+       "Kernel development list" <linux-kernel@vger.kernel.org>,
+       "David Brownell" <david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Fix Jmicron support
-References: <1152713141.22943.67.camel@localhost.localdomain>
-In-Reply-To: <1152713141.22943.67.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Disposition: inline
+References: <200607111747.13529.david-b@pacbell.net>
+	 <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Prior to 2.6.18rc1 you could install with devices on a JMicron chipset
-> using the "all-generic-ide" option. As of this kernel the AHCI driver
-> grabs the controller and rams it into AHCI mode losing the PATA ports
-> and making CD drives and the like vanish. The all-generic-ide option
-> fails because the AHCI driver grabbed the PCI device and reconfigured
-> it.
-> 
-> To fix this three things are needed.
-> 
-> #1 We must put the chip into dual function mode
-> #2 The AHCI driver must grab only function 0 (already in your rc1 tree)
-> #3 Something must grab the PATA ports
-> 
-> The attached patch is the minimal risk edition of this. It puts the chip
-> into dual function mode so that AHCI will grab the SATA ports without
-> losing the PATA ports. To keep the risk as low as possible the third
-> patch adds the PCI identifiers for the PATA port and the FN check to the
-> ide-generic driver. There is a more featured jmicron driver on its way
-> but that adds risk and the ide-generic support is sufficient to install
-> and run a system.
-> 
-> The actual chip setup done by the quirk is the precise setup recommended
-> by the vendor.
-> 
-> (The JMB368 appears only in the ide-generic entry as it has no AHCI so
-> does not need the quirk)
-> 
-> Signed-off-by: Alan Cox <alan@redhat.com>
+On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> Dave Jones wrote:
+> > I have a box that's having its dmesg flooded with..
+> >
+> > hub 1-0:1.0: over-current change on port 1
+> > hub 1-0:1.0: over-current change on port 2
+> > hub 1-0:1.0: over-current change on port 1
+> > hub 1-0:1.0: over-current change on port 2
+> ...
+>
+> > over and over again..
+> > The thing is, this box doesn't even have any USB devices connected to it,
+> > so there's absolutely nothing I can do to remedy this.
+>
+> Since you're not using the UHCI controller on that computer, you could
+> simply rmmod uhci-hcd (or modify /etc/modprobe.conf to prevent it from
+> being loaded in the first place).  That would stop the constant interrupts
+> and the syslog spamming.
 
-ACK for 2.6.18-rc1-git
+For the syslog spamming, you could jus emit the message once when the
+state is first noticed, then emit a everything good message when it
+clears up. There's no need to log it repeatedly during the problem
+period.
 
-The AHCI bits are already in 2.6.18-rc1.  The drivers/ide new-PCI-ID 
-bits are arguably new features, but IMO obviously quite harmless.
-
-	Jeff
-
-
+Ray

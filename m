@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWGLRoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWGLRpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWGLRoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWGLRoE
+	id S932237AbWGLRpd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWGLRpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:44:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27364 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932171AbWGLRoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:44:01 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com>
-	<20060710155051.326e49da.rdunlap@xenotime.net>
-	<m1veq4kcij.fsf@ebiederm.dsl.xmission.com>
-	<1152601640.3128.7.camel@laptopd505.fenrus.org>
-	<m1irm2bxk3.fsf_-_@ebiederm.dsl.xmission.com>
-	<44B5283E.7090806@redhat.com>
-Date: Wed, 12 Jul 2006 11:42:47 -0600
-In-Reply-To: <44B5283E.7090806@redhat.com> (Ulrich Drepper's message of "Wed,
-	12 Jul 2006 09:50:06 -0700")
-Message-ID: <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 12 Jul 2006 13:45:33 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:59656 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932205AbWGLRpc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:45:32 -0400
+Date: Wed, 12 Jul 2006 13:45:31 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: ray-gmail@madrabbit.org
+cc: Dave Jones <davej@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: annoying frequent overcurrent messages.
+In-Reply-To: <2c0942db0607121034w170b4b24l928773fa37b3705e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0607121344420.6111-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper <drepper@redhat.com> writes:
+On Wed, 12 Jul 2006, Ray Lee wrote:
 
-> Eric W. Biederman wrote:
->> But uname is noticeably faster than sysctl and uname is more portable
->> across linux flavors.  So updating the glibc pthread code to use
->> uname looks like the right way to implement is_smp_system. 
->
-> This is (was?) not the universal through.  We used uname at some point
-> but then I did some profiling and sysctl turned out to be faster.
+> > > For the syslog spamming, you could jus emit the message once when the
+> > > state is first noticed, then emit a everything good message when it
+> > > clears up. There's no need to log it repeatedly during the problem
+> > > period.
+> >
+> > That's almost exactly how the driver behaves currently -- the message is
+> > printed just once when the state is first noticed.  Nothing is printed
+> > when the state is cleared, and nothing gets printed repeatedly during the
+> > problem period.  But then the problem recurs very quickly.
+> 
+> Then the logging of the 'all cleared up' message would be better if it
+> had a bit of hysteresis to it -- the good state is noticed, but don't
+> log it as such until it hangs out there for a while and has had a
+> chance to quiesce.
 
-I track the code bask as far as I could and back to about 2000 in
-pthread.c when the code was introduced it always used sys_sysctl.
+You didn't read what I wrote -- there _is_ no "all cleared up" message.
 
-> If the reverse is true now I can certainly look into changing this but
-> the evidence and ideally has to be there.  The simplicity of the uname
-> code should mean that it's faster.
-
-The evidence and ideally what has to be there?
-
-> In a year or two I'll remove the test anyway.  By then there will likely
-> not be any UP kernels on reasonable machines anymore and I can drop all
-> the conditional code.
-
-Well there are embedded targets but I guess uclibc takes care of them.
-
-Unless a darn good reason for keeping it is found, sys_sysctl won't be
-in the kernel several months from now.  And uname is faster by a large
-margin than /proc.
-
-Right now because there has been a deprecated note in
-"include/linux/sysctl.h" since 2003 people currently feel fine with
-letting sys_sysctl code bit rot.  I am trying to resolve that
-situation most likely by just updating the few stray pieces of user
-space that care and then cutting out that chunk of kernel code.
-
-Eric
-
+Alan Stern
 

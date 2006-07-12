@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWGLIJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWGLIK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbWGLIJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 04:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWGLIJZ
+	id S1750908AbWGLIK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 04:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWGLIK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 04:09:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26792 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750776AbWGLIJY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 04:09:24 -0400
-Date: Wed, 12 Jul 2006 10:08:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, roubert@df.lth.se,
-       stern@rowland.harvard.edu, dmitry.torokhov@gmail.com,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-Message-ID: <20060712080846.GA1898@elf.ucw.cz>
-References: <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home> <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home> <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home> <20060711173735.43e9af94.akpm@osdl.org> <Pine.LNX.4.64.0607120248050.12900@scrub.home> <20060711183647.5c5c0204.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711183647.5c5c0204.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 12 Jul 2006 04:10:27 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:19764 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750908AbWGLIKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 04:10:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=UZjLBJb7RJ882KBsAfDUechFnEADrIBkvovcD1im4DYsnN5MNgOOOBGz99SC/gR5ZLqhG6En0EmOQflNsj6NG8w1QGfcZBfyt39P1XQw2UZ7ueBQ0yqPJ8nH5A29FXZp86+5DHfip7wtwOBFiGRsY5e1kLrVEie/cxknukcFeHA=
+Date: Wed, 12 Jul 2006 12:17:04 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.18-rc1-mm1: as usual can not boot
+Message-Id: <20060712121704.def30154.pauldrynoff@gmail.com>
+In-Reply-To: <1152690358.3217.20.camel@laptopd505.fenrus.org>
+References: <20060712095933.57d2a595.pauldrynoff@gmail.com>
+	<20060712001232.a31285e3.akpm@osdl.org>
+	<20060712113718.8e5e3af7.pauldrynoff@gmail.com>
+	<1152690358.3217.20.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 12 Jul 2006 09:45:58 +0200
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-> > > IOW, someone needs to find a way to make the new code work like the old
-> > > code without re-breaking Pavel's keyboard.  But the bitchin-to-patchin
-> > > ratio here seems to exclude that outcome.
+> On Wed, 2006-07-12 at 11:37 +0400, Paul Drynoff wrote:
+> > On Wed, 12 Jul 2006 00:12:32 -0700
+> > Andrew Morton <akpm@osdl.org> wrote:
 > > 
-> > Traditionally that responsibility is in the hands of whose who break it in 
-> > the first place
+> > > On Wed, 12 Jul 2006 09:59:33 +0400
+> > > Paul Drynoff <pauldrynoff@gmail.com> wrote:
+> > > 
 > 
-> If that person cannot reproduce the problem but another skilled kernel
-> developer can then it would make sense for he-who-can-reproduce-it to do
-> some work.
+> Hi, I havent followed your saga much, but in the past I've seen cases
+> where such kind of thing went away when AGP was set to be built into the
+> kernel, rather than as a module or not even built at all.
 > 
-> Still, I doubt if that's the case here.
+> I don't know what your AGP setting is but if it's not built in it's
+> worth a shot to set it to be built in.
 > 
-> 
-> Is the below correct?
-> 
-> Old behaviour:
-> 
-> 	a) press alt
-> 	b) press sysrq
-> 	c) release alt
-> 	d) press T
-> 	e) release T
-> 	f) release sysrq
-> 
-> New behaviour:
-> 
-> 	a) press alt
-> 	b) press sysrq
-> 	c) release sysrq
-> 	d) press T
-> 	e) release T
-> 	f) release alt
 
-Plus there was "very old" behaviour:
+thanks for reply,
 
-a) press alt
-b) press sysrq
-c) press T
-d) release T
-e) release sysrq
-f) release alt
+At now I build all in kernel (without modules) for debuging purposes,
+I have 
+$ grep -i AGP .config
+CONFIG_AGP=y
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_ATI is not set
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_AMD64 is not set
+# CONFIG_AGP_INTEL is not set
+# CONFIG_AGP_NVIDIA is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_SWORKS is not set
+# CONFIG_AGP_VIA is not set
+# CONFIG_AGP_EFFICEON is not set
 
-...that worked along with "old" behaviour....
 
-> If so, then the old behaviour was weird and the new behaviour is sensible. 
-> What, actually, is the problem?
-
-I'd agree. ...and was _real_ weird.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+But still get error

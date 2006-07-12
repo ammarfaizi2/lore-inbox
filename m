@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1425484AbWLHM1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S938026AbWLHLA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1425484AbWLHM1d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Dec 2006 07:27:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1425485AbWLHM1d
+	id S938026AbWLHLA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Dec 2006 06:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S938027AbWLHLA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Dec 2006 07:27:33 -0500
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:48917 "EHLO
-	hp3.statik.tu-cottbus.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1425484AbWLHM1c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Dec 2006 07:27:32 -0500
-Message-ID: <45795A32.30107@s5r6.in-berlin.de>
-Date: Fri, 08 Dec 2006 13:27:30 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.8) Gecko/20061030 SeaMonkey/1.0.6
-MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-CC: Matthias Schniedermeyer <ms@citd.de>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       DervishD <lkml@dervishd.net>
-Subject: Re: single bit errors on files stored on USB-HDDs via USB2/usb_storage
-References: <fa./xvi+/Ji/HqNkvnGjUt4pIS9goM@ifi.uio.no> <45793D82.1040807@s5r6.in-berlin.de> <457940DC.90403@citd.de> <200612081201.36789.oliver@neukum.org>
-In-Reply-To: <200612081201.36789.oliver@neukum.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Dec 2006 06:00:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4093 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S938026AbWLHLAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Dec 2006 06:00:55 -0500
+Date: Wed, 12 Jul 2006 14:56:50 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Kristian H?gsberg <krh@redhat.com>, Marcel Holtmann <marcel@holtmann.org>,
+       linux-kernel@vger.kernel.org,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 0/3] New firewire stack
+Message-ID: <20060712145650.GA4403@ucw.cz>
+References: <20061205052229.7213.38194.stgit@dinky.boston.redhat.com> <1165308400.2756.2.camel@localhost> <45758CB3.80701@redhat.com> <20061205160530.GB6043@harddisk-recovery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061205160530.GB6043@harddisk-recovery.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Neukum wrote:
-> Am Freitag, 8. Dezember 2006 11:39 schrieb Matthias Schniedermeyer:
->> > Also, you mentioned that the corruption occurs systematically on certain
->> > byte patterns. Therefore it's certainly not related to the cables.
->> 
->> It'd guess that too, but who can that say for sure. :-|
+On Tue 05-12-06 17:05:30, Erik Mouw wrote:
+> On Tue, Dec 05, 2006 at 10:13:55AM -0500, Kristian H?gsberg wrote:
+> > Marcel Holtmann wrote:
+> > >can you please use drivers/firewire/ if you want to start clean or
+> > >aiming at replacing drivers/ieee1394/. Using "fw" as an abbreviation in
+> > >the directory path is not really helpful.
+> > 
+> > Yes, that's probably a better idea.  Do you see a problem with using fw_* 
+> > as a prefix in the code though?  I don't see anybody using that prefix, but 
+> > Stefan pointed out to me that it's often used to abbreviate firmware too.
 > 
-> You may have a bit pattern that stresses the controllers and suddenly
-> a marginal cable may matter.
+> So what about fiwi_*? If that's too close to wifi_*, try frwr_.
 
-And one more thing: I heard of FireWire enclosures which corrupted data
-(although AFAIR with error detection by the drivers) due to overheating
-PHY chip or bridge chip. Gluing a small passive heat sink to the
-respective chip solved it in the reported case.
+Ugly, but fwire could be acceptable.
+							Pavel
 -- 
-Stefan Richter
--=====-=-==- ==-- -=---
-http://arcgraph.de/sr/
+Thanks for all the (sleeping) penguins.

@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWGLRer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWGLRgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWGLRer (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWGLRer
+	id S932152AbWGLRgy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWGLRgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:34:47 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:31964 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932150AbWGLRer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:34:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U1/u3o/4vrvsbY7grywKHBSH6TKplbJSeTBJgebhys6d+h7rQ/Rn6ow/TSkXE8+Aqu2+YAnPTcC34LU7L7Lxr/D7p7BkWwNdBDXcfiJfnRbMNirHcuHfltHNgCqiBjTKj5zYj4C+5rjcSMbUrATpxeXWzbQmAx7N1ZxBQu/6u7A=
-Message-ID: <2c0942db0607121034w170b4b24l928773fa37b3705e@mail.gmail.com>
-Date: Wed, 12 Jul 2006 10:34:45 -0700
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Subject: Re: annoying frequent overcurrent messages.
-Cc: "Dave Jones" <davej@redhat.com>,
-       "Kernel development list" <linux-kernel@vger.kernel.org>,
-       "David Brownell" <david-b@pacbell.net>
-In-Reply-To: <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
+	Wed, 12 Jul 2006 13:36:54 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:51073 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932152AbWGLRgx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:36:53 -0400
+Date: Wed, 12 Jul 2006 08:23:12 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Rene Herman <rene.herman@keyaccess.nl>
+cc: Olaf Hering <olaf@aepfle.de>, "H. Peter Anvin" <hpa@zytor.com>,
+       Roman Zippel <zippel@linux-m68k.org>, torvalds@osdl.org,
+       klibc@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [klibc] klibc and what's the next step?
+In-Reply-To: <44B3B680.4040101@keyaccess.nl>
+Message-ID: <Pine.LNX.4.63.0607120805060.14192@qynat.qvtvafvgr.pbz>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.060
+ 6271316220.17704@scrub.home> <20060711044834.GA11694@suse.de>
+ <44B3B680.4040101@keyaccess.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com>
-	 <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> On Wed, 12 Jul 2006, Ray Lee wrote:
->
-> > On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
-> > > Dave Jones wrote:
-> > > > I have a box that's having its dmesg flooded with..
-> > > >
-> > > > hub 1-0:1.0: over-current change on port 1
-> > > > hub 1-0:1.0: over-current change on port 2
-> > > > hub 1-0:1.0: over-current change on port 1
-> > > > hub 1-0:1.0: over-current change on port 2
-> > > ...
-> > >
-> > > > over and over again..
-> > > > The thing is, this box doesn't even have any USB devices connected to it,
-> > > > so there's absolutely nothing I can do to remedy this.
-> > >
-> > > Since you're not using the UHCI controller on that computer, you could
-> > > simply rmmod uhci-hcd (or modify /etc/modprobe.conf to prevent it from
-> > > being loaded in the first place).  That would stop the constant interrupts
-> > > and the syslog spamming.
-> >
-> > For the syslog spamming, you could jus emit the message once when the
-> > state is first noticed, then emit a everything good message when it
-> > clears up. There's no need to log it repeatedly during the problem
-> > period.
->
-> That's almost exactly how the driver behaves currently -- the message is
-> printed just once when the state is first noticed.  Nothing is printed
-> when the state is cleared, and nothing gets printed repeatedly during the
-> problem period.  But then the problem recurs very quickly.
+On Tue, 11 Jul 2006, Rene Herman wrote:
 
-Then the logging of the 'all cleared up' message would be better if it
-had a bit of hysteresis to it -- the good state is noticed, but don't
-log it as such until it hangs out there for a while and has had a
-chance to quiesce.
+> Olaf Hering wrote:
+>
+>> I do not want to see kinit merged.
+>
+> For what it's worth -- I as a user am violently opposed to kinit not being in 
+> the source tree, if _anything_ is merged.
+>
+> Given that's it's intended to take over kernel functionality, kinit would be 
+> a tightly coupled piece of software and a number of problems 2.6 has seen are 
+> with tightly coupled software (udev, alsa-lib) getting out of sync with the 
+> kernel. I believe someone from redhat complained about it last. Adding 
+> another tightly coupled external app to the mix is just going to worsen the 
+> situation. Please don't do that.
+>
+> And yes, then there's the issue of keeping distributions all using the same 
+> thing which I saw someone else remark on as well. If klibc/kinit is the way 
+> forward, please make sure kinit is in the kernel source tree.
 
-Ray
+I first started useing linux in the 0.88 days, and have been useing it heavily 
+for the last 10 years (with custom kernels throughout, first due to the need, 
+later for other reasons). During all of that time I have avoided useing 
+initramfs or initrd on the several hundred machines I have managed over that 
+time.
+
+I personally don't like the idea of booting stuff out of the kernel into a 
+userspace 'thing' that needs to be built and maintained in addition to the 
+kernel (for that matter I have almost entirely avoided the use of modules as 
+well).
+
+however, if kinit/klibc are included with the kernel and a make && make install 
+(or similar) will end up createing a blob that will boot, I won't care if the 
+blob is entirely kernel or is kernel+initrd with some functionality in 
+userspace.
+
+Ted makes a good point that distros will want to further tweak the boot process 
+and that the right way is to give them hooks to add their custom stuff. we don't 
+want every distro to throw out the thing that the kernel compiles to put in 
+their own.
+
+David Lang

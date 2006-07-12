@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWGLVrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWGLVt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWGLVrM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWGLVrM
+	id S1751440AbWGLVt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGLVt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:47:12 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29623 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751398AbWGLVrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:47:11 -0400
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andrea@cpushare.com
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Lee Revell <rlrevell@joe-job.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <20060712210545.GB24367@opteron.random>
-References: <20060629192121.GC19712@stusta.de>
-	 <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	 <20060711041600.GC7192@opteron.random>
-	 <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	 <20060712210545.GB24367@opteron.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Jul 2006 23:02:56 +0100
-Message-Id: <1152741776.22943.103.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 12 Jul 2006 17:49:29 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:8611 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751440AbWGLVt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:49:28 -0400
+Date: Wed, 12 Jul 2006 23:49:03 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: linux-kernel@vger.kernel.org
+cc: Rik van Riel <riel@nl.linux.org>
+Message-ID: <Pine.LNX.4.58.0607122302400.3618@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+Subject: [RFC][PATCH][RESEND] allow users to increase the oom-killer-score of their applications
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-07-12 am 23:05 +0200, ysgrifennodd andrea@cpushare.com:
-> Measuring time through the network currently is impractical, the rtt is
-> too huge for that (though perhaps 10 years from now we'll have to
-> rethink about this).
+Allow users to increase the oom score of their applications.
 
-Actually measuring time through the network is extremely doable given
-enough samples as is communication through delay perturbation. A good
-viterbi encoder/decoder will fish a signal out of very high noise. Yes
-you pay a lot in data rate at that point but it works.
+Signed-off-by: Bodo Eggert <7eggert@gmx.de>
 
-Anyway at the point you pass the bytecode through a processing filter
-you don't need SECCOMP because your filter can remove any syscall
-attempts. 
+---
 
-Alan
+This patch is tested by "in the editor, it looks good".
 
+There is a small race possibly preventing root from changing the 
+score, but I don't think it's an issue, since kill -9 exisis and
+the race is tiny.
+
+--- 2.6.17/fs/proc/base.c~	2006-07-07 12:20:54.000000000 +0200
++++ 2.6.17/fs/proc/base.c	2006-07-07 12:20:54.000000000 +0200
+@@ -962,8 +962,6 @@ static ssize_t oom_adjust_write(struct f
+ 	char buffer[8], *end;
+ 	int oom_adjust;
+ 
+-	if (!capable(CAP_SYS_RESOURCE))
+-		return -EPERM;
+ 	memset(buffer, 0, 8);
+ 	if (count > 6)
+ 		count = 6;
+@@ -974,6 +972,9 @@ static ssize_t oom_adjust_write(struct f
+ 		return -EINVAL;
+ 	if (*end == '\n')
+ 		end++;
++	if (!capable(CAP_SYS_RESOURCE)
++	&&  task->oomkilladj > oom_adjust)
++		return -EPERM;
+ 	task->oomkilladj = oom_adjust;
+ 	if (end - buffer == 0)
+ 		return -EIO;
+-- 
+Funny quotes:
+20. The only substitute for good manners is fast reflexes.

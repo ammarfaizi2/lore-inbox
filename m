@@ -1,258 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWGLB4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGLCCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWGLB4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 21:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWGLB4H
+	id S932344AbWGLCCt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 22:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGLCCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 21:56:07 -0400
-Received: from mga05.intel.com ([192.55.52.89]:47752 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932342AbWGLB4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 21:56:06 -0400
-X-IronPort-AV: i="4.06,230,1149490800"; 
-   d="scan'208"; a="96624939:sNHT84268751"
-Subject: Re: [PATCH 4/6] PCI-Express AER implemetation
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1152668754.28493.184.camel@ymzhang-perf.sh.intel.com>
-References: <1152668200.28493.178.camel@ymzhang-perf.sh.intel.com>
-	 <1152668507.28493.180.camel@ymzhang-perf.sh.intel.com>
-	 <1152668754.28493.184.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1152669233.28493.191.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 12 Jul 2006 09:53:53 +0800
+	Tue, 11 Jul 2006 22:02:49 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:57311 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932344AbWGLCCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 22:02:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=p1A9tu2mNcp+CqS8JJOxBicziCg6OLIr3WSyImLuz8W8Z3y8+oF+K5cJ3smzkefAkWlr5CNaGZkRnLV8Q5eSUkvg+lJsfPUg/hRdlkvcitywxnJPZ9bu8rhs0XIksU8vKIkxy4rC7N83EEvRugZKz+7FplryKVQmiphCIQDIrpk=
+Message-ID: <ed5aea430607111902i91b9e92s784ce8d2103f1b4e@mail.gmail.com>
+Date: Tue, 11 Jul 2006 20:02:37 -0600
+From: "David Mosberger-Tang" <David.Mosberger@acm.org>
+To: "Jeremy Higdon" <jeremy@sgi.com>
+Subject: Re: [PATCH] ia64: change usermode HZ to 250
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Jes Sorensen" <jes@sgi.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Luck, Tony" <tony.luck@intel.com>, "John Daiker" <jdaiker@osdl.org>,
+       "John Hawkes" <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Jack Steiner" <steiner@sgi.com>,
+       "Dan Higgins" <djh@sgi.com>
+In-Reply-To: <20060711183754.GB734242@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
+	 <1151578928.23785.0.camel@localhost.localdomain>
+	 <44A3AFFB.2000203@sgi.com>
+	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
+	 <20060708001427.GA723842@sgi.com>
+	 <1152340963.3120.0.camel@laptopd505.fenrus.org>
+	 <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
+	 <20060710202228.GA732959@sgi.com>
+	 <ed5aea430607102001g514bfa97jf82c25a038e9c436@mail.gmail.com>
+	 <20060711183754.GB734242@sgi.com>
+X-Google-Sender-Auth: cb5224a2ec8d856d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+On 7/11/06, Jeremy Higdon <jeremy@sgi.com> wrote:
 
-Patch 4 implements the error output by printk.
+> Okay.  So what do you think about changing the value in param.h from
+> 1024, so that it matches the new common value of 250, or is it best
+> just to leave it at 1024 and let applications that use it get the wrong
+> result?
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+In my opinion, HZ needs to be a constant, since otherwise you could
+break perfectly fine existing code (e.g., code which statically
+initializes a variable with HZ and then picks up the correct frequency
+from sysconf) and if you have to pick a particular constant, it seems
+reasonable to me to pick the most commonly used frequency (which
+appears to be 250Hz at the moment).
 
----
-
---- linux-2.6.17/drivers/pci/pcie/aer/aerdrv_errprint.c	1970-01-01 08:00:00.000000000 +0800
-+++ linux-2.6.17_aer/drivers/pci/pcie/aer/aerdrv_errprint.c	2006-06-22 16:46:29.000000000 +0800
-@@ -0,0 +1,216 @@
-+/*
-+ * Copyright (C) 2006 Intel
-+ *	Tom Long Nguyen (tom.l.nguyen@intel.com)
-+ *	Zhang Yanmin (yanmin.zhang@intel.com)
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/pm.h>
-+#include <linux/suspend.h>
-+
-+#include "aerdrv.h"
-+
-+#define AER_AGENT_RECEIVER		0
-+#define AER_AGENT_REQUESTER		1
-+#define AER_AGENT_COMPLETER		2
-+#define AER_AGENT_TRANSMITTER		3		
-+
-+#define AER_AGENT_REQUESTER_MASK	(PCI_ERR_UNC_COMP_TIME|	\
-+					PCI_ERR_UNC_UNSUP)
-+
-+#define AER_AGENT_COMPLETER_MASK	PCI_ERR_UNC_COMP_ABORT
-+
-+#define AER_AGENT_TRANSMITTER_MASK(t, e) (e & (PCI_ERR_COR_REP_ROLL| \
-+	((t == AER_CORRECTABLE) ? PCI_ERR_COR_REP_TIMER: 0))) 
-+
-+#define AER_GET_AGENT(t, e)						\
-+	((e & AER_AGENT_COMPLETER_MASK) ? AER_AGENT_COMPLETER :		\
-+	(e & AER_AGENT_REQUESTER_MASK) ? AER_AGENT_REQUESTER :		\
-+	(AER_AGENT_TRANSMITTER_MASK(t, e)) ? AER_AGENT_TRANSMITTER :	\
-+	AER_AGENT_RECEIVER)
-+
-+#define AER_PHYSICAL_LAYER_ERROR_MASK	PCI_ERR_COR_RCVR
-+#define AER_DATA_LINK_LAYER_ERROR_MASK(t, e)	\
-+		(PCI_ERR_UNC_DLP|		\
-+		PCI_ERR_COR_BAD_TLP| 		\
-+		PCI_ERR_COR_BAD_DLLP|		\
-+		PCI_ERR_COR_REP_ROLL| 		\
-+		((t == AER_CORRECTABLE) ?	\
-+		PCI_ERR_COR_REP_TIMER: 0))
-+
-+#define AER_PHYSICAL_LAYER_ERROR	0
-+#define AER_DATA_LINK_LAYER_ERROR	1
-+#define AER_TRANSACTION_LAYER_ERROR	2
-+
-+#define AER_GET_LAYER_ERROR(t, e)				\
-+	((e & AER_PHYSICAL_LAYER_ERROR_MASK) ?			\
-+	AER_PHYSICAL_LAYER_ERROR :				\
-+	(e & AER_DATA_LINK_LAYER_ERROR_MASK(t, e)) ?		\
-+		AER_DATA_LINK_LAYER_ERROR : 			\
-+		AER_TRANSACTION_LAYER_ERROR)
-+
-+/* 
-+ * AER error strings 
-+ */
-+static char* aer_error_severity_string[] = {
-+	"Uncorrected (Non-Fatal)", 
-+	"Uncorrected (Fatal)",
-+	"Corrected"
-+};
-+
-+static char* aer_error_layer[] = {
-+	"Physical Layer",
-+	"Data Link Layer",
-+	"Transaction Layer" 
-+};
-+static char* aer_correctable_error_string[] = {
-+	"Receiver Error        ",	/* Bit Position 0 	*/
-+	"Unknown Error Bit 1   ", 	/* Bit Position 1	*/
-+	"Unknown Error Bit 2   ",	/* Bit Position 2	*/
-+	"Unknown Error Bit 3   ", 	/* Bit Position 3	*/
-+	"Unknown Error Bit 4   ", 	/* Bit Position 4 	*/
-+	"Unknown Error Bit 5   ",	/* Bit Position 5	*/
-+	"Bad TLP               ",	/* Bit Position 6 	*/
-+	"Bad DLLP              ",	/* Bit Position 7 	*/
-+	"RELAY_NUM Rollover    ",	/* Bit Position 8 	*/
-+	"Unknown Error Bit 9   ", 	/* Bit Position 9	*/
-+	"Unknown Error Bit 10  ",	/* Bit Position 10	*/
-+	"Unknown Error Bit 11  ", 	/* Bit Position 11	*/
-+	"Replay Timer Timeout  ",	/* Bit Position 12 	*/
-+	"Advisory Non-Fatal    ", 	/* Bit Position 13	*/
-+	"Unknown Error Bit 14  ",	/* Bit Position 14	*/
-+	"Unknown Error Bit 15  ", 	/* Bit Position 15	*/
-+	"Unknown Error Bit 16  ", 	/* Bit Position 16 	*/
-+	"Unknown Error Bit 17  ",	/* Bit Position 17	*/
-+	"Unknown Error Bit 18  ", 	/* Bit Position 18	*/
-+	"Unknown Error Bit 19  ",	/* Bit Position 19	*/
-+	"Unknown Error Bit 20  ", 	/* Bit Position 20	*/
-+	"Unknown Error Bit 21  ", 	/* Bit Position 21 	*/
-+	"Unknown Error Bit 22  ",	/* Bit Position 22	*/
-+	"Unknown Error Bit 23  ", 	/* Bit Position 23	*/
-+	"Unknown Error Bit 24  ",	/* Bit Position 24	*/
-+	"Unknown Error Bit 25  ", 	/* Bit Position 25	*/
-+	"Unknown Error Bit 26  ", 	/* Bit Position 26 	*/
-+	"Unknown Error Bit 27  ",	/* Bit Position 27	*/
-+	"Unknown Error Bit 28  ",	/* Bit Position 28	*/
-+	"Unknown Error Bit 29  ", 	/* Bit Position 29	*/
-+	"Unknown Error Bit 30  ", 	/* Bit Position 30 	*/
-+	"Unknown Error Bit 31  "	/* Bit Position 31	*/
-+};
-+
-+static char* aer_uncorrectable_error_string[] = {
-+	"Unknown Error Bit 0   ", 	/* Bit Position 0	*/
-+	"Unknown Error Bit 1   ", 	/* Bit Position 1	*/
-+	"Unknown Error Bit 2   ",	/* Bit Position 2	*/
-+	"Unknown Error Bit 3   ", 	/* Bit Position 3	*/
-+	"Data Link Protocol    ",	/* Bit Position 4	*/
-+	"Unknown Error Bit 5   ", 	/* Bit Position 5	*/
-+	"Unknown Error Bit 6   ", 	/* Bit Position 6	*/
-+	"Unknown Error Bit 7   ",	/* Bit Position 7	*/
-+	"Unknown Error Bit 8   ", 	/* Bit Position 8	*/
-+	"Unknown Error Bit 9   ", 	/* Bit Position 9	*/
-+	"Unknown Error Bit 10  ",	/* Bit Position 10	*/
-+	"Unknown Error Bit 11  ", 	/* Bit Position 11	*/
-+	"Poisoned TLP          ",	/* Bit Position 12 	*/
-+	"Flow Control Protocol ",	/* Bit Position 13	*/
-+	"Completion Timeout    ",	/* Bit Position 14 	*/
-+	"Completer Abort       ",	/* Bit Position 15 	*/
-+	"Unexpected Completion ",	/* Bit Position 16	*/
-+	"Receiver Overflow     ",	/* Bit Position 17	*/
-+	"Malformed TLP         ",	/* Bit Position 18	*/
-+	"ECRC                  ",	/* Bit Position 19	*/
-+	"Unsupported Request   ",	/* Bit Position 20	*/
-+	"Unknown Error Bit 21  ", 	/* Bit Position 21 	*/
-+	"Unknown Error Bit 22  ",	/* Bit Position 22	*/
-+	"Unknown Error Bit 23  ", 	/* Bit Position 23	*/
-+	"Unknown Error Bit 24  ",	/* Bit Position 24	*/
-+	"Unknown Error Bit 25  ", 	/* Bit Position 25	*/
-+	"Unknown Error Bit 26  ", 	/* Bit Position 26 	*/
-+	"Unknown Error Bit 27  ",	/* Bit Position 27	*/
-+	"Unknown Error Bit 28  ",	/* Bit Position 28	*/
-+	"Unknown Error Bit 29  ", 	/* Bit Position 29	*/
-+	"Unknown Error Bit 30  ", 	/* Bit Position 30 	*/
-+	"Unknown Error Bit 31  "	/* Bit Position 31	*/
-+};
-+
-+static char* aer_agent_string[] = {
-+	"Receiver ID", 
-+	"Requester ID", 
-+	"Completer ID", 
-+	"Transmitter ID" 
-+};
-+
-+static char* aer_get_error_source_name(int severity, unsigned int status)
-+{
-+        int i;
-+
-+        for (i = 0; i < 32; i++) {
-+                if (!(status & (1 << i)))
-+                        continue;
-+
-+                if (severity == AER_CORRECTABLE)
-+                        return aer_correctable_error_string[i];
-+                else
-+                        return aer_uncorrectable_error_string[i];
-+        }
-+
-+        return NULL;
-+}
-+
-+void aer_print_error(struct pci_dev *dev, struct aer_err_info *info)
-+{
-+	char * errmsg;
-+	int err_layer, agent;
-+
-+	printk(KERN_ERR "+------ PCI-Express Device Error ------+\n");
-+	printk(KERN_ERR "Error Severity\t\t: %s\n",
-+		aer_error_severity_string[info->severity]);
-+
-+	if ( info->status == 0) {
-+                printk(KERN_ERR "PCIE Bus Error type\t: (Unaccessible)\n");
-+                printk(KERN_ERR "Unaccessible Received\t: %s\n",
-+			info->flags & AER_MULTI_ERROR_VALID_FLAG ?
-+				"Multiple" : "First");
-+                printk(KERN_ERR "Unregistered Agent ID\t: %04x\n",
-+			(dev->bus->number << 8) | dev->devfn);
-+	} else {
-+		err_layer = AER_GET_LAYER_ERROR(info->severity, info->status);
-+		printk(KERN_ERR "PCIE Bus Error type\t: %s\n",
-+			aer_error_layer[err_layer]);
-+
-+		errmsg = aer_get_error_source_name(info->severity, info->status);
-+		printk(KERN_ERR "%s\t: %s\n", errmsg,
-+			info->flags & AER_MULTI_ERROR_VALID_FLAG ?
-+				"Multiple" : "First");
-+
-+		agent = AER_GET_AGENT(info->severity, info->status);
-+		printk(KERN_ERR "%s\t\t: %04x\n",
-+			aer_agent_string[agent],
-+			(dev->bus->number << 8) | dev->devfn);
-+
-+		printk(KERN_ERR "VendorID=%04xh, DeviceID=%04xh,"
-+			" Bus=%02xh, Device=%02xh, Function=%02xh\n",
-+			dev->vendor,
-+			dev->device,
-+			dev->bus->number,
-+			PCI_SLOT(dev->devfn),
-+			PCI_FUNC(dev->devfn));
-+
-+		if (info->flags & AER_TLP_HEADER_VALID_FLAG) {
-+			unsigned char *tlp = (unsigned char *) &info->tlp;
-+			printk(KERN_ERR "TLB Header:\n");
-+			printk(KERN_ERR "%02x%02x%02x%02x %02x%02x%02x%02x"
-+				" %02x%02x%02x%02x %02x%02x%02x%02x\n",
-+				*(tlp + 3), *(tlp + 2), *(tlp + 1), *tlp,
-+				*(tlp + 7), *(tlp + 6), *(tlp + 5), *(tlp + 4),
-+				*(tlp + 11), *(tlp + 10), *(tlp + 9),
-+				*(tlp + 8), *(tlp + 15), *(tlp + 14),
-+				*(tlp + 13), *(tlp + 12));
-+		}
-+	}
-+}
-+
+  --david
+-- 
+Mosberger Consulting LLC, http://www.mosberger-consulting.com/

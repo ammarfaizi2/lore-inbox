@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWGLD4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWGLEJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbWGLD4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 23:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWGLD4A
+	id S932410AbWGLEJq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 00:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWGLEJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 23:56:00 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37618 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932406AbWGLDz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 23:55:59 -0400
-Subject: Re: 2.6.17-mm6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keith Mannthey <kmannth@gmail.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20060705172545.815872b6.akpm@osdl.org>
-References: <20060703030355.420c7155.akpm@osdl.org>
-	 <a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
-	 <20060705155037.7228aa48.akpm@osdl.org>
-	 <a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
-	 <20060705164457.60e6dbc2.akpm@osdl.org>
-	 <20060705164820.379a69ba.akpm@osdl.org>
-	 <a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
-	 <20060705172545.815872b6.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 11 Jul 2006 23:55:21 -0400
-Message-Id: <1152676521.8309.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 12 Jul 2006 00:09:46 -0400
+Received: from [67.170.228.241] ([67.170.228.241]:43494 "EHLO sysexperts.com")
+	by vger.kernel.org with ESMTP id S932177AbWGLEJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 00:09:45 -0400
+Message-ID: <44B475F9.2010805@sysexperts.com>
+Date: Tue, 11 Jul 2006 21:09:29 -0700
+From: Kevin Brown <kevin@sysexperts.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
+MIME-Version: 1.0
+To: Andreas Kleen <ak@suse.de>
+CC: Anthony DeRobertis <asd@suespammers.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Martin Michlmayr <tbm@cyrius.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: skge error; hangs w/ hardware memory hole
+References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net> <200607072328.51282.ak@suse.de> <44B46276.5030006@suespammers.org> <121226.1152672894714.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+In-Reply-To: <121226.1152672894714.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-05 at 17:25 -0700, Andrew Morton wrote:
-> On Wed, 5 Jul 2006 17:05:49 -0700
-> "Keith Mannthey" <kmannth@gmail.com> wrote:
-> 
-> > On 7/5/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > On Wed, 5 Jul 2006 16:44:57 -0700
-> > > Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > > I guess a medium-term fix would be to add a boot parameter to override
-> > > > PERCPU_ENOUGH_ROOM - it's hard to justify increasing it permanently just
-> > > > for the benefit of the tiny minority of kernels which are hand-built with
-> > > > lots of drivers in vmlinux.
-> > 
+Andreas Kleen wrote:
+> If it helps I can do a proper patch that only bounces IO > 4GB through
+> the copy.
 
-[snip]
+For the A8V series of boards, that will almost certainly be just fine, 
+because as far as I know you can't populate them with more than 4G of 
+memory anyway.
 
-> 
-> So you've been hit by the expansion of NR_IRQS which bloats kernel_stat
-> which gobbles per-cpu data.
-> 
-> In 2.6.17 NR_IRQS is 244.  In -mm (due to the x86_64 genirq conversion)
-> NR_IRQS became (256 + 32 * NR_CPUS).  Hence the kstat "array" became
-> two-dimensional.  It's now O(NR_CPUS^2).
-> 
-> I don't know what's a sane max for NR_CPUS on x86_64, but that'll sure be a
-> showstopper if the ia64 guys try the same trick.
-> 
-> I guess one fix would be to de-percpuify kernel_stat.irqs[].  Or
-> dynamically allocate it with alloc_percpu().
+If someone has more than 4G of memory, it's likely they'll be willing to 
+take the performance hit from the mod in exchange for being able to use 
+more than 4G of memory.
 
-And people wondered why I'm fighting for the robust per_cpu variables.
+Bottom line: do the patch.  It'll be worth using.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114785997413023&w=2
 
-Yes there's still problems with this. But if I ever get some more time
-to work on it, I would like to solve those issues.  Having that
-PERCPU_ENOUGH_ROOM laying around in the kernel is just disgusting ;)
-
-Sorry, for the noise, I have another 2288 more LKML emails to read :)
-
--- Steve
-
+- Kevin
 

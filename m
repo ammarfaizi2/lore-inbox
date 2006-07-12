@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWGLR5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWGLSGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWGLR5S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWGLR5S
+	id S932275AbWGLSGj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWGLSGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:57:18 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:8066 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932205AbWGLR5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:57:17 -0400
-From: John Keller <jpk@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org, John Keller <jpk@sgi.com>
-Date: Wed, 12 Jul 2006 12:57:14 -0500
-Message-Id: <20060712175714.16943.10799.sendpatchset@attica.americas.sgi.com>
-Subject: [PATCH 1/1] - sgiioc4: fixup use of mmio ops
+	Wed, 12 Jul 2006 14:06:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:1889 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932275AbWGLSGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:06:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aHbOxWl6xnRcv+Z8YAPasWi2sv1RTnt/a0yVYZUDfP4iI4LiDgTyv/9XZztQXanytomqhirEzJAWSJg4UYJ69TZQWRT2I43QbaYgxcLB6EfcZe1t3fvHdHq/dmZvqEkGOOro4+iDMuSbTAsB72/fLEQ7K1oF6sqo9qCuHYpqmjQ=
+Message-ID: <2c0942db0607121106mdce053ap2ea631486dca68f@mail.gmail.com>
+Date: Wed, 12 Jul 2006 11:06:37 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Subject: Re: annoying frequent overcurrent messages.
+Cc: "Dave Jones" <davej@redhat.com>,
+       "Kernel development list" <linux-kernel@vger.kernel.org>,
+       "David Brownell" <david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.44L0.0607121344420.6111-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <2c0942db0607121034w170b4b24l928773fa37b3705e@mail.gmail.com>
+	 <Pine.LNX.4.44L0.0607121344420.6111-100000@iolanthe.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sgiioc4.c had been recently converted to using mmio ops.
-There are still a few issues to cleanup.
+On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > Then the logging of the 'all cleared up' message would be better if it
+> > had a bit of hysteresis to it -- the good state is noticed, but don't
+> > log it as such until it hangs out there for a while and has had a
+> > chance to quiesce.
+>
+> You didn't read what I wrote -- there _is_ no "all cleared up" message.
 
-Signed-off-by: jpk@sgi.com
+You're right, I didn't -- my apologies. However:
 
---- linux-2.6.orig/drivers/ide/pci/sgiioc4.c	2006-07-11 11:34:42.135934603 -0500
-+++ linux-2.6/drivers/ide/pci/sgiioc4.c	2006-07-12 09:17:02.316590824 -0500
-@@ -372,7 +372,7 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
- 	printk(KERN_INFO "%s: BM-DMA at 0x%04lx-0x%04lx\n", hwif->name,
- 	       dma_base, dma_base + num_ports - 1);
- 
--	if (!request_region(dma_base, num_ports, hwif->name)) {
-+	if (!request_mem_region(dma_base, num_ports, hwif->name)) {
- 		printk(KERN_ERR
- 		       "%s(%s) -- ERROR, Addresses 0x%p to 0x%p "
- 		       "ALREADY in use\n",
-@@ -381,7 +381,7 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
- 		goto dma_alloc_failure;
- 	}
- 
--	hwif->dma_base = dma_base;
-+	hwif->dma_base = (unsigned long) ioremap(dma_base, num_ports);
- 	hwif->dmatable_cpu = pci_alloc_consistent(hwif->pci_dev,
- 					  IOC4_PRD_ENTRIES * IOC4_PRD_BYTES,
- 					  &hwif->dmatable_dma);
-@@ -607,18 +607,14 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
- 	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
- 	hwif->ide_dma_timeout = &__ide_dma_timeout;
- 
--	/*
--	 * The IOC4 uses MMIO rather than Port IO.
--	 * It also needs special workarounds for INB.
--	 */
--	default_hwif_mmiops(hwif);
- 	hwif->INB = &sgiioc4_INB;
- }
- 
- static int __devinit
- sgiioc4_ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t * d)
- {
--	unsigned long base, ctl, dma_base, irqport;
-+	unsigned long ctl, dma_base, irqport;
-+	unsigned long bar0, cmd_base, cmd_phys_base, virt_base;
- 	ide_hwif_t *hwif;
- 	int h;
- 
-@@ -636,23 +632,27 @@ sgiioc4_ide_setup_pci_device(struct pci_
- 	}
- 
- 	/*  Get the CmdBlk and CtrlBlk Base Registers */
--	base = pci_resource_start(dev, 0) + IOC4_CMD_OFFSET;
--	ctl = pci_resource_start(dev, 0) + IOC4_CTRL_OFFSET;
--	irqport = pci_resource_start(dev, 0) + IOC4_INTR_OFFSET;
-+	bar0 = pci_resource_start(dev, 0);
-+	virt_base = (unsigned long) ioremap(bar0, pci_resource_len(dev, 0));
-+	cmd_base = virt_base + IOC4_CMD_OFFSET;
-+	ctl = virt_base + IOC4_CTRL_OFFSET;
-+	irqport = virt_base + IOC4_INTR_OFFSET;
- 	dma_base = pci_resource_start(dev, 0) + IOC4_DMA_OFFSET;
- 
--	if (!request_region(base, IOC4_CMD_CTL_BLK_SIZE, hwif->name)) {
-+	cmd_phys_base = bar0 + IOC4_CMD_OFFSET;
-+	if (!request_mem_region(cmd_phys_base, IOC4_CMD_CTL_BLK_SIZE,
-+	    hwif->name)) {
- 		printk(KERN_ERR
--			"%s : %s -- ERROR, Port Addresses "
-+			"%s : %s -- ERROR, Addresses "
- 			"0x%p to 0x%p ALREADY in use\n",
--		       __FUNCTION__, hwif->name, (void *) base,
--		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
-+		       __FUNCTION__, hwif->name, (void *) cmd_phys_base,
-+		       (void *) cmd_phys_base + IOC4_CMD_CTL_BLK_SIZE);
- 		return -ENOMEM;
- 	}
- 
--	if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
-+	if (hwif->io_ports[IDE_DATA_OFFSET] != cmd_base) {
- 		/* Initialize the IO registers */
--		sgiioc4_init_hwif_ports(&hwif->hw, base, ctl, irqport);
-+		sgiioc4_init_hwif_ports(&hwif->hw, cmd_base, ctl, irqport);
- 		memcpy(hwif->io_ports, hwif->hw.io_ports,
- 		       sizeof (hwif->io_ports));
- 		hwif->noprobe = !hwif->io_ports[IDE_DATA_OFFSET];
-@@ -665,6 +665,9 @@ sgiioc4_ide_setup_pci_device(struct pci_
- 	hwif->cds = (struct ide_pci_device_s *) d;
- 	hwif->gendev.parent = &dev->dev;/* setup proper ancestral information */
- 
-+	/* The IOC4 uses MMIO rather than Port IO. */
-+	default_hwif_mmiops(hwif);
-+
- 	/* Initializing chipset IRQ Registers */
- 	hwif->OUTL(0x03, irqport + IOC4_INTR_SET * 4);
- 
+> > That's almost exactly how the driver behaves currently -- the message is
+> > printed just once when the state is first noticed.  Nothing is printed
+> > when the state is cleared, and nothing gets printed repeatedly during the
+> > problem period.  But then the problem recurs very quickly.
+
+If you change my wording from "all cleared up message" to "clearing
+the internal state that keeps track of whether we're still in an
+overcurrent situation" then my suggestion still makes sense. In short,
+don't believe we're out of the overcurrent state until a bit of time
+passes.
+
+Before we go any further, let's make sure my suggestion could even fix
+anything for Dave. Dave? How often are these messages printed? Do they
+come in clumps? Or are they periodic? In other words, would a bit of
+hystersis in the state clearing code remove most of the messages for
+you? Or am I just stirring up trouble?
+
+Ray

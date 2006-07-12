@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWGLWd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWGLWfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWGLWd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWGLWd2
+	id S932198AbWGLWfG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWGLWfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:33:28 -0400
-Received: from cantor.suse.de ([195.135.220.2]:12934 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932132AbWGLWd1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:33:27 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Date: Thu, 13 Jul 2006 00:33:16 +0200
-User-Agent: KMail/1.9.3
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <20060630014050.GI19712@stusta.de> <200607130006.12705.ak@suse.de> <20060712221910.GA12905@elte.hu>
-In-Reply-To: <20060712221910.GA12905@elte.hu>
+	Wed, 12 Jul 2006 18:35:06 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:62685 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S932198AbWGLWfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:35:04 -0400
+Message-ID: <44B57914.5060805@grupopie.com>
+Date: Wed, 12 Jul 2006 23:35:00 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: 7eggert@gmx.de
+CC: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+References: <6wOHw-5gl-23@gated-at.bofh.it> <6x0yX-5An-17@gated-at.bofh.it> <6xc78-6gi-15@gated-at.bofh.it> <6xyhf-5Fq-1@gated-at.bofh.it> <6xyU6-6Hn-63@gated-at.bofh.it> <6xzdl-75B-13@gated-at.bofh.it> <6xzZO-8gU-23@gated-at.bofh.it> <6xA9p-8ti-7@gated-at.bofh.it> <6xACo-Op-1@gated-at.bofh.it> <6xAVM-1b9-5@gated-at.bofh.it> <6xBfh-1yd-29@gated-at.bofh.it> <6xBRQ-2v4-3@gated-at.bofh.it> <6xITm-4td-17@gated-at.bofh.it> <6xMX0-2bX-21@gated-at.bofh.it> <E1G0mrB-0001JL-T3@be1.lrz>
+In-Reply-To: <E1G0mrB-0001JL-T3@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607130033.16555.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I can put in a patch into my tree for the next merge to disable the 
-> > TSC disable code on i386 too like I did earlier for x86-64.
+Bodo Eggert wrote:
+> Paulo Marques <pmarques@grupopie.com> wrote:
+>[...]
+>>This allows for all the combinations mentioned before in this thread and
+>>makes the logic simpler, IMHO.
 > 
-> please do.
+> Why don't you use a bitmask?
+> alt-sysrq down -> val  =  0b11
+> sysrq up       -> val &= ~0b01
+> alt up         -> val &= ~0b10
+> 
+> test is_sysrq == !!val
 
-Hmm, with the new thread test as it was pointed out it can be indeed made zero 
-cost for the common case. Perhaps that's not needed then.
+It can be done, but it doesn't seem to buy you much.
 
--Andi
+The sysrq_alt variable is used wether we use magic sysrq or not, so we 
+must keep it anyway. This var doesn't do what your high bit does, 
+because in the bit mask this bit only goes on when both are pressed (not 
+just alt).
+
+alt up is actually 2 different keys (left and right). To detect it, we 
+either copy the same "if" that is outside the #ifdef or we try to follow 
+the state of sysrq_alt to detect the change from low to high :P
+
+Anyway, I think the code can be simplified further, though, and it might 
+involve a similar trick. And it definitely needs some more comments in 
+there ;)
+
+I'll play with it some more and try to produce a better patch.
+
+-- 
+Paulo Marques

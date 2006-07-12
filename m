@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWGLJ5f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWGLKIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWGLJ5f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 05:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWGLJ5f
+	id S1751231AbWGLKIv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 06:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWGLKIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 05:57:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:39356 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751217AbWGLJ5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 05:57:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=Zmd/A7Z9NfiNXGLhZHNj1of22m2jU3cyF4LltKHdNkbGetxO2gTGG4ve1ohX7Ye6Pbn5BttbfzoG/7tEfqZHA9GSOv/bBr01+gsXikSRkiA9qk62AisCCojh4fPbRyG3FTv4jIjmTPUvsZ/hts5i2yK2ZmaFpxj97CWrBmMsWd8=
-Date: Wed, 12 Jul 2006 05:57:31 -0400
-To: Catalin Marinas <catalin.marinas@gmail.com>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+	Wed, 12 Jul 2006 06:08:51 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:5857 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751231AbWGLKIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 06:08:50 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: uswsusp history lesson [was Re: [Suspend2-devel] Re: swsusp / suspend2 reliability]
+Date: Wed, 12 Jul 2006 12:09:05 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+       Olivier Galibert <galibert@pobox.com>, grundig <grundig@teleline.es>,
+       Avuton Olrich <avuton@gmail.com>, jan@rychter.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
-Message-ID: <20060712095730.GA19478@nineveh.rivenstone.net>
-Mail-Followup-To: Catalin Marinas <catalin.marinas@gmail.com>,
-	Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20060710220901.5191.66488.stgit@localhost.localdomain> <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com> <6bffcb0e0607110546r11d2f619pbcd1205999253bd@mail.gmail.com> <6bffcb0e0607110551v272deebcua5dc3f782ed25a7f@mail.gmail.com> <b0943d9e0607110600q345b5ad7y38174b85cf01edba@mail.gmail.com>
+References: <20060627133321.GB3019@elf.ucw.cz> <200607120034.01339.rjw@sisk.pl> <200607120900.49828.ncunningham@linuxmail.org>
+In-Reply-To: <200607120900.49828.ncunningham@linuxmail.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <b0943d9e0607110600q345b5ad7y38174b85cf01edba@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-From: jfannin@gmail.com (Joseph Fannin)
+Message-Id: <200607121209.05766.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 02:00:05PM +0100, Catalin Marinas wrote:
-> On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >> When I set DEBUG_KEEP_INIT=n everything works fine.
+Hi,
+
+On Wednesday 12 July 2006 01:00, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Wednesday 12 July 2006 08:34, Rafael J. Wysocki wrote:
+> > On Wednesday 12 July 2006 00:01, Nigel Cunningham wrote:
+> > > On Wednesday 12 July 2006 07:54, Rafael J. Wysocki wrote:
+> > > > On Tuesday 11 July 2006 14:45, Nigel Cunningham wrote:
+> > > > > Was that 10% speedup on suspend or resume, or both? With LZF, I see
+> > > > > approximately double the speed with both reading and writing:
+> > > >
+> > > > I was not referring to the speedup of writing and/or reading.
+> > > >
+> > > > The exercise was to measure the time needed to suspend the system and
+> > > > get it back in a responsive state.  I measured the time elapsed between
+> > > > triggering the suspend and the moment at which I could switch between
+> > > > some applications in X without any noticeable lag due to faulting in
+> > > > some pages (that is a bit subjective, I must admit, but I was willing
+> > > > to show that bigger images make substantial difference).
+> > > >
+> > > > I tested uswsusp with compression (LZF) and two image sizes: 120 MB and
+> > > > (IIRC) about 220 MB on a 256 MB box.  The result of the measurement for
+> > > > the 120 MB image has always been greater than for the 220 MB image, but
+> > > > the difference has never been greater than 10%.
+> > >
+> > > Ah ok. Are you sure you're getting that sort of throughput with LZF
+> > > though - if you're not, you might be underestimating the advantage.
 > >
-> >I was wrong.
->
-> You mean the previous e-mail wasn't a kmemleak bug?
->
-> >Here is the new error
-> >/usr/src/linux-work4/kernel/pid.c: In function 'pid_task':
-> >/usr/src/linux-work4/kernel/pid.c:262: error: initializer element is
-> >not constant
-> >/usr/src/linux-work4/kernel/pid.c:262: error: (near initialization for
-> >'__memleak_offset__container_of.offset')
-> >make[2]: *** [kernel/pid.o] Error 1
-> >make[1]: *** [kernel] Error 2
-> >make: *** [_all] Error 2
->
-> That's a bug in gcc-4. The __builtin_constant_p() function always
-> returns true even when the argument is not a constant. You could try a
-> gcc-3.4 or a patched gcc.
+> > Certainly I don't get that kind of speedup for writing.  For reading I do.
+> 
+> Hmm. I would have expected it to be the other way round, since I guess you 
+> need to do the reading synchronously - or do you read the image, then 
+> decompress it? (I'm reading and decompressing at the same time, using 
+> readahead to avoid waiting for pages all the time).
 
-    Which gcc versions are affected by this?
---
-Joseph Fannin
-jhf@rivenstone.net
+We're doing something like you are, but I think we're using some other option
+in LZF, because the resulting image size is 30-40% of the uncompressed one.
+That's better for encryption later on, but obviously not for speed.
 
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.
+Greetings,
+Rafael

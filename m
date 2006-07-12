@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWGLUZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWGLU1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWGLUZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 16:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWGLUZM
+	id S1751056AbWGLU1N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 16:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWGLU1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 16:25:12 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:28631 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751000AbWGLUZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 16:25:10 -0400
-Message-ID: <44B55A9E.2010403@us.ibm.com>
-Date: Wed, 12 Jul 2006 13:25:02 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Eric Dumazet <dada1@cosmosbay.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: xfs fails dbench in 2.6.18-rc1-mm1
-References: <44B52A19.3020607@google.com> <200607121912.52785.dada1@cosmosbay.com> <44B557DA.2050208@google.com>
-In-Reply-To: <44B557DA.2050208@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 12 Jul 2006 16:27:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46767 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751056AbWGLU1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 16:27:13 -0400
+Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality
+	permits it
+From: Arjan van de Ven <arjan@infradead.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607122312.19909.a1426z@gawab.com>
+References: <200607112257.22069.a1426z@gawab.com>
+	 <p73sll6n73t.fsf@verdi.suse.de>  <200607122312.19909.a1426z@gawab.com>
+Content-Type: text/plain
+Date: Wed, 12 Jul 2006 22:27:08 +0200
+Message-Id: <1152736028.3217.74.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> Eric Dumazet wrote:
->> On Wednesday 12 July 2006 18:58, Martin Bligh wrote:
->>
->>> http://test.kernel.org/abat/40891/debug/test.log.1
->>>
->>> Filesystem type for /mnt/tmp is xfs
->>> write failed on handle 13786
->>> 4 clients started
->>> Child failed with status 1
->>> write failed on handle 13786
->>> write failed on handle 13786
->>> write failed on handle 13786
->>>
->>> Works fine in -git4
->>> All other fs's seemed to run OK.
->>>
->>> Machine is a 4x Opteron.
->>
->>
->> You need to revert 92eb7a2f28d551acedeb5752263267a64b1f5ddf
->
-> Still fails (thanks Andy).
->
-Wondering if its my changes :(
-Can you back out these and try ?
+On Wed, 2006-07-12 at 23:12 +0300, Al Boldi wrote:
 
-Please, Please tell me that, its not me :)
+> It already checks for it, but makes no difference.
+> 
+> Thanks for looking into this!
+> 
 
-Thanks,
-Badari
-
-#
-vectorize-aio_read-aio_write-fileop-methods.patch
-remove-readv-writev-methods-and-use-aio_read-aio_write.patch
-streamline-generic_file_-interfaces-and-filemap.patch
-streamline-generic_file_-interfaces-and-filemap-ecryptfs.patch
-
+well glibc also randomizes things a bit (for better cache coloring) ...
 
 

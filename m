@@ -1,82 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWGLT6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWGLUFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWGLT6W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 15:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWGLT6W
+	id S932140AbWGLUFp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 16:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWGLUFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 15:58:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:8903 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932127AbWGLT6W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 15:58:22 -0400
-Date: Thu, 13 Jul 2006 01:28:21 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Duetsch, Thomas  LDE1" <thomas.duetsch@siemens.com>
-Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-       mingo@elte.hu
-Subject: Re: [SYSFS] Kernel Null pointer dereference in sysfs_readdir()
-Message-ID: <20060712195821.GB1743@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <5B0042046ADE774687F32BF3652F5BB9021C9190@kher9eaa.ww007.siemens.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 16:05:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:34016 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932140AbWGLUFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 16:05:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J635gx52MZHvE4NTh31meJPlc3so6rLhS6idGcgaRnH2luJ/mxoVJsfnnpzbvFyk/EzSDy9AoCHOaTtAzwU0rp3xwXX1UX2WUO58zTC7VjrVvMQZbA1WytHiFPBinzlYnRV196SckJ34CNHGV8OVmV7ZbtXNrGLs9ZOH9xRvxI4=
+Message-ID: <d120d5000607121305g5fa5bda2v2038ecac893f4c83@mail.gmail.com>
+Date: Wed, 12 Jul 2006 16:05:43 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Paulo Marques" <pmarques@grupopie.com>
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+Cc: "Roman Zippel" <zippel@linux-m68k.org>, "Andrew Morton" <akpm@osdl.org>,
+       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <44B55091.2040207@grupopie.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <5B0042046ADE774687F32BF3652F5BB9021C9190@kher9eaa.ww007.siemens.net>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
+	 <Pine.LNX.4.64.0607120132440.12900@scrub.home>
+	 <20060711165003.25265bb7.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607120213060.12900@scrub.home>
+	 <20060711173735.43e9af94.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607120248050.12900@scrub.home>
+	 <20060711183647.5c5c0204.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607121056170.12900@scrub.home>
+	 <44B4F88D.3060301@grupopie.com> <44B55091.2040207@grupopie.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 01:35:50PM +0200, Duetsch, Thomas  LDE1 wrote:
-> Hi,
-> 
-> I'm currently working on a custom kernel based on Ingo's -rt patch
-> (2.6.16-rt29).
-> 
-> While rebooting my machine, I came across a kernel null pointer
-> dereference in this code segment in fs/sysfs/dir.c, function
-> sysfs_readdir():
-> 
-> 		for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
-> 			struct sysfs_dirent *next;
-> 			const char * name;
-> 			int len;
-> 
-> 			next = list_entry(p, struct sysfs_dirent,
-> 					   s_sibling);
-> 			if (!next->s_element)
-> 				continue;
-> 
-> 			name = sysfs_get_name(next);
-> 			len = strlen(name);
-> 			if (next->s_dentry)
-> PROBLEM ->			ino = next->s_dentry->d_inode->i_ino;
-> 			else
-> 				ino = iunique(sysfs_sb, 2);
-> 
-> Checking the mailing list, I came across this thread:
-> "What protection does sysfs_readdir have with SMP/Preemption?"
-> http://lkml.org/lkml/2005/11/22/293
-> Which handels the exact same problem (And I'm working on the kernel
-> Steve was working back then).
-> Reading through your suggestions and solutions, I was wondering, what
-> would happen if a sysfs file would be deleted instead of created, while
-> a sysfs_readdir were in progress.
-> Looking through the code, I don't see, where the parents inode mutex is
-> taken, to prevent a race condition.
-> 
-parent's inode mutex is taken in vfs_readdir() in case of sysfs_readdir() call
-and in sysfs_hash_and_remove() in case of delete path.
+Hi,
 
-> Unfortunately, I can't reproduce the behaviour, nor do I know, which
-> file was accessed, when this happens.
-> 
-> Like Steve said back then, this might well be a problem in our code, but
-> 
-> since we didn't change the sysfs, maybe it's a vanilla problem as well.
-> 
+On 7/12/06, Paulo Marques <pmarques@grupopie.com> wrote:
+>
+> Ok, I've tested it this time and this new one works as expected. I can
+> use any of the sequences discussed and I can produce a SysRq every time.
+> Still, just pressing SysRq or any sequence that doesn't start with
+> "press Alt -> press SysRq" seems unaffected.
+>
 
-I thought at that time the issue was due to bug in error path which got
-fixed by Steve's patch.
+I like this, however:
 
-Thanks
-Maneesh
+> +       if (keycode == KEY_SYSRQ) {
+> +               if (down) {
+> +                       if(sysrq_alt)
+> +                               sysrq_down = down;
+> +               } else {
+> +                       sysrq_down = 0;
+
+Are you sure? This will set sysrq_down only if ALT has already been
+pressed. If SysRq does not autorepeat and it is pressed first we won't
+ever see sysrq_down. Am I missing something?
+
+> +
+> +       if (sysrq_down && sysrq_alt)
+> +               sysrq_active = 1;
+> +       else if (!sysrq_down && !sysrq_alt)
+> +               sysrq_active = 0;
+> +
+> +       if (keycode == KEY_SYSRQ && sysrq_active)
+> +               return;
+
+What about alt? I think that "if (...) sysrq_active = 1;" statement
+should go down, below handle_sysrq block.
+
+> +
+> +       if (sysrq_active && down && !rep) {
+>                handle_sysrq(kbd_sysrq_xlate[keycode], regs, tty);
+>                return;
+>        }
+>
+
+We also need to check if emulate_raw() needs to be adjusted...
+
+-- 
+Dmitry

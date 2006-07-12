@@ -1,113 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWGLVxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWGLV5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWGLVxp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 17:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGLVxp
+	id S1751447AbWGLV5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 17:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWGLV5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 17:53:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:65303 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751436AbWGLVxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 17:53:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p7y8whmLuGYOc4v6tBHFTcB6zvVmxeJi+FV9YZlEcaQi/G9LrdQWfUPuyWW+HiwAFqkI/nx9iGCiJsgMeLE4eWrBvY4eVJulewX11hkrhoWscaqnm680coU3CcmA03F8o1LSxS9Yoyl4Bfc4csPG0LRCSeblkQt9BdGmyHS0qNE=
-Message-ID: <a762e240607121453g5cf98ac0s6aef7255e5e35f@mail.gmail.com>
-Date: Wed, 12 Jul 2006 14:53:43 -0700
-From: "Keith Mannthey" <kmannth@gmail.com>
-To: "Badari Pulavarty" <pbadari@us.ibm.com>
-Subject: Re: xfs fails dbench in 2.6.18-rc1-mm1
-Cc: "Martin Bligh" <mbligh@google.com>, "Eric Dumazet" <dada1@cosmosbay.com>,
-       lkml <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Andy Whitcroft" <apw@shadowen.org>
-In-Reply-To: <1152739939.22840.1.camel@dyn9047017100.beaverton.ibm.com>
+	Wed, 12 Jul 2006 17:57:19 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38349 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751447AbWGLV5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 17:57:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Jakub Jelinek <jakub@redhat.com>,
+       Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+References: <20060712184412.2BD57180061@magilla.sf.frob.com>
+	<44B54EA4.5060506@redhat.com>
+	<20060712195349.GW3823@sunsite.mff.cuni.cz>
+	<44B556E5.5000702@zytor.com>
+	<m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
+	<1152739766.3217.83.camel@laptopd505.fenrus.org>
+Date: Wed, 12 Jul 2006 15:56:13 -0600
+In-Reply-To: <1152739766.3217.83.camel@laptopd505.fenrus.org> (Arjan van de
+	Ven's message of "Wed, 12 Jul 2006 23:29:26 +0200")
+Message-ID: <m1bqru8p36.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44B52A19.3020607@google.com>
-	 <200607121912.52785.dada1@cosmosbay.com> <44B557DA.2050208@google.com>
-	 <44B55A9E.2010403@us.ibm.com> <44B55AEA.1010608@google.com>
-	 <1152739939.22840.1.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/12/06, Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> On Wed, 2006-07-12 at 13:26 -0700, Martin Bligh wrote:
-> > Badari Pulavarty wrote:
-> > > Martin Bligh wrote:
-> > >
-> > >> Eric Dumazet wrote:
-> > >>
-> > >>> On Wednesday 12 July 2006 18:58, Martin Bligh wrote:
-> > >>>
-> > >>>> http://test.kernel.org/abat/40891/debug/test.log.1
-> > >>>>
-> > >>>> Filesystem type for /mnt/tmp is xfs
-> > >>>> write failed on handle 13786
-> > >>>> 4 clients started
-> > >>>> Child failed with status 1
-> > >>>> write failed on handle 13786
-> > >>>> write failed on handle 13786
-> > >>>> write failed on handle 13786
-> > >>>>
-> > >>>> Works fine in -git4
-> > >>>> All other fs's seemed to run OK.
-> > >>>>
-> > >>>> Machine is a 4x Opteron.
-> > >>>
-> > >>>
-> > >>>
-> > >>> You need to revert 92eb7a2f28d551acedeb5752263267a64b1f5ddf
-> > >>
-> > >>
-> > >> Still fails (thanks Andy).
-> > >>
-> > > Wondering if its my changes :(
-> > > Can you back out these and try ?
-> > >
-> > > Please, Please tell me that, its not me :)
-> > >
-> > > Thanks,
-> > > Badari
-> > >
-> > > #
-> > > vectorize-aio_read-aio_write-fileop-methods.patch
-> > > remove-readv-writev-methods-and-use-aio_read-aio_write.patch
-> > > streamline-generic_file_-interfaces-and-filemap.patch
-> > > streamline-generic_file_-interfaces-and-filemap-ecryptfs.patch
-> >
-> > You could submit a job to elm3b6 to run dbench on xfs ;-)
-> >
-> > M.
->
->
-> I am not able to "insmod xfs.ko" on my x86-64 machine :(
->
-> elm3b29:~ # modprobe xfs
-> FATAL: Error inserting xfs (/lib/modules/2.6.18-rc1-
-> mm1/kernel/fs/xfs/xfs.ko): Cannot allocate memory
->
-> #dmesg shows ..
->
-> Could not allocate 8 bytes percpu data
-> Could not allocate 8 bytes percpu data
-> Could not allocate 8 bytes percpu data
-> Could not allocate 8 bytes percpu data
-> Could not allocate 8 bytes percpu data
-> Could not allocate 8 bytes percpu data
-> Could not allocate 328 bytes percpu data
-> Could not allocate 328 bytes percpu data
-> Could not allocate 328 bytes percpu data
->
->
-> Whats happening here ?
+Arjan van de Ven <arjan@infradead.org> writes:
 
-The per-cpu area is exhausted in -mm x68_64 (If you pump up the percpu
-area or cut down NR_CPUS you can work around it).  I ran into this a
-few -mm release ago. There are some details in the 2.6.17-mm6 thread
-from July 5th of so.
+> On Wed, 2006-07-12 at 15:23 -0600, Eric W. Biederman wrote:
+>> "H. Peter Anvin" <hpa@zytor.com> writes:
+>> 
+>> > Jakub Jelinek wrote:
+>> >> On Wed, Jul 12, 2006 at 12:33:56PM -0700, Ulrich Drepper wrote:
+>> >>> Roland McGrath wrote:
+>> >>>> We could also put the uname info (modulo nodename) into the vDSO.
+>> >>> Or even better: real topology information.
+>> >> AND rather than OR would be even better.  So glibc could find kernel
+>> >> version, etc. and topology in the vDSO cheaply.
+>> >
+>> > Wouldn't it make more sense for this to be in ELF tags, rather than the
+> vdso?
+>> > Another alternative, I guess, would be to put a pointer in the ELF tags,
+> which
+>> > may point into the vdso.
+>> 
+>> Cheap and simple access to topology information would be interesting.
+>> 
+>> Glibc just wants to know if our kernel is SMP so it can know if it is
+>> ok to busy wait for a bit waiting for a mutex.  Or if busy waiting is
+>> a complete loss.
+>
+>
+> with current power management... busy waiting pretty much is a loss even
+> on UP
 
-Thanks,
-  Keith
+It is a short busy wait before falling asleep.  I assume you mean
+busy wait is a loss even on SMP?
+
+Eric
+

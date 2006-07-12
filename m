@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWGLLTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWGLLWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWGLLTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 07:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWGLLTI
+	id S1751265AbWGLLWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 07:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWGLLWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 07:19:08 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50562 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751258AbWGLLTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 07:19:06 -0400
-Subject: Re: tty's use of file_list_lock and file_move
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Theodore Tso <tytso@mit.edu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910607111650m16630157ya8c27949ae639ffc@mail.gmail.com>
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <1152554708.27368.202.camel@localhost.localdomain>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
-	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
-	 <20060711012904.GD30332@thunk.org>
-	 <20060711194456.GA3677@flint.arm.linux.org.uk>
-	 <9e4733910607111508x526ee642p5b587698306b22d3@mail.gmail.com>
-	 <1152657465.18028.72.camel@localhost.localdomain>
-	 <9e4733910607111650m16630157ya8c27949ae639ffc@mail.gmail.com>
-Content-Type: text/plain
+	Wed, 12 Jul 2006 07:22:11 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:14956 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751265AbWGLLWK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 07:22:10 -0400
+Message-ID: <44B4DB39.2040208@sw.ru>
+Date: Wed, 12 Jul 2006 15:21:29 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Cedric Le Goater <clg@fr.ibm.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain> <20060711075420.937831000@localhost.localdomain> <44B3D435.8090706@sw.ru> <44B3E21E.7090205@fr.ibm.com>
+In-Reply-To: <44B3E21E.7090205@fr.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Jul 2006 12:37:11 +0100
-Message-Id: <1152704232.22943.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-07-11 am 19:50 -0400, ysgrifennodd Jon Smirl:
-> My original goal was to do some work on the VT layer but I got sucked
-> into the TTY code because of VT/TTY interactions. I think I understand
-> enough now that I can make changes in the VT code without breaking
-> everything. I also see now that the VT code wasn't as closely
-> intertwined into the TTY code as much as I initially thought it was.
+>>Lets take a look at sys_setpriority() or any other function calling
+>>find_user():
+>>it can change the priority for all user or group processes like:
+>>
+>>do_each_thread_ve(g, p) {
+>>   if (p->uid == who)
+>>       error = set_one_prio(p, niceval, error);
+>>} while_each_thread_ve(g, p);
+> 
+> 
+> eh. this is openvz code ! thanks :)
+it doesn't matter :)
+2.6.17 code is:
+                        do_each_thread(g, p)
+                                if (p->uid == who)
+                                        error = set_one_prio(p, niceval, error);
+                        while_each_thread(g, p);
 
-VT is just an instance of a tty driver, at least from the tty layer
-viewpoint.
+when introducing process namespaces we will have to isolate processes somehow and this loop, agree?
+in this case 1 user-namespace can belong to 2 process-namespaces, agree?
+how do you see this loop in the future making sure that above situation is handled correctly?
+how many other such places do we have?
 
-> This may also explain why the init functions are all chained together.
-> tty_init() -> vty_init() -> vcs_init(), kbd_init(), prom_con_init(),
-> etc... Since the link order is wrong the chained init functions are
-> compensating.
+>>which essentially means that user-namespace becomes coupled with
+>>process-namespace. Sure, we can check in every such place for
+>> p->nsproxy->user_ns == current->nsproxy->user_ns
+>>condition. But this a way IMHO leading to kernel full of security
+>>crap which is hardly maintainable.
+> 
+> 
+> only 4 syscalls use find_user() : sys_setpriority, sys_getpriority,
+> sys_ioprio_set, sys_ioprio_get and they use it very simply to check if a
+> user_struct exists for a given uid. So, it should be OK. But please see the
+> attached patch.
+the problem is not in find_user() actually. but in uid comparison inside
+some kind of process iteration loop.
+In this case you select processes p which belong to both namespaces simultenously:
+i.e. processes p which belong both to user-namespace U and process-namespace P.
 
-Its a bit more fundamental than that, there are various video side init
-functions that are done before the module_init calls are made. The VT is
-both a tty driver and a console.
+I hope I was more clear this time :)
 
-The only real "magic" hooks in there are the resize one and the ioctl
-hook. The resize one could easily be moved to be a tty driver method
-that is usually NULL and would be a nice cleanup. 
+>>Another example of not so evident coupling here:
+>>user structure maintains number of processes/opened
+>>files/sigpending/locked_shm etc.
+>>if a single user can belong to different proccess/ipc/... namespaces
+>>all these becomes unusable.
+> 
+> 
+> this is the purpose of execns.
+> 
+> user namespace can't be unshared through the unshare syscall().
+why? we do it fine in OpenVZ.
 
-Alan
+> they can
+> only be unshared through execns() which flushes the previous image of the
+> process. However, the execns patch still needs to close files without the
+> close-on-exec flag. I didn't do it yet. lazy me :)
+
+Kirill
 

@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGLCCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWGLCEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWGLCCt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 22:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGLCCt
+	id S932345AbWGLCEG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 22:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWGLCEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 22:02:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:57311 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932344AbWGLCCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 22:02:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=p1A9tu2mNcp+CqS8JJOxBicziCg6OLIr3WSyImLuz8W8Z3y8+oF+K5cJ3smzkefAkWlr5CNaGZkRnLV8Q5eSUkvg+lJsfPUg/hRdlkvcitywxnJPZ9bu8rhs0XIksU8vKIkxy4rC7N83EEvRugZKz+7FplryKVQmiphCIQDIrpk=
-Message-ID: <ed5aea430607111902i91b9e92s784ce8d2103f1b4e@mail.gmail.com>
-Date: Tue, 11 Jul 2006 20:02:37 -0600
-From: "David Mosberger-Tang" <David.Mosberger@acm.org>
-To: "Jeremy Higdon" <jeremy@sgi.com>
-Subject: Re: [PATCH] ia64: change usermode HZ to 250
-Cc: "Arjan van de Ven" <arjan@infradead.org>, "Jes Sorensen" <jes@sgi.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Luck, Tony" <tony.luck@intel.com>, "John Daiker" <jdaiker@osdl.org>,
-       "John Hawkes" <hawkes@sgi.com>, "Tony Luck" <tony.luck@gmail.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, "Jack Steiner" <steiner@sgi.com>,
-       "Dan Higgins" <djh@sgi.com>
-In-Reply-To: <20060711183754.GB734242@sgi.com>
+	Tue, 11 Jul 2006 22:04:06 -0400
+Received: from compunauta.com ([69.36.170.169]:39304 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S932345AbWGLCEF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 22:04:05 -0400
+From: Gustavo Guillermo =?iso-8859-15?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with 2.6.11/12/13/14/15
+Date: Tue, 11 Jul 2006 21:04:02 -0500
+User-Agent: KMail/1.8.2
+References: <200607111906.06343.gustavo@compunauta.com> <200607112032.51788.gustavo@compunauta.com>
+In-Reply-To: <200607112032.51788.gustavo@compunauta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <617E1C2C70743745A92448908E030B2A27FC5F@scsmsx411.amr.corp.intel.com>
-	 <1151578928.23785.0.camel@localhost.localdomain>
-	 <44A3AFFB.2000203@sgi.com>
-	 <1151578513.3122.22.camel@laptopd505.fenrus.org>
-	 <20060708001427.GA723842@sgi.com>
-	 <1152340963.3120.0.camel@laptopd505.fenrus.org>
-	 <ed5aea430607080607u67aeb05di963243c0e653e4f0@mail.gmail.com>
-	 <20060710202228.GA732959@sgi.com>
-	 <ed5aea430607102001g514bfa97jf82c25a038e9c436@mail.gmail.com>
-	 <20060711183754.GB734242@sgi.com>
-X-Google-Sender-Auth: cb5224a2ec8d856d
+Message-Id: <200607112104.03673.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/11/06, Jeremy Higdon <jeremy@sgi.com> wrote:
+booting kernel 2.6.15 with all drivers compiled, and loading Intelfb agp-intel 
+the oops appears, I'm using an extra NVidia card.
 
-> Okay.  So what do you think about changing the value in param.h from
-> 1024, so that it matches the new common value of 250, or is it best
-> just to leave it at 1024 and let applications that use it get the wrong
-> result?
+Deleting the intel810 and friends the oops disappear.
 
-In my opinion, HZ needs to be a constant, since otherwise you could
-break perfectly fine existing code (e.g., code which statically
-initializes a variable with HZ and then picks up the correct frequency
-from sysconf) and if you have to pick a particular constant, it seems
-reasonable to me to pick the most commonly used frequency (which
-appears to be 250Hz at the moment).
 
-  --david
+El Martes, 11 de Julio de 2006 20:32, Gustavo Guillermo Pérez escribió:
+> Reviewing my experiments I was discover that the problem start at 2.6.16,
+> cause going forward from 2.6.11 to 2.6.15 there is no problem in smp or
+> single mode.
+>
+> El Martes, 11 de Julio de 2006 19:06, Gustavo Guillermo Pérez escribió:
+> > Hello list, I was trying to use a newer kernel on a gentoo installation,
+> > and I've downloaded a lastest kernel 2.6.17/16 getting a hardlock on boot
+> > time, with or without smp mode, controlled by BIOS or by smp kernel
+> > option I got 1 penguin or 2 penguins as processors get detected, it just
+> > hang after frame buffer or agp detection, but using vga=0 to not see any
+> > frame buffer I got a so faster oops and kernel panic and machine reboots,
+> > then I can't see anything on the screen, just with frame buffer enabled,
+> > but with frame buffer enabled does not work SySREQ, is just a hang.
+> >
+> > Attached .config file used, cat /proc/cpuinfo with 2.6.11 that was the
+> > kernel that can be built for, and lspci, and verbose lspci.
+> >
+> > The config file is the same used for the tests, with or without frame
+> > buffer enabled is the same.
+> >
+> > BIOS VERSION NT94510J.15A.0065.2005.1103.1803
+> >
+> > I'll going to upgrade the bios.
+> >
+> > Processor type: Intel (R) Pentium(R) D CPU 2.80GHz
+> > Intel (R) EM64T Capable.
+> >
+> > Using 512MB of DDR2 Dual Channel,
+> > ASL0 256MB
+> > ASL1 Not Installed
+> > BSL0 256MB
+> > BSL1 Not Installed
+
 -- 
-Mosberger Consulting LLC, http://www.mosberger-consulting.com/
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

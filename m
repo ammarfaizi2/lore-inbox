@@ -1,146 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWGLOcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWGLOhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbWGLOcA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 10:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWGLOb7
+	id S1750954AbWGLOhR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 10:37:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWGLOhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 10:31:59 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:59533 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750953AbWGLOb7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 10:31:59 -0400
-Date: Wed, 12 Jul 2006 09:31:07 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, hugh@veritas.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: please revert kthread from loop.c
-Message-ID: <20060712143107.GA25408@sergelap.austin.ibm.com>
-References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com> <20060627054612.GA15657@sergelap.austin.ibm.com> <Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com> <20060711194932.GA27176@sergelap.austin.ibm.com> <20060711171752.4993903a.akpm@osdl.org> <20060712032647.GA24595@sergelap.austin.ibm.com> <20060711204637.bba6e966.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 10:37:17 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:58708 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750954AbWGLOhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 10:37:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eaIBSScLCtmH6NKo4dpRbafi/ERIW6r/Ju2hp1nXeZx90ODU3Wd20ndYZtYPhn0NeURWPBBqRXO3TDl3fSIgqATxCrzPzY2anV01OamSlbqIh78Yj8SBMip8pDgztsef6jrtDxraCjKqcy0dKdFKJA9r6FWf0pOUKjf/b+2z3FA=
+Message-ID: <b0943d9e0607120737h691212ddl31d5db4bb1cb3db4@mail.gmail.com>
+Date: Wed, 12 Jul 2006 15:37:15 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607120619p6837a64bice7808856f93b11b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060711204637.bba6e966.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+	 <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
+	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
+	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
+	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+	 <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
+	 <6bffcb0e0607120619p6837a64bice7808856f93b11b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton (akpm@osdl.org):
-> On Tue, 11 Jul 2006 22:26:47 -0500
-> "Serge E. Hallyn" <serue@us.ibm.com> wrote:
-> 
-> > > If so, this should plug it.  The same race is not possible against the
-> > > loop_set_fd() wakeup because the thread isn't running at that stage, yes?
-> > 
-> > Right, it's not yet running at loop_set_fd().  However what about
-> > kthread_stop() called from loop_clr_fd()?  Unfortunately fixing
-> > that seems hairy.  Need to think about it...
-> 
-> Yes, there does seem to be a little race there.
-> 
-> I think it would be sufficient to do
-> 
-> 
-> diff -puN drivers/block/loop.c~a drivers/block/loop.c
-> --- a/drivers/block/loop.c~a
-> +++ a/drivers/block/loop.c
-> @@ -602,7 +602,8 @@ static int loop_thread(void *data)
->  		}
->  		__set_current_state(TASK_INTERRUPTIBLE);
->  		spin_unlock_irq(&lo->lo_lock);
-> -		schedule();
-> +		if (lo->state != Lo_rundown)
-> +			schedule();
->  	}
->  
->  	return 0;
-> @@ -888,12 +889,11 @@ static int loop_clr_fd(struct loop_devic
->  	if (filp == NULL)
->  		return -EINVAL;
->  
-> +	kthread_stop(lo->lo_thread);
->  	spin_lock_irq(&lo->lo_lock);
->  	lo->lo_state = Lo_rundown;
->  	spin_unlock_irq(&lo->lo_lock);
->  
-> -	kthread_stop(lo->lo_thread);
-> -
->  	lo->lo_backing_file = NULL;
->  
->  	loop_release_xfer(lo);
-> _
-> 
-> where the tweak to loop_clr_fd() is just there to prevent loop_thread()
-> from going into a very brief busyloop.
+On 12/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Here is a slabinfo from current 2.6.18-rc1-git4 and 2.6.18-rc1 +
+> kmemleak http://www.stardust.webpages.pl/files/o_bugs/kml/slab.txt
 
-Why does this fix the problem?  Can't the wake_up_process() in
-kthread_stop() still happen right before loop_thread's schedule()?
+Thanks. Does it make any difference if you enable
+CONFIG_DEBUG_MEMLEAK_TASK_STACKS? Also, if you save the memleak file
+periodically, do any of the context_struct_to_string reports disappear
+(I can investigate this if you upload a few ml60.txt, mk61.txt etc.)?
 
-This also means that after loop_thread() has decided to stop,
-make_request() has a chance to make a few more requests.  It
-will see lo->lo_state as bound, assume all is well, but when it goes to
-wake_up_thread(), the thread will have been put_task_struct()d.
+> I haven't seen that before
+> orphan pointer 0xf1283e34 (size 224):
+>   c01735c2: <kmem_cache_alloc>
+>   fdc8c5cf: <ip_conntrack_alloc>
+>   fdc8c6a3: <init_conntrack>
+>   fdc8c894: <ip_conntrack_in>
+>   fdc8b652: <ip_conntrack_local>
+>   c02c15bf: <nf_iterate>
+>   c02c1630: <nf_hook_slow>
+>   c02e127e: <raw_send_hdrinc>
 
-If I'm not entirely wrong above, how about the following alternate fix?  
-Unfortunately I guess it doesn't stop the brief busyloop...
+This looks like a false positive as the conntrack pointer is lost in
+init_conntrack and only a pointer conntrack->tuplehash[...].list is
+stored. This cannot be aliased via container_of because
+tuplehash_to_ctrack doesn't pass a constant argument to it and cannot
+be determined at compile time. Try the attached patch.
 
-> I'm not sure why it's all so tricky in there, really.  Loop is doing a
-> pretty conventional stop, wakeup, stick-things-on-lists operation and we do
-> that all over the kernel using pretty well-understood idioms.  But for some
-> reason, loop is all difficult about it.  I wonder why.  hm.
+Note that you can get some false positives that might disappear after
+a while. This is because of the stacks scanning and also pointers
+stored in CPU registers, especially on SMP systems.
 
-Perhaps I should give completions another go.
+Thanks.
 
-thanks,
--serge
-
-Subject: [PATCH 3/3] kthread: fix loop.c race at thread stop
-
-The wake_up_process() from kthread_stop() could happen
-between loop_thread's __set_current_state(TASK_INTERRUPTIBLE)
-and schedule().  But we can't put kthread_stop() under the
-spin_lock like we did the wake_up_process() in make_request().
-
-So turn the thread stopping into a two-phase process.  Do
-a wake_up_process() under spin_lock after setting the
-lo_state to Lo_rundown, after which the loop_thread no
-long sleeps.
-
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-
----
-
- drivers/block/loop.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-e972f09b6ca27a7ac3421ab49bde6dba33fca62c
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index f944536..df38e05 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -600,9 +600,13 @@ static int loop_thread(void *data)
- 			spin_unlock_irq(&lo->lo_lock);
- 			break;
- 		}
--		__set_current_state(TASK_INTERRUPTIBLE);
-+		if (lo->lo_state != Lo_rundown)
-+			__set_current_state(TASK_INTERRUPTIBLE);
- 		spin_unlock_irq(&lo->lo_lock);
--		schedule();
-+		if (lo->lo_state != Lo_rundown)
-+			schedule();
-+		else
-+			__set_current_state(TASK_UNINTERRUPTIBLE);
- 	}
- 
- 	return 0;
-@@ -896,6 +900,7 @@ static int loop_clr_fd(struct loop_devic
- 
- 	spin_lock_irq(&lo->lo_lock);
- 	lo->lo_state = Lo_rundown;
-+	wake_up_process(lo->lo_thread);
- 	spin_unlock_irq(&lo->lo_lock);
- 
- 	kthread_stop(lo->lo_thread);
 -- 
-1.1.6
+Catalin

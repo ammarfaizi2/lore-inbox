@@ -1,64 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWGLXal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWGLXbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWGLXal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWGLXal
+	id S932468AbWGLXbE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 19:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWGLXbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:30:41 -0400
-Received: from mail.suse.de ([195.135.220.2]:5773 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932258AbWGLXaj (ORCPT
+	Wed, 12 Jul 2006 19:31:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:10469 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932468AbWGLXaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:30:39 -0400
+	Wed, 12 Jul 2006 19:30:52 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 1/5] [PATCH] Driver core: fix driver-core kernel-doc
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 5/5] [PATCH] The scheduled unexport of insert_resource
 Reply-To: Greg KH <greg@kroah.com>
-Date: Wed, 12 Jul 2006 16:26:50 -0700
-Message-Id: <1152746814664-git-send-email-greg@kroah.com>
+Date: Wed, 12 Jul 2006 16:26:54 -0700
+Message-Id: <11527468263212-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.1
-In-Reply-To: <20060712232343.GA22672@kroah.com>
-References: <20060712232343.GA22672@kroah.com>
+In-Reply-To: <11527468231110-git-send-email-greg@kroah.com>
+References: <20060712232343.GA22672@kroah.com> <1152746814664-git-send-email-greg@kroah.com> <11527468173384-git-send-email-greg@kroah.com> <11527468203373-git-send-email-greg@kroah.com> <11527468231110-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+From: Adrian Bunk <bunk@stusta.de>
 
-Warning(/var/linsrc/linux-2617-g4//drivers/base/core.c:574): No description found for parameter 'class'
-Warning(/var/linsrc/linux-2617-g4//drivers/base/core.c:574): No description found for parameter 'devt'
-Warning(/var/linsrc/linux-2617-g4//drivers/base/core.c:626): No description found for parameter 'devt'
+Implement the scheduled unexport of insert_resource.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/core.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ Documentation/feature-removal-schedule.txt |    8 --------
+ include/linux/ioport.h                     |    2 +-
+ kernel/resource.c                          |    2 --
+ 3 files changed, 1 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index b21f864..e61ad4e 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -559,9 +559,9 @@ static void device_create_release(struct
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index ee28798..47d714d 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -55,14 +55,6 @@ Who:	Mauro Carvalho Chehab <mchehab@brtu
  
- /**
-  * device_create - creates a device and registers it with sysfs
-- * @cs: pointer to the struct class that this device should be registered to.
-+ * @class: pointer to the struct class that this device should be registered to.
-  * @parent: pointer to the parent struct device of this new device, if any.
-- * @dev: the dev_t for the char device to be added.
-+ * @devt: the dev_t for the char device to be added.
-  * @fmt: string for the class device's name
-  *
-  * This function can be used by char device classes.  A struct
-@@ -621,7 +621,7 @@ EXPORT_SYMBOL_GPL(device_create);
- /**
-  * device_destroy - removes a device that was created with device_create()
-  * @class: the pointer to the struct class that this device was registered * with.
-- * @dev: the dev_t of the device that was previously registered.
-+ * @devt: the dev_t of the device that was previously registered.
-  *
-  * This call unregisters and cleans up a class device that was created with a
-  * call to class_device_create()
+ ---------------------------
+ 
+-What:	remove EXPORT_SYMBOL(insert_resource)
+-When:	April 2006
+-Files:	kernel/resource.c
+-Why:	No modular usage in the kernel.
+-Who:	Adrian Bunk <bunk@stusta.de>
+-
+----------------------------
+-
+ What:	PCMCIA control ioctl (needed for pcmcia-cs [cardmgr, cardctl])
+ When:	November 2005
+ Files:	drivers/pcmcia/: pcmcia_ioctl.c
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index 5612dfe..d42c833 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -97,7 +97,7 @@ extern struct resource iomem_resource;
+ extern int request_resource(struct resource *root, struct resource *new);
+ extern struct resource * ____request_resource(struct resource *root, struct resource *new);
+ extern int release_resource(struct resource *new);
+-extern __deprecated_for_modules int insert_resource(struct resource *parent, struct resource *new);
++extern int insert_resource(struct resource *parent, struct resource *new);
+ extern int allocate_resource(struct resource *root, struct resource *new,
+ 			     resource_size_t size, resource_size_t min,
+ 			     resource_size_t max, resource_size_t align,
+diff --git a/kernel/resource.c b/kernel/resource.c
+index 129cf04..0dd3a85 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -404,8 +404,6 @@ int insert_resource(struct resource *par
+ 	return result;
+ }
+ 
+-EXPORT_SYMBOL(insert_resource);
+-
+ /*
+  * Given an existing resource, change its start and size to match the
+  * arguments.  Returns -EBUSY if it can't fit.  Existing children of
 -- 
 1.4.1
 

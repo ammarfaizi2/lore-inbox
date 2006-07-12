@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWGLTGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWGLTIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWGLTGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 15:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWGLTGl
+	id S1750796AbWGLTIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 15:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWGLTIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 15:06:41 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:58811 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1750794AbWGLTGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 15:06:40 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Zach Brown <zach.brown@oracle.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [openib-general] ipoib lockdep warning
-X-Message-Flag: Warning: May contain useful information
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
-	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
-	<20060712093820.GA9218@elte.hu>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 12 Jul 2006 12:06:37 -0700
-Message-ID: <adamzbewsle.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Wed, 12 Jul 2006 15:08:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55985 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750796AbWGLTI3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 15:08:29 -0400
+Date: Wed, 12 Jul 2006 15:08:25 -0400
+From: Dave Jones <davej@redhat.com>
+To: Paul Paquette <paulp@bowes.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oops during rsync
+Message-ID: <20060712190825.GH14453@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Paul Paquette <paulp@bowes.com>, linux-kernel@vger.kernel.org
+References: <44B5452B.4070503@bowes.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Jul 2006 19:06:39.0512 (UTC) FILETIME=[4DEDA980:01C6A5E6]
-Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+Content-Disposition: inline
+In-Reply-To: <44B5452B.4070503@bowes.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > i agree that the IDR subsystem should be irq-safe if GFP_ATOMIC is 
- > passed in. So the _irqsave()/_irqrestore() fix should be done.
+On Wed, Jul 12, 2006 at 02:53:31PM -0400, Paul Paquette wrote:
+ 
+ > When using rsync (version 2.6.8) as a nightly backup (involving 150+ GB) 
+ > from one drive to the other, occasionally (once every 3 to 4 weeks) the 
+ > system goes into a state where it can be pinged, but nothing else works 
+ > - console or remote.  The last time this occurred was the first time I 
+ > actually got an oops (or any message regarding a problem) in my logs as 
+ > they usually just stopped.  I have also had similar hangs from other 
+ > software (ie. updatedb).
 
-OK, I will send the idr change to Andrew.
+This may be bad memory.
 
- > But i also think that you should avoid using GFP_ATOMIC for any sort of 
- > reliable IO path and push as much work into process context as possible. 
- > Is it acceptable for your infiniband IO model to fail with -ENOMEM if 
- > GFP_ATOMIC happens to fail, and is the IO retried transparently?
+ > Jul 12 02:10:26 ECMServer kernel: [710038.538070] eax: 04000000   ebx: 04000000   ecx: c134e000   edx: 00000000
 
-Yes, I think it's OK.  This idr use is in an inherently unreliable
-path.  With that said, as Michael pointed out, we can change things to
-use GFP_ATOMIC less.
+04000000 could be a single bit flip, that would bypass any NULL checks.
 
-Thanks,
-  Roland
+ > kernel paging request at virtual address 04000030
+
+and then we dereference an offset from this 'address'.
+
+Give it a going over with memtest for a while ?
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

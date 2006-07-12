@@ -1,38 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWGLT6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWGLT6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWGLT6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 15:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWGLT6b
+	id S932127AbWGLT6W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 15:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWGLT6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 15:58:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12680 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932133AbWGLT6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 15:58:31 -0400
-Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060712112432.0cd5996f@dxpl.pdx.osdl.net>
-References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com>
-	 <200607121652.21920.ak@suse.de> <m1lkqyc00d.fsf@ebiederm.dsl.xmission.com>
-	 <200607121808.26555.ak@suse.de> <m1ac7ebx0v.fsf@ebiederm.dsl.xmission.com>
-	 <20060712112432.0cd5996f@dxpl.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 12 Jul 2006 21:58:29 +0200
-Message-Id: <1152734309.3217.71.camel@laptopd505.fenrus.org>
+	Wed, 12 Jul 2006 15:58:22 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:8903 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932127AbWGLT6W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 15:58:22 -0400
+Date: Thu, 13 Jul 2006 01:28:21 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: "Duetsch, Thomas  LDE1" <thomas.duetsch@siemens.com>
+Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+       mingo@elte.hu
+Subject: Re: [SYSFS] Kernel Null pointer dereference in sysfs_readdir()
+Message-ID: <20060712195821.GB1743@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <5B0042046ADE774687F32BF3652F5BB9021C9190@kher9eaa.ww007.siemens.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5B0042046ADE774687F32BF3652F5BB9021C9190@kher9eaa.ww007.siemens.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-12 at 11:24 -0700, Stephen Hemminger wrote:
-> What is the motivation behind killing the sys_sysctl call anyway?
-> Sure its more ugly esthetically but it works.
+On Wed, Jul 12, 2006 at 01:35:50PM +0200, Duetsch, Thomas  LDE1 wrote:
+> Hi,
+> 
+> I'm currently working on a custom kernel based on Ingo's -rt patch
+> (2.6.16-rt29).
+> 
+> While rebooting my machine, I came across a kernel null pointer
+> dereference in this code segment in fs/sysfs/dir.c, function
+> sysfs_readdir():
+> 
+> 		for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
+> 			struct sysfs_dirent *next;
+> 			const char * name;
+> 			int len;
+> 
+> 			next = list_entry(p, struct sysfs_dirent,
+> 					   s_sibling);
+> 			if (!next->s_element)
+> 				continue;
+> 
+> 			name = sysfs_get_name(next);
+> 			len = strlen(name);
+> 			if (next->s_dentry)
+> PROBLEM ->			ino = next->s_dentry->d_inode->i_ino;
+> 			else
+> 				ino = iunique(sysfs_sb, 2);
+> 
+> Checking the mailing list, I came across this thread:
+> "What protection does sysfs_readdir have with SMP/Preemption?"
+> http://lkml.org/lkml/2005/11/22/293
+> Which handels the exact same problem (And I'm working on the kernel
+> Steve was working back then).
+> Reading through your suggestions and solutions, I was wondering, what
+> would happen if a sysfs file would be deleted instead of created, while
+> a sysfs_readdir were in progress.
+> Looking through the code, I don't see, where the parents inode mutex is
+> taken, to prevent a race condition.
+> 
+parent's inode mutex is taken in vfs_readdir() in case of sysfs_readdir() call
+and in sysfs_hash_and_remove() in case of delete path.
 
-it "works" but the thing is that the number space is NOT stable, and as
-such it's a really bad ABI
+> Unfortunately, I can't reproduce the behaviour, nor do I know, which
+> file was accessed, when this happens.
+> 
+> Like Steve said back then, this might well be a problem in our code, but
+> 
+> since we didn't change the sysfs, maybe it's a vanilla problem as well.
+> 
 
+I thought at that time the issue was due to bug in error path which got
+fixed by Steve's patch.
+
+Thanks
+Maneesh

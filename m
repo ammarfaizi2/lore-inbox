@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWGLPOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWGLPSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWGLPOV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 11:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWGLPOS
+	id S1751394AbWGLPSg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 11:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWGLPSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 11:14:18 -0400
-Received: from navgwout.symantec.com ([198.6.49.12]:63699 "EHLO
-	navgwout.symantec.com") by vger.kernel.org with ESMTP
-	id S1751404AbWGLPOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 11:14:15 -0400
-Date: Wed, 12 Jul 2006 16:13:35 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: please revert kthread from loop.c
-In-Reply-To: <20060711194932.GA27176@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0607121602120.13239@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
- <20060627054612.GA15657@sergelap.austin.ibm.com>
- <Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
- <20060711194932.GA27176@sergelap.austin.ibm.com>
+	Wed, 12 Jul 2006 11:18:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15580 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751394AbWGLPSf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 11:18:35 -0400
+Date: Wed, 12 Jul 2006 08:18:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alessio Sangalli <alesan@manoweb.com>
+cc: Daniel Ritz <daniel.ritz-ml@swissonline.ch>, Dave Jones <davej@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cardbus: revert IO window limit
+In-Reply-To: <44B4AAF9.1000706@manoweb.com>
+Message-ID: <Pine.LNX.4.64.0607120816070.5623@g5.osdl.org>
+References: <200607010003.31324.daniel.ritz-ml@swissonline.ch>
+ <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org> <200607010109.40486.daniel.ritz-ml@swissonline.ch>
+ <Pine.LNX.4.64.0606301614470.12404@g5.osdl.org> <44B4AAF9.1000706@manoweb.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 12 Jul 2006 15:14:01.0249 (UTC) FILETIME=[CE27C110:01C6A5C5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006, Serge E. Hallyn wrote:
-> > But not good for me.  Gets further e.g. 170 iterations,
-> > but then hangs while kthread_stop waits for completion.
+
+
+On Wed, 12 Jul 2006, Alessio Sangalli wrote:
+>
+> Linus Torvalds wrote:
 > 
-> After getting much more familiar with the code, here is a more invasive,
-> but pretty heavily tested patch.
+> > Alessio, try Daniel's patch. We'd love to hear if it works, and in 
+> > particular what the dmesg output is (if it does work, it should print out 
+> > something like
+> > 
+> > 	PIIX4 ACPI PIO at 2000-203f
+> > 	PIIX4 SMB PIO at 2040-204f
+> > 
+> > and perhaps even a few "PIIX4 devres X" lines..)
+> 
+> this is the relevat dmesg output:
+> 
+> PCI: Probing PCI hardware
+> PCI: Probing PCI hardware (bus 00)
+> PCI quirk: region 1000-103f claimed by PIIX4 ACPI
+> PCI quirk: region 1400-140f claimed by PIIX4 SMB
+> PIIX4 devres C PIO at 0398-0399
 
-I didn't study your patch in detail: as you say, more invasive,
-but if it really does the job then it's an improvement, removing
-some mystery from loop_thread().  And it does work fine for me -
-well, I tested with your next little race addition, and Andrew's
-on top of that (with lo->state typo fixed to lo->lo_state); but
-I haven't tried your latest refinement from today.
+Thanks, that explains it. Anybody who allocated region 1000 and 1400 would 
+clash with the built-in PIIX magic IO regions, and any driver that tried 
+to access those regions would instead end up accessing magic SMBus or ACPI 
+registers.
 
-Thanks,
-Hugh
+So your lock-ups are very understandable indeed, and I'll apply this to 
+the standard kernel. MUCH better than reverting the IO window limits.
+
+		Linus

@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWGLBIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWGLBJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWGLBIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 21:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWGLBIf
+	id S932334AbWGLBJi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 21:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWGLBJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 21:08:35 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:15337 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932319AbWGLBIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 21:08:35 -0400
-Message-ID: <44B443E4.1000707@linux.intel.com>
-Date: Tue, 11 Jul 2006 17:35:48 -0700
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.4) Gecko/20060711 SeaMonkey/1.0.2
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alon Bar-Lev <alon.barlev@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
-       linux-kernel@vger.kernel.org
+	Tue, 11 Jul 2006 21:09:38 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31634
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932334AbWGLBJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 21:09:37 -0400
+Date: Tue, 11 Jul 2006 18:10:01 -0700 (PDT)
+Message-Id: <20060711.181001.11575463.davem@davemloft.net>
+To: thinkinginbinary@gmail.com
+Cc: linux-kernel@vger.kernel.org, dl8bcu@dl8bcu.de, alon.barlev@gmail.com,
+       s0348365@sms.ed.ac.uk, linville@tuxdriver.com, joesmidt@byu.net
 Subject: Re: Will there be Intel Wireless 3945ABG support?
-References: <1152635563.4f13f77cjsmidt@byu.edu>	 <20060711171238.GA26186@tuxdriver.com>	 <200607111909.22972.s0348365@sms.ed.ac.uk>  <44B3ED29.4040801@gmail.com> <1152644119.18028.46.camel@localhost.localdomain>
-In-Reply-To: <1152644119.18028.46.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060712004212.GA26712@phoenix>
+References: <44B3ED29.4040801@gmail.com>
+	<20060711201615.GB11871@Marvin.DL8BCU.ampr.org>
+	<20060712004212.GA26712@phoenix>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Maw, 2006-07-11 am 21:25 +0300, ysgrifennodd Alon Bar-Lev:
->> And to have a system that you know exactly what running in it...
->> Having a binary closed source violate this.
-> 
-> Also if the binary only chunk of code is neccessary to make the open
-> source bit work then its a derivative work as I understand the
-> situation, 
+From: Thomas Tuttle <thinkinginbinary@gmail.com>
+Date: Tue, 11 Jul 2006 20:42:12 -0400
 
-Following that logic one must draw the conclusion that the firmware that
-runs on a scsi controller is derived from the driver provided with the
-kernel that communicates with it.
+> Frankly, I'm annoyed that, if Intel understood the full extent of the
+> problem, that they didn't take a better approach and simply give the
+> card a set of legal values.  It doesn't need to understand the
+> subtleties of what they mean.  It just needs to know frequencies 1, 2,
+> and 3 are okay, but not 4, 5, and 6, and that the max power is xx dBm.
 
-The obvious distinction between scsi firmware and the regulatory
-daemon blob being discussed here is that the regulatory daemon runs on
-the host vs. an adapter.  However, if you consider the communication
-interface between the kernel and the user space daemon to be analogous
-to the communication interface between the kernel driver and the
-firmware that runs on an adapter, then the distinction of running on the
-host is irrelevant.
+You miss many important issues in your diatribe.  I don't like the
+situation either, but I hold this position understanding the
+conditions (both technical and legal) under which companies such as
+Atheros and Intel must operate.
 
-> which makes it all rather questionable from a licensing
-> perspsective.
+First off, the reason these radios are fully programmable, not fixed
+in on-board firmware or likewise, is so that people doing "special
+stuff" outside the normal operating frequencies and power levels, and
+have a license to do so, can use these wireless chips out of the box.
+Otherwise custom boards would need to be produced and that is
+prohibitively expensive and restrictive for what some of these
+folks want to do.
 
-There are no questions from a licensing standpoint.
+Such companies can thus provide firmware or drivers that operate
+within a customer's specially licensed frequency or power range once
+that customer proves they do indeed have a license from the FCC to use
+it.
 
-The regulatory daemon is in no way derived from any GPL work, and the
-GPL driver is provided with everything it needs to talk to the
-interfaces defined through the ipw3945_daemon.h header file.
+Secondarily, it is up to lawyers, not you, to decide what is a safe
+manner for the maker of a wireless chipset to abide by the FCC
+regulations.  And across the board, lawyers representing these
+companies and other entities seem to agree that providing the full
+source code to a wireless chip driver's radio programming makes
+it "user-modifiable", whereas hiding the radio programming behind
+a binary-only blob or firmware satisfies the FCC requirements.
 
-> Hopefully Intel will find a sensible solution to the problem or someone
-> will just reverse engineer it away.
+And if you think they haven't invested any effort to look into
+alternatives that will satisfy both the FCC and the open source crowd,
+think again.  You can be sure they've spent a lot of time thinking
+about how to deal with this.  It is absurd to say things which suggest
+that these guys are sitting around twiddling their thumbs about the
+issue, and think the current state of affairs is ok.
 
-Invariably someone will make such a piece of code available on Linux.
+It's not a matter of "impossible" vs. "possible" to modify the
+frequencies and power levels outside of the allowed range, rather it's
+a matter of making it "difficult enough" for an end user to modify
+these restrictions.
 
-To that end I would encourage anyone that may be interested in using
-such a piece of code to read the regulatory notice packaged with our
-drivers, and linked for your reference here[1].
+As long as it's Intel's or Atheros's ass that gets reamed by the FCC
+for running afoul of the radio frequency regulations, they will not be
+posting the source code to program their radios.  On the other hand,
+if it happens to get legally reverse engineered, then unless these
+companies assisted in that reverse engineering effort, the FCC really
+couldn't go after them.  Such companies would also not be able to
+participate in maintainence of a driver for their chips containing
+the reverse engineered components.  However, we've dealt with that
+kind of situation just fine in the past :)
 
-James
-
-1.  http://bughost.org/ipw3945/NOTICE
-
-> 
-> Alan
+So we will be in this endless loop finding ways to legally reverse
+engineer binary blobs to get fully free wireless drivers, until the
+FCC regulation situation is rectified.

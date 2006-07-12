@@ -1,101 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWGLISI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWGLITT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWGLISI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 04:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWGLISH
+	id S1750896AbWGLITT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 04:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWGLITT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 04:18:07 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:19584 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750860AbWGLISG
+	Wed, 12 Jul 2006 04:19:19 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:23825 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750896AbWGLITS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 04:18:06 -0400
-Message-ID: <44B4B041.9050808@drzeus.cx>
-Date: Wed, 12 Jul 2006 10:18:09 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hera.drzeus.cx-20416-1152692285-0001-2"
-To: Greg KH <greg@kroah.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: resource_size_t and printk()
-References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com> <44AB3DF7.8080107@drzeus.cx> <20060711231537.GC18973@kroah.com>
-In-Reply-To: <20060711231537.GC18973@kroah.com>
+	Wed, 12 Jul 2006 04:19:18 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Thomas Tuttle <thinkinginbinary@gmail.com>
+Subject: Re: Will there be Intel Wireless 3945ABG support?
+Date: Wed, 12 Jul 2006 09:19:44 +0100
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
+       Alon Bar-Lev <alon.barlev@gmail.com>,
+       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net
+References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711201615.GB11871@Marvin.DL8BCU.ampr.org> <20060712004212.GA26712@phoenix>
+In-Reply-To: <20060712004212.GA26712@phoenix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607120919.44561.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Wednesday 12 July 2006 01:42, Thomas Tuttle wrote:
+> On July 11 at 16:16 EDT, Thorsten Kranzkowski hastily scribbled:
+> > On Tue, Jul 11, 2006 at 09:25:45PM +0300, Alon Bar-Lev wrote:
+> > > Also there is no good reason why supplying this daemon as closed
+> > > source... All they
+> > > wish is people don't mess with their frequencies, and sooner or later
+> > > someone will...
+> >
+> > Using interesting frequencies or output power would be fun for
+> > radio amateurs (like me). 2.4GHz is one of our playgrounds after all :-)
+>
+> Hear, hear!
+>
+> > Just because Joe Average isn't allowed to use such features doesn't
+> > mean that there aren't any legitimate users for it.
+> >
+> > Preventing the accidental use of unauthorized features would be enough,
+> > I think (warnings that force you to look up the manual to find out the
+> > correct --force option or similar)
+> > I expect developers to be sensible enough to only offer 'public legal'
+> > values in the default options list.
+>
+> Frankly, I think Intel is misinterpreting how strict the FCC is being
+> (or maybe the FCC is being too strict).  I would interpret their
+> mandates as meaning that, as purchased, equipment can't transmit on
+> unauthorized frequencies, and that it's not "user-modifiable".  User
+> modification doesn't include things like opening the case of a toy
+> walkie-talkie up and swapping out a crystal, nor does it include things
+> like opening up the firmware or driver for something and messing with
+> it.
 
---=_hera.drzeus.cx-20416-1152692285-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+If you give Matthieu's link[1] a quick read, the OpenBSD developer that 
+reverse engineered the regulatory blob seems to indicate that the FCC 
+regulations are just an excuse, so Intel can hide their IP inside the blob.
 
-Greg KH wrote:
-> Good catch, care to create a patch to fix these?
->   
+I'm not sure to what extent this is accurate, but it would seem that you would 
+leave the driver functionally impaired if you simply removed the regulatory 
+checks.
 
-Included.
+[1] http://kerneltrap.org/node/6650
 
---=_hera.drzeus.cx-20416-1152692285-0001-2
-Content-Type: text/x-patch; name="pnp-fixprintk.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pnp-fixprintk.patch"
+-- 
+Cheers,
+Alistair.
 
-[PNP] Add missing casts in printk() arguments
-
-Some resource_size_t values are fed to printk() without handling the fact
-that they can have different size depending on your .config.
-
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
-
- drivers/pnp/interface.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
-index 3163e3d..0c14f4f 100644
---- a/drivers/pnp/interface.c
-+++ b/drivers/pnp/interface.c
-@@ -265,8 +265,8 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," 0x%llx-0x%llx\n",
--						pnp_port_start(dev, i),
--						pnp_port_end(dev, i));
-+					(long long)pnp_port_start(dev, i),
-+					(long long)pnp_port_end(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_MEM; i++) {
-@@ -276,8 +276,8 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," 0x%llx-0x%llx\n",
--						pnp_mem_start(dev, i),
--						pnp_mem_end(dev, i));
-+					(long long)pnp_mem_start(dev, i),
-+					(long long)pnp_mem_end(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_IRQ; i++) {
-@@ -287,7 +287,7 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," %lld\n",
--						pnp_irq(dev, i));
-+					(long long)pnp_irq(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_DMA; i++) {
-@@ -297,7 +297,7 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," %lld\n",
--						pnp_dma(dev, i));
-+					(long long)pnp_dma(dev, i));
- 		}
- 	}
- 	ret = (buffer->curr - buf);
-
---=_hera.drzeus.cx-20416-1152692285-0001-2--
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

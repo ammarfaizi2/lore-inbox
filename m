@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWGLKt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWGLKuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWGLKt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 06:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWGLKt5
+	id S1751245AbWGLKuW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 06:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWGLKuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 06:49:57 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:65509 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751247AbWGLKt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 06:49:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jSZeLe7WNFRZFnd1/uTdd5iB2gt9PvTysTTAN+76lJzQTMEuvnOrY5HNpb8wquxi4S/tSb70ruKbHY9ciRGNsJC2mHi1i/KEUD8gwzT2yGwCtO46hbxSEoAW0ZhzoYpQeDEu+vEfEOhOv0/VwvqkBgAZrKVFLM5nlX4lVe9fdtw=
-Message-ID: <6bffcb0e0607120349s7fd194e1xf92f194ebcd17d9f@mail.gmail.com>
-Date: Wed, 12 Jul 2006 12:49:56 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Catalin Marinas" <catalin.marinas@gmail.com>
-Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
-Cc: "Joseph Fannin" <jfannin@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <b0943d9e0607120338r37886ebck56db5fbf29e8e350@mail.gmail.com>
+	Wed, 12 Jul 2006 06:50:22 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:43631 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751245AbWGLKuQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 06:50:16 -0400
+Message-ID: <44B4D3D5.4070201@sw.ru>
+Date: Wed, 12 Jul 2006 14:49:57 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+CC: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, devel@openvz.org, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] fdset's leakage
+References: <44B258E3.7070708@openvz.org> <20060711010104.16ed5d4b.akpm@osdl.org> <44B369BF.6000104@openvz.org> <Pine.LNX.4.58.0607110912490.16191@shell3.speakeasy.net>
+In-Reply-To: <Pine.LNX.4.58.0607110912490.16191@shell3.speakeasy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
-	 <6bffcb0e0607110546r11d2f619pbcd1205999253bd@mail.gmail.com>
-	 <6bffcb0e0607110551v272deebcua5dc3f782ed25a7f@mail.gmail.com>
-	 <b0943d9e0607110600q345b5ad7y38174b85cf01edba@mail.gmail.com>
-	 <20060712095730.GA19478@nineveh.rivenstone.net>
-	 <b0943d9e0607120338r37886ebck56db5fbf29e8e350@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
-> On 12/07/06, Joseph Fannin <jfannin@gmail.com> wrote:
-> > On Tue, Jul 11, 2006 at 02:00:05PM +0100, Catalin Marinas wrote:
-> > > That's a bug in gcc-4. The __builtin_constant_p() function always
-> > > returns true even when the argument is not a constant. You could try a
-> > > gcc-3.4 or a patched gcc.
-> >
-> >     Which gcc versions are affected by this?
->
-> From gcc-4.0 I think but I don't know when/if it was fixed in the
-> latest.
+>>Your logic looks fine for me. Do we have already round_up_pow_of_two() function or
+>>should we create it as something like:
+>>unsinged long round_up_pow_of_two(unsigned long x)
+>>{
+>>  unsigned long res = 1 << BITS_PER_LONG;
+> 
+> 
+> You'll get a zero here. Should be 1 << (BITS_PER_LONG - 1).
+Good that so many people are watching when you even didn't write it yet :)))
+Thanks!
 
-gcc-4.2 --version
-gcc-4.2 (GCC) 4.2.0 20060701 (experimental)
-
-works fine for me.
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Kirill

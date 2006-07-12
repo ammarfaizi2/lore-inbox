@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWGLWfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWGLWo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWGLWfG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWGLWfG
+	id S932351AbWGLWo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWGLWo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:35:06 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:62685 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S932198AbWGLWfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:35:04 -0400
-Message-ID: <44B57914.5060805@grupopie.com>
-Date: Wed, 12 Jul 2006 23:35:00 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: 7eggert@gmx.de
-CC: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
+	Wed, 12 Jul 2006 18:44:57 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1458 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932351AbWGLWo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:44:57 -0400
+Date: Thu, 13 Jul 2006 00:44:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       roubert@df.lth.se, stern@rowland.harvard.edu,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-References: <6wOHw-5gl-23@gated-at.bofh.it> <6x0yX-5An-17@gated-at.bofh.it> <6xc78-6gi-15@gated-at.bofh.it> <6xyhf-5Fq-1@gated-at.bofh.it> <6xyU6-6Hn-63@gated-at.bofh.it> <6xzdl-75B-13@gated-at.bofh.it> <6xzZO-8gU-23@gated-at.bofh.it> <6xA9p-8ti-7@gated-at.bofh.it> <6xACo-Op-1@gated-at.bofh.it> <6xAVM-1b9-5@gated-at.bofh.it> <6xBfh-1yd-29@gated-at.bofh.it> <6xBRQ-2v4-3@gated-at.bofh.it> <6xITm-4td-17@gated-at.bofh.it> <6xMX0-2bX-21@gated-at.bofh.it> <E1G0mrB-0001JL-T3@be1.lrz>
-In-Reply-To: <E1G0mrB-0001JL-T3@be1.lrz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060712224426.GK3947@elf.ucw.cz>
+References: <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home> <20060711173735.43e9af94.akpm@osdl.org> <Pine.LNX.4.64.0607120248050.12900@scrub.home> <20060711183647.5c5c0204.akpm@osdl.org> <Pine.LNX.4.64.0607121056170.12900@scrub.home> <44B4F88D.3060301@grupopie.com> <44B55091.2040207@grupopie.com> <d120d5000607121305g5fa5bda2v2038ecac893f4c83@mail.gmail.com> <44B575EF.1080409@grupopie.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B575EF.1080409@grupopie.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> Paulo Marques <pmarques@grupopie.com> wrote:
->[...]
->>This allows for all the combinations mentioned before in this thread and
->>makes the logic simpler, IMHO.
-> 
-> Why don't you use a bitmask?
-> alt-sysrq down -> val  =  0b11
-> sysrq up       -> val &= ~0b01
-> alt up         -> val &= ~0b10
-> 
-> test is_sysrq == !!val
+Hi!
 
-It can be done, but it doesn't seem to buy you much.
+> Maybe we should just stop calling emulate_raw while sysrq_active is 
+> active. This way, after we press Alt + SysRq, every keypress would be 
+> processed as a magic sysrq and not handled by any other code until we 
+> release both keys.
 
-The sysrq_alt variable is used wether we use magic sysrq or not, so we 
-must keep it anyway. This var doesn't do what your high bit does, 
-because in the bit mask this bit only goes on when both are pressed (not 
-just alt).
-
-alt up is actually 2 different keys (left and right). To detect it, we 
-either copy the same "if" that is outside the #ifdef or we try to follow 
-the state of sysrq_alt to detect the change from low to high :P
-
-Anyway, I think the code can be simplified further, though, and it might 
-involve a similar trick. And it definitely needs some more comments in 
-there ;)
-
-I'll play with it some more and try to produce a better patch.
-
+I guess so. Magic sysrq should be hidden from applications, even
+applications using raw mode.
+								Pavel
 -- 
-Paulo Marques
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

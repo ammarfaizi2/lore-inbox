@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWGLH1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWGLHaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWGLH1y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWGLH1y
+	id S1750787AbWGLHaj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWGLHaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:27:54 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:12519 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750784AbWGLH1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:27:53 -0400
-Message-ID: <44B4A4C7.3040207@manoweb.com>
-Date: Wed, 12 Jul 2006 09:29:11 +0200
-From: Alessio Sangalli <alesan@manoweb.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Daniel Ritz <daniel.ritz-ml@swissonline.ch>, Dave Jones <davej@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cardbus: revert IO window limit
-References: <200607010003.31324.daniel.ritz-ml@swissonline.ch> <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0606301516140.12404@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 12 Jul 2006 03:30:39 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:8709 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750787AbWGLHaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:30:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=npgN9Jf/mASfbPArPLynCW2xJ5JlbkKM0SGNL8+lpa6Oyky2ZY50eZX7t7LW5TaYp3zh0xFnQ/TW14FHdHNgDMkiZfeobuCSsIidWMt1b4lHId5tfiujylkwx8DlfZFYCNWup/OuClXuddB5Hy+UjlzyNvHglYf1pILhEGICZ1g=
+Date: Wed, 12 Jul 2006 11:37:18 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.6.18-rc1-mm1: as usual can not boot
+Message-Id: <20060712113718.8e5e3af7.pauldrynoff@gmail.com>
+In-Reply-To: <20060712001232.a31285e3.akpm@osdl.org>
+References: <20060712095933.57d2a595.pauldrynoff@gmail.com>
+	<20060712001232.a31285e3.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.12; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:98b9443de46bd48dbf34b16449aa5d76
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, 12 Jul 2006 00:12:32 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> Alessio has PCI ID 8086:7194, which is not the 82443MX_3, so you'd need 
-> something like this instead (but yes, it might indeed be the standard 
-> PIIX4 quirks).
+> On Wed, 12 Jul 2006 09:59:33 +0400
+> Paul Drynoff <pauldrynoff@gmail.com> wrote:
+> 
+> > I try boot 2.6.18-rc1-mm1,
+> > here is result:
+> > 
+> > show_stack_log_lve
+> > show_registers
+> > die
+> > do_trap
+> > do_invalid_op
+> > error_code
+> > buffered_rmqueue
+> > get_page_from_freelist
+> > __alloc_pages
+> > get_zeroed_page
+> > sysenter_setup
+> > identify_cpu
+> > check_bugs
+> > start_kernel
+> > 
+> > EIP:... prep_new_page
+> 
+> Don't know, sorry.  Your config works ok here (well, gets a lot further).
+> 
+> It's dying quite late in boot there - the page allocator has already been
+> used a bit, but then it falls over in a heap.
+> 
+> I notice you're set up for an i386.  Is the target CPU really an i386?  If
+> not, and if you change this, does it affect anything?
 
-Linus, this patch *does not* work, while Daniel's is ok. It's
-puzzling... same kernel, just checked out from the git repository.
+My CPU is:
+$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 10
+model name      : AMD Athlon(tm) XP 2600+
+stepping        : 0
+cpu MHz         : 1913.456
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow ts
+bogomips        : 3833.86
 
 
-> ---
-> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-> index 4364d79..0c073b4 100644
-> --- a/drivers/pci/quirks.c
-> +++ b/drivers/pci/quirks.c
-> @@ -401,6 +401,7 @@ static void __devinit quirk_piix4_acpi(s
->  	piix4_io_quirk(dev, "PIIX4 devres J", 0x7c, 1 << 20);
->  }
->  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_3,	quirk_piix4_acpi );
-> +DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82440MX_0,	quirk_piix4_acpi );
->  
->  /*
->   * ICH4, ICH4-M, ICH5, ICH5-M ACPI: Three IO regions pointed to by longwords at
-> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-> index 9ae6b1a..889d4da 100644
-> --- a/include/linux/pci_ids.h
-> +++ b/include/linux/pci_ids.h
-> @@ -2205,6 +2205,7 @@ #define PCI_DEVICE_ID_INTEL_82443LX_1	0x
->  #define PCI_DEVICE_ID_INTEL_82443BX_0	0x7190
->  #define PCI_DEVICE_ID_INTEL_82443BX_1	0x7191
->  #define PCI_DEVICE_ID_INTEL_82443BX_2	0x7192
-> +#define PCI_DEVICE_ID_INTEL_82440MX_0	0x7194
->  #define PCI_DEVICE_ID_INTEL_440MX	0x7195
->  #define PCI_DEVICE_ID_INTEL_440MX_6	0x7196
->  #define PCI_DEVICE_ID_INTEL_82443MX_0	0x7198
+First of all I booted with Athlon/Duron/K7 option,
+and get this error.
+After that I rebuild it as i386,
+nothing changed.
+I rebuild it with gcc-4.1.1 instead of gcc-3.3.6.
+Nothing changed.
 
+But the more interesting thing, that when I try this kernel with qemu (0.8.1),
+I got the same error. Sorry, I can not sent it image, it is too big: 3 GB.
+
+But I can sent screenshots or gdb output if somebody interesting.

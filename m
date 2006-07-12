@@ -1,175 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWGLAjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWGLAm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWGLAjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWGLAjr
+	id S932303AbWGLAm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWGLAm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:39:47 -0400
-Received: from jg555.com ([64.30.195.78]:61143 "EHLO jg555.com")
-	by vger.kernel.org with ESMTP id S932299AbWGLAjq (ORCPT
+	Tue, 11 Jul 2006 20:42:28 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:8908 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932303AbWGLAm1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:39:46 -0400
-Message-ID: <44B443D2.4070600@jg555.com>
-Date: Tue, 11 Jul 2006 17:35:30 -0700
-From: Jim Gifford <maillist@jg555.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.18 Headers - Long
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 20:42:27 -0400
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Pavel Machek <pavel@ucw.cz>,
+       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0607120039380.12900@scrub.home>
+References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
+	 <1152554328.5320.6.camel@localhost.localdomain>
+	 <20060710180839.GA16503@elf.ucw.cz>
+	 <Pine.LNX.4.64.0607110035300.17704@scrub.home>
+	 <1152571816.9062.29.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607110054180.12900@scrub.home>
+	 <1152605229.32107.88.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607111120310.12900@scrub.home>
+	 <1152616025.32107.151.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607120039380.12900@scrub.home>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 17:42:23 -0700
+Message-Id: <1152664944.760.70.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was really glad to see that something was going to be done with the 
-headers, but I don't think it's enough. I'm going to share my concerns 
-and hopefully we can all figure what is the right thing to do.
+On Wed, 2006-07-12 at 01:31 +0200, Roman Zippel wrote:
+> On Tue, 11 Jul 2006, Thomas Gleixner wrote:
+> 
+> > > > It is not illusionary at all and we have to find a way to handle this.
+> > > > 
+> > > > Forcing time keeping to be bound on some interrupt handling is the wrong
+> > > > design and in the way of tickless systems.
+> > > 
+> > > So what is the correct design?
+> > > Especially for tickless system it's vital for precise timekeeping that the 
+> > > timekeeping code knows what the timer interrupt code does.
+> > 
+> > Err. Why needs the time keeping code to know what the next timer event
+> > will be ? The time keeping code must not care at all about it. And there
+> > is nothing vital at all.
+> > 
+> > Time keeping code reads from a given source and does the necessary
+> > adjustments when NTP is active. There is no relation to an interrupt
+> > event at all. At the very end it boils down to a linear equation which
+> > is recalculated at the synchronization points.
+> > 
+> > The timer interrupt itself is not a synchronization point.
+> 
+> If the timer interrupt is not a synchronization point, what is?
 
-First off, my research in this has been going on since LLH announced 
-that it was not going to produce any more headers. I started a project 
-to sanitize the headers myself. http://headers.cross-lfs.org.
+Synchronization point seems like a bad term in my mind. I prefer to
+think of it as an accumulation point (to avoid clocksource overflows) as
+well as a calculation point where we can make careful adjustments to the
+clocksource frequency. Please note that these two actions are not
+logically linked and could be done separately (although there really
+isn't a need to do so).
 
-I will only document one issue, but there are several more like this in 
-the kernel.
+> > At any synchronization point you store the current time as seen by the
+> > time keeping code for reference and calculate the deviation from the
+> > reference time line. Until the next synchronization point you apply the
+> > recalculated correction to the readout and it does not matter at all
+> > whether there are 0, 10 or 1000 timer interrupts between those points
+> > and whether the delta between those interrupts is constant or not.
+> 
+> Well, it does matter, otherwise the recent fix woudn't have been needed.
 
-I'm going to use the MIPS architecture in my example, along with the 
-file page.h.
+Assuming you're talking about the suspend fix, I'm not sure I agree.
+Making sure the timekeeping code is initialized before we use it does
+not, to me at least, illustrate how interrupt frequency and timekeeping
+are entwined. That's just an initialization ordering problem, as Thomas
+already said.
 
-With the 2.6.18 headers, the file that gets created looks like this. If 
-you notice on lines 17, 20, 23, 26, and 34 they all use CONFIG_{...}, 
-these variables are called from linux/autoconf.h. Yes, the simple fix 
-would be to include this file.
+> The timekeeping doesn't care much where synchronizations point comes from, 
+> but it can do a much better job, if it knows when they come.
+> Without knowing this the timekeeping code has to do extra work and has to 
+> be either optimistic or assume the worst case, neither is good for precise 
+> timekeeping, the first causes extra jitter, the latter very slow 
+> adjustments.
 
-   1.
-      /*
-   2.
-       * This file is subject to the terms and conditions of the GNU
-      General Public
-   3.
-       * License.  See the file "COPYING" in the main directory of this
-      archive
-   4.
-       * for more details.
-   5.
-       *
-   6.
-       * Copyright (C) 1994 - 1999, 2000, 03 Ralf Baechle
-   7.
-       * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
-   8.
-       */
-   9.
-      #ifndef _ASM_PAGE_H
-  10.
-      #define _ASM_PAGE_H
-  11.
-       
-  12.
-       
-  13.
-       
-  14.
-      /*
-  15.
-       * PAGE_SHIFT determines the page size
-  16.
-       */
-  17.
-      #ifdef CONFIG_PAGE_SIZE_4KB
-  18.
-      #define PAGE_SHIFT      12
-  19.
-      #endif
-  20.
-      #ifdef CONFIG_PAGE_SIZE_8KB
-  21.
-      #define PAGE_SHIFT      13
-  22.
-      #endif
-  23.
-      #ifdef CONFIG_PAGE_SIZE_16KB
-  24.
-      #define PAGE_SHIFT      14
-  25.
-      #endif
-  26.
-      #ifdef CONFIG_PAGE_SIZE_64KB
-  27.
-      #define PAGE_SHIFT      16
-  28.
-      #endif
-  29.
-      #define PAGE_SIZE       (1UL << PAGE_SHIFT)
-  30.
-      #define PAGE_MASK       (~((1 << PAGE_SHIFT) - 1))
-  31.
-       
-  32.
-       
-  33.
-       
-  34.
-      #ifdef CONFIG_LIMITED_DMA
-  35.
-      #define WANT_PAGE_VIRTUAL
-  36.
-      #endif
-  37.
-       
-  38.
-      #include <asm-generic/memory_model.h>
-  39.
-      #include <asm-generic/page.h>
-  40.
-       
-  41.
-      #endif /* _ASM_PAGE_H */
+This I agree with. But first lets bound the issue to make it more clear
+for everyone: The conflict lies only with the high-precision clocksource
+adjustment code and not so much with the rest of the timekeeping code.
 
-Here's the header I produce with my sanitize script, I use a glibc call 
-to get the information, which would be more appropriate for the user 
-space. This is very similar to what LLH provided. Even my example is not 
-prefect due to line 14.
+The issue being that the high-precision clocksource adjustment code is
+needed because when NTP makes an adjustment, that very precise
+adjustment might be finer then the smallest multiplier unit adjustment
+that could be made to the clocksource (1/(2^clock->shift)).
 
-   1.
-      #define _ASM_PAGE_H
-   2.
-       
-   3.
-      #include <unistd.h>
-   4.
-       
-   5.
-      #define PAGE_SIZE       (getpagesize())
-   6.
-      static __inline__ int getpageshift()
-   7.
-      {
-   8.
-          int pagesize = getpagesize();
-   9.
-          return (__builtin_clz(pagesize) ^ 31);
-  10.
-      }
-  11.
-      #define PAGE_SHIFT      (getpageshift())
-  12.
-      #define PAGE_MASK       (~(PAGE_SIZE-1))
-  13.
-       
-  14.
-      #ifdef CONFIG_LIMITED_DMA
-  15.
-      #define WANT_PAGE_VIRTUAL
-  16.
-      #endif
-  17.
-       
-  18.
-      #endif /* !(_ASM_PAGE_H) */
+To compensate for that, at interrupt time we accumulate the
+high-precision error between what NTP told us to use and what we're able
+to use and store it in the error value. Then we apply extra short-term
+correction when the error grows large enough to keep our long term
+accuracy finer then the (1/2^shift) clocksource resolution.
+
+Without this high-precision adjustment, you would have to rely on NTPd
+to detect and adjust for this granularity difference, which would cause
+a slower, but larger jitter.
+
+Now the problem is, that if interrupts are delayed, this extra short
+term correction might be applied for too long, causing the overshoot
+issue we've seen (which I believe is the "extra jitter" issue mentioned
+above).
+
+However, if we greatly dampen our adjustments, so we are less likely to
+overshoot, this means it will take longer for us to converge (ie: the
+"slow adjustment" issue above).
+
+My only problem here is this: I don't think the slow adjustment issue is
+as severe as claimed. NTPd itself limits its adjustment speed to 500ppm
+and the frequency of its adjustment changes are in the minutes range. So
+I'm not sure I see why damping the error correction so we converge a bit
+more slowly over a period of a second or two is such an issue. 
+
+I think this would give a bit of independence between the clocksource
+adjustment code and the interrupt frequency (and likely improve
+robustness as well).
+
+> > I'm just opposing the general tight coupling of the time keeping to
+> > timer interrupts.
+> 
+> Timekeeping needs control of something, interrupts are the general 
+> mechanism for asynchronous events. (Unless I'm missing something) your 
+> clockevent concept is far too complex, simple clocksources only need to 
+> export a shareable interrupt source, which the timekeeping code can use to 
+> synchronize.
+> If by "tight coupling" you mean the current hardcoded timer interrupt I 
+> agree, but I still don't see that the clockevent stuff is really a better 
+> solution.
+
+Both hardware and software caused lost ticks are a reality and for the
+sake of power-saving and virtualization the dynamic ticks feature is
+very much desired, so I do see the clockevent stuff as being a good step
+in the right direction.
+
+The timekeeping code must be robust enough to handle unexpected lost
+ticks, and entwining interrupt frequency and the timekeeping makes
+high-res and dynamic ticks more difficult to implement and debug.
+
+I would be open to some sort of frequency-hint hook that would give the
+timekeeping code a better idea of what the dyntick interrupt frequency
+will be, but since terrible long running BIOS SMIs won't call this, I
+think the adjustment code will have to just be robust enough to handle
+semi-random tick frequencies.
+
+thanks
+-john
 
 
-So even with the new headers_install, the headers still need to be 
-sanitized to overcome the missing variables from linux/autoconf.h.
-
-Just wanted to bring this up to everyone's attention and look forward to 
-helping get things resolved.

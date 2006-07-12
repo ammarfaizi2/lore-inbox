@@ -1,46 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWGLEOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWGLEQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWGLEOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 00:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWGLEOQ
+	id S932411AbWGLEQt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 00:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWGLEQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 00:14:16 -0400
-Received: from main.gmane.org ([80.91.229.2]:64656 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932405AbWGLEOP (ORCPT
+	Wed, 12 Jul 2006 00:16:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41888 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932411AbWGLEQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 00:14:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ask List <askthelist@gmail.com>
-Subject: Re: Runnable threads on run queue
-Date: Wed, 12 Jul 2006 04:14:05 +0000 (UTC)
-Message-ID: <loom.20060712T060407-876@post.gmane.org>
-References: <loom.20060708T220409-206@post.gmane.org> <1152429626.9711.34.camel@Homer.TheSimpsons.net>
+	Wed, 12 Jul 2006 00:16:48 -0400
+Date: Wed, 12 Jul 2006 00:16:43 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: fedora@adslpipe.co.uk
+Subject: strange kobject messages in .18rc1git3
+Message-ID: <20060712041642.GG32707@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, fedora@adslpipe.co.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 66.237.13.5 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4)
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith <efault <at> gmx.de> writes:
-...
-> Looking at the interrupts column, I suspect you have a network problem,
-> not a scheduler problem.  Looks to me like your SpamAssasins are simply
-> running out of work to do because your network traffic comes in bursts.
-> 
-> 	-Mike
-> 
-> 
+Here's an odd suspend/resume regression reported by a Fedora user. (Andy Cc'd)
 
-Network Problem? So your saying our mail servers are not sending spam traffic
-fast enough if spam assassin processes are running out of work to do? So when
-our mail servers are not sending spam traffic we see our cpu,cs,interrupts, &
-runnable threads drop ...?
+hub 4-0:1.0: resuming
+ac97 1-1:unknown codec: resuming
+usb 2-2: resuming
+hci_usb 2-2:1.0: resuming
+hci_usb 2-2:1.1: resuming
+platform bluetooth: resuming
+ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [c1deb4a4]
+[20060623]
+Restarting tasks...<6>usb 2-2: USB disconnect, address 2
+PM: Removing info for No Bus:usbdev2.2_ep81
+PM: Removing info for No Bus:usbdev2.2_ep02
+PM: Removing info for No Bus:usbdev2.2_ep82
+PM: Removing info for No Bus:hci0
+ done
+Thawing cpus ...
 
-I'd really like to believe this is true, however in the sa logs there are still
-plenty of B (busy threads)...
 
+kobject_add failed for vcs63 with -EEXIST, don't try to register things with the
+same name in the same directory.
+ [<c0405167>] show_trace_log_lvl+0x54/0xfd
+ [<c040571e>] show_trace+0xd/0x10
+ [<c040583d>] dump_stack+0x19/0x1b
+ [<c04e3ab6>] kobject_add+0x174/0x19a
+ [<c05505ff>] class_device_add+0x99/0x3e6
+ [<c055095e>] class_device_register+0x12/0x15
+ [<c05509e3>] class_device_create+0x82/0xa5
+ [<c0534e91>] vcs_make_devfs+0x25/0x53
+ [<c0539d46>] con_open+0x72/0x80
+ [<c05304af>] tty_open+0x186/0x308
+ [<c04799a9>] chrdev_open+0x16f/0x1c7
+ [<c047028a>] __dentry_open+0xc8/0x1ab
+ [<c04703db>] nameidata_to_filp+0x1c/0x2e
+ [<c047041b>] do_filp_open+0x2e/0x35
+ [<c0470462>] do_sys_open+0x40/0xb5
+ [<c0470503>] sys_open+0x16/0x18
+ [<c0403f2f>] syscall_call+0x7/0xb
+
+kobject_add failed for vcsa63 with -EEXIST, don't try to register things with
+the same name in the same directory.
+ [<c0405167>] show_trace_log_lvl+0x54/0xfd
+ [<c040571e>] show_trace+0xd/0x10
+ [<c040583d>] dump_stack+0x19/0x1b
+ [<c04e3ab6>] kobject_add+0x174/0x19a
+ [<c05505ff>] class_device_add+0x99/0x3e6
+ [<c055095e>] class_device_register+0x12/0x15
+ [<c05509e3>] class_device_create+0x82/0xa5
+ [<c0534eb7>] vcs_make_devfs+0x4b/0x53
+ [<c0539d46>] con_open+0x72/0x80
+ [<c05304af>] tty_open+0x186/0x308
+ [<c04799a9>] chrdev_open+0x16f/0x1c7
+ [<c047028a>] __dentry_open+0xc8/0x1ab
+ [<c04703db>] nameidata_to_filp+0x1c/0x2e
+ [<c047041b>] do_filp_open+0x2e/0x35
+ [<c0470462>] do_sys_open+0x40/0xb5
+ [<c0470503>] sys_open+0x16/0x18
+ [<c0403f2f>] syscall_call+0x7/0xb
+
+-- 
+http://www.codemonkey.org.uk

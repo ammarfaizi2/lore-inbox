@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWGLUcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWGLUgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWGLUcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 16:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGLUcL
+	id S1751227AbWGLUgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 16:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWGLUgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 16:32:11 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40384 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751134AbWGLUcK (ORCPT
+	Wed, 12 Jul 2006 16:36:25 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:59864 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751183AbWGLUgY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 16:32:10 -0400
-Date: Wed, 12 Jul 2006 22:26:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-kernel@vger.kernel.org
-Subject: [patch] lockdep: core, fix rq-lock handling on __ARCH_WANT_UNLOCKED_CTXSW
-Message-ID: <20060712202639.GA7719@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 12 Jul 2006 16:36:24 -0400
+Message-ID: <44B55D45.9000708@garzik.org>
+Date: Wed, 12 Jul 2006 16:36:21 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jeremy Higdon <jeremy@sgi.com>, John Keller <jpk@sgi.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 1/1] - sgiioc4: fixup use of mmio ops
+References: <20060712175714.16943.10799.sendpatchset@attica.americas.sgi.com> <20060712195248.GB740565@sgi.com>
+In-Reply-To: <20060712195248.GB740565@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: lockdep: core, fix rq-lock handling on __ARCH_WANT_UNLOCKED_CTXSW
-From: Ingo Molnar <mingo@elte.hu>
+Jeremy Higdon wrote:
+>> @@ -381,7 +381,7 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
+>>  		goto dma_alloc_failure;
+>>  	}
+>>  
+>> -	hwif->dma_base = dma_base;
+>> +	hwif->dma_base = (unsigned long) ioremap(dma_base, num_ports);
+>>  	hwif->dmatable_cpu = pci_alloc_consistent(hwif->pci_dev,
+>>  					  IOC4_PRD_ENTRIES * IOC4_PRD_BYTES,
+>>  					  &hwif->dmatable_dma);
 
-on platforms that have __ARCH_WANT_UNLOCKED_CTXSW set and want to 
-implement lock validator support there's a bug in rq->lock handling: in 
-this case we dont 'carry over' the runqueue lock into another task - but 
-still we did a spinlock_release() of it. Fix this by making the 
-spinlock_release() in context_switch() dependent on 
-!__ARCH_WANT_UNLOCKED_CTXSW.
+adding a bug:  must check for NULL ioremap return value
 
-(Reported by Ralf Baechle on MIPS, which has __ARCH_WANT_UNLOCKED_CTXSW. 
-This fixes a lockdep-internal BUG message on such platforms.)
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/sched.c        |    8 ++++++++
- 1 file changed, 9 insertions(+)
+>> @@ -607,18 +607,14 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
+>>  	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
+>>  	hwif->ide_dma_timeout = &__ide_dma_timeout;
+>>  
+>> -	/*
+>> -	 * The IOC4 uses MMIO rather than Port IO.
+>> -	 * It also needs special workarounds for INB.
+>> -	 */
+>> -	default_hwif_mmiops(hwif);
+>>  	hwif->INB = &sgiioc4_INB;
+>>  }
+>>  
+>>  static int __devinit
+>>  sgiioc4_ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t * d)
+>>  {
+>> -	unsigned long base, ctl, dma_base, irqport;
+>> +	unsigned long ctl, dma_base, irqport;
+>> +	unsigned long bar0, cmd_base, cmd_phys_base, virt_base;
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -1788,7 +1788,15 @@ context_switch(struct rq *rq, struct tas
- 		WARN_ON(rq->prev_mm);
- 		rq->prev_mm = oldmm;
- 	}
-+	/*
-+	 * Since the runqueue lock will be released by the next
-+	 * task (which is an invalid locking op but in the case
-+	 * of the scheduler it's an obvious special-case), so we
-+	 * do an early lockdep release here:
-+	 */
-+#ifndef __ARCH_WANT_UNLOCKED_CTXSW
- 	spin_release(&rq->lock.dep_map, 1, _THIS_IP_);
-+#endif
- 
- 	/* Here we just switch the register state and the stack. */
- 	switch_to(prev, next, prev);
+New code should use 'void __iomem *' for ioremap return values, wherever 
+possible.
+
+
+>>  	ide_hwif_t *hwif;
+>>  	int h;
+>>  
+>> @@ -636,23 +632,27 @@ sgiioc4_ide_setup_pci_device(struct pci_
+>>  	}
+>>  
+>>  	/*  Get the CmdBlk and CtrlBlk Base Registers */
+>> -	base = pci_resource_start(dev, 0) + IOC4_CMD_OFFSET;
+>> -	ctl = pci_resource_start(dev, 0) + IOC4_CTRL_OFFSET;
+>> -	irqport = pci_resource_start(dev, 0) + IOC4_INTR_OFFSET;
+>> +	bar0 = pci_resource_start(dev, 0);
+>> +	virt_base = (unsigned long) ioremap(bar0, pci_resource_len(dev, 0));
+>> +	cmd_base = virt_base + IOC4_CMD_OFFSET;
+>> +	ctl = virt_base + IOC4_CTRL_OFFSET;
+>> +	irqport = virt_base + IOC4_INTR_OFFSET;
+>>  	dma_base = pci_resource_start(dev, 0) + IOC4_DMA_OFFSET;
+
+ditto:  new bug here too
+
+
+>> -	if (!request_region(base, IOC4_CMD_CTL_BLK_SIZE, hwif->name)) {
+>> +	cmd_phys_base = bar0 + IOC4_CMD_OFFSET;
+>> +	if (!request_mem_region(cmd_phys_base, IOC4_CMD_CTL_BLK_SIZE,
+>> +	    hwif->name)) {
+>>  		printk(KERN_ERR
+>> -			"%s : %s -- ERROR, Port Addresses "
+>> +			"%s : %s -- ERROR, Addresses "
+>>  			"0x%p to 0x%p ALREADY in use\n",
+>> -		       __FUNCTION__, hwif->name, (void *) base,
+>> -		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
+>> +		       __FUNCTION__, hwif->name, (void *) cmd_phys_base,
+>> +		       (void *) cmd_phys_base + IOC4_CMD_CTL_BLK_SIZE);
+
+If 'void __iomem *' were used, no casts would be needed here
+
+

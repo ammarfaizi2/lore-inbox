@@ -1,41 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWGLSlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWGLSoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWGLSlu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWGLSlu
+	id S932421AbWGLSoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWGLSoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:41:50 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:31395 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932426AbWGLSlt (ORCPT
+	Wed, 12 Jul 2006 14:44:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41121 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932421AbWGLSoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:41:49 -0400
-Date: Wed, 12 Jul 2006 20:41:40 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Uwe Bugla <uwe.bugla@gmx.de>
-cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       johnstul@us.ibm.com
-Subject: Re: Re: patch for timer.c - two dmesgs
-In-Reply-To: <20060712123917.18970@gmx.net>
-Message-ID: <Pine.LNX.4.64.0607122039490.12900@scrub.home>
-References: <20060712115110.292550@gmx.net> <Pine.LNX.4.64.0607121410580.12900@scrub.home>
- <20060712123917.18970@gmx.net>
+	Wed, 12 Jul 2006 14:44:24 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+In-Reply-To: Ulrich Drepper's message of  Wednesday, 12 July 2006 09:50:06 -0700 <44B5283E.7090806@redhat.com>
+X-Shopping-List: (1) Bestial compulsion ghost-melts
+   (2) Educated scanty rings
+   (3) Injudicious auction beagles
+Message-Id: <20060712184412.2BD57180061@magilla.sf.frob.com>
+Date: Wed, 12 Jul 2006 11:44:12 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 12 Jul 2006, Uwe Bugla wrote:
-
-> > A lot has changed since then...
-> > Did you try using SysRq+P or Alt+ScrollLock? (A SysRq+T might be useful 
-> > too).
-> Sorry for this stupid sounding question:
-> At what point of the boot process do I have to use those keyboard combinations please? And what is the output / product of them please?
-
-Just press them the boot stops and send the kernel log or wite it down if 
-it's not in the log.
-
-bye, Roman
+We could also put the uname info (modulo nodename) into the vDSO.

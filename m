@@ -1,101 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWGLAOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWGLAQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWGLAOU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGLAOU
+	id S932287AbWGLAQX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWGLAQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:14:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52162 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932283AbWGLAOT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:14:19 -0400
-Date: Tue, 11 Jul 2006 17:17:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: hugh@veritas.com, serue@us.ibm.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: please revert kthread from loop.c
-Message-Id: <20060711171752.4993903a.akpm@osdl.org>
-In-Reply-To: <20060711194932.GA27176@sergelap.austin.ibm.com>
-References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
-	<20060627054612.GA15657@sergelap.austin.ibm.com>
-	<Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
-	<20060711194932.GA27176@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 11 Jul 2006 20:16:23 -0400
+Received: from 58.105.229.78.optusnet.com.au ([58.105.229.78]:36522 "EHLO
+	adsl-kenny.stuart.id.au") by vger.kernel.org with ESMTP
+	id S932287AbWGLAQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:16:22 -0400
+Subject: Problems with oom killer
+From: Russell Stuart <russell-lkml@stuart.id.au>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 12 Jul 2006 10:15:12 +1000
+Message-Id: <1152663312.4267.20.camel@ras.pc.brisbane.lube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
->
-> Convert loop.c from the deprecated kernel_thread to kthread.
->
+The oom killer is being run, and I can't figure out why.
+As far as I can see there is plenty of memory available.
+Attached are some logs that show that state of the machine
+when the oom killer runs.
 
-I think you have a racelet here:
+Background info: The machine has 2Gb of RAM, and 2Gb of
+swap.  The oom killer consistently strikes when the
+machine is doing a backup.  The backup consists of
+mkfs'ing an ext3 partition, and then copying the files
+across.  The oom killer does its stuff during the mkfs.
+It goes away ones the next ext3 partition is mounted
+and the backup starts.
 
-> +		}
->  		spin_unlock_irq(&lo->lo_lock);
->  
-> -		BUG_ON(!bio);
-> -		loop_handle_bio(lo, bio);
-> -
-> -		/*
-> -		 * upped both for pending work and tear-down, lo_pending
-> -		 * will hit zero then
-> -		 */
-> -		if (unlikely(!pending))
-> -			break;
-> +		__set_current_state(TASK_INTERRUPTIBLE);
-> +		schedule();
->  	}
->  
-> -	complete(&lo->lo_done);
->  	return 0;
->  }
+It is running the Debian stable kernel (2.6.8.1) with
+cfq on a dual core machine.  Although it shouldn't be,
+it appears the machine is used a very high load at the
+time because the shell script attached is supposed to
+run every 5 seconds, yet at the time the oom condition
+happens there is approx 10 minute delay between runs.
 
+Two other odd things: there are many other machines
+that are identical software wise, as in installed from 
+the same DVD image, and doing an identical backup.  
+This is the only one with the issue.  This box has
+just been replaced and a fresh install done.  The 
+previous box (completely different hardware) had the
+same issue.
 
-:		if (kthread_should_stop()) {
-:			spin_unlock_irq(&lo->lo_lock);
-:			break;
-:		}
-:		spin_unlock_irq(&lo->lo_lock);
-:
-:		__set_current_state(TASK_INTERRUPTIBLE);
-:		schedule();
-:
+Any clues would be appreciated.
 
-If the wake_up_process() is delivered before the __set_current_state(),
-we'll miss the wakeup.
+--
 
-If so, this should plug it.  The same race is not possible against the
-loop_set_fd() wakeup because the thread isn't running at that stage, yes?
-
-
-diff -puN drivers/block/loop.c~kthread-convert-loopc-to-kthread-race-fix drivers/block/loop.c
---- a/drivers/block/loop.c~kthread-convert-loopc-to-kthread-race-fix
-+++ a/drivers/block/loop.c
-@@ -525,8 +525,8 @@ static int loop_make_request(request_que
- 		goto out;
- 	lo->lo_pending++;
- 	loop_add_bio(lo, old_bio);
--	spin_unlock_irq(&lo->lo_lock);
- 	wake_up_process(lo->lo_thread);
-+	spin_unlock_irq(&lo->lo_lock);
- 	return 0;
- 
- out:
-@@ -600,9 +600,8 @@ static int loop_thread(void *data)
- 			spin_unlock_irq(&lo->lo_lock);
- 			break;
- 		}
--		spin_unlock_irq(&lo->lo_lock);
--
- 		__set_current_state(TASK_INTERRUPTIBLE);
-+		spin_unlock_irq(&lo->lo_lock);
- 		schedule();
- 	}
- 
-_
+Regards,
+Russell Stuart
 

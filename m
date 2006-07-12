@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWGLDxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWGLDwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWGLDxi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 23:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWGLDxi
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 23:53:38 -0400
-Received: from xenotime.net ([66.160.160.81]:15590 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932392AbWGLDwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932399AbWGLDwD (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 11 Jul 2006 23:52:03 -0400
-Date: Tue, 11 Jul 2006 20:53:22 -0700
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWGLDwA
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 11 Jul 2006 23:52:00 -0400
+Received: from xenotime.net ([66.160.160.81]:10726 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932394AbWGLDv7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 23:51:59 -0400
+Date: Tue, 11 Jul 2006 20:45:55 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>, scsi <linux-scsi@vger.kernel.org>
-Cc: jejb <james.bottomley@steeleye.com>, akpm <akpm@osdl.org>,
-       dgilbert@interlog.com
-Subject: [PATCH -mm] scsi_debug: must_check fixes
-Message-Id: <20060711205322.4f258729.rdunlap@xenotime.net>
+To: linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, akpm <akpm@osdl.org>
+Subject: [PATCH -mm] IDE core: must_check fixes
+Message-Id: <20060711204555.3b12eba4.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -26,124 +25,140 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Check all __must_check warnings in scsi_debug.
+Check all __must_check warnings in IDE core.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- drivers/scsi/scsi_debug.c |   72 ++++++++++++++++++++++++++++++++++------------
- 1 files changed, 54 insertions(+), 18 deletions(-)
+ drivers/ide/ide-probe.c |   25 +++++++++++++++++++++----
+ drivers/ide/ide-proc.c  |   22 ++++++++++++++++++----
+ drivers/ide/ide.c       |    8 +++++++-
+ 3 files changed, 46 insertions(+), 9 deletions(-)
 
---- linux-2618-rc1mm1.orig/drivers/scsi/scsi_debug.c
-+++ linux-2618-rc1mm1/drivers/scsi/scsi_debug.c
-@@ -286,7 +286,7 @@ static int inquiry_evpd_83(unsigned char
- 			   int dev_id_num, const char * dev_id_str,
- 			   int dev_id_str_len);
- static int inquiry_evpd_88(unsigned char * arr, int target_dev_id);
--static void do_create_driverfs_files(void);
-+static int do_create_driverfs_files(void);
- static void do_remove_driverfs_files(void);
- 
- static int sdebug_add_adapter(void);
-@@ -2487,19 +2487,22 @@ static ssize_t sdebug_add_host_store(str
- DRIVER_ATTR(add_host, S_IRUGO | S_IWUSR, sdebug_add_host_show, 
- 	    sdebug_add_host_store);
- 
--static void do_create_driverfs_files(void)
-+static int do_create_driverfs_files(void)
+--- linux-2618-rc1mm1.orig/drivers/ide/ide.c
++++ linux-2618-rc1mm1/drivers/ide/ide.c
+@@ -1994,10 +1994,16 @@ EXPORT_SYMBOL_GPL(ide_bus_type);
+  */
+ static int __init ide_init(void)
  {
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_add_host);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_delay);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_dev_size_mb);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_dsense);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_every_nth);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_max_luns);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_num_tgts);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_num_parts);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_ptype);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_opts);
--	driver_create_file(&sdebug_driverfs_driver, &driver_attr_scsi_level);
 +	int ret;
 +
-+	ret = driver_create_file(&sdebug_driverfs_driver, &driver_attr_add_host);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_delay);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_dev_size_mb);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_dsense);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_every_nth);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_max_luns);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_num_tgts);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_num_parts);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_ptype);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_opts);
-+	ret |= driver_create_file(&sdebug_driverfs_driver, &driver_attr_scsi_level);
-+	return ret;
+ 	printk(KERN_INFO "Uniform Multi-Platform E-IDE driver " REVISION "\n");
+ 	system_bus_speed = ide_system_bus_speed();
+ 
+-	bus_register(&ide_bus_type);
++	ret = bus_register(&ide_bus_type);
++	if (ret < 0) {
++		printk(KERN_WARNING "IDE: bus_register error: %d\n", ret);
++		return ret;
++	}
+ 
+ 	init_ide_data();
+ 
+--- linux-2618-rc1mm1.orig/drivers/ide/ide-probe.c
++++ linux-2618-rc1mm1/drivers/ide/ide-probe.c
+@@ -623,6 +623,8 @@ static void hwif_release_dev (struct dev
+ 
+ static void hwif_register (ide_hwif_t *hwif)
+ {
++	int ret;
++
+ 	/* register with global device tree */
+ 	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
+ 	hwif->gendev.driver_data = hwif;
+@@ -634,7 +636,10 @@ static void hwif_register (ide_hwif_t *h
+ 			hwif->gendev.parent = NULL;
+ 	}
+ 	hwif->gendev.release = hwif_release_dev;
+-	device_register(&hwif->gendev);
++	ret = device_register(&hwif->gendev);
++	if (ret < 0)
++		printk(KERN_WARNING "IDE: %s: device_register error: %d\n",
++			__FUNCTION__, ret);
  }
  
- static void do_remove_driverfs_files(void)
-@@ -2522,6 +2525,7 @@ static int __init scsi_debug_init(void)
- 	unsigned int sz;
- 	int host_to_add;
- 	int k;
-+	int ret;
+ static int wait_hwif_ready(ide_hwif_t *hwif)
+@@ -884,13 +889,19 @@ int probe_hwif_init_with_fixup(ide_hwif_
  
- 	if (scsi_debug_dev_size_mb < 1)
- 		scsi_debug_dev_size_mb = 1;  /* force minimum 1 MB ramdisk */
-@@ -2560,12 +2564,32 @@ static int __init scsi_debug_init(void)
- 	if (scsi_debug_num_parts > 0)
- 		sdebug_build_parts(fake_storep);
- 
--	init_all_queued();
-+	ret = device_register(&pseudo_primary);
-+	if (ret < 0) {
-+		printk(KERN_WARNING "scsi_debug: device_register error: %d\n",
-+			ret);
-+		goto free_vm;
-+	}
-+	ret = bus_register(&pseudo_lld_bus);
-+	if (ret < 0) {
-+		printk(KERN_WARNING "scsi_debug: bus_register error: %d\n",
-+			ret);
-+		goto dev_unreg;
-+	}
-+	ret = driver_register(&sdebug_driverfs_driver);
-+	if (ret < 0) {
-+		printk(KERN_WARNING "scsi_debug: driver_register error: %d\n",
-+			ret);
-+		goto bus_unreg;
-+	}
-+	ret = do_create_driverfs_files();
-+	if (ret < 0) {
-+		printk(KERN_WARNING "scsi_debug: driver_create_file error: %d\n",
-+			ret);
-+		goto del_files;
-+	}
- 
--	device_register(&pseudo_primary);
--	bus_register(&pseudo_lld_bus);
--	driver_register(&sdebug_driverfs_driver);
--	do_create_driverfs_files();
-+	init_all_queued();
- 
- 	sdebug_driver_template.proc_name = (char *)sdebug_proc_name;
- 
-@@ -2585,6 +2609,18 @@ static int __init scsi_debug_init(void)
- 		       scsi_debug_add_host);
+ 	if (hwif->present) {
+ 		u16 unit = 0;
++		int ret;
++
+ 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+ 			ide_drive_t *drive = &hwif->drives[unit];
+ 			/* For now don't attach absent drives, we may
+ 			   want them on default or a new "empty" class
+ 			   for hotplug reprobing ? */
+ 			if (drive->present) {
+-				device_register(&drive->gendev);
++				ret = device_register(&drive->gendev);
++				if (ret < 0)
++					printk(KERN_WARNING "IDE: %s: "
++						"device_register error: %d\n",
++						__FUNCTION__, ret);
+ 			}
+ 		}
+ 	}
+@@ -1409,8 +1420,14 @@ int ideprobe_init (void)
+ 			if (hwif->chipset == ide_unknown || hwif->chipset == ide_forced)
+ 				hwif->chipset = ide_generic;
+ 			for (unit = 0; unit < MAX_DRIVES; ++unit)
+-				if (hwif->drives[unit].present)
+-					device_register(&hwif->drives[unit].gendev);
++				if (hwif->drives[unit].present) {
++					int ret = device_register(
++						&hwif->drives[unit].gendev);
++					if (ret < 0)
++						printk(KERN_WARNING "IDE: %s: "
++							"device_register error: %d\n",
++							__FUNCTION__, ret);
++				}
+ 		}
  	}
  	return 0;
+--- linux-2618-rc1mm1.orig/drivers/ide/ide-proc.c
++++ linux-2618-rc1mm1/drivers/ide/ide-proc.c
+@@ -326,15 +326,24 @@ static int ide_replace_subdriver(ide_dri
+ {
+ 	struct device *dev = &drive->gendev;
+ 	int ret = 1;
++	int err;
+ 
+ 	down_write(&dev->bus->subsys.rwsem);
+ 	device_release_driver(dev);
+ 	/* FIXME: device can still be in use by previous driver */
+ 	strlcpy(drive->driver_req, driver, sizeof(drive->driver_req));
+-	device_attach(dev);
++	err = device_attach(dev);
++	if (err < 0)
++		printk(KERN_WARNING "IDE: %s: device_attach error: %d\n",
++			__FUNCTION__, err);
+ 	drive->driver_req[0] = 0;
+-	if (dev->driver == NULL)
+-		device_attach(dev);
++	if (dev->driver == NULL) {
++		err = device_attach(dev);
++		if (err < 0)
++			printk(KERN_WARNING
++				"IDE: %s: device_attach(2) error: %d\n",
++				__FUNCTION__, err);
++	}
+ 	if (dev->driver && !strcmp(dev->driver->name, driver))
+ 		ret = 0;
+ 	up_write(&dev->bus->subsys.rwsem);
+@@ -524,7 +533,12 @@ static int proc_print_driver(struct devi
+ 
+ static int ide_drivers_show(struct seq_file *s, void *p)
+ {
+-	bus_for_each_drv(&ide_bus_type, NULL, s, proc_print_driver);
++	int err;
 +
-+del_files:
-+	do_remove_driverfs_files();
-+	driver_unregister(&sdebug_driverfs_driver);
-+bus_unreg:
-+	bus_unregister(&pseudo_lld_bus);
-+dev_unreg:
-+	device_unregister(&pseudo_primary);
-+free_vm:
-+	vfree(fake_storep);
-+
-+	return ret;
++	err = bus_for_each_drv(&ide_bus_type, NULL, s, proc_print_driver);
++	if (err < 0)
++		printk(KERN_WARNING "IDE: %s: bus_for_each_drv error: %d\n",
++			__FUNCTION__, err);
+ 	return 0;
  }
  
- static void __exit scsi_debug_exit(void)
 
 
 ---

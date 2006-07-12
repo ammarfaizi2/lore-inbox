@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWGLCqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWGLCvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWGLCqw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 22:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWGLCqw
+	id S932356AbWGLCvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 22:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWGLCvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 22:46:52 -0400
-Received: from Maxwell.derobert.net ([207.188.193.82]:22745 "EHLO
-	Maxwell.derobert.net") by vger.kernel.org with ESMTP
-	id S932354AbWGLCqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 22:46:51 -0400
-Message-ID: <44B46276.5030006@suespammers.org>
-Date: Tue, 11 Jul 2006 22:46:14 -0400
-From: Anthony DeRobertis <asd@suespammers.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060517)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Stephen Hemminger <shemminger@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       341801@bugs.debian.org, kevin@sysexperts.com
-Subject: Re: skge error; hangs w/ hardware memory hole
-References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net> <200607072328.51282.ak@suse.de>
-In-Reply-To: <200607072328.51282.ak@suse.de>
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAKlBMVEVTAABbAQBsAACAAQCV
- AAC3DwTXPhTrZiLyjiroi133tCn53UX51n/45bb7J7XrAAACZ0lEQVQ4y2WTz07bQBDGlz5BHF6g
- cfoAxeu+QHYd7rDjwD1eK1eq7AbUU6XGVpRroTxBKE8ABs6oKr2itiHv0pldh/zpSJai/WVm55v5
- lgVBsLufFaoT4q8GWwWBGC4VJxBsgjaXqeJRa5MEQRNBLxMupe2KvWk4ELZ5fPxVcB6GYbyHtBm/
- J9AkkGaSf0CWRFjx3YErFRKADJIjUBIURFx2CIQEZKL1eGQ/ApyNVSJFwwOOIAWAdKBktxiKVuhB
- G0E6VhJD8Fjxjm+XzmN59EVy7vrCzwNOhaA3RBA58cux4LlMTy9QoD9/1c7j7rBXDkHU540VSExu
- QGLtjQRGlQzgDMPWRgIB0EouwWq6MYozr2BtU1ImOQH+P0hHmZJ1t+sggTwDSSmbq/UAAJexBQAG
- j9ZolfRbGwD/PHjWJv1TiG2QWioFMtoCvcEzXS5dv2tdAXaLy66FrAPtgKgVrkCqrQZSvi59J3jL
- dD690CtAaAc995mZT+faA29eH7sH7LY0mS/l/e4ijE/YQ2XAXR6LcJkSSjhhi9+GLsdQ9dbR/kPY
- Y4vK6IwA9GufoLe6hxGbz06xX4y8L8hwzsv7irP59VPhARxyT9BRINni/psborOKcym9CgD287sl
- kJdjDzhZGbthTzOrNaR5mXkxnGxzLjirClyf1tbUKrmE41kmIlaVEwKX2ACNmOrkGl89q+6vsFY+
- fTSZA2RMcjh7+DWzNh8V2IIbDN4wJiezxd2VtbZE+X4w+E4zhVLZ4i+CSWFIpAPQc/2xeXVd2MmN
- XQLnvwRH8jK/u5m+FD9w+K4WzuCs0Ab+Ad5UBbueJrnMAAAAAElFTkSuQmCC
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jul 2006 22:51:13 -0400
+Received: from xenotime.net ([66.160.160.81]:32456 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932356AbWGLCvN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 22:51:13 -0400
+Date: Tue, 11 Jul 2006 19:54:01 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Gustavo Guillermo =?ISO-8859-1?B?UOlyZXo=?= 
+	<gustavo@compunauta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with
+ 2.6.11/12/13/14/15
+Message-Id: <20060711195401.1045c8dd.rdunlap@xenotime.net>
+In-Reply-To: <200607112104.03673.gustavo@compunauta.com>
+References: <200607111906.06343.gustavo@compunauta.com>
+	<200607112032.51788.gustavo@compunauta.com>
+	<200607112104.03673.gustavo@compunauta.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, here are the results with iommu=force. All of these are copied down
-by hand, so please forgive any transcription errors:
+On Tue, 11 Jul 2006 21:04:02 -0500 Gustavo Guillermo Pérez wrote:
 
-2.6.12[1]: Last line displayed on screen is "ata1: dev 0 ATA max
-UDMA/133 390721968 sectors, lba48". Then it sits there. Scrolling with
-shift-pgup/pgdown works. Control-Alt-Del reboots the machine. According
-to /var/log/dmesg, the next line --- which never appears --- should be
-"ata1: dev 0 configured for UDMA/133"
+> booting kernel 2.6.15 with all drivers compiled, and loading Intelfb agp-intel 
+> the oops appears, I'm using an extra NVidia card.
+> 
+> Deleting the intel810 and friends the oops disappear.
 
-2.6.17-1: The kernel panics with a null pointer dereference on loading
-uhci_hcd. The addresses given are usb_kick_khud+7, usb_hc_died+106,
-pcibios_set_master+30, etc. After the panic, it sits there (just like
-2.6.12)
-
-2.6.17-mm6: The last line displayed is "SATA link up 1.5 Gbps SStatus
-113 Scontrol 300". It completely hangs: neither scrolling nor
-control-alt-del work.
+Can you capture any oops messages?  (without using any
+proprietary drivers)
 
 
-Honestly, should I chuck this board through the window of my nearest
-ASUS and/or VIA office, and buy an NForce board?
+> El Martes, 11 de Julio de 2006 20:32, Gustavo Guillermo Pérez escribió:
+> > Reviewing my experiments I was discover that the problem start at 2.6.16,
+> > cause going forward from 2.6.11 to 2.6.15 there is no problem in smp or
+> > single mode.
+> >
+> > El Martes, 11 de Julio de 2006 19:06, Gustavo Guillermo Pérez escribió:
+> > > Hello list, I was trying to use a newer kernel on a gentoo installation,
+> > > and I've downloaded a lastest kernel 2.6.17/16 getting a hardlock on boot
+> > > time, with or without smp mode, controlled by BIOS or by smp kernel
+> > > option I got 1 penguin or 2 penguins as processors get detected, it just
+> > > hang after frame buffer or agp detection, but using vga=0 to not see any
+> > > frame buffer I got a so faster oops and kernel panic and machine reboots,
+> > > then I can't see anything on the screen, just with frame buffer enabled,
+> > > but with frame buffer enabled does not work SySREQ, is just a hang.
+> > >
+> > > Attached .config file used, cat /proc/cpuinfo with 2.6.11 that was the
+> > > kernel that can be built for, and lspci, and verbose lspci.
+> > >
+> > > The config file is the same used for the tests, with or without frame
+> > > buffer enabled is the same.
+> > >
+> > > BIOS VERSION NT94510J.15A.0065.2005.1103.1803
+> > >
+> > > I'll going to upgrade the bios.
+> > >
+> > > Processor type: Intel (R) Pentium(R) D CPU 2.80GHz
+> > > Intel (R) EM64T Capable.
+> > >
+> > > Using 512MB of DDR2 Dual Channel,
+> > > ASL0 256MB
+> > > ASL1 Not Installed
+> > > BSL0 256MB
+> > > BSL1 Not Installed
+> 
+> -- 
+> Gustavo Guillermo Pérez
+> Compunauta uLinux
+> www.compunauta.com
+
+---
+~Randy

@@ -1,122 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWGLTmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWGLTww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWGLTmO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 15:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWGLTmO
+	id S1750932AbWGLTww (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 15:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWGLTww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 15:42:14 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:8655 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1750923AbWGLTmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 15:42:14 -0400
-Message-ID: <44B55091.2040207@grupopie.com>
-Date: Wed, 12 Jul 2006 20:42:09 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Andrew Morton <akpm@osdl.org>, pavel@ucw.cz, roubert@df.lth.se,
-       stern@rowland.harvard.edu, dmitry.torokhov@gmail.com,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org> <20060710094414.GD1640@igloo.df.lth.se> <Pine.LNX.4.64.0607102356460.17704@scrub.home> <20060711124105.GA2474@elf.ucw.cz> <Pine.LNX.4.64.0607120016490.12900@scrub.home> <20060711224225.GC1732@elf.ucw.cz> <Pine.LNX.4.64.0607120132440.12900@scrub.home> <20060711165003.25265bb7.akpm@osdl.org> <Pine.LNX.4.64.0607120213060.12900@scrub.home> <20060711173735.43e9af94.akpm@osdl.org> <Pine.LNX.4.64.0607120248050.12900@scrub.home> <20060711183647.5c5c0204.akpm@osdl.org> <Pine.LNX.4.64.0607121056170.12900@scrub.home> <44B4F88D.3060301@grupopie.com>
-In-Reply-To: <44B4F88D.3060301@grupopie.com>
-Content-Type: multipart/mixed;
- boundary="------------000307050802060201050401"
+	Wed, 12 Jul 2006 15:52:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31954 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750814AbWGLTwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 15:52:51 -0400
+Date: Wed, 12 Jul 2006 12:52:48 -0700
+From: Jeremy Higdon <jeremy@sgi.com>
+To: John Keller <jpk@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 1/1] - sgiioc4: fixup use of mmio ops
+Message-ID: <20060712195248.GB740565@sgi.com>
+References: <20060712175714.16943.10799.sendpatchset@attica.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060712175714.16943.10799.sendpatchset@attica.americas.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000307050802060201050401
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Paulo Marques wrote:
-> Roman Zippel wrote:
->> On Tue, 11 Jul 2006, Andrew Morton wrote:
->> [...]
->>> What, actually, is the problem?
->>
->> It changes the behaviour, it will annoy the hell out of people like me 
->> who have to deal with different kernels and expect this to just work. :-(
->> Since then has it been acceptable to just go ahead and break stuff? 
->> This problem doesn't really look unsolvable, so why is my request to 
->> fix the damn thing so unreasonable?
+On Wed, Jul 12, 2006 at 12:57:14PM -0500, John Keller wrote:
+> sgiioc4.c had been recently converted to using mmio ops.
+> There are still a few issues to cleanup.
 > 
-> Ok, what about this one?
+> Signed-off-by: jpk@sgi.com
+Signed-off-by: jeremy@sgi.com
 
-It doesn't work :P
-
-Ok, I've tested it this time and this new one works as expected. I can
-use any of the sequences discussed and I can produce a SysRq every time.
-Still, just pressing SysRq or any sequence that doesn't start with 
-"press Alt -> press SysRq" seems unaffected.
-
--- 
-Paulo Marques - www.grupopie.com
-
-Pointy-Haired Boss: I don't see anything that could stand in our way.
-            Dilbert: Sanity? Reality? The laws of physics?
-
-
---------------000307050802060201050401
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-Subject: allow the old behavior of Alt+SysRq+<key>
-
-This should allow any order of Alt + SysRq press followed by any key
-while still holding one of SysRq or Alt.
-
-Signed-off-by: Paulo Marques <pmarques@grupopie.com>
-
---- ./drivers/char/keyboard.c.orig	2006-07-12 13:03:32.000000000 +0100
-+++ ./drivers/char/keyboard.c	2006-07-12 20:39:21.000000000 +0100
-@@ -150,7 +150,7 @@ unsigned char kbd_sysrq_xlate[KEY_MAX +
-         "230\177\000\000\213\214\000\000\000\000\000\000\000\000\000\000" /* 0x50 - 0x5f */
-         "\r\000/";                                      /* 0x60 - 0x6f */
- static int sysrq_down;
--static int sysrq_alt_use;
-+static int sysrq_active;
- #endif
- static int sysrq_alt;
-
-@@ -1164,16 +1164,24 @@ static void kbd_keycode(unsigned int key
- 				printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", keycode);
-
- #ifdef CONFIG_MAGIC_SYSRQ	       /* Handle the SysRq Hack */
--	if (keycode == KEY_SYSRQ && (sysrq_down || (down == 1 && sysrq_alt))) {
--		if (!sysrq_down) {
--			sysrq_down = down;
--			sysrq_alt_use = sysrq_alt;
-+	if (keycode == KEY_SYSRQ) {
-+		if (down) {
-+			if(sysrq_alt)
-+				sysrq_down = down;
-+		} else {
-+			sysrq_down = 0;
- 		}
--		return;
- 	}
--	if (sysrq_down && !down && keycode == sysrq_alt_use)
--		sysrq_down = 0;
--	if (sysrq_down && down && !rep) {
-+
-+	if (sysrq_down && sysrq_alt)
-+		sysrq_active = 1;
-+	else if (!sysrq_down && !sysrq_alt)
-+		sysrq_active = 0;
-+
-+	if (keycode == KEY_SYSRQ && sysrq_active)
-+		return;
-+
-+	if (sysrq_active && down && !rep) {
- 		handle_sysrq(kbd_sysrq_xlate[keycode], regs, tty);
- 		return;
- 	}
-
---------------000307050802060201050401--
+> 
+> --- linux-2.6.orig/drivers/ide/pci/sgiioc4.c	2006-07-11 11:34:42.135934603 -0500
+> +++ linux-2.6/drivers/ide/pci/sgiioc4.c	2006-07-12 09:17:02.316590824 -0500
+> @@ -372,7 +372,7 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
+>  	printk(KERN_INFO "%s: BM-DMA at 0x%04lx-0x%04lx\n", hwif->name,
+>  	       dma_base, dma_base + num_ports - 1);
+>  
+> -	if (!request_region(dma_base, num_ports, hwif->name)) {
+> +	if (!request_mem_region(dma_base, num_ports, hwif->name)) {
+>  		printk(KERN_ERR
+>  		       "%s(%s) -- ERROR, Addresses 0x%p to 0x%p "
+>  		       "ALREADY in use\n",
+> @@ -381,7 +381,7 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
+>  		goto dma_alloc_failure;
+>  	}
+>  
+> -	hwif->dma_base = dma_base;
+> +	hwif->dma_base = (unsigned long) ioremap(dma_base, num_ports);
+>  	hwif->dmatable_cpu = pci_alloc_consistent(hwif->pci_dev,
+>  					  IOC4_PRD_ENTRIES * IOC4_PRD_BYTES,
+>  					  &hwif->dmatable_dma);
+> @@ -607,18 +607,14 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
+>  	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
+>  	hwif->ide_dma_timeout = &__ide_dma_timeout;
+>  
+> -	/*
+> -	 * The IOC4 uses MMIO rather than Port IO.
+> -	 * It also needs special workarounds for INB.
+> -	 */
+> -	default_hwif_mmiops(hwif);
+>  	hwif->INB = &sgiioc4_INB;
+>  }
+>  
+>  static int __devinit
+>  sgiioc4_ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t * d)
+>  {
+> -	unsigned long base, ctl, dma_base, irqport;
+> +	unsigned long ctl, dma_base, irqport;
+> +	unsigned long bar0, cmd_base, cmd_phys_base, virt_base;
+>  	ide_hwif_t *hwif;
+>  	int h;
+>  
+> @@ -636,23 +632,27 @@ sgiioc4_ide_setup_pci_device(struct pci_
+>  	}
+>  
+>  	/*  Get the CmdBlk and CtrlBlk Base Registers */
+> -	base = pci_resource_start(dev, 0) + IOC4_CMD_OFFSET;
+> -	ctl = pci_resource_start(dev, 0) + IOC4_CTRL_OFFSET;
+> -	irqport = pci_resource_start(dev, 0) + IOC4_INTR_OFFSET;
+> +	bar0 = pci_resource_start(dev, 0);
+> +	virt_base = (unsigned long) ioremap(bar0, pci_resource_len(dev, 0));
+> +	cmd_base = virt_base + IOC4_CMD_OFFSET;
+> +	ctl = virt_base + IOC4_CTRL_OFFSET;
+> +	irqport = virt_base + IOC4_INTR_OFFSET;
+>  	dma_base = pci_resource_start(dev, 0) + IOC4_DMA_OFFSET;
+>  
+> -	if (!request_region(base, IOC4_CMD_CTL_BLK_SIZE, hwif->name)) {
+> +	cmd_phys_base = bar0 + IOC4_CMD_OFFSET;
+> +	if (!request_mem_region(cmd_phys_base, IOC4_CMD_CTL_BLK_SIZE,
+> +	    hwif->name)) {
+>  		printk(KERN_ERR
+> -			"%s : %s -- ERROR, Port Addresses "
+> +			"%s : %s -- ERROR, Addresses "
+>  			"0x%p to 0x%p ALREADY in use\n",
+> -		       __FUNCTION__, hwif->name, (void *) base,
+> -		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
+> +		       __FUNCTION__, hwif->name, (void *) cmd_phys_base,
+> +		       (void *) cmd_phys_base + IOC4_CMD_CTL_BLK_SIZE);
+>  		return -ENOMEM;
+>  	}
+>  
+> -	if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
+> +	if (hwif->io_ports[IDE_DATA_OFFSET] != cmd_base) {
+>  		/* Initialize the IO registers */
+> -		sgiioc4_init_hwif_ports(&hwif->hw, base, ctl, irqport);
+> +		sgiioc4_init_hwif_ports(&hwif->hw, cmd_base, ctl, irqport);
+>  		memcpy(hwif->io_ports, hwif->hw.io_ports,
+>  		       sizeof (hwif->io_ports));
+>  		hwif->noprobe = !hwif->io_ports[IDE_DATA_OFFSET];
+> @@ -665,6 +665,9 @@ sgiioc4_ide_setup_pci_device(struct pci_
+>  	hwif->cds = (struct ide_pci_device_s *) d;
+>  	hwif->gendev.parent = &dev->dev;/* setup proper ancestral information */
+>  
+> +	/* The IOC4 uses MMIO rather than Port IO. */
+> +	default_hwif_mmiops(hwif);
+> +
+>  	/* Initializing chipset IRQ Registers */
+>  	hwif->OUTL(0x03, irqport + IOC4_INTR_SET * 4);
+>  

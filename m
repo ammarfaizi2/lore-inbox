@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWGLRve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWGLRyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWGLRve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWGLRvd
+	id S932195AbWGLRyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWGLRyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:51:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52715 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932153AbWGLRvd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:51:33 -0400
-Date: Wed, 12 Jul 2006 13:51:24 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: ray-gmail@madrabbit.org,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: annoying frequent overcurrent messages.
-Message-ID: <20060712175124.GF14453@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Stern <stern@rowland.harvard.edu>, ray-gmail@madrabbit.org,
-	Kernel development list <linux-kernel@vger.kernel.org>,
-	David Brownell <david-b@pacbell.net>
-References: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com> <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
+	Wed, 12 Jul 2006 13:54:46 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:32702 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932195AbWGLRyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:54:45 -0400
+Date: Wed, 12 Jul 2006 19:54:17 +0200
+From: fork0@t-online.de (Alex Riesen)
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>,
+       v4l-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com
+Subject: Re: oops in bttv
+Message-ID: <20060712175417.GA5939@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	Frederik Deweerdt <deweerdt@free.fr>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Mauro Carvalho Chehab <mchehab@infradead.org>,
+	v4l-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com
+References: <20060711204940.GA11497@steel.home> <20060712094416.GA1204@slug>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060712094416.GA1204@slug>
+User-Agent: Mutt/1.5.6i
+X-ID: bLYgW-ZYQeLpmwKyOf1QUCcvtSuCtB2IfRKRkA0YdTECLyzgOVNOrJ
+X-TOI-MSGID: be33413e-dfd0-4183-b1cc-3f132a8761be
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 01:19:43PM -0400, Alan Stern wrote:
- > On Wed, 12 Jul 2006, Dave Jones wrote:
- > 
- > > we could at least rate-limit the messages.
- > 
- > That's true for every message in the kernel.  How do you decide which 
- > messages to rate-limit?
+Frederik Deweerdt, Wed, Jul 12, 2006 11:44:16 +0200:
+> On Tue, Jul 11, 2006 at 10:49:40PM +0200, Alex Riesen wrote:
+> > What I did was to call settings of the flashplayer and press on the
+> > webcam symbol there. The system didn't crash, just this oops:
+> > 
+> > BUG: unable to handle kernel NULL pointer dereference at virtual address 0000006
+> > 5
+> Does this happen every time you modprobe bttv ?
 
-anything the user doesn't have any means of fixing should be able to be
-ignored. With dmesg filled with these, it's hard to ignore them.
+Yep.
 
- > Note that this particular message will cause problems only in the presence 
- > of defective hardware.
-
-Defective it may be, I'm not arguing that.    But spewing hundreds of
-these an hour isn't going to make the user fix the problem (if they even can)
-any faster.
-
-*grumbles and goes to edit modprobe.conf*
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk

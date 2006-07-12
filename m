@@ -1,163 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWGLRWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWGLR0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWGLRWM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWGLRWM
+	id S932103AbWGLR0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWGLR0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:22:12 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:6605 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932147AbWGLRWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:22:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=YllHntoP95CUzVVAibZHBZi8Mm3MqOJbTFFgV2OMmgIthhAxW1z9aMvFD+XaisNLwcGSlo3oKEm9wF+80BLIKLvUY0jQCv27w6q0bmcWgtjWQGyFqIGWPWydjLoIgisE/CQSicjMW/gXq35LsquyNYbifg/dKxoK5FlCJkEmqYE=
-Message-ID: <44B52FC7.7090900@gmail.com>
-Date: Wed, 12 Jul 2006 11:22:15 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Wed, 12 Jul 2006 13:26:25 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59010 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932103AbWGLR0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:26:24 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+Date: Wed, 12 Jul 2006 11:24:49 -0600
+In-Reply-To: <44B50088.1010103@fr.ibm.com> (Cedric Le Goater's message of
+	"Wed, 12 Jul 2006 16:00:40 +0200")
+Message-ID: <m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [ patch -mm1 03/03 ] gpio: rename exported vtables to better match
- purpose
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cedric Le Goater <clg@fr.ibm.com> writes:
 
-3 - rename EXPORTed  gpio vtables  from {scx200,pc8736x}_access to  
-_gpio_ops
-new name is much closer to the vtable-name struct nsc_gpio_ops, should 
-be clearer.
-Also rename the _fops vtable var to _fileops to better disambiguate it 
-from the gpio vtable.
+> Eric W. Biederman wrote:
+>> Cedric Le Goater <clg@fr.ibm.com> writes:
+>> 
+>>> This patch adds the user namespace.
+>>>
+>>> Basically, it allows a process to unshare its user_struct table,
+>>> resetting at the same time its own user_struct and all the associated
+>>> accounting.
+>>>
+>>> For the moment, the root_user is added to the new user namespace when
+>>> it is cloned. An alternative behavior would be to let the system
+>>> allocate a new user_struct(0) in each new user namespace. However,
+>>> these 0 users would not have the privileges of the root_user and it
+>>> would be necessary to work on the process capabilities to give them
+>>> some permissions.
+>> 
+>> It is completely the wrong thing for a the root_user to span multiple
+>> namespaces as you describe.  It is important for uid 0 in other namespaces
+>> to not have the privileges of the root_user.  That is half the point.
+>
+> ok good. that's what i thought also.
+>
+>> Too many files in sysfs and proc don't require caps but instead simply
+>> limit things to uid 0.  Having a separate uid 0 in the different namespaces
+>> instantly makes all of these files inaccessible, and keeps processes from
+>> doing something bad.
+>
+> but in order to be useful, the uid 0 in other namespaces will need to have
+> some capabilities.
 
-Signed-off-by  Jim Cromie  <jim.cromie@gmail.com>
+Yes.  It is useful for uid 0 in other namespaces to have some capabilities.
+But that is just a matter of giving another user some additional
+capabilities.  That mechanism may still work but it should not be
+namespace specific magic there.  The trick I guess is which
+capabilities a setuid binary for the other root user gets.
 
----
+One thing to be careful about here is that, at least as I 
+envision it until setresuid is called your user does not change
+even when you unshare your user namespace.
 
-$ diffstat diff.rename-exports
- pc8736x_gpio.c |   13 ++++++-------
- scx200_gpio.c  |   12 ++++++------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+>> To a filesystem a uid does not share a uid namespace with the only things
+>> that should be accessible are those things that are readable/writeable
+>> by everyone.   Unless the filesystem has provisions for storing multiple
+>> uid namespaces not files should be able to be created.  Think NFS root
+>> squash.
+>
+> I think user namespace should be unshared with filesystem. if not, the
+> user/admin should know what is doing.
 
+No.  The uids in a filesystem are interpreted in some user namespace
+context.  We can discover that context at the first mount of the
+filesystem.  Assuming the uids on a filesystem are the same set
+of uids your process is using is just wrong.
 
-diff -ruNp -X dontdiff -X exclude-diffs a0-1-cosmetic/drivers/char/pc8736x_gpio.c a0-2-renames/drivers/char/pc8736x_gpio.c
---- a0-1-cosmetic/drivers/char/pc8736x_gpio.c	2006-07-12 09:21:58.000000000 -0600
-+++ a0-2-renames/drivers/char/pc8736x_gpio.c	2006-07-12 10:32:59.000000000 -0600
-@@ -212,7 +212,7 @@ static void pc8736x_gpio_change(unsigned
- 	pc8736x_gpio_set(index, !pc8736x_gpio_current(index));
- }
- 
--static struct nsc_gpio_ops pc8736x_access = {
-+static struct nsc_gpio_ops pc8736x_gpio_ops = {
- 	.owner		= THIS_MODULE,
- 	.gpio_config	= pc8736x_gpio_configure,
- 	.gpio_dump	= nsc_gpio_dump,
-@@ -221,11 +221,12 @@ static struct nsc_gpio_ops pc8736x_acces
- 	.gpio_change	= pc8736x_gpio_change,
- 	.gpio_current	= pc8736x_gpio_current
- };
-+EXPORT_SYMBOL(pc8736x_gpio_ops);
- 
- static int pc8736x_gpio_open(struct inode *inode, struct file *file)
- {
- 	unsigned m = iminor(inode);
--	file->private_data = &pc8736x_access;
-+	file->private_data = &pc8736x_gpio_ops;
- 
- 	dev_dbg(&pdev->dev, "open %d\n", m);
- 
-@@ -234,7 +235,7 @@ static int pc8736x_gpio_open(struct inod
- 	return nonseekable_open(inode, file);
- }
- 
--static const struct file_operations pc8736x_gpio_fops = {
-+static const struct file_operations pc8736x_gpio_fileops = {
- 	.owner	= THIS_MODULE,
- 	.open	= pc8736x_gpio_open,
- 	.write	= nsc_gpio_write,
-@@ -276,7 +277,7 @@ static int __init pc8736x_gpio_init(void
- 		dev_err(&pdev->dev, "no device found\n");
- 		goto undo_platform_dev_add;
- 	}
--	pc8736x_access.dev = &pdev->dev;
-+	pc8736x_gpio_ops.dev = &pdev->dev;
- 
- 	/* Verify that chip and it's GPIO unit are both enabled.
- 	   My BIOS does this, so I take minimum action here
-@@ -326,7 +327,7 @@ static int __init pc8736x_gpio_init(void
- 	pc8736x_init_shadow();
- 
- 	/* ignore minor errs, and succeed */
--	cdev_init(&pc8736x_gpio_cdev, &pc8736x_gpio_fops);
-+	cdev_init(&pc8736x_gpio_cdev, &pc8736x_gpio_fileops);
- 	cdev_add(&pc8736x_gpio_cdev, devid, PC8736X_GPIO_CT);
- 
- 	return 0;
-@@ -353,7 +354,5 @@ static void __exit pc8736x_gpio_cleanup(
- 	platform_device_put(pdev);
- }
- 
--EXPORT_SYMBOL(pc8736x_access);
--
- module_init(pc8736x_gpio_init);
- module_exit(pc8736x_gpio_cleanup);
-diff -ruNp -X dontdiff -X exclude-diffs a0-1-cosmetic/drivers/char/scx200_gpio.c a0-2-renames/drivers/char/scx200_gpio.c
---- a0-1-cosmetic/drivers/char/scx200_gpio.c	2006-07-12 09:20:55.000000000 -0600
-+++ a0-2-renames/drivers/char/scx200_gpio.c	2006-07-12 10:34:26.000000000 -0600
-@@ -35,7 +35,7 @@ MODULE_PARM_DESC(major, "Major device nu
- 
- #define MAX_PINS 32		/* 64 later, when known ok */
- 
--struct nsc_gpio_ops scx200_access = {
-+struct nsc_gpio_ops scx200_gpio_ops = {
- 	.owner		= THIS_MODULE,
- 	.gpio_config	= scx200_gpio_configure,
- 	.gpio_dump	= nsc_gpio_dump,
-@@ -44,12 +44,12 @@ struct nsc_gpio_ops scx200_access = {
- 	.gpio_change	= scx200_gpio_change,
- 	.gpio_current	= scx200_gpio_current
- };
--EXPORT_SYMBOL(scx200_access);
-+EXPORT_SYMBOL(scx200_gpio_ops);
- 
- static int scx200_gpio_open(struct inode *inode, struct file *file)
- {
- 	unsigned m = iminor(inode);
--	file->private_data = &scx200_access;
-+	file->private_data = &scx200_gpio_ops;
- 
- 	if (m >= MAX_PINS)
- 		return -EINVAL;
-@@ -61,7 +61,7 @@ static int scx200_gpio_release(struct in
- 	return 0;
- }
- 
--static const struct file_operations scx200_gpio_fops = {
-+static const struct file_operations scx200_gpio_fileops = {
- 	.owner   = THIS_MODULE,
- 	.write   = nsc_gpio_write,
- 	.read    = nsc_gpio_read,
-@@ -91,7 +91,7 @@ static int __init scx200_gpio_init(void)
- 		goto undo_malloc;
- 
- 	/* nsc_gpio uses dev_dbg(), so needs this */
--	scx200_access.dev = &pdev->dev;
-+	scx200_gpio_ops.dev = &pdev->dev;
- 
- 	if (major) {
- 		devid = MKDEV(major, 0);
-@@ -105,7 +105,7 @@ static int __init scx200_gpio_init(void)
- 		goto undo_platform_device_add;
- 	}
- 
--	cdev_init(&scx200_gpio_cdev, &scx200_gpio_fops);
-+	cdev_init(&scx200_gpio_cdev, &scx200_gpio_fileops);
- 	cdev_add(&scx200_gpio_cdev, devid, MAX_PINS);
- 
- 	return 0; /* succeed */
+>> Every comparison of a user id needs to compare the tuple
+>> (user namespace, user id) or it needs to compare struct users.
+>>
+>> Ever comparison of a group id needs to compare the tuple
+>> (user namespace, group id) or it needs to compare struct users.
+>
+> yes, that would be the ultimate user namespace.
+>
+> I think that this first patchset lays some infrastructure that is already
+> quite usable in a container which already isolates file, pids, etc and not
+> only users.
+>
+> now, we could work on extending it to support fine grain user namespace
+> which i think can done on top of this first patch.
 
+Yes.  Your patch does lay some interesting foundation work.
+But we must not merge it upstream until we have a complete patchset
+that handles all of the user namespace issues.
 
+>> I think the key infrastructure needs to be looked at here as well.
+>>
+>> There needs to be a user namespace association for mounted filesystems.
+>
+> yes you could expect that to check the i_uid against fsuid but should we
+> enforce it completely ?
+>
+> we already have an issue today with a simple NFS mount on 2 hosts with
+> different user mapping. namespace can't fix all issues.
+
+Yes.  This is an existing problem, which we have just escalated the
+frequency of immensely if we are doing user namespaces.  The normal
+solution is to put everyone on the network in a single user id
+administration domain with ldap or NIS.
+
+However that is avoiding the problem, and having multiple user id
+domains is the point of a user id namespace.  If we escalate the
+problem we should solve it.
+
+>> We need a discussion about how we handle map users from one user
+>> namespace to another, because without some form of mapping so many
+>> things become inaccessible that the system is almost useless.
+>> 
+>> I believe some of the key infrastructure which is roughly kerberos
+>> authentication tokens could be used for this purpose.
+>
+> please elaborate ? i'm not sure to understand why you want to use the keys
+> to map users.
+
+keys are essentially security credentials for something besides the
+local kernel.  Think kerberos tickets.  That makes the keys the
+obvious place to say what uid you are in a different user namespace
+and similar things.
+
+>> A user namespace is a big thing.  What I see here doesn't even
+>> seem to scratch the surface.
+>
+> good let's start digging !
+
+One piece at a time :)
+
+Eric

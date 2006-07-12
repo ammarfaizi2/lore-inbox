@@ -1,233 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWGLHk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWGLHsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWGLHk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWGLHk5
+	id S1750800AbWGLHsE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWGLHsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:40:57 -0400
-Received: from mga05.intel.com ([192.55.52.89]:22397 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750795AbWGLHk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:40:57 -0400
-X-IronPort-AV: i="4.06,231,1149490800"; 
-   d="scan'208"; a="96741831:sNHT67761372"
-Subject: Re: [PATCH 5/5] PCI-Express AER implemetation: pcie_portdrv error
-	handler
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1152689546.28493.232.camel@ymzhang-perf.sh.intel.com>
-References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
-	 <1152688565.28493.218.camel@ymzhang-perf.sh.intel.com>
-	 <1152688926.28493.223.camel@ymzhang-perf.sh.intel.com>
-	 <1152689546.28493.232.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1152689924.28493.236.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 12 Jul 2006 15:38:44 +0800
+	Wed, 12 Jul 2006 03:48:04 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:63392 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750800AbWGLHsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:48:01 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Documentation improvements
+Date: Wed, 12 Jul 2006 09:42:22 +0200
+User-Agent: KMail/1.9.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607120942.23071@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+Hi,
 
-Patch 5 implements error handlers for pcie_portdrv.
+I'm currently trying to get together some kernel interface to implement a 
+device driver. These are two candidates where function documentation was 
+either nonexistent or wrong.
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+The changes reflect what I found out reading the code, so I might miss 
+something important.
 
----
-
---- linux-2.6.17/drivers/pci/pcie/portdrv_pci.c	2006-06-22 16:27:35.000000000 +0800
-+++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_pci.c	2006-06-22 16:46:29.000000000 +0800
-@@ -14,8 +14,10 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/pcieport_if.h>
-+#include <linux/aer.h>
- 
- #include "portdrv.h"
-+#include "aer/aerdrv.h"
- 
- /*
-  * Version Information
-@@ -76,6 +78,8 @@ static int __devinit pcie_portdrv_probe 
- 	if (pcie_port_device_register(dev)) 
- 		return -ENOMEM;
- 
-+	pci_enable_pcie_error_reporting(dev);
-+
- 	return 0;
- }
- 
-@@ -102,6 +106,146 @@ static int pcie_portdrv_resume (struct p
- }
- #endif
- 
-+static int error_detected_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	struct aer_broadcast_data *result_data;
-+	pci_ers_result_t status;
-+
-+	result_data = (struct aer_broadcast_data *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (!driver ||
-+			!driver->err_handler ||
-+			!driver->err_handler->error_detected)
-+			return 0;
-+
-+		pcie_device = to_pcie_device(device);
-+
-+		/* Forward error detected message to service drivers */
-+		status = driver->err_handler->error_detected(
-+			pcie_device->port,
-+			result_data->state);
-+		result_data->result =
-+			merge_result(result_data->result, status);
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
-+					enum pci_channel_state error)
-+{
-+	struct aer_broadcast_data result_data =
-+			{error, PCI_ERS_RESULT_CAN_RECOVER};
-+	
-+	device_for_each_child(&dev->dev, &result_data, error_detected_iter);
-+
-+	/* If fatal, save cfg space for possible link reset at upstream */
-+	if (error == pci_channel_io_frozen)
-+		pcie_portdrv_save_config(dev);
-+
-+	return result_data.result;
-+}
-+
-+static int mmio_enabled_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->mmio_enabled) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->mmio_enabled(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_mmio_enabled(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
-+
-+	device_for_each_child(&dev->dev, &status, mmio_enabled_iter);
-+	return status;
-+}
-+
-+static int slot_reset_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->slot_reset) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->slot_reset(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status;
-+
-+	/* If fatal, restore cfg space for possible link reset at upstream */
-+	if (dev->error_state == pci_channel_io_frozen)
-+		pcie_portdrv_restore_config(dev);
-+
-+	device_for_each_child(&dev->dev, &status, slot_reset_iter);
-+
-+	return status;
-+}
-+
-+static int resume_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->resume) { 
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			driver->err_handler->resume(pcie_device->port);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void pcie_portdrv_err_resume(struct pci_dev *dev)
-+{
-+	device_for_each_child(&dev->dev, NULL, resume_iter);
-+}
-+
- /*
-  * LINUX Device Driver Model
-  */
-@@ -112,6 +256,13 @@ static const struct pci_device_id port_p
- };
- MODULE_DEVICE_TABLE(pci, port_pci_ids);
- 
-+static struct pci_error_handlers pcie_portdrv_err_handler = {
-+		.error_detected = pcie_portdrv_error_detected,
-+		.mmio_enabled = pcie_portdrv_mmio_enabled,
-+		.slot_reset = pcie_portdrv_slot_reset,
-+		.resume = pcie_portdrv_err_resume,
-+};
-+
- static struct pci_driver pcie_portdrv = {
- 	.name		= (char *)device_name,
- 	.id_table	= &port_pci_ids[0],
-@@ -123,6 +274,8 @@ static struct pci_driver pcie_portdrv = 
- 	.suspend	= pcie_portdrv_suspend,
- 	.resume		= pcie_portdrv_resume,
- #endif	/* PM */
-+
-+	.err_handler 	= &pcie_portdrv_err_handler,
- };
- 
- static int __init pcie_portdrv_init(void)
+Eike

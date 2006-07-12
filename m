@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWGLPeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWGLPdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWGLPeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 11:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWGLPeQ
+	id S1751399AbWGLPdv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 11:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWGLPdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 11:34:16 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:27861 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id S1751417AbWGLPeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 11:34:14 -0400
-Date: Wed, 12 Jul 2006 11:33:38 -0400
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: resource_size_t and printk()
-Message-ID: <20060712153338.GD7421@athena.road.mcmartin.ca>
-References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com> <44AB3DF7.8080107@drzeus.cx> <20060711231537.GC18973@kroah.com> <44B4B041.9050808@drzeus.cx> <20060712081535.296ea579.rdunlap@xenotime.net>
+	Wed, 12 Jul 2006 11:33:51 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:44111 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751399AbWGLPdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 11:33:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TZnxs+1Aw8Pe9AaeW610Ji4f5UIslgtv8trBQPTbX9e+SxNMlllY9sqXmnDm0sTftUqez5GTjOci/RaUB2NpdND7YzjiBWnzEpfN1lskqxCMaRR8CCs4owb99lm9gPj4cbthNjNqXTtreeRWpXbJoVmPo6yl4zlSNUo4KSPvefo=
+Message-ID: <6bffcb0e0607120833i3bfe1f1bu460d89b2ba0bf935@mail.gmail.com>
+Date: Wed, 12 Jul 2006 17:33:49 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0607120737h691212ddl31d5db4bb1cb3db4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060712081535.296ea579.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+	 <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
+	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
+	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
+	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+	 <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
+	 <6bffcb0e0607120619p6837a64bice7808856f93b11b@mail.gmail.com>
+	 <b0943d9e0607120737h691212ddl31d5db4bb1cb3db4@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 08:15:35AM -0700, Randy.Dunlap wrote:
-> I know it's more wordy, but we usually use
-> (unsigned long long), not just (long long).
-> 
-> Wish we had an abbreviation for that.
+On 12/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 12/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > Here is a slabinfo from current 2.6.18-rc1-git4 and 2.6.18-rc1 +
+> > kmemleak http://www.stardust.webpages.pl/files/o_bugs/kml/slab.txt
+>
+> Thanks. Does it make any difference if you enable
+> CONFIG_DEBUG_MEMLEAK_TASK_STACKS? Also, if you save the memleak file
+> periodically, do any of the context_struct_to_string reports disappear
+> (I can investigate this if you upload a few ml60.txt, mk61.txt etc.)?
 
-We have a specific qualifier for ptrdiff_t... Why not add one (untested!)
-for resource_size_t, and get rid of all these bloody annoying casts?
+Here are the results
+http://www.stardust.webpages.pl/files/o_bugs/kml/ml/
 
-I'm more than slightly irritated to have to go and add ugly
-(unsigned long long) casts to squelch compiler whining on parisc.
+>
+> --
+> Catalin
+>
 
-This patch will probably cause even more compiler warnings thought because
-gcc will try to be too smart with the use of formats...
+Regards,
+Michal
 
-Signed-off-by: Kyle McMartin <kyle@parisc-linux.org>
-
-diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index bed7229..2d71ff6 100644
---- a/lib/vsprintf.c
-+++ b/lib/vsprintf.c
-@@ -343,7 +343,8 @@ int vsnprintf(char *buf, size_t size, co
- 		/* get the conversion qualifier */
- 		qualifier = -1;
- 		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' ||
--		    *fmt =='Z' || *fmt == 'z' || *fmt == 't') {
-+		    *fmt == 'Z' || *fmt == 'z' || *fmt == 't' ||
-+		    *fmt == 'r') {
- 			qualifier = *fmt;
- 			++fmt;
- 			if (qualifier == 'l' && *fmt == 'l') {
-@@ -477,6 +478,8 @@ int vsnprintf(char *buf, size_t size, co
- 			num = (unsigned short) va_arg(args, int);
- 			if (flags & SIGN)
- 				num = (signed short) num;
-+		} else if (qualifier == 'r') {
-+			num = va_arg(args, resource_size_t);
- 		} else {
- 			num = va_arg(args, unsigned int);
- 			if (flags & SIGN)
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

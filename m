@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWGLKct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWGLKd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWGLKct (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 06:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWGLKct
+	id S1751240AbWGLKd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 06:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWGLKd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 06:32:49 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6924 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751233AbWGLKcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 06:32:48 -0400
-Date: Wed, 12 Jul 2006 11:32:41 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Marc Singer <elf@buici.com>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA memory, split_page, BUG_ON(PageCompound()), sound
-Message-ID: <20060712103241.GA7908@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Marc Singer <elf@buici.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20060709000703.GA9806@cerise.buici.com> <44B0774E.5010103@yahoo.com.au> <20060710025103.GC28166@cerise.buici.com> <44B1FAE4.9070903@yahoo.com.au> <20060710162600.GB18728@flint.arm.linux.org.uk> <44B28F93.9020304@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 06:33:56 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:41208 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751240AbWGLKdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 06:33:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qyGtNaO3ZHCdG83zZuWyXWAOneOdVO1jHb/s3h1QR5Mcbsd2I1IqtzK12SzOBJSA611/WWLof+vPP/1eOmCG28+WCiKF26rTNrX7R+KMTej3K+eCBJfXON8g8+wTF285nCb7AC8/lKS2ojA1Mj+f+C5gjoyv7XluLQ8Yn3vlkNE=
+Message-ID: <b0943d9e0607120333q7960077veef91d63d826003b@mail.gmail.com>
+Date: Wed, 12 Jul 2006 11:33:54 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Catherine Zhang" <cxzhang@watson.ibm.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44B28F93.9020304@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110527x4520d5bbne8b9b3639a821a18@mail.gmail.com>
+	 <b0943d9e0607110556v50185b9i5443dabedba46152@mail.gmail.com>
+	 <6bffcb0e0607110617g36f7123dm2b5f0e88b10cbcaa@mail.gmail.com>
+	 <b0943d9e0607110628w60a436f7t449714eb4a3200ca@mail.gmail.com>
+	 <6bffcb0e0607110649s464840a9sf04c7537809436b1@mail.gmail.com>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 03:34:11AM +1000, Nick Piggin wrote:
-> Russell King wrote:
-> >On Mon, Jul 10, 2006 at 04:59:48PM +1000, Nick Piggin wrote:
-> >
-> >>I guess you could do it a number of ways. Maybe having GFP_USERMAP
-> >>set __GFP_USERMAP|__GFP_COMP, and the arm dma memory allocator can
-> >>strip the __GFP_COMP.
-> >>
-> >>If you get an explicit __GFP_COMP passed down, the allocator doesn't
-> >>know whether that was because they want a user mappable area, or
-> >>really want a compound page (in which case, stripping __GFP_COMP is
-> >>the wrong thing to do).
-> >
-> >
-> >So I'll mask off __GFP_COMP for the time being in the ARM dma allocator
-> >with a note to this effect?
-> 
-> I believe that should do the trick, yes (AFAIK, nobody yet is
-> explicitly relying on a compound page from the dma allocator).
+Hi Catherine,
 
-In which case should ALSA be passing __GFP_COMP to the dma allocator ?
+On 11/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> This is most common
+> orphan pointer 0xf5a6fd60 (size 39):
+>   c0173822: <__kmalloc>
+>   c01df500: <context_struct_to_string>
+>   c01df679: <security_sid_to_context>
+>   c01d7eee: <selinux_socket_getpeersec_dgram>
+>   f884f019: <unix_get_peersec_dgram>
+>   f8850698: <unix_dgram_sendmsg>
+>   c02a88c2: <sock_sendmsg>
+>   c02a9c7a: <sys_sendto>
+>
+> cat /tmp/ml.txt | grep -c selinux_socket_getpeersec_dgram
+> 8442
+
+I'm looking into the above leak report from kmemleak (the back trace
+to the kmalloc function). The "datagram getpeersec" patch went in as
+commit 877ce7c1b3afd69a9b1caeb1b9964c992641f52a. Have you noticed any
+abnormal increase in the slab statistics (especially size-64)?
+
+Thanks.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Catalin

@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWGLRT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWGLRTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWGLRT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 13:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGLRT2
+	id S932137AbWGLRTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 13:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWGLRTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 13:19:28 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:21373 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932125AbWGLRT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 13:19:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=rgWooAGRPnRSEi4pyOdc+bpQ2EpK/FB5rgcg/5h1FxGY7CexwFREufeB/FGDSOjBsnrcf1MXWyjddzUefOZPTDl7On24YgKyzjDn3p6o+H8/yxfiur9UkV3W3Kff2piZMJJnEQQWBZcLJVBtPg/IqHmf6LsMtul6wkKXukGhN/o=
-Message-ID: <44B52F25.6010109@gmail.com>
-Date: Wed, 12 Jul 2006 11:19:33 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Wed, 12 Jul 2006 13:19:46 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:48391 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932137AbWGLRTp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 13:19:45 -0400
+Date: Wed, 12 Jul 2006 13:19:43 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: ray-gmail@madrabbit.org
+cc: Dave Jones <davej@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: annoying frequent overcurrent messages.
+In-Reply-To: <2c0942db0607121009l1fc00764ye0b98d686700a74c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.44L0.0607121314490.6111-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [ patch -mm1 00/03 ] gpio: 3 minor tweaks
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 12 Jul 2006, Ray Lee wrote:
 
-this patchset does:
+> On 7/12/06, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > Dave Jones wrote:
+> > > I have a box that's having its dmesg flooded with..
+> > >
+> > > hub 1-0:1.0: over-current change on port 1
+> > > hub 1-0:1.0: over-current change on port 2
+> > > hub 1-0:1.0: over-current change on port 1
+> > > hub 1-0:1.0: over-current change on port 2
+> > ...
+> >
+> > > over and over again..
+> > > The thing is, this box doesn't even have any USB devices connected to it,
+> > > so there's absolutely nothing I can do to remedy this.
+> >
+> > Since you're not using the UHCI controller on that computer, you could
+> > simply rmmod uhci-hcd (or modify /etc/modprobe.conf to prevent it from
+> > being loaded in the first place).  That would stop the constant interrupts
+> > and the syslog spamming.
+> 
+> For the syslog spamming, you could jus emit the message once when the
+> state is first noticed, then emit a everything good message when it
+> clears up. There's no need to log it repeatedly during the problem
+> period.
 
-1 - drops gpio_set_high, gpio_set_low from the nsc_gpio_ops vtable.
-While we can't drop them from scx200_gpio (or can we ?),  vtable users
-(ie new users) dont need them, they can just use gpio_set()
+That's almost exactly how the driver behaves currently -- the message is
+printed just once when the state is first noticed.  Nothing is printed 
+when the state is cleared, and nothing gets printed repeatedly during the 
+problem period.  But then the problem recurs very quickly.
 
-2 - pure cosmetics - lose needless newlines.
 
-3 - rename EXPORTed  gpio vtables  from {scx200,pc8736x}_access to  
-_gpio_ops
-new name is much closer to the vtable-name struct nsc_gpio_ops, and 
-should be clearer.
-Also rename the _fops vtable vars to _fileops to better disambiguate it 
-from the gpio vtables.
+On Wed, 12 Jul 2006, Dave Jones wrote:
 
+> we could at least rate-limit the messages.
+
+That's true for every message in the kernel.  How do you decide which 
+messages to rate-limit?
+
+Note that this particular message will cause problems only in the presence 
+of defective hardware.
+
+Alan Stern
 

@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWGLWZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWGLW1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751031AbWGLWZA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:25:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWGLWZA
+	id S1751032AbWGLW1j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWGLW1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:25:00 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49577 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750912AbWGLWY7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:24:59 -0400
-Date: Thu, 13 Jul 2006 00:19:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060712221910.GA12905@elte.hu>
-References: <20060630014050.GI19712@stusta.de> <p73wtain80h.fsf@verdi.suse.de> <20060712210732.GA10182@elte.hu> <200607130006.12705.ak@suse.de>
-Mime-Version: 1.0
+	Wed, 12 Jul 2006 18:27:39 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48784 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750813AbWGLW1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:27:39 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jakub Jelinek <jakub@redhat.com>,
+       Ulrich Drepper <drepper@redhat.com>, Roland McGrath <roland@redhat.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+References: <20060712184412.2BD57180061@magilla.sf.frob.com>
+	<44B54EA4.5060506@redhat.com>
+	<20060712195349.GW3823@sunsite.mff.cuni.cz>
+	<44B556E5.5000702@zytor.com>
+	<m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
+	<1152739766.3217.83.camel@laptopd505.fenrus.org>
+	<m1bqru8p36.fsf@ebiederm.dsl.xmission.com>
+	<1152741665.3217.85.camel@laptopd505.fenrus.org>
+	<44B57191.5000802@zytor.com>
+Date: Wed, 12 Jul 2006 16:26:25 -0600
+In-Reply-To: <44B57191.5000802@zytor.com> (H. Peter Anvin's message of "Wed,
+	12 Jul 2006 15:02:57 -0700")
+Message-ID: <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607130006.12705.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-* Andi Kleen <ak@suse.de> wrote:
+> Arjan van de Ven wrote:
+>>> It is a short busy wait before falling asleep.  I assume you mean
+>>> busy wait is a loss even on SMP?
+>> eh yeah I forgot to think for a second. But yes even for SMP busy wait
+>> is pretty bad power wise nowadays.. at least if you wait more than a few
+>> hundred cycles. (and if you wait less... then it's almost unlikely that
+>> it'll be useful as well)
+>>
+>
+> It depends greatly; if a lock is likely to get released by the user after a few
+> memory accesses, spinning is likely to be a win.
 
-> On Wednesday 12 July 2006 23:07, Ingo Molnar wrote:
-> > 
-> > * Andi Kleen <ak@suse.de> wrote:
-> > 
-> > > If the TSC disabling code is taken out the runtime overhead of seccomp 
-> > > is also very small because it's only tested in slow paths.
-> > 
-> > correct. But when i suggested to do precisely that i got a rant from 
-> > Andrea of how super duper important it was to disable the TSC for 
-> > seccomp ... (which argument is almost total hogwash)
-> 
-> I wouldn't call it completely hogwash - there was a published paper 
-> with a demo of an attack - but still the attack required to so much 
-> preparation and advance knowledge of the system that it seemed more of 
-> academical value to me. [...]
+But this requires that the lock be short lived, and highly contended.
 
-(certainly - that's why i added the 'almost' qualifier to 'total 
-hogwash'.)
+If the lock is not short lived then the release is like to be a long
+ways off.  If the lock is not highly contended then you are not likely
+to hit the window when someone else as the contended lock.
 
-> > so i'm going with the simpler path of making seccomp default-off. (which 
-> > solves the problem as far as i'm concerned - i.e. no default overhead in 
-> > the scheduler.)
-> 
-> I think without the context switch overhead it's a moderately useful 
-> facility. Ok currently near nobody uses it, but having a very 
-> lightweight sandbox with simple security semantics and that's easy to 
-> use is a useful facility for more secure user space.
+How frequent are highly contended short lived locks in user space?
 
-yeah. But wouldnt it be nicer to have the same damn thing that also 
-improves a vital infrastructure of Linux, namely ptrace? Andrea didnt 
-even try to improve ptrace - in fact he actively (and mostly unfairly) 
-attacked ptrace, implicitly weakening the security perception of other 
-syscall filtering based projects like User Mode Linux. Now what we have 
-is the same old ptrace, some context-switch overhead, ~900 bytes of 
-bloat and a NIH API. It's a lose-lose scenario IMO ...
-
-> > but Andrea's creative arguments wrt. his decision to not pledge the 
-> > seccomp related patent to GPL users makes me worry about whether 
-> > this technology is untainted.
-> 
-> I don't know any details about this, [...]
-
-Andrea wrote:
-
-"If the GPL offered any protection to my system software I would 
- consider it too, but the GPL can't protect software that runs behind 
- the corporate firewall."
-
-see:
-
- http://marc.theaimsgroup.com/?l=linux-kernel&m=115167947608676&w=2
-
-> [...] but I would generally trust Andrea not to attempt to do anything 
-> evil regarding kernel & patents.
-
-firstly, you might trust Andrea, but do you trust the entity that 
-actually owns the patent (cpushare.com and its investors)? And even if 
-you trusted Andrea, would you trust his heir(s)?
-
-> > another problem is the double standard Andrea's code is enjoying. 
-> > Despite good resons to apply the patch, it has not been applied yet, 
-> > with no explanation. Again, i request the patch below to be applied 
-> > to the upstream kernel.
-> 
-> I can put in a patch into my tree for the next merge to disable the 
-> TSC disable code on i386 too like I did earlier for x86-64.
-
-please do.
-
-	Ingo
+Eric

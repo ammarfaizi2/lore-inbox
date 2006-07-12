@@ -1,75 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGLHI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWGLHMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWGLHI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 03:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWGLHI4
+	id S1750768AbWGLHMO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 03:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWGLHMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 03:08:56 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:53398 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750759AbWGLHIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 03:08:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Uw4YQzdPpXwQVZ3yxwPzbhQQ68Kd6YzTRtuA2BJqyYKr+phulXJNQYjBfd/LEmjcByBFrM/XP45uMgOEo7fZ9w9PnR23i+z/ugpfv2cqOQuZuA/5lkCHBlPHhT7SZsOs6QemJqaWVwfyM6Bh6DnVPkAgM3MaVyZJuRQ0GIRFVCY=
-Message-ID: <40a4ed590607120008y3f78ed4co6de7e1a9ad820110@mail.gmail.com>
-Date: Wed, 12 Jul 2006 09:08:55 +0200
-From: "Zeno Davatz" <zdavatz@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at mm/rmap.c:493!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 12 Jul 2006 03:12:14 -0400
+Received: from mga07.intel.com ([143.182.124.22]:62082 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750768AbWGLHMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 03:12:14 -0400
+X-IronPort-AV: i="4.06,221,1149490800"; 
+   d="scan'208"; a="64681909:sNHT139633452"
+Subject: [PATCH 1/5] PCI-Express AER implemetation: aer howto document
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>
+Cc: Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 12 Jul 2006 15:10:03 +0800
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------[ cut here ]------------
-kernel BUG at mm/rmap.c:493!
-invalid operand: 0000 [#2]
-PREEMPT SMP
-Modules linked in: usbcore
-CPU:    0
-EIP:    0060:[<c01569f9>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.12.2)
-EIP is at page_remove_rmap+0x39/0x50
-eax: ffffffff   ebx: d6e6020c   ecx: c1b28440   edx: c1b28440
-esi: c1b28440   edi: b7083000   ebp: 00000020   esp: d6abfb94
-ds: 007b   es: 007b   ss: 0068
-Process cc1 (pid: 11671, threadinfo=d6abe000 task=d73b1040)
-Stack: 00000010 d6e6020c c014fd5d c1b28440 00000000 d6f79b70 b7089000 b7089000
-       b7088fff c014ff55 c200f900 d6f79b70 b7081000 b7089000 00000000 00008000
-       b7089000 b7089000 f7687bcc c0150076 c200f900 f7687bcc b7081000 b7089000
-Call Trace:
- [<c014fd5d>] zap_pte_range+0xed/0x250
- [<c014ff55>] unmap_page_range+0x95/0xc0
- [<c0150076>] unmap_vmas+0xf6/0x280
- [<c0154bdf>] exit_mmap+0x9f/0x190
- [<c011ba18>] mmput+0x38/0xa0
- [<c0120bd7>] do_exit+0xb7/0x370
- [<c01046a8>] die+0x188/0x190
- [<c011610a>] do_page_fault+0x2da/0x5d5
- [<c01337bf>] autoremove_wake_function+0x2f/0x60
- [<c0119206>] scheduler_tick+0xb6/0x430
- [<c0127b06>] run_timer_softirq+0x126/0x1c0
- [<c0123506>] __do_softirq+0xd6/0xf0
- [<c0115e30>] do_page_fault+0x0/0x5d5
- [<c0103ebb>] error_code+0x4f/0x54
- [<c0145ddc>] buffered_rmqueue+0x6c/0x230
- [<c0146457>] __alloc_pages+0x407/0x430
- [<c0151675>] do_anonymous_page+0x95/0x180
- [<c01517c0>] do_no_page+0x60/0x330
- [<c014f8e5>] pte_alloc_map+0x95/0xd0
- [<c0151c96>] handle_mm_fault+0xf6/0x170
- [<c01530be>] vma_adjust+0x1ce/0x380
- [<c0115fcc>] do_page_fault+0x19c/0x5d5
- [<c0119206>] scheduler_tick+0xb6/0x430
- [<c0127b06>] run_timer_softirq+0x126/0x1c0
- [<c0123506>] __do_softirq+0xd6/0xf0
- [<c0115e30>] do_page_fault+0x0/0x5d5
- [<c0103ebb>] error_code+0x4f/0x54
-Code: f0 83 42 08 ff 0f 98 c0 84 c0 74 1b 8b 42 08 40 78 19 c7 04 24
-10 00 00 00 b8 ff ff ff ff 89 44 24 04 e8 bb fe fe ff 83 c4 08 c3 <0f>
-0b ed 01 c7 f2 38 c0 eb dd 0f 0b ea 01 c7 f2 38 c0 eb c1 8d
- <6>note: cc1[11671] exited with preempt_count 2
+I changed some codes and separated into 5 patches. Thank Greg for his comments.
+
+From: Zhang, Yanmin <yanmin.zhang@intel.com>
+
+PCI-Express AER (Advanced Error Reporting) provides more robust error reporting.
+The series of patches enable kernel support to AER.
+
+The initial patches were written by Tom Long Nguyen. I ported them to the kernel
+2.6.17. Many thanks to Rajesh Shah and Narayanan Chandramouli for their great
+review comments and testing help.
+
+Patch 1 consists of the pciaer-howto.txt document.
+
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com> 
+
+---
+
+--- linux-2.6.17/Documentation/pcieaer-howto.txt	1970-01-01 08:00:00.000000000 +0800
++++ linux-2.6.17_aer/Documentation/pcieaer-howto.txt	2006-06-30 15:45:26.000000000 +0800
+@@ -0,0 +1,224 @@
++   The PCI Express Advanced Error Reporting Driver Guide HOWTO
++		T. Long Nguyen	<tom.l.nguyen@intel.com>
++		Yanmin Zhang	<yanmin.zhang@intel.com>
++				03/30/2006
++
++1. About this guide
++
++This guide describes the basics of the PCI Express Advanced Error
++Reporting (AER) driver and provides information on how to enable
++the drivers of endpoint devices to conform with PCI Express AER
++driver.
++
++2. Copyright © Intel Corporation 2006.
++
++3. What is the PCI Express AER Driver?
++
++PCI Express error signaling can occur on the PCI Express link itself
++or on behalf of transactions initiated on the link. PCI Express
++defines two error reporting paradigms: the baseline capability and
++the Advanced Error Reporting capability. The baseline capability is
++required of all PCI Express components providing a minimum defined
++set of error reporting requirements. Advanced Error Reporting
++capability is implemented with a PCI Express advanced error reporting
++extended capability structure providing more robust error reporting.
++
++The PCI Express AER driver provides the infrastructure to support PCI
++Express Advanced Error Reporting capability. The PCI Express AER
++driver provides three basic functions:
++
++-	Gathers the comprehensive error information if errors
++	occurred. 
++-	Performs error recovery actions.
++-	Reports error to the users.
++
++AER driver only attaches root port which support PCI-Express AER
++capability.
++
++4. Why Use the PCI Express AER Driver?
++
++In a PCI Express-aware system, when AER is enabled, a PCI Express
++device will automatically send an error message to the PCIE root
++port above it when the device captures an error. The Root Port,
++upon receiving an error reporting message, internally processes
++and logs the error message in its PCI Express capability structure.
++Error information being logged includes storing the error reporting
++agent's requestor ID into the Error Source Identification Registers
++and setting the error bits of the Root Error Status Register
++accordingly. If AER error reporting is enabled in Root Error Command
++Register, the Root Port generates an interrupt if an error is
++detected.
++
++All kernels released before 2.6.18 have no root service driver
++available to manage the PCI Express advanced error reporting
++extended capability structure. BIOS could provide the baseline
++capability, but it is unable to coordinate with the downstream device
++drivers to determine more precisely which error and what severity,
++and unable to reset the downstream links while handling fatal error
++recovery.
++
++To provide a solution to these BIOS issues requires the PCI Express AER
++Root driver that provides:
++
++- 	An infrastructure for the OS and application to determine if a
++	fatal error is fatal to the system, OS, or application increasing
++	uptime.
++
++-	An infrastructure to notify the downstream device drivers if errors
++	occurred.
++
++-	An infrastructure to dynamically perform error recovery actions
++	based on configuration options.
++
++- 	Platform-specific independence.
++
++5. Including the PCI Express AER Root Driver into the Linux Kernel
++
++The PCI Express AER Root driver is a Root Port service driver attached
++to the PCI Express Port Bus driver. Its service must be registered
++with the PCI Express Port Bus driver and users are required to include
++the PCI Express Port Bus driver in the kernel (refer to
++PCIEBUS-HOWTO.txt). Once the kernel config CONFIG_PCIEPORTBUS is
++included, the PCI Express AER Root driver is automatically included
++as a kernel driver by default (CONFIG_PCIEAER = y). Users may disable
++the PCI Express AER driver by clearing CONFIG_PCIEAER.
++
++Note that there is a case where a system has AER support in BIOS. 
++Enabling the AER Root driver and having AER support in BIOS may
++result unpredictable behavior. To avoid this conflict, a successful
++load of the AER Root driver requires ACPI _OSC support in the BIOS to
++allow the AER Root driver to request for native control of AER. See
++the PCI FW 3.0 Specification for details regarding OSC usage. Currently,
++lots of firmwares don't provide _OSC support while they use
++PCI-Express. To support such firmwares, forceload, a module parameter
++of type bool, could enable AER to continue to be initiated although
++firmwares have no _OSC support. forceload=n by default.
++
++6. Enabling AER Aware Support in PCI Express Device Driver
++
++To enable AER aware support requires a software driver to configure
++the AER capability structure within its device and to provide its
++error-recovery callbacks as described below.
++
++6.1. Configuring the AER capability structure
++
++PCI Express errors are classified into two types: correctable errors
++and uncorrectable errors. This classification is based on the impacts
++of those errors, which may result in function failure or in degraded
++performance.
++
++Correctable errors pose no impacts on the functionality of the
++interface. The PCI Express protocol can recover without any software
++intervention or any loss of data. These errors are detected and
++corrected by hardware. Unlike correctable errors, uncorrectable
++errors impact functionality of the interface. Uncorrectable errors
++can cause a particular transaction or a particular PCI Express link
++to be unreliable. Depending on those error conditions, uncorrectable
++errors are further classified into fatal errors and non-fatal errors.
++Non-fatal errors cause the particular transaction to be unreliable,
++but the PCI Express link itself is fully functional. Fatal errors, on
++the other hand, cause the link to be unreliable.
++
++AER aware drivers of PCI Express component need change the device
++control registers to enable AER. They also could change AER registers,
++including mask and severity registers.
++
++Note that the errors as described above are related to the PCI Express
++hierarchy and links. These errors do not include any device specific
++errors because device specific errors will still get sent directly to
++the device driver.
++
++6.2. Provide PCI error-recovery callbacks
++
++The PCI Express AER Root driver uses callbacks to coordinate with
++downstream device drivers associated with a hierarchy in question
++when performing error recovery actions. AER driver follows the rules
++defined in pci-error-recovery.txt.
++
++Note that correctable errors pose no impacts on the functionality of
++the interface. The PCI Express protocol can recover without any
++software intervention or any loss of data. These errors do not
++require any recovery actions. The AER driver clears the device's
++correctable error status register accordingly and logs these errors.
++
++If an error message indicates a non-fatal error, performing link reset
++at upstream is not required. The AER driver calls error_detected(dev,
++pci_channel_io_normal) to all drivers associated within a hierarchy in
++question. A driver may return PCI_ERS_RESULT_CAN_RECOVER,
++PCI_ERS_RESULT_DISCONNECT, or PCI_ERS_RESULT_NEED_RESET, depending on
++whether it can recover or the AER driver calls mmio_enabled as next.
++ 
++If an error message indicates a fatal error, kernel will broadcast
++error_detected(dev, pci_channel_io_frozen) to all drivers within
++a hierarchy in question. Then, performing link reset at upstream is
++necessary. As different kinds of devices might use different approaches
++to reset link, AER port service driver is required to provide the
++function to reset link. Firstly, kernel looks for if the upstream
++component has an aer driver. If it has, kernel uses the reset_link
++callback of the aer driver. If the upstream component has no aer driver
++and the port is downstream port, we will use the aer driver of the
++root port who reports the AER error. As for upstream ports,
++they should provide their own aer service drivers with reset_link
++function. If error_detected returns PCI_ERS_RESULT_CAN_RECOVER and
++reset_link returns PCI_ERS_RESULT_RECOVERED, the error handling goes
++to mmio_enabled.
++
++6.2.5 helper functions
++
++6.2.5.1 int pci_find_aer_capability(struct pci_dev *dev);
++pci_find_aer_capability locates the PCI-Express AER capability
++in the device configuration space. If the device doesn't support
++PCI-Express AER, the function returns 0.
++
++6.2.5.2 int pci_enable_pcie_error_reporting(struct pci_dev *dev);
++pci_enable_pcie_error_reporting enables the device to send error
++messages to root port when an error is detected. Note that devices
++don't enable the error reporting by default, so device driver need
++call this function to enable it.
++
++6.2.5.3 int pci_disable_pcie_error_reporting(struct pci_dev *dev);
++pci_disable_pcie_error_reporting disables the device to send error
++messages to root port when an error is detected.
++
++6.2.5.4 int pci_cleanup_aer_uncorrect_error_status(struct pci_dev *dev);
++pci_cleanup_aer_uncorrect_error_status cleanups the uncorrectable
++error status register.
++
++7. AER error output
++
++When any AER error is reported, kernel will call printk to output
++error messages.
++
++Below shows an sample.
+++------ PCI-Express Device Error -----+
++Error Severity          : Uncorrected (Fatal)
++PCIE Bus Error type     : Transaction Layer
++Unsupported Request     : First
++Requester ID            : 0500
++VendorID=8086h, DeviceID=0329h, Bus=05h, Device=00h, Function=00h
++TLB Header:
++04000001 00200a03 05010000 00050100
++
++8. Frequent Asked Questions
++
++Q: What happens if a PCI Express device driver does not provide an
++error recovery handle?
++
++A: The devices attached with the driver won't be recovered. If the
++error is fatal, kernel will print out warning messages. Please refer
++to section 6 for more information.
++
++Q: How does this infrastructure deal with driver that is not PCI
++Express aware?
++
++A: This infrastructure calls the error callback functions of the
++driver when an error happens. But if the driver is not aware of
++PCI Express, the device might not report its own errors to root
++port.
++
++Q: What modifications will that driver need to make it compatible
++with the PCI Express AER Root driver?
++
++A: It could call the helper functions to enable AER in devices and
++cleanup uncorrectable status register. Pls. refer to section 6.2.5.
++

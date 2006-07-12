@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWGLOPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWGLOTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWGLOPB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 10:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWGLOPA
+	id S1750780AbWGLOTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 10:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWGLOTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 10:15:00 -0400
-Received: from a83-68-3-130.adsl.cistron.nl ([83.68.3.130]:20696 "EHLO
-	mx.wurtel.net") by vger.kernel.org with ESMTP id S1751378AbWGLOPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 10:15:00 -0400
-Date: Wed, 12 Jul 2006 16:14:41 +0200
-From: Paul Slootman <paul@wurtel.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SCSI disk won't spinup, so boot hangs
-Message-ID: <20060712141441.GA16473@wurtel.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Wed, 12 Jul 2006 10:19:41 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:43016 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750780AbWGLOTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 10:19:41 -0400
+Date: Wed, 12 Jul 2006 10:19:39 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Dave Jones <davej@redhat.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re:  annoying frequent overcurrent messages.
+In-Reply-To: <200607111747.13529.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Scanner: exiscan *1G0fUA-00081l-00*8cKTmcVhLC6*Wurtel
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was recently confronted by a SCSI disk that had crashed somehow
-("mechanical positioning error" during the first signs of trouble). The
-kernel hung after that, despite the fact that everything was on RAID-1
-and the first disk still was working...
+Dave Jones wrote:
 
-I rebooted the system (remote powerboot, as I was 150km away). Now the
-SCSI BIOS hung on scanning the SCSI bus. "No problem", I thought, and
-disabled the BIOS scan for ID 1. Now grub appeared, and the kernel got
-loaded. However, now the "Spinning up disk..." message failed after 100s
-with the message "not responding...". The scan proceeded to try to read
-the capacity, and that hung indefinitely. Only by driving to the
-location and physically pulling the disk could I get the machine up and
-running again.
+> I have a box that's having its dmesg flooded with..
+> 
+> hub 1-0:1.0: over-current change on port 1
+> hub 1-0:1.0: over-current change on port 2
+> hub 1-0:1.0: over-current change on port 1
+> hub 1-0:1.0: over-current change on port 2
+...
 
-I reasoned that if the spinup fails, it doesn't make much sense to try
-and read the capacity, the partition tables, etc..  Hence I came up with
-the patch below that sets media_present to 0 when the spinup doesn't
-respond. It works for me (TM); there may be a better way, however the
-current behaviour sucks big time.
+> over and over again..
+> The thing is, this box doesn't even have any USB devices connected to it,
+> so there's absolutely nothing I can do to remedy this.
 
-Patch is against 2.6.17.4, although that code doesn't seem to have been
-changed much recently.
+Well, overcurrent is a potentially dangerous situation.  That's why it 
+gets reported with dev_err priority.
 
+Evidently it's a hardware fault.  Perhaps the overcurrent-detect input 
+lines are floating and constantly triggering as a result.  It's not even 
+clear that attaching a USB device would make the problem go away.
 
-Paul Slootman
+Since you're not using the UHCI controller on that computer, you could 
+simply rmmod uhci-hcd (or modify /etc/modprobe.conf to prevent it from 
+being loaded in the first place).  That would stop the constant interrupts 
+and the syslog spamming.
 
-Signed-Off-By: Paul Slootman <paul@wurtel.net>
+But as for fixing the underlying hardware problem, I don't think there's 
+anything we can do.
 
---- a/drivers/scsi/sd.c.orig	2006-07-06 20:02:28.000000000 +0000
-+++ a/drivers/scsi/sd.c	2006-07-12 13:53:26.000000000 +0000
-@@ -1139,8 +1139,15 @@
- 	if (spintime) {
- 		if (scsi_status_is_good(the_result))
- 			printk("ready\n");
--		else
-+		else {
- 			printk("not responding...\n");
-+			/*
-+			 * if unit is not responding, assume there's no media
-+			 * either; this prevents endless delays in reading
-+			 * capacity later on (BTDT)
-+			 */
-+			sdkp->media_present = 0;
-+		}
- 	}
- }
- 
+Alan Stern
+

@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWGLXbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWGLXcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWGLXbE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWGLXbD
+	id S932205AbWGLXcE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 19:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWGLXcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:31:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:10469 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932468AbWGLXaw (ORCPT
+	Wed, 12 Jul 2006 19:32:01 -0400
+Received: from ns1.suse.de ([195.135.220.2]:36237 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932206AbWGLXb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:30:52 -0400
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 5/5] [PATCH] The scheduled unexport of insert_resource
-Reply-To: Greg KH <greg@kroah.com>
-Date: Wed, 12 Jul 2006 16:26:54 -0700
-Message-Id: <11527468263212-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email 1.4.1
-In-Reply-To: <11527468231110-git-send-email-greg@kroah.com>
-References: <20060712232343.GA22672@kroah.com> <1152746814664-git-send-email-greg@kroah.com> <11527468173384-git-send-email-greg@kroah.com> <11527468203373-git-send-email-greg@kroah.com> <11527468231110-git-send-email-greg@kroah.com>
+	Wed, 12 Jul 2006 19:31:59 -0400
+From: Andi Kleen <ak@suse.de>
+To: Theodore Tso <tytso@mit.edu>
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+Date: Thu, 13 Jul 2006 01:31:46 +0200
+User-Agent: KMail/1.9.3
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com> <20060712232414.GI9040@thunk.org>
+In-Reply-To: <20060712232414.GI9040@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607130131.46753.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
+On Thursday 13 July 2006 01:24, Theodore Tso wrote:
 
-Implement the scheduled unexport of insert_resource.
+> Um, if glibc is using sys_sysctl, then that's a pretty good reason.
+> Once we remove it from the kernel, then people will be forced to
+> upgrade glibc's before they can install a newer kernel.  Can we please
+> give people some time for an version of glibc with this change to make
+> it out to most deployed systems, first?  It's really annoying when
+> it's not possible to install a stock kernel.org kernel on a system,
+> and often upgrading glibc is not a trivial thing to do on a
+> distribution userspace, especially if there is a concern for ISV
+> compatibility.  (Especially if C++ code is involved, unfortunately.)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- Documentation/feature-removal-schedule.txt |    8 --------
- include/linux/ioport.h                     |    2 +-
- kernel/resource.c                          |    2 --
- 3 files changed, 1 insertions(+), 11 deletions(-)
+glibc still works, just slower. But I think the best strategy 
+is just to emulate the single sysctl glibc is using and printk
+for the rest.
 
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index ee28798..47d714d 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -55,14 +55,6 @@ Who:	Mauro Carvalho Chehab <mchehab@brtu
+> What we should do is what we've done in the past before removing a
+> system call like this.  printk a deprecation warning no more than n
+> times an hours with the process name using the deprecated interface.
+
+We did this some time ago, but Andrew took it out (partly because
+the original code was somewhat broken and the printk tended to trigger
+too often in crashme) 
+
+Hopefully he puts it back in now.
+
+> P.S.  I happen to be one those developers who think the binary
+> interface is not so bad, and for compared to reading from /proc/sys,
+> the sysctl syscall *is* faster.  But at the same there, there really
+> isn't anything where really does require that kind of speed, so that
+> point is moot.  But at the same time, what is the cost of leaving
+> sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+> starting from now?  
+
+The numerical namespace for sysctl is unsalvagable imho. e.g. distributions
+regularly break it because there is no central repository of numbers
+so it's not very usable anyways in practice.
  
- ---------------------------
- 
--What:	remove EXPORT_SYMBOL(insert_resource)
--When:	April 2006
--Files:	kernel/resource.c
--Why:	No modular usage in the kernel.
--Who:	Adrian Bunk <bunk@stusta.de>
--
-----------------------------
--
- What:	PCMCIA control ioctl (needed for pcmcia-cs [cardmgr, cardctl])
- When:	November 2005
- Files:	drivers/pcmcia/: pcmcia_ioctl.c
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 5612dfe..d42c833 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -97,7 +97,7 @@ extern struct resource iomem_resource;
- extern int request_resource(struct resource *root, struct resource *new);
- extern struct resource * ____request_resource(struct resource *root, struct resource *new);
- extern int release_resource(struct resource *new);
--extern __deprecated_for_modules int insert_resource(struct resource *parent, struct resource *new);
-+extern int insert_resource(struct resource *parent, struct resource *new);
- extern int allocate_resource(struct resource *root, struct resource *new,
- 			     resource_size_t size, resource_size_t min,
- 			     resource_size_t max, resource_size_t align,
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 129cf04..0dd3a85 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -404,8 +404,6 @@ int insert_resource(struct resource *par
- 	return result;
- }
- 
--EXPORT_SYMBOL(insert_resource);
--
- /*
-  * Given an existing resource, change its start and size to match the
-  * arguments.  Returns -EBUSY if it can't fit.  Existing children of
--- 
-1.4.1
-
+-Andi

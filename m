@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWGLDzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWGLD4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWGLDzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 23:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWGLDzP
+	id S932409AbWGLD4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 23:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWGLD4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 23:55:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:14533 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932396AbWGLDzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 23:55:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J0TH2skiFZNfxD2rMuHz5t8Ph5nZz99Uw5KafRrAm+P8yqxxTsZNUmsTWPlfRGjfK+XeWKxZ2/5+RuSuInLVByu1tlc7T1Qpn+OxRg86JEdVPMT0h79iCq5kRgaDbFUz81OxQVBxVv6kLkaEw+Zta7WWbhqGx0srFvVBjf4pzs0=
-Message-ID: <9e4733910607112055o6a399628o13c6ac0d7bdb08d4@mail.gmail.com>
-Date: Tue, 11 Jul 2006 23:55:11 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tty's use of file_list_lock and file_move
-Cc: "Theodore Tso" <tytso@mit.edu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e4733910607111650m16630157ya8c27949ae639ffc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jul 2006 23:56:00 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37618 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932406AbWGLDz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 23:55:59 -0400
+Subject: Re: 2.6.17-mm6
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Keith Mannthey <kmannth@gmail.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <20060705172545.815872b6.akpm@osdl.org>
+References: <20060703030355.420c7155.akpm@osdl.org>
+	 <a762e240607051447x3c3c6e15k9cdb38804cf13f35@mail.gmail.com>
+	 <20060705155037.7228aa48.akpm@osdl.org>
+	 <a762e240607051628n42bf3b79v34178c7251ad7d92@mail.gmail.com>
+	 <20060705164457.60e6dbc2.akpm@osdl.org>
+	 <20060705164820.379a69ba.akpm@osdl.org>
+	 <a762e240607051705h33952e5elf6bd09c1ccea8ab4@mail.gmail.com>
+	 <20060705172545.815872b6.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 11 Jul 2006 23:55:21 -0400
+Message-Id: <1152676521.8309.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <9e4733910607100810r6e02f69g9a3f6d3d1400b397@mail.gmail.com>
-	 <9e4733910607101535i7f395686p7450dc524d9b82ae@mail.gmail.com>
-	 <1152573312.27368.212.camel@localhost.localdomain>
-	 <9e4733910607101604j16c54ef0r966f72f3501cfd2b@mail.gmail.com>
-	 <9e4733910607101649m21579ae2p9372cced67283615@mail.gmail.com>
-	 <20060711012904.GD30332@thunk.org>
-	 <20060711194456.GA3677@flint.arm.linux.org.uk>
-	 <9e4733910607111508x526ee642p5b587698306b22d3@mail.gmail.com>
-	 <1152657465.18028.72.camel@localhost.localdomain>
-	 <9e4733910607111650m16630157ya8c27949ae639ffc@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How exactly are /dev/tty0 and /dev/console supposed to work?
+On Wed, 2006-07-05 at 17:25 -0700, Andrew Morton wrote:
+> On Wed, 5 Jul 2006 17:05:49 -0700
+> "Keith Mannthey" <kmannth@gmail.com> wrote:
+> 
+> > On 7/5/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > On Wed, 5 Jul 2006 16:44:57 -0700
+> > > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > > I guess a medium-term fix would be to add a boot parameter to override
+> > > > PERCPU_ENOUGH_ROOM - it's hard to justify increasing it permanently just
+> > > > for the benefit of the tiny minority of kernels which are hand-built with
+> > > > lots of drivers in vmlinux.
+> > 
 
-I thought that /dev/tty0 was the currently active tty.
-And /dev/console is where the printk output is going.
+[snip]
 
-/dev/tty0 appears to be snapshoting the currently active tty when it
-is opened. It does not track changes to the foreground console.
+> 
+> So you've been hit by the expansion of NR_IRQS which bloats kernel_stat
+> which gobbles per-cpu data.
+> 
+> In 2.6.17 NR_IRQS is 244.  In -mm (due to the x86_64 genirq conversion)
+> NR_IRQS became (256 + 32 * NR_CPUS).  Hence the kstat "array" became
+> two-dimensional.  It's now O(NR_CPUS^2).
+> 
+> I don't know what's a sane max for NR_CPUS on x86_64, but that'll sure be a
+> showstopper if the ia64 guys try the same trick.
+> 
+> I guess one fix would be to de-percpuify kernel_stat.irqs[].  Or
+> dynamically allocate it with alloc_percpu().
 
-It looks like TIOCCONS effects both /dev/tty0 and /dev/console. tty0
-uses console_fops with redirected_tty_write().
+And people wondered why I'm fighting for the robust per_cpu variables.
 
-Am I reading the code right, and are these the correct behaviors?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114785997413023&w=2
 
-What is the equivalent to the setconsole command for Fedora?
+Yes there's still problems with this. But if I ever get some more time
+to work on it, I would like to solve those issues.  Having that
+PERCPU_ENOUGH_ROOM laying around in the kernel is just disgusting ;)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Sorry, for the noise, I have another 2288 more LKML emails to read :)
+
+-- Steve
+
+

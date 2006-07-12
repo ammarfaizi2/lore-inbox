@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWGLWHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWGLWK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWGLWHU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGLWHU
+	id S932465AbWGLWK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWGLWK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:07:20 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:53176 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932464AbWGLWHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:07:19 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-To: Paulo Marques <pmarques@grupopie.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
-       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Thu, 13 Jul 2006 00:06:37 +0200
-References: <6wOHw-5gl-23@gated-at.bofh.it> <6x0yX-5An-17@gated-at.bofh.it> <6xc78-6gi-15@gated-at.bofh.it> <6xyhf-5Fq-1@gated-at.bofh.it> <6xyU6-6Hn-63@gated-at.bofh.it> <6xzdl-75B-13@gated-at.bofh.it> <6xzZO-8gU-23@gated-at.bofh.it> <6xA9p-8ti-7@gated-at.bofh.it> <6xACo-Op-1@gated-at.bofh.it> <6xAVM-1b9-5@gated-at.bofh.it> <6xBfh-1yd-29@gated-at.bofh.it> <6xBRQ-2v4-3@gated-at.bofh.it> <6xITm-4td-17@gated-at.bofh.it> <6xMX0-2bX-21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 12 Jul 2006 18:10:27 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:7181 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932465AbWGLWK1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:10:27 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Will there be Intel Wireless 3945ABG support?
+Date: Wed, 12 Jul 2006 15:09:22 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEEONCAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1G0mrB-0001JL-T3@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+In-Reply-To: <44B443E4.1000707@linux.intel.com>
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 12 Jul 2006 15:04:43 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 12 Jul 2006 15:04:49 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques <pmarques@grupopie.com> wrote:
-> Roman Zippel wrote:
->> On Tue, 11 Jul 2006, Andrew Morton wrote:
->> [...]
->>> What, actually, is the problem?
->> 
->> It changes the behaviour, it will annoy the hell out of people like me who
->> have to deal with different kernels and expect this to just work. :-(
->> Since then has it been acceptable to just go ahead and break stuff? This
->> problem doesn't really look unsolvable, so why is my request to fix the
->> damn thing so unreasonable?
-> 
-> Ok, what about this one?
-> 
-> I don't have time to test it (it compiles, at least), but it seems the
-> logic is pretty clear: once you have pressed both "Alt" and "SysRq"
-> sysrq mode becomes active until you release *both* keys. In this mode
-> any regular key press triggers handle_sysrq.
-> 
-> This allows for all the combinations mentioned before in this thread and
-> makes the logic simpler, IMHO.
 
-Why don't you use a bitmask?
-alt-sysrq down -> val  =  0b11
-sysrq up       -> val &= ~0b01
-alt up         -> val &= ~0b10
+> Also if the binary only chunk of code is neccessary to make the open
+> source bit work then its a derivative work as I understand the
+> situation,
 
-test is_sysrq == !!val
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+	The issue is not whether the userspace daemon is a derivative work of any
+GPL'd work and therefore must be covered. The issue is whether the kernel
+driver and the userspace program are one work or two. If neither is any use
+without the other, and the two were designed together, it seems implausible
+to argue that they are two works.
 
-http://david.woodhou.se/why-not-spf.html
+	A boundary that consists of an API that allows the work on either side to
+be interchanged with others and the other work still operate substantially
+the same can certainly divide two works. That's why a C program that uses
+the standard library can be a separate work from the standard library. Any C
+program works with that library, and the library works with any C program.
+
+	A boundary custom designed for these two programs, and which is not
+intended to allow either program to be replaced with another, would not seem
+to do the job.
+
+	DS
+
+

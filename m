@@ -1,301 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWGLAhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWGLAjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWGLAhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWGLAhq
+	id S932299AbWGLAjr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWGLAjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:37:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5289 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932297AbWGLAhp (ORCPT
+	Tue, 11 Jul 2006 20:39:47 -0400
+Received: from jg555.com ([64.30.195.78]:61143 "EHLO jg555.com")
+	by vger.kernel.org with ESMTP id S932299AbWGLAjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:37:45 -0400
-Date: Tue, 11 Jul 2006 20:37:42 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: annoying frequent overcurrent messages.
-Message-ID: <20060712003742.GQ5362@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 11 Jul 2006 20:39:46 -0400
+Message-ID: <44B443D2.4070600@jg555.com>
+Date: Tue, 11 Jul 2006 17:35:30 -0700
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.18 Headers - Long
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a box that's having its dmesg flooded with..
+I was really glad to see that something was going to be done with the 
+headers, but I don't think it's enough. I'm going to share my concerns 
+and hopefully we can all figure what is the right thing to do.
 
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
-hub 1-0:1.0: over-current change on port 1
-hub 1-0:1.0: over-current change on port 2
+First off, my research in this has been going on since LLH announced 
+that it was not going to produce any more headers. I started a project 
+to sanitize the headers myself. http://headers.cross-lfs.org.
 
-over and over again..
-The thing is, this box doesn't even have any USB devices connected to it,
-so there's absolutely nothing I can do to remedy this.
+I will only document one issue, but there are several more like this in 
+the kernel.
 
-lsusb -v output below
+I'm going to use the MIPS architecture in my example, along with the 
+file page.h.
 
-		Dave
+With the 2.6.18 headers, the file that gets created looks like this. If 
+you notice on lines 17, 20, 23, 26, and 34 they all use CONFIG_{...}, 
+these variables are called from linux/autoconf.h. Yes, the simple fix 
+would be to include this file.
+
+   1.
+      /*
+   2.
+       * This file is subject to the terms and conditions of the GNU
+      General Public
+   3.
+       * License.  See the file "COPYING" in the main directory of this
+      archive
+   4.
+       * for more details.
+   5.
+       *
+   6.
+       * Copyright (C) 1994 - 1999, 2000, 03 Ralf Baechle
+   7.
+       * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+   8.
+       */
+   9.
+      #ifndef _ASM_PAGE_H
+  10.
+      #define _ASM_PAGE_H
+  11.
+       
+  12.
+       
+  13.
+       
+  14.
+      /*
+  15.
+       * PAGE_SHIFT determines the page size
+  16.
+       */
+  17.
+      #ifdef CONFIG_PAGE_SIZE_4KB
+  18.
+      #define PAGE_SHIFT      12
+  19.
+      #endif
+  20.
+      #ifdef CONFIG_PAGE_SIZE_8KB
+  21.
+      #define PAGE_SHIFT      13
+  22.
+      #endif
+  23.
+      #ifdef CONFIG_PAGE_SIZE_16KB
+  24.
+      #define PAGE_SHIFT      14
+  25.
+      #endif
+  26.
+      #ifdef CONFIG_PAGE_SIZE_64KB
+  27.
+      #define PAGE_SHIFT      16
+  28.
+      #endif
+  29.
+      #define PAGE_SIZE       (1UL << PAGE_SHIFT)
+  30.
+      #define PAGE_MASK       (~((1 << PAGE_SHIFT) - 1))
+  31.
+       
+  32.
+       
+  33.
+       
+  34.
+      #ifdef CONFIG_LIMITED_DMA
+  35.
+      #define WANT_PAGE_VIRTUAL
+  36.
+      #endif
+  37.
+       
+  38.
+      #include <asm-generic/memory_model.h>
+  39.
+      #include <asm-generic/page.h>
+  40.
+       
+  41.
+      #endif /* _ASM_PAGE_H */
+
+Here's the header I produce with my sanitize script, I use a glibc call 
+to get the information, which would be more appropriate for the user 
+space. This is very similar to what LLH provided. Even my example is not 
+prefect due to line 14.
+
+   1.
+      #define _ASM_PAGE_H
+   2.
+       
+   3.
+      #include <unistd.h>
+   4.
+       
+   5.
+      #define PAGE_SIZE       (getpagesize())
+   6.
+      static __inline__ int getpageshift()
+   7.
+      {
+   8.
+          int pagesize = getpagesize();
+   9.
+          return (__builtin_clz(pagesize) ^ 31);
+  10.
+      }
+  11.
+      #define PAGE_SHIFT      (getpageshift())
+  12.
+      #define PAGE_MASK       (~(PAGE_SIZE-1))
+  13.
+       
+  14.
+      #ifdef CONFIG_LIMITED_DMA
+  15.
+      #define WANT_PAGE_VIRTUAL
+  16.
+      #endif
+  17.
+       
+  18.
+      #endif /* !(_ASM_PAGE_H) */
 
 
-Bus 004 Device 001: ID 0000:0000  
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x0000 
-  idProduct          0x0000 
-  bcdDevice            2.06
-  iManufacturer           3 Linux 2.6.17-1.2366.fc6 ohci_hcd
-  iProduct                2 OHCI Host Controller
-  iSerial                 1 0000:02:01.1
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0002  1x 2 bytes
-        bInterval             255
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             2
-  wHubCharacteristic 0x0002
-    No power switching (usb 1.0)
-    Ganged overcurrent protection
-  bPwrOn2PwrGood        0 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0xc0
-  PortPwrCtrlMask    0xf6 
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0100 power
+So even with the new headers_install, the headers still need to be 
+sanitized to overcome the missing variables from linux/autoconf.h.
 
-Bus 003 Device 001: ID 0000:0000  
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x0000 
-  idProduct          0x0000 
-  bcdDevice            2.06
-  iManufacturer           3 Linux 2.6.17-1.2366.fc6 ohci_hcd
-  iProduct                2 OHCI Host Controller
-  iSerial                 1 0000:02:01.0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0002  1x 2 bytes
-        bInterval             255
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             2
-  wHubCharacteristic 0x0002
-    No power switching (usb 1.0)
-    Ganged overcurrent protection
-  bPwrOn2PwrGood        0 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0xc0
-  PortPwrCtrlMask    0xf6 
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0100 power
-
-Bus 002 Device 001: ID 0000:0000  
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         1 Single TT
-  bMaxPacketSize0        64
-  idVendor           0x0000 
-  idProduct          0x0000 
-  bcdDevice            2.06
-  iManufacturer           3 Linux 2.6.17-1.2366.fc6 ehci_hcd
-  iProduct                2 EHCI Host Controller
-  iSerial                 1 0000:02:01.2
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0002  1x 2 bytes
-        bInterval              12
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             4
-  wHubCharacteristic 0x0009
-    Per-port power switching
-    Per-port overcurrent protection
-    TT think time 8 FS bits
-  bPwrOn2PwrGood       10 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0xc0
-  PortPwrCtrlMask    0xf6 
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0100 power
-   Port 3: 0000.0100 power
-   Port 4: 0000.0100 power
-
-Bus 001 Device 001: ID 0000:0000  
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            9 Hub
-  bDeviceSubClass         0 Unused
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x0000 
-  idProduct          0x0000 
-  bcdDevice            2.06
-  iManufacturer           3 Linux 2.6.17-1.2366.fc6 uhci_hcd
-  iProduct                2 UHCI Host Controller
-  iSerial                 1 0000:00:1f.2
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           25
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xe0
-      Self Powered
-      Remote Wakeup
-    MaxPower                0mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         9 Hub
-      bInterfaceSubClass      0 Unused
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0002  1x 2 bytes
-        bInterval             255
-Hub Descriptor:
-  bLength               9
-  bDescriptorType      41
-  nNbrPorts             2
-  wHubCharacteristic 0x000a
-    No power switching (usb 1.0)
-    Per-port overcurrent protection
-  bPwrOn2PwrGood        1 * 2 milli seconds
-  bHubContrCurrent      0 milli Ampere
-  DeviceRemovable    0xc0
-  PortPwrCtrlMask    0xf6 
- Hub Port Status:
-   Port 1: 0000.0100 power
-   Port 2: 0000.0100 power
--- 
-http://www.codemonkey.org.uk
+Just wanted to bring this up to everyone's attention and look forward to 
+helping get things resolved.

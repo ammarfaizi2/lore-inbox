@@ -1,120 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWGLWys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWGLWz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbWGLWys (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWGLWys
+	id S932354AbWGLWz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWGLWz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:54:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:19876 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932413AbWGLWyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:54:47 -0400
-Date: Thu, 13 Jul 2006 00:49:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060712224904.GA14500@elte.hu>
-References: <20060630014050.GI19712@stusta.de> <200607130006.12705.ak@suse.de> <20060712221910.GA12905@elte.hu> <200607130033.16555.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Jul 2006 18:55:57 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:35174 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932354AbWGLWz4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:55:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gFdr/s8LV5pcYQC8QFxz71/rArtx/qM5JrpUARVBstBxKC+DTEbo7seXMAlRdLKl/yQBbaxGcpKIBC6+2zlKbdobHVZrQYhkbmZ3hXPkiOGRD8C2CzrG+z32pmekBNzKLipu2s23dyAVfdzBDvQ9J0aPloZ85lEhDjQQz5lQ27s=
+Message-ID: <6bffcb0e0607121555n20a9df53q8589109024629f7a@mail.gmail.com>
+Date: Thu, 13 Jul 2006 00:55:55 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Catalin Marinas" <catalin.marinas@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b0943d9e0607120917pa0c191aw5814a19b9e6f31fd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200607130033.16555.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <b0943d9e0607110702p60f5bf3fg910304bfe06ec168@mail.gmail.com>
+	 <6bffcb0e0607110802w4f423854rb340227331084596@mail.gmail.com>
+	 <b0943d9e0607110844m6278da6crdc03bccce420da1d@mail.gmail.com>
+	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
+	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
+	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+	 <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
+	 <6bffcb0e0607120435x31eceab7r3fdb055a7bee6da2@mail.gmail.com>
+	 <b0943d9e0607120917pa0c191aw5814a19b9e6f31fd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/07/06, Catalin Marinas <catalin.marinas@gmail.com> wrote:
+> On 12/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > BTW I have _very_ annoying soft lockup. Can you fix that?
+> >
+> > Jul 12 13:15:47 ltg01-fedora kernel: printk: 1527 messages suppressed.
+> > Jul 12 13:15:47 ltg01-fedora kernel: ipt_hook: happy cracking.
+> > Jul 12 13:15:56 ltg01-fedora kernel: printk: 1631 messages suppressed.
+> > Jul 12 13:15:56 ltg01-fedora kernel: Neighbour table overflow.
+> >
+> > I don't know why, but clock goes mad.
+> >
+> > Jul 12 14:08:21 ltg01-fedora kernel: BUG: soft lockup detected on CPU#0!
+>
+> Maybe the soft lockup report is cause by the clock change (it doesn't
+> show any kmemleak functions in the backtrace).
 
-* Andi Kleen <ak@suse.de> wrote:
+I can't reproduce this on clean 2.6.18-rc1.
 
-> 
-> > > I can put in a patch into my tree for the next merge to disable the 
-> > > TSC disable code on i386 too like I did earlier for x86-64.
-> > 
-> > please do.
-> 
-> Hmm, with the new thread test as it was pointed out it can be indeed 
-> made zero cost for the common case. Perhaps that's not needed then.
+> You could change
+> SCAN_BLOCK_SIZE in memleak.c to a smaller value as the scanning is
+> done with the interrupt disabled.
 
-putting aside the fundamental fallacy of disabling TSC based timing 
-attacks while not even considering network-based timing attacks (which 
-are still very much possible), Chuck's approach of pushing the seccomp 
-TSC cr4 twiddling into the context-switch slowpath is the right 
-solution, given the circumstances. Will Chuck's patch be in 2.6.18? If 
-not then my months-old patch below should be applied.
+I have tried
+#define SCAN_BLOCK_SIZE         2048
+and
+#define SCAN_BLOCK_SIZE         1024
+Unfortunately it doesn't change anything.
 
-	Ingo
+> I'll try tomorrow on my platforms with the soft lockup enabled.
 
-----
+Please try something like this
+on tty1
+isic -s rand -d your ip (http://www.packetfactory.net/Projects/ISIC/)
+on tty2
+kml_collector (http://www.stardust.webpages.pl/files/o_bugs/kml/ml/kml_collector.sh)
 
-remove TSC-disabling logic from the context-switch hotpath. It has
-marginal security relevance. Truly paranoid users can boot with the
-TSC disabled anyway.
+(I have tried to read random files from /sys on vanilla kernel, but I
+can't reproduce that lockup)
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-----
+>
+> --
+> Catalin
+>
 
- arch/i386/kernel/process.c |   29 -----------------------------
- 1 files changed, 29 deletions(-)
+Regards,
+Michal
 
-Index: linux/arch/i386/kernel/process.c
-===================================================================
---- linux.orig/arch/i386/kernel/process.c
-+++ linux/arch/i386/kernel/process.c
-@@ -589,33 +589,6 @@ handle_io_bitmap(struct thread_struct *n
- }
- 
- /*
-- * This function selects if the context switch from prev to next
-- * has to tweak the TSC disable bit in the cr4.
-- */
--static inline void disable_tsc(struct task_struct *prev_p,
--			       struct task_struct *next_p)
--{
--	struct thread_info *prev, *next;
--
--	/*
--	 * gcc should eliminate the ->thread_info dereference if
--	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
--	 */
--	prev = prev_p->thread_info;
--	next = next_p->thread_info;
--
--	if (has_secure_computing(prev) || has_secure_computing(next)) {
--		/* slow path here */
--		if (has_secure_computing(prev) &&
--		    !has_secure_computing(next)) {
--			write_cr4(read_cr4() & ~X86_CR4_TSD);
--		} else if (!has_secure_computing(prev) &&
--			   has_secure_computing(next))
--			write_cr4(read_cr4() | X86_CR4_TSD);
--	}
--}
--
--/*
-  *	switch_to(x,yn) should switch tasks from x to y.
-  *
-  * We fsave/fwait so that an exception goes off at the right time
-@@ -709,8 +682,6 @@ struct task_struct fastcall * __switch_t
- 	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
- 		handle_io_bitmap(next, tss);
- 
--	disable_tsc(prev_p, next_p);
--
- 	return prev_p;
- }
- 
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

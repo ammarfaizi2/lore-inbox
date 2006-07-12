@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWGLGkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWGLGm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWGLGkK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWGLGkK
+	id S1750748AbWGLGm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWGLGm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:40:10 -0400
-Received: from mga01.intel.com ([192.55.52.88]:30783 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750924AbWGLGkH convert rfc822-to-8bit (ORCPT
+	Wed, 12 Jul 2006 02:42:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29914 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750748AbWGLGm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:40:07 -0400
-X-IronPort-AV: i="4.06,231,1149490800"; 
-   d="scan'208"; a="96721904:sNHT15749545"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [PATCH -mm] acpi/scan: handle kset/kobject errors
-Date: Wed, 12 Jul 2006 02:40:03 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6F31867@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH -mm] acpi/scan: handle kset/kobject errors
-Thread-Index: AcaleTxNZAiNRttgRUeHgUSiQR2H/AABJgTg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "lkml" <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-Cc: "akpm" <akpm@osdl.org>
-X-OriginalArrivalTime: 12 Jul 2006 06:40:05.0817 (UTC) FILETIME=[02CE3A90:01C6A57E]
+	Wed, 12 Jul 2006 02:42:57 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: David Miller <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sparse annotation question 
+In-reply-to: Your message of "Tue, 11 Jul 2006 23:14:09 MST."
+             <20060711.231409.121242621.davem@davemloft.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 12 Jul 2006 16:42:44 +1000
+Message-ID: <28491.1152686564@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied,
-my only nitpick is that in the subject capital "ACPI:" is what we use --
-as it is an acronym.
+David Miller (on Tue, 11 Jul 2006 23:14:09 -0700 (PDT)) wrote:
+>From: Keith Owens <kaos@ocs.com.au>
+>Date: Wed, 12 Jul 2006 15:47:03 +1000
+>
+>> func (long regno, unsigned long *contents)
+>> {
+>> 	unsigned long i, *bsp;
+>> 	mm_segment_t old_fs;
+>> 	bsp = <expression involving only kernel variables>;
+>> 	old_fs = set_fs(KERNEL_DS);
+>> 	for (i = 0; i < (regno - 32); ++i)
+>> 		bsp = ia64_rse_skip_regs(bsp, 1);
+>> 	put_user(*contents, bsp);
+>> 	set_fs(old_fs);
+>> }
+>> 
+>> sparse is complaining that the second parameter to put_user() is not
+>> marked as __user.  How do I tell sparse to ignore this case?  Marking
+>> bsp as __user does not work, sparse then complains about incorrect type
+>> in assignment (different address spaces).
+>
+>Since, in this case, you "know what you are doing" you can force the
+>matter by using the __force keyword as well as __user.
 
-thanks,
--Len 
+I tried various combinations of __force, but kept getting this:
 
->-----Original Message-----
->From: Randy.Dunlap [mailto:rdunlap@xenotime.net] 
->Sent: Wednesday, July 12, 2006 2:08 AM
->To: lkml; linux-acpi@vger.kernel.org
->Cc: Brown, Len; akpm
->Subject: [PATCH -mm] acpi/scan: handle kset/kobject errors
->
->From: Randy Dunlap <rdunlap@xenotime.net>
->
->Check and handle kset_register() and kobject_register() init errors.
->
->Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
->---
-> drivers/acpi/scan.c |   12 ++++++++++--
-> 1 files changed, 10 insertions(+), 2 deletions(-)
->
->--- linux-2618-rc1mm1.orig/drivers/acpi/scan.c
->+++ linux-2618-rc1mm1/drivers/acpi/scan.c
->@@ -4,6 +4,7 @@
-> 
-> #include <linux/module.h>
-> #include <linux/init.h>
->+#include <linux/kernel.h>
-> #include <linux/acpi.h>
-> 
-> #include <acpi/acpi_drivers.h>
->@@ -113,6 +114,8 @@ static struct kset acpi_namespace_kset =
-> static void acpi_device_register(struct acpi_device *device,
-> 				 struct acpi_device *parent)
-> {
->+	int err;
->+
-> 	/*
-> 	 * Linkage
-> 	 * -------
->@@ -138,7 +141,10 @@ static void acpi_device_register(struct 
-> 		device->kobj.parent = &parent->kobj;
-> 	device->kobj.ktype = &ktype_acpi_ns;
-> 	device->kobj.kset = &acpi_namespace_kset;
->-	kobject_register(&device->kobj);
->+	err = kobject_register(&device->kobj);
->+	if (err < 0)
->+		printk(KERN_WARNING "%s: kobject_register error: %d\n",
->+			__FUNCTION__, err);
-> 	create_sysfs_device_files(device);
-> }
-> 
->@@ -1450,7 +1456,9 @@ static int __init acpi_scan_init(void)
-> 	if (acpi_disabled)
-> 		return 0;
-> 
->-	kset_register(&acpi_namespace_kset);
->+	result = kset_register(&acpi_namespace_kset);
->+	if (result < 0)
->+		printk(KERN_ERR PREFIX "kset_register error: 
->%d\n", result);
-> 
-> 	result = bus_register(&acpi_bus_type);
-> 	if (result) {
->
->
->---
->
+warning: incorrect type in argument 1 (different address spaces)
+   expected unsigned long *addr
+   got unsigned long [noderef] [force] *[addressable] bsp<asn:1>
+
+What finally worked was
+
+ 	unsigned long i, *bsp, __user *ubsp;
+	...
+	ubsp = (unsigned long __user *) bsp;
+	put_user(*contents, ubsp);
+

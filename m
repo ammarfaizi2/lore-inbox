@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWGLWr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWGLWuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWGLWr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWGLWr0
+	id S932403AbWGLWuW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGLWuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:47:26 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:25557
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S932368AbWGLWr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:47:26 -0400
-Date: Thu, 13 Jul 2006 00:48:14 +0200
-From: andrea@cpushare.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andi Kleen <ak@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Adrian Bunk <bunk@stusta.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       andrea <andrea@cpushare.com>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060712224814.GD24367@opteron.random>
-References: <200607121739_MC3-1-C4D3-28B9@compuserve.com> <Pine.LNX.4.64.0607121453230.5623@g5.osdl.org>
+	Wed, 12 Jul 2006 18:50:22 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:36552 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932403AbWGLWuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:50:21 -0400
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Arjan van de Ven <arjan@infradead.org>,
+       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+       Roland McGrath <roland@redhat.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+In-Reply-To: <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>
+References: <20060712184412.2BD57180061@magilla.sf.frob.com>
+	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>
+	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
+	 <1152739766.3217.83.camel@laptopd505.fenrus.org>
+	 <m1bqru8p36.fsf@ebiederm.dsl.xmission.com>
+	 <1152741665.3217.85.camel@laptopd505.fenrus.org>
+	 <44B57191.5000802@zytor.com>  <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 13 Jul 2006 00:07:44 +0100
+Message-Id: <1152745664.22943.115.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607121453230.5623@g5.osdl.org>
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 12 Jul 2006, Chuck Ebbert wrote:
-> >
-> > We can just fold the TSC disable stuff into the new thread_flags test
-> > at context-switch time:
-
-Great idea Chunk! We already use them in the syscall, it sounds a
-perfect fit ;).
-
-On Wed, Jul 12, 2006 at 02:55:38PM -0700, Linus Torvalds wrote:
+Ar Mer, 2006-07-12 am 16:26 -0600, ysgrifennodd Eric W. Biederman:
+> If the lock is not short lived then the release is like to be a long
+> ways off.  If the lock is not highly contended then you are not likely
+> to hit the window when someone else as the contended lock.
 > 
-> I really think that this should be cleaned up to _not_ confuse the issue 
-> of TSC with any "secure computing" issue.
-> 
-> The two have nothing to do with each other from a technical standpoint. 
-> 
-> Just make the flag be called "TIF_NOTSC", and then any random usage 
-> (whether it be seccomp or anything else) can just set that flag, the same 
-> way ioperm() sets TIF_IO_BITMAP.
-> 
-> Much cleaner. 
-> 
-> There's no point in mixing up an implementation detail like SECCOMP with a 
-> feature like this.
+> How frequent are highly contended short lived locks in user space?
 
-The only single advantage I can see in remaining purely in function of
-seccomp instead of going in function of _TIF_NOTSC, is that the below
-block would be completely optimized away at compile time when
-CONFIG_SECCOMP is set to N. This now become a slow-path, but then I'm
-unsure if the anti-seccomp advocates can live with this block in the
-slow path given that seccomp will be the only user of the feature. I
-suspect they won't like it but then I could be wrong.
+I'm not sure it matters.
 
-I like it either ways.
+If you want to do the job right then do this
 
-	/*
-	 * Context switch may need to tweak the TSC disable bit in CR4.
-	 * The optimizer should remove this code when !CONFIG_SECCOMP.
-	 */
-	if (has_secure_computing(task_thread_info(prev_p)) ^
-	    has_secure_computing(task_thread_info(next_p))) {
-		/* prev and next are different */
-		if (has_secure_computing(task_thread_info(next_p)))
-			write_cr4(read_cr4() | X86_CR4_TSD);
-		else
-			write_cr4(read_cr4() & ~X86_CR4_TSD);
-	}
+- Stick an indicator of how much else wants to run on this CPU in the
+vsyscall page or similar location
+
+In your locks you can now do
+
+              while(try_and_grab_lock() == FAILED) {
+                       if (kernelpage->waiting > 0)
+                              sys_somelockwaitthing()
+              }
+
+Furthermore the kernel can be intelligent about the waiting indicator
+for power or other global scheduling reasons
+
+[Disclaimer: There is a patent issue around this technique but its not
+one that will impact GPL code as permissions are given for GPL use.]
+
+Alan
+

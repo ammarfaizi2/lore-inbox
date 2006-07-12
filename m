@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWGLDwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWGLDwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWGLDwD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 23:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWGLDwA
+	id S932397AbWGLDwz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 23:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWGLDwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 23:52:00 -0400
-Received: from xenotime.net ([66.160.160.81]:10726 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932394AbWGLDv7 (ORCPT
+	Tue, 11 Jul 2006 23:52:05 -0400
+Received: from xenotime.net ([66.160.160.81]:10214 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932393AbWGLDv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 11 Jul 2006 23:51:59 -0400
-Date: Tue, 11 Jul 2006 20:45:55 -0700
+Date: Tue, 11 Jul 2006 20:48:46 -0700
 From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linux-ide@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, akpm <akpm@osdl.org>
-Subject: [PATCH -mm] IDE core: must_check fixes
-Message-Id: <20060711204555.3b12eba4.rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH -mm] kernel/params: must_check fixes
+Message-Id: <20060711204846.f036e5fa.rdunlap@xenotime.net>
 Organization: YPO4
 X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
@@ -25,139 +25,48 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Check all __must_check warnings in IDE core.
+Check all __must_check warnings in kernel/params.c
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- drivers/ide/ide-probe.c |   25 +++++++++++++++++++++----
- drivers/ide/ide-proc.c  |   22 ++++++++++++++++++----
- drivers/ide/ide.c       |    8 +++++++-
- 3 files changed, 46 insertions(+), 9 deletions(-)
+ kernel/params.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
---- linux-2618-rc1mm1.orig/drivers/ide/ide.c
-+++ linux-2618-rc1mm1/drivers/ide/ide.c
-@@ -1994,10 +1994,16 @@ EXPORT_SYMBOL_GPL(ide_bus_type);
-  */
- static int __init ide_init(void)
+--- linux-2618-rc1mm1.orig/kernel/params.c
++++ linux-2618-rc1mm1/kernel/params.c
+@@ -547,6 +547,7 @@ static void __init kernel_param_sysfs_se
+ 					    unsigned int name_skip)
  {
+ 	struct module_kobject *mk;
++	int ret;
+ 
+ 	mk = kzalloc(sizeof(struct module_kobject), GFP_KERNEL);
+ 	BUG_ON(!mk);
+@@ -554,7 +555,8 @@ static void __init kernel_param_sysfs_se
+ 	mk->mod = THIS_MODULE;
+ 	kobj_set_kset_s(mk, module_subsys);
+ 	kobject_set_name(&mk->kobj, name);
+-	kobject_register(&mk->kobj);
++	ret = kobject_register(&mk->kobj);
++	BUG_ON(ret < 0);
+ 
+ 	/* no need to keep the kobject if no parameter is exported */
+ 	if (!param_sysfs_setup(mk, kparam, num_params, name_skip)) {
+@@ -684,7 +686,14 @@ decl_subsys(module, &module_ktype, NULL)
+  */
+ static int __init param_sysfs_init(void)
+ {
+-	subsystem_register(&module_subsys);
 +	int ret;
 +
- 	printk(KERN_INFO "Uniform Multi-Platform E-IDE driver " REVISION "\n");
- 	system_bus_speed = ide_system_bus_speed();
- 
--	bus_register(&ide_bus_type);
-+	ret = bus_register(&ide_bus_type);
++	ret = subsystem_register(&module_subsys);
 +	if (ret < 0) {
-+		printk(KERN_WARNING "IDE: bus_register error: %d\n", ret);
++		printk(KERN_WARNING "%s (%d): subsystem_register error: %d\n",
++			__FILE__, __LINE__, ret);
 +		return ret;
 +	}
  
- 	init_ide_data();
- 
---- linux-2618-rc1mm1.orig/drivers/ide/ide-probe.c
-+++ linux-2618-rc1mm1/drivers/ide/ide-probe.c
-@@ -623,6 +623,8 @@ static void hwif_release_dev (struct dev
- 
- static void hwif_register (ide_hwif_t *hwif)
- {
-+	int ret;
-+
- 	/* register with global device tree */
- 	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
- 	hwif->gendev.driver_data = hwif;
-@@ -634,7 +636,10 @@ static void hwif_register (ide_hwif_t *h
- 			hwif->gendev.parent = NULL;
- 	}
- 	hwif->gendev.release = hwif_release_dev;
--	device_register(&hwif->gendev);
-+	ret = device_register(&hwif->gendev);
-+	if (ret < 0)
-+		printk(KERN_WARNING "IDE: %s: device_register error: %d\n",
-+			__FUNCTION__, ret);
- }
- 
- static int wait_hwif_ready(ide_hwif_t *hwif)
-@@ -884,13 +889,19 @@ int probe_hwif_init_with_fixup(ide_hwif_
- 
- 	if (hwif->present) {
- 		u16 unit = 0;
-+		int ret;
-+
- 		for (unit = 0; unit < MAX_DRIVES; ++unit) {
- 			ide_drive_t *drive = &hwif->drives[unit];
- 			/* For now don't attach absent drives, we may
- 			   want them on default or a new "empty" class
- 			   for hotplug reprobing ? */
- 			if (drive->present) {
--				device_register(&drive->gendev);
-+				ret = device_register(&drive->gendev);
-+				if (ret < 0)
-+					printk(KERN_WARNING "IDE: %s: "
-+						"device_register error: %d\n",
-+						__FUNCTION__, ret);
- 			}
- 		}
- 	}
-@@ -1409,8 +1420,14 @@ int ideprobe_init (void)
- 			if (hwif->chipset == ide_unknown || hwif->chipset == ide_forced)
- 				hwif->chipset = ide_generic;
- 			for (unit = 0; unit < MAX_DRIVES; ++unit)
--				if (hwif->drives[unit].present)
--					device_register(&hwif->drives[unit].gendev);
-+				if (hwif->drives[unit].present) {
-+					int ret = device_register(
-+						&hwif->drives[unit].gendev);
-+					if (ret < 0)
-+						printk(KERN_WARNING "IDE: %s: "
-+							"device_register error: %d\n",
-+							__FUNCTION__, ret);
-+				}
- 		}
- 	}
- 	return 0;
---- linux-2618-rc1mm1.orig/drivers/ide/ide-proc.c
-+++ linux-2618-rc1mm1/drivers/ide/ide-proc.c
-@@ -326,15 +326,24 @@ static int ide_replace_subdriver(ide_dri
- {
- 	struct device *dev = &drive->gendev;
- 	int ret = 1;
-+	int err;
- 
- 	down_write(&dev->bus->subsys.rwsem);
- 	device_release_driver(dev);
- 	/* FIXME: device can still be in use by previous driver */
- 	strlcpy(drive->driver_req, driver, sizeof(drive->driver_req));
--	device_attach(dev);
-+	err = device_attach(dev);
-+	if (err < 0)
-+		printk(KERN_WARNING "IDE: %s: device_attach error: %d\n",
-+			__FUNCTION__, err);
- 	drive->driver_req[0] = 0;
--	if (dev->driver == NULL)
--		device_attach(dev);
-+	if (dev->driver == NULL) {
-+		err = device_attach(dev);
-+		if (err < 0)
-+			printk(KERN_WARNING
-+				"IDE: %s: device_attach(2) error: %d\n",
-+				__FUNCTION__, err);
-+	}
- 	if (dev->driver && !strcmp(dev->driver->name, driver))
- 		ret = 0;
- 	up_write(&dev->bus->subsys.rwsem);
-@@ -524,7 +533,12 @@ static int proc_print_driver(struct devi
- 
- static int ide_drivers_show(struct seq_file *s, void *p)
- {
--	bus_for_each_drv(&ide_bus_type, NULL, s, proc_print_driver);
-+	int err;
-+
-+	err = bus_for_each_drv(&ide_bus_type, NULL, s, proc_print_driver);
-+	if (err < 0)
-+		printk(KERN_WARNING "IDE: %s: bus_for_each_drv error: %d\n",
-+			__FUNCTION__, err);
- 	return 0;
- }
+ 	param_sysfs_builtin();
  
 
 

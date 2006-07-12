@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWGLAGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWGLAHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWGLAGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWGLAGe
+	id S932291AbWGLAHk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWGLAHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:06:34 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:46833 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S932280AbWGLAGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:06:32 -0400
-Message-ID: <44B43D0A.8010803@namesys.com>
-Date: Tue, 11 Jul 2006 17:06:34 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Tue, 11 Jul 2006 20:07:39 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:408 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932286AbWGLAHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:07:38 -0400
+Message-ID: <44B43E9F.1050406@gentoo.org>
+Date: Wed, 12 Jul 2006 01:13:19 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-To: Clay Barnes <clay.barnes@gmail.com>
-CC: Reiserfs mail-list <Reiserfs-List@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>
-Subject: Re: short term task list for Reiser4
-References: <44B42064.4070802@namesys.com>	<20060711222903.GG9220@HAL_5000D.tc.ph.cox.net>	<44B43019.9010402@namesys.com> <20060711235553.GH9220@HAL_5000D.tc.ph.cox.net>
-In-Reply-To: <20060711235553.GH9220@HAL_5000D.tc.ph.cox.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Pavel Machek <pavel@suse.cz>
+CC: "John W. Linville" <linville@tuxdriver.com>, Jiri Benc <jbenc@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: [patch] workaround zd1201 interference problem
+References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz> <4489ECD0.1030908@gentoo.org> <20060609223804.GB3252@elf.ucw.cz> <20060615201024.GD32582@tuxdriver.com> <20060615204738.GD1849@elf.ucw.cz>
+In-Reply-To: <20060615204738.GD1849@elf.ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reiser4 generally could use some knobs controlling things like whether
-we trickle data slowly and continuously
+Pavel Machek wrote:
+> I'd actually like you to keep it, it does not seem ZyDas contacts are
+> going anywhere.
 
->
->If you have a lazy write policy, what exactly is gained by intentionally
->delaying writes (beyond a certain size that is necessary to make things
->like dancing trees actually effecient)?  If you trickle some data to
->disk, then when memory pressure causes (or an app calls) a big sync,
->then you have less to actually write.  What I'm suggesting, now, is not
->a major write policy change, but rather a light process that is limited
->to extremely low resource use (I/O, CPU, etc.).  It would take some of
->the edge off of major syncs, and for many (most?) non-server users, it
->could wholly eliminate memory pressure-induced heavy syncs.
->
->--Clay
->
->
->  
->
+ZyDAS did not respond to me about this. At least we know more about the 
+problem now anyway :)
 
+Daniel

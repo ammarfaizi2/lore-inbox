@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWGLFKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWGLFfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWGLFKf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 01:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWGLFKf
+	id S932434AbWGLFfG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 01:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWGLFfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 01:10:35 -0400
-Received: from mga07.intel.com ([143.182.124.22]:42056 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932406AbWGLFKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 01:10:34 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="64641738:sNHT82437957"
-Subject: Re: [PATCH 1/6] PCI-Express AER implemetation
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <20060712042020.GB20793@kroah.com>
-References: <1152668200.28493.178.camel@ymzhang-perf.sh.intel.com>
-	 <20060712042020.GB20793@kroah.com>
+	Wed, 12 Jul 2006 01:35:05 -0400
+Received: from mail.gmx.net ([213.165.64.21]:26335 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751168AbWGLFfE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 01:35:04 -0400
+X-Authenticated: #14349625
+Subject: Re: Runnable threads on run queue
+From: Mike Galbraith <efault@gmx.de>
+To: Ask List <askthelist@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <loom.20060712T060407-876@post.gmane.org>
+References: <loom.20060708T220409-206@post.gmane.org>
+	 <1152429626.9711.34.camel@Homer.TheSimpsons.net>
+	 <loom.20060712T060407-876@post.gmane.org>
 Content-Type: text/plain
-Message-Id: <1152680903.28493.206.camel@ymzhang-perf.sh.intel.com>
+Date: Wed, 12 Jul 2006 07:40:56 +0200
+Message-Id: <1152682856.9689.16.camel@Homer.TheSimpsons.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 12 Jul 2006 13:08:23 +0800
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-12 at 12:20, Greg KH wrote:
-> On Wed, Jul 12, 2006 at 09:36:40AM +0800, Zhang, Yanmin wrote:
-> > I changed a little about the patches, so resend and cc to Greg.
-> > 
-> > Greg,
-> > 
-> > Could you consider for your testing tree?
-> 
-> Oh, and also please change the Subject lines with good descriptions of
-> what the individual patches do.  Having them all the same isn't ok.
-I will do so.
+On Wed, 2006-07-12 at 04:14 +0000, Ask List wrote:
+> Network Problem? So your saying our mail servers are not sending spam traffic
+> fast enough if spam assassin processes are running out of work to do? So when
+> our mail servers are not sending spam traffic we see our cpu,cs,interrupts, &
+> runnable threads drop ...?
+
+More or less, yes.  I think somebody is dropping the communication ball.
+
+	-Mike
+

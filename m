@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWGLGm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWGLGrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWGLGm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 02:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWGLGm5
+	id S1750749AbWGLGrU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 02:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWGLGrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 02:42:57 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29914 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750748AbWGLGm5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 02:42:57 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: David Miller <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse annotation question 
-In-reply-to: Your message of "Tue, 11 Jul 2006 23:14:09 MST."
-             <20060711.231409.121242621.davem@davemloft.net> 
+	Wed, 12 Jul 2006 02:47:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25270 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750749AbWGLGrU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 02:47:20 -0400
+Date: Tue, 11 Jul 2006 23:46:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Fernando Luis =?ISO-8859-1?B?VuF6cXVleg==?= Cao 
+	<fernando@oss.ntt.co.jp>
+Cc: vgoyal@in.ibm.com, ebiederm@xmission.com, ak@suse.de,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+Subject: Re: [PATCH 1/4] stack overflow safe kdump (2.6.18-rc1-i386) -
+ safe_smp_processor_id
+Message-Id: <20060711234605.86fd8c98.akpm@osdl.org>
+In-Reply-To: <1152597918.2414.54.camel@localhost.localdomain>
+References: <1152597918.2414.54.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Jul 2006 16:42:44 +1000
-Message-ID: <28491.1152686564@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller (on Tue, 11 Jul 2006 23:14:09 -0700 (PDT)) wrote:
->From: Keith Owens <kaos@ocs.com.au>
->Date: Wed, 12 Jul 2006 15:47:03 +1000
->
->> func (long regno, unsigned long *contents)
->> {
->> 	unsigned long i, *bsp;
->> 	mm_segment_t old_fs;
->> 	bsp = <expression involving only kernel variables>;
->> 	old_fs = set_fs(KERNEL_DS);
->> 	for (i = 0; i < (regno - 32); ++i)
->> 		bsp = ia64_rse_skip_regs(bsp, 1);
->> 	put_user(*contents, bsp);
->> 	set_fs(old_fs);
->> }
->> 
->> sparse is complaining that the second parameter to put_user() is not
->> marked as __user.  How do I tell sparse to ignore this case?  Marking
->> bsp as __user does not work, sparse then complains about incorrect type
->> in assignment (different address spaces).
->
->Since, in this case, you "know what you are doing" you can force the
->matter by using the __force keyword as well as __user.
+On Tue, 11 Jul 2006 15:05:18 +0900
+Fernando Luis Vázquez Cao <fernando@oss.ntt.co.jp> wrote:
+> ...
 
-I tried various combinations of __force, but kept getting this:
+With CONFIG_SMP=n:
 
-warning: incorrect type in argument 1 (different address spaces)
-   expected unsigned long *addr
-   got unsigned long [noderef] [force] *[addressable] bsp<asn:1>
+arch/i386/kernel/crash.c: In function 'crash_save_self':
+arch/i386/kernel/crash.c:91: warning: implicit declaration of function 'safe_smp_processor_id'
 
-What finally worked was
+And it fails to link.
 
- 	unsigned long i, *bsp, __user *ubsp;
-	...
-	ubsp = (unsigned long __user *) bsp;
-	put_user(*contents, ubsp);
+
+> --- linux-2.6.18-rc1/include/asm-i386/smp.h	2006-07-11 10:11:44.000000000 +0900
+> +++ linux-2.6.18-rc1-sof/include/asm-i386/smp.h	2006-07-11 14:05:28.000000000 +0900
+> @@ -89,12 +89,14 @@ static __inline int logical_smp_processo
+>  
+>  #endif
+>  
+> +extern int safe_smp_processor_id(void);
+>  extern int __cpu_disable(void);
+>  extern void __cpu_die(unsigned int cpu);
+>  #endif /* !__ASSEMBLY__ */
+>  
+>  #else /* CONFIG_SMP */
+>  
+> +#define safe_smp_processor_id()		0
+>  #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+>  
+>  #define NO_PROC_ID		0xFF		/* No processor magic marker */
+
+The reason for this is that include/linux/smp.h only includes asm/smp.h if
+CONFIG_SMP=y.  This is not the cleverest thing we've ever done.
+
+I fixed that in cowardly fashion:
+
+
+--- a/arch/i386/kernel/crash.c~stack-overflow-safe-kdump-crash_use_safe_smp_processor_id-fix
++++ a/arch/i386/kernel/crash.c
+@@ -23,6 +23,7 @@
+ #include <asm/hw_irq.h>
+ #include <asm/apic.h>
+ #include <asm/kdebug.h>
++#include <asm/smp.h>
+ 
+ #include <mach_ipi.h>
+ 
+_
 

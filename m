@@ -1,115 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWGLS0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWGLSad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWGLS0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWGLS0A
+	id S932317AbWGLSad (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWGLSad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:26:00 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:56455 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932307AbWGLSRS (ORCPT
+	Wed, 12 Jul 2006 14:30:33 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:1426 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932317AbWGLSac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:17:18 -0400
-Subject: [RFC][PATCH 04/27] reintroduce list of vfsmounts over superblock
-To: viro@ftp.linux.org.uk
-Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 12 Jul 2006 11:17:12 -0700
-References: <20060712181709.5C1A4353@localhost.localdomain>
-In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-Message-Id: <20060712181712.117FC9F6@localhost.localdomain>
+	Wed, 12 Jul 2006 14:30:32 -0400
+Message-ID: <44B53FC4.9020601@us.ibm.com>
+Date: Wed, 12 Jul 2006 11:30:28 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: Cedric Le Goater <clg@fr.ibm.com>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Ebbert <76306.1226@compuserve.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, hpa@zytor.com,
+       Michael Holzheu <HOLZHEU@de.ibm.com>
+Subject: Re: 2.6.18-rc1-mm1
+References: <200607102302_MC3-1-C4A4-1385@compuserve.com> <20060710201506.7abbca37.rdunlap@xenotime.net> <44B33E7B.3040504@fr.ibm.com>
+In-Reply-To: <44B33E7B.3040504@fr.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cedric Le Goater wrote:
+> Randy.Dunlap wrote:
+>   
+>> On Mon, 10 Jul 2006 22:58:50 -0400 Chuck Ebbert wrote:
+>>
+>>     
+>>> On Sun, 9 Jul 2006 02:11:06 -0700, Andrew morton wrote:
+>>>
+>>>       
+>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm1/
+>>>>         
+>>> Warnings(?) during build:
+>>>
+>>> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/ipconfig' given more than once in the same rule.
+>>> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/nfsmount' given more than once in the same rule.
+>>> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/run-init' given more than once in the same rule.
+>>> /home/me/linux/2.6.18-rc1-mm1-64/scripts/Kbuild.klibc:315: target `usr/kinit/fstype' given more than once in the same rule.
+>>>       
+>> Yes, and these:
+>>
+>> fs/ecryptfs/main.c:327: warning: format ‘%d’ expects type ‘int’, but argument 3 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1599: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1621: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1628: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1635: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1642: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1649: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> fs/ecryptfs/crypto.c:1656: warning: format ‘%d’ expects type ‘int’, but argument 2 has type ‘size_t’
+>> drivers/acpi/executer/exmutex.c:268: warning: format ‘%X’ expects type ‘unsigned int’, but argument 4 has type ‘struct task_struct *’
+>> drivers/acpi/executer/exmutex.c:268: warning: format ‘%X’ expects type ‘unsigned int’, but argument 6 has type ‘struct task_struct *’
+>>     
+> ...
 
-We're moving a big chunk of the burden of keeping people from
-writing to r/o filesystems from the superblock into the
-vfsmount.  This requires that we consult the superblock's
-vfsmounts when things like remounts occur.
+> arch/s390/hypfs/inode.c:432: warning: initialization from incompatible
+> pointer type
+> arch/s390/hypfs/inode.c:433: warning: initialization from incompatible
+> pointer type
+>
+>   
 
-So, introduce a list of vfsmounts hanging off the superblock.
-We'll use this in a bit.
+Yuck. Its due to my vfs ops clean up changes.
+Michael, do you have time to fix it up or do you want me to ?
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+Thanks,
+Badari
 
- lxc-dave/fs/namespace.c        |   12 ++++++++++++
- lxc-dave/fs/super.c            |    1 +
- lxc-dave/include/linux/fs.h    |    1 +
- lxc-dave/include/linux/mount.h |    1 +
- 4 files changed, 15 insertions(+)
 
-diff -puN fs/namespace.c~C-reintroduce-list-of-vfsmounts-over-superblock fs/namespace.c
---- lxc/fs/namespace.c~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
-+++ lxc-dave/fs/namespace.c	2006-07-12 11:09:21.000000000 -0700
-@@ -85,10 +85,18 @@ struct vfsmount *alloc_vfsmnt(const char
- 	return mnt;
- }
- 
-+void add_mount_to_sb_list(struct vfsmount *mnt, struct super_block *sb)
-+{
-+	spin_lock(&vfsmount_lock);
-+	list_add(&mnt->mnt_sb_list, &sb->s_vfsmounts);
-+	spin_unlock(&vfsmount_lock);
-+}
-+
- int simple_set_mnt(struct vfsmount *mnt, struct super_block *sb)
- {
- 	mnt->mnt_sb = sb;
- 	mnt->mnt_root = dget(sb->s_root);
-+	add_mount_to_sb_list(mnt, sb);
- 	return 0;
- }
- 
-@@ -96,6 +104,9 @@ EXPORT_SYMBOL(simple_set_mnt);
- 
- void free_vfsmnt(struct vfsmount *mnt)
- {
-+	spin_lock(&vfsmount_lock);
-+	list_del(&mnt->mnt_sb_list);
-+	spin_unlock(&vfsmount_lock);
- 	kfree(mnt->mnt_devname);
- 	kmem_cache_free(mnt_cache, mnt);
- }
-@@ -249,6 +260,7 @@ static struct vfsmount *clone_mnt(struct
- 		mnt->mnt_root = dget(root);
- 		mnt->mnt_mountpoint = mnt->mnt_root;
- 		mnt->mnt_parent = mnt;
-+		add_mount_to_sb_list(mnt, sb);
- 
- 		if (flag & CL_SLAVE) {
- 			list_add(&mnt->mnt_slave, &old->mnt_slave_list);
-diff -puN fs/super.c~C-reintroduce-list-of-vfsmounts-over-superblock fs/super.c
---- lxc/fs/super.c~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
-+++ lxc-dave/fs/super.c	2006-07-12 11:09:21.000000000 -0700
-@@ -67,6 +67,7 @@ static struct super_block *alloc_super(s
- 		INIT_LIST_HEAD(&s->s_dirty);
- 		INIT_LIST_HEAD(&s->s_io);
- 		INIT_LIST_HEAD(&s->s_files);
-+		INIT_LIST_HEAD(&s->s_vfsmounts);
- 		INIT_LIST_HEAD(&s->s_instances);
- 		INIT_HLIST_HEAD(&s->s_anon);
- 		INIT_LIST_HEAD(&s->s_inodes);
-diff -puN include/linux/fs.h~C-reintroduce-list-of-vfsmounts-over-superblock include/linux/fs.h
---- lxc/include/linux/fs.h~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:19.000000000 -0700
-+++ lxc-dave/include/linux/fs.h	2006-07-12 11:09:21.000000000 -0700
-@@ -960,6 +960,7 @@ struct super_block {
- 	struct list_head	s_dirty;	/* dirty inodes */
- 	struct list_head	s_io;		/* parked for writeback */
- 	struct hlist_head	s_anon;		/* anonymous dentries for (nfs) exporting */
-+	struct list_head	s_vfsmounts;
- 	struct list_head	s_files;
- 
- 	struct block_device	*s_bdev;
-diff -puN include/linux/mount.h~C-reintroduce-list-of-vfsmounts-over-superblock include/linux/mount.h
---- lxc/include/linux/mount.h~C-reintroduce-list-of-vfsmounts-over-superblock	2006-07-12 11:09:16.000000000 -0700
-+++ lxc-dave/include/linux/mount.h	2006-07-12 11:09:21.000000000 -0700
-@@ -40,6 +40,7 @@ struct vfsmount {
- 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
- 	struct dentry *mnt_root;	/* root of the mounted tree */
- 	struct super_block *mnt_sb;	/* pointer to superblock */
-+	struct list_head mnt_sb_list;	/* list of all mounts on same sb */
- 	struct list_head mnt_mounts;	/* list of children, anchored here */
- 	struct list_head mnt_child;	/* and going through their mnt_child */
- 	atomic_t mnt_count;
-_
+

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWGLAFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWGLAGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWGLAFU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWGLAFU
+	id S932277AbWGLAGO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWGLAGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:05:20 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:37577 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932281AbWGLAFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:05:19 -0400
-Date: Wed, 12 Jul 2006 01:04:56 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alon Bar-Lev <alon.barlev@gmail.com>,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       "John W. Linville" <linville@tuxdriver.com>, joesmidt@byu.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Will there be Intel Wireless 3945ABG support?
-Message-ID: <20060712000456.GA6002@srcf.ucam.org>
-References: <1152635563.4f13f77cjsmidt@byu.edu> <20060711171238.GA26186@tuxdriver.com> <200607111909.22972.s0348365@sms.ed.ac.uk> <44B3ED29.4040801@gmail.com> <1152644119.18028.46.camel@localhost.localdomain> <20060711222202.GA5064@srcf.ucam.org> <44B43A30.1040006@zytor.com>
-Mime-Version: 1.0
+	Tue, 11 Jul 2006 20:06:14 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:47390 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932277AbWGLAGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:06:13 -0400
+X-IronPort-AV: i="4.06,230,1149490800"; 
+   d="scan'208"; a="305030599:sNHT32938448"
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       openib-general@openib.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [openib-general] ipoib lockdep warning
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
+	<44B439F7.3090008@oracle.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 11 Jul 2006 17:06:10 -0700
+In-Reply-To: <44B439F7.3090008@oracle.com> (Zach Brown's message of "Tue, 11 Jul 2006 16:53:27 -0700")
+Message-ID: <adafyh7znyl.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B43A30.1040006@zytor.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+X-OriginalArrivalTime: 12 Jul 2006 00:06:11.0483 (UTC) FILETIME=[FBA50EB0:01C6A546]
+Authentication-Results: sj-dkim-8.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 04:54:24PM -0700, H. Peter Anvin wrote:
-> Matthew Garrett wrote:
-> >The ipw3945_daemon.h file includes a pretty full description of what the 
-> >daemon has to do, and all the structures have nice friendly names. 
-> >There's also a changelog of the protocol. It shouldn't take someone 
-> >long.
-> >
-> 
-> It's already been done, too.
+ > > So, ugh... maybe the best thing to do is change lib/idr.c to use
+ > > spin_lock_irqsave() internally?
+ > 
+ > I dunno, it seems to have had _irq() locking in the past?  From the
+ > comment at the top:
+ > 
+ >  * Modified by George Anzinger to reuse immediately and to use
+ >  * find bit instructions.  Also removed _irq on spinlocks.
 
-For Linux, too? The OpenBSD approach seems to have been to integrate it 
-into the driver, which is fine for them but would probably make it more 
-awkward for us to keep things synced with the Intel code.
+Well, _irq would be no good, because we might want to call idr stuff
+with interrupts disabled.  But making idr internally _irqsave seems
+like the right fix to me.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+I think the real issue here is that the sa_query.c stuff wants to use
+the idr mechanism to assign "query ids", and other modules want to be
+able to start queries from any context.  So if idr uses bare spin_lock
+internally, then sa_query.c has no choice but to wrap all idr calls
+inside spin_lock_irqsave and do all allocation with GFP_ATOMIC, which
+doesn't seem very nice.
+
+ - R.

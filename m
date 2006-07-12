@@ -1,35 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWGLAHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWGLAOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWGLAHk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 20:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWGLAHj
+	id S932283AbWGLAOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jul 2006 20:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGLAOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 20:07:39 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:408 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932286AbWGLAHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 20:07:38 -0400
-Message-ID: <44B43E9F.1050406@gentoo.org>
-Date: Wed, 12 Jul 2006 01:13:19 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: "John W. Linville" <linville@tuxdriver.com>, Jiri Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: [patch] workaround zd1201 interference problem
-References: <20060607140045.GB1936@elf.ucw.cz> <20060607160828.0045e7f5@griffin.suse.cz> <20060607141536.GD1936@elf.ucw.cz> <4486FD2F.8040205@gentoo.org> <20060608070525.GE3688@elf.ucw.cz> <4489ECD0.1030908@gentoo.org> <20060609223804.GB3252@elf.ucw.cz> <20060615201024.GD32582@tuxdriver.com> <20060615204738.GD1849@elf.ucw.cz>
-In-Reply-To: <20060615204738.GD1849@elf.ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 11 Jul 2006 20:14:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52162 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932283AbWGLAOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jul 2006 20:14:19 -0400
+Date: Tue, 11 Jul 2006 17:17:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: hugh@veritas.com, serue@us.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: please revert kthread from loop.c
+Message-Id: <20060711171752.4993903a.akpm@osdl.org>
+In-Reply-To: <20060711194932.GA27176@sergelap.austin.ibm.com>
+References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
+	<20060627054612.GA15657@sergelap.austin.ibm.com>
+	<Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
+	<20060711194932.GA27176@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> I'd actually like you to keep it, it does not seem ZyDas contacts are
-> going anywhere.
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+>
+> Convert loop.c from the deprecated kernel_thread to kthread.
+>
 
-ZyDAS did not respond to me about this. At least we know more about the 
-problem now anyway :)
+I think you have a racelet here:
 
-Daniel
+> +		}
+>  		spin_unlock_irq(&lo->lo_lock);
+>  
+> -		BUG_ON(!bio);
+> -		loop_handle_bio(lo, bio);
+> -
+> -		/*
+> -		 * upped both for pending work and tear-down, lo_pending
+> -		 * will hit zero then
+> -		 */
+> -		if (unlikely(!pending))
+> -			break;
+> +		__set_current_state(TASK_INTERRUPTIBLE);
+> +		schedule();
+>  	}
+>  
+> -	complete(&lo->lo_done);
+>  	return 0;
+>  }
+
+
+:		if (kthread_should_stop()) {
+:			spin_unlock_irq(&lo->lo_lock);
+:			break;
+:		}
+:		spin_unlock_irq(&lo->lo_lock);
+:
+:		__set_current_state(TASK_INTERRUPTIBLE);
+:		schedule();
+:
+
+If the wake_up_process() is delivered before the __set_current_state(),
+we'll miss the wakeup.
+
+If so, this should plug it.  The same race is not possible against the
+loop_set_fd() wakeup because the thread isn't running at that stage, yes?
+
+
+diff -puN drivers/block/loop.c~kthread-convert-loopc-to-kthread-race-fix drivers/block/loop.c
+--- a/drivers/block/loop.c~kthread-convert-loopc-to-kthread-race-fix
++++ a/drivers/block/loop.c
+@@ -525,8 +525,8 @@ static int loop_make_request(request_que
+ 		goto out;
+ 	lo->lo_pending++;
+ 	loop_add_bio(lo, old_bio);
+-	spin_unlock_irq(&lo->lo_lock);
+ 	wake_up_process(lo->lo_thread);
++	spin_unlock_irq(&lo->lo_lock);
+ 	return 0;
+ 
+ out:
+@@ -600,9 +600,8 @@ static int loop_thread(void *data)
+ 			spin_unlock_irq(&lo->lo_lock);
+ 			break;
+ 		}
+-		spin_unlock_irq(&lo->lo_lock);
+-
+ 		__set_current_state(TASK_INTERRUPTIBLE);
++		spin_unlock_irq(&lo->lo_lock);
+ 		schedule();
+ 	}
+ 
+_
+

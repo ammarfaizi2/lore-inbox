@@ -1,120 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWGLSRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWGLSSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWGLSRi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 14:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWGLSRi
+	id S932387AbWGLSSL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 14:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWGLSRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 14:17:38 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:25246 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932388AbWGLSRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 14:17:34 -0400
-Subject: [RFC][PATCH 27/27] honor r/w changes at do_remount() time
+	Wed, 12 Jul 2006 14:17:55 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:44444 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932373AbWGLSR2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 14:17:28 -0400
+Subject: [RFC][PATCH 17/27] elevate write count over calls to vfs_rename()
 To: viro@ftp.linux.org.uk
 Cc: serue@us.ibm.com, linux-kernel@vger.kernel.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Wed, 12 Jul 2006 11:17:29 -0700
+Date: Wed, 12 Jul 2006 11:17:22 -0700
 References: <20060712181709.5C1A4353@localhost.localdomain>
 In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-Message-Id: <20060712181729.9A552320@localhost.localdomain>
+Message-Id: <20060712181722.777858E1@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Originally from: Herbert Poetzl <herbert@13thfloor.at>
-
-This is the core of the read-only bind mount patch set.
-
-Note that this does _not_ add a "ro" option directly to
-the bind mount operation.  If you require such a mount,
-you must first do the bind, then follow it up with a
-'mount -o remount,ro' operation.
+This does create a little helper in the NFS code to
+make an if() a little bit less ugly.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/namespace.c |   28 ++++++++++++++++++++++++----
- lxc-dave/fs/open.c      |    2 +-
- 2 files changed, 25 insertions(+), 5 deletions(-)
+ lxc-dave/fs/namei.c    |    4 ++++
+ lxc-dave/fs/nfsd/vfs.c |   25 ++++++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 5 deletions(-)
 
-diff -puN fs/namespace.c~C-D8-actually-add-flags fs/namespace.c
---- lxc/fs/namespace.c~C-D8-actually-add-flags	2006-07-12 11:09:44.000000000 -0700
-+++ lxc-dave/fs/namespace.c	2006-07-12 11:09:45.000000000 -0700
-@@ -381,6 +381,7 @@ static int show_vfsmnt(struct seq_file *
- 		char *set_str;
- 		char *unset_str;
- 	} fs_info[] = {
-+		{ MS_RDONLY, MNT_READONLY, "ro", "rw" },
- 		{ MS_SYNCHRONOUS, 0, ",sync", NULL },
- 		{ MS_DIRSYNC, 0, ",dirsync", NULL },
- 		{ MS_MANDLOCK, 0, ",mand", NULL },
-@@ -396,17 +397,16 @@ static int show_vfsmnt(struct seq_file *
- 	seq_path(m, mnt, mnt->mnt_root, " \t\n\\");
- 	seq_putc(m, ' ');
- 	mangle(m, mnt->mnt_sb->s_type->name);
--	seq_puts(m, mnt->mnt_sb->s_flags & MS_RDONLY ? " ro" : " rw");
-+	seq_putc(m, ' ');
- 	for (i = 0; i < ARRAY_SIZE(fs_info); i++) {
- 		struct proc_fs_info *fs_infop = &fs_info[i];
- 		char *str = NULL;
- 		if ((mnt->mnt_sb->s_flags & fs_infop->s_flag) ||
--		    mnt_flag_set(mnt, fs_infop->mnt_flag))
-+		    (mnt->mnt_flags & fs_infop->mnt_flag))
- 			str = fs_infop->set_str;
- 		else
- 			str = fs_infop->unset_str;
+diff -puN fs/namei.c~C-elevate-writers-vfs_rename-part1 fs/namei.c
+--- lxc/fs/namei.c~C-elevate-writers-vfs_rename-part1	2006-07-12 11:09:31.000000000 -0700
++++ lxc-dave/fs/namei.c	2006-07-12 11:09:34.000000000 -0700
+@@ -2544,8 +2544,12 @@ static int do_rename(int olddfd, const c
+ 	if (new_dentry == trap)
+ 		goto exit5;
  
--		if (mnt->mnt_flags & fs_infop->flag)
- 		if (str)
- 			seq_puts(m, str);
- 	}
-@@ -1024,6 +1024,23 @@ out:
- 	return err;
++	error = mnt_want_write(oldnd.mnt);
++	if (error)
++		goto exit5;
+ 	error = vfs_rename(old_dir->d_inode, old_dentry,
+ 				   new_dir->d_inode, new_dentry);
++	mnt_drop_write(oldnd.mnt);
+ exit5:
+ 	dput(new_dentry);
+ exit4:
+diff -puN fs/nfsd/vfs.c~C-elevate-writers-vfs_rename-part1 fs/nfsd/vfs.c
+--- lxc/fs/nfsd/vfs.c~C-elevate-writers-vfs_rename-part1	2006-07-12 11:09:12.000000000 -0700
++++ lxc-dave/fs/nfsd/vfs.c	2006-07-12 11:09:34.000000000 -0700
+@@ -1533,6 +1533,14 @@ out_nfserr:
+ 	goto out_unlock;
  }
  
-+static int change_mount_flags(struct vfsmount *mnt, int ms_flags)
++static inline int svc_msnfs(struct svc_fh *ffhp)
 +{
-+	int error = 0;
-+	int readonly_request = 0;
-+
-+	if (ms_flags & MS_RDONLY)
-+		readonly_request = 1;
-+	if (readonly_request == __mnt_is_readonly(mnt))
-+		return 0;
-+
-+	if (readonly_request)
-+		error = mnt_make_readonly(mnt);
-+	else
-+		__mnt_unmake_readonly(mnt);
-+	return error;
++#ifdef MSNFS
++	return (ffhp->fh_export->ex_flags & NFSEXP_MSNFS);
++#else
++	return 0;
++#endif
 +}
-+
  /*
-  * change filesystem flags. dir should be a physical root of filesystem.
-  * If you've mounted a non-root directory somewhere and want to do remount
-@@ -1045,7 +1062,10 @@ static int do_remount(struct nameidata *
- 		return -EINVAL;
+  * Rename a file
+  * N.B. After this call _both_ ffhp and tfhp need an fh_put
+@@ -1593,20 +1601,27 @@ nfsd_rename(struct svc_rqst *rqstp, stru
+ 	if (ndentry == trap)
+ 		goto out_dput_new;
  
- 	down_write(&sb->s_umount);
--	err = do_remount_sb(sb, flags, data, 0);
-+	if (flags & MS_BIND)
-+		err = change_mount_flags(nd->mnt, flags);
-+	else
-+		err = do_remount_sb(sb, flags, data, 0);
- 	if (!(sb->s_flags & MS_RDONLY))
- 		mnt_flags |= MNT_SB_WRITABLE;
- 	if (!err)
-diff -puN fs/open.c~C-D8-actually-add-flags fs/open.c
---- lxc/fs/open.c~C-D8-actually-add-flags	2006-07-12 11:09:38.000000000 -0700
-+++ lxc-dave/fs/open.c	2006-07-12 11:09:45.000000000 -0700
-@@ -546,7 +546,7 @@ asmlinkage long sys_faccessat(int dfd, c
- 	   special_file(nd.dentry->d_inode->i_mode))
- 		goto out_path_release;
- 
--	if(IS_RDONLY(nd.dentry->d_inode))
-+	if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
- 		res = -EROFS;
- 
- out_path_release:
+-#ifdef MSNFS
+-	if ((ffhp->fh_export->ex_flags & NFSEXP_MSNFS) &&
++	if (svc_msnfs(ffhp) &&
+ 		((atomic_read(&odentry->d_count) > 1)
+ 		 || (atomic_read(&ndentry->d_count) > 1))) {
+ 			err = -EPERM;
+-	} else
+-#endif
++			goto out_dput_new;
++	}
++
++	err = -EXDEV;
++	if (ffhp->fh_export->ex_mnt != tfhp->fh_export->ex_mnt)
++		goto out_dput_new;
++	err = mnt_want_write(ffhp->fh_export->ex_mnt);
++	if (err)
++		goto out_dput_new;
++
+ 	err = vfs_rename(fdir, odentry, tdir, ndentry);
+ 	if (!err && EX_ISSYNC(tfhp->fh_export)) {
+ 		err = nfsd_sync_dir(tdentry);
+ 		if (!err)
+ 			err = nfsd_sync_dir(fdentry);
+ 	}
+-
++	mnt_drop_write(ffhp->fh_export->ex_mnt);
+  out_dput_new:
+ 	dput(ndentry);
+  out_dput_old:
 _

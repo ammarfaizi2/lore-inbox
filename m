@@ -1,107 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWGLUqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWGLU5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWGLUqe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 16:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGLUqe
+	id S1751248AbWGLU5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 16:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWGLU5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 16:46:34 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:17284 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751072AbWGLUqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 16:46:33 -0400
-Date: Wed, 12 Jul 2006 16:41:15 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: system.h: remove extra semicolons and fix order
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200607121643_MC3-1-C4D3-2367@compuserve.com>
+	Wed, 12 Jul 2006 16:57:10 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:42980 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751248AbWGLU5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 16:57:08 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [patch] do not allow IPW_2100=Y or IPW_2200=Y
+To: Pavel Machek <pavel@ucw.cz>, Michael Buesch <mb@bu3sch.de>,
+       Jeff Garzik <jgarzik@pobox.com>, yi.zhu@intel.com,
+       jketreno@linux.intel.com, Netdev list <netdev@vger.kernel.org>,
+       linville@tuxdriver.com, kernel list <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Wed, 12 Jul 2006 22:56:15 +0200
+References: <6x7TQ-87H-17@gated-at.bofh.it> <6x8df-8wm-13@gated-at.bofh.it> <6xbaZ-4NX-1@gated-at.bofh.it> <6xyhj-5Fq-19@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G0ll6-0000vg-19@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/asm-i386/system.h has trailing semicolons in some of the
-macros that cause legitimate code to fail compilation, so remove
-them. Also remove extra blank lines within one group of macros.
+Pavel Machek <pavel@ucw.cz> wrote:
 
-And put stts() and clts() back together; they got separated somehow.
+> +++ linux-mm/drivers/net/wireless/ipw2200.c 
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+These are all uses of needs_reinit:
 
---- 2.6.18-rc1-nb.orig/include/asm-i386/system.h
-+++ 2.6.18-rc1-nb/include/asm-i386/system.h
-@@ -82,10 +82,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- #define savesegment(seg, value) \
- 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
- 
--/*
-- * Clear and set 'TS' bit respectively
-- */
--#define clts() __asm__ __volatile__ ("clts")
- #define read_cr0() ({ \
- 	unsigned int __dummy; \
- 	__asm__ __volatile__( \
-@@ -94,7 +90,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 	__dummy; \
- })
- #define write_cr0(x) \
--	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
- 
- #define read_cr2() ({ \
- 	unsigned int __dummy; \
-@@ -104,7 +100,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 	__dummy; \
- })
- #define write_cr2(x) \
--	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
- 
- #define read_cr3() ({ \
- 	unsigned int __dummy; \
-@@ -114,7 +110,7 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 	__dummy; \
- })
- #define write_cr3(x) \
--	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
- 
- #define read_cr4() ({ \
- 	unsigned int __dummy; \
-@@ -123,7 +119,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 		:"=r" (__dummy)); \
- 	__dummy; \
- })
--
- #define read_cr4_safe() ({			      \
- 	unsigned int __dummy;			      \
- 	/* This could fault if %cr4 does not exist */ \
-@@ -135,15 +130,19 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
- 		: "=r" (__dummy): "0" (0));	      \
- 	__dummy;				      \
- })
--
- #define write_cr4(x) \
--	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
-+
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
- #define stts() write_cr0(8 | read_cr0())
- 
- #endif	/* __KERNEL__ */
- 
- #define wbinvd() \
--	__asm__ __volatile__ ("wbinvd": : :"memory");
-+	__asm__ __volatile__ ("wbinvd": : :"memory")
- 
- static inline unsigned long get_limit(unsigned long segment)
- {
+> +static int needs_reinit = 1;
+
+> +             needs_reinit = 1;
+
+I asume there is something missing.
 -- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

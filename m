@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWGLWDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWGLWHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWGLWDp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 18:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWGLWDp
+	id S932464AbWGLWHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 18:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGLWHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 18:03:45 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:51861 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932463AbWGLWDo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 18:03:44 -0400
-Message-ID: <44B57191.5000802@zytor.com>
-Date: Wed, 12 Jul 2006 15:02:57 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 12 Jul 2006 18:07:20 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:53176 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932464AbWGLWHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 18:07:19 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
+To: Paulo Marques <pmarques@grupopie.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
+       dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 13 Jul 2006 00:06:37 +0200
+References: <6wOHw-5gl-23@gated-at.bofh.it> <6x0yX-5An-17@gated-at.bofh.it> <6xc78-6gi-15@gated-at.bofh.it> <6xyhf-5Fq-1@gated-at.bofh.it> <6xyU6-6Hn-63@gated-at.bofh.it> <6xzdl-75B-13@gated-at.bofh.it> <6xzZO-8gU-23@gated-at.bofh.it> <6xA9p-8ti-7@gated-at.bofh.it> <6xACo-Op-1@gated-at.bofh.it> <6xAVM-1b9-5@gated-at.bofh.it> <6xBfh-1yd-29@gated-at.bofh.it> <6xBRQ-2v4-3@gated-at.bofh.it> <6xITm-4td-17@gated-at.bofh.it> <6xMX0-2bX-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>	 <1152739766.3217.83.camel@laptopd505.fenrus.org>	 <m1bqru8p36.fsf@ebiederm.dsl.xmission.com> <1152741665.3217.85.camel@laptopd505.fenrus.org>
-In-Reply-To: <1152741665.3217.85.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G0mrB-0001JL-T3@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->> It is a short busy wait before falling asleep.  I assume you mean
->> busy wait is a loss even on SMP?
+Paulo Marques <pmarques@grupopie.com> wrote:
+> Roman Zippel wrote:
+>> On Tue, 11 Jul 2006, Andrew Morton wrote:
+>> [...]
+>>> What, actually, is the problem?
+>> 
+>> It changes the behaviour, it will annoy the hell out of people like me who
+>> have to deal with different kernels and expect this to just work. :-(
+>> Since then has it been acceptable to just go ahead and break stuff? This
+>> problem doesn't really look unsolvable, so why is my request to fix the
+>> damn thing so unreasonable?
 > 
-> eh yeah I forgot to think for a second. But yes even for SMP busy wait
-> is pretty bad power wise nowadays.. at least if you wait more than a few
-> hundred cycles. (and if you wait less... then it's almost unlikely that
-> it'll be useful as well)
+> Ok, what about this one?
 > 
+> I don't have time to test it (it compiles, at least), but it seems the
+> logic is pretty clear: once you have pressed both "Alt" and "SysRq"
+> sysrq mode becomes active until you release *both* keys. In this mode
+> any regular key press triggers handle_sysrq.
+> 
+> This allows for all the combinations mentioned before in this thread and
+> makes the logic simpler, IMHO.
 
-It depends greatly; if a lock is likely to get released by the user 
-after a few memory accesses, spinning is likely to be a win.
+Why don't you use a bitmask?
+alt-sysrq down -> val  =  0b11
+sysrq up       -> val &= ~0b01
+alt up         -> val &= ~0b10
 
-	-hpa
+test is_sysrq == !!val
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
+http://david.woodhou.se/why-not-spf.html

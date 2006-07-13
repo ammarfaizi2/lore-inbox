@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWGMNWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWGMN0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWGMNWe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:22:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWGMNWe
+	id S932458AbWGMN0g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWGMN0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:22:34 -0400
-Received: from ns.suse.de ([195.135.220.2]:52973 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750982AbWGMNWe (ORCPT
+	Thu, 13 Jul 2006 09:26:36 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:41194 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751244AbWGMN0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:22:34 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: utrace vs. ptrace
-Date: Thu, 13 Jul 2006 15:21:52 +0200
-User-Agent: KMail/1.9.3
-Cc: Albert Cahalan <acahalan@gmail.com>, torvalds@osdl.org,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu>
-In-Reply-To: <20060713124316.GA18852@elte.hu>
-MIME-Version: 1.0
+	Thu, 13 Jul 2006 09:26:35 -0400
+Date: Thu, 13 Jul 2006 15:26:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, jakub@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linker error with latest tree on EM64T
+Message-ID: <20060713132631.GA21657@mars.ravnborg.org>
+References: <1152788160.4838.2.camel@localhost> <1152788387.3024.32.camel@laptopd505.fenrus.org> <1152791882.4838.6.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607131521.52505.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1152791882.4838.6.camel@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 13, 2006 at 01:58:02PM +0200, Marcel Holtmann wrote:
+> > 
+> > you are using ubuntu which has a compiler that adds -fstack-protector
+> > implicitly to the compiler options, yet you don't have a kernel that
+> > provides this infrastructure ;)
+So go bug ubuntu...
 
-> > I'm not sure that's particularly useful (I think I would prefer to 
-> > keep it in kernel), [...]
-> 
-> why would we want to keep this in the kernel? Coredumping in the kernel 
-> is fragile, and it's nowhere near performance-critical to really live 
-> within the kernel.
+> I couldn't find such a patch in Sam's repository
+>From -linus:
+# Force gcc to behave correct even for buggy distributions
+CFLAGS          += $(call cc-option, -fno-stack-protector-all \
+                                     -fno-stack-protector)
 
-Mostly because I fear it would become another udev like disaster, requiring user 
-space updates regularly, and core dumps are a fairly critical debugging feature
-that I wouldn't like to become unreliable.
-
-That said extended core dumping (e.g. automatic processing of the output) 
-in user space makes sense. I had a prototype for that once that uploaded
-a simple crash report to a web page.
-
--Andi
+	Sam

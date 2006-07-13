@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWGMT4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWGMUBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030333AbWGMT4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbWGMT4K
+	id S1030339AbWGMUBY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 16:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbWGMUBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:56:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64482 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030333AbWGMT4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:56:08 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain>
-	<20060711075420.937831000@localhost.localdomain>
-	<44B3D435.8090706@sw.ru> <m1k66jebut.fsf@ebiederm.dsl.xmission.com>
-	<44B4D970.90007@sw.ru> <m164i2ae3m.fsf@ebiederm.dsl.xmission.com>
-	<44B67C4B.7050009@fr.ibm.com>
-	<m1irm11i2q.fsf@ebiederm.dsl.xmission.com>
-	<1152815491.7650.62.camel@localhost.localdomain>
-Date: Thu, 13 Jul 2006 12:54:30 -0600
-In-Reply-To: <1152815491.7650.62.camel@localhost.localdomain> (Dave Hansen's
-	message of "Thu, 13 Jul 2006 11:31:31 -0700")
-Message-ID: <m11wsp1gk9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 Jul 2006 16:01:24 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:7600 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030339AbWGMUBX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 16:01:23 -0400
+Date: Thu, 13 Jul 2006 21:55:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-ID: <20060713195546.GB28317@elte.hu>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu> <84144f020607130845h223432f2y6f4117828dadb69c@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020607130845h223432f2y6f4117828dadb69c@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5277]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
 
-> On Thu, 2006-07-13 at 12:21 -0600, Eric W. Biederman wrote:
->> We need a formula for doing incremental development that will allow us to
->> make headway while not seeing the entire picture all at once.  The scope
->> is just too large.
->
-> Definitely.  We need a low-risk development environment where we can put
-> test-fit pieces together, but also not worry too much of we have to rip
-> pieces out, or completely change them.
+* Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-It probably makes sense to talk about this up in Ottowa.
+> Hi,
+> 
+> On 7/13/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >mm/slab.c uses nested locking when dealing with 'off-slab'
+> >caches, in that case it allocates the slab header from the
+> >(on-slab) kmalloc caches. Teach the lock validator about
+> >this by putting all on-slab caches into a separate class.
+> 
+> Which lock is that? This affects only caches that cache_grow() use, so 
+> we are really only interested in annotating kmalloc() on-slab caches 
+> (like in the patch), not _all_, right?
 
-> I'm not sure we *need* to rewrite things for review-ability later.  I
-> think some of us have gotten pretty good at keeping our development in
-> reviewable bits as we go along.
+it's ->list_lock, and a sample nesting scenario is:
 
-Well the rewrite of the history may simply be an ordering change.
+ [<c013a9a8>] lock_acquire+0x78/0xa0
+ [<c0313e5a>] _spin_lock_nested+0x2a/0x40
+ [<c0163024>] __cache_free+0x484/0x5c0
+ [<c01632ad>] slab_destroy+0x14d/0x1e0
+ [<c0162ac9>] free_block+0x189/0x1e0
+ [<c01630f4>] __cache_free+0x554/0x5c0
+ [<c0163653>] kmem_cache_free+0x73/0xc0
+ [<c016a24f>] file_free_rcu+0xf/0x20
+ [<c0130755>] __rcu_process_callbacks+0x75/0x1b0
+ [<c0130bc7>] rcu_process_callbacks+0x27/0x50
+ [<c0123f3a>] tasklet_action+0x6a/0xf0
+ [<c012413b>] __do_softirq+0x8b/0x130
+ [<c0106ba3>] do_softirq+0x73/0x100
 
-It isn't so much the reviewability of a single piece but the reviewability
-of the whole that I am worried about.  I have had one occasion lately
-where I made a small simple sane change but I discovered that there
-was one little hack I had to get rid of to make everything work.
+(the off-slab nesting is perfectly correct locking code AFAICS - it just 
+needs to be taught to lockdep - which the patch does. OTOH i'm less sure 
+about the NUMA alien-cache-draining nesting.)
 
-To remove that hack required me to refactor another piece of code and
-was more work than the original change.  That refactoring then had to happen
-first, when the code was merged with the rest of the kernel.
-
-So while we should try to keep our pieces as sane as possible we should
-assume we have to rewrite history from our sandbox when we push the code
-upstream.
-
-Eric
+	Ingo

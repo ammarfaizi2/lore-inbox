@@ -1,204 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWGMVsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWGMWFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWGMVsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWGMVsV
+	id S1030372AbWGMWFg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbWGMWFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:48:21 -0400
-Received: from deeprooted.net ([216.254.16.51]:64407 "EHLO paris.internal.net")
-	by vger.kernel.org with ESMTP id S1030415AbWGMVsU (ORCPT
+	Thu, 13 Jul 2006 18:05:36 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:45495 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S1030372AbWGMWFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:48:20 -0400
-Subject: Re: [PATCH] 2.6.17-rt add clockevent to ixp4xx
-From: Kevin Hilman <khilman@deeprooted.net>
-To: Milan Svoboda <msvoboda@ra.rockwell.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, tglx@linutronix.de
-In-Reply-To: <44B62624.30908@ra.rockwell.com>
-References: <44B62624.30908@ra.rockwell.com>
-Content-Type: multipart/mixed; boundary="=-tg78+QU4gQU6BscLuEqA"
-Organization: Deep Root Systems
-Date: Thu, 13 Jul 2006 16:48:18 -0500
-Message-Id: <1152827298.24456.35.camel@vence.internal.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 13 Jul 2006 18:05:35 -0400
+Message-ID: <44B6C3AE.60009@vc.cvut.cz>
+Date: Fri, 14 Jul 2006 00:05:34 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.7.13) Gecko/20060620 Debian/1.7.13-0.2
+X-Accept-Language: cs, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?=22J=2EA=2E_Magall=F3n=22?= <jamagallon@ono.com>
+CC: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: AGP mem resource is 64 bits, so no X ?
+References: <20060713001123.6d523a2f@werewolf.auna.net>
+In-Reply-To: <20060713001123.6d523a2f@werewolf.auna.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+J.A. Magallón wrote:
+> Hi...
+> 
+> I have a box with a SuperMicro P4DCE+ mobo.
+> After an upgrade to the latest bios (v1.3, DC6P6273.zip), the kernel
+> (2.6.28-rc1-mm1) does not recognize the AGP card (an nvidia GeForce 6600 GT).
+> The propierary 'nvidia' driver does not load beacuse it says:
 
---=-tg78+QU4gQU6BscLuEqA
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+It is not 64bit AGP resource problem...
 
-On Thu, 2006-07-13 at 10:53 +0000, Milan Svoboda wrote:
+> agpgart: Detected an Intel i860 Chipset.
+> agpgart: AGP aperture is 128M @ 0xe8000000
 
-> there are patches that enable clock event on ixp4xx platform. This should
-> enable high resolution timers... Option for hrtimers in menuconfig is 
-> also enabled.
+> Hardware:
+> 
+> 00:01.0 PCI bridge: Intel Corporation 82850 850 (Tehama) Chipset AGP Bridge (rev 04) (prog-if 00 [Normal decode])
+> 	Memory behind bridge: f0000000-f2ffffff
+> 	Prefetchable memory behind bridge: d8000000-e7ffffff
+> 
+> 00:02.0 PCI bridge: Intel Corporation 82860 860 (Wombat) Chipset AGP Bridge (rev 04) (prog-if 00 [Normal decode])
+> 	Memory behind bridge: f3000000-f4ffffff
+> 	Prefetchable memory behind bridge: 50000000-501fffff
+> 
+> 01:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce 6600/GeForce 6600 GT] (rev a2) (prog-if 00 [VGA])
+> 	Memory at f0000000 (32-bit, non-prefetchable) [size=16M]
+> 	Memory at <ignored> (32-bit, prefetchable)
+> 	Memory at f1000000 (32-bit, non-prefetchable) [size=16M]
+> 	[virtual] Expansion ROM at d8000000 [disabled] [size=128K]
+> 
+> Parts of dmesg:
+> 
+> PCI: Cannot allocate resource region 1 of device 0000:01:00.0
+> PCI: Failed to allocate mem resource #1:10000000@e0000000 for 0000:01:00.0
+> 
+> Any idea ?
+> Anyone has a previous BIOS ;) to share ?
 
-Milan,
+It is just fatally confused BIOS.  Your NVidia needs 256MB region for its 
+framebuffer apperture, but BIOS assigned 256MB for it at 0xE0000000, and later 
+it revoked second half of this assignment in favor of AGP aperture.  Which on 
+electrical level means that only first 128MB of nvidia will be accessible from CPU.
 
-I've also done a clockevent driver for ixp4xx and it looks pretty much
-like yours.  I've been waiting to submit as Thomas has recently reworked
-the clockevent layer a bit in his -hrt-dyntick patchset.
+While Windows will probably just complain loudly that from specified 256MB range 
+only 128MB is routed down to the adapter, and maybe even nvidia driver will cope 
+with it, using only 128MB of RAM, for Linux (rightly so) adapter is unusable, as 
+it wanted 256MB allocation for BAR1, but kernel could satisfy only 128MB without 
+redoing all PCI address space layout.
 
-Here are a couple comments on your patchset
+Besides going back to older BIOS I would recommend using different AGP aperture 
+size in the BIOS - with 256MB aperture I believe that you'll not trigger this 
+BIOS bug.
 
- - since you've registered the clockevent with CAP_TICK, both the 
-arch interrupt handler and the clockevent handler are handling the tick
-and calling do_timer().  While I don't think this will negatively affect
-timekeeping, it's unncessary overhead.
-
- - why the addition of clockevent_hz2mult()? since shift is 32, you
-could use existing div_sc32()
-
-The attached patch is a combination of my patch and yours and addresses
-my comments above.  I simply removed the CLOCK_CAP_TICK and removed your
-clockevent_hz2mult() and used div_sc32().
-
-Also, below are a few runs of the nanosleep_jitter test that comes with
-the sourceforge HRT test suite.  Something strange is that with the
-nanosleep_jitter test, I only see max sleeps of ~300-400 usec but with
-your test I see max sleeps up to 1.3 msec.
-
-Kevin
-
-root@ixp425:/kjh# gcc -DCLOCK_REALTIME_HR=CLOCK_REALTIME
-nanosleep_jitter.c -lposixtime
-root@ixp425:/kjh# ./a.out
-Doing 10 iterations of sleeping for 50 micro seconds 1000 times
-Total time for each iteration should be 0.050000 seconds.
-Iteration iter time (secs)           min sleep max sleep
-  0        0.075580  0.075575 0.000075    0.000084
-  1        0.075526  0.075521 0.000074    0.000082
-  2        0.075529  0.075525 0.000074    0.000082
-  3        0.075518  0.075514 0.000074    0.000082
-  4        0.075526  0.075521 0.000075    0.000082
-  5        0.075525  0.075521 0.000074    0.000082
-  6        0.075526  0.075521 0.000074    0.000082
-  7        0.075519  0.075514 0.000074    0.000082
-  8        0.075526  0.075522 0.000075    0.000082
-  9        0.244572  0.244564 0.000074    0.000316
-root@ixp425:/kjh# ./a.out
-Doing 10 iterations of sleeping for 50 micro seconds 1000 times
-Total time for each iteration should be 0.050000 seconds.
-Iteration iter time (secs)           min sleep max sleep
-  0        0.075644  0.075639 0.000075    0.000083
-  1        0.075527  0.075523 0.000075    0.000082
-  2        0.075518  0.075514 0.000074    0.000082
-  3        0.075525  0.075521 0.000075    0.000082
-  4        0.075530  0.075525 0.000074    0.000082
-  5        0.075526  0.075521 0.000074    0.000082
-  6        0.075518  0.075514 0.000074    0.000082
-  7        0.075526  0.075521 0.000075    0.000082
-  8        0.075526  0.075521 0.000074    0.000082
-  9        0.147196  0.147187 0.000074    0.000311
-root@ixp425:/kjh# ./a.out
-Doing 10 iterations of sleeping for 50 micro seconds 1000 times
-Total time for each iteration should be 0.050000 seconds.
-Iteration iter time (secs)           min sleep max sleep
-  0        0.075588  0.075583 0.000075    0.000084
-  1        0.075534  0.075529 0.000074    0.000082
-  2        0.075537  0.075533 0.000074    0.000082
-  3        0.075526  0.075522 0.000074    0.000082
-  4        0.075533  0.075529 0.000075    0.000082
-  5        0.075533  0.075529 0.000074    0.000082
-  6        0.075594  0.075589 0.000074    0.000083
-  7        0.075540  0.075535 0.000074    0.000086
-  8        0.075539  0.075534 0.000075    0.000084
-  9        0.075527  0.075522 0.000074    0.000083
-root@ixp425:/kjh#
-
-
-
-
-
---=-tg78+QU4gQU6BscLuEqA
-Content-Disposition: attachment; filename=arm-ixp4xx-clockevent2.patch
-Content-Type: text/x-patch; name=arm-ixp4xx-clockevent2.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-ARM: Add HRT clockevent support for IXP4xx platform
-
-Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
-Signed-off-by: Kevin Hilman <khilman@deeprooted.net>
-
-Index: ixp4xx/arch/arm/mach-ixp4xx/common.c
-===================================================================
---- ixp4xx.orig/arch/arm/mach-ixp4xx/common.c
-+++ ixp4xx/arch/arm/mach-ixp4xx/common.c
-@@ -28,6 +28,7 @@
- #include <linux/time.h>
- #include <linux/timex.h>
- #include <linux/clocksource.h>
-+#include <linux/clockchips.h>
- 
- #include <asm/hardware.h>
- #include <asm/uaccess.h>
-@@ -256,15 +257,31 @@ void __init ixp4xx_init_irq(void)
- 
- static unsigned volatile last_jiffy_time;
- 
--#define CLOCK_TICKS_PER_USEC	((CLOCK_TICK_RATE + USEC_PER_SEC/2) / USEC_PER_SEC)
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+static void ixp4xx_set_next_event(unsigned long evt, void *priv)
-+{
-+	*IXP4XX_OSRT1 = (evt & ~IXP4XX_OST_RELOAD_MASK) | IXP4XX_OST_ENABLE;
-+}
-+
-+static struct clock_event clockevent_ixp4xx = {
-+	.name		= "OSTS clock event interface",
-+	.capabilities	= CLOCK_CAP_NEXTEVT |  CLOCK_HAS_IRQHANDLER,
-+	.shift		= 32,
-+	.set_next_event	= ixp4xx_set_next_event,
-+};
-+#endif
- 
- static irqreturn_t ixp4xx_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
--	write_seqlock(&xtime_lock);
--
- 	/* Clear Pending Interrupt by writing '1' to it */
- 	*IXP4XX_OSST = IXP4XX_OSST_TIMER_1_PEND;
- 
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+	if (clockevent_ixp4xx.event_handler)
-+		clockevent_ixp4xx.event_handler(regs, NULL);
-+#endif
-+	write_seqlock(&xtime_lock);
-+
- 	/*
- 	 * Catch up with the real idea of time
- 	 */
-@@ -404,7 +421,7 @@ static struct clocksource clocksource_ix
- 	.rating		= 200,
- 	.read		= ixp4xx_get_cycles,
- 	.mask		= 0xFFFFFFFF,
--	.shift 		= 10,
-+	.shift 		= 20,
- 	.is_continuous 	= 1,
- };
- 
-@@ -419,5 +436,19 @@ static int __init ixp4xx_clocksource_ini
- 
- 	return 0;
- }
--
- device_initcall(ixp4xx_clocksource_init);
-+
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+static int __init ixp4xx_clockevent_init(void)
-+{
-+	clockevent_ixp4xx.mult = div_sc32(FREQ, NSEC_PER_SEC);
-+	clockevent_ixp4xx.max_delta_ns =
-+		clockevent_delta2ns(0xfffffffe, &clockevent_ixp4xx);
-+	clockevent_ixp4xx.min_delta_ns =
-+		clockevent_delta2ns(0xf, &clockevent_ixp4xx);
-+	setup_local_clockevent(&clockevent_ixp4xx, CPU_MASK_NONE);
-+
-+	return 0;
-+}
-+device_initcall(ixp4xx_clockevent_init);
-+#endif
-
---=-tg78+QU4gQU6BscLuEqA--
+If it won't help, then you can try fiddling with pcibios_resource_survey() - if 
+you'll disable it, all resources should be assigned from scratch by 
+pci_assign_unassigned_resources.  This way kernel should be able to find 256MB 
+chunk for adapter.  To be able to use this aproach you definitely want to 
+disable legacy (or any...) support for USB in the BIOS, you do not want to use 
+vesa framebuffer, and maybe some other problems as well - it can break constants 
+encoded into ACPI tables :-(
+							Petr Vandrovec
 

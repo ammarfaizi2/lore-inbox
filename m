@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWGMJR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWGMJWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWGMJR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGMJR5
+	id S964865AbWGMJWA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWGMJV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:17:57 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:30094 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964859AbWGMJR4 (ORCPT
+	Thu, 13 Jul 2006 05:21:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22975 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964865AbWGMJV7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:17:56 -0400
-Date: Thu, 13 Jul 2006 11:12:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Thomas Gleixner <tglx@linutronix.de>, mikpe@it.uu.se
-Subject: Re: [RFC][PATCH] Kill i386 references to xtime
-Message-ID: <20060713091218.GB7480@elte.hu>
-References: <1152749914.11963.33.camel@localhost.localdomain> <1152750597.11963.43.camel@localhost.localdomain>
+	Thu, 13 Jul 2006 05:21:59 -0400
+Date: Thu, 13 Jul 2006 02:18:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: andrea@cpushare.com
+Cc: bruce@andrew.cmu.edu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       bunk@stusta.de, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       alan@redhat.com, torvalds@osdl.org, mingo@elte.hu
+Subject: Re: [patch] let CONFIG_SECCOMP default to n
+Message-Id: <20060713021818.b0c0093e.akpm@osdl.org>
+In-Reply-To: <20060713083441.GD28310@opteron.random>
+References: <20060630145825.GA10667@opteron.random>
+	<20060711073625.GA4722@elte.hu>
+	<20060711141709.GE7192@opteron.random>
+	<1152628374.3128.66.camel@laptopd505.fenrus.org>
+	<20060711153117.GJ7192@opteron.random>
+	<1152635055.18028.32.camel@localhost.localdomain>
+	<p73wtain80h.fsf@verdi.suse.de>
+	<20060712210732.GA10182@elte.hu>
+	<20060712185103.f41b51d2.akpm@osdl.org>
+	<44B5F9E6.8070501@andrew.cmu.edu>
+	<20060713083441.GD28310@opteron.random>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152750597.11963.43.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5286]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Jul 2006 10:34:41 +0200
+andrea@cpushare.com wrote:
 
-* john stultz <johnstul@us.ibm.com> wrote:
+> Both patches are obsoleted by the new logic in the context switch that
+> uses the bitflags to enter the slow path, see Chuck's patch.
 
-> All,
-> 	Just another cleanup patch from the C3 timekeeping tree (which you can
-> find here: http://sr71.net/~jstultz/tod/ ) I wanted to RFC.
-> 
-> This patch kills all xtime references in i386 and replaces them with 
-> proper settimeofday()/gettimeofday() calls.
-> 
-> I'm not sure the APM changes are 100% right, as that code is very
-> muddled (take the i8253_lock before calling reinit_timer, which would
-> take the i8253_lock again and hang if it weren't ifdef'ed out!).
+What darn patch?
 
-yeah, that code looks very suspect.
+<looks>
 
-> Anyway, testing, feedback or comments would be appreciated!
+hm, p73wtain80h.fsf@verdi.suse.de, who appears to be Andi has (again)
+removed me from cc.  Possibly an act of mercy ;)
 
-These cleanups look good to me. I gave your patch a testrun on a 
-lockdep-enabled allyesconfig bzImage kernel on i686, and there are no 
-apprent problems - it booted up just fine.
+> As long as seccomp won't be nuked from the kernel, Chuck's patch seems
+> the way to go.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+I see "[compile tested only; requires just-sent fix to i386 system.h]", so
+an appropriate next step would be for you to review, test, sign-off and
+forward it, please.
 
-	Ingo
+> But the point is that I've no idea anymore what will happen to
+> seccomp so perhaps all patches will be useless.
+
+Shrug.  If we can optimise the current code, fine.  If there's a default-on
+config option that makes no-TSC seccomp have zero overhead, better.  If that
+makes us go back to doing useful stuff, perfect.

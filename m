@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWGMKPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWGMKOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWGMKPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 06:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWGMKPa
+	id S1751395AbWGMKOy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 06:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWGMKOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 06:15:30 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:39370 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751443AbWGMKPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 06:15:30 -0400
-Date: Thu, 13 Jul 2006 03:15:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Andy Chittenden" <AChittenden@bluearc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
-Message-Id: <20060713031523.0ab0c4cb.akpm@osdl.org>
-In-Reply-To: <89E85E0168AD994693B574C80EDB9C27043F5DEE@uk-email.terastack.bluearc.com>
-References: <89E85E0168AD994693B574C80EDB9C27043F5DEE@uk-email.terastack.bluearc.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Jul 2006 06:14:54 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:55314 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S1751395AbWGMKOx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 06:14:53 -0400
+Message-ID: <44B61D0A.7010305@stud.feec.vutbr.cz>
+Date: Thu, 13 Jul 2006 12:14:34 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: [patch] IDE: Touch NMI watchdog during resume from STR
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-3.9 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+   0.3 MAILTO_TO_SPAM_ADDR    URI: Includes a link to a likely spammer email
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 08:56:01 +0100
-"Andy Chittenden" <AChittenden@bluearc.com> wrote:
+When resuming from suspend-to-RAM, the NMI watchdog detects a lockup in 
+ide_wait_not_busy.
+Here's a screenshot of the trace taken by a digital camera: 
+http://www.uamt.feec.vutbr.cz/rizeni/pom/DSC03510-2.JPG
 
-> > On Wed, 12 Jul 2006 08:58:52 +0100
-> > "Andy Chittenden" <AChittenden@bluearc.com> wrote:
-> > 
-> > > I tried to install the linux-image-2.6.17-1-amd64-k8-smp 
-> > debian package
-> > > on a ASUS M2NPV-VM motherboard based system and it hung 
-> > during boot. The
-> > > last message on the console was:
-> > > 
-> > >  io scheduler cfq registered
-> > 
-> > Suggest you add initcall_debug to the kernel boot command 
-> > line.  That'll
-> > tell us which initcall got stuck.
-> 
-> I was only able to scrounge 5 minutes on this system this morning.
-> Here's the last few messages output with initcall_debug on:
-> 
-> Calling initcall .... init+0x0/0xc()
-> Calling initcall .... noop_init+0x0/0xc()
-> io scheduler noop registered
-> Calling initcall .... as_init+0x0/0x4f()
-> io scheduler anticipatory registered (default)
-> Calling initcall .... deadline_init+0x0/0x4f()
-> io scheduler deadline registered
-> Calling initcall .... cfq_init+0x0/0xcc()
-> io scheduler cfq registered
-> Calling initcall .... pci_init+0x0/0x2b()
-> 
-> What other info can I grab? (Although I have to fit in with that
-> system's production schedule so I may not be able to come back with that
-> until later on today/tomorrow).
+Let's touch the NMI watchdog in ide_wait_not_busy. The system then 
+resumes correctly from STR.
 
-Seems one of the quirks has gone bad.  The below should tell us which one. 
-You'll need to correlate it with the machine's lspci output please.
+Signed-off-by: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
 
-
---- a/drivers/pci/pci.c~a
-+++ a/drivers/pci/pci.c
-@@ -925,6 +925,7 @@ static int __devinit pci_init(void)
- 	struct pci_dev *dev = NULL;
+diff --git a/drivers/ide/ide-iops.c b/drivers/ide/ide-iops.c
+index 6571652..77703ac 100644
+--- a/drivers/ide/ide-iops.c
++++ b/drivers/ide/ide-iops.c
+@@ -23,6 +23,7 @@ #include <linux/delay.h>
+ #include <linux/hdreg.h>
+ #include <linux/ide.h>
+ #include <linux/bitops.h>
++#include <linux/nmi.h>
  
- 	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+		printk("%s: fix up %s\n", __FUNCTION__, pci_name(dev));
- 		pci_fixup_device(pci_fixup_final, dev);
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -1243,6 +1244,7 @@ int ide_wait_not_busy(ide_hwif_t *hwif, 
+ 		if (stat == 0xff)
+ 			return -ENODEV;
+ 		touch_softlockup_watchdog();
++		touch_nmi_watchdog();
  	}
- 	return 0;
-_
+ 	return -EBUSY;
+ }
+
 

@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWGMHtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWGMHvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWGMHtt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWGMHtt
+	id S964837AbWGMHvX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWGMHvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:49:49 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:42535 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932151AbWGMHts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:49:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S4hx+9vHwSq62t52kE+hsVkROktRZ964use+6KP2wGehHYBBWe3hbSf+F2Fzck/M1pLlDvMaIBRiHLedGGbY5xhkHL88GpSSUqhvMjcDtzUR+0pT+10vciZBytB9ONegmcTQy9PjLiiqU56u3yFZzrhb3WFQQZmA5nSQu8jyoSY=
-Message-ID: <9a8748490607130049v16ee6888p77625b34610275c7@mail.gmail.com>
-Date: Thu, 13 Jul 2006 09:49:47 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Uwe Bugla" <uwe.bugla@gmx.de>
-Subject: Re: Re: patch for timer.c - two dmesgs
-Cc: "Roman Zippel" <zippel@linux-m68k.org>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, johnstul@us.ibm.com
-In-Reply-To: <20060712123917.18970@gmx.net>
+	Thu, 13 Jul 2006 03:51:23 -0400
+Received: from miranda.se.axis.com ([193.13.178.8]:53951 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S964837AbWGMHvW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:51:22 -0400
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: "'Arjan van de Ven'" <arjan@infradead.org>,
+       "Mikael Starvik" <mikael.starvik@axis.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Very long startup time for a new thread
+Date: Thu, 13 Jul 2006 09:51:09 +0200
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668030B55B4@exmail1.se.axis.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060712115110.292550@gmx.net>
-	 <Pine.LNX.4.64.0607121410580.12900@scrub.home>
-	 <20060712123917.18970@gmx.net>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66803F33440@exmail1.se.axis.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/07/06, Uwe Bugla <uwe.bugla@gmx.de> wrote:
->
-> -------- Original-Nachricht --------
-> Datum: Wed, 12 Jul 2006 14:17:04 +0200 (CEST)
-> Von: Roman Zippel <zippel@linux-m68k.org>
-> An: Uwe Bugla <uwe.bugla@gmx.de>
-> Betreff: Re: patch for timer.c - two dmesgs
->
-> > Hi,
-> >
-> > On Wed, 12 Jul 2006, Uwe Bugla wrote:
-> >
-> > > Then the boot process does not take any break at all (like in kernel
-> > 2.6.18-rc1 and in kernels 2.6.17-mm*), but simply stops completely.
-> > > About 7 message lines are missing before X starts for presenting the
-> > graphical login prompt (proftpd, xprint etc.).
-> > > Perhaps two dmesgs help: one for a functionable 2.6.17.4 kernel
-> > (dmesg17), another for the kernel in question (dmesg18).
-> >
-> > A lot has changed since then...
-> > Did you try using SysRq+P or Alt+ScrollLock? (A SysRq+T might be useful
-> > too).
-> Sorry for this stupid sounding question:
-> At what point of the boot process do I have to use those keyboard combinations please? And what is the output / product of them please?
-> Sorry if I simply lack experience in those questions.
-> >
+Nope, no NPTL. Actually this system uses the pthread implementation in
+uC-libc.
 
-This might help : http://sosdg.org/~coywolf/lxr/source/Documentation/sysrq.txt
-I can't answer at what point you should get the data though.
+-----Original Message-----
+From: Arjan van de Ven [mailto:arjan@infradead.org] 
+Sent: Thursday, July 13, 2006 9:15 AM
+To: Mikael Starvik
+Cc: 'Linux Kernel Mailing List'
+Subject: Re: Very long startup time for a new thread
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+
+On Thu, 2006-07-13 at 08:07 +0200, Mikael Starvik wrote:
+> (This is on a 200 MIPS embedded architecture).
+> 
+> On a heavily loaded system (loadavg ~4) I create a new pthread. In this
+> situation it takes ~4 seconds (!) before the thread is first scheduled in
+> (yes, I have debug outputs in the scheduler to check that). In a 2.4 based
+> system I don't see the same thing. I don't have any RT or FIFO tasks. Any
+> ideas why it takes so long time and what I can do about it?
+
+I assume you're using a new enough glibc that supports NPTL ?
+

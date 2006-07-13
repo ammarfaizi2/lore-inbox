@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWGMSSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWGMSSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbWGMSSK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWGMSSJ
+	id S1030264AbWGMSSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWGMSSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:18:09 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:64166 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1030268AbWGMSSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:18:08 -0400
-Date: Thu, 13 Jul 2006 14:17:55 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/5] UML - Fix ZONE_HIGHMEM compilation error
-Message-ID: <20060713181754.GA5343@ccure.user-mode-linux.org>
-References: <200607121639.k6CGdiMw021221@ccure.user-mode-linux.org> <20060713012421.b59f05d4.akpm@osdl.org>
+	Thu, 13 Jul 2006 14:18:49 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:59564 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030264AbWGMSSs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 14:18:48 -0400
+Date: Thu, 13 Jul 2006 20:18:25 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, wookey@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support DOS line endings
+Message-ID: <20060713181825.GA22895@mars.ravnborg.org>
+References: <20060707173458.GB1605@parisc-linux.org> <Pine.LNX.4.64.0607080513280.17704@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060713012421.b59f05d4.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0607080513280.17704@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 01:24:21AM -0700, Andrew Morton wrote:
-> >  	for(i=0;i<sizeof(zones_size)/sizeof(zones_size[0]);i++) 
+On Sat, Jul 08, 2006 at 05:23:17AM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> I spy an ARRAY_SIZE().
+> On Fri, 7 Jul 2006, Matthew Wilcox wrote:
+> 
+> > Kconfig doesn't currently handle config files with DOS line endings.
+> > While these are, of course, an abomination, etc, etc, it can be handy
+> > to not have to convert them first.  It's also a tiny patch and even adds
+> > support for lines ending in just \r or even \n\r.
+> 
+> Did you try the latter? Unless you told fgets() about it I don't see how 
+> it should work.
+> 
+> >  			if (p2)
+> >  				*p2 = 0;
+> > +			p2 = strchr(p, '\r');
+> > +			if (p2)
+> > +				*p2 = 0;
+> 
+> I think something like this would be simpler:
+> 
+> 	if (p2[-1] == '\r')
+> 		p2[-1] = 0;
+Negative index'es always make me supsicious.
+I've applied followign patch.
+The fgets thing I have not looked at.
 
-Yup, I did an ARRAY_SIZE pass a while ago, but I missed that somehow,
-and some grepping shows there are a bunch more.
+	Sam
 
-> Maybe this is an rc1-mm1 fix?  Did Christoph's patches break UML, perhaps??
-
-Yes, it's this bit in mmzone.h:
-    #ifdef CONFIG_HIGHMEM
-	/*
-	 * A memory area that is only addressable by the kernel through
-	 * mapping portions into its own address space. This is for example
-	 * used by i386 to allow the kernel to address the memory beyond
-	 * 900MB. The kernel will set up special mappings (page
-	 * table entries on i386) for each page that the kernel needs to
-	 * access.
-	 */
-	ZONE_HIGHMEM,
-    #endif
-
-				Jeff
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index 2ee48c3..a30b1bb 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -192,9 +192,14 @@ load:
+ 			if (!p)
+ 				continue;
+ 			*p++ = 0;
+-			p2 = strchr(p, '\n');
+-			if (p2)
+-				*p2 = 0;
++			p2 = p;
++		        while (*p2) {
++				if (*p2 == '\r' || *p2 == '\n') {
++					*p2 = 0;
++					break;
++				}
++				p2++;
++			}
+ 			if (def == S_DEF_USER) {
+ 				sym = sym_find(line + 7);
+ 				if (!sym) {

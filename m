@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWGMXwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWGMXwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161057AbWGMXwl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWGMXwl
+	id S1161055AbWGMXwY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWGMXwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:52:41 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:34278 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S1161053AbWGMXwk (ORCPT
+	Thu, 13 Jul 2006 19:52:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42199 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161052AbWGMXwX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:52:40 -0400
-Date: Fri, 14 Jul 2006 01:52:34 +0200 (MEST)
-Message-Id: <200607132352.k6DNqYJJ005697@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: jgarzik@pobox.com
-Subject: [BUG] sata_promise unaligned PCI accesses on sparc64
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 13 Jul 2006 19:52:23 -0400
+Date: Thu, 13 Jul 2006 16:50:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       albertcc@tw.ibm.com
+Subject: Re: [PATCH v1] ata_piix: attempt to fix
+Message-ID: <20060713235038.GA3613@kroah.com>
+References: <20060711160202.GA2503@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711160202.GA2503@havoc.gtf.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After installing a Promise SATA300 TX2 PLUS PCI card
-in a sparc64 (Ultra5) machine, the kernel complains
-about three unaligned accesses during boot:
+On Tue, Jul 11, 2006 at 12:02:02PM -0400, Jeff Garzik wrote:
+> This patch attempts to address problems on ata_piix that people have
+> been reporting:  long boot delay, ghost devices, and ICH8 brokenness.
+> 
+> Testing feedback is requested as soon as possible, so that we can
+> potentially stick this into 2.6.18-rc2.
+> 
+> I'm booting up several boxes locally here, mainly ICH5 and ICH8, as well.
 
-Kernel unaligned access at TPC[55c050] pdc_host_init+0x84/0xe8
-Kernel unaligned access at TPC[55c074] pdc_host_init+0xa8/0xe8
-Kernel unaligned access at TPC[55c094] pdc_host_init+0xc8/0xe8
+Sorry for the delay, but no, this does not solve the timeout at boot for
+me.  Do you need the boot log messages?
 
-Those unaligned accesses are the reads from and write to
-PDC_TBG_MODE in sata_promise.c:pdc_host_init():
+thanks,
 
-	/* reduce TBG clock to 133 Mhz. */
-	tmp = readl(mmio + PDC_TBG_MODE);
-	tmp &= ~0x30000; /* clear bit 17, 16*/
-	tmp |= 0x10000;  /* set bit 17:16 = 0:1 */
-	writel(tmp, mmio + PDC_TBG_MODE);
-
-	readl(mmio + PDC_TBG_MODE);	/* flush */
-
-Looking into this I found two strange facts:
-- PDC_TBG_MODE is at offset 0x41, which clearly can never
-  be 32-bit aligned.
-- The 4-byte range for PDC_TBG_MODE intersects both
-  PDC_INT_SEQMASK and PDC_FLASH_CTL.
-
-Admittedly I know very little about PCI device programming,
-but this doesn't look right.
-
-/Mikael
+greg k-h

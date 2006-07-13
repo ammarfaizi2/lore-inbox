@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWGMHpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWGMHqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWGMHpK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGMHpK
+	id S1751334AbWGMHqX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWGMHqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:45:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6053 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751500AbWGMHpI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:45:08 -0400
-Date: Thu, 13 Jul 2006 00:44:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: sekharan@us.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com, arjan@infradead.org
-Subject: Re: Random panics seen in 2.6.18-rc1
-Message-Id: <20060713004445.cf7d1d96.akpm@osdl.org>
-In-Reply-To: <20060713072635.GA907@elte.hu>
-References: <1152763195.11343.16.camel@linuxchandra>
-	<20060713071221.GA31349@elte.hu>
-	<20060713002803.cd206d91.akpm@osdl.org>
-	<20060713072635.GA907@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 13 Jul 2006 03:46:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8163 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751334AbWGMHqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:46:22 -0400
+Subject: Re: Expertise required on building code for SMP
+From: Arjan van de Ven <arjan@infradead.org>
+To: bhuvan.kumarmital@wipro.com
+Cc: linux-usb-devel@lists.sourceforge.net, kernelnewbies-request@nl.linux.org,
+       kernel-mentors@selenic.com, os_drivers@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <24ED22E506B5A042BF5B05B6B017D86C0A9046@PNE-HJN-MBX01.wipro.com>
+References: <24ED22E506B5A042BF5B05B6B017D86C0A9046@PNE-HJN-MBX01.wipro.com>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 09:45:37 +0200
+Message-Id: <1152776737.3024.16.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 09:26:35 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
-
-> > 
-> > But what was that change _for_?  Presumably, to plug some lockdep 
-> > problem. Which now will come back.
+On Thu, 2006-07-13 at 13:12 +0530, bhuvan.kumarmital@wipro.com wrote:
+> We've written a device driver in linux for a pcmcia card with usb and
+> serial functionality. I need to test this driver on a dual core/SMP
+> machine. We work on kernel 2.6.15.4. I have recompiled this kernel
+> version on my dual core machine with the CONFIG_SMP flag set during
+> menuconfig.
 > 
-> correct - but i first wanted to get the fix out, before trying to fix 
-> the lockdep thing.
+> How do i ensure that my driver is making use of the SMP feature? Do
+> build my driver code i have a makefile in which i use the EXTRA_CFLAGS=
+> -D__SMP__ -DCONFIG_SMP -DLINUX.
 
-More yup.
+NO!
 
-> > And the additional arg to __cache_free() was rather a step backwards - 
-> > this is fastpath.  With a bit more effort that could have been avoided 
-> > (please).
-> 
-> yeah, i'll fix this. Any suggestions of how to avoid the parameter 
-> passing? (without ugly #ifdeffery)
+You should just use a normal KBuild makefile, and not ever add any extra
+cflags....
 
-No, I don't see a way apart from inlining __cache_free(), or inlining
-cache_free_alien() into both kfree() and kmem_cache_free(), both of which
-are unattractive.
+(but you failed to provide a URL to even your Makefile but also to your
+code so it's hard to give you a detailed recommendation)
 
-Well.  One could do
-
-	local_irq_disable();
-	cachep->array[smp_processor_id()]->lockdep_nested = 1;
-	__cache_free(...)
-	cachep->array[smp_processor_id()]->lockdep_nested = 0;
-	local_irq_enable();
-
-then do lots of ifdeffery to make that go away if !LOCKDEP.  But sheesh.

@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWGMLMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWGMLXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWGMLMg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWGMLMg
+	id S932444AbWGMLXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 07:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGMLXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:12:36 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:37562 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750922AbWGMLMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:12:35 -0400
-Message-ID: <44B62A9B.7000707@de.ibm.com>
-Date: Thu, 13 Jul 2006 13:12:27 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 13 Jul 2006 07:23:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:22803 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932444AbWGMLXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 07:23:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=kCXg+fQhxJQKyef1vsbrSyTBZeGxYb5Edj+CquAGxNfYezPTqGD/Ay2owiPC84qXfRLeetOD4ZcXYi0ey8SxkvuaqiHl8gnkYmuvwzigY6rayNUFaAfniM8C59dCy4kWbrt6VA0M16H7hi4FrmNXzPsWhse+r6O4DiKkail4Wj4=
+Date: Thu, 13 Jul 2006 13:23:29 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Mark Hounschell <dmarkh@cfl.rr.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark Hounschell <markh@compro.net>
+Subject: Re: PI support for semaphores?
+In-Reply-To: <44B626BB.8020907@cfl.rr.com>
+Message-ID: <Pine.LNX.4.64.0607131317570.19255@localhost.localdomain>
+References: <44B626BB.8020907@cfl.rr.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] statistics infrastructure - update 10
-References: <1152707259.3028.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>	<20060712091024.c5bd19c7.akpm@osdl.org>	<1152722709.3028.28.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060713010004.63215f02.akpm@osdl.org>
-In-Reply-To: <20060713010004.63215f02.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 12 Jul 2006 18:45:08 +0200
-> Martin Peschke <mp3@de.ibm.com> wrote:
-> 
->> On Wed, 2006-07-12 at 09:10 -0700, Andrew Morton wrote:
->>> On Wed, 12 Jul 2006 14:27:39 +0200
->>> Martin Peschke <mp3@de.ibm.com> wrote:
->>>
->>>> +#define statistic_ptr(stat, cpu) \
->>>> +	((struct percpu_data*)((stat)->data))->ptrs[(cpu)]
->>>
->>> This would be the only part of the kernel which uses percpu_data directly -
->>> everything else uses the APIs (ie: per_cpu_ptr()).  How come?
->>
->> The API, i.e. per_cpu_ptr(), doesn't allow to assign a value to any of
->> the pointers in struct percpu_data. I need that capability because I
->> make use of cpu hotplug notifications to fix per-cpu data at run time.
-> 
-> Fair enough, I guess.
-> 
->> With regard to memory footprint this is much more efficient than using
->> alloc_percpu().
-> 
-> How much storage are we talking about here?  I find it a bit hard to work
-> that out.
 
-32 CPUs appears to be default during kernel build. My z/VM guest happens
-to have 4 (virtual) CPUs right now. With alloc_percpu() the wasted/used
-ratio would be 8:1.
 
-Given one small logarithmic histogram (buckets: <=0, <=1, <=2, <=4, ...
-<=1024, >1024) that would be a waste of:
-next_power_of_2(13 buckets * 8 bytes/bucket) * 8 = 1kB.
+On Thu, 13 Jul 2006, Mark Hounschell wrote:
 
->> Is it be preferable to add something like set_per_cpu_ptr() to the API?
-> 
-> hm.  Add a generic extension to a generic interface within a specific
-> subsystem versus doing it generically.  Hard call ;)
+> Does PI support for user land semaphores exist?
+>
 
-pretty warm outside... making me lazy ;)
+Yes.
+But please stop call them "semaphores". PI only makes sense for the kind 
+of semaphores called "mutexes" (which can be just a basic semaphore).
 
-> I'd suggest that you:
-> 
-> - Create a new __alloc_percpu_mask(size_t size, cpumask_t cpus)
-> 
-> - Make that function use your newly added
-> 
-> 	percpu_data_populate(struct percpu_data *p, int cpu, size_t size, gfp_t gfp);
-> 
-> 	(maybe put `size' into 'struct percpu_data'?)
-> 
-> - implement __alloc_percpu() as __alloc_percpu_mask(size, cpu_possible_map)
+2.6.18-rc1 and 2.6.17-rt7 (and earlier) have PI futexes.
+You still need a patch to glibc. I downloaded it from
+  http://people.redhat.com/mingo/PI-futex-patches/
 
-Getting at the root of the problem. I will have a shot at it.
-(It will take til next week, though - pretty warm outside...)
+I have tested it and it works fine (except for a small problem with 
+pthread_mutex_timedlock(), which shouldn't be a problem for 95% of the 
+applications :-)
 
-A question:
-For symmetry's sake, should I add __free_percpu_mask(), which would
-put NULL where __alloc_percpu_mask() has put a valid address earlier?
-Otherwise, per_cpu_ptr() would return !NULL for an object released
-during cpu hotunplug handling.
-Or, is this not an issue because some cpu mask indicates that the cpu
-is offline anyway, and that the contents of the pointer is not valid.
+Esben
 
-> - hack around madly until it compiles on uniprocessor.
-
-;)
-
+> Thanks
+> Mark
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

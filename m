@@ -1,102 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWGMD4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWGMEAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWGMD4r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 23:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWGMD4r
+	id S932160AbWGMEAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 00:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWGMEAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 23:56:47 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:46258 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932157AbWGMD4q (ORCPT
+	Thu, 13 Jul 2006 00:00:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16863 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932160AbWGMEAg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 23:56:46 -0400
-Date: Wed, 12 Jul 2006 20:56:46 -0700 (PDT)
-From: Dave Olson <olson@pathscale.com>
-Reply-To: olson@pathscale.com
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-In-Reply-To: <m1psgbcnv9.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.64.0607122048230.4819@topaz.pathscale.com>
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
- <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com> <p734pxnojyt.fsf@verdi.suse.de>
- <m1wtajed4d.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
- <m1psgbcnv9.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jul 2006 00:00:36 -0400
+Date: Wed, 12 Jul 2006 21:00:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hans Reiser <reiser@namesys.com>
+Cc: jeffm@suse.com, reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+Message-Id: <20060712210027.8d7a2ddc.akpm@osdl.org>
+In-Reply-To: <44B5C353.9060007@namesys.com>
+References: <44B52674.8060802@suse.com>
+	<20060712175542.108e6e37.akpm@osdl.org>
+	<44B5C353.9060007@namesys.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2006, Eric W. Biederman wrote:
+On Wed, 12 Jul 2006 20:51:47 -0700
+Hans Reiser <reiser@namesys.com> wrote:
 
-| Dave Olson <olson@unixfolk.com> writes:
-| 
-| > On Tue, 11 Jul 2006, Eric W. Biederman wrote:
-| > | There is a hypertransport capability that implements a rough equivalent
-| > | of a per device ioapic.  It is quite similar to MSI but with a different
-| > | register level interface.
-| >
-| > It's really just the same as MSI, and is set up and handled pretty
-| > much the same way.
-| 
-| No it is not just the same.  There is not global enable bit, only
-...
-| But from the perspective of using them in a driver the concept really
-| is the same.
+> Andrew Morton wrote:
+> 
+> >On Wed, 12 Jul 2006 12:42:28 -0400
+> >Jeff Mahoney <jeffm@suse.com> wrote:
+> >
+> >  
+> >
+> >> On systems with block devices containing slashes (virtual dasd, cciss,
+> >> etc), reiserfs will fail to initialize /proc/fs/reiserfs/<dev> due to
+> >> it being interpreted as a subdirectory. The generic block device code
+> >> changes the / to ! for use in the sysfs tree. This patch uses that
+> >> convention.
+> >>    
+> >>
+> >
+> >Isn't it a bit dumb of us to be putting slashes in the device names anyway?
+> > It would be better, if poss, to alter dasd/cciss/etc and stop all these
+> >s@/@!@everywhere games.
+> >
+> >
+> >  
+> >
+> Isn't better to ask why there is a problem with the /'s?  It would be
+> bad for Linux as a design to prevent passing arbitrary tail ends of
+> filenames off to arbitrary plugins of some kind.  In general, in
+> namespace design, you want to allow delegating the job of
+> resolving/interpreting the tail end of a file that the front end has
+> identified as something that can interpret it.
+> 
+> Forgive me, I probably understand something wongly about procfs and this
+> issue....
+> 
 
-I meant, from the perspective of a driver.  Sorry for not being clear.
+It's a question of being *practical*.  Your observations are in the realm
+of the theoretical.
 
-| The code that breaks it is only in -mm.  It's scheduled for 2.6.19.
-| All of the MSI magic in ioapic land on i386 and x86_64 is deleted.
-| The code just needs to age a bit and let the few unexpected
-| corner case crop up, and get sorted out.
-
-Well, if that set of patches is accepted into 2.6.19, it will likely
-break other people with HyperTransport chips and cards as well.   I do
-know of other HTX-slot cards in development, and some of them, at least,
-do use interrupts.
-
-So I think it needs to age enough to not break existing drivers.
-
-Unfortunately, I still haven't had time to try your HT path with our
-ipath driver, because I'm in fire-fighting mode on some customer issues.
-You might be able to test it on some of your LS-1 systems in your lab,
-if you need early feedback.  I'll try it, as soon as I can.
-
-| > This part I never really quite understood.  Why do you want a separate
-| > interface than the existing request_irq().
-| 
-| request_irq is still needed.  The question is how do you get the irq.
-| 
-| > and pci_enable_msi()? 
-| 
-| The HT and msi semantics are moderately different, but I have
-| implemented the equivalent of pci_enable/disable_msi.  So the
-| code is not a pci standard but just a ht standard I didn't use the
-| pci prefix.
-
-My point was that many other pci_* functions have to be called by any
-driver for HyperTransport-attached chips (that aren't chipset), so why
-break these out separately, rather than somehow fitting them into the
-existing routines, perhaps by looking at the bus-type the device is
-attached to?   
-
-Unless we add a full set of ht_* routines (not something I'd like to see!)
-I don't see a reason to do it for just these routines, other than
-convenience for early testing of patch proposals, as opposed to
-final code going into the mainline.
-
-I'm not suggesting re-using existing (old) msi.c code.  I'm suggesting
-making the new MSI code work for all 3 of PCI, PCIe, and HT, with the
-same exact exported routine.
-
-| Of course I don't expect the interface exported to drivers to change.
-
-But if you add new ht_* routines that they have to call, that's
-definitely a change, a new set of exported routines.   I'm questioning
-whether that's really the right direction.  If you had already intended
-to have them not exported in the final patches, that wasn't clear to me,
-and I apologize for misunderstanding.
-
-Dave Olson
-dave.olson@qlogic.com
+Software sucks, and we get along better by not provoking it.  So don't put
+spaces, let alone slashes into strings which we offer to userspace.

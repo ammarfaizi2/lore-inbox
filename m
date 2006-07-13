@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWGMFXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWGMFfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWGMFXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 01:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWGMFXY
+	id S1751397AbWGMFfi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 01:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWGMFfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 01:23:24 -0400
-Received: from hera.kernel.org ([140.211.167.34]:5032 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751384AbWGMFXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 01:23:24 -0400
+	Thu, 13 Jul 2006 01:35:38 -0400
+Received: from www.polish-dvd.com ([69.222.0.225]:9947 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S1751397AbWGMFfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 01:35:38 -0400
+Message-ID: <20060713052037.26594.qmail@mail.webhostingstar.com>
+From: "art" <art@usfltd.com>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-Date: Wed, 12 Jul 2006 22:23:12 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <e94lc0$tsv$1@terminus.zytor.com>
-References: <44B52674.8060802@suse.com> <20060712175542.108e6e37.akpm@osdl.org>
+Cc: venkatesh.pallipadi@intel.com, alexey.y.starikovskiy@intel.com,
+       akpm@osdl.org
+Subject: cpufreq ondemand governor problem on SMP DUALCORE AMD
+Date: Thu, 13 Jul 2006 00:20:37 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1152768192 30624 127.0.0.1 (13 Jul 2006 05:23:12 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Thu, 13 Jul 2006 05:23:12 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20060712175542.108e6e37.akpm@osdl.org>
-By author:    Andrew Morton <akpm@osdl.org>
-In newsgroup: linux.dev.kernel
->
-> On Wed, 12 Jul 2006 12:42:28 -0400
-> Jeff Mahoney <jeffm@suse.com> wrote:
-> 
-> >  On systems with block devices containing slashes (virtual dasd, cciss,
-> >  etc), reiserfs will fail to initialize /proc/fs/reiserfs/<dev> due to
-> >  it being interpreted as a subdirectory. The generic block device code
-> >  changes the / to ! for use in the sysfs tree. This patch uses that
-> >  convention.
-> 
-> Isn't it a bit dumb of us to be putting slashes in the device names anyway?
->  It would be better, if poss, to alter dasd/cciss/etc and stop all these
-> s@/@!@everywhere games.
+2.6.18-rc1-git5-64-smp cpufreq ondemand governor problem on SMP DUALCORE AMD 
+64bit system
+ - start 2 processes with infinite loop in each - OK both cores 100% 
+utilization cpu speed max
+ - kill one - BAD now one core utilization ~100% but cpu speed dropped to 
+core with lowest utilization - fluctuating from min at this level depending 
+on system activity.
+any possibility to setup ondemand governor for max speed if only 1 core 
+utilization is maxed - full speed for single-process/single-thread activity 
+?
+looks like cpufreq ondemand governor sets two frequency dependent cores to 
+speed level ok for that one with lowest utilization slowing down 
+process/thread working on other core. For now it is ok for independent 
+multiprocessor bad for multicore-freq-dependent.
 
-A *lot* of people have been requesting more, not less, hierarchy in
-the filenames in /dev, and by now there is plenty of history there,
-too.  The convention needs to be consistent and stable, though.
+xboom 
 
-	-hpa
+art@usfltd.com 
 
+(observe cpu-freq and utilization
+terminal-1: awk 'BEGIN {for(i=0;i<100000;i++)for(j=0;j<10000;j++);}'
+terminal-2: awk 'BEGIN {for(i=0;i<100000;i++)for(j=0;j<10000;j++);}'
+kill one awk)

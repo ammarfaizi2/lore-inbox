@@ -1,327 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWGMMsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWGMMud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWGMMsE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWGMMrm
+	id S932450AbWGMMud (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWGMMud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:47:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:31279 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932450AbWGMMoF (ORCPT
+	Thu, 13 Jul 2006 08:50:33 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:61827 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932450AbWGMMub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:44:05 -0400
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@suse.de>
-Subject: [PATCH] 6/15 deadline-iosched: migrate to using the elevator rb functions
-Date: Thu, 13 Jul 2006 14:46:29 +0200
-Message-Id: <11527947983756-git-send-email-axboe@suse.de>
-X-Mailer: git-send-email 1.4.1.ged0e0
-In-Reply-To: <11527947982769-git-send-email-axboe@suse.de>
-References: <11527947982769-git-send-email-axboe@suse.de>
+	Thu, 13 Jul 2006 08:50:31 -0400
+Date: Thu, 13 Jul 2006 14:44:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sekharan@us.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com, arjan@infradead.org
+Subject: [patch] lockdep: undo mm/slab.c annotation
+Message-ID: <20060713124438.GA18936@elte.hu>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713004445.cf7d1d96.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5340]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes the rbtree handling from deadline.
+Subject: lockdep: undo mm/slab.c annotation
+From: Ingo Molnar <mingo@elte.hu>
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
+undo existing mm/slab.c lock-validator annotations, in preparation
+of a new, less intrusive annotation patch.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 ---
- block/deadline-iosched.c |  170 +++++++++-------------------------------------
- 1 files changed, 34 insertions(+), 136 deletions(-)
+ mm/slab.c |   33 ++++++++++-----------------------
+ 1 file changed, 10 insertions(+), 23 deletions(-)
 
-diff --git a/block/deadline-iosched.c b/block/deadline-iosched.c
-index b66e820..8300ba1 100644
---- a/block/deadline-iosched.c
-+++ b/block/deadline-iosched.c
-@@ -57,12 +57,6 @@ struct deadline_data {
-  * pre-request data.
-  */
- struct deadline_rq {
--	/*
--	 * rbtree index, key is the starting offset
--	 */
--	struct rb_node rb_node;
--	sector_t rb_key;
--
- 	struct request *request;
- 
- 	/*
-@@ -78,108 +72,38 @@ static kmem_cache_t *drq_pool;
- 
- #define RQ_DATA(rq)	((struct deadline_rq *) (rq)->elevator_private)
- 
--/*
-- * rb tree support functions
-- */
--#define rb_entry_drq(node)	rb_entry((node), struct deadline_rq, rb_node)
--#define DRQ_RB_ROOT(dd, drq)	(&(dd)->sort_list[rq_data_dir((drq)->request)])
--#define rq_rb_key(rq)		(rq)->sector
--
--static struct deadline_rq *
--__deadline_add_drq_rb(struct deadline_data *dd, struct deadline_rq *drq)
--{
--	struct rb_node **p = &DRQ_RB_ROOT(dd, drq)->rb_node;
--	struct rb_node *parent = NULL;
--	struct deadline_rq *__drq;
--
--	while (*p) {
--		parent = *p;
--		__drq = rb_entry_drq(parent);
--
--		if (drq->rb_key < __drq->rb_key)
--			p = &(*p)->rb_left;
--		else if (drq->rb_key > __drq->rb_key)
--			p = &(*p)->rb_right;
--		else
--			return __drq;
--	}
--
--	rb_link_node(&drq->rb_node, parent, p);
--	return NULL;
--}
-+#define RQ_RB_ROOT(dd, rq)	(&(dd)->sort_list[rq_data_dir((rq))])
-+#define DRQ_RB_ROOT(dd, drq)	RQ_RB_ROOT((drq)->request)
- 
- static void
--deadline_add_drq_rb(struct deadline_data *dd, struct deadline_rq *drq)
-+deadline_add_drq_rb(struct deadline_data *dd, struct request *rq)
- {
--	struct deadline_rq *__alias;
--
--	drq->rb_key = rq_rb_key(drq->request);
-+	struct rb_root *root = RQ_RB_ROOT(dd, rq);
-+	struct request *__alias;
- 
- retry:
--	__alias = __deadline_add_drq_rb(dd, drq);
--	if (!__alias) {
--		rb_insert_color(&drq->rb_node, DRQ_RB_ROOT(dd, drq));
--		return;
-+	__alias = elv_rb_add(root, rq);
-+	if (unlikely(__alias)) {
-+		deadline_move_request(dd, RQ_DATA(__alias));
-+		goto retry;
- 	}
--
--	deadline_move_request(dd, __alias);
--	goto retry;
- }
- 
- static inline void
- deadline_del_drq_rb(struct deadline_data *dd, struct deadline_rq *drq)
- {
--	const int data_dir = rq_data_dir(drq->request);
-+	struct request *rq = drq->request;
-+	const int data_dir = rq_data_dir(rq);
- 
- 	if (dd->next_drq[data_dir] == drq) {
--		struct rb_node *rbnext = rb_next(&drq->rb_node);
-+		struct rb_node *rbnext = rb_next(&rq->rb_node);
- 
- 		dd->next_drq[data_dir] = NULL;
- 		if (rbnext)
--			dd->next_drq[data_dir] = rb_entry_drq(rbnext);
--	}
--
--	BUG_ON(!RB_EMPTY_NODE(&drq->rb_node));
--	rb_erase(&drq->rb_node, DRQ_RB_ROOT(dd, drq));
--	RB_CLEAR_NODE(&drq->rb_node);
--}
--
--static struct request *
--deadline_find_drq_rb(struct deadline_data *dd, sector_t sector, int data_dir)
--{
--	struct rb_node *n = dd->sort_list[data_dir].rb_node;
--	struct deadline_rq *drq;
--
--	while (n) {
--		drq = rb_entry_drq(n);
--
--		if (sector < drq->rb_key)
--			n = n->rb_left;
--		else if (sector > drq->rb_key)
--			n = n->rb_right;
--		else
--			return drq->request;
-+			dd->next_drq[data_dir] = RQ_DATA(rb_entry_rq(rbnext));
- 	}
- 
--	return NULL;
--}
--
--/*
-- * deadline_find_first_drq finds the first (lowest sector numbered) request
-- * for the specified data_dir. Used to sweep back to the start of the disk
-- * (1-way elevator) after we process the last (highest sector) request.
-- */
--static struct deadline_rq *
--deadline_find_first_drq(struct deadline_data *dd, int data_dir)
--{
--	struct rb_node *n = dd->sort_list[data_dir].rb_node;
--
--	for (;;) {
--		if (n->rb_left == NULL)
--			return rb_entry_drq(n);
--		
--		n = n->rb_left;
--	}
-+	elv_rb_del(RQ_RB_ROOT(dd, rq), rq);
- }
- 
- /*
-@@ -192,7 +116,7 @@ deadline_add_request(struct request_queu
- 	struct deadline_rq *drq = RQ_DATA(rq);
- 	const int data_dir = rq_data_dir(drq->request);
- 
--	deadline_add_drq_rb(dd, drq);
-+	deadline_add_drq_rb(dd, rq);
- 
- 	/*
- 	 * set expire time (only used for reads) and add to fifo list
-@@ -224,11 +148,11 @@ deadline_merge(request_queue_t *q, struc
- 	 * check for front merge
- 	 */
- 	if (dd->front_merges) {
--		sector_t rb_key = bio->bi_sector + bio_sectors(bio);
-+		sector_t sector = bio->bi_sector + bio_sectors(bio);
- 
--		__rq = deadline_find_drq_rb(dd, rb_key, bio_data_dir(bio));
-+		__rq = elv_rb_find(&dd->sort_list[bio_data_dir(bio)], sector);
- 		if (__rq) {
--			BUG_ON(rb_key != rq_rb_key(__rq));
-+			BUG_ON(sector != __rq->sector);
- 
- 			if (elv_rq_merge_ok(__rq, bio)) {
- 				ret = ELEVATOR_FRONT_MERGE;
-@@ -243,17 +167,17 @@ out:
- 	return ret;
- }
- 
--static void deadline_merged_request(request_queue_t *q, struct request *req)
-+static void deadline_merged_request(request_queue_t *q, struct request *req,
-+				    int type)
- {
- 	struct deadline_data *dd = q->elevator->elevator_data;
--	struct deadline_rq *drq = RQ_DATA(req);
- 
- 	/*
- 	 * if the merge was a front merge, we need to reposition request
- 	 */
--	if (rq_rb_key(req) != drq->rb_key) {
--		deadline_del_drq_rb(dd, drq);
--		deadline_add_drq_rb(dd, drq);
-+	if (type == ELEVATOR_FRONT_MERGE) {
-+		elv_rb_del(RQ_RB_ROOT(dd, req), req);
-+		deadline_add_drq_rb(dd, req);
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -1021,8 +1021,7 @@ static void drain_alien_cache(struct kme
  	}
  }
  
-@@ -261,18 +185,12 @@ static void
- deadline_merged_requests(request_queue_t *q, struct request *req,
- 			 struct request *next)
+-static inline int cache_free_alien(struct kmem_cache *cachep, void *objp,
+-				   int nesting)
++static inline int cache_free_alien(struct kmem_cache *cachep, void *objp)
  {
--	struct deadline_data *dd = q->elevator->elevator_data;
- 	struct deadline_rq *drq = RQ_DATA(req);
- 	struct deadline_rq *dnext = RQ_DATA(next);
+ 	struct slab *slabp = virt_to_slab(objp);
+ 	int nodeid = slabp->nodeid;
+@@ -1040,7 +1039,7 @@ static inline int cache_free_alien(struc
+ 	STATS_INC_NODEFREES(cachep);
+ 	if (l3->alien && l3->alien[nodeid]) {
+ 		alien = l3->alien[nodeid];
+-		spin_lock_nested(&alien->lock, nesting);
++		spin_lock(&alien->lock);
+ 		if (unlikely(alien->avail == alien->limit)) {
+ 			STATS_INC_ACOVERFLOW(cachep);
+ 			__drain_alien_cache(cachep, alien, nodeid);
+@@ -1069,8 +1068,7 @@ static inline void free_alien_cache(stru
+ {
+ }
  
- 	BUG_ON(!drq);
- 	BUG_ON(!dnext);
+-static inline int cache_free_alien(struct kmem_cache *cachep, void *objp,
+-				   int nesting)
++static inline int cache_free_alien(struct kmem_cache *cachep, void *objp)
+ {
+ 	return 0;
+ }
+@@ -1760,8 +1758,6 @@ static void slab_destroy_objs(struct kme
+ }
+ #endif
  
--	if (rq_rb_key(req) != drq->rb_key) {
--		deadline_del_drq_rb(dd, drq);
--		deadline_add_drq_rb(dd, drq);
--	}
+-static void __cache_free(struct kmem_cache *cachep, void *objp, int nesting);
 -
- 	/*
- 	 * if dnext expires before drq, assign its expire time to drq
- 	 * and move into dnext position (dnext will be deleted) in fifo
-@@ -308,14 +226,15 @@ deadline_move_to_dispatch(struct deadlin
- static void
- deadline_move_request(struct deadline_data *dd, struct deadline_rq *drq)
- {
--	const int data_dir = rq_data_dir(drq->request);
--	struct rb_node *rbnext = rb_next(&drq->rb_node);
-+	struct request *rq = drq->request;
-+	const int data_dir = rq_data_dir(rq);
-+	struct rb_node *rbnext = rb_next(&rq->rb_node);
- 
- 	dd->next_drq[READ] = NULL;
- 	dd->next_drq[WRITE] = NULL;
- 
- 	if (rbnext)
--		dd->next_drq[data_dir] = rb_entry_drq(rbnext);
-+		dd->next_drq[data_dir] = RQ_DATA(rb_entry_rq(rbnext));
- 	
- 	dd->last_sector = drq->request->sector + drq->request->nr_sectors;
- 
-@@ -426,13 +345,17 @@ dispatch_find_request:
- 		 */
- 		drq = dd->next_drq[data_dir];
+ /**
+  * slab_destroy - destroy and release all objects in a slab
+  * @cachep: cache pointer being destroyed
+@@ -1785,17 +1781,8 @@ static void slab_destroy(struct kmem_cac
+ 		call_rcu(&slab_rcu->head, kmem_rcu_free);
  	} else {
-+		struct rb_node *n;
-+
- 		/*
- 		 * The last req was the other direction or we have run out of
- 		 * higher-sectored requests. Go back to the lowest sectored
- 		 * request (1 way elevator) and start a new batch.
- 		 */
- 		dd->batching = 0;
--		drq = deadline_find_first_drq(dd, data_dir);
-+		n = rb_first(&dd->sort_list[data_dir]);
-+		if (n)
-+			drq = RQ_DATA(rb_entry_rq(n));
+ 		kmem_freepages(cachep, addr);
+-		if (OFF_SLAB(cachep)) {
+-			unsigned long flags;
+-
+-			/*
+-		 	 * lockdep: we may nest inside an already held
+-			 * ac->lock, so pass in a nesting flag:
+-			 */
+-			local_irq_save(flags);
+-			__cache_free(cachep->slabp_cache, slabp, 1);
+-			local_irq_restore(flags);
+-		}
++		if (OFF_SLAB(cachep))
++			kmem_cache_free(cachep->slabp_cache, slabp);
  	}
- 
- dispatch_request:
-@@ -453,30 +376,6 @@ static int deadline_queue_empty(request_
- 		&& list_empty(&dd->fifo_list[READ]);
  }
  
--static struct request *
--deadline_former_request(request_queue_t *q, struct request *rq)
--{
--	struct deadline_rq *drq = RQ_DATA(rq);
--	struct rb_node *rbprev = rb_prev(&drq->rb_node);
--
--	if (rbprev)
--		return rb_entry_drq(rbprev)->request;
--
--	return NULL;
--}
--
--static struct request *
--deadline_latter_request(request_queue_t *q, struct request *rq)
--{
--	struct deadline_rq *drq = RQ_DATA(rq);
--	struct rb_node *rbnext = rb_next(&drq->rb_node);
--
--	if (rbnext)
--		return rb_entry_drq(rbnext)->request;
--
--	return NULL;
--}
--
- static void deadline_exit_queue(elevator_t *e)
+@@ -3126,7 +3113,7 @@ static void cache_flusharray(struct kmem
+ #endif
+ 	check_irq_off();
+ 	l3 = cachep->nodelists[node];
+-	spin_lock_nested(&l3->list_lock, SINGLE_DEPTH_NESTING);
++	spin_lock(&l3->list_lock);
+ 	if (l3->shared) {
+ 		struct array_cache *shared_array = l3->shared;
+ 		int max = shared_array->limit - shared_array->avail;
+@@ -3169,14 +3156,14 @@ free_done:
+  * Release an obj back to its cache. If the obj has a constructed state, it must
+  * be in this state _before_ it is released.  Called with disabled ints.
+  */
+-static void __cache_free(struct kmem_cache *cachep, void *objp, int nesting)
++static inline void __cache_free(struct kmem_cache *cachep, void *objp)
  {
- 	struct deadline_data *dd = e->elevator_data;
-@@ -542,7 +441,6 @@ deadline_set_request(request_queue_t *q,
- 	drq = mempool_alloc(dd->drq_pool, gfp_mask);
- 	if (drq) {
- 		memset(drq, 0, sizeof(*drq));
--		RB_CLEAR_NODE(&drq->rb_node);
- 		drq->request = rq;
+ 	struct array_cache *ac = cpu_cache_get(cachep);
  
- 		INIT_LIST_HEAD(&drq->fifo);
-@@ -633,8 +531,8 @@ static struct elevator_type iosched_dead
- 		.elevator_dispatch_fn =		deadline_dispatch_requests,
- 		.elevator_add_req_fn =		deadline_add_request,
- 		.elevator_queue_empty_fn =	deadline_queue_empty,
--		.elevator_former_req_fn =	deadline_former_request,
--		.elevator_latter_req_fn =	deadline_latter_request,
-+		.elevator_former_req_fn =	elv_rb_former_request,
-+		.elevator_latter_req_fn =	elv_rb_latter_request,
- 		.elevator_set_req_fn =		deadline_set_request,
- 		.elevator_put_req_fn = 		deadline_put_request,
- 		.elevator_init_fn =		deadline_init_queue,
--- 
-1.4.1.ged0e0
-
+ 	check_irq_off();
+ 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
+ 
+-	if (cache_free_alien(cachep, objp, nesting))
++	if (cache_free_alien(cachep, objp))
+ 		return;
+ 
+ 	if (likely(ac->avail < ac->limit)) {
+@@ -3415,7 +3402,7 @@ void kmem_cache_free(struct kmem_cache *
+ 	BUG_ON(virt_to_cache(objp) != cachep);
+ 
+ 	local_irq_save(flags);
+-	__cache_free(cachep, objp, 0);
++	__cache_free(cachep, objp);
+ 	local_irq_restore(flags);
+ }
+ EXPORT_SYMBOL(kmem_cache_free);
+@@ -3440,7 +3427,7 @@ void kfree(const void *objp)
+ 	kfree_debugcheck(objp);
+ 	c = virt_to_cache(objp);
+ 	debug_check_no_locks_freed(objp, obj_size(c));
+-	__cache_free(c, (void *)objp, 0);
++	__cache_free(c, (void *)objp);
+ 	local_irq_restore(flags);
+ }
+ EXPORT_SYMBOL(kfree);

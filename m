@@ -1,28 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWGMNKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWGMNKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWGMNKd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWGMNKb
+	id S1030210AbWGMNKY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWGMNKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:10:31 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:44268 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1030215AbWGMNK3 (ORCPT
+	Thu, 13 Jul 2006 09:10:23 -0400
+Received: from lx-ltd.ru ([85.113.143.174]:38308 "EHLO iserver.lx.intercon.ru")
+	by vger.kernel.org with ESMTP id S1030210AbWGMNKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:10:29 -0400
-Message-ID: <65001179700324.D2004E2118@I0ZXDKW>
-From: "Wilkes" <Wilkesauriga@archaeologist.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Just use it and your life will be changed!
-Date: Thu, 13 Jul 2006 08:11:32 -0500
+	Thu, 13 Jul 2006 09:10:22 -0400
+X-Comment-To: Arjan van de Ven
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bugs in usb-skeleton.c??? :)
+References: <m3odvtvj8w.fsf@lx-ltd.ru>
+	<1152791917.3024.39.camel@laptopd505.fenrus.org>
+	<m37j2helb4.fsf@lx-ltd.ru>
+	<1152795650.3024.44.camel@laptopd505.fenrus.org>
+From: Sergej Pupykin <ps@lx-ltd.ru>
+Date: 13 Jul 2006 17:10:20 +0400
+In-Reply-To: <1152795650.3024.44.camel@laptopd505.fenrus.org>
+Message-ID: <m364i17irn.fsf@lx-ltd.ru>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: AGsirnnCp1ddMOmA0JhcyGifMdKRuok1TXEE
-Content-Type: text/plain;
-        charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yo! Every day thousands of guys have this problem. You can stand out from the crowd. Eliminating each cause, Extra-Time gives you unmatched act duration. Don't let your partner leave you because of being unhappy with the duration of your acts. Enter here:  http://ferrold.com/dll/get/ Gain the enormous sensual vibe in your relationships - no frustration!
+ >> Does kmalloc always allocate pages that can be used in DMA?
+
+ AvdV> normally yes. HOWEVER....
+
+I use sh4 cpu...
+
+ AvdV> ..it is nicer to use the DMA allocation API (which internally may fall
+ AvdV> back to kmalloc etc), while kmalloc may work, it can be quite slow in
+ AvdV> how it's made to work. So it's just nicer to just use the DMA memory
+ AvdV> allocators... (see Documentation/DMA-API.txt file for a description of
+ AvdV> this)
+
+Thanks, I'll try it.
 

@@ -1,120 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWGMSUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWGMSWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWGMSUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWGMSUf
+	id S1030270AbWGMSWj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWGMSWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:20:35 -0400
-Received: from javad.com ([216.122.176.236]:3848 "EHLO javad.com")
-	by vger.kernel.org with ESMTP id S1030269AbWGMSUf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:20:35 -0400
-From: Sergei Organov <osv@javad.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
- transfers
-References: <1151646482.3285.410.camel@tahini.andynet.net>
-	<20060630001021.2b49d4bd.akpm@osdl.org> <87veq9cosq.fsf@javad.com>
-	<1152302831.20883.63.camel@localhost.localdomain>
-	<87d5cdg308.fsf@javad.com>
-	<1152529855.27368.114.camel@localhost.localdomain>
-	<873bd9fobb.fsf@javad.com>
-	<1152552683.27368.185.camel@localhost.localdomain>
-	<8764i1h9nd.fsf@javad.com> <1152805246.17919.2.camel@localhost>
-Date: Thu, 13 Jul 2006 22:20:19 +0400
-In-Reply-To: <1152805246.17919.2.camel@localhost> (Alan Cox's message of
- "Thu,
-	13 Jul 2006 16:40:45 +0100")
-Message-ID: <87veq1fjto.fsf@javad.com>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Thu, 13 Jul 2006 14:22:39 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:14935 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030270AbWGMSWj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 14:22:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:sender;
+        b=k24iobgkioq8SFt9dne8tnSJioJcnMp4EbOnwGYisyEEGjIGm5KIFtYVZAX98zybvnSLSQuJhirv/EAY0aO+QNk88Nclco9cdc1t/yozKV01RijZsreIngca4KjAlQ+NmEChALvlFtt2oTBzos3NxKRP5SIIMGDNUp4LnwHLA/o=
+Date: Thu, 13 Jul 2006 20:22:20 +0200
+From: Janos Farkas <chexum+dev@gmail.com>
+To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: nfs problems with 2.6.18-rc1
+Message-ID: <priv$8d118c145575$b19af6759a@200607.shadow.banki.hu>
+Mail-Followup-To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> On Iau, 2006-07-13 at 18:17 +0400, Sergei Organov wrote:
->> This problem may occur with any tty driver that doesn't stop to insert
->> data into the tty buffers in throttled state. And yes, there are such
->> drivers in the tree. Before Paul's changes, the tty just dropped bytes
->> that aren't accepted by ldisc, so this problem had no chances to arise.
->
-> You must honour throttle. 
+Hi!
 
-I do, it's Greg who doesn't ;) BTW, isn't it OK to just check for
-tty->throttled where appropriate if I don't have anything special to do
-at unthrottled/throttled transition time?
+I recently updated two (old) hosts to 2.6.18-rc1, and started noticing
+weird things with the nfs mounted /home s.
 
-> That has always been the case. At all times you should attempt to
-> homour tty->receive_room and also ->throttle. If you don't it breaks.
+I frequently face EACCESs where a few minutes ago there wasn't any
+problem, and after a retry everything does work again.
 
-Yes, but the difference is what "it" actually is. Loosing some
-characters at some rare or "might never in fact happen conditions" is
-one "it", and exhausting kernel memory at (even more) rare conditions is
-a different "it", isn't it?
+An example that easily trips it is keeping mutt open
+on a single mailbox file (strace -tt| grep stat):
 
-Besides, if the throttle() is that important and failure to handle it is
-a big mistake, why is it optional then? I mean why struct tty_operations
-with throttle field set to NULL is accepted in the first place? The same
-question is applicable to the struct usb_serial_driver.
+20:04:08.393815 stat64("mailbox", {st_mode=S_IFREG|0600, st_size=401000, ...}) = 0
+20:08:41.859168 stat64("mailbox", {st_mode=S_IFREG|0600, st_size=401000, ...}) = 0
+20:09:30.975876 stat64("mailbox", 0xbfe8966c) = -1 EACCES (Permission denied)
 
->> latter cases drivers that insert too much data without pushing to ldisc
->> may cause similar problem. Anyway, you definitely know better what to do
->> about it.
->
-> Might be a good idea to put a limiter in before 2.6.18 proper just to
-> trap any other drivers that have that bug. At least printk a warning and
-> refuse the allocation once there is say 64K queued. That way the driver
-> author gets a hint all is not well.
+This results in a bit scary "Mailbox was corrupted!" message, but
+otherwise harmless.  Reopening the mailbox succeeds immediately.
 
-I'm afraid that the limit won't work well as a hint for driver
-developers that didn't honour throttle, as real applications do usually
-read from the files they open, and therefore the problem most probably
-won't be noticed for a long time.
+A sample session with an rsync session updating files on the nfs mounted
+/home/:
 
-Provided the limiter is put, why not to make it a variable with 64K
-default?  Driver writers that for whatever reason decide they need more
-in buffers will be able to change that, but then it will be their
-deliberate decision, not just underestimation of consequences of failure
-to handle throttle() due to a lack of knowledge.
+-----
+> rsync...
+receiving file list ... done
+file1
+rsync: close failed on "/home/path/.file1.UgEmSh": Permission denied (13)
+rsync error: error in file IO (code 11) at receiver.c(628) [receiver]
+rsync: connection unexpectedly closed (2490 bytes received so far) [generator]
+rsync error: error in rsync protocol data stream (code 12) at io.c(471) [generator]
+> rsync...
+receiving file list ... done
+rsync: recv_generator: failed to stat "/home/path/file2": Permission denied (13)
+rsync: recv_generator: failed to stat "/home/path/file3": Permission denied (13)
+rsync: recv_generator: failed to stat "/home/path/file4": Permission denied (13)
+rsync: recv_generator: failed to stat "/home/path/file5": Permission denied (13)
+rsync: recv_generator: failed to stat "/home/path/file6": Permission denied (13)
+rsync: recv_generator: failed to stat "/home/path/file7": Permission denied (13)
+-----
 
-Actually I think that the first thing to decide is if memory usage by
-tty should be bounded or not, and if yes, should it be per-tty limit, or
-total memory usage by all the ttys limit, or both. Those decisions I'd
-probably base on how other kernel subsystems behave (TCP stack is the
-first that comes to mind, and AFAIK buffering for every socket is
-limited). Due to lack of broad knowledge of the kernel, I won't try to
-insist on any solution, even though my experience in embedded systems
-programming cries for bounded model.
+I also think this is related in the dmesg.  Think, because there's no
+other trace of any "read error" on the disks, and the comments in
+mm/filemap.c (but the message is not that much help to be sure of this).
 
-And at the end, I'm going to RTFM ;)
+Reducing readahead size to 28K
+Reducing readahead size to 4K
+Reducing readahead size to 28K
+Reducing readahead size to 4K
+Reducing readahead size to 28K
+Reducing readahead size to 4K
+Reducing readahead size to 0K
 
-The comment to the throttle routine in the kernel tree says:
+The relevant part of the /proc/mounts file:
 
- * 	This routine notifies the tty driver that input buffers for
- * 	the line discipline are close to full, and it should somehow
- * 	signal that no more characters should be sent to the tty.
+-----
+automount(pid1831) /home autofs rw 0 0
+HOST:/export/PATH /home/path nfs rw,vers=3,rsize=8192,wsize=8192,hard,intr,nolock,proto=udp,timeo=7,retrans=3,sec=sys,addr=HOST 0 0
+-----
 
-"Linux Device Drivers" 3-d edition says:
+How can I help with tracing this?  git bisecting on these machines takes
+at least an hour per step, (and no reasonable connectivity either to
+compile elsewhere much quicker).
 
- The throttle function is called when the tty core’s input buffers are
- getting full. The tty driver should try to signal to the device that
- no more characters should be sent to it.
-
-None of these two suggests there could be such a global consequences of
-attempting to insert data to the throttled tty as exhausted kernel
-memory. The kernel version reads more strict to me, but LDD one is
-apparently how people indeed understand it.
-
-BTW, I'm curious if Greg wasn't aware throttle must be handled, or just
-decided that it's not worth to, as neither generic nor airprime
-usb-serial drivers handle throttle. Besides, the example tiny_tty.c
-driver from the LDD doesn't handle throttle either. If even most
-experienced and involved kernel developers do ignore the throttle(),
-what should be expected from random Joe driver writer?
-
--- 
-Sergei.
+Janos

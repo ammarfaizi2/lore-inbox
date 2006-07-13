@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWGMJRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWGMJR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964858AbWGMJRq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGMJRq
+	id S964859AbWGMJR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGMJR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:17:46 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:26121 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964858AbWGMJRp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:17:45 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: davej@redhat.com (Dave Jones)
-Subject: Re: another networking lockdep bug
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, arjan@infradead.org,
-       mingo@elte.hu
-Organization: Core
-In-Reply-To: <20060713040715.GE4199@redhat.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1G0xKA-0007Ts-00@gondolin.me.apana.org.au>
-Date: Thu, 13 Jul 2006 19:17:34 +1000
+	Thu, 13 Jul 2006 05:17:57 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:30094 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964859AbWGMJR4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 05:17:56 -0400
+Date: Thu, 13 Jul 2006 11:12:18 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Thomas Gleixner <tglx@linutronix.de>, mikpe@it.uu.se
+Subject: Re: [RFC][PATCH] Kill i386 references to xtime
+Message-ID: <20060713091218.GB7480@elte.hu>
+References: <1152749914.11963.33.camel@localhost.localdomain> <1152750597.11963.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152750597.11963.43.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5286]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
-> Not sure if this one got reported/fixed yet, as I was running
-> a kernel from sometime last week..
 
-I think we've seen a couple of similar ones, this one is more
-elaborate though :)
- 
-> -> #1 (rtnl_mutex){--..}:
->       [<ffffffff802ab792>] lock_acquire+0x4a/0x69
->       [<ffffffff802691c2>] __mutex_lock_slowpath+0xeb/0x29f
->       [<ffffffff8026939f>] mutex_lock+0x29/0x2e
->       [<ffffffff8042d973>] rtnl_lock+0xf/0x12
->       [<ffffffff8045c18a>] ip_mc_leave_group+0x1e/0xae
->       [<ffffffff80446087>] do_ip_setsockopt+0x6ad/0x9b2
->       [<ffffffff8044643a>] ip_setsockopt+0x2a/0x84
->       [<ffffffff80454328>] udp_setsockopt+0xd/0x1c
->       [<ffffffff8041f094>] sock_common_setsockopt+0xe/0x11
->       [<ffffffff8041e20f>] sys_setsockopt+0x8e/0xb4
->       [<ffffffff80262fd9>] tracesys+0xd0/0xdb
+* john stultz <johnstul@us.ibm.com> wrote:
+
+> All,
+> 	Just another cleanup patch from the C3 timekeeping tree (which you can
+> find here: http://sr71.net/~jstultz/tod/ ) I wanted to RFC.
 > 
-> -> #0 (sk_lock-AF_INET){--..}:
->       [<ffffffff802ab792>] lock_acquire+0x4a/0x69
->       [<ffffffff8023726c>] lock_sock+0xd4/0xe7
->       [<ffffffff80228061>] tcp_sendmsg+0x1e/0xb1a
->       [<ffffffff80248ff8>] inet_sendmsg+0x45/0x53
->       [<ffffffff80259dd3>] sock_sendmsg+0x110/0x130
->       [<ffffffff8041ed0c>] kernel_sendmsg+0x3c/0x52
->       [<ffffffff8853c9e9>] xs_tcp_send_request+0x117/0x320 [sunrpc]
->       [<ffffffff8853b8d5>] xprt_transmit+0x105/0x21e [sunrpc]
->       [<ffffffff8853a71e>] call_transmit+0x1f4/0x239 [sunrpc]
->       [<ffffffff8853f06e>] __rpc_execute+0x9b/0x1e6 [sunrpc]
->       [<ffffffff8853f1de>] rpc_execute+0x1a/0x1d [sunrpc]
->       [<ffffffff885394ad>] rpc_call_sync+0x87/0xb9 [sunrpc]
->       [<ffffffff885a5587>] nfs3_rpc_wrapper+0x2e/0x74 [nfs]
->       [<ffffffff885a5870>] nfs3_proc_setattr+0x9b/0xd3 [nfs]
->       [<ffffffff8859bffb>] nfs_setattr+0xe9/0x11e [nfs]
->       [<ffffffff8022f7b4>] notify_change+0x154/0x2f7
->       [<ffffffff802e00c7>] do_truncate+0x52/0x72
->       [<ffffffff80212d17>] may_open+0x1d5/0x231
->       [<ffffffff8021c270>] open_namei+0x290/0x6b4
->       [<ffffffff80229974>] do_filp_open+0x27/0x46
->       [<ffffffff8021acb7>] do_sys_open+0x4e/0xcd
->       [<ffffffff80234b2a>] sys_open+0x1a/0x1d
->       [<ffffffff80262fd9>] tracesys+0xd0/0xdb
+> This patch kills all xtime references in i386 and replaces them with 
+> proper settimeofday()/gettimeofday() calls.
+> 
+> I'm not sure the APM changes are 100% right, as that code is very
+> muddled (take the i8253_lock before calling reinit_timer, which would
+> take the i8253_lock again and hang if it weren't ifdef'ed out!).
 
-We know this is a false positive because the NFS sockets are not
-exported to user-space and therefore #1 can't happen.
+yeah, that code looks very suspect.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> Anyway, testing, feedback or comments would be appreciated!
+
+These cleanups look good to me. I gave your patch a testrun on a 
+lockdep-enabled allyesconfig bzImage kernel on i686, and there are no 
+apprent problems - it booted up just fine.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

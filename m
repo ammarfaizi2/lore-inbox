@@ -1,64 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWGMTWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWGMTXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbWGMTWA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWGMTV7
+	id S1030304AbWGMTXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWGMTXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:21:59 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23783 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030305AbWGMTV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:21:58 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: olson@pathscale.com
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
-Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
-References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
-	<m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com>
-	<p734pxnojyt.fsf@verdi.suse.de>
-	<m1wtajed4d.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
-	<m1psgbcnv9.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0607122048230.4819@topaz.pathscale.com>
-	<m1d5c94jx8.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0607131109540.3583@topaz.pathscale.com>
-	<m1ac7d1h6g.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0607131158300.3583@topaz.pathscale.com>
-Date: Thu, 13 Jul 2006 13:20:59 -0600
-In-Reply-To: <Pine.LNX.4.64.0607131158300.3583@topaz.pathscale.com> (Dave
-	Olson's message of "Thu, 13 Jul 2006 12:00:59 -0700 (PDT)")
-Message-ID: <m1fyh5z4ys.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 Jul 2006 15:23:16 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:30864 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030304AbWGMTXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:23:15 -0400
+Date: Thu, 13 Jul 2006 21:17:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-ID: <20060713191719.GA26824@elte.hu>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu> <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Olson <olson@pathscale.com> writes:
 
-> On Thu, 13 Jul 2006, Eric W. Biederman wrote:
-> | > There's really nothing special at all about the interrupt
-> | > setup, except in one very minor way.   The value of the HT interrupt
-> | > destination address needs to be copied from HT config space, to
-> | > an internal chip register (which is, can, and should be, handled by
-> | > the driver init code).
-> | 
-> | The kernel changes the value at runtime, based upon user input.
-> | I assume your mirror register needs to be updated after every change.
->
-> Yes.  If the interrupt address changes, then we need a callback.
->
-> | Since the kernel changes the value at runtime, and since a different
-> | register needs to be written to, I can't quite use the generic code I
-> | have written as is.  
->
-> I imagine at least some other drivers would like to know when their interrupt
-> configuration changes, also, so an interface where a driver can register
-> a callback handler seems like the right generic answer, or more simply,
-> a way for a driver to say it doesn't want it's interrupt handler
-> migrated (which we would like anyway, for performance reasons).
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-As I recall that is "killall irqbalanced"
+> Why isn't the "on_slab_key" local to just the init_lock_keys() 
+> function, and the #ifdef around it all?
 
-Eric
+yeah - find updated patch below.
+
+	Ingo
+
+------->
+Subject: lockdep: annotate mm/slab.c
+From: Arjan van de Ven <arjan@infradead.org>
+
+mm/slab.c uses nested locking when dealing with 'off-slab'
+caches, in that case it allocates the slab header from the
+(on-slab) kmalloc caches. Teach the lock validator about
+this by putting all on-slab caches into a separate class.
+
+this patch has no effect on non-lockdep kernels.
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ mm/slab.c |   25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -674,6 +674,30 @@ static struct kmem_cache cache_cache = {
+ #endif
+ };
+ 
++/*
++ * Slab sometimes uses the kmalloc slabs to store the slab headers
++ * for other slabs "off slab".
++ * The locking for this is tricky in that it nests within the locks
++ * of all other slabs in a few places; to deal with this special
++ * locking we put on-slab caches into a separate lock-class.
++ */
++static inline void init_lock_keys(struct cache_sizes *s)
++{
++#ifdef CONFIG_LOCKDEP
++	static struct lock_class_key on_slab_key;
++	int q;
++
++	for (q = 0; q < MAX_NUMNODES; q++) {
++		if (!s->cs_cachep->nodelists[q] || OFF_SLAB(s->cs_cachep))
++			continue;
++		lockdep_set_class(&s->cs_cachep->nodelists[q]->list_lock,
++				  &on_slab_key);
++	}
++#endif
++}
++
++
++
+ /* Guard access to the cache-chain. */
+ static DEFINE_MUTEX(cache_chain_mutex);
+ static struct list_head cache_chain;
+@@ -1391,6 +1415,7 @@ void __init kmem_cache_init(void)
+ 					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
+ 					NULL, NULL);
+ 		}
++		init_lock_keys(sizes);
+ 
+ 		sizes->cs_dmacachep = kmem_cache_create(names->name_dma,
+ 					sizes->cs_size,

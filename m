@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWGML6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWGML6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWGML6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWGML6o
+	id S964780AbWGML6h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 07:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWGML6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:58:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22432 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964782AbWGML6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:58:43 -0400
-Subject: Re: Bugs in usb-skeleton.c??? :)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Sergej Pupykin <ps@lx-ltd.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3odvtvj8w.fsf@lx-ltd.ru>
-References: <m3odvtvj8w.fsf@lx-ltd.ru>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 13:58:37 +0200
-Message-Id: <1152791917.3024.39.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 13 Jul 2006 07:58:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57017 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964780AbWGML6g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 07:58:36 -0400
+Date: Thu, 13 Jul 2006 13:58:00 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel@vger.kernel.org, klibc@zytor.com, torvalds@osdl.org
+Subject: Re: klibc and what's the next step?
+Message-ID: <20060713115800.GE5675@elf.ucw.cz>
+References: <klibc.200606251757.00@tazenda.hos.anvin.org> <Pine.LNX.4.64.0606271316220.17704@scrub.home> <20060711044834.GA11694@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711044834.GA11694@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 15:26 +0400, Sergej Pupykin wrote:
-> Hello, All!
+Hi!
+> > So anyone who likes to see klibc merged, because it will solve some kind 
+> > of problem for him, please speak up now. Without this information it's 
+> > hard to judge whether we're going to solve the right problems.
 > 
-> As I understand, USB subsystem uses urb->transfer_buffer directly with
-> DMA. I see that usb-skeleton.c and (at least) bluez's hci_usb allocates it
-> without GFP_DMA flag. (skeleton with GFP_KERNEL, bluez with GFP_ATOMIC)
+> I do not want to see kinit merged.
+> It (the merge into linux-2.6.XY) doesnt solve any real problem in the long term.
+> Instead, make a kinit distribution. Let it install itself into an obvious
+> location on the development box (/usr/lib/kinit/* or whatever), remove all
+> code behind prepare_namespace() and put a disclaimer into the Linux 2.6.XY
+> releasenote stating where to grab and build a kinit binary:
+> make && sudo make install
+> It can even provide its own CONFIG_INITRAMFS_SOURCE file, so that would
+> be the only required change to the used .config.
+> 
+> The rationale is that there are essentially 2 kind of consumers:
+> 
+> One is the kind that builds static kernels and uses no initrd of any kind.
+> For those people, the code and interfaces behind prepare_namespace() has
+> not changed in a long time.
+> They will install that kinit binary once and it will continue to work with
 
-Hi,
+That is the problem... kernel did not use to depend on kinit, and this
+is considered stable series. So if kernel wants to depend on kinit, it
+needs to ship it itself.
+								Pavel
 
-I think GFP_DMA means something different than that you think it means.
-GFP_DMA is a bad old hack that means "this is for ISA bus cards to DMA
-to/from". Since there are no ISA bus USB controllers... the USB code
-doesn't need to use GFP_DMA.
-
-Greetings,
-   Arjan van de Ven
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

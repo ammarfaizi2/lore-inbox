@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWGMKzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWGMK6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751469AbWGMKzw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 06:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWGMKzw
+	id S1751090AbWGMK6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 06:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWGMK6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 06:55:52 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:13168 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751469AbWGMKzv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 06:55:51 -0400
-Date: Thu, 13 Jul 2006 12:55:49 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: David Greaves <david@dgreaves.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <liml@rtr.ca>,
-       Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.17.3 (What is the next step?)
-Message-ID: <20060713105549.GE31644@harddisk-recovery.com>
-References: <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan> <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan> <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan> <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan> <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan> <1152545639.27368.137.camel@localhost.localdomain> <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan> <Pine.LNX.4.64.0607110926150.858@p34.internal.lan> <1152634324.18028.21.camel@localhost.localdomain> <44B57373.2030907@dgreaves.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B57373.2030907@dgreaves.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+	Thu, 13 Jul 2006 06:58:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20192 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751090AbWGMK6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 06:58:17 -0400
+Subject: Re: [patch] lockdep: more annotations for mm/slab.c
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1152787469.3024.26.camel@laptopd505.fenrus.org>
+References: <1152763195.11343.16.camel@linuxchandra>
+	 <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org>
+	 <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
+	 <20060713084213.GA6985@elte.hu> <20060713084613.GA7177@elte.hu>
+	 <20060713020801.44b99061.akpm@osdl.org>  <20060713091804.GA11572@elte.hu>
+	 <1152787469.3024.26.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 12:58:12 +0200
+Message-Id: <1152788292.3024.29.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 11:10:59PM +0100, David Greaves wrote:
-> Alan Cox wrote:
-> > Ar Maw, 2006-07-11 am 09:28 -0400, ysgrifennodd Justin Piszcz:
-> >> Alan/Jeff/Mark,
-> >>
-> >> Is there anything else I can do to further troubleshoot this problem now 
-> >> that we have the failed opcode(s)?  Again, there is never any corruption 
-> >> on these drives, so it is more of an annoyance than anything else.
+On Thu, 2006-07-13 at 12:44 +0200, Arjan van de Ven wrote:
+> On Thu, 2006-07-13 at 11:18 +0200, Ingo Molnar wrote:
+> > * Andrew Morton <akpm@osdl.org> wrote:
 > > 
-> > Nothing strikes me so far other than the data not making sense. Possibly
-> > it will become clearer later if/when we see other examples.
+> > > > ---
+> > > >  mm/slab.c |   45 +++++++++++++++++++++++++--------------------
+> > > 
+> > > geeze, what fuss.  Can't we just tell lockdep "the locking here is 
+> > > correct, so buzz off"?
+> > 
+> > well, lockdep already found a locking bug in slab.c, so by telling 
+> > lockdep to buzz off we lose the proof of correctness :-)
+> > 
+> > but i agree that this is getting a bit too intrusive. This patch is 
+> > really just another expression of: 'slab locking is too complex', but i 
+> > digress. Not all hope is lost though: Arjan thinks he can do a much 
+> > simpler annotation.
 > 
-> For me it's SMART related.
 > 
-> smartctl -data -o on /dev/sda reliably gets a similar message.
-> Justin - does this smartctl command trigger a message for you?
+> I am hoping I can get away with just this patch; the idea is to give the
+> cache_cache slab a special lock type since it'll be nested all the time
+> (and has a natural ordering due to it's special position in the slab
+> code). I'm not yet sure I found all places where this stuff is
+> initialized (the slab code has gotten terribly complex with all the numa
+> stuff added to it); I've started to test this now at least and so far it
+> seems to work on my test box.
+> 
 
-In that case SMART just isn't enabled. smartctl -d ata --smart=on
-/dev/sda should make those messages go away.
+fwiw the slab where off-slab datastructures get stored needs this
+treatment as well, I've yet to decipher the slab code where this slab is
+though ;)
 
-Some BIOSes have a setting to enable/disable SMART, though the option
-is usually badly documented (hey, what do you expect from BIOS
-writers).
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

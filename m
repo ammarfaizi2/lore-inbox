@@ -1,103 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWGMJfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGMJij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWGMJfg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWGMJfg
+	id S964876AbWGMJij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWGMJii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:35:36 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:28288 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964874AbWGMJfg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:35:36 -0400
-Message-ID: <44B613ED.4000809@drzeus.cx>
-Date: Thu, 13 Jul 2006 11:35:41 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Thu, 13 Jul 2006 05:38:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15043 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964876AbWGMJii (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 05:38:38 -0400
+Date: Thu, 13 Jul 2006 02:38:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: serue@us.ibm.com, hugh@veritas.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: please revert kthread from loop.c
+Message-Id: <20060713023829.c19881be.akpm@osdl.org>
+In-Reply-To: <20060712230228.GA19656@sergelap.austin.ibm.com>
+References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
+	<20060627054612.GA15657@sergelap.austin.ibm.com>
+	<Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
+	<20060711194932.GA27176@sergelap.austin.ibm.com>
+	<20060711171752.4993903a.akpm@osdl.org>
+	<20060712032647.GA24595@sergelap.austin.ibm.com>
+	<20060711204637.bba6e966.akpm@osdl.org>
+	<20060712230228.GA19656@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hera.drzeus.cx-13285-1152783334-0001-2"
-To: Greg KH <greg@kroah.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: resource_size_t and printk()
-References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com> <44AB3DF7.8080107@drzeus.cx> <20060711231537.GC18973@kroah.com> <44B4B041.9050808@drzeus.cx> <20060712213723.GB9049@kroah.com>
-In-Reply-To: <20060712213723.GB9049@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Wed, 12 Jul 2006 18:02:29 -0500
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
 
---=_hera.drzeus.cx-13285-1152783334-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+> +		if (lo->lo_state == Lo_rundown) {
+> +			spin_unlock_irq(&lo->lo_lock);
+> +			while (!kthread_should_stop());
 
-Greg KH wrote:
-> Like Randy said, please use "unsigned long long".
->
-> Care to redo this?
->   
+eww.
 
-Here you go.
+A schedule_timeout_uninterruptible(1) or even cpu_relax() would be less
+sinful, but still unpleasant.
 
---=_hera.drzeus.cx-13285-1152783334-0001-2
-Content-Type: text/x-patch; name="pnp-fixprintk.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pnp-fixprintk.patch"
+It's strange that the problem of kthread_stop(already_exitted_task) hasn't
+occurred before.
 
-[PNP] Add missing casts in printk() arguments
-
-Some resource_size_t values are fed to printk() without handling the fact
-that they can have different size depending on your .config.
-
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
-
- drivers/pnp/interface.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
-index 3163e3d..9d8b415 100644
---- a/drivers/pnp/interface.c
-+++ b/drivers/pnp/interface.c
-@@ -265,8 +265,8 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," 0x%llx-0x%llx\n",
--						pnp_port_start(dev, i),
--						pnp_port_end(dev, i));
-+					(unsigned long long)pnp_port_start(dev, i),
-+					(unsigned long long)pnp_port_end(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_MEM; i++) {
-@@ -276,8 +276,8 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," 0x%llx-0x%llx\n",
--						pnp_mem_start(dev, i),
--						pnp_mem_end(dev, i));
-+					(unsigned long long)pnp_mem_start(dev, i),
-+					(unsigned long long)pnp_mem_end(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_IRQ; i++) {
-@@ -287,7 +287,7 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," %lld\n",
--						pnp_irq(dev, i));
-+					(unsigned long long)pnp_irq(dev, i));
- 		}
- 	}
- 	for (i = 0; i < PNP_MAX_DMA; i++) {
-@@ -297,7 +297,7 @@ static ssize_t pnp_show_current_resource
- 				pnp_printf(buffer," disabled\n");
- 			else
- 				pnp_printf(buffer," %lld\n",
--						pnp_dma(dev, i));
-+					(unsigned long long)pnp_dma(dev, i));
- 		}
- 	}
- 	ret = (buffer->curr - buf);
-
---=_hera.drzeus.cx-13285-1152783334-0001-2--
+Again: why is this so hard?  It shouldn't be.  Perhaps because loop is
+using completions in bizarre ways where it should be using
+wake_up_process(), wait_event(), etc.

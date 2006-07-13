@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWGMLZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWGML0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWGMLZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWGMLZw
+	id S932476AbWGML0W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 07:26:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWGML0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:25:52 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47778 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932177AbWGMLZv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:25:51 -0400
-Subject: Re: Athlon64 + Nforce4 MCE panic
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rumi Szabolcs <rumi_ml@rtfm.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060713090146.690d4759.rumi_ml@rtfm.hu>
-References: <20060713090146.690d4759.rumi_ml@rtfm.hu>
-Content-Type: text/plain
+	Thu, 13 Jul 2006 07:26:22 -0400
+Received: from wx-out-0102.google.com ([66.249.82.198]:30200 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932476AbWGML0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 07:26:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Lv4OUVShmkbKtJFDL/oHrxq6QFcOggZYF84wJGl6T8QAHf9GG7H7souDVSVU07O5UowIUIqehuv91mG0r3qmf8wj6gD8Dp+t2zR8OdSbCbw/AKLgFnHQMm2pIo9YV6PkmnEPEkCvG8BJ1gzynEub/CEEQGySHKhVq87Sy6TYJ38=
+Message-ID: <c770ab230607130426y530a8447w3ba4471634c2bfa5@mail.gmail.com>
+Date: Thu, 13 Jul 2006 07:26:19 -0400
+From: "Johnny Lever" <johnny.lever@gmail.com>
+To: "Christoph Hellwig" <hch@infradead.org>,
+       "Johnny Lever" <johnny.lever@gmail.com>,
+       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5] PCI-Express AER implemetation: AER core and aerdriver
+In-Reply-To: <20060713084516.GA2693@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Jul 2006 12:44:05 +0100
-Message-Id: <1152791045.5511.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <c770ab230607121021k550c3d2epf6acefa8fed491a1@mail.gmail.com>
+	 <1152725562.3217.62.camel@laptopd505.fenrus.org>
+	 <c770ab230607121107m788e9c1eqc4c370b706e49e73@mail.gmail.com>
+	 <20060713084516.GA2693@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-07-13 am 09:01 +0200, ysgrifennodd Rumi Szabolcs:
-> # echo 'CPU 0: Machine Check Exception: 0000000000000004 Bank 4: b200000000070f0f' | mcelog --ascii --k8
-> HARDWARE ERROR. This is *NOT* a software problem!
-> Please contact your hardware vendor
+On 7/13/06, Christoph Hellwig <hch@infradead.org> wrote:
+> It is.  Unless you couldn't endless of useless bugs reported from users
+> we can't debug and stupid whining trolls likle you as giving back.  While
+> we definitly can't redefine you definition of "giving back" your version
+> is at least no appreciated.  So please stop trolling here now and go somewhere
+> else.  Don't expect me and others to support you violating the clearly defined
+> copyright license (GPLv2) we gave everyone to our code.
+>
+Oh yeah dear GOD - rrright, those bugs - some greater GOD than you
+mandated that you look at them and fix them.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Go sue all those producing binary drivers and demonstrate legally they
+are doing something illegal before claiming junk. Or at least offer
+some RE graphics drivers so people have a choice to begin with -
+unless you do at least one of these - all you spoke is more troll than
+anything.
 
-
-It prints this bit for a reason
-
-MCE almost always occurs because your processor detected an internal
-inconsistency, in this case a parity error. So you almost certainly have
-a real hardware problem.
-
-Fixing it tends to depend on the system. With bigger servers you usually
-find that the MCE info produces the correct response because the server
-people actually understand use and care about MCEs even in other-os.
-
-For random cheap desktop PC systems it can be more fun, reporting an MCE
-is as likely to cause them to send you a new monitor as any other part
-unfortunately 8)
-
-
+Johnny

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWGMWQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWGMWVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030438AbWGMWQB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWGMWQA
+	id S1160999AbWGMWVj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWGMWVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:16:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51930 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030429AbWGMWP3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:15:29 -0400
-Date: Thu, 13 Jul 2006 15:15:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "H. Peter Anvin" <hpa@zytor.com>, LKML <linux-kernel@vger.kernel.org>,
-       akpm@osdl.org
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-In-Reply-To: <44B6BF2F.6030401@ed-soft.at>
-Message-ID: <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
-References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
- <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
- <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
- <44A8058D.3030905@zytor.com> <m11wt3983j.fsf@ebiederm.dsl.xmission.com>
- <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
- <44B6BF2F.6030401@ed-soft.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jul 2006 18:21:38 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:38627 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1160999AbWGMWVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 18:21:38 -0400
+To: George Nychis <gnychis@cmu.edu>
+CC: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org> <44B64F57.4060407@cmu.edu> <44B66740.2040706@goop.org> <44B66740.2040706@goop.org> <44B6A9CA.8040808@cmu.edu>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+Date: Thu, 13 Jul 2006 23:21:33 +0100
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1G19Yr-0004Ky-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have S3 suspend/resume working here on a TP T60.  Many caveats:
 
+* I'm using Ubuntu's 2.6.15-25-386 kernel.
+* it's a UP kernel so I'm not using the second core
+* I had to tell it to unload and load ipw3945 (or else that module
+  became useless).
+* I had to tell acpid to trigger /etc/acpi/sleep.sh (it was running
+  sleepbtn.sh) when fn-F4 was pressed, or just run sleep.sh directly.
 
-On Thu, 13 Jul 2006, Edgar Hucek wrote:
->
-> I converted the efi memory map to use the e820 table.
-> While converting i discovered why the kernel would allways
-> fail to boot through efi on Intel Macs without a proper fix.
+Ubuntu's kernel probably has a bunch of patches to make SATA/AHCI work
+and who knows what else.  But it means that the DSDT etc. are at least
+half decent (not always true with my earlier thinkpads).
 
-Ok, can you show what the converted and the original map looks like?
+I'm hoping that some debugging will get SMP suspend/resume working as
+well.  So far though I've not had any luck getting a 2.6.18-rc1 SMP
+kernel to suspend (never mind resume).  I did have to enable
+hotpluggable CPU's to get past the 'write error' when echoing 'mem' to
+/sys/power/state.  Then I get lockdep errors and a failure to stop
+tasks, which I reported to lkml and linux-acpi a few days ago.
 
-> From kernel 2.6.16 to kernel 2.6.17 a new check is made.
-> File arch/i386/pci/mmconfig.c -> funktion pci_mmcfg_init -> check e820_all_mapped
-> The courios thing is that this check will always fail on the
-> Intel Macs booted through efi. Parsing of the ACPI_MCFG table
-> returns e0000000 for the start. But this location is
-> not in the memory map which the efi firmware have :
-> BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+-Sanjoy
 
-It _sounds_ like you may not have converted all the EFI types 
-(EFI_UNUSABLE_MEMORY?), but regardless, I think it would be fine to have 
-perhaps a "PCI_FORCE_MMCONF" flag that avoided that sanity check, and then 
-you could have some code (either the EFI code _or_ some DMI code) that 
-sets it for the Intel Macs.
-
-Note that the check in pci_mmcfg_init() shouldn't be some EFI hack itself, 
-it would be a real flag for the PCI subsystem, independently of EFI (I can 
-see it being useful for a kernel command line option, even), and the only 
-EFI connection would be that perhaps the EFI code ends up setting that 
-flag (especially if there is some EFI command for doing this).
-
-Btw, if you do do this, I think we should make sure that the MMCONFIG base 
-address is reserved in the PCI MMIO resource structures (which we don't do 
-now, I think - part of the whole point of verifying that it's marked as 
-E820_RESERVED is exactly the fact that otherwise we migth have problems 
-with PCI MMIO resource allocations allocating a regular PCI resource over 
-the MMCONFIG space..)
-
-			Linus
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

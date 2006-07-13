@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWGMOpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWGMO54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWGMOpo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 10:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWGMOpo
+	id S1030217AbWGMO54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 10:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGMO54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 10:45:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:4235 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751558AbWGMOpn (ORCPT
+	Thu, 13 Jul 2006 10:57:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10173 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030217AbWGMO5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 10:45:43 -0400
-Message-ID: <44B65C94.6040100@garzik.org>
-Date: Thu, 13 Jul 2006 10:45:40 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: John Keller <jpk@sgi.com>
-CC: Jeremy Higdon <jeremy@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH 1/1] - sgiioc4: fixup use of mmio ops
-References: <200607131354.k6DDsaqe064559@fcbayern.americas.sgi.com>
-In-Reply-To: <200607131354.k6DDsaqe064559@fcbayern.americas.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 13 Jul 2006 10:57:55 -0400
+Date: Thu, 13 Jul 2006 07:57:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: serue@us.ibm.com, hugh@veritas.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: please revert kthread from loop.c
+Message-Id: <20060713075749.982b3478.akpm@osdl.org>
+In-Reply-To: <20060713133602.GH14665@sergelap.austin.ibm.com>
+References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
+	<20060627054612.GA15657@sergelap.austin.ibm.com>
+	<Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
+	<20060711194932.GA27176@sergelap.austin.ibm.com>
+	<20060711171752.4993903a.akpm@osdl.org>
+	<20060712032647.GA24595@sergelap.austin.ibm.com>
+	<20060711204637.bba6e966.akpm@osdl.org>
+	<20060712230228.GA19656@sergelap.austin.ibm.com>
+	<20060713023829.c19881be.akpm@osdl.org>
+	<20060713133602.GH14665@sergelap.austin.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Keller wrote:
->>>> -	if (!request_region(base, IOC4_CMD_CTL_BLK_SIZE, hwif->name)) {
->>>> +	cmd_phys_base = bar0 + IOC4_CMD_OFFSET;
->>>> +	if (!request_mem_region(cmd_phys_base, IOC4_CMD_CTL_BLK_SIZE,
->>>> +	    hwif->name)) {
->>>>  		printk(KERN_ERR
->>>> -			"%s : %s -- ERROR, Port Addresses "
->>>> +			"%s : %s -- ERROR, Addresses "
->>>>  			"0x%p to 0x%p ALREADY in use\n",
->>>> -		       __FUNCTION__, hwif->name, (void *) base,
->>>> -		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
->>>> +		       __FUNCTION__, hwif->name, (void *) cmd_phys_base,
->>>> +		       (void *) cmd_phys_base + IOC4_CMD_CTL_BLK_SIZE);
->> If 'void __iomem *' were used, no casts would be needed here
+On Thu, 13 Jul 2006 08:36:02 -0500
+"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+
+> Quoting Andrew Morton (akpm@osdl.org):
 > 
-> So, 'void __iomem *' should also be used for physical (non-mapped)
-> addresses, as in this case?
+> > Again: why is this so hard?  It shouldn't be.  Perhaps because loop is
+> > using completions in bizarre ways where it should be using
+> > wake_up_process(), wait_event(), etc.
+> 
+> Ah.
+> 
+> wait_event() actually seems like the way to go - I'll try to follow the
+> example in fs/ocfs2/journal.c.
 
+I suspect quite a lot of changes to loop.c would fall out.  For a start, in
+a sufficiently-simplified implementation lo_pending would perhaps go away -
+just test the NULLness of the top of the list of BIOs.
 
-Ooops, no, just cookies returned from ioremap() and ioremap_nocache().
+> Still I'd also like to patch kthread to correctly handle an already
+> exited thread.  Would that be acceptable, or is requiring the thread not
+> to exit prematurely considered desirable?
 
-	Jeff
-
-
+That would seem sensible, but I don't immediately see how to do it
+non-racily without changing the API or by adding a `struct completion' to
+the task_struct.  Because the task might be exitting-but-not-exitted, and
+still using resources which the kthread_stop() caller wants to release.

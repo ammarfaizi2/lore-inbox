@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWGMNkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWGMNoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWGMNkK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWGMNkK
+	id S1750863AbWGMNoU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWGMNoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:40:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16836 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750881AbWGMNkI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:40:08 -0400
-Message-ID: <44B64CAD.5080804@redhat.com>
-Date: Thu, 13 Jul 2006 09:37:49 -0400
-From: Bhavana Nagendra <bnagendr@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 13 Jul 2006 09:44:20 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:37662 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750863AbWGMNoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 09:44:19 -0400
+In-Reply-To: <44B5C971.7030403@us.ibm.com>
+Subject: Re: [PATCH] s390 hypfs fixes for 2.6.18-rc1-mm1
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF590AF8CD.54E93D95-ON422571AA.004AFB01-422571AA.004B7748@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Thu, 13 Jul 2006 15:44:17 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.5.5HF268 | April 6, 2006) at
+ 13/07/2006 15:47:13
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to change
- pstate at same time
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some results without changing frequencies on a system whose 
-BIOS does not support Power Now! on MP systems:
+Hi Badari
 
-Basically the system booted up with "nohpet, nopmtimer"i.e. using TSC as 
-the GTOD time source and system stayed idle for 13 hours.   There 
-appears to be drift of 20 secs in the CPU 2 readings.    This TSC drift 
-will be worse when
-the system is active and doing GTOD operations.
+Your new patch compiles and seems to work.
 
-CPU 2: Syncing TSC to CPU 0.
-CPU 2: synchronized TSC with CPU 0 (last diff -108 cycles, maxerr 826 
-cycles)
-CPU 3: Syncing TSC to CPU 0.
-CPU 3: synchronized TSC with CPU 0 (last diff -119 cycles, maxerr 845 
-cycles)
+Badari Pulavarty <pbadari@us.ibm.com> wrote on 07/13/2006 06:17:53 AM:
+> Badari Pulavarty wrote:
+> > Hi Micheal,
+> >
+> > I made fixes to hypfs to fit new vfs ops interfaces. I am not sure if
+> > we really
+> > need to vectorize aio interfaces, can you check and see if this is okay
+?
+> > And also, I am not sure what hypfs_aio_write() is actually doing.
+> > It doesn't seem to be  doing with "buf" ?
 
-*** CPUs go offline ***
+The hypfs write function currently is only used to trigger the update
+process of hypfs. We just ignore the buffer.
 
-*** back online ***
+Thanks
 
-CPU 2: Syncing TSC to CPU 0.
-CPU 2: synchronized TSC with CPU 0 (last diff -117 cycles, maxerr 846 
-cycles)
-CPU 3: Syncing TSC to CPU 0.
-CPU 3: synchronized TSC with CPU 0 (last diff -117 cycles, maxerr 845 
-cycles)
+Michael
+

@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWGLXol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWGMAMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWGLXol (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 19:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWGLXol
+	id S1751477AbWGMAMm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 20:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWGMAMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 19:44:41 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:12235 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932472AbWGLXok (ORCPT
+	Wed, 12 Jul 2006 20:12:41 -0400
+Received: from thunk.org ([69.25.196.29]:30862 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751477AbWGMAMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 19:44:40 -0400
-In-Reply-To: <20060712232414.GI9040@thunk.org>
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-To: Theodore Tso <tytso@mit.edu>, libc-alpha@sourceware.org,
-       linux-kernel@vger.kernel.org
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Arjan van de Ven <arjan@infradead.org>,
+	Wed, 12 Jul 2006 20:12:41 -0400
+Date: Wed, 12 Jul 2006 20:12:22 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Andi Kleen <ak@suse.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
        Ulrich Drepper <drepper@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
-Message-ID: <OF1343C031.500862D1-ON862571A9.00817A27-862571A9.00826BED@us.ibm.com>
-From: Steve Munroe <sjmunroe@us.ibm.com>
-Date: Wed, 12 Jul 2006 18:44:33 -0500
-X-MIMETrack: Serialize by Router on D27mc103/27/M/IBM(Release 7.0.1|January 17, 2006) at
- 07/12/2006 06:44:36 PM
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+Message-ID: <20060713001222.GJ9040@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>, Andi Kleen <ak@suse.de>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <m1hd1mafe0.fsf@ebiederm.dsl.xmission.com> <20060712232414.GI9040@thunk.org> <200607130131.46753.ak@suse.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607130131.46753.ak@suse.de>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 13, 2006 at 01:31:46AM +0200, Andi Kleen wrote:
+> 
+> glibc still works, just slower. But I think the best strategy 
+> is just to emulate the single sysctl glibc is using and printk
+> for the rest.
+> 
 
-Theodore Tso <tytso@mit.edu> wrote on 07/12/2006 06:24:14 PM:
+That sounds reasonable, yes.
 
-> On Wed, Jul 12, 2006 at 11:42:47AM -0600, Eric W. Biederman wrote:
-> > Unless a darn good reason for keeping it is found, sys_sysctl won't be
-> > in the kernel several months from now.  And uname is faster by a large
-> > margin than /proc.
+
+> > point is moot.  But at the same time, what is the cost of leaving
+> > sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+> > starting from now?  
 >
-> Um, if glibc is using sys_sysctl, then that's a pretty good reason.
-> Once we remove it from the kernel, then people will be forced to
-> upgrade glibc's before they can install a newer kernel.  Can we please
-> give people some time for an version of glibc with this change to make
-> it out to most deployed systems, first?  It's really annoying when
-> it's not possible to install a stock kernel.org kernel on a system,
-> and often upgrading glibc is not a trivial thing to do on a
-> distribution userspace, especially if there is a concern for ISV
-> compatibility.  (Especially if C++ code is involved, unfortunately.)
->
-We will need an implementation that will fall back to sys_sysctl for older
-kernels. This is already common practice in glibc. I don't really
-understand the performance concern because it seems to me that
-_is_smp_system() is only called once per process.
+> The numerical namespace for sysctl is unsalvagable imho. e.g. distributions
+> regularly break it because there is no central repository of numbers
+> so it's not very usable anyways in practice.
 
-But isn't this the kind of thing that the Aux Vector is for? I like vDSO
-too, but I think it is best deployed for information of a more dynamic
-nature and performance sensitive.
+That may be true, but it doesn't answer the question, what's the cost
+of leaving in sys_sysctl in there for now?  
 
+In any case, if we really do want to get rid of it, the next step
+should be a working deprecation printk and adding something to
+Documentation/feature-removal-schedule.txt.
 
-
+						- Ted

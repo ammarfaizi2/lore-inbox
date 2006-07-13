@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWGMW44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWGMW6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWGMW44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWGMW44
+	id S1161032AbWGMW6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161033AbWGMW6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:56:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:62699 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161031AbWGMW4z (ORCPT
+	Thu, 13 Jul 2006 18:58:25 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:63149 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161032AbWGMW6Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:56:55 -0400
-Subject: Re: [BUG] no sound on ppc mac mini
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Johannes Berg <johannes@sipsolutions.net>
-In-Reply-To: <1152821370.6845.9.camel@localhost>
-References: <1152821370.6845.9.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 08:55:09 +1000
-Message-Id: <1152831309.23037.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 18:58:24 -0400
+Date: Fri, 14 Jul 2006 00:58:22 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Using select in boolean dependents of a tristate symbol
+In-Reply-To: <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607140033030.12900@scrub.home>
+References: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
+ <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 13:09 -0700, john stultz wrote:
-> Using the current 2.6.18-rc1-git, I'm finding no sound card being
-> detected on my mac mini.
+Hi,
+
+On Thu, 13 Jul 2006, Dmitry Torokhov wrote:
+
+> config THRUSTMASTER_FF
+>       bool "ThrustMaster FireStorm Dual Power 2 support (EXPERIMENTAL)"
+>       depends on HID_FF && EXPERIMENTAL
+> +       select INPUT_FF_MEMLESS
+>       help
+>         Say Y here if you have a THRUSTMASTER FireStore Dual Power 2,
+>         and want to enable force feedback support for it.
 > 
-> I looked through the config and saw the new AOA option w/ the Toonie
-> chip under it, and I enabled it. However, I still get no sound card
-> detected. I tried enabling the "layout-id fabric" option, but I got a
-> panic on boot (I can try to get a photo later if necessary).
-> 
-> Any thoughts? 
+> Unfortunately this forces INPUT_FF_MEMLESS to always be built-in,
+> although if HID is a module it could be a module as well. Do you have
+> any suggestions as to how allow INPUT_FF_MEMLESS to be compiled as a
+> module?
 
-Is this really a current git or an -rc1 snapshot ? The crashes on boot
-should have been fixed ... unless there is another problem on the mac
-mini. Can you try having them as modules instead ?
+You need to directly include HID into the dependencies, only the direct 
+dependencies for config entry are used for the select.
 
-Cheers,
-Ben.
-
+bye, Roman
 

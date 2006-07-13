@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWGMWYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWGMW1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030431AbWGMWYp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWGMWYp
+	id S1161001AbWGMW1l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWGMW1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:24:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:22748 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030431AbWGMWYo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:24:44 -0400
-Date: Thu, 13 Jul 2006 15:24:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: memory corruptor in .18rc1-git
-Message-Id: <20060713152425.86412ea3.akpm@osdl.org>
-In-Reply-To: <20060713221330.GB3371@redhat.com>
-References: <20060713221330.GB3371@redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 18:27:41 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50918 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030437AbWGMW1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 18:27:40 -0400
+Date: Thu, 13 Jul 2006 15:27:06 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       sekharan@us.ibm.com, linux-kernel@vger.kernel.org, nagar@watson.ibm.com,
+       balbir@in.ibm.com, alokk@calsoftinc.com
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+In-Reply-To: <1152818472.3024.75.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0607131520340.30403@schroedinger.engr.sgi.com>
+References: <1152763195.11343.16.camel@linuxchandra>  <20060713071221.GA31349@elte.hu>
+ <20060713002803.cd206d91.akpm@osdl.org>  <20060713072635.GA907@elte.hu> 
+ <20060713004445.cf7d1d96.akpm@osdl.org>  <20060713124603.GB18936@elte.hu> 
+ <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com> 
+ <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org> <1152818472.3024.75.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 18:13:30 -0400
-Dave Jones <davej@redhat.com> wrote:
+On Thu, 13 Jul 2006, Arjan van de Ven wrote:
 
-> Three times in the last week, I've had a box running the -git-du-jour
-> spontaneously reboot.  It just happened again, this time I had a serial
-> console hooked up, but it rebooted before transferring much data.
-> The one thing it did spew however was "List corruption. prev->ne",
-> which came from the patch below which I had in my tree.
-> (The latter half is likely irrelevant, and came from chasing a different bug)
-> 
-> Things in common at all three times it happened..
-> reading email, and listening to oggs with rhythmbox.
-> Another ALSA bug maybe ?
-> 
-> I've up'd the speed of the serial console, in the hope that more chars
-> make it over the wire before reboot should this happen again.
+> there is a corner case in the slab code that I personally don't trust at
+> all. In the NUMA case, if the memory is not originally from your own
+> node, the cache_free_alien() function takes, while having your own local
+> lock, the lock of the remote node as well. (at least on my reading of
+> the code) to free the memory to that node. I have yet to see where in
+> the code it safeguards against that remote node doing the exact same
+> thing in the opposite direction concurrently, and causing a basic ABBA
+> deadlock.
 
-Are you using SMP?  We have a known slab locking bug.
+Hmmm.. This case is only followed during bootup when we do not have
+alien caches yet. And its pretty rare to free memory on bootup. Once the
+alien caches are present then we do not take the listlock anymore but
+use the lock of the alien structure.
 
-There have been a couple of slab.c patches committed today, but neither of
-them appear to actually fix the bug.
+This could cause an ABBA deadlock if a free happens on another 
+processor during bootup before all the slabs are established.
 
-The below should fix it, and testing this (disable lockdep) would be
-useful.
+That then brings us to look if a slab free can happen before a slab is 
+completely established via kmem_cache_create.
 
-It's going to take a bit of work to unpickle it all now.
+kmem_cache_create takes the cpu hotplug lock and the cache_chain_mutex.
 
-diff -puN mm/slab.c~revert-slabc-lockdep-locking-change mm/slab.c
---- a/mm/slab.c~revert-slabc-lockdep-locking-change
-+++ a/mm/slab.c
-@@ -3100,16 +3100,7 @@ static void free_block(struct kmem_cache
- 		if (slabp->inuse == 0) {
- 			if (l3->free_objects > l3->free_limit) {
- 				l3->free_objects -= cachep->num;
--				/*
--				 * It is safe to drop the lock. The slab is
--				 * no longer linked to the cache. cachep
--				 * cannot disappear - we are using it and
--				 * all destruction of caches must be
--				 * serialized properly by the user.
--				 */
--				spin_unlock(&l3->list_lock);
- 				slab_destroy(cachep, slabp);
--				spin_lock(&l3->list_lock);
- 			} else {
- 				list_add(&slabp->list, &l3->slabs_free);
- 			}
-_
+One could argue that a subsystem must make sure that the slab cache it 
+creates should not be used before kmem_cache_create is complete?
+
+Alokk: Do we really need to check for alien caches not present there?
+
 

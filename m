@@ -1,121 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWGMTgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWGMTiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbWGMTgL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWGMTgL
+	id S1030328AbWGMTiF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWGMTiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:36:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:9410 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030325AbWGMTgK (ORCPT
+	Thu, 13 Jul 2006 15:38:05 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57545 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030328AbWGMTiD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:36:10 -0400
-Date: Thu, 13 Jul 2006 12:08:06 -0700
-From: Greg KH <gregkh@suse.de>
-To: Sergei Organov <osv@javad.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO transfers
-Message-ID: <20060713190806.GA32525@suse.de>
-References: <20060630001021.2b49d4bd.akpm@osdl.org> <87veq9cosq.fsf@javad.com> <1152302831.20883.63.camel@localhost.localdomain> <87d5cdg308.fsf@javad.com> <1152529855.27368.114.camel@localhost.localdomain> <873bd9fobb.fsf@javad.com> <1152552683.27368.185.camel@localhost.localdomain> <8764i1h9nd.fsf@javad.com> <1152805246.17919.2.camel@localhost> <87veq1fjto.fsf@javad.com>
+	Thu, 13 Jul 2006 15:38:03 -0400
+Date: Thu, 13 Jul 2006 21:32:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-ID: <20060713193228.GA27360@elte.hu>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu> <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87veq1fjto.fsf@javad.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.0 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50,ITS_LEGAL autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.3 ITS_LEGAL              BODY: Claims to be Legal
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5006]
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 10:20:19PM +0400, Sergei Organov wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > On Iau, 2006-07-13 at 18:17 +0400, Sergei Organov wrote:
-> >> This problem may occur with any tty driver that doesn't stop to insert
-> >> data into the tty buffers in throttled state. And yes, there are such
-> >> drivers in the tree. Before Paul's changes, the tty just dropped bytes
-> >> that aren't accepted by ldisc, so this problem had no chances to arise.
-> >
-> > You must honour throttle. 
-> 
-> I do, it's Greg who doesn't ;) BTW, isn't it OK to just check for
-> tty->throttled where appropriate if I don't have anything special to do
-> at unthrottled/throttled transition time?
-> 
-> > That has always been the case. At all times you should attempt to
-> > homour tty->receive_room and also ->throttle. If you don't it breaks.
-> 
-> Yes, but the difference is what "it" actually is. Loosing some
-> characters at some rare or "might never in fact happen conditions" is
-> one "it", and exhausting kernel memory at (even more) rare conditions is
-> a different "it", isn't it?
-> 
-> Besides, if the throttle() is that important and failure to handle it is
-> a big mistake, why is it optional then? I mean why struct tty_operations
-> with throttle field set to NULL is accepted in the first place? The same
-> question is applicable to the struct usb_serial_driver.
 
-Yes, I didn't realize it was required.  If it is, we should add this
-change.
+* Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-> >> latter cases drivers that insert too much data without pushing to ldisc
-> >> may cause similar problem. Anyway, you definitely know better what to do
-> >> about it.
-> >
-> > Might be a good idea to put a limiter in before 2.6.18 proper just to
-> > trap any other drivers that have that bug. At least printk a warning and
-> > refuse the allocation once there is say 64K queued. That way the driver
-> > author gets a hint all is not well.
+> On 7/13/06, Ingo Molnar <mingo@elte.hu> wrote:
+> >mm/slab.c uses nested locking when dealing with 'off-slab'
+> >caches, in that case it allocates the slab header from the
+> >(on-slab) kmalloc caches. Teach the lock validator about
+> >this by putting all on-slab caches into a separate class.
 > 
-> I'm afraid that the limit won't work well as a hint for driver
-> developers that didn't honour throttle, as real applications do usually
-> read from the files they open, and therefore the problem most probably
-> won't be noticed for a long time.
-> 
-> Provided the limiter is put, why not to make it a variable with 64K
-> default?  Driver writers that for whatever reason decide they need more
-> in buffers will be able to change that, but then it will be their
-> deliberate decision, not just underestimation of consequences of failure
-> to handle throttle() due to a lack of knowledge.
-> 
-> Actually I think that the first thing to decide is if memory usage by
-> tty should be bounded or not, and if yes, should it be per-tty limit, or
-> total memory usage by all the ttys limit, or both. Those decisions I'd
-> probably base on how other kernel subsystems behave (TCP stack is the
-> first that comes to mind, and AFAIK buffering for every socket is
-> limited). Due to lack of broad knowledge of the kernel, I won't try to
-> insist on any solution, even though my experience in embedded systems
-> programming cries for bounded model.
-> 
-> And at the end, I'm going to RTFM ;)
-> 
-> The comment to the throttle routine in the kernel tree says:
-> 
->  * 	This routine notifies the tty driver that input buffers for
->  * 	the line discipline are close to full, and it should somehow
->  * 	signal that no more characters should be sent to the tty.
-> 
-> "Linux Device Drivers" 3-d edition says:
-> 
->  The throttle function is called when the tty core???s input buffers are
->  getting full. The tty driver should try to signal to the device that
->  no more characters should be sent to it.
-> 
-> None of these two suggests there could be such a global consequences of
-> attempting to insert data to the throttled tty as exhausted kernel
-> memory. The kernel version reads more strict to me, but LDD one is
-> apparently how people indeed understand it.
+> What's "nested lock" btw? If I understood from the other patch, you're 
+> talking about ac->lock. Surely you can't take the same lock twice but 
+> it's perfectly legal to take lock as long as the ac instance is 
+> different...
 
-Well, as I wrote that chapter in LDD, that was how I understood it :)
+yeah - there's some ambiguity of the term "nested lock". For the lock 
+validator it means "holding two instances of the same lock class". A 
+"lock class" is something like inode->i_mutex. (standalone static locks 
+like cache_chain_mutex form their own singleton lock class. See 
+Documentation/lockdep-design.txt for more details.)
 
-> BTW, I'm curious if Greg wasn't aware throttle must be handled, or just
-> decided that it's not worth to, as neither generic nor airprime
-> usb-serial drivers handle throttle.
+"trying to lock the same lock instance twice" we call "recursive 
+locking", and that's a bug for everything except read_lock() on rwlocks. 
+There is no "recursive locking" in slab.c, but there is "nested 
+locking". For the case of "nested locking" the lock validator needs to 
+be taught of the relation between instances. Most of the cases the 
+relation is "static" and can thus be assigned build-time via the use of 
+separate lock-keys that "split up" a class into subclasses. In rare 
+cases the relation is dynamic (for example the VFS has such nesting 
+rules).
 
-I wasn't aware that it was required.
+initially i annotated slab.c via dynamic nesting - but as Arjan has 
+correctly observed, most of the nested locking in slab.c is of static 
+type: we first take the off-slab lock, then the on-slab lock. [or we 
+only take an on-slab lock, if the cache is on-slab]
 
-> Besides, the example tiny_tty.c driver from the LDD doesn't handle
-> throttle either.
+Note: nested locking annotations arent just done to "shut up" lockdep, 
+but rather to enable lockdep from now on to enforce this dependency 
+rule: if anywhere we take an off-slab lock after an on-slab lock it will 
+print a warning. That's why we go the trouble of identifying all the 
+nested locking cases instead of going the easy path of "shutting lockdep 
+off" (we could trivially ignore nesting within lockdep.c) - there were a 
+couple of locking bugs found already that were related to nested 
+locking.
 
-I wrote that too :)
+btw., there's still one nested locking construct in slab.c that could 
+cause problems:
 
-thanks,
+ Call Trace:
+  [<ffffffff8020b0b9>] show_trace+0xaa/0x23d
+  [<ffffffff8020b261>] dump_stack+0x15/0x17
+  [<ffffffff802456c4>] __lock_acquire+0x127/0x9c4
+  [<ffffffff8024648b>] lock_acquire+0x4b/0x6a
+  [<ffffffff804aead3>] _spin_lock+0x25/0x31
+  [<ffffffff8027301a>] __drain_alien_cache+0x34/0x78
+  [<ffffffff80272b1f>] __cache_free+0xe8/0x215
+  [<ffffffff80272dc4>] slab_destroy+0x9e/0xc2
+  [<ffffffff80272ed3>] free_block+0xeb/0x135
+  [<ffffffff80273043>] __drain_alien_cache+0x5d/0x78
+  [<ffffffff80272b1f>] __cache_free+0xe8/0x215
+  [<ffffffff80273203>] kfree+0x8c/0xb0
 
-greg k-h
+what guarantees that while we are 'draining' another node's cache, that 
+other node does not drain our cache (and thus we'd deadlock)?
+
+	Ingo

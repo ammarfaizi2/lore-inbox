@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGMJij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWGMJn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWGMJij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWGMJii
+	id S964878AbWGMJn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWGMJn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:38:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15043 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964876AbWGMJii (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:38:38 -0400
-Date: Thu, 13 Jul 2006 02:38:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: serue@us.ibm.com, hugh@veritas.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: please revert kthread from loop.c
-Message-Id: <20060713023829.c19881be.akpm@osdl.org>
-In-Reply-To: <20060712230228.GA19656@sergelap.austin.ibm.com>
-References: <Pine.LNX.4.64.0606261920440.1330@blonde.wat.veritas.com>
-	<20060627054612.GA15657@sergelap.austin.ibm.com>
-	<Pine.LNX.4.64.0606281933300.24170@blonde.wat.veritas.com>
-	<20060711194932.GA27176@sergelap.austin.ibm.com>
-	<20060711171752.4993903a.akpm@osdl.org>
-	<20060712032647.GA24595@sergelap.austin.ibm.com>
-	<20060711204637.bba6e966.akpm@osdl.org>
-	<20060712230228.GA19656@sergelap.austin.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 05:43:26 -0400
+Received: from web26905.mail.ukl.yahoo.com ([217.146.176.94]:11404 "HELO
+	web26905.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964875AbWGMJn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 05:43:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=W96sDlmQYCZFavdxerNIK6tfZUCq3qpQY6iVauJooJmIrhcj6W+A8hwVAZtQmgV4y9HU5A8yf1Y5g/ryta/6Pv0IV6ir4yu3oneVJtXLgcKW49wZ8+H3hLcRZFeXPPdOqy/qunKr2qk/yINYEsjJ18SDIq5fNqa6sXMtQJcOSwA=  ;
+Message-ID: <20060713094325.87127.qmail@web26905.mail.ukl.yahoo.com>
+Date: Thu, 13 Jul 2006 11:43:25 +0200 (CEST)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: Re: 2.6.18-rc1-mm1
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2006 18:02:29 -0500
-"Serge E. Hallyn" <serue@us.ibm.com> wrote:
+ Error while compiling:
+  CC      kernel/uid16.o
+  CC      kernel/kallsyms.o
+kernel/kallsyms.c: In function ‘get_ksymbol_mod’:
+kernel/kallsyms.c:279: error: too many arguments to function ‘module_get_kallsym’
+make[1]: *** [kernel/kallsyms.o] Error 1
+make: *** [kernel] Error 2
 
-> +		if (lo->lo_state == Lo_rundown) {
-> +			spin_unlock_irq(&lo->lo_lock);
-> +			while (!kthread_should_stop());
+  With a .config containing:
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_ALL is not set
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
 
-eww.
+ Fixed by removing CONFIG_KALLSYMS.
+ Using my usual monolitic kernel (no modules) if it has a relation at all.
 
-A schedule_timeout_uninterruptible(1) or even cpu_relax() would be less
-sinful, but still unpleasant.
+ Cheers,
+ Etienne.
 
-It's strange that the problem of kthread_stop(already_exitted_task) hasn't
-occurred before.
 
-Again: why is this so hard?  It shouldn't be.  Perhaps because loop is
-using completions in bizarre ways where it should be using
-wake_up_process(), wait_event(), etc.
+	
+
+	
+		
+___________________________________________________________________________ 
+Yahoo! Mail réinvente le mail ! Découvrez le nouveau Yahoo! Mail et son interface révolutionnaire.
+http://fr.mail.yahoo.com

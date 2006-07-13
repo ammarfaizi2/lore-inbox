@@ -1,60 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWGMQDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWGMQFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWGMQDl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 12:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWGMQDk
+	id S1751546AbWGMQFn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 12:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWGMQFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 12:03:40 -0400
-Received: from ip-140-150.sn2.eutelia.it ([83.211.140.150]:65501 "HELO
-	intranet.antek.it") by vger.kernel.org with SMTP id S1751491AbWGMQDk
+	Thu, 13 Jul 2006 12:05:42 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:33249 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751053AbWGMQFm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 12:03:40 -0400
-Message-ID: <44B66EFD.5000002@antek.it>
-Date: Thu, 13 Jul 2006 18:04:13 +0200
-From: Luca Ognibene <ognibene@antek.it>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia card not recognized with 2.6.18-rc1
-References: <44B6279E.6060002@antek.it>
-In-Reply-To: <44B6279E.6060002@antek.it>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 13 Jul 2006 12:05:42 -0400
+Subject: Re: Random panics seen in 2.6.18-rc1
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <1152798672.18415.2.camel@linuxchandra>
+References: <1152763195.11343.16.camel@linuxchandra>
+	 <20060713071221.GA31349@elte.hu>  <1152798672.18415.2.camel@linuxchandra>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 13 Jul 2006 09:05:38 -0700
+Message-Id: <1152806738.18415.7.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Ognibene wrote:
-> I've a "Onda N501HS" umts/gprs pcmcia card. I've attached it to the pci
-> bus using a pci<->pcmcia card.
-> I've tested with two kernels, 2.6.8 (from debian sarge) and 2.6.18-rc1
-> (compiled). Both kernels can't recognize the card at the boot time, only
-> the debian kernel can recognize it if i remove/reinsert it while the
-> system is running.
-> 
-> Logs from 2.6.18-rc1: http://people.freedesktop.org/~skaboy/USB-2.6.18-rc1
-> 
-> Logs from 2.6.8 (debian sarge):
-> http://people.freedesktop.org/~skaboy/USB-2.6.8-debian
-> 
-> Motherboard: SiS-661
-> Distro: debian sarge
-> 
-more tests with different kernels:
- * 2.6.8         (no cold, yes hot)
- * 2.6.12        (no cold, yes hot)
- * 2.6.13.5      (no cold, yes hot)
- * 2.6.14.4      (no cold, yes hot)
- * 2.6.14.7      (no cold, yes hot)
- * 2.6.15        (no cold, no hot)
- * 2.6.16        (no cold, no hot)
- * 2.6.18-rc1    (no cold, no hot)
+On Thu, 2006-07-13 at 06:51 -0700, Chandra Seetharaman wrote:
 
-where "no cold" means the card is not recognized at boot
-and "yes hot" means the card is recognized if i remove/insert it
-when the system is running.
-I'll try to debug it more but i don't really know what to do.. anyone
-can point me to the right direction?
+Tests are running for more than 2 hours now. So, this patch fixed the
+panics i was seeing.
 
-Thanks
-Luca
+Thanks Ingo.
+
+chandra
+> On Thu, 2006-07-13 at 09:12 +0200, Ingo Molnar wrote:
+> > * Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> > 
+> > > By adding one patch at a time to 2.6.17's mm/slab.c, I found that the
+> > > following patch is the cause of the panic.
+> > > --------------
+> > > [PATCH] lockdep: annotate SLAB code
+> > 
+> > great debugging!
+> 
+> Thanks. 
+> > 
+> > I have reviewed that patch, and there's only one chunk that could 
+> > possibly have a functional effect. The patch below undoes it - does that 
+> > fix the crashes you are seeing? [If you have lockdep enabled then this 
+> > patch will cause a lockdep false positive - ignore that one for now, it 
+> > shouldnt impact the crash scenario itself.]
+> > 
+> 
+> started the tests with this patch now. will report back in couple of
+> hours... earlier if it crashes again :), which i doubt.
+> 
+> Thanks & regards,
+> 
+> chandra
+> > 	Ingo
+> > 
+> > --------------------->
+> > Subject: revert slab.c locking change
+> > From: Ingo Molnar <mingo@elte.hu>
+> > 
+> > Chandra Seetharaman reported SLAB crashes caused by the slab.c
+> > lock annotation patch. There is only one chunk of that patch
+> > that has a material effect on the slab logic - this patch
+> > undoes that chunk.
+> > 
+> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> > ---
+> >  mm/slab.c |    9 ---------
+> >  1 file changed, 9 deletions(-)
+> > 
+> > Index: linux/mm/slab.c
+> > ===================================================================
+> > --- linux.orig/mm/slab.c
+> > +++ linux/mm/slab.c
+> > @@ -3100,16 +3100,7 @@ static void free_block(struct kmem_cache
+> >  		if (slabp->inuse == 0) {
+> >  			if (l3->free_objects > l3->free_limit) {
+> >  				l3->free_objects -= cachep->num;
+> > -				/*
+> > -				 * It is safe to drop the lock. The slab is
+> > -				 * no longer linked to the cache. cachep
+> > -				 * cannot disappear - we are using it and
+> > -				 * all destruction of caches must be
+> > -				 * serialized properly by the user.
+> > -				 */
+> > -				spin_unlock(&l3->list_lock);
+> >  				slab_destroy(cachep, slabp);
+> > -				spin_lock(&l3->list_lock);
+> >  			} else {
+> >  				list_add(&slabp->list, &l3->slabs_free);
+> >  			}
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

@@ -1,69 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbWGMWJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWGMWNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030423AbWGMWJa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWGMWJa
+	id S1030428AbWGMWNn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbWGMWNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:09:30 -0400
-Received: from mail.gmx.net ([213.165.64.21]:39085 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030423AbWGMWJ3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:09:29 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: 2.6.18-rc1-mm1
-Date: Fri, 14 Jul 2006 00:10:15 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-References: <20060709021106.9310d4d1.akpm@osdl.org> <20060709132400.a7f6e358.akpm@osdl.org> <1152515512.3490.89.camel@praia>
-In-Reply-To: <1152515512.3490.89.camel@praia>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 13 Jul 2006 18:13:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24040 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030428AbWGMWNn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 18:13:43 -0400
+Date: Thu, 13 Jul 2006 18:13:30 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: memory corruptor in .18rc1-git
+Message-ID: <20060713221330.GB3371@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607140010.15459.dominik.karall@gmx.net>
-X-Y-GMX-Trusted: 0
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 10. July 2006 09:11, Mauro Carvalho Chehab wrote:
-> Em Dom, 2006-07-09 às 13:24 -0700, Andrew Morton escreveu:
-> > On Sun, 9 Jul 2006 19:28:07 +0200
-> >
-> > Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > On Sunday, 9. July 2006 11:11, Andrew Morton wrote:
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6
-> > > >/2.6.1 8-rc1/2.6.18-rc1-mm1/
-> > >
-> > > There are stil problems with initializing the bt878 chip. I'm
-> > > not sure if it is the same bug, but I had problems with all -mm
-> > > versions since 2.6.17-mm1
-> > > Screenshot:
-> > > http://stud4.tuwien.ac.at/~e0227135/kernel/060709_190546.jpg
-> >
-> > Right - this is one of those mysterious crashes deep in sysfs
-> > from calling code which basically hasn't changed.  Mauro and Greg
-> > are vacationing or otherwise offline so not much is likely to
-> > happen short-term.
->
-> I should be returning back from vacations by the end of this week.
->
-> About the errors you are suffering, image is not clean enough to
-> allow reading the log. There were some changes on -mm that may
-> affect people with third-party drivers (like, for example, some
-> webcam drivers). This is due to a change at video_device structure,
-> used to register video devices. Several third-party drivers just
-> have a copy of videodev.h. So, those drivers compile using the old
-> struct definition, but tries to register the device by calling a
-> function that is expecting the newer struct. Maybe this is your
-> case.
->
-> > Is 2.6.18-rc1 OK?
+Three times in the last week, I've had a box running the -git-du-jour
+spontaneously reboot.  It just happened again, this time I had a serial
+console hooked up, but it rebooted before transferring much data.
+The one thing it did spew however was "List corruption. prev->ne",
+which came from the patch below which I had in my tree.
+(The latter half is likely irrelevant, and came from chasing a different bug)
 
-It's the same bug with 2.6.18-rc1.
+Things in common at all three times it happened..
+reading email, and listening to oggs with rhythmbox.
+Another ALSA bug maybe ?
 
-cheers,
-dominik
+I've up'd the speed of the serial console, in the hope that more chars
+make it over the wire before reboot should this happen again.
+
+		Dave
+
+
+--- linux-2.6/include/linux/list.h~	2005-08-08 15:34:50.000000000 -0400
++++ linux-2.6/include/linux/list.h	2005-08-08 15:35:22.000000000 -0400
+@@ -5,7 +5,9 @@
+ 
+ #include <linux/stddef.h>
+ #include <linux/prefetch.h>
++#include <linux/kernel.h>
+ #include <asm/system.h>
++#include <asm/bug.h>
+ 
+ /*
+  * These are non-NULL pointers that will result in page faults
+@@ -52,6 +52,16 @@ static inline void __list_add(struct lis
+ 			      struct list_head *prev,
+ 			      struct list_head *next)
+ {
++	if (next->prev != prev) {
++		printk("List corruption. next->prev should be %p, but was %p\n",
++				prev, next->prev);
++		BUG();
++	}
++	if (prev->next != next) {
++		printk("List corruption. prev->next should be %p, but was %p\n",
++				next, prev->next);
++		BUG();
++	}
+ 	next->prev = new;
+ 	new->next = next;
+ 	new->prev = prev;
+@@ -162,6 +162,16 @@ static inline void __list_del(struct lis
+  */
+ static inline void list_del(struct list_head *entry)
+ {
++	if (entry->prev->next != entry) {
++		printk("List corruption. prev->next should be %p, but was %p\n",
++				entry, entry->prev->next);
++		BUG();
++	}
++	if (entry->next->prev != entry) {
++		printk("List corruption. next->prev should be %p, but was %p\n",
++				entry, entry->next->prev);
++		BUG();
++	}
+ 	__list_del(entry->prev, entry->next);
+ 	entry->next = LIST_POISON1;
+ 	entry->prev = LIST_POISON2;
+
+
+
+It _may_ give more information about exactly which wait-queue (or rather, 
+what the poll function that was related to that wait-queue) seems to be 
+corrupted. 
+
+		Linus
+
+---
+diff --git a/fs/select.c b/fs/select.c
+index a8109ba..8cd6dc3 100644
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -23,6 +23,7 @@ #include <linux/personality.h> /* for ST
+ #include <linux/file.h>
+ #include <linux/fs.h>
+ #include <linux/rcupdate.h>
++#include <linux/kallsyms.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -65,7 +66,8 @@ EXPORT_SYMBOL(poll_initwait);
+ 
+ static void free_poll_entry(struct poll_table_entry *entry)
+ {
+-	remove_wait_queue(entry->wait_address,&entry->wait);
++	if (remove_wait_queue(entry->wait_address,&entry->wait) < 0)
++		print_symbol("bad poll-entry for %s", (unsigned long) entry->filp->f_op->poll);
+ 	fput(entry->filp);
+ }
+ 
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index d285182..4c1d74e 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -115,7 +115,7 @@ #define is_sync_wait(wait)	(!(wait) || (
+ 
+ extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
+ extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
+-extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
++extern int FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
+ 
+ static inline void __add_wait_queue(wait_queue_head_t *head, wait_queue_t *new)
+ {
+diff --git a/kernel/wait.c b/kernel/wait.c
+index 791681c..5cdf169 100644
+--- a/kernel/wait.c
++++ b/kernel/wait.c
+@@ -33,13 +33,35 @@ void fastcall add_wait_queue_exclusive(w
+ }
+ EXPORT_SYMBOL(add_wait_queue_exclusive);
+ 
+-void fastcall remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
++int fastcall remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
+ {
+ 	unsigned long flags;
++	struct list_head *list;
++	int seen, retval;
+ 
+ 	spin_lock_irqsave(&q->lock, flags);
+-	__remove_wait_queue(q, wait);
++	list = &q->task_list;
++	seen = 0;
++	retval = -1;
++
++	do {
++		struct list_head *next;
++		if (list == &wait->task_list)
++			seen++;
++		next = list->next;
++		if (next->prev != list) {
++			seen += 2;
++			break;
++		}
++		list = next;
++	} while (list != &q->task_list);
++
++	if (seen == 1) {
++		__remove_wait_queue(q, wait);
++		retval = 0;
++	}
+ 	spin_unlock_irqrestore(&q->lock, flags);
++	return retval;
+ }
+ EXPORT_SYMBOL(remove_wait_queue);
+ 
+
+-- 
+http://www.codemonkey.org.uk

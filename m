@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWGMMLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWGMMNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWGMMLz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWGMMLz
+	id S1751489AbWGMMNg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWGMMNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:11:55 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:50188 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751537AbWGMMLy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:11:54 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: cat@zip.com.au (CaT)
-Subject: Re: possible dos / wsize affected frozen connection length
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <20060705005540.GL2344@zip.com.au>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1G102n-0007pk-00@gondolin.me.apana.org.au>
-Date: Thu, 13 Jul 2006 22:11:49 +1000
+	Thu, 13 Jul 2006 08:13:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6665 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751489AbWGMMNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 08:13:35 -0400
+Date: Thu, 13 Jul 2006 13:13:28 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Change SDHCI version error to a warning
+Message-ID: <20060713121328.GA8376@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus@drzeus.cx>,
+	linux-kernel@vger.kernel.org
+References: <20060711190710.12686.11805.stgit@poseidon.drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060711190710.12686.11805.stgit@poseidon.drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT <cat@zip.com.au> wrote:
-> 
-> I'm just wondering if connections hanging around this long are normal.
-> The above has now been running for 6 days. netstat is still reporting an
-> established session. netcat has not timed out. It's all just sitting
-> there doing nothing.
+On Tue, Jul 11, 2006 at 09:07:10PM +0200, Pierre Ossman wrote:
+> O2 Micro's controllers have a larger specification version value and are
+> therefore denied by the driver. When bypassing this check they seem to work
+> fine. This patch makes the code a bit more forgiving by changing the
+> warning to an error.
 
-TCP connections without keepalives can sit there for all eternity,
-if your machine lasts that long :)
+Doesn't this patch change the error to a warning instead?
+
+> Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+> ---
+> 
+>  drivers/mmc/sdhci.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+> index fd34d84..9ec4200 100644
+> --- a/drivers/mmc/sdhci.c
+> +++ b/drivers/mmc/sdhci.c
+> @@ -1193,10 +1193,8 @@ static int __devinit sdhci_probe_slot(st
+>  	version = (version & SDHCI_SPEC_VER_MASK) >> SDHCI_SPEC_VER_SHIFT;
+>  	if (version != 0) {
+>  		printk(KERN_ERR "%s: Unknown controller version (%d). "
+> -			"Cowardly refusing to continue.\n", host->slot_descr,
+> +			"You may experience problems.\n", host->slot_descr,
+>  			version);
+> -		ret = -ENODEV;
+> -		goto unmap;
+>  	}
+>  
+>  	caps = readl(host->ioaddr + SDHCI_CAPABILITIES);
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

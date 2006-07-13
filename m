@@ -1,184 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWGMTYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWGMTZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWGMTYf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030310AbWGMTYf
+	id S1030310AbWGMTZk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWGMTZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:24:35 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38881 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030308AbWGMTYe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:24:34 -0400
-Subject: Re: [PATCH] tpm: Add force device probe option
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060712184353.48cbf49c.akpm@osdl.org>
-References: <1152738273.5347.37.camel@localhost.localdomain>
-	 <20060712184353.48cbf49c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 12:24:40 -0700
-Message-Id: <1152818680.5347.130.camel@localhost.localdomain>
+	Thu, 13 Jul 2006 15:25:40 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33929 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030310AbWGMTZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:25:39 -0400
+Date: Thu, 13 Jul 2006 21:19:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-ID: <20060713191959.GA27252@elte.hu>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu> <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org> <20060713191719.GA26824@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713191719.GA26824@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5001]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some machine manufacturers are not sticking to the TCG specifications
-and including an ACPI DSDT entry for the TPM which allows PNP discovery
-of the device.  
 
-Fixed up version removes the force=0 and the lack of error handling for
-driver_register.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> * Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > Why isn't the "on_slab_key" local to just the init_lock_keys() 
+> > function, and the #ifdef around it all?
+> 
+> yeah - find updated patch below.
+
+(find yet another update below - there were too many newlines added 
+after the function.)
+
+------->
+Subject: lockdep: annotate mm/slab.c
+From: Arjan van de Ven <arjan@infradead.org>
+
+mm/slab.c uses nested locking when dealing with 'off-slab'
+caches, in that case it allocates the slab header from the
+(on-slab) kmalloc caches. Teach the lock validator about
+this by putting all on-slab caches into a separate class.
+
+this patch has no effect on non-lockdep kernels.
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 ---
- drivers/char/tpm/tpm_tis.c |   76 ++++++++++++++++++++++++++---------
- 1 files changed, 57 insertions(+), 19 deletions(-)
+ mm/slab.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- linux-2.6.18-rc1/drivers/char/tpm/tpm_tis.c	2006-07-05 23:09:49.000000000 -0500
-+++ linux-2.6.18-rc1-tpm/drivers/char/tpm/tpm_tis.c	2006-07-13 14:44:18.822694500 -0500
-@@ -431,23 +431,18 @@ static int interrupts = 1;
- module_param(interrupts, bool, 0444);
- MODULE_PARM_DESC(interrupts, "Enable interrupts");
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -674,6 +674,28 @@ static struct kmem_cache cache_cache = {
+ #endif
+ };
  
--static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
--				      const struct pnp_device_id *pnp_id)
-+static int tpm_tis_init(struct device *dev, unsigned long start, unsigned long len)
- {
- 	u32 vendor, intfcaps, intmask;
- 	int rc, i;
--	unsigned long start, len;
- 	struct tpm_chip *chip;
- 
--	start = pnp_mem_start(pnp_dev, 0);
--	len = pnp_mem_len(pnp_dev, 0);
--
- 	if (!start)
- 		start = TIS_MEM_BASE;
- 	if (!len)
- 		len = TIS_MEM_LEN;
- 
--	if (!(chip = tpm_register_hardware(&pnp_dev->dev, &tpm_tis)))
-+	if (!(chip = tpm_register_hardware(dev, &tpm_tis)))
- 		return -ENODEV;
- 
- 	chip->vendor.iobase = ioremap(start, len);
-@@ -464,7 +459,7 @@ static int __devinit tpm_tis_pnp_init(st
- 	chip->vendor.timeout_c = msecs_to_jiffies(TIS_SHORT_TIMEOUT);
- 	chip->vendor.timeout_d = msecs_to_jiffies(TIS_SHORT_TIMEOUT);
- 
--	dev_info(&pnp_dev->dev,
-+	dev_info(dev,
- 		 "1.2 TPM (device-id 0x%X, rev-id %d)\n",
- 		 vendor >> 16, ioread8(chip->vendor.iobase + TPM_RID(0)));
- 
-@@ -472,26 +467,26 @@ static int __devinit tpm_tis_pnp_init(st
- 	intfcaps =
- 	    ioread32(chip->vendor.iobase +
- 		     TPM_INTF_CAPS(chip->vendor.locality));
--	dev_dbg(&pnp_dev->dev, "TPM interface capabilities (0x%x):\n",
-+	dev_dbg(dev, "TPM interface capabilities (0x%x):\n",
- 		intfcaps);
- 	if (intfcaps & TPM_INTF_BURST_COUNT_STATIC)
--		dev_dbg(&pnp_dev->dev, "\tBurst Count Static\n");
-+		dev_dbg(dev, "\tBurst Count Static\n");
- 	if (intfcaps & TPM_INTF_CMD_READY_INT)
--		dev_dbg(&pnp_dev->dev, "\tCommand Ready Int Support\n");
-+		dev_dbg(dev, "\tCommand Ready Int Support\n");
- 	if (intfcaps & TPM_INTF_INT_EDGE_FALLING)
--		dev_dbg(&pnp_dev->dev, "\tInterrupt Edge Falling\n");
-+		dev_dbg(dev, "\tInterrupt Edge Falling\n");
- 	if (intfcaps & TPM_INTF_INT_EDGE_RISING)
--		dev_dbg(&pnp_dev->dev, "\tInterrupt Edge Rising\n");
-+		dev_dbg(dev, "\tInterrupt Edge Rising\n");
- 	if (intfcaps & TPM_INTF_INT_LEVEL_LOW)
--		dev_dbg(&pnp_dev->dev, "\tInterrupt Level Low\n");
-+		dev_dbg(dev, "\tInterrupt Level Low\n");
- 	if (intfcaps & TPM_INTF_INT_LEVEL_HIGH)
--		dev_dbg(&pnp_dev->dev, "\tInterrupt Level High\n");
-+		dev_dbg(dev, "\tInterrupt Level High\n");
- 	if (intfcaps & TPM_INTF_LOCALITY_CHANGE_INT)
--		dev_dbg(&pnp_dev->dev, "\tLocality Change Int Support\n");
-+		dev_dbg(dev, "\tLocality Change Int Support\n");
- 	if (intfcaps & TPM_INTF_STS_VALID_INT)
--		dev_dbg(&pnp_dev->dev, "\tSts Valid Int Support\n");
-+		dev_dbg(dev, "\tSts Valid Int Support\n");
- 	if (intfcaps & TPM_INTF_DATA_AVAIL_INT)
--		dev_dbg(&pnp_dev->dev, "\tData Avail Int Support\n");
-+		dev_dbg(dev, "\tData Avail Int Support\n");
- 
- 	if (request_locality(chip, 0) != 0) {
- 		rc = -ENODEV;
-@@ -594,6 +589,16 @@ out_err:
- 	return rc;
- }
- 
-+static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
-+				      const struct pnp_device_id *pnp_id)
++/*
++ * Slab sometimes uses the kmalloc slabs to store the slab headers
++ * for other slabs "off slab".
++ * The locking for this is tricky in that it nests within the locks
++ * of all other slabs in a few places; to deal with this special
++ * locking we put on-slab caches into a separate lock-class.
++ */
++static inline void init_lock_keys(struct cache_sizes *s)
 +{
-+	unsigned long start, len;
-+	start = pnp_mem_start(pnp_dev, 0);
-+	len = pnp_mem_len(pnp_dev, 0);
++#ifdef CONFIG_LOCKDEP
++	static struct lock_class_key on_slab_key;
++	int q;
 +
-+	return tpm_tis_init(&pnp_dev->dev, start, len);
++	for (q = 0; q < MAX_NUMNODES; q++) {
++		if (!s->cs_cachep->nodelists[q] || OFF_SLAB(s->cs_cachep))
++			continue;
++		lockdep_set_class(&s->cs_cachep->nodelists[q]->list_lock,
++				  &on_slab_key);
++	}
++#endif
 +}
 +
- static int tpm_tis_pnp_suspend(struct pnp_dev *dev, pm_message_t msg)
- {
- 	return tpm_pm_suspend(&dev->dev, msg);
-@@ -628,8 +633,36 @@ module_param_string(hid, tpm_pnp_tbl[TIS
- 		    sizeof(tpm_pnp_tbl[TIS_HID_USR_IDX].id), 0444);
- MODULE_PARM_DESC(hid, "Set additional specific HID for this driver to probe");
+ /* Guard access to the cache-chain. */
+ static DEFINE_MUTEX(cache_chain_mutex);
+ static struct list_head cache_chain;
+@@ -1391,6 +1413,7 @@ void __init kmem_cache_init(void)
+ 					ARCH_KMALLOC_FLAGS|SLAB_PANIC,
+ 					NULL, NULL);
+ 		}
++		init_lock_keys(sizes);
  
-+static struct device_driver tis_drv = {
-+	.name = "tpm_tis",
-+	.bus = &platform_bus_type,
-+	.owner = THIS_MODULE,
-+	.suspend = tpm_pm_suspend,
-+	.resume = tpm_pm_resume,
-+};
-+
-+static struct platform_device *pdev;
-+
-+static int force;
-+module_param(force, bool, 0444);
-+MODULE_PARM_DESC(force, "Force device probe rather than using ACPI entry");
- static int __init init_tis(void)
- {
-+	int rc;
-+
-+	if (force) {
-+		rc = driver_register(&tis_drv);
-+		if (rc < 0)
-+			return rc;
-+		if (IS_ERR(pdev=platform_device_register_simple("tpm_tis", -1, NULL, 0)))
-+			return PTR_ERR(pdev);
-+		if((rc=tpm_tis_init(&pdev->dev, 0, 0)) != 0) {
-+			platform_device_unregister(pdev);
-+			driver_unregister(&tis_drv);
-+		}
-+		return rc;
-+	}
-+
- 	return pnp_register_driver(&tis_pnp_driver);
- }
- 
-@@ -654,7 +687,12 @@ static void __exit cleanup_tis(void)
- 		tpm_remove_hardware(chip->dev);
- 	}
- 	spin_unlock(&tis_lock);
--	pnp_unregister_driver(&tis_pnp_driver);
-+	if (force) {
-+		platform_device_unregister(pdev);
-+		driver_unregister(&tis_drv);
-+	}
-+	else 
-+		pnp_unregister_driver(&tis_pnp_driver);
- }
- 
- module_init(init_tis);
-
-
+ 		sizes->cs_dmacachep = kmem_cache_create(names->name_dma,
+ 					sizes->cs_size,

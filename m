@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWGMTGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWGMTO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbWGMTGk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWGMTGk
+	id S1030299AbWGMTO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWGMTO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:06:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15076 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030290AbWGMTGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:06:39 -0400
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org, nagar@watson.ibm.com,
-       balbir@in.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
-References: <1152763195.11343.16.camel@linuxchandra>
-	 <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org>
-	 <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
-	 <20060713124603.GB18936@elte.hu>
-	 <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 21:06:29 +0200
-Message-Id: <1152817589.3024.64.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 13 Jul 2006 15:14:56 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:1720 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1030302AbWGMTOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:14:55 -0400
+Message-ID: <44B69BA9.1010505@cmu.edu>
+Date: Thu, 13 Jul 2006 15:14:49 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hnazfoo@googlemail.com
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org> <44B64F57.4060407@cmu.edu> <44B66740.2040706@goop.org>
+In-Reply-To: <44B66740.2040706@goop.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 11:50 -0700, Linus Torvalds wrote:
+Hey,
+
+x60s gnychis # echo -n mem > /sys/power/state
+bash: echo: write error: Operation not permitted
+x60s gnychis # cat /sys/power/state
+standby mem
+
+I think I have acpid installed, it is a Gentoo system:
+[ebuild   R   ] sys-power/acpid-1.0.4-r3  USE="-doc -logrotate" 22 kB
+
+
+I think I've already set up some acpid stuff for my CPU frequency
+scaling capabilities, I followed this guide:
+ttp://www.gentoo.org/doc/en/power-management-guide.xml
+
+I modified:
+/etc/acpi/actions/pmg_switch_runlevel.sh
+
+If i "tail -f /var/log/acpid" and try to suspend the system or shut the
+lid, no new messages come up.  If i pull my power cable to switch
+between AC and battery, messages do come up.
+
+Whats my next step here?
+
+Thanks!
+George
+
+
+Jeremy Fitzhardinge wrote:
+> George Nychis wrote:
+>> I am not seeing any problems at all, though I am not seeing anything
+>> happen :)
+>>
+>> If I Fn+suspend... nothing happens ... if i Fn+hibernate ... nothing
+>> happens
+>>
+>> What patches did you use?
+> Sounds like your first step is to set up acpi.  What distro are you
+> using?  What happens if you do "echo -n mem > /sys/power/state"?
 > 
-> Why isn't the "on_slab_key" local to just the init_lock_keys()
-> function, 
-> and the #ifdef around it all?
-
-it's the same net results; the variable is 0 bytes in size for !LOCKDEP 
-
-
+> The patches you need are to make the ahci disk interface resume
+> properly.  There's a series of 6 patches from Forrest Zhao which he
+> posted to the linux-ide list, and they apply cleanly to 2.6.18-rc1-mm1.
+> 
+>    J
+> 
+> 

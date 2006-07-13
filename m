@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWGMIlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWGMIpT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWGMIlP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 04:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWGMIlP
+	id S1751267AbWGMIpT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 04:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWGMIpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 04:41:15 -0400
-Received: from daneel.digitome.com ([194.125.145.37]:23012 "EHLO
-	mercury.propylon.com") by vger.kernel.org with ESMTP
-	id S932568AbWGMIlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 04:41:15 -0400
-From: Vishal Vatsa <vishal.vatsa@propylon.com>
-Organization: Propylon
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Date: Thu, 13 Jul 2006 09:41:10 +0100
-User-Agent: KMail/1.9.3
-Cc: George Nychis <gnychis@cmu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org>
-In-Reply-To: <44B604C8.90607@goop.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 04:45:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:4315 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751267AbWGMIpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 04:45:17 -0400
+Date: Thu, 13 Jul 2006 09:45:16 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Johnny Lever <johnny.lever@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5] PCI-Express AER implemetation: AER core and aerdriver
+Message-ID: <20060713084516.GA2693@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Johnny Lever <johnny.lever@gmail.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <c770ab230607121021k550c3d2epf6acefa8fed491a1@mail.gmail.com> <1152725562.3217.62.camel@laptopd505.fenrus.org> <c770ab230607121107m788e9c1eqc4c370b706e49e73@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607130941.10322.vishal.vatsa@propylon.com>
-X-SA-Exim-Connect-IP: 213.94.211.166
-X-SA-Exim-Mail-From: vishal.vatsa@propylon.com
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on mercury.propylon.com)
+In-Reply-To: <c770ab230607121107m788e9c1eqc4c370b706e49e73@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 July 2006 09:31, Jeremy Fitzhardinge wrote:
-> George Nychis wrote:
-> > I was wondering if anyone has gotten suspend or hibernate to work on a
-> > Thinkpad x60s?  I have googled around for support in the kernel and
-> > haven't been able to find anyone fully successful with it.
->
-> I have suspend/resume working fine on an X60.  Needs some patches to
-> make it work though.  What problems are you seeing?
->
->     J
-Could you list which kernel version you are using and the patches applied.
+On Wed, Jul 12, 2006 at 02:07:07PM -0400, Johnny Lever wrote:
+> >Demanding that these
+> >companies then also allow that same code to be used by other companies
+> >who do not give anything back to Linux... is just really bad for Linux
+> >both in the short and the long term.
+> >
+> This is a quite questionable theory and a narrow minded perspective.
+> Saying companies that write binary drivers for Linux don't give back
+> anything is not factual
 
-I have a t60p, I am going to guess if it works on an x60 it will work on the 
-t60 also. 
+It is.  Unless you couldn't endless of useless bugs reported from users
+we can't debug and stupid whining trolls likle you as giving back.  While
+we definitly can't redefine you definition of "giving back" your version
+is at least no appreciated.  So please stop trolling here now and go somewhere
+else.  Don't expect me and others to support you violating the clearly defined
+copyright license (GPLv2) we gave everyone to our code.
 
-Thanks
-Vishal
--- 
-Last song played: The Prodigy - The Way It Is (Elektric Cowboy), on Thu Jul 13 
-08:47:16 2006

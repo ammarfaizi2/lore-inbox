@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWGMUS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWGMUSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbWGMUS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 16:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbWGMUS3
+	id S1030354AbWGMUSj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 16:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWGMUSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 16:18:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29966 "HELO
+	Thu, 13 Jul 2006 16:18:39 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30478 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030351AbWGMUS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 16:18:28 -0400
-Date: Thu, 13 Jul 2006 22:18:26 +0200
+	id S1030354AbWGMUSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 16:18:38 -0400
+Date: Thu, 13 Jul 2006 22:18:38 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] DEBUG_SHIRQ should depend on DEBUG_KERNEL
-Message-ID: <20060713201826.GC32259@stusta.de>
-References: <20060709021106.9310d4d1.akpm@osdl.org>
+Subject: [2.6 patch] let the the lockdep options depend on DEBUG_KERNEL
+Message-ID: <20060713201838.GD32259@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060709021106.9310d4d1.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DEBUG_SHIRQ is clearly a debugging option.
-
-While moving the option below DEBUG_KERNEL, I also adjusted the help 
-text to be completely visible in "make menuconfig" with a 80 char
-width.
+The lockdep options should depend on DEBUG_KERNEL since:
+- they are kernel debugging options and
+- they do otherwise break the DEBUG_KERNEL menu structure
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- lib/Kconfig.debug |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ lib/Kconfig.debug |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- linux-2.6.18-rc1-mm1-full/lib/Kconfig.debug.old	2006-07-13 21:52:55.000000000 +0200
-+++ linux-2.6.18-rc1-mm1-full/lib/Kconfig.debug	2006-07-13 21:55:52.000000000 +0200
-@@ -46,21 +46,21 @@
- 	  you really need it, and what the merge plan to the mainline kernel for
- 	  your module is.
+--- linux-2.6.18-rc1-mm1-full/lib/Kconfig.debug.old	2006-07-13 22:00:05.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/lib/Kconfig.debug	2006-07-13 22:06:41.000000000 +0200
+@@ -179,7 +179,7 @@
  
--config DEBUG_SHIRQ
--       bool "Debug shared IRQ handlers"
--       depends on GENERIC_HARDIRQS
--       help
--         Enable this to generate a spurious interrupt as soon as a shared interrupt
--	 handler is registered, and just before one is deregistered. Drivers ought
--	 to be able to handle interrupts coming in at those points; some don't and
--	 need to be caught.
--
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
+ config DEBUG_LOCK_ALLOC
+ 	bool "Lock debugging: detect incorrect freeing of live locks"
+-	depends on TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
++	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+ 	select DEBUG_SPINLOCK
+ 	select DEBUG_MUTEXES
+ 	select DEBUG_RWSEMS
+@@ -194,7 +194,7 @@
+ 
+ config PROVE_LOCKING
+ 	bool "Lock debugging: prove locking correctness"
+-	depends on TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
++	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+ 	select LOCKDEP
+ 	select DEBUG_SPINLOCK
+ 	select DEBUG_MUTEXES
+@@ -237,7 +237,7 @@
+ 
+ config LOCKDEP
+ 	bool
+-	depends on TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
++	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
+ 	select STACKTRACE
+ 	select FRAME_POINTER
+ 	select KALLSYMS
+@@ -245,13 +245,14 @@
+ 
+ config DEBUG_LOCKDEP
+ 	bool "Lock dependency engine debugging"
+-	depends on LOCKDEP
++	depends on DEBUG_KERNEL && LOCKDEP
  	help
- 	  Say Y here if you are developing drivers or trying to debug and
- 	  identify kernel problems.
+ 	  If you say Y here, the lock dependency engine will do
+ 	  additional runtime checks to debug itself, at the price
+ 	  of more runtime overhead.
  
-+config DEBUG_SHIRQ
-+	bool "Debug shared IRQ handlers"
-+	depends on DEBUG_KERNEL && GENERIC_HARDIRQS
-+	help
-+	  Enable this to generate a spurious interrupt as soon as a shared
-+	  interrupt handler is registered, and just before one is deregistered.
-+	  Drivers ought to be able to handle interrupts coming in at those
-+	  points; some don't and need to be caught.
-+
- config LOG_BUF_SHIFT
- 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
- 	range 12 21
+ config TRACE_IRQFLAGS
++	depends on DEBUG_KERNEL
+ 	bool
+ 	default y
+ 	depends on TRACE_IRQFLAGS_SUPPORT
+@@ -277,6 +278,7 @@
+ 
+ config STACKTRACE
+ 	bool
++	depends on DEBUG_KERNEL
+ 	depends on STACKTRACE_SUPPORT
+ 
+ config DEBUG_KOBJECT
 

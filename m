@@ -1,354 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWGMMqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWGMMq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWGMMqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWGMMoH
+	id S932330AbWGMMq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWGMMqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:44:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26159 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751494AbWGMMoC (ORCPT
+	Thu, 13 Jul 2006 08:46:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35119 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932330AbWGMMoG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:44:02 -0400
+	Thu, 13 Jul 2006 08:44:06 -0400
 From: Jens Axboe <axboe@suse.de>
 To: linux-kernel@vger.kernel.org
 Cc: Jens Axboe <axboe@suse.de>
-Subject: [PATCH] 3/15 elevator: abstract out the rbtree sort handling
-Date: Thu, 13 Jul 2006 14:46:26 +0200
-Message-Id: <1152794798226-git-send-email-axboe@suse.de>
+Subject: [PATCH] 10/15 as-iosched: remove arq->is_sync member
+Date: Thu, 13 Jul 2006 14:46:33 +0200
+Message-Id: <11527947981715-git-send-email-axboe@suse.de>
 X-Mailer: git-send-email 1.4.1.ged0e0
 In-Reply-To: <11527947982769-git-send-email-axboe@suse.de>
 References: <11527947982769-git-send-email-axboe@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The rbtree sort/lookup/reposition logic is mostly duplicated in
-cfq/deadline/as, so move it to the elevator core. The io schedulers
-still provide the actual rb root, as we don't want to impose any sort
-of specific handling on the schedulers.
-
-Introduce the helpers and rb_node in struct request to help migrate the
-IO schedulers.
+We can track this in struct request.
 
 Signed-off-by: Jens Axboe <axboe@suse.de>
 ---
- block/elevator.c         |  123 +++++++++++++++++++++++++++++++++++++++++-----
- block/ll_rw_blk.c        |    7 +--
- include/linux/blkdev.h   |    1 
- include/linux/elevator.h |   18 ++++++-
- 4 files changed, 130 insertions(+), 19 deletions(-)
+ block/as-iosched.c     |   36 ++++++++++++++----------------------
+ include/linux/blkdev.h |    5 +++++
+ 2 files changed, 19 insertions(+), 22 deletions(-)
 
-diff --git a/block/elevator.c b/block/elevator.c
-index 3e40530..9cd2805 100644
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -239,6 +239,8 @@ int elevator_init(request_queue_t *q, ch
- 	return ret;
- }
+diff --git a/block/as-iosched.c b/block/as-iosched.c
+index 13d8d91..3fbb56d 100644
+--- a/block/as-iosched.c
++++ b/block/as-iosched.c
+@@ -151,7 +151,6 @@ struct as_rq {
  
-+EXPORT_SYMBOL(elevator_init);
-+
- void elevator_exit(elevator_t *e)
- {
- 	mutex_lock(&e->sysfs_lock);
-@@ -250,6 +252,8 @@ void elevator_exit(elevator_t *e)
- 	kobject_put(&e->kobj);
- }
+ 	struct io_context *io_context;	/* The submitting task */
  
-+EXPORT_SYMBOL(elevator_exit);
-+
- static inline void __elv_rqhash_del(struct request *rq)
- {
- 	hlist_del_init(&rq->hash);
-@@ -298,9 +302,68 @@ static struct request *elv_rqhash_find(r
- }
- 
- /*
-+ * RB-tree support functions for inserting/lookup/removal of requests
-+ * in a sorted RB tree.
-+ */
-+struct request *elv_rb_add(struct rb_root *root, struct request *rq)
-+{
-+	struct rb_node **p = &root->rb_node;
-+	struct rb_node *parent = NULL;
-+	struct request *__rq;
-+
-+	while (*p) {
-+		parent = *p;
-+		__rq = rb_entry(parent, struct request, rb_node);
-+
-+		if (rq->sector < __rq->sector)
-+			p = &(*p)->rb_left;
-+		else if (rq->sector > __rq->sector)
-+			p = &(*p)->rb_right;
-+		else
-+			return __rq;
-+	}
-+
-+	rb_link_node(&rq->rb_node, parent, p);
-+	rb_insert_color(&rq->rb_node, root);
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL(elv_rb_add);
-+
-+void elv_rb_del(struct rb_root *root, struct request *rq)
-+{
-+	BUG_ON(RB_EMPTY_NODE(&rq->rb_node));
-+	rb_erase(&rq->rb_node, root);
-+	RB_CLEAR_NODE(&rq->rb_node);
-+}
-+
-+EXPORT_SYMBOL(elv_rb_del);
-+
-+struct request *elv_rb_find(struct rb_root *root, sector_t sector)
-+{
-+	struct rb_node *n = root->rb_node;
-+	struct request *rq;
-+
-+	while (n) {
-+		rq = rb_entry(n, struct request, rb_node);
-+
-+		if (sector < rq->sector)
-+			n = n->rb_left;
-+		else if (sector > rq->sector)
-+			n = n->rb_right;
-+		else
-+			return rq;
-+	}
-+
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL(elv_rb_find);
-+
-+/*
-  * Insert rq into dispatch queue of q.  Queue lock must be held on
-- * entry.  If sort != 0, rq is sort-inserted; otherwise, rq will be
-- * appended to the dispatch queue.  To be used by specific elevators.
-+ * entry.  rq is sort insted into the dispatch queue. To be used by
-+ * specific elevators.
-  */
- void elv_dispatch_sort(request_queue_t *q, struct request *rq)
- {
-@@ -335,8 +398,12 @@ void elv_dispatch_sort(request_queue_t *
- 	list_add(&rq->queuelist, entry);
- }
- 
-+EXPORT_SYMBOL(elv_dispatch_sort);
-+
- /*
-- * This should be in elevator.h, but that requires pulling in rq and q
-+ * Insert rq into dispatch queue of q.  Queue lock must be held on
-+ * entry.  rq is added to the back of the dispatch queue. To be used by
-+ * specific elevators.
-  */
- void elv_dispatch_add_tail(struct request_queue *q, struct request *rq)
- {
-@@ -352,6 +419,8 @@ void elv_dispatch_add_tail(struct reques
- 	list_add_tail(&rq->queuelist, &q->queue_head);
- }
- 
-+EXPORT_SYMBOL(elv_dispatch_add_tail);
-+
- int elv_merge(request_queue_t *q, struct request **req, struct bio *bio)
- {
- 	elevator_t *e = q->elevator;
-@@ -384,14 +453,15 @@ int elv_merge(request_queue_t *q, struct
- 	return ELEVATOR_NO_MERGE;
- }
- 
--void elv_merged_request(request_queue_t *q, struct request *rq)
-+void elv_merged_request(request_queue_t *q, struct request *rq, int type)
- {
- 	elevator_t *e = q->elevator;
- 
- 	if (e->ops->elevator_merged_fn)
--		e->ops->elevator_merged_fn(q, rq);
-+		e->ops->elevator_merged_fn(q, rq, type);
- 
--	elv_rqhash_reposition(q, rq);
-+	if (type == ELEVATOR_BACK_MERGE)
-+		elv_rqhash_reposition(q, rq);
- 
- 	q->last_merge = rq;
- }
-@@ -577,6 +647,8 @@ void __elv_add_request(request_queue_t *
- 	elv_insert(q, rq, where);
- }
- 
-+EXPORT_SYMBOL(__elv_add_request);
-+
- void elv_add_request(request_queue_t *q, struct request *rq, int where,
- 		     int plug)
- {
-@@ -587,6 +659,8 @@ void elv_add_request(request_queue_t *q,
- 	spin_unlock_irqrestore(q->queue_lock, flags);
- }
- 
-+EXPORT_SYMBOL(elv_add_request);
-+
- static inline struct request *__elv_next_request(request_queue_t *q)
- {
- 	struct request *rq;
-@@ -670,6 +744,8 @@ struct request *elv_next_request(request
- 	return rq;
- }
- 
-+EXPORT_SYMBOL(elv_next_request);
-+
- void elv_dequeue_request(request_queue_t *q, struct request *rq)
- {
- 	BUG_ON(list_empty(&rq->queuelist));
-@@ -686,6 +762,8 @@ void elv_dequeue_request(request_queue_t
- 		q->in_flight++;
- }
- 
-+EXPORT_SYMBOL(elv_dequeue_request);
-+
- int elv_queue_empty(request_queue_t *q)
- {
- 	elevator_t *e = q->elevator;
-@@ -699,6 +777,8 @@ int elv_queue_empty(request_queue_t *q)
- 	return 1;
- }
- 
-+EXPORT_SYMBOL(elv_queue_empty);
-+
- struct request *elv_latter_request(request_queue_t *q, struct request *rq)
- {
- 	elevator_t *e = q->elevator;
-@@ -1024,11 +1104,26 @@ ssize_t elv_iosched_show(request_queue_t
- 	return len;
- }
- 
--EXPORT_SYMBOL(elv_dispatch_sort);
--EXPORT_SYMBOL(elv_add_request);
--EXPORT_SYMBOL(__elv_add_request);
--EXPORT_SYMBOL(elv_next_request);
--EXPORT_SYMBOL(elv_dequeue_request);
--EXPORT_SYMBOL(elv_queue_empty);
--EXPORT_SYMBOL(elevator_exit);
--EXPORT_SYMBOL(elevator_init);
-+struct request *elv_rb_former_request(request_queue_t *q, struct request *rq)
-+{
-+	struct rb_node *rbprev = rb_prev(&rq->rb_node);
-+
-+	if (rbprev)
-+		return rb_entry_rq(rbprev);
-+
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL(elv_rb_former_request);
-+
-+struct request *elv_rb_latter_request(request_queue_t *q, struct request *rq)
-+{
-+	struct rb_node *rbnext = rb_next(&rq->rb_node);
-+
-+	if (rbnext)
-+		return rb_entry_rq(rbnext);
-+
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL(elv_rb_latter_request);
-diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-index 84c7b1c..08c1615 100644
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -281,11 +281,12 @@ static inline void rq_init(request_queue
- {
- 	INIT_LIST_HEAD(&rq->queuelist);
- 	INIT_LIST_HEAD(&rq->donelist);
--	INIT_HLIST_NODE(&rq->hash);
- 
- 	rq->errors = 0;
- 	rq->rq_status = RQ_ACTIVE;
- 	rq->bio = rq->biotail = NULL;
-+	INIT_HLIST_NODE(&rq->hash);
-+	RB_CLEAR_NODE(&rq->rb_node);
- 	rq->ioprio = 0;
- 	rq->buffer = NULL;
- 	rq->ref_count = 1;
-@@ -2896,7 +2897,7 @@ static int __make_request(request_queue_
- 			req->ioprio = ioprio_best(req->ioprio, prio);
- 			drive_stat_acct(req, nr_sectors, 0);
- 			if (!attempt_back_merge(q, req))
--				elv_merged_request(q, req);
-+				elv_merged_request(q, req, el_ret);
- 			goto out;
- 
- 		case ELEVATOR_FRONT_MERGE:
-@@ -2923,7 +2924,7 @@ static int __make_request(request_queue_
- 			req->ioprio = ioprio_best(req->ioprio, prio);
- 			drive_stat_acct(req, nr_sectors, 0);
- 			if (!attempt_front_merge(q, req))
--				elv_merged_request(q, req);
-+				elv_merged_request(q, req, el_ret);
- 			goto out;
- 
- 		/* ELV_NO_MERGE: elevator says don't/can't merge. */
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 9b23cbe..e296719 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -149,6 +149,7 @@ struct request {
- 	struct bio *biotail;
- 
- 	struct hlist_node hash;	/* merge hash */
-+	struct rb_node rb_node;	/* sort/lookup */
- 
- 	void *elevator_private;
- 	void *completion_data;
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index 2c270e9..95b2a04 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -6,7 +6,7 @@ typedef int (elevator_merge_fn) (request
- 
- typedef void (elevator_merge_req_fn) (request_queue_t *, struct request *, struct request *);
- 
--typedef void (elevator_merged_fn) (request_queue_t *, struct request *);
-+typedef void (elevator_merged_fn) (request_queue_t *, struct request *, int);
- 
- typedef int (elevator_dispatch_fn) (request_queue_t *, int);
- 
-@@ -96,7 +96,7 @@ extern void elv_insert(request_queue_t *
- extern int elv_merge(request_queue_t *, struct request **, struct bio *);
- extern void elv_merge_requests(request_queue_t *, struct request *,
- 			       struct request *);
--extern void elv_merged_request(request_queue_t *, struct request *);
-+extern void elv_merged_request(request_queue_t *, struct request *, int);
- extern void elv_dequeue_request(request_queue_t *, struct request *);
- extern void elv_requeue_request(request_queue_t *, struct request *);
- extern int elv_queue_empty(request_queue_t *);
-@@ -127,6 +127,19 @@ extern void elevator_exit(elevator_t *);
- extern int elv_rq_merge_ok(struct request *, struct bio *);
- 
- /*
-+ * Helper functions.
-+ */
-+extern struct request *elv_rb_former_request(request_queue_t *, struct request *);
-+extern struct request *elv_rb_latter_request(request_queue_t *, struct request *);
-+
-+/*
-+ * rb support functions.
-+ */
-+extern struct request *elv_rb_add(struct rb_root *, struct request *);
-+extern void elv_rb_del(struct rb_root *, struct request *);
-+extern struct request *elv_rb_find(struct rb_root *, sector_t);
-+
-+/*
-  * Return values from elevator merger
-  */
- #define ELEVATOR_NO_MERGE	0
-@@ -151,5 +164,6 @@ enum {
+-	unsigned int is_sync;
+ 	enum arq_state state;
  };
  
- #define rq_end_sector(rq)	((rq)->sector + (rq)->nr_sectors)
-+#define rb_entry_rq(node)	rb_entry((node), struct request, rb_node)
+@@ -241,7 +240,7 @@ static void as_put_io_context(struct as_
  
- #endif
+ 	aic = arq->io_context->aic;
+ 
+-	if (arq->is_sync == REQ_SYNC && aic) {
++	if (rq_is_sync(arq->request) && aic) {
+ 		spin_lock(&aic->lock);
+ 		set_bit(AS_TASK_IORUNNING, &aic->state);
+ 		aic->last_end_request = jiffies;
+@@ -254,14 +253,13 @@ static void as_put_io_context(struct as_
+ /*
+  * rb tree support functions
+  */
+-#define ARQ_RB_ROOT(ad, arq)	(&(ad)->sort_list[(arq)->is_sync])
++#define RQ_RB_ROOT(ad, rq)	(&(ad)->sort_list[rq_is_sync((rq))])
+ 
+ static void as_add_arq_rb(struct as_data *ad, struct request *rq)
+ {
+-	struct as_rq *arq = RQ_DATA(rq);
+ 	struct request *alias;
+ 
+-	while ((unlikely(alias = elv_rb_add(ARQ_RB_ROOT(ad, arq), rq)))) {
++	while ((unlikely(alias = elv_rb_add(RQ_RB_ROOT(ad, rq), rq)))) {
+ 		as_move_to_dispatch(ad, RQ_DATA(alias));
+ 		as_antic_stop(ad);
+ 	}
+@@ -269,7 +267,7 @@ static void as_add_arq_rb(struct as_data
+ 
+ static inline void as_del_arq_rb(struct as_data *ad, struct request *rq)
+ {
+-	elv_rb_del(ARQ_RB_ROOT(ad, RQ_DATA(rq)), rq);
++	elv_rb_del(RQ_RB_ROOT(ad, rq), rq);
+ }
+ 
+ /*
+@@ -300,13 +298,13 @@ as_choose_req(struct as_data *ad, struct
+ 	if (arq2 == NULL)
+ 		return arq1;
+ 
+-	data_dir = arq1->is_sync;
++	data_dir = rq_is_sync(arq1->request);
+ 
+ 	last = ad->last_sector[data_dir];
+ 	s1 = arq1->request->sector;
+ 	s2 = arq2->request->sector;
+ 
+-	BUG_ON(data_dir != arq2->is_sync);
++	BUG_ON(data_dir != rq_is_sync(arq2->request));
+ 
+ 	/*
+ 	 * Strict one way elevator _except_ in the case where we allow
+@@ -377,7 +375,7 @@ static struct as_rq *as_find_next_arq(st
+ 	if (rbnext)
+ 		next = RQ_DATA(rb_entry_rq(rbnext));
+ 	else {
+-		const int data_dir = arq->is_sync;
++		const int data_dir = rq_is_sync(last);
+ 
+ 		rbnext = rb_first(&ad->sort_list[data_dir]);
+ 		if (rbnext && rbnext != &last->rb_node)
+@@ -538,8 +536,7 @@ static void as_update_seekdist(struct as
+ static void as_update_iohist(struct as_data *ad, struct as_io_context *aic,
+ 				struct request *rq)
+ {
+-	struct as_rq *arq = RQ_DATA(rq);
+-	int data_dir = arq->is_sync;
++	int data_dir = rq_is_sync(rq);
+ 	unsigned long thinktime = 0;
+ 	sector_t seek_dist;
+ 
+@@ -674,7 +671,7 @@ static int as_can_break_anticipation(str
+ 		return 1;
+ 	}
+ 
+-	if (arq && arq->is_sync == REQ_SYNC && as_close_req(ad, aic, arq)) {
++	if (arq && rq_is_sync(arq->request) && as_close_req(ad, aic, arq)) {
+ 		/*
+ 		 * Found a close request that is not one of ours.
+ 		 *
+@@ -758,7 +755,7 @@ static int as_can_anticipate(struct as_d
+  */
+ static void as_update_arq(struct as_data *ad, struct as_rq *arq)
+ {
+-	const int data_dir = arq->is_sync;
++	const int data_dir = rq_is_sync(arq->request);
+ 
+ 	/* keep the next_arq cache up to date */
+ 	ad->next_arq[data_dir] = as_choose_req(ad, arq, ad->next_arq[data_dir]);
+@@ -835,7 +832,7 @@ static void as_completed_request(request
+ 	 * actually serviced. This should help devices with big TCQ windows
+ 	 * and writeback caches
+ 	 */
+-	if (ad->new_batch && ad->batch_data_dir == arq->is_sync) {
++	if (ad->new_batch && ad->batch_data_dir == rq_is_sync(rq)) {
+ 		update_write_batch(ad);
+ 		ad->current_batch_expires = jiffies +
+ 				ad->batch_expire[REQ_SYNC];
+@@ -868,7 +865,7 @@ out:
+ static void as_remove_queued_request(request_queue_t *q, struct request *rq)
+ {
+ 	struct as_rq *arq = RQ_DATA(rq);
+-	const int data_dir = arq->is_sync;
++	const int data_dir = rq_is_sync(rq);
+ 	struct as_data *ad = q->elevator->elevator_data;
+ 
+ 	WARN_ON(arq->state != AS_RQ_QUEUED);
+@@ -941,7 +938,7 @@ static inline int as_batch_expired(struc
+ static void as_move_to_dispatch(struct as_data *ad, struct as_rq *arq)
+ {
+ 	struct request *rq = arq->request;
+-	const int data_dir = arq->is_sync;
++	const int data_dir = rq_is_sync(rq);
+ 
+ 	BUG_ON(RB_EMPTY_NODE(&rq->rb_node));
+ 
+@@ -1156,12 +1153,7 @@ static void as_add_request(request_queue
+ 
+ 	arq->state = AS_RQ_NEW;
+ 
+-	if (rq_data_dir(arq->request) == READ
+-			|| (arq->request->flags & REQ_RW_SYNC))
+-		arq->is_sync = 1;
+-	else
+-		arq->is_sync = 0;
+-	data_dir = arq->is_sync;
++	data_dir = rq_is_sync(rq);
+ 
+ 	arq->io_context = as_get_io_context();
+ 
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index e296719..78808a0 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -513,6 +513,11 @@ #define list_entry_rq(ptr)	list_entry((p
+ 
+ #define rq_data_dir(rq)		((rq)->flags & 1)
+ 
++/*
++ * We regard a request as sync, if it's a READ or a SYNC write.
++ */
++#define rq_is_sync(rq)		(rq_data_dir((rq)) == READ || (rq)->flags & REQ_RW_SYNC)
++
+ static inline int blk_queue_full(struct request_queue *q, int rw)
+ {
+ 	if (rw == READ)
 -- 
 1.4.1.ged0e0
 

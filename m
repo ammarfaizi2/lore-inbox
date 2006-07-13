@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWGMDPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWGMDP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWGMDPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 23:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWGMDPX
+	id S932495AbWGMDP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 23:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWGMDP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 23:15:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:62858 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932489AbWGMDPW (ORCPT
+	Wed, 12 Jul 2006 23:15:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38356 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932491AbWGMDPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 23:15:22 -0400
-Date: Thu, 13 Jul 2006 05:16:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Wed, 12 Jul 2006 23:15:55 -0400
+Date: Wed, 12 Jul 2006 20:12:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
        Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
 Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060713031614.GD9102@opteron.random>
-References: <20060630014050.GI19712@stusta.de> <p73wtain80h.fsf@verdi.suse.de> <20060712210732.GA10182@elte.hu> <200607130006.12705.ak@suse.de> <20060712221910.GA12905@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060712221910.GA12905@elte.hu>
+In-Reply-To: <20060713030402.GC9102@opteron.random>
+Message-ID: <Pine.LNX.4.64.0607122010060.5623@g5.osdl.org>
+References: <20060630014050.GI19712@stusta.de> <p73wtain80h.fsf@verdi.suse.de>
+ <20060712210732.GA10182@elte.hu> <200607130006.12705.ak@suse.de>
+ <20060713030402.GC9102@opteron.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 12:19:11AM +0200, Ingo Molnar wrote:
-> attacked ptrace, implicitly weakening the security perception of other 
-> syscall filtering based projects like User Mode Linux. Now what we have 
 
-Note that UML had a security weakness already that allowed to escape
-the jail, see bugtraq. Infact his complexity is huge regardless of
-ptrace, the security hole probably wasn't even ptrace related (I don't
-remember the exact details).
 
-I'm a big fun of UML and other userland virtualization project, my own
-ex prof is working on a few of them. That doesn't mean I would use UML
-as a jail myself for CPUShare.
+On Thu, 13 Jul 2006, Andrea Arcangeli wrote:
+> 
+> What Ingo complains about is the fact somebody could be selling a
+> patented mp3 player that uses alsa. Should alsa be rejected from the
+> kernel? Does that mean alsa has anything to do with the mp3 patent?
 
-In the last two years of existence of seccomp, there has never been a
-single bug that could allow to escape the jail, infact there has never
-been one that I know if you backtest seccomp. And this track record
-will continue.
+ALSA is used for other things _too_.
 
-Even the kernel itself as a whole is less secure than the seccomp
-jail, that doesn't mean I want to weaken the perception of anything.
-It's a pure matter of probability, the higher the complexity and the
-bigger is the size of the project in kernel space, the more likely
-there can be bug that can lead to an exploit.
+I don't think SECCOMP is wrong per se, but I do believe that if other 
+approaches become more popular, and the only user of SECCOMP is not GPL'd 
+and uses some patented stuff, then we should seriously look at the other 
+interfaces (eg the extended ptrace).
+
+Does anybody actually really _use_ SECCOMP outside of the patented stuff?
+
+		Linus

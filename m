@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbWGMTfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWGMTfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030322AbWGMTfa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWGMTfa
+	id S1030319AbWGMTfp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGMTfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:35:30 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:23922 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030322AbWGMTf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:35:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Cglc9z4Chkd3RSq5FlLW+Igjqj/Q3x4D+O0lC+DgtVOEqrlRjsNji9er0V/mglbFb6Mc8JFJhpRFsnl2fOmFl3AhJWe61ri7p3tagGlW05AzrlF/NehwabQvIbaUzXkacauRLKQDhFF+YTFDs4VuUAtI5yNawMx1JQBhFdbHJTs=
-Message-ID: <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
-Date: Thu, 13 Jul 2006 15:35:27 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Subject: Fwd: Using select in boolean dependents of a tristate symbol
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 15:35:44 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:64412 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030319AbWGMTfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:35:42 -0400
+Date: Thu, 13 Jul 2006 21:35:43 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, wookey@debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Support DOS line endings
+Message-ID: <20060713193543.GB312@mars.ravnborg.org>
+References: <20060707173458.GB1605@parisc-linux.org> <Pine.LNX.4.64.0607080513280.17704@scrub.home> <20060713181825.GA22895@mars.ravnborg.org> <Pine.LNX.4.64.0607132039560.12900@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0607132039560.12900@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Argh.. resending to correct LKML address]
+On Thu, Jul 13, 2006 at 08:47:12PM +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 13 Jul 2006, Sam Ravnborg wrote:
+> 
+> > >       if (p2[-1] == '\r')
+> > >               p2[-1] = 0;
+> > Negative index'es always make me supsicious.
+> 
+> Opencoding of the strchr is not much better, you can change the above also 
+> to (*--p2 == '\r').
+There is no semantic difference between decrementing a variable and a
+negative index.
+But I used this one anyway.
+So now it look like this.
 
-Roman,
+	Sam
 
-Question for you as Kconfig maintainer - I have a module (HID) that
-has a few sub-options. Now HID can be built as a module but
-sub-options are suimple booleans. Some of these sub-options will
-depend on a common code which is moved out of HID driver. Now I want
-to use "select" like this:
-
- config THRUSTMASTER_FF
-       bool "ThrustMaster FireStorm Dual Power 2 support (EXPERIMENTAL)"
-       depends on HID_FF && EXPERIMENTAL
-+       select INPUT_FF_MEMLESS
-       help
-         Say Y here if you have a THRUSTMASTER FireStore Dual Power 2,
-         and want to enable force feedback support for it.
-
-Unfortunately this forces INPUT_FF_MEMLESS to always be built-in,
-although if HID is a module it could be a module as well. Do you have
-any suggestions as to how allow INPUT_FF_MEMLESS to be compiled as a
-module?
-
-Thanks!
-
---
-Dmitry
-
-
--- 
-Dmitry
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index a69d8ac..b7e7281 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -195,6 +195,8 @@ load:
+ 			p2 = strchr(p, '\n');
+ 			if (p2)
+ 				*p2 = 0;
++			if (*--p2 == '\r')
++				*p2 = 0;
+ 			if (def == S_DEF_USER) {
+ 				sym = sym_find(line + 7);
+ 				if (!sym) {
+@@ -266,6 +268,7 @@ load:
+ 				;
+ 			}
+ 			break;
++		case '\r':
+ 		case '\n':
+ 			break;
+ 		default:

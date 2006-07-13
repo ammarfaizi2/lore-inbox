@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWGMWVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030431AbWGMWYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWGMWVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWGMWVi
+	id S1030431AbWGMWYp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWGMWYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:21:38 -0400
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:38627 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1160999AbWGMWVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:21:38 -0400
-To: George Nychis <gnychis@cmu.edu>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org> <44B64F57.4060407@cmu.edu> <44B66740.2040706@goop.org> <44B66740.2040706@goop.org> <44B6A9CA.8040808@cmu.edu>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-Date: Thu, 13 Jul 2006 23:21:33 +0100
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1G19Yr-0004Ky-00@skye.ra.phy.cam.ac.uk>
+	Thu, 13 Jul 2006 18:24:45 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22748 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030431AbWGMWYo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 18:24:44 -0400
+Date: Thu, 13 Jul 2006 15:24:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: memory corruptor in .18rc1-git
+Message-Id: <20060713152425.86412ea3.akpm@osdl.org>
+In-Reply-To: <20060713221330.GB3371@redhat.com>
+References: <20060713221330.GB3371@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have S3 suspend/resume working here on a TP T60.  Many caveats:
+On Thu, 13 Jul 2006 18:13:30 -0400
+Dave Jones <davej@redhat.com> wrote:
 
-* I'm using Ubuntu's 2.6.15-25-386 kernel.
-* it's a UP kernel so I'm not using the second core
-* I had to tell it to unload and load ipw3945 (or else that module
-  became useless).
-* I had to tell acpid to trigger /etc/acpi/sleep.sh (it was running
-  sleepbtn.sh) when fn-F4 was pressed, or just run sleep.sh directly.
+> Three times in the last week, I've had a box running the -git-du-jour
+> spontaneously reboot.  It just happened again, this time I had a serial
+> console hooked up, but it rebooted before transferring much data.
+> The one thing it did spew however was "List corruption. prev->ne",
+> which came from the patch below which I had in my tree.
+> (The latter half is likely irrelevant, and came from chasing a different bug)
+> 
+> Things in common at all three times it happened..
+> reading email, and listening to oggs with rhythmbox.
+> Another ALSA bug maybe ?
+> 
+> I've up'd the speed of the serial console, in the hope that more chars
+> make it over the wire before reboot should this happen again.
 
-Ubuntu's kernel probably has a bunch of patches to make SATA/AHCI work
-and who knows what else.  But it means that the DSDT etc. are at least
-half decent (not always true with my earlier thinkpads).
+Are you using SMP?  We have a known slab locking bug.
 
-I'm hoping that some debugging will get SMP suspend/resume working as
-well.  So far though I've not had any luck getting a 2.6.18-rc1 SMP
-kernel to suspend (never mind resume).  I did have to enable
-hotpluggable CPU's to get past the 'write error' when echoing 'mem' to
-/sys/power/state.  Then I get lockdep errors and a failure to stop
-tasks, which I reported to lkml and linux-acpi a few days ago.
+There have been a couple of slab.c patches committed today, but neither of
+them appear to actually fix the bug.
 
--Sanjoy
+The below should fix it, and testing this (disable lockdep) would be
+useful.
 
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+It's going to take a bit of work to unpickle it all now.
+
+diff -puN mm/slab.c~revert-slabc-lockdep-locking-change mm/slab.c
+--- a/mm/slab.c~revert-slabc-lockdep-locking-change
++++ a/mm/slab.c
+@@ -3100,16 +3100,7 @@ static void free_block(struct kmem_cache
+ 		if (slabp->inuse == 0) {
+ 			if (l3->free_objects > l3->free_limit) {
+ 				l3->free_objects -= cachep->num;
+-				/*
+-				 * It is safe to drop the lock. The slab is
+-				 * no longer linked to the cache. cachep
+-				 * cannot disappear - we are using it and
+-				 * all destruction of caches must be
+-				 * serialized properly by the user.
+-				 */
+-				spin_unlock(&l3->list_lock);
+ 				slab_destroy(cachep, slabp);
+-				spin_lock(&l3->list_lock);
+ 			} else {
+ 				list_add(&slabp->list, &l3->slabs_free);
+ 			}
+_
+

@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWGMIEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWGMIJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWGMIEx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 04:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGMIEx
+	id S964847AbWGMIJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 04:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGMIJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 04:04:53 -0400
-Received: from fc-cn.com ([218.25.172.144]:6918 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S964845AbWGMIEw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 04:04:52 -0400
-Date: Thu, 13 Jul 2006 16:05:38 +0800
-From: Qi Yong <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: sct@redhat.com, adilger@clusterfs.com, ext2-devel@lists.sourceforge.net,
+	Thu, 13 Jul 2006 04:09:36 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:39868 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S964847AbWGMIJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 04:09:35 -0400
+Date: Thu, 13 Jul 2006 10:09:34 +0200
+From: Andreas Mohr <andim2@users.sourceforge.net>
+To: bhuvan.kumarmital@wipro.com
+Cc: linux-usb-devel@lists.sourceforge.net, kernelnewbies-request@nl.linux.org,
+       kernel-mentors@selenic.com, os_drivers@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: [patch] ext3: remove btree_dir
-Message-ID: <20060713080538.GA20259@localhost.localdomain>
-MIME-Version: 1.0
+Subject: Re: Expertise required on building code for SMP
+Message-ID: <20060713080934.GA9109@rhlx01.fht-esslingen.de>
+Reply-To: andi@lisas.de
+References: <24ED22E506B5A042BF5B05B6B017D86C0A9046@PNE-HJN-MBX01.wipro.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <24ED22E506B5A042BF5B05B6B017D86C0A9046@PNE-HJN-MBX01.wipro.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove support for EXT3_FEATURE_RO_COMPAT_BTREE_DIR, so mount can
-safely fail out when some new feature added using 0x0004. 
+Hi,
 
-Signed-off-by: Qi Yong <qiyong@fc-cn.com>
----
+On Thu, Jul 13, 2006 at 01:12:14PM +0530, bhuvan.kumarmital@wipro.com wrote:
+> We've written a device driver in linux for a pcmcia card with usb and
+> serial functionality. I need to test this driver on a dual core/SMP
+> machine. We work on kernel 2.6.15.4. I have recompiled this kernel
+> version on my dual core machine with the CONFIG_SMP flag set during
+> menuconfig.
+> 
+> How do i ensure that my driver is making use of the SMP feature? Do
+> build my driver code i have a makefile in which i use the EXTRA_CFLAGS=
+> -D__SMP__ -DCONFIG_SMP -DLINUX.
+> Am i using the right flags? Do these flags really have any significance
+> in deciding whether the SMP capability will be exploited? Are there any
+> other flags i need to use while building my driver code? What does the
+> -jN flag mean? Should i be using it in my case.
+> 
+> Please guide me. I am a bit confused.
 
-diff --git a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
-index facf34e..d63d2ec 100644
---- a/include/linux/ext2_fs.h
-+++ b/include/linux/ext2_fs.h
-@@ -463,7 +463,6 @@ #define EXT2_FEATURE_COMPAT_ANY			0xffff
- 
- #define EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER	0x0001
- #define EXT2_FEATURE_RO_COMPAT_LARGE_FILE	0x0002
--#define EXT2_FEATURE_RO_COMPAT_BTREE_DIR	0x0004
- #define EXT2_FEATURE_RO_COMPAT_ANY		0xffffffff
- 
- #define EXT2_FEATURE_INCOMPAT_COMPRESSION	0x0001
-@@ -477,8 +476,7 @@ #define EXT2_FEATURE_COMPAT_SUPP	EXT2_FE
- #define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
- 					 EXT2_FEATURE_INCOMPAT_META_BG)
- #define EXT2_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER| \
--					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE| \
--					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR)
-+					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE)
- #define EXT2_FEATURE_RO_COMPAT_UNSUPPORTED	~EXT2_FEATURE_RO_COMPAT_SUPP
- #define EXT2_FEATURE_INCOMPAT_UNSUPPORTED	~EXT2_FEATURE_INCOMPAT_SUPP
- 
-diff --git a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
-index 5607e64..7974c44 100644
---- a/include/linux/ext3_fs.h
-+++ b/include/linux/ext3_fs.h
-@@ -553,7 +553,6 @@ #define EXT3_FEATURE_COMPAT_DIR_INDEX		0
- 
- #define EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER	0x0001
- #define EXT3_FEATURE_RO_COMPAT_LARGE_FILE	0x0002
--#define EXT3_FEATURE_RO_COMPAT_BTREE_DIR	0x0004
- 
- #define EXT3_FEATURE_INCOMPAT_COMPRESSION	0x0001
- #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
-@@ -566,8 +565,7 @@ #define EXT3_FEATURE_INCOMPAT_SUPP	(EXT3
- 					 EXT3_FEATURE_INCOMPAT_RECOVER| \
- 					 EXT3_FEATURE_INCOMPAT_META_BG)
- #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \
--					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE| \
--					 EXT3_FEATURE_RO_COMPAT_BTREE_DIR)
-+					 EXT3_FEATURE_RO_COMPAT_LARGE_FILE)
- 
- /*
-  * Default values for user and/or group using reserved blocks
+Are you talking about "make -jN"?
+If so, that is purely for deciding how many threads to use to *compile*
+the code, not run-time execution. Not relevant.
 
--- 
-Qi Yong
+As Arjan said, you should use the normal kbuild infrastructure,
+either for external module builds by using something like:
+make -C /lib/modules/`uname -r`/build M=`pwd`
+make -C /lib/modules/`uname -r`/build M=`pwd` modules_install
+or for in-kernel-tree builds.
+
+See linux/Documentation/kbuild/
+
+Simply provide a driver Makefile that contains all tags required for kbuild
+infrastructure, that should automatically take care of any and all
+compiler flags you need to use, whether you're using an
+SMP kernel configuration or not.
+For sample users of the external kbuild driver build, see e.g. the
+acx WLAN driver (both in-kernel and external build possible there,
+see README).
+
+
+About SMP in general: AFAIK there is nothing to configure here,
+the only thing you really have to get right is proper locking inside your
+driver to prevent concurrent resource access.
+
+Andreas Mohr
+
+P.S.: oh, and getting this driver submitted for kernel inclusion
+      would be nice :)
+      (both for you and us, since it'd reduce amount of maintenance work
+       due to people improving it automatically)

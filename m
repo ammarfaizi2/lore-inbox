@@ -1,115 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWGMAUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWGMAZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWGMAUp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 20:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWGMAUp
+	id S1751480AbWGMAZe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 20:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWGMAZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 20:20:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59011 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932419AbWGMAUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 20:20:45 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Theodore Tso <tytso@mit.edu>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com>
-	<20060710155051.326e49da.rdunlap@xenotime.net>
-	<m1veq4kcij.fsf@ebiederm.dsl.xmission.com>
-	<1152601640.3128.7.camel@laptopd505.fenrus.org>
-	<m1irm2bxk3.fsf_-_@ebiederm.dsl.xmission.com>
-	<44B5283E.7090806@redhat.com>
-	<m1hd1mafe0.fsf@ebiederm.dsl.xmission.com>
-	<20060712232414.GI9040@thunk.org>
-Date: Wed, 12 Jul 2006 18:19:19 -0600
-In-Reply-To: <20060712232414.GI9040@thunk.org> (Theodore Tso's message of
-	"Wed, 12 Jul 2006 19:24:14 -0400")
-Message-ID: <m1fyh673w8.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 12 Jul 2006 20:25:34 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:14093 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750754AbWGMAZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 20:25:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rkgN6g5NUviQSNHa8VK8ksDJhWrkI1kQxbD9XKuULspFOvbTH2U689pkZ3vSMH8Vl5qy192tRqHEC8KIfVJ4Z3EyH7J6jX4bdhvMnzj1SkoiuieDSwgHNSZbmfD/6wmBoZ1cuu135N+mee+rfoQic9ywt7oCmuDHExqI/9tvgGA=
+Message-ID: <29495f1d0607121725te495c25n3322646717f8c4a@mail.gmail.com>
+Date: Wed, 12 Jul 2006 17:25:29 -0700
+From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH 3/3] [PATCH] w1: remove drivers/w1/w1.h
+Cc: linux-kernel@vger.kernel.org, "Adrian Bunk" <bunk@stusta.de>,
+       "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>,
+       "Greg Kroah-Hartman" <gregkh@suse.de>
+In-Reply-To: <1152746704578-git-send-email-greg@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060712232249.GA22654@kroah.com>
+	 <11527466963731-git-send-email-greg@kroah.com>
+	 <11527467003943-git-send-email-greg@kroah.com>
+	 <1152746704578-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso <tytso@mit.edu> writes:
-
-> On Wed, Jul 12, 2006 at 11:42:47AM -0600, Eric W. Biederman wrote:
->> Unless a darn good reason for keeping it is found, sys_sysctl won't be
->> in the kernel several months from now.  And uname is faster by a large
->> margin than /proc.
+On 7/12/06, Greg KH <greg@kroah.com> wrote:
+> From: Adrian Bunk <bunk@stusta.de>
 >
-> Um, if glibc is using sys_sysctl, then that's a pretty good reason.
-> Once we remove it from the kernel, then people will be forced to
-> upgrade glibc's before they can install a newer kernel.  Can we please
-> give people some time for an version of glibc with this change to make
-> it out to most deployed systems, first?  It's really annoying when
-> it's not possible to install a stock kernel.org kernel on a system,
-> and often upgrading glibc is not a trivial thing to do on a
-> distribution userspace, especially if there is a concern for ISV
-> compatibility.  (Especially if C++ code is involved, unfortunately.)
-
-I agree.
-
-The reason for stopping this is that sys_sysctl at that location
-in glibc is unnecessary, we can use uname now.
-
-Currently that usage by glibc gives false positives if we want
-to warn users.
-
->> Right now because there has been a deprecated note in
->> "include/linux/sysctl.h" since 2003 people currently feel fine with
->> letting sys_sysctl code bit rot.  I am trying to resolve that
->> situation most likely by just updating the few stray pieces of user
->> space that care and then cutting out that chunk of kernel code.
+> drivers/w1/w1_io.h is both a subset of drivers/w1/w1.h and no longer
+> #include'd by any file.
 >
-> What we should do is what we've done in the past before removing a
-> system call like this.  printk a deprecation warning no more than n
-> times an hours with the process name using the deprecated interface.
-> A deprecated note in a header isn't necessarily something which will
-> be noticed by userspace programmers.  Heck, it isn't even in
-> Documentation/feature-removal-schedule.txt yet.
+> This patch therefore removes w1_io.h.
 
-I sent Andrew patches yesterday to put it in 
-Documentation/feature-remove-schedule.txt, and to print a warning, and
-to optionally compile out sys_sysctl. 
+Minor nit, that's not what the subject says.
 
-> If people want to remove it, let's please do this in an orderly
-> fashion, and with ample warning that people besides kernel developers
-> will actually *notice*.
-
-I agree.  Part of that beyond the deprecated message is sending
-patches to fixup the few remaining users and talking about it a lot
-so even if someone doesn't run the kernels with deprecated message
-they might notice something.
-
-> 						- Ted
->
-> P.S.  I happen to be one those developers who think the binary
-> interface is not so bad, and for compared to reading from /proc/sys,
-> the sysctl syscall *is* faster.  But at the same there, there really
-> isn't anything where really does require that kind of speed, so that
-> point is moot.  But at the same time, what is the cost of leaving
-> sys_sysctl in the kernel for an extra 6-12 months, or even longer,
-> starting from now?  
-
-The core problem is enough people have read that depreciated warning
-that the binary interface of kernel/sysctl.c is not being maintained
-seriously.  So the code must move out of this half deprecated state.
-Either to all of the way gone (preferably) or reinstated as an
-interface that we are serious about maintaining.  Code that
-bit rots and people don't care is a problem.
-
-> Or if we going to remove parts of sysctl, can we at least keep enough
-> there so that existing glibc systems don't break?
-
-That is not a problem. glibc will happily fall back to reading
-the values from /proc/sys/kernel/version if sysctl fails.  It
-just makes more sense (to me at least) to use uname for
-getting uname data.
-
-Eric
-
+Thanks,
+Nish

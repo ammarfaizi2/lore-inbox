@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGMGnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWGMGrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWGMGnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 02:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGMGnd
+	id S1751414AbWGMGrz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 02:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGMGrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 02:43:33 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:46001 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S964836AbWGMGnd (ORCPT
+	Thu, 13 Jul 2006 02:47:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60339 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751414AbWGMGru (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 02:43:33 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH 1/2] add function documentation for register_chrdev()
-Date: Thu, 13 Jul 2006 08:49:42 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607120942.23071@bilbo.math.uni-mannheim.de> <200607120946.16501@bilbo.math.uni-mannheim.de> <20060712085319.0ae7b346.rdunlap@xenotime.net>
-In-Reply-To: <20060712085319.0ae7b346.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607130849.42481@bilbo.math.uni-mannheim.de>
+	Thu, 13 Jul 2006 02:47:50 -0400
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: eranian@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 adds smp_call_function_single 
+In-reply-to: Your message of "Tue, 11 Jul 2006 06:24:22 MST."
+             <20060711132422.GB28851@frankl.hpl.hp.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Jul 2006 16:47:04 +1000
+Message-ID: <12523.1152773224@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
->On Wed, 12 Jul 2006 09:46:16 +0200 Rolf Eike Beer wrote:
->> Documentation for register_chrdev() was missing completely.
->
->I noticed that too.
->
->Would you modify the patch to use the kernel-doc format, please?
+Stephane Eranian (on Tue, 11 Jul 2006 06:24:22 -0700) wrote:
+>+static void
+>+__smp_call_function_single(int cpu, void (*func) (void *info), void *info,
+>+				int nonatomic, int wait)
+>...
+>+	wmb();
+>+	/* Send a message to all other CPUs and wait for them to respond */
+>+	send_IPI_mask(cpumask_of_cpu(cpu), CALL_FUNCTION_VECTOR);
 
-Eeks, damn. Sorry, it was meant to be this way.
+Nit pick.  The comment is wrong, one cpu, not all cpus.
 
->and "-ve" is overused/overrated. :)  Please use "negative".
->(even though Andrew just used -ve yesterday)
-
-Just copied that from some other function in that file :)
-
-Will resend soon.
-
-Eike

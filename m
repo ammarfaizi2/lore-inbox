@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWGMSsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWGMSuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWGMSsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWGMSsV
+	id S1030288AbWGMSuf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWGMSuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:48:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:38312 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030287AbWGMSsU (ORCPT
+	Thu, 13 Jul 2006 14:50:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28049 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030288AbWGMSue (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:48:20 -0400
-Date: Thu, 13 Jul 2006 11:37:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: Opinions on removing /proc/tty?
-Message-ID: <20060713183703.GA31824@kroah.com>
-References: <9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com> <20060708220414.c8f1476e.rdunlap@xenotime.net> <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com> <44B0D55D.2010400@gmail.com> <9e4733910607090645l236f17f1sb9778f0fc6c6ca01@mail.gmail.com> <20060709103529.bf8a46a4.rdunlap@xenotime.net> <44B191CF.2090506@gmail.com> <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com> <20060711220117.GD663@kroah.com> <9e4733910607111532s3fc2bb52q3f0247a9f2289d4e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910607111532s3fc2bb52q3f0247a9f2289d4e@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 13 Jul 2006 14:50:34 -0400
+Date: Thu, 13 Jul 2006 11:50:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
+       arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+In-Reply-To: <20060713124603.GB18936@elte.hu>
+Message-ID: <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu>
+ <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu>
+ <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 06:32:26PM -0400, Jon Smirl wrote:
-> If you really want to stick with the one value model on the read-only
-> attributes, how about a sysfs function that takes a variable and a
-> string array of enum values. It creates a subdirectory named for the
-> variable and makes attributes in the directory matching the names from
-> the enum. The subdirectory avoids namespace collisions. The attributes
-> are then managed like a set of radio buttons so that only one can be
-> set non-zero at a time.  The driver read/write functions for the
-> variable never knows this is going on, read/write just works with an
-> index into the array.
 
-That might be interesting.  Send a patch and I'll seriously consider it.
 
-thanks,
+On Thu, 13 Jul 2006, Ingo Molnar wrote:
+>  
+> +#ifdef CONFIG_LOCKDEP
+> +
+> +/*
+> + * Slab sometimes uses the kmalloc slabs to store the slab headers
+> + * for other slabs "off slab".
+> + * The locking for this is tricky in that it nests within the locks
+> + * of all other slabs in a few places; to deal with this special
+> + * locking we put on-slab caches into a separate lock-class.
+> + */
+> +static struct lock_class_key on_slab_key;
+> +
+> +static inline void init_lock_keys(struct cache_sizes *s)
+> +{
+> +	int q;
+> +
+> +	for (q = 0; q < MAX_NUMNODES; q++) {
+> +		if (!s->cs_cachep->nodelists[q] || OFF_SLAB(s->cs_cachep))
+> +			continue;
+> +		lockdep_set_class(&s->cs_cachep->nodelists[q]->list_lock,
+> +				  &on_slab_key);
+> +	}
+> +}
+> +
+> +#else
+> +static inline void init_lock_keys(struct cache_sizes *s)
+> +{
+> +}
+> +#endif
 
-greg k-h
+Why isn't the "on_slab_key" local to just the init_lock_keys() function, 
+and the #ifdef around it all?
+
+Ie just
+
+	static inline void init_lock_keys(struct cache_sizes *s)
+	{
+	#ifdef CONFIG_LOCKDEP
+		static struct lock_class_key on_slab_key;
+		int q;
+
+		for (q = 0; q < MAX_NUMNODES; q++) {
+			...
+	#endif CONFIG_LOCKDEP
+	}
+
+instead?
+
+		Linus

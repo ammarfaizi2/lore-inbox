@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWGMWHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbWGMWJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030421AbWGMWHe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWGMWHe
+	id S1030423AbWGMWJa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 18:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWGMWJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:07:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36325 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030421AbWGMWHd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:07:33 -0400
-Date: Thu, 13 Jul 2006 18:07:22 -0400
-From: Dave Jones <davej@redhat.com>
-To: john stultz <johnstul@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 18rc1 soft lockup
-Message-ID: <20060713220722.GA3371@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	john stultz <johnstul@us.ibm.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060711190346.GK5362@redhat.com> <1152645227.760.9.camel@cog.beaverton.ibm.com> <20060711191658.GM5362@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jul 2006 18:09:30 -0400
+Received: from mail.gmx.net ([213.165.64.21]:39085 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030423AbWGMWJ3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 18:09:29 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: Re: 2.6.18-rc1-mm1
+Date: Fri, 14 Jul 2006 00:10:15 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+References: <20060709021106.9310d4d1.akpm@osdl.org> <20060709132400.a7f6e358.akpm@osdl.org> <1152515512.3490.89.camel@praia>
+In-Reply-To: <1152515512.3490.89.camel@praia>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060711191658.GM5362@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200607140010.15459.dominik.karall@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 03:16:58PM -0400, Dave Jones wrote:
- > On Tue, Jul 11, 2006 at 12:13:47PM -0700, john stultz wrote:
- >  > On Tue, 2006-07-11 at 15:03 -0400, Dave Jones wrote:
- >  > > Just saw this during boot of a HT P4 box.
- >  > > 
- >  > > BUG: soft lockup detected on CPU#0!
- >  > >  [<c04051af>] show_trace_log_lvl+0x54/0xfd
- >  > >  [<c0405766>] show_trace+0xd/0x10
- >  > >  [<c0405885>] dump_stack+0x19/0x1b
- >  > >  [<c0450ec7>] softlockup_tick+0xa5/0xb9
- >  > >  [<c042d496>] run_local_timers+0x12/0x14
- >  > >  [<c042d81b>] update_process_times+0x3c/0x61
- >  > >  [<c04179e0>] smp_apic_timer_interrupt+0x6d/0x75
- >  > >  [<c0404ada>] apic_timer_interrupt+0x2a/0x30
- >  > 
- >  > That's clocksource_adjust/lost tick bug. Roman's fix landed in Linus'
- >  > -git yesterday.
- > 
- > Ah, that was actually a .18rc1-git3 tree. I notice a git4 just appeared,
- > I'll try and reproduce with that.
+On Monday, 10. July 2006 09:11, Mauro Carvalho Chehab wrote:
+> Em Dom, 2006-07-09 às 13:24 -0700, Andrew Morton escreveu:
+> > On Sun, 9 Jul 2006 19:28:07 +0200
+> >
+> > Dominik Karall <dominik.karall@gmx.net> wrote:
+> > > On Sunday, 9. July 2006 11:11, Andrew Morton wrote:
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6
+> > > >/2.6.1 8-rc1/2.6.18-rc1-mm1/
+> > >
+> > > There are stil problems with initializing the bt878 chip. I'm
+> > > not sure if it is the same bug, but I had problems with all -mm
+> > > versions since 2.6.17-mm1
+> > > Screenshot:
+> > > http://stud4.tuwien.ac.at/~e0227135/kernel/060709_190546.jpg
+> >
+> > Right - this is one of those mysterious crashes deep in sysfs
+> > from calling code which basically hasn't changed.  Mauro and Greg
+> > are vacationing or otherwise offline so not much is likely to
+> > happen short-term.
+>
+> I should be returning back from vacations by the end of this week.
+>
+> About the errors you are suffering, image is not clean enough to
+> allow reading the log. There were some changes on -mm that may
+> affect people with third-party drivers (like, for example, some
+> webcam drivers). This is due to a change at video_device structure,
+> used to register video devices. Several third-party drivers just
+> have a copy of videodev.h. So, those drivers compile using the old
+> struct definition, but tries to register the device by calling a
+> function that is expecting the newer struct. Maybe this is your
+> case.
+>
+> > Is 2.6.18-rc1 OK?
 
-Just when I thought it had gotten fixed..
-2.6.18rc1-git6 this time on x86-64..
+It's the same bug with 2.6.18-rc1.
 
-BUG: soft lockup detected on CPU#3!
-
-Call Trace:
- [<ffffffff80270865>] show_trace+0xaa/0x23d
- [<ffffffff80270a0d>] dump_stack+0x15/0x17
- [<ffffffff802c44e6>] softlockup_tick+0xd5/0xea
- [<ffffffff80250bea>] run_local_timers+0x13/0x15
- [<ffffffff8029cc1d>] update_process_times+0x4c/0x79
- [<ffffffff8027bfeb>] smp_local_timer_interrupt+0x2b/0x50
- [<ffffffff8027c766>] smp_apic_timer_interrupt+0x58/0x62
- [<ffffffff802628ae>] apic_timer_interrupt+0x6a/0x70
-
-		Dave
-
-
--- 
-http://www.codemonkey.org.uk
+cheers,
+dominik

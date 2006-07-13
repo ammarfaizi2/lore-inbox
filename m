@@ -1,57 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWGMVaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWGMVbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbWGMVaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWGMVaJ
+	id S1030408AbWGMVbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 17:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWGMVbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:30:09 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17670 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030405AbWGMVaH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:30:07 -0400
-Date: Thu, 13 Jul 2006 21:29:41 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: andrea@cpushare.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Lee Revell <rlrevell@joe-job.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060713212940.GB4101@ucw.cz>
-References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060712210545.GB24367@opteron.random> <1152741776.22943.103.camel@localhost.localdomain> <20060712234441.GA9102@opteron.random>
+	Thu, 13 Jul 2006 17:31:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28621 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030408AbWGMVbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 17:31:24 -0400
+Date: Thu, 13 Jul 2006 14:30:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: mingo@elte.hu, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com, arjan@infradead.org
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-Id: <20060713143058.383b00a5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+References: <1152763195.11343.16.camel@linuxchandra>
+	<20060713071221.GA31349@elte.hu>
+	<20060713002803.cd206d91.akpm@osdl.org>
+	<20060713072635.GA907@elte.hu>
+	<20060713004445.cf7d1d96.akpm@osdl.org>
+	<20060713124603.GB18936@elte.hu>
+	<Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060712234441.GA9102@opteron.random>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 13 Jul 2006 11:50:01 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> > Actually measuring time through the network is extremely doable given
-> > enough samples as is communication through delay perturbation. A good
-> > viterbi encoder/decoder will fish a signal out of very high noise. Yes
-> > you pay a lot in data rate at that point but it works.
 > 
-> Currently the bandwidth is free, I'll charge for the transaction
-> associated bandwidth only if I'm forced to (which would happen quickly
-> if people starts doing the above ;).
 > 
-> The way the current transactions are running as we speak, is not like
-> in a full peer to peer system. It's half peer to peer, a trusted node
-> always sits in between buyer and seller. I need this for a multitude
-> of reasons (I could offload the middle node in a p3p system that is
-> reliable as long as only 1 of the 3 is malicious but it's certainly
-> more secure if the node in the middle is fully trusted so I'll try to
-> avoid that). So if you are right, my trusted node will simply add
-> /dev/urandom delay as needed before forwarding any packet, to prevent
-> any meaningful measurement. Any network side channel can be solved in
-> a few liner patch and very quickly.
+> On Thu, 13 Jul 2006, Ingo Molnar wrote:
+> >  
+> > +#ifdef CONFIG_LOCKDEP
+> > +
+> > +/*
+> > + * Slab sometimes uses the kmalloc slabs to store the slab headers
+> > + * for other slabs "off slab".
+> > + * The locking for this is tricky in that it nests within the locks
+> > + * of all other slabs in a few places; to deal with this special
+> > + * locking we put on-slab caches into a separate lock-class.
+> > + */
+> > +static struct lock_class_key on_slab_key;
+> > +
+> > +static inline void init_lock_keys(struct cache_sizes *s)
+> > +{
+> > +	int q;
+> > +
+> > +	for (q = 0; q < MAX_NUMNODES; q++) {
+> > +		if (!s->cs_cachep->nodelists[q] || OFF_SLAB(s->cs_cachep))
+> > +			continue;
+> > +		lockdep_set_class(&s->cs_cachep->nodelists[q]->list_lock,
+> > +				  &on_slab_key);
+> > +	}
+> > +}
+> > +
+> > +#else
+> > +static inline void init_lock_keys(struct cache_sizes *s)
+> > +{
+> > +}
+> > +#endif
+> 
+> Why isn't the "on_slab_key" local to just the init_lock_keys() function, 
+> and the #ifdef around it all?
+> 
+> Ie just
+> 
+> 	static inline void init_lock_keys(struct cache_sizes *s)
+> 	{
+> 	#ifdef CONFIG_LOCKDEP
+> 		static struct lock_class_key on_slab_key;
+> 		int q;
+> 
+> 		for (q = 0; q < MAX_NUMNODES; q++) {
+> 			...
+> 	#endif CONFIG_LOCKDEP
+> 	}
+> 
+> instead?
+> 
 
-Actually random delays are unlike to help (much). You have just added
-noise, but you can still decode original signal...
+It could be wholly hidded inside a macro
 
--- 
-Thanks for all the (sleeping) penguins.
+#define lockdep_go_away(p) {
+		static struct lock_class_key foo;
+		lockdep_set_class(p, &foo);
+	}
+
+But istr suggesting that a couple of weeks ago and was given a
+good-sounding reason which I forget.
+
+At least when the code laid out as Ingo proposed, we have room for a
+decent comment, which is rather desirable for this sort of thing.

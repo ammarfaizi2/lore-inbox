@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWGMPFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWGMPKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWGMPFp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 11:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWGMPFp
+	id S1030207AbWGMPKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 11:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWGMPKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 11:05:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:17357 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030224AbWGMPFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 11:05:44 -0400
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Jakub Jelinek <jakub@redhat.com>, Roland McGrath <roland@redhat.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-In-Reply-To: <m1hd1l4lif.fsf@ebiederm.dsl.xmission.com>
-References: <20060712184412.2BD57180061@magilla.sf.frob.com>
-	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>
-	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>
-	 <44B5D77F.60200@redhat.com>  <m1hd1l4lif.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 17:05:18 +0200
-Message-Id: <1152803119.3024.60.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 13 Jul 2006 11:10:25 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:29277 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030207AbWGMPKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 11:10:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O26nffzEGazYufoVOuNy55XglxR1YAtNu/7x6HLq44VCPDB07X02X71ENZ21LYJcuOaUBAcVju3Dv3Grxl6VGjKIaX4zCRbtQEdsBzLbI30gc8mn/DO2mpSgSx18eJAVSpRIGZP/VYjMbdTZOHwxe+G6TyM9Ox1zpK2zuIzpwew=
+Message-ID: <62b0912f0607130810w5fd768f6k19294f3fafb42dc3@mail.gmail.com>
+Date: Thu, 13 Jul 2006 17:10:24 +0200
+From: "Molle Bestefich" <molle.bestefich@gmail.com>
+To: wine-devel@winehq.org
+Subject: Re: "assumed" graphic card memory
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200607121719.14528.ns03ja@brocku.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <20060711162356.GK11322@byleth.sc-networks.de>
+	 <62b0912f0607121326s428ceb57h2fae8f1e9855acb6@mail.gmail.com>
+	 <200607121719.14528.ns03ja@brocku.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 08:39 -0600, Eric W. Biederman wrote:
-> Ulrich Drepper <drepper@redhat.com> writes:
-> 
-> > Eric W. Biederman wrote:
-> >> Ulrich what would be interesting besides the possibility of having
-> >> multiple cpus?
-> >
-> > What is needed for various things like memory handling etc is all
-> > topology information.  Somebody might remember the numa library proposal
-> > I had in April 2004 which was cast aside because people were only
-> > looking for a "quick fix".  Well, the problem still isn't solved.
-> >
-> > IMO the vdso should export information about:
-> >
-> > - processors and their relationship (hyperthreads, cores)
-> >
-> > - the CPU caches and how they relate to the cores (e.g., dual core
-> >   with shared L2)
-> >
-> > - local main memory for each processor
-> >
-> > - relative costs of the memory access of the various memory regions
-> >   (for numa local memory to a node, intra-node costs)
-> >
-> > - ideally, relative costs main memory and CPU caches
-> >
-> >
-> > All this information can be steadily updated by the kernel as new
-> > CPUs/memory get added/removed.  The vdso should have functions to access
-> > this information.  It's easy enough to make this access race free.
-> >
+> I'd say it needs a framebuffer device which I do not have
 
-why does this have to be in the vdso? It's not like the code can be a
-regular userspace lib/daemon that gets all the hotplug events and that
-processes the info from /proc and /sys once during boot. A bit like how
-nscd works I suppose..
+Use the PCI variant ;-).
 
+> Also, the PCI path varies a lot
 
+Obviously.  The correct PCI path would need to be found first.
+
+(I used "lspci|grep VGA", hehe.)
+
+> None of this works at all on non-Linux systems, for that matter.
+> (Wine does run on non-Linux systems, in case you didn't realize that.)
+
+Default to 64MB on those systems.
+
+> This reports the wrong values for me in
+> one machine with a 32M video card:
+> 134217728
+
+Ok.  Guess it's rubbish then, too bad.
+Oh well.
+
+> It might be possible to guesstimate the available memory:
+> http://delphi3d.net/articles/viewarticle.php?article=texman.htm
+
+Promising!
+
+But perhaps an easier approach would be to fix every Linux driver
+to report the correct number in sysfs.  I'm pretty sure each driver
+knows how much RAM is on the card already, so it should be trivial..

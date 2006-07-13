@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWGMQpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWGMQqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbWGMQpP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 12:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWGMQpP
+	id S1030240AbWGMQqW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 12:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWGMQqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 12:45:15 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:52866 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030236AbWGMQpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 12:45:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=HjFxY83flp5MojtkFcdl1Wr2rPqVJ9D9YmhsOGVgMuREatW6aMBoA7UnpQrPOZRCzLH7opD3Pru9fOjeO8WHmrkl8hUqtoFPSjnUYRtVsJ+K6GU4esZphvsKWmyY64YJ4hgjnRaQaZHCQPzKlXsE58P72dTlMZf4IihOtjFwemY=
-Message-ID: <728201270607130945y30dbd388o76725b8a6fe28e56@mail.gmail.com>
-Date: Thu, 13 Jul 2006 11:45:11 -0500
-From: "Ram Gupta" <ram.gupta5@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: [PATCH]drivers: returning proper error from serial driver
-Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_3937_7108193.1152809111575"
+	Thu, 13 Jul 2006 12:46:22 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:61389 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030240AbWGMQqV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 12:46:21 -0400
+Subject: Re: [PATCH] s390 hypfs fixes for 2.6.18-rc1-mm1
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Michael Holzheu <HOLZHEU@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <44B60CB3.4000806@fr.ibm.com>
+References: <44B5C7CE.6090606@us.ibm.com> <44B5C971.7030403@us.ibm.com>
+	 <44B60CB3.4000806@fr.ibm.com>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 09:48:41 -0700
+Message-Id: <1152809321.30096.0.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_3937_7108193.1152809111575
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2006-07-13 at 11:04 +0200, Cedric Le Goater wrote:
+> Badari Pulavarty wrote:
+> > Badari Pulavarty wrote:
+> >> Hi Micheal,
+> >>
+> >> I made fixes to hypfs to fit new vfs ops interfaces. I am not sure if
+> >> we really
+> >> need to vectorize aio interfaces, can you check and see if this is okay ?
+> >>
+> >> And also, I am not sure what hypfs_aio_write() is actually doing.
+> >> It doesn't seem to be  doing with "buf" ?
+> >>
+> >> (BTW - I have no way to verify these change. Can you give them a spin ?)
+> >>
+> >> Thanks,
+> >> Badari
+> > 
+> > Here is the updated version ..
+> 
+> indeed it compiles better :)
+> 
+> it boots fine. what kind of tests do you run ?
 
-This patch fixes the issue of returning 0 even in case of error from
-uart_set_info function.
-Now it returns the  error EBUSY  when it can not set new port. Please apply
+I have no way of testing hypfs, since I don't even know what it does :(
+Is it possible to test it for me ?
 
-Signed-off-by: Ram Gupta(r.gupta@astronautics.com)
--------------
-Thanks
-Ram Gupta
+Thanks,
+Badari
 
-------=_Part_3937_7108193.1152809111575
-Content-Type: application/octet-stream; name=patch.serial_core
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eplcgdi4
-Content-Disposition: attachment; filename="patch.serial_core"
-
-LS0tIGxpbnV4LTIuNi4xNy9kcml2ZXJzL3NlcmlhbC9zZXJpYWxfY29yZS5jLm9yaWcJMjAwNi0w
-Ny0xMyAxMToxNzo0OS4wMDAwMDAwMDAgLTA1MDAKKysrIGxpbnV4LTIuNi4xNy9kcml2ZXJzL3Nl
-cmlhbC9zZXJpYWxfY29yZS5jCTIwMDYtMDctMTMgMTE6MjM6MDUuMDAwMDAwMDAwIC0wNTAwCkBA
-IC03ODYsNiArNzg2LDcgQEAgc3RhdGljIGludCB1YXJ0X3NldF9pbmZvKHN0cnVjdCB1YXJ0X3N0
-YQogCQkJICogV2UgZmFpbGVkIGFueXdheS4KIAkJCSAqLwogCQkJcmV0dmFsID0gLUVCVVNZOwor
-CQkJZ290byBleGl0OyAgLy8gQWRkZWQgdG8gcmV0dXJuIHRoZSBjb3JyZWN0IGVycm9yIC1SYW0g
-R3VwdGEKIAkJfQogCX0KIAo=
-------=_Part_3937_7108193.1152809111575--

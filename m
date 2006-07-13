@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWGMBZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWGMBeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWGMBZO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jul 2006 21:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWGMBZO
+	id S932487AbWGMBeS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jul 2006 21:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWGMBeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jul 2006 21:25:14 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:64363 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932485AbWGMBZM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jul 2006 21:25:12 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=pp+g7gRrLXFQA1gz4QJtn/tmssU0DBWM5oj3d9OvcLkH56wyUse3UrNV6iWHlxBKR
-	JMPTqsAj+fJQ6U3exrNbA==
-Message-ID: <44B5A0DD.9070200@google.com>
-Date: Wed, 12 Jul 2006 18:24:45 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.18-rc1-git4 and 2.6.18-rc1-mm1 OOM's on boot
-References: <44B528F4.6080409@google.com> <20060712181636.d7cbbb99.akpm@osdl.org>
-In-Reply-To: <20060712181636.d7cbbb99.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 12 Jul 2006 21:34:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55740 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932487AbWGMBeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jul 2006 21:34:17 -0400
+Date: Wed, 12 Jul 2006 18:30:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: arjan@infradead.org, mingo@elte.hu, zach.brown@oracle.com,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
+Message-Id: <20060712183049.bcb6c404.akpm@osdl.org>
+In-Reply-To: <adaveq2v9gn.fsf@cisco.com>
+References: <44B405C8.4040706@oracle.com>
+	<adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com>
+	<adasll7zp0p.fsf@cisco.com>
+	<20060712093820.GA9218@elte.hu>
+	<adaveq2v9gn.fsf@cisco.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 12 Jul 2006 09:53:08 -0700
-> Martin Bligh <mbligh@google.com> wrote:
-> 
-> 
->>-git3 was fine
->>(bootlog for git3: http://test.kernel.org/abat/40748/debug/console.log)
->>
->>-mm1 has the same issue
->>
->>Slightly different manifestations across 2 boots
->>
->>http://test.kernel.org/abat/40760/debug/console.log
->>http://test.kernel.org/abat/40837/debug/console.log
-> 
-> 
->  [<c0136fcf>] out_of_memory+0x29/0xf6
->  [<c0137f48>] __alloc_pages+0x1ed/0x276
->  [<c014db73>] kmem_getpages+0x63/0xc1
->  [<c014e960>] cache_grow+0xaa/0x139
->  [<c014eb6a>] cache_alloc_refill+0x17b/0x1c0
->  [<c014f1ef>] __kmalloc+0x83/0x93
->  [<c0168cf5>] alloc_fd_array+0x19/0x24
->  [<c0169122>] alloc_fdtable+0xb2/0xef
->  [<c016917f>] expand_fdtable+0x20/0x7d
->  [<c0169221>] expand_files+0x45/0x50
->  [<c0161263>] locate_fd+0x70/0x8e
->  [<c01612aa>] dupfd+0x29/0x61
->  [<c01613dc>] sys_dup+0x1b/0x23
->  [<c01027d3>] syscall_call+0x7/0xb
-> 
-> I suspect that's because I had me a little mistake.
-> 
-> --- a/fs/file.c~alloc_fdtable-expansion-fix
-> +++ a/fs/file.c
-> @@ -240,7 +240,7 @@ static struct fdtable *alloc_fdtable(int
->  	if (!fdt)
->    		goto out;
->  
-> -	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nfds));
-> +	nfds = max_t(int, 8 * L1_CACHE_BYTES, roundup_pow_of_two(nr + 1));
->  	if (nfds > NR_OPEN)
->  		nfds = NR_OPEN;
->  
-> _
-> 
+On Wed, 12 Jul 2006 13:45:12 -0700
+Roland Dreier <rdreier@cisco.com> wrote:
 
-Thanks, that was affecting several machines.
+> Currently, the code in lib/idr.c uses a bare spin_lock(&idp->lock) to
+> do internal locking.  This is a nasty trap for code that might call
+> idr functions from different contexts; for example, it seems perfectly
+> reasonable to call idr_get_new() from process context and idr_remove()
+> from interrupt context -- but with the current locking this would lead
+> to a potential deadlock.
+> 
+> The simplest fix for this is to just convert the idr locking to use
+> spin_lock_irqsave().
+> 
+> In particular, this fixes a very complicated locking issue detected by
+> lockdep, involving the ib_ipoib driver's priv->lock and dev->_xmit_lock,
+> which get involved with the ib_sa module's query_idr.lock.
 
-Andy, any chance we can do an across-all-machines run of that one on top
-of -mm1? Thanks,
+Sigh.  It was always a mistake (of the kernel programming 101 type) to put
+any locking at all in the idr code.  At some stage we need to weed it all
+out and move it to callers.
 
-M.
+Your fix is yet more fallout from that mistake.

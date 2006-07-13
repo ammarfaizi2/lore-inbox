@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWGMVmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030396AbWGMVqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbWGMVmB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbWGMVmB
+	id S1030396AbWGMVqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 17:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbWGMVqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:42:01 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:6024 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030412AbWGMVmA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:42:00 -0400
-Date: Thu, 13 Jul 2006 16:41:01 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
+	Thu, 13 Jul 2006 17:46:16 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:2743
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1030396AbWGMVqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 17:46:15 -0400
+Message-ID: <44B6BF2F.6030401@ed-soft.at>
+Date: Thu, 13 Jul 2006 23:46:23 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-Message-ID: <20060713214101.GB2169@sergelap.austin.ibm.com>
-References: <20060711075051.382004000@localhost.localdomain> <20060711075420.937831000@localhost.localdomain> <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com> <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com> <20060713174721.GA21399@sergelap.austin.ibm.com> <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com> <1152815391.7650.58.camel@localhost.localdomain> <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+CC: "H. Peter Anvin" <hpa@zytor.com>, Linus Torvalds <torvalds@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+References: <44A04F5F.8030405@ed-soft.at>	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>	<44A0CCEA.7030309@ed-soft.at>	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>	<44A304C1.2050304@zytor.com>	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>	<44A8058D.3030905@zytor.com>	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>	<44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> Dave Hansen <haveblue@us.ibm.com> writes:
-> 
-> > On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
-> >> Maybe.  I really think the sane semantics are in a different uid namespace.
-> >> So you can't assumes uids are the same.  Otherwise you can't handle open
-> >> file descriptors or files passed through unix domain sockets.
-> >
-> > Eric, could you explain this a little bit more?  I'm not sure I
-> > understand the details of why this is a problem?
-> 
-> Very simply.
-> 
-> In the presence of a user namespace.  
-> All comparisons of a user equality need to be of the tuple (user namespace, user id).
-> Any comparison that does not do that is an optimization.
-> 
-> Because you can have access to files created in another user namespace it
-> is very unlikely that optimization will apply very frequently.  The easy scenario
-> to get access to a file descriptor from another context is to consider unix
-> domain sockets.
+I converted the efi memory map to use the e820 table.
+While converting i discovered why the kernel would allways
+fail to boot through efi on Intel Macs without a proper fix.
 
-What does that have to do with uids?  If you receive an fd, uids don't
-matter in any case.  The only permission checks which happen are LSM
-hooks, which should be uid-agnostic.
+>From kernel 2.6.16 to kernel 2.6.17 a new check is made.
+File arch/i386/pci/mmconfig.c -> funktion pci_mmcfg_init -> check e820_all_mapped
+The courios thing is that this check will always fail on the
+Intel Macs booted through efi. Parsing of the ACPI_MCFG table
+returns e0000000 for the start. But this location is
+not in the memory map which the efi firmware have :
+BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+So the e820_all_mapped would allways fail.
+Anny suggestions how to fix this problem ? Maybe some kind
+of whitelisting, using dmi_check_system ?
 
--serge
+cu
+
+Edgar Hucek
+
+
+Eric W. Biederman schrieb:
+> Edgar Hucek <hostmaster@ed-soft.at> writes:
+> 
+>> I agre with you to make efi use the e820 map as a long term solution.
+>> But at the moment the efi part is completley broken without my patch.
+> 
+> But your patch isn't a fix.  It is a hack to make the system boot.
+> 
+> A patch that performed the same check on the efi memory map,
+> or it converted the efi memory map to use an e820 map it would be a fix.
+> 
+>> At least on Intel Macs. 
+>> Without the patch also my Imacfb driver makes no sense, since it is 
+>> for efi booted Intel Macs. 
+> 
+> My point is that the kernel efi support is broken.  You have just found
+> the location where the bone is poking through the skin.
+> 
+> I am tempted to write a patch to delete the x86 efi support at this
+> point.  So that it is very clear that it needs to be completely redone.
+> 
+> Eric
+> 
+

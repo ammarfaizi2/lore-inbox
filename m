@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWGMNoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWGMNqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWGMNoU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWGMNoU
+	id S1751312AbWGMNqr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWGMNqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:44:20 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:37662 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750863AbWGMNoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:44:19 -0400
-In-Reply-To: <44B5C971.7030403@us.ibm.com>
-Subject: Re: [PATCH] s390 hypfs fixes for 2.6.18-rc1-mm1
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OF590AF8CD.54E93D95-ON422571AA.004AFB01-422571AA.004B7748@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Thu, 13 Jul 2006 15:44:17 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.5.5HF268 | April 6, 2006) at
- 13/07/2006 15:47:13
+	Thu, 13 Jul 2006 09:46:46 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:2767 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751312AbWGMNqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 09:46:46 -0400
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: utrace vs. ptrace
+Date: Thu, 13 Jul 2006 15:46:39 +0200
+User-Agent: KMail/1.9.3
+Cc: Ingo Molnar <mingo@elte.hu>, Albert Cahalan <acahalan@gmail.com>,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> <200607131534.16819.ak@suse.de> <1152797870.3024.54.camel@laptopd505.fenrus.org>
+In-Reply-To: <1152797870.3024.54.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607131546.39718.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Badari
 
-Your new patch compiles and seems to work.
+> are you sure? I had this working in the 2.6.9 timeframe, I could set
+> core pattern to /tmp/corefiles/core and such just fine..
+> (and the core files ended up in the /tmp/corefiles/ directory as well)
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote on 07/13/2006 06:17:53 AM:
-> Badari Pulavarty wrote:
-> > Hi Micheal,
-> >
-> > I made fixes to hypfs to fit new vfs ops interfaces. I am not sure if
-> > we really
-> > need to vectorize aio interfaces, can you check and see if this is okay
-?
-> > And also, I am not sure what hypfs_aio_write() is actually doing.
-> > It doesn't seem to be  doing with "buf" ?
+Hmm, yes maybe it has changed. When I tried it originally (which was before 2.6.9)
+it didn't work
 
-The hypfs write function currently is only used to trigger the update
-process of hypfs. We just ignore the buffer.
-
-Thanks
-
-Michael
+-Andi
 

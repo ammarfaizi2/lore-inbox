@@ -1,78 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWGMQRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWGMQZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWGMQRh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 12:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWGMQRh
+	id S932484AbWGMQZT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 12:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWGMQZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 12:17:37 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:26059 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932477AbWGMQRg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 12:17:36 -0400
-Subject: Re: Linker error with latest tree on EM64T
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, jakub@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060713161020.GA22355@mars.ravnborg.org>
-References: <1152788160.4838.2.camel@localhost>
-	 <1152788387.3024.32.camel@laptopd505.fenrus.org>
-	 <1152791882.4838.6.camel@localhost>
-	 <20060713132631.GA21657@mars.ravnborg.org>
-	 <1152797421.4838.12.camel@localhost>
-	 <20060713161020.GA22355@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 18:17:06 +0200
-Message-Id: <1152807426.4838.59.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 12:25:19 -0400
+Received: from chen.mtu.ru ([195.34.34.232]:5394 "EHLO chen.mtu.ru")
+	by vger.kernel.org with ESMTP id S932484AbWGMQZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 12:25:18 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: confusion and case problems: utf8 <-> iocharset
+To: Eduard Bloch <edi@gmx.de>, linux-kernel@vger.kernel.org
+Date: Thu, 13 Jul 2006 20:25:14 +0400
+References: <20060713075617.GA9429@rotes76.wohnheim.uni-kl.de>
+User-Agent: KNode/0.10.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8Bit
+Message-Id: <20060713162515.465575472A6@chen.mtu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+Eduard Bloch wrote:
 
-> > > From -linus:
-> > > # Force gcc to behave correct even for buggy distributions
-> > > CFLAGS          += $(call cc-option, -fno-stack-protector-all \
-> > >                                      -fno-stack-protector)
-> > 
-> > I used the latest tree from Linus and I see this in the Makefile, but it
-> > is not working.
-> Unexpected - let's see if we can nail it down then.
-> Can you please try to edit the line above to include only one of the -f
-> options and see if that helps. make V=1 may help to identify if the flag
-> are picked up or not.
+> Hello (to whom it may concern),
+> 
+> I try to understand how the charset mapping with VFAT/Joliet and I found
+> some inconsistencies between the user expectations, the docs, and the
+> actuall behaviour.
+> 
+> Users view:
+> 
+> VFAT, NTFS and Joliet use a Unicode charset for storing the names
+> internaly. 
 
-see my previous email. This patch fixed it for me:
+Nope. VFAT is using short name as long as it complies with MSDOS; this name
+is stored in codepage character set.
 
-diff --git a/Makefile b/Makefile
-index 7c010f3..b4a2a80 100644
---- a/Makefile
-+++ b/Makefile
-@@ -308,7 +308,7 @@ LINUXINCLUDE    := -Iinclude \
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
+[...]
+> 
+> Second:
+> there is the "utf8" option. How does that exactly differ from
+> iocharset=utf8? There is not clear explanation in vfat.txt. What happens
+> if you use both options, especially if iocharset!=utf8? Which one is
+> prefered?
+>
+
+You actually need both; utf8 just says it is OK not to try to mangle names;
+it does not substitute iocharset option.
  
- CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
--                   -fno-strict-aliasing -fno-common
-+                   -fno-strict-aliasing -fno-common -fno-stack-protector
- # Force gcc to behave correct even for buggy distributions
- CFLAGS          += $(call cc-option, -fno-stack-protector-all \
-                                      -fno-stack-protector)
+> Third:
+> how can I disable all that funny letter case conversions? They are not
+> described anywhere properly,
 
-> Also could you try executing:
-> if gcc -fno-stack-protector-all -S -o /dev/null -xc /dev/null; then \
->   echo "y"; else echo "n"; fi
-> And see if this gives a "y" or a "n".
-> Try with -fno-stack-protector-all and with -fno-stack-protector.
+man mount
 
-With -fno-stack-protector I get a "y" and with -fno-stack-protector-all
-I get an error:
+> nor the way to disable them. 
 
-cc1: error: unrecognized command line option "-fno-stack-protector-all"
+man mount
 
-Regards
+> IMO there are  
+> two problems:
+> 
+>  - what you write to the FS is not the same what "ls" shows you later.
+>    Eg. ABW becomes "abw" but "ABWÖ" becomes "ABWÖ". Abcd becomes "Abcd"
+>    but "ABC" becomes "abc".  Does it make sense? NO.
 
-Marcel
+tell this to Microsoft. It is how VFAT works. Although umlaut should
+probably be considered as MSDOS-safe, at least with proper codepage option.
 
+
+>    I would like to stop the kernel playing such games, I had enough of
+>    such trouble back in my Windows 98 times.
+> 
+>  - this case conversion can actually break things. When iocharset=utf-8
+>    and utf8 are used, then you cannot access the data with the same
+>    name after storing it.
+> 
+
+mount shortname=mixed is probably what you want.
+
+> zombie:/tmp# mkdir test/TEST
+> zombie:/tmp# ls test
+> test
+> zombie:/tmp# ls test/test
+> zombie:/tmp# ls test/TEST
+> ls: test/TEST: No such file or directory
+
+{pts/1}% sudo mount -t vfat -o
+loop,shortname=mixed,utf8,uid=bor /var/tmp/test.dos /tmp/x
+{pts/1}% LC_ALL=C ll /tmp/x/test
+total 2
+drwxr-xr-x  2 bor root 2048 Jul 13 20:06 TEST/
+{pts/1}% LC_ALL=C ll /tmp/x/test/TEST
+total 0
+-rwxr-xr-x  1 bor root 0 Jul 13 20:06 ?*
+-rwxr-xr-x  1 bor root 0 Jul 13 20:06 ?*
+-rwxr-xr-x  1 bor root 0 Jul 13 20:06 ?*
+-rwxr-xr-x  1 bor root 0 Jul 13 20:06 ?*
+
+The filesystem is foobared already because it contains both capital and
+lowercase versions of the same names. This is what happens when you try to
+use wrong codepage.
+
+-andrey
 

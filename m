@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWGMHvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWGMH4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWGMHvp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWGMHvp
+	id S964838AbWGMH4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWGMH4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:51:45 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55696 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964816AbWGMHvo (ORCPT
+	Thu, 13 Jul 2006 03:56:05 -0400
+Received: from mailgate.terastack.com ([195.173.195.66]:2056 "EHLO
+	uk-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S964838AbWGMH4D convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:51:44 -0400
-Date: Thu, 13 Jul 2006 09:46:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sekharan@us.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com, arjan@infradead.org
-Subject: Re: Random panics seen in 2.6.18-rc1
-Message-ID: <20060713074609.GA3620@elte.hu>
-References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713004445.cf7d1d96.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 13 Jul 2006 03:56:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Thu, 13 Jul 2006 08:56:01 +0100
+Message-ID: <89E85E0168AD994693B574C80EDB9C27043F5DEE@uk-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Thread-Index: AcallTdA7BG1iV93QBKvmlJCUpvBPAAu7kaQ
+From: "Andy Chittenden" <AChittenden@bluearc.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> > Any suggestions of how to avoid the parameter passing? (without ugly 
-> > #ifdeffery)
+> On Wed, 12 Jul 2006 08:58:52 +0100
+> "Andy Chittenden" <AChittenden@bluearc.com> wrote:
 > 
-> No, I don't see a way apart from inlining __cache_free(), or inlining 
-> cache_free_alien() into both kfree() and kmem_cache_free(), both of 
-> which are unattractive.
+> > I tried to install the linux-image-2.6.17-1-amd64-k8-smp 
+> debian package
+> > on a ASUS M2NPV-VM motherboard based system and it hung 
+> during boot. The
+> > last message on the console was:
+> > 
+> >  io scheduler cfq registered
+> 
+> Suggest you add initcall_debug to the kernel boot command 
+> line.  That'll
+> tell us which initcall got stuck.
 
-furthermore, cache_free_alien() is a NOP on non-NUMA, so the cost on 
-non-NUMA is really small.
+I was only able to scrounge 5 minutes on this system this morning.
+Here's the last few messages output with initcall_debug on:
 
-but ... i think gcc ought to be able to figure out that the parameter is 
-totally unused on !LOCKDEP - all functions involved are static, and we 
-are using -funit-at-a-time already. That should make the parameter 
-passing totally zero-cost.
+Calling initcall .... init+0x0/0xc()
+Calling initcall .... noop_init+0x0/0xc()
+io scheduler noop registered
+Calling initcall .... as_init+0x0/0x4f()
+io scheduler anticipatory registered (default)
+Calling initcall .... deadline_init+0x0/0x4f()
+io scheduler deadline registered
+Calling initcall .... cfq_init+0x0/0xcc()
+io scheduler cfq registered
+Calling initcall .... pci_init+0x0/0x2b()
 
-	Ingo
+What other info can I grab? (Although I have to fit in with that
+system's production schedule so I may not be able to come back with that
+until later on today/tomorrow).
+
+
+-- 
+Andy, BlueArc Engineering
+  

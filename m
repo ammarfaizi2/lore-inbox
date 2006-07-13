@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbWGMUtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWGMUuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbWGMUtv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 16:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWGMUtv
+	id S1030381AbWGMUuh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWGMUug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 16:49:51 -0400
-Received: from [83.101.155.109] ([83.101.155.109]:26630 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1030380AbWGMUtu (ORCPT
+	Thu, 13 Jul 2006 16:50:36 -0400
+Received: from [83.101.155.109] ([83.101.155.109]:28422 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1030381AbWGMUuf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 16:49:50 -0400
+	Thu, 13 Jul 2006 16:50:35 -0400
 From: Al Boldi <a1426z@gawab.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCHSET] 0/15 IO scheduler improvements
-Date: Thu, 13 Jul 2006 23:50:47 +0300
+To: Frank van Maarseveen <frankvm@frankvm.com>
+Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality permits it
+Date: Thu, 13 Jul 2006 23:51:04 +0300
 User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+References: <200607112257.22069.a1426z@gawab.com> <p73sll6n73t.fsf@verdi.suse.de> <20060713094402.GB2448@janus>
+In-Reply-To: <20060713094402.GB2448@janus>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607132350.47388.a1426z@gawab.com>
+Message-Id: <200607132351.04721.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Frank van Maarseveen wrote:
+> On Wed, Jul 12, 2006 at 06:03:18PM +0200, Andi Kleen wrote:
+> > Al Boldi <a1426z@gawab.com> writes:
+> > > Frank van Maarseveen wrote:
+> > > > Do not randomize stack location unless current->personality permits
+> > > > it.
 >
-> This is a continuation of the patches posted yesterday, I continued
-> to build on them. The patch series does:
+> [...]
 >
-> - Move the hash backmerging into the elevator core.
-> - Move the rbtree handling into the elevator core.
-> - Abstract the FIFO handling into the elevator core.
-> - Kill the io scheduler private requests, that require allocation/free
->   for each request passed through the system.
+> > > It still blips on my system.
+> > >
+> > > echo 0 > /proc/sys/kernel/randomize_va_space makes the blips go away.
+> > >
+> > > ???
+> >
+> > fs/binfmt_elf.c:randomize_stack_top would need the same check
 >
-> The result is a faster elevator core (and faster IO schedulers), with a
-> nice net reduction of kernel text and code as well.
+> Actually, randomize_stack_top() checks
+>
+> 	if (current->flags & PF_RANDOMIZE) {
+>
+> and it's only called from load_elf_binary() right after this:
+>
+> 	if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
+> 		current->flags |= PF_RANDOMIZE;
+>
+> Further on create_elf_tables() is called and that one calls
+> arch_align_stack() so maybe it is more appropriate to test (current->flags
+> & PF_RANDOMIZE) in arch_align_stack() instead of recomputing it.
 
-Thanks!
+exec.c uses arch_align_stack() also for non-elf.
 
-Your efforts are much appreciated, as the current situation is a bit awkward.
+BTW, why does randomize_stack_top() mod against (8192*1024) instead of (8192) 
+like arch_align_stack()?
 
-> If you have time, please give this patch series a test spin just to
-> verify that everything still works for you. Thanks!
-
-Do you have a combo-patch against 2.6.17?
 
 Thanks!
 

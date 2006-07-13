@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWGMRJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWGMRdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbWGMRJj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 13:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWGMRJj
+	id S1030262AbWGMRdz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 13:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWGMRdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 13:09:39 -0400
-Received: from mga03.intel.com ([143.182.124.21]:28054 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1030256AbWGMRJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 13:09:38 -0400
-X-IronPort-AV: i="4.06,221,1149490800"; 
-   d="scan'208"; a="65482481:sNHT7860000778"
-Date: Thu, 13 Jul 2006 10:00:38 -0700
-Message-Id: <200607131700.k6DH0c5t001038@agluck-lia64.sc.intel.com>
-From: "Luck, Tony" <tony.luck@intel.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: [PATCH] ia64: race flushing icache in COW path
+	Thu, 13 Jul 2006 13:33:55 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:37391 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S1030262AbWGMRdy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 13:33:54 -0400
+Message-ID: <44B683EB.20709@stud.feec.vutbr.cz>
+Date: Thu, 13 Jul 2006 19:33:31 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] IDE: Touch NMI watchdog during resume from STR
+References: <44B61D0A.7010305@stud.feec.vutbr.cz> <p73ejwpmy6m.fsf@verdi.suse.de>
+In-Reply-To: <p73ejwpmy6m.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-3.9 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0085]
+   0.3 MAILTO_TO_SPAM_ADDR    URI: Includes a link to a likely spammer email
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Anil Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Andi Kleen wrote:
+> Michal Schmidt <xschmi00@stud.feec.vutbr.cz> writes:
+>> if (stat == 0xff)
+>>  			return -ENODEV;
+>>  		touch_softlockup_watchdog();
+>> +		touch_nmi_watchdog();
+> You can remove the touch_softlock_watchdog then. It's implied in 
+> touch_nmi_watchdog
 
-There is a race condition that showed up in a threaded JIT environment. The
-situation is that a process with a JIT code page forks, so the page is marked
-read-only, then some threads are created in the child.  One of the threads
-attempts to add a new code block to the JIT page, so a copy-on-write fault is
-taken, and the kernel allocates a new page, copies the data, installs the new
-pte, and then calls lazy_mmu_prot_update() to flush caches to make sure that
-the icache and dcache are in sync.  Unfortunately, the other thread runs right
-after the new pte is installed, but before the caches have been flushed. It
-tries to execute some old JIT code that was already in this page, but it sees
-some garbage in the i-cache from the previous users of the new physical page.
+I don't think that's always true. There are architectures where 
+touch_nmi_watchdog is a NOP. This is in include/linux/nmi.h:
 
-Fix: we must make the caches consistent before installing the pte. This is
-an ia64 only fix because lazy_mmu_prot_update() is a no-op on all other
-architectures.
+#ifdef ARCH_HAS_NMI_WATCHDOG
+extern void touch_nmi_watchdog(void);
+#else
+# define touch_nmi_watchdog() do { } while(0)
+#endif
 
-Signed-off-by: Anil Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-
----
-
-diff --git a/mm/memory.c b/mm/memory.c
-index dc0d82c..de8bc85 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1549,9 +1549,9 @@ gotten:
- 		flush_cache_page(vma, address, pte_pfn(orig_pte));
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		lazy_mmu_prot_update(entry);
- 		ptep_establish(vma, address, page_table, entry);
- 		update_mmu_cache(vma, address, entry);
--		lazy_mmu_prot_update(entry);
- 		lru_cache_add_active(new_page);
- 		page_add_new_anon_rmap(new_page, vma, address);
- 
+Michal

@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWGME4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWGMFAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWGME4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 00:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWGME4E
+	id S932524AbWGMFAk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 01:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWGMFAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 00:56:04 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:55437 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932504AbWGME4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 00:56:02 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
-Date: Wed, 12 Jul 2006 21:55:59 -0700
-User-Agent: KMail/1.7.1
-Cc: Aleksey Gorelov <dared1st@yahoo.com>, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-References: <20060712063841.18958.qmail@web81202.mail.mud.yahoo.com>
-In-Reply-To: <20060712063841.18958.qmail@web81202.mail.mud.yahoo.com>
+	Thu, 13 Jul 2006 01:00:40 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:61994 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932524AbWGMFAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 01:00:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=EBfhjM0nanE6TUg9lJw+BXIzbuai4DhRU1ZZpcs9XZyq/06GncA/irmttgPI1Dp1ojKel6nHKVll94rOFDRdm8fI1pbDsECRxPEu6opyFh88dlW/kUgcV50dWcBNWC4j/Vw5tgHuXqhPbFVGSC1u1XrJKfv6SViFJTiqwlmnY6U=
+Message-ID: <787b0d920607122200m4785f7ddmddf40c079a7460cb@mail.gmail.com>
+Date: Thu, 13 Jul 2006 01:00:38 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: ak@suse.de, tytso@mit.edu, ebiederm@xmission.com, drepper@redhat.com,
+       arjan@infradead.org, rdunlap@xenotime.net, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607122155.59874.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 July 2006 11:38 pm, Aleksey Gorelov wrote:
-> Hi,
-> 
->   If some problem occurs during ehci startup, for instance, request_irq fails, echi hcd driver
-> tries it best to cleanup, but fails to unregister reboot notifier, which in turn leads to crash on
-> reboot/poweroff. Below is the patch against current git to fix this.
->   I did not check if the same problem existed for uhci/ohci host drivers.
-> 
-> Signed off by: Aleks Gorelov <dared1st@yahoo.com>
+Andi Kleen writes:
+> On Thursday 13 July 2006 01:24, Theodore Tso wrote:
 
-Acked-by:  David Brownell <dbrownell@users.sourceforge.net>
+>> P.S.  I happen to be one those developers who think the binary
+>> interface is not so bad, and for compared to reading from /proc/sys,
+>> the sysctl syscall *is* faster.  But at the same there, there really
+>> isn't anything where really does require that kind of speed, so that
+>> point is moot.  But at the same time, what is the cost of leaving
+>> sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+>> starting from now?
+>
+> The numerical namespace for sysctl is unsalvagable imho. e.g.
+> distributions regularly break it because there is no central
+> repository of numbers so it's not very usable anyways in practice.
 
-> 
-> --- linux-2.6/drivers/usb/host/ehci-hcd.c-orig	2006-07-11 17:27:54.000000000 -0700
-> +++ linux-2.6/drivers/usb/host/ehci-hcd.c	2006-07-11 17:27:20.000000000 -0700
-> @@ -483,9 +483,6 @@
->  	}
->  	ehci->command = temp;
->  
-> -	ehci->reboot_notifier.notifier_call = ehci_reboot;
-> -	register_reboot_notifier(&ehci->reboot_notifier);
-> -
->  	return 0;
->  }
->  
-> @@ -499,7 +496,6 @@
->  
->  	/* EHCI spec section 4.1 */
->  	if ((retval = ehci_reset(ehci)) != 0) {
-> -		unregister_reboot_notifier(&ehci->reboot_notifier);
->  		ehci_mem_cleanup(ehci);
->  		return retval;
->  	}
-> @@ -560,6 +556,9 @@
->  	 */
->  	create_debug_files(ehci);
->  
-> +	ehci->reboot_notifier.notifier_call = ehci_reboot;
-> +	register_reboot_notifier(&ehci->reboot_notifier);
-> +
->  	return 0;
->  }
->  
-> 
-> 
-> 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> linux-usb-devel@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
-> 
+Huh? How exactly is this different from system call numbers,
+ioctl numbers, fcntl numbers, ptrace command numbers, and every
+other part of the Linux ABI?
+
+Normal sysctl works very well for FreeBSD. I'm jealous.
+They also have a few related calls that are very nice.
+
+Here we fight over a few CPU cycles in the syscall entry path,
+then piss away performance by requiring open-read-close and
+marshalling everything through decimal ASCII text. WTF? Let's
+just have one system call (make_XML_SOAP_request) and be done.

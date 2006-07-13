@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWGMUYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWGMUZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbWGMUYg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 16:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWGMUYg
+	id S1030361AbWGMUZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 16:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWGMUZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 16:24:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11684 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030365AbWGMUYf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 16:24:35 -0400
-Subject: [PATCH] Fix security check for joint context= and fscontext= mount
-	options
-From: Eric Paris <eparis@parisplace.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
+	Thu, 13 Jul 2006 16:25:28 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:39322 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030361AbWGMUZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 16:25:27 -0400
+Subject: [PATCH] tpm_tis: use resource_size_t
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>, akpm@osdl.org
 Content-Type: text/plain
-Date: Thu, 13 Jul 2006 16:24:27 -0400
-Message-Id: <1152822267.2669.57.camel@localhost.localdomain>
+Date: Thu, 13 Jul 2006 13:25:28 -0700
+Message-Id: <1152822328.5347.136.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After some discussion on the actual meaning of the filesystem class
-security check in try context mount it was determined that the checks
-for the context= mount options were not correct if fscontext mount
-option had already been used.  When labeling the superblock we should be
-checking relabel_from and relabel_to.  But if the superblock has already
-been labeled (with fscontext) then context= is actually labeling the
-inodes, and so we should be checking relabel_from and associate.  This
-patch fixes which checks are called depending on the mount options.
+Fix the start and len variables that should be using the new
+resource_size_t.
 
-This is issue is in 2.6.8-rc1-git4 and should probably be fixed before
-2.6.18 releases.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: James Morris <jmorris@namei.org>
-
- security/selinux/hooks.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -523,12 +523,16 @@ static int try_context_mount(struct supe
- 			goto out_free;
- 		}
+Signed_off_by: Kylene Hall <kjhall@us.ibm.com>
+---
+--- linux-2.6.18-rc1/drivers/char/tpm/tpm_tis.c	2006-07-13 14:46:09.865634250 -0500
++++ linux-2.6.18-rc1-tpm/drivers/char/tpm/tpm_tis.c	2006-07-13 14:45:56.932826000 -0500
+@@ -431,7 +431,8 @@ static int interrupts = 1;
+ module_param(interrupts, bool, 0444);
+ MODULE_PARM_DESC(interrupts, "Enable interrupts");
  
--		rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
--		if (rc)
--			goto out_free;
--
--		if (!fscontext)
-+		if (!fscontext) {
-+			rc = may_context_mount_sb_relabel(sid, sbsec, tsec);
-+			if (rc)
-+				goto out_free;
- 			sbsec->sid = sid;
-+		} else {
-+			rc = may_context_mount_inode_relabel(sid, sbsec, tsec);
-+			if (rc)
-+				goto out_free;
-+		}
- 		sbsec->mntpoint_sid = sid;
+-static int tpm_tis_init(struct device *dev, unsigned long start, unsigned long len)
++static int tpm_tis_init(struct device *dev, resource_size_t start,
++			resource_size_t len)
+ {
+ 	u32 vendor, intfcaps, intmask;
+ 	int rc, i;
+@@ -592,7 +593,7 @@ out_err:
+ static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
+ 				      const struct pnp_device_id *pnp_id)
+ {
+-	unsigned long start, len;
++	resource_size_t start, len;
+ 	start = pnp_mem_start(pnp_dev, 0);
+ 	len = pnp_mem_len(pnp_dev, 0);
  
- 		sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+
 

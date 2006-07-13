@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWGMMh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWGMMnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWGMMh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWGMMh0
+	id S1751273AbWGMMnr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWGMMnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:37:26 -0400
-Received: from ns2.suse.de ([195.135.220.15]:46787 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750884AbWGMMh0 (ORCPT
+	Thu, 13 Jul 2006 08:43:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6191 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751273AbWGMMnq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:37:26 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: utrace vs. ptrace
-Date: Thu, 13 Jul 2006 14:37:28 +0200
-User-Agent: KMail/1.9.1
-Cc: Albert Cahalan <acahalan@gmail.com>, torvalds@osdl.org,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> <20060713070445.GA30842@elte.hu> <20060713092432.GA11812@elte.hu>
-In-Reply-To: <20060713092432.GA11812@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607131437.28727.ak@suse.de>
+	Thu, 13 Jul 2006 08:43:46 -0400
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCHSET] 0/15 IO scheduler improvements
+Date: Thu, 13 Jul 2006 14:46:23 +0200
+Message-Id: <11527947982769-git-send-email-axboe@suse.de>
+X-Mailer: git-send-email 1.4.1.ged0e0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 July 2006 11:24, Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> > utrace enables something like 'transparent live debugging': an app
-> > crashes in your distro, a window pops up, and you can 'hand over' a
-> > debugging session to a developer you trust. Or you can instruct the
-> > system to generate a coredump. Or you can generate a shorter summary
-> > of the crash, sent to a central site.
->
-> not to mention that utrace could be used to move most of the ELF
-> coredumping code out of the kernel. (the moment you have access to all
-> crashed threads userspace can construct its own coredump - instead of
-> having the kernel construct a coredump file) Roland's patch does not go
-> as far yet, but it could be a possible target.
+Hi,
 
-I'm not sure that's particularly useful (I think I would prefer to keep
-it in kernel), but executing a program when a core dump happens is useful with 
-lots of applications.  I had patches for this
-that i should probably submit at some point.
+This is a continuation of the patches posted yesterday, I continued
+to build on them. The patch series does:
+
+- Move the hash backmerging into the elevator core.
+- Move the rbtree handling into the elevator core.
+- Abstract the FIFO handling into the elevator core.
+- Kill the io scheduler private requests, that require allocation/free
+  for each request passed through the system.
+
+The result is a faster elevator core (and faster IO schedulers), with a
+nice net reduction of kernel text and code as well.
+
+If you have time, please give this patch series a test spin just to
+verify that everything still works for you. Thanks!
+
+ block/as-iosched.c       |  650 ++++++++++-------------------------------------
+ block/cfq-iosched.c      |  498 +++++++++---------------------------
+ block/deadline-iosched.c |  462 +++++----------------------------
+ block/elevator.c         |  266 +++++++++++++++++--
+ block/ll_rw_blk.c        |    9 
+ include/linux/blkdev.h   |   29 +-
+ include/linux/elevator.h |   32 ++
+ include/linux/rbtree.h   |    2 
+ lib/rbtree.c             |    6 
+ 9 files changed, 649 insertions(+), 1305 deletions(-)
 
 
--Andi
+--
+Jens Axboe
 
-> 	Ingo

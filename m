@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWGMNic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWGMNkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWGMNic (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWGMNib
+	id S1750881AbWGMNkK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWGMNkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:38:31 -0400
-Received: from beer.tclug.org ([71.36.145.29]:30929 "EHLO beer.tclug.org")
-	by vger.kernel.org with ESMTP id S1750881AbWGMNia (ORCPT
+	Thu, 13 Jul 2006 09:40:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16836 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750881AbWGMNkI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:38:30 -0400
-Date: Thu, 13 Jul 2006 08:38:28 -0500 (CDT)
-From: Jima <jima@beer.tclug.org>
-To: Mikael Pettersson <mikpe@it.uu.se>
-cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-In-Reply-To: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.64.0607130836140.13948@beer.tclug.org>
-References: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
+	Thu, 13 Jul 2006 09:40:08 -0400
+Message-ID: <44B64CAD.5080804@redhat.com>
+Date: Thu, 13 Jul 2006 09:37:49 -0400
+From: Bhavana Nagendra <bnagendr@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: jima@beer.tclug.org
-Subject: Re: 2.6.18-rc1 fails to boot on Ultra 5
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-SA-Exim-Version: 4.1+cvs (built Mon, 23 Aug 2004 08:44:05 -0700)
-X-SA-Exim-Scanned: No (on beer.tclug.org); Unknown failure
+To: linux-kernel@vger.kernel.org
+Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to change
+ pstate at same time
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006, Mikael Pettersson wrote:
-> So ttyS0 became ttyS1, and the serial port at 0x1fff1400040
-> disappeared. OTOH, my Ultra5 only has a single serial port
-> connector so perhaps the old kernel was wrong in reporting
-> two serial ports.
+Here are some results without changing frequencies on a system whose 
+BIOS does not support Power Now! on MP systems:
 
-  I don't know about you, but my Ultra 5 has two: the DB25 female connector 
-on the board ("A"), and the DB9 male connector on a ribbon cable ("B"). 
-This is going off memory, but I'm fairly confident of this.
+Basically the system booted up with "nohpet, nopmtimer"i.e. using TSC as 
+the GTOD time source and system stayed idle for 13 hours.   There 
+appears to be drift of 20 secs in the CPU 2 readings.    This TSC drift 
+will be worse when
+the system is active and doing GTOD operations.
 
-      Jima
+CPU 2: Syncing TSC to CPU 0.
+CPU 2: synchronized TSC with CPU 0 (last diff -108 cycles, maxerr 826 
+cycles)
+CPU 3: Syncing TSC to CPU 0.
+CPU 3: synchronized TSC with CPU 0 (last diff -119 cycles, maxerr 845 
+cycles)
+
+*** CPUs go offline ***
+
+*** back online ***
+
+CPU 2: Syncing TSC to CPU 0.
+CPU 2: synchronized TSC with CPU 0 (last diff -117 cycles, maxerr 846 
+cycles)
+CPU 3: Syncing TSC to CPU 0.
+CPU 3: synchronized TSC with CPU 0 (last diff -117 cycles, maxerr 845 
+cycles)

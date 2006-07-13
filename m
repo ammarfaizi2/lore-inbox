@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWGMPlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWGMPmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWGMPlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 11:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWGMPlJ
+	id S1030237AbWGMPmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 11:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWGMPmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 11:41:09 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:14687 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S964785AbWGMPlI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 11:41:08 -0400
-In-Reply-To: <44B65924.7060602@us.ibm.com>
-Subject: Re: [PATCH] s390 hypfs fixes for 2.6.18-rc1-mm1
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OFABC483F9.1D9AD47C-ON422571AA.0056247F-422571AA.0056297A@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Thu, 13 Jul 2006 17:41:07 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.5.5HF268 | April 6, 2006) at
- 13/07/2006 17:44:02
+	Thu, 13 Jul 2006 11:42:50 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:62074 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S964786AbWGMPmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 11:42:50 -0400
+X-IronPort-AV: i="4.06,238,1149490800"; 
+   d="scan'208"; a="1838196644:sNHT25046558"
+To: Andrew Morton <akpm@osdl.org>
+Cc: arjan@infradead.org, mingo@elte.hu, zach.brown@oracle.com,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
+	<20060712093820.GA9218@elte.hu> <adaveq2v9gn.fsf@cisco.com>
+	<20060712183049.bcb6c404.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 13 Jul 2006 08:42:47 -0700
+Message-ID: <adau05ltsso.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Jul 2006 15:42:48.0251 (UTC) FILETIME=[FDF118B0:01C6A692]
+Authentication-Results: sj-dkim-8.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote on 07/13/2006 04:31:00 PM:
-> Andrew Morton wrote:
-> > On Wed, 12 Jul 2006 21:17:53 -0700
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
+ > Sigh.  It was always a mistake (of the kernel programming 101 type) to put
+ > any locking at all in the idr code.  At some stage we need to weed it all
+ > out and move it to callers.
+ > 
+ > Your fix is yet more fallout from that mistake.
 
-[snip]
+Agreed.  Consider me on the hook to fix this up in a better way once
+my life is a little saner.  Maybe I'll try to cook something up on the
+plane ride to Ottawa.
 
-> >
-> > err, "temporary" things tend to become permanent.  What's the real fix?
-> >
-> I am not sure, if we really need to vectorize this method or not -
-> meaning will this be ever called
-> with more than one items in the vector.
->
-> Micheal, is it possible ? Can some one directly use AIO interface on
-> hypfs ? If not, we can always
-> look at only first element and ignore rest of them. Otherwise, we need
-> to iterate on all the elements
-> of the vector.
+Anyway you can punch me in the stomach if I don't have something in
+time for 2.6.19.
 
-Of course it is possible that someone uses AIO on hypfs files, but
-normally the synchronous IO functions are used. I used the AIO
-implementation together with do_sync_read/write() only because
-it was not more effort regarding the implementation and we got
-the AIO interface for free.
-
-Nevertheless we probably should implement the complete
-function.
-
-Michael
-
+ - R.

@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWGMIUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWGMIVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWGMIUw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 04:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWGMIUv
+	id S932424AbWGMIVb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 04:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGMIVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 04:20:51 -0400
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:13075 "EHLO
-	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S932227AbWGMIUv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 04:20:51 -0400
-To: Berthold Cogel <cogel@rrz.uni-koeln.de>
-Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: ACPI: SBS in linux-2.6.18-rc1 - Works for me!
-References: <44B5FCEC.8040903@rrz.uni-koeln.de>
-From: Johan Vromans <jvromans@squirrel.nl>
-Date: Thu, 13 Jul 2006 10:20:44 +0200
-In-Reply-To: <44B5FCEC.8040903@rrz.uni-koeln.de> (Berthold Cogel's message
- of "Thu, 13 Jul 2006 09:57:32 +0200")
-Message-ID: <m21wspj4pv.fsf@phoenix.squirrel.nl>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+	Thu, 13 Jul 2006 04:21:31 -0400
+Received: from web25222.mail.ukl.yahoo.com ([217.146.176.208]:28776 "HELO
+	web25222.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932424AbWGMIVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 04:21:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=PEVh6u+xkU+DFpgdMq0CwDWe5a4DDqr1N/yfa6cfIk4KRc2AWu9CxlxNbH8GAbbEMhV7Z3w4mpqh9l/YDqi5+ZwlJBpMZDiHuRMWuNi45z9kuhN4x6fnPVKoRItFliorPbagEZ01G796JQHs/qzrxn+tIRpKoklrrAAAi6t4akA=  ;
+Message-ID: <20060713082129.95046.qmail@web25222.mail.ukl.yahoo.com>
+Date: Thu, 13 Jul 2006 10:21:29 +0200 (CEST)
+From: Paolo Giarrusso <blaisorblade@yahoo.it>
+Subject: Re: [uml-devel] [PATCH 4/5] UML - Reenable SysRq support
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <44B5659E.5070000@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Berthold Cogel <cogel@rrz.uni-koeln.de> writes:
+"H. Peter Anvin" <hpa@zytor.com> ha scritto: 
 
-> I've tested linux-2.6.18-rc1 with Smart Battery System enabled. It
-> works for my Acer Extensa 3002 WLMi.
+> Why not:
+> 
+> config MAGIC_SYSRQ
+> 	bool
+> 	prompt "Magic SysRq key"
+> 	depends on !UML || MCONSOLE
+> 	default y if UML
+> 
+> 	-hpa
 
-That's good to hear!
+Because it has always been elsewhere in Kconfig (near MCONSOLE) for a
+meaningful reason (it is used through mconsole) and nobody has
+decided to move it.
 
-> Is it possible to load sbs and i2c-ec automatically together with the
-> other ACPI modules? On my Debian system I had to load the modules via
-> /etc/modules.conf.
-
-I use a similar approach (for the 'old style' SBS) in /etc/rc.local:
-
-  /sbin/modprobe -r battery
-  /sbin/modprobe -r ac
-  /sbin/modprobe i2c-acpi-ec
-  /sbin/modprobe acpi-sbs
-
-W.r.t. enabling/disabling ac&battery when sbs is selected: I'm not so
-sure if that would be a good idea. You build a kernel with modules,
-and at some later stage it is selected which modules will be actually
-be used.
-
--- Johan
-
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

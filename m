@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWGMSsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWGMSsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWGMSsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbWGMSsQ
+	id S1030287AbWGMSsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWGMSsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:48:16 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:55785 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030285AbWGMSsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:48:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qbSE7FAp6CkYl2wAhc33txX7E9lXEnfgiHwsoX7jhRXoVPyjV0mG7KwmHqAo6nAM052Mgi/IvtDWMSg/1ydjpsSfCujeRCISgqsh8yoHxkkogOKCPQq5WcxCwRSdCfflmF3QjwenITYZuqx5PCOM6o1A6WnVu6tL2WBPdwoWgTk=
-Message-ID: <d120d5000607131148y3c80abadhb49cc22db0593d6e@mail.gmail.com>
-Date: Thu, 13 Jul 2006 14:48:13 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Paulo Marques" <pmarques@grupopie.com>
-Subject: Re: [patch] Re: Magic Alt-SysRq change in 2.6.18-rc1
-Cc: "Roman Zippel" <zippel@linux-m68k.org>, "Andrew Morton" <akpm@osdl.org>,
-       pavel@ucw.cz, roubert@df.lth.se, stern@rowland.harvard.edu,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <44B575EF.1080409@grupopie.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 14:48:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38312 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030287AbWGMSsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 14:48:20 -0400
+Date: Thu, 13 Jul 2006 11:37:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: Opinions on removing /proc/tty?
+Message-ID: <20060713183703.GA31824@kroah.com>
+References: <9e4733910607072256q65188526uc5cb706ec3ecbaee@mail.gmail.com> <20060708220414.c8f1476e.rdunlap@xenotime.net> <9e4733910607082220v754a000ak7e75ae4042a5e595@mail.gmail.com> <44B0D55D.2010400@gmail.com> <9e4733910607090645l236f17f1sb9778f0fc6c6ca01@mail.gmail.com> <20060709103529.bf8a46a4.rdunlap@xenotime.net> <44B191CF.2090506@gmail.com> <9e4733910607091744k273a7351l16abbcc6ff8c4bbd@mail.gmail.com> <20060711220117.GD663@kroah.com> <9e4733910607111532s3fc2bb52q3f0247a9f2289d4e@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.44L0.0607091657490.28904-100000@netrider.rowland.org>
-	 <Pine.LNX.4.64.0607120213060.12900@scrub.home>
-	 <20060711173735.43e9af94.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607120248050.12900@scrub.home>
-	 <20060711183647.5c5c0204.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607121056170.12900@scrub.home>
-	 <44B4F88D.3060301@grupopie.com> <44B55091.2040207@grupopie.com>
-	 <d120d5000607121305g5fa5bda2v2038ecac893f4c83@mail.gmail.com>
-	 <44B575EF.1080409@grupopie.com>
+In-Reply-To: <9e4733910607111532s3fc2bb52q3f0247a9f2289d4e@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/12/06, Paulo Marques <pmarques@grupopie.com> wrote:
-> >
-> > We also need to check if emulate_raw() needs to be adjusted...
->
-> I looked at that very quickly, to be honest, but couldn't understand it
-> entirely. This code:
->
-> 1087 if (keycode == KEY_SYSRQ && sysrq_alt) {
-> 1088   put_queue(vc, 0x54 | up_flag);
-> 1089   return 0;
-> 1090 }
->
-> seems to be supposed to cancel the Alt "press" by sending a Alt
-> "release" to handle the sequence press alt -> press sysrq without
-> affecting the application. However, this is just a guess. I couldn't
-> find out what that magic 0x54 meant or why this would be enough wether
-> we pressed the left or the right alt...
->
+On Tue, Jul 11, 2006 at 06:32:26PM -0400, Jon Smirl wrote:
+> If you really want to stick with the one value model on the read-only
+> attributes, how about a sysfs function that takes a variable and a
+> string array of enum values. It creates a subdirectory named for the
+> variable and makes attributes in the directory matching the names from
+> the enum. The subdirectory avoids namespace collisions. The attributes
+> are then managed like a set of radio buttons so that only one can be
+> set non-zero at a time.  The driver read/write functions for the
+> variable never knows this is going on, read/write just works with an
+> index into the array.
 
-Real AT keyboards (that's what we are trying to emulate here) send
-0x54 scancode (and 0xB4 break code) if PrintScreen/SysRq key is
-pressed while holding Alt (left or right). Otherwise it sends e0 2a e0
-37. That's it.
+That might be interesting.  Send a patch and I'll seriously consider it.
 
-> Then there are other things that I don't understand there: I don't see
-> any code to filter out the keys we press ('T','P', etc.) while using
-> SysRq magic if we are in raw mode. emulate_raw will happily call
-> put_queue on them before we have a chance to bail out.
->
-> Maybe we should just stop calling emulate_raw while sysrq_active is
-> active. This way, after we press Alt + SysRq, every keypress would be
-> processed as a magic sysrq and not handled by any other code until we
-> release both keys.
+thanks,
 
-We never supressed sysrq scancodes from reaching userspace if keyboard
-is in raw mode (2.4 works the same). Plus you won't be able to supress
-it for keyboards working in hadware raw mode (kbd_rawcode is called
-even before we get to detecting SysRq state). Also users getting
-keyboard events from alternative interfaces (such as evdev) won't be
-affected anyway so I think we shoudl leave it as is.
-
--- 
-Dmitry
+greg k-h

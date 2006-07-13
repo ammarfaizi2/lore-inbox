@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWGML74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWGMMIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbWGML74 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWGML74
+	id S1751434AbWGMMIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWGMMIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:59:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37076 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750921AbWGML7z (ORCPT
+	Thu, 13 Jul 2006 08:08:44 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38093 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751434AbWGMMIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:59:55 -0400
-Subject: Re: [patch] ext3: remove btree_dir
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Qi Yong <qiyong@fc-cn.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andreas Dilger <adilger@clusterfs.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20060713080538.GA20259@localhost.localdomain>
-References: <20060713080538.GA20259@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 12:59:25 +0100
-Message-Id: <1152791965.5208.9.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 08:08:44 -0400
+Date: Thu, 13 Jul 2006 14:08:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dave Jones <davej@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: annoying frequent overcurrent messages.
+Message-ID: <20060713120815.GA5727@elf.ucw.cz>
+References: <200607111747.13529.david-b@pacbell.net> <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Thu, 2006-07-13 at 16:05 +0800, Qi Yong wrote:
-> Remove support for EXT3_FEATURE_RO_COMPAT_BTREE_DIR, so mount can
-> safely fail out when some new feature added using 0x0004. 
+> > I have a box that's having its dmesg flooded with..
+> > 
+> > hub 1-0:1.0: over-current change on port 1
+> > hub 1-0:1.0: over-current change on port 2
+> > hub 1-0:1.0: over-current change on port 1
+> > hub 1-0:1.0: over-current change on port 2
+> ...
+> 
+> > over and over again..
+> > The thing is, this box doesn't even have any USB devices connected to it,
+> > so there's absolutely nothing I can do to remedy this.
+> 
+> Well, overcurrent is a potentially dangerous situation.  That's why it 
+> gets reported with dev_err priority.
 
-I think this is a bad idea.
+Well, I see overcurrents all the time while doing suspend/resume...
 
-It's not safe to reuse this existing feature bit: if we do, then any
-existing 2.6 kernel prior to the change will mistakenly think that it
-understands that feature for read-write, and will therefore be likely to
-corrupt data.  And we are not remotely short of feature bits, so there's
-no pressure to free up existing bits.
-
-Removing the flag from the tree will remove what is essentially
-documentation that this flag cannot be reused.
-
-Cheers,
- Stephen
-
-
+Why is it dangerous? USB should survive plugging something that
+connects +5V and ground. It may turn your machine off, but that should
+be it...?
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

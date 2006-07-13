@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWGMHs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWGMHtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWGMHs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWGMHs5
+	id S932151AbWGMHtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:49:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWGMHtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:48:57 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:11725 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1751507AbWGMHs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:48:56 -0400
-Message-ID: <44B5FA31.9030309@s5r6.in-berlin.de>
-Date: Thu, 13 Jul 2006 09:45:53 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
+	Thu, 13 Jul 2006 03:49:49 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:42535 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932151AbWGMHts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:49:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S4hx+9vHwSq62t52kE+hsVkROktRZ964use+6KP2wGehHYBBWe3hbSf+F2Fzck/M1pLlDvMaIBRiHLedGGbY5xhkHL88GpSSUqhvMjcDtzUR+0pT+10vciZBytB9ONegmcTQy9PjLiiqU56u3yFZzrhb3WFQQZmA5nSQu8jyoSY=
+Message-ID: <9a8748490607130049v16ee6888p77625b34610275c7@mail.gmail.com>
+Date: Thu, 13 Jul 2006 09:49:47 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Uwe Bugla" <uwe.bugla@gmx.de>
+Subject: Re: Re: patch for timer.c - two dmesgs
+Cc: "Roman Zippel" <zippel@linux-m68k.org>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, johnstul@us.ibm.com
+In-Reply-To: <20060712123917.18970@gmx.net>
 MIME-Version: 1.0
-To: ralphc@pathscale.com
-CC: David Miller <davem@davemloft.net>, rdreier@cisco.com, rolandd@cisco.com,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: Suggestions for how to remove bus_to_virt()
-References: <1152746967.4572.263.camel@brick.pathscale.com>	<adar70quzwx.fsf@cisco.com> <20060712.174013.95062313.davem@davemloft.net>
-In-Reply-To: <20060712.174013.95062313.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060712115110.292550@gmx.net>
+	 <Pine.LNX.4.64.0607121410580.12900@scrub.home>
+	 <20060712123917.18970@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> If you need device level DMA mapping semantics, create them for your
-> device type.  This is what USB does, btw.
+On 12/07/06, Uwe Bugla <uwe.bugla@gmx.de> wrote:
+>
+> -------- Original-Nachricht --------
+> Datum: Wed, 12 Jul 2006 14:17:04 +0200 (CEST)
+> Von: Roman Zippel <zippel@linux-m68k.org>
+> An: Uwe Bugla <uwe.bugla@gmx.de>
+> Betreff: Re: patch for timer.c - two dmesgs
+>
+> > Hi,
+> >
+> > On Wed, 12 Jul 2006, Uwe Bugla wrote:
+> >
+> > > Then the boot process does not take any break at all (like in kernel
+> > 2.6.18-rc1 and in kernels 2.6.17-mm*), but simply stops completely.
+> > > About 7 message lines are missing before X starts for presenting the
+> > graphical login prompt (proftpd, xprint etc.).
+> > > Perhaps two dmesgs help: one for a functionable 2.6.17.4 kernel
+> > (dmesg17), another for the kernel in question (dmesg18).
+> >
+> > A lot has changed since then...
+> > Did you try using SysRq+P or Alt+ScrollLock? (A SysRq+T might be useful
+> > too).
+> Sorry for this stupid sounding question:
+> At what point of the boot process do I have to use those keyboard combinations please? And what is the output / product of them please?
+> Sorry if I simply lack experience in those questions.
+> >
 
-Ralph,
-two other examples where drivers provide some sort of address lookup are:
+This might help : http://sosdg.org/~coywolf/lxr/source/Documentation/sysrq.txt
+I can't answer at what point you should get the data though.
 
- - drivers/ieee1394/dma.[hc]
-   AFAIK this deals with housekeeping of ringbuffers as used by
-   1394 controllers for isochronous transmit and receive. Users of
-   this little API are dv1394, video1394, ohci1394.
-
- - patch "dc395x: dynamically map scatter-gather for PIO" by
-   Guennadi Liakhovetski,
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=cdb8c2a6d848deb9eeefffff42974478fbb51b8c
-   This mapping is not specific to SCSI. The user is a driver which
-   mixes PIO and DMA.
-
-I don't know if these have any similarity to your requirements though.
-
-(I too need to come up with either a portable replacement of bus_to_virt
-or with a fundamentally different implementation but haven't started my
-project yet. This occurrence of bus_to_virt is in drivers/ieee1394/sbp2
-but #ifdef'd out by default.)
 -- 
-Stefan Richter
--=====-=-==- -=== -==--
-http://arcgraph.de/sr/
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

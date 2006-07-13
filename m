@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWGMHsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWGMHs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWGMHsP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWGMHsP
+	id S1751507AbWGMHs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWGMHs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:48:15 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:52452 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751260AbWGMHsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:48:14 -0400
-Message-ID: <44B5F9E6.8070501@andrew.cmu.edu>
-Date: Thu, 13 Jul 2006 03:44:38 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Thu, 13 Jul 2006 03:48:57 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:11725 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1751507AbWGMHs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:48:56 -0400
+Message-ID: <44B5FA31.9030309@s5r6.in-berlin.de>
+Date: Thu, 13 Jul 2006 09:45:53 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: andrea@cpushare.com
-CC: Andrew Morton <akpm@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, bunk@stusta.de, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@osdl.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-References: <20060630014050.GI19712@stusta.de>	<20060630045228.GA14677@opteron.random>	<20060630094753.GA14603@elte.hu>	<20060630145825.GA10667@opteron.random>	<20060711073625.GA4722@elte.hu>	<20060711141709.GE7192@opteron.random>	<1152628374.3128.66.camel@laptopd505.fenrus.org>	<20060711153117.GJ7192@opteron.random>	<1152635055.18028.32.camel@localhost.localdomain>	<p73wtain80h.fsf@verdi.suse.de>	<20060712210732.GA10182@elte.hu> <20060712185103.f41b51d2.akpm@osdl.org>
-In-Reply-To: <20060712185103.f41b51d2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: ralphc@pathscale.com
+CC: David Miller <davem@davemloft.net>, rdreier@cisco.com, rolandd@cisco.com,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: Suggestions for how to remove bus_to_virt()
+References: <1152746967.4572.263.camel@brick.pathscale.com>	<adar70quzwx.fsf@cisco.com> <20060712.174013.95062313.davem@davemloft.net>
+In-Reply-To: <20060712.174013.95062313.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 12 Jul 2006 23:07:32 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
->> Despite good resons to apply the patch, it has not been applied yet, 
->> with no explanation.
-> 
-> I queued the below.  Andrea claims that it'll reduce seccomp overhead to
-> literally zero.
-> 
-> But looking at it, I think it's a bit confused.  The patch needs
-> s/DISABLE_TSC/ENABLE_TSC/ to make it right.
-<-- snip -->
+David Miller wrote:
+> If you need device level DMA mapping semantics, create them for your
+> device type.  This is what USB does, btw.
 
-Andrea,
-what happened to Andrew James Wade's rewording [1] of your config help? 
-   It seemed to disappear from what was submitted to akpm.
+Ralph,
+two other examples where drivers provide some sort of address lookup are:
 
-To "mathematically prevent covert channels" is far too strong a claim to 
-make, since you only handle the case of TSC-related timing attacks. 
-AJW's wording is much better, so please don't drop it.
+ - drivers/ieee1394/dma.[hc]
+   AFAIK this deals with housekeeping of ringbuffers as used by
+   1394 controllers for isochronous transmit and receive. Users of
+   this little API are dv1394, video1394, ohci1394.
 
-Of course, if the new wording will be included in some forthcoming patch 
-that also makes Linus happy [2], then never mind.
+ - patch "dc395x: dynamically map scatter-gather for PIO" by
+   Guennadi Liakhovetski,
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=cdb8c2a6d848deb9eeefffff42974478fbb51b8c
+   This mapping is not specific to SCSI. The user is a driver which
+   mixes PIO and DMA.
 
-  - Jim Bruce
+I don't know if these have any similarity to your requirements though.
 
-[1] http://lkml.org/lkml/2006/7/10/440
-[2] http://lkml.org/lkml/2006/7/12/328
+(I too need to come up with either a portable replacement of bus_to_virt
+or with a fundamentally different implementation but haven't started my
+project yet. This occurrence of bus_to_virt is in drivers/ieee1394/sbp2
+but #ifdef'd out by default.)
+-- 
+Stefan Richter
+-=====-=-==- -=== -==--
+http://arcgraph.de/sr/

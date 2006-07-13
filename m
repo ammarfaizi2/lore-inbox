@@ -1,103 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161040AbWGMXIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWGMXKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161040AbWGMXIS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWGMXIS
+	id S1161042AbWGMXKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWGMXKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:08:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:51386 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161040AbWGMXIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:08:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BJ3+HjYlTnjMe361VBvYHSQuoFYHcab1XJmQvFL50fR4xydU3YE46RVV7lK6Z9Ngze2mlQx0OQ3BhlUIVwDZ188HIL05ZvWLDZIfcuRk2e7Q7VzsSeYL45xnOFedcA0QQ4apaa0eiOGtNs51mHrq0nrMLQzgh/sYrUGwZ1i4WFw=
-Message-ID: <35f686220607131608ic63a346p248020b48d4cc734@mail.gmail.com>
-Date: Thu, 13 Jul 2006 16:08:17 -0700
-From: "Alok kataria" <alokkataria1@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Linus Torvalds" <torvalds@osdl.org>,
-       "Pekka Enberg" <penberg@cs.helsinki.fi>, "Ingo Molnar" <mingo@elte.hu>,
-       "Andrew Morton" <akpm@osdl.org>, sekharan@us.ibm.com,
-       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
-       alokk@calsoftinc.com
-In-Reply-To: <Pine.LNX.4.64.0607131520340.30403@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 19:10:09 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:14479
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1161042AbWGMXKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 19:10:07 -0400
+Date: Fri, 14 Jul 2006 01:11:18 +0200
+From: andrea@cpushare.com
+To: Pavel Machek <pavel@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Lee Revell <rlrevell@joe-job.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060713231118.GA1913@opteron.random>
+References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060712210545.GB24367@opteron.random> <1152741776.22943.103.camel@localhost.localdomain> <20060712234441.GA9102@opteron.random> <20060713212940.GB4101@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1152763195.11343.16.camel@linuxchandra>
-	 <20060713071221.GA31349@elte.hu>
-	 <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu>
-	 <20060713004445.cf7d1d96.akpm@osdl.org>
-	 <20060713124603.GB18936@elte.hu>
-	 <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
-	 <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org>
-	 <1152818472.3024.75.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0607131520340.30403@schroedinger.engr.sgi.com>
+In-Reply-To: <20060713212940.GB4101@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-On 7/13/06, Christoph Lameter <clameter@sgi.com> wrote:
-> On Thu, 13 Jul 2006, Arjan van de Ven wrote:
->
-> > there is a corner case in the slab code that I personally don't trust at
-> > all. In the NUMA case, if the memory is not originally from your own
-> > node, the cache_free_alien() function takes, while having your own local
-> > lock, the lock of the remote node as well. (at least on my reading of
-> > the code) to free the memory to that node. I have yet to see where in
-> > the code it safeguards against that remote node doing the exact same
-> > thing in the opposite direction concurrently, and causing a basic ABBA
-> > deadlock.
->
-> Hmmm.. This case is only followed during bootup when we do not have
-> alien caches yet. And its pretty rare to free memory on bootup. Once the
-> alien caches are present then we do not take the listlock anymore but
-> use the lock of the alien structure.
->
+On Thu, Jul 13, 2006 at 09:29:41PM +0000, Pavel Machek wrote:
+> Actually random delays are unlike to help (much). You have just added
+> noise, but you can still decode original signal...
 
-Christoph, IMO even then we wont deadlock, because in the case of a
-remote free when there are no alien caches, we simply take the remote
-node's list_lock and free the object, directly in the remote slab.
+You're wrong, the random delays added to every packet will definitely
+wipe out any signal.
 
-> This could cause an ABBA deadlock if a free happens on another
-> processor during bootup before all the slabs are established.
->
-> That then brings us to look if a slab free can happen before a slab is
-> completely established via kmem_cache_create.
->
-> kmem_cache_create takes the cpu hotplug lock and the cache_chain_mutex.
->
-> One could argue that a subsystem must make sure that the slab cache it
-> creates should not be used before kmem_cache_create is complete?
->
-> Alokk: Do we really need to check for alien caches not present there?
->
+But regardless of what is the best fix for the network attack I quote
+Ingo:
 
-Yes we do need to, there can be a case when all cpu's of a node have
-gone down, we free the alien cache, and this alien cache might have
-come from this cache itself, (see cpuup_callback).  In this case we
-will find the alien caches to be absent and then we will directly free
-to the remote nodes slab.
+   correct. But when i suggested to do precisely that i got a rant from
+   Andrea of how super duper important it was to disable the TSC for
+   seccomp ... (which argument is almost total hogwash)
 
+Now if the availability of the nanosecond precision of the TSC is
+almost total hogwash, how can the network attack be a real concern?
 
-Thanks & Regards,
-Alok
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Either the NOTSC feature is critically important (and I don't think it
+is but it's not total hogwash either), or the network attach is an
+absolute red-herring.
 
+You can't get it both ways. It can't be the NOTSC isn't needed but the
+network attack is a serious concern.
 
--- 
-A computer scientist is someone who, when told to "Go to Hell," sees
-the "go to," rather than the destination, as harmful.
+What is currently shocking me is that if you really think the network
+attack isn't an absolute red-herring, then it's very weird you're
+answering to my email instead of answering to Ingo when he says the
+availability of the TSC is almost total hogwash.
 
-Alok Kataria
+And please feel free to demonstrate the network attack, remote seccomp
+computations are already possible so if you want to start listening to
+a signal you can.

@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWGMLXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWGMLZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWGMLXA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWGMLXA
+	id S932177AbWGMLZw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 07:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWGMLZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:23:00 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:27049 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932066AbWGMLXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:23:00 -0400
-Date: Thu, 13 Jul 2006 13:22:38 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-cc: Ralf Baechle <ralf@linux-mips.org>
-Subject: [PATCH] correct oldconfig for unset choice options
-Message-ID: <Pine.LNX.4.64.0607131315230.12900@scrub.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jul 2006 07:25:52 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47778 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932177AbWGMLZv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 07:25:51 -0400
+Subject: Re: Athlon64 + Nforce4 MCE panic
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rumi Szabolcs <rumi_ml@rtfm.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060713090146.690d4759.rumi_ml@rtfm.hu>
+References: <20060713090146.690d4759.rumi_ml@rtfm.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 13 Jul 2006 12:44:05 +0100
+Message-Id: <1152791045.5511.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Iau, 2006-07-13 am 09:01 +0200, ysgrifennodd Rumi Szabolcs:
+> # echo 'CPU 0: Machine Check Exception: 0000000000000004 Bank 4: b200000000070f0f' | mcelog --ascii --k8
+> HARDWARE ERROR. This is *NOT* a software problem!
+> Please contact your hardware vendor
 
-oldconfig currently ignores unset choice options and doesn't ask for them.
-Correct the SYMBOL_DEF_USER flag of the choice symbol to be only set if 
-it's set for all values.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
----
- scripts/kconfig/confdata.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It prints this bit for a reason
 
-Index: linux-2.6-mm/scripts/kconfig/confdata.c
-===================================================================
---- linux-2.6-mm.orig/scripts/kconfig/confdata.c	2006-07-12 11:58:59.000000000 +0200
-+++ linux-2.6-mm/scripts/kconfig/confdata.c	2006-07-12 12:17:20.000000000 +0200
-@@ -357,7 +357,7 @@ int conf_read(const char *name)
- 		for (e = prop->expr; e; e = e->left.expr)
- 			if (e->right.sym->visible != no)
- 				flags &= e->right.sym->flags;
--		sym->flags |= flags & SYMBOL_DEF_USER;
-+		sym->flags &= flags | ~SYMBOL_DEF_USER;
- 	}
- 
- 	sym_change_count += conf_warnings || conf_unsaved;
+MCE almost always occurs because your processor detected an internal
+inconsistency, in this case a parity error. So you almost certainly have
+a real hardware problem.
+
+Fixing it tends to depend on the system. With bigger servers you usually
+find that the MCE info produces the correct response because the server
+people actually understand use and care about MCEs even in other-os.
+
+For random cheap desktop PC systems it can be more fun, reporting an MCE
+is as likely to cause them to send you a new monitor as any other part
+unfortunately 8)
+
+

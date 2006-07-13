@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWGMMOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWGMMPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751548AbWGMMOt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWGMMOs
+	id S932227AbWGMMPn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWGMMPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:14:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2201 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751545AbWGMMOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:14:48 -0400
-Subject: Re: annoying frequent overcurrent messages.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Dave Jones <davej@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-In-Reply-To: <20060713120815.GA5727@elf.ucw.cz>
-References: <200607111747.13529.david-b@pacbell.net>
-	 <Pine.LNX.4.44L0.0607121012570.6607-100000@iolanthe.rowland.org>
-	 <20060713120815.GA5727@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 14:14:38 +0200
-Message-Id: <1152792878.3024.41.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 13 Jul 2006 08:15:43 -0400
+Received: from ns.suse.de ([195.135.220.2]:35554 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932227AbWGMMPm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 08:15:42 -0400
+From: Andi Kleen <ak@suse.de>
+To: Theodore Tso <tytso@mit.edu>
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+Date: Thu, 13 Jul 2006 14:15:48 +0200
+User-Agent: KMail/1.9.1
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <200607130131.46753.ak@suse.de> <20060713001222.GJ9040@thunk.org>
+In-Reply-To: <20060713001222.GJ9040@thunk.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200607131415.49075.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 14:08 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > I have a box that's having its dmesg flooded with..
-> > > 
-> > > hub 1-0:1.0: over-current change on port 1
-> > > hub 1-0:1.0: over-current change on port 2
-> > > hub 1-0:1.0: over-current change on port 1
-> > > hub 1-0:1.0: over-current change on port 2
-> > ...
-> > 
-> > > over and over again..
-> > > The thing is, this box doesn't even have any USB devices connected to it,
-> > > so there's absolutely nothing I can do to remedy this.
-> > 
-> > Well, overcurrent is a potentially dangerous situation.  That's why it 
-> > gets reported with dev_err priority.
-> 
-> Well, I see overcurrents all the time while doing suspend/resume...
-> 
-> Why is it dangerous? USB should survive plugging something that
-> connects +5V and ground. It may turn your machine off, but that should
-> be it...?
+On Thursday 13 July 2006 02:12, Theodore Tso wrote:
+> On Thu, Jul 13, 2006 at 01:31:46AM +0200, Andi Kleen wrote:
+> > glibc still works, just slower. But I think the best strategy
+> > is just to emulate the single sysctl glibc is using and printk
+> > for the rest.
+>
+> That sounds reasonable, yes.
+>
+> > > point is moot.  But at the same time, what is the cost of leaving
+> > > sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+> > > starting from now?
+> >
+> > The numerical namespace for sysctl is unsalvagable imho. e.g.
+> > distributions regularly break it because there is no central repository
+> > of numbers so it's not very usable anyways in practice.
+>
+> That may be true, but it doesn't answer the question, what's the cost
+> of leaving in sys_sysctl in there for now?
 
-it's fun if your main storage resides near it on the same hub... 
-like your suspend device
-(now ok suspend-to-usb-disk is silly I suppose, but I can think of some
-really cool usage models that that allows in an office-less office)
+For once linux/sysctl.h is one of the biggest source of patch rejects.
+The sooner it goes the better.
 
+>
+> In any case, if we really do want to get rid of it, the next step
+> should be a working deprecation printk 
+
+It was in there for months already.
+
+> and adding something to 
+> Documentation/feature-removal-schedule.txt.
+
+That is what Eric's patch did.
+
+-Andi

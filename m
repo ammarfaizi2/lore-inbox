@@ -1,55 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWGMJdO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWGMJfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWGMJdO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:33:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGMJdO
+	id S964874AbWGMJfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWGMJfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:33:14 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2232 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964867AbWGMJdO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:33:14 -0400
-Date: Thu, 13 Jul 2006 11:24:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: torvalds@osdl.org, ak@suse.de, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, bunk@stusta.de, akpm@osdl.org,
-       rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: utrace vs. ptrace
-Message-ID: <20060713092432.GA11812@elte.hu>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> <20060713070445.GA30842@elte.hu>
+	Thu, 13 Jul 2006 05:35:36 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:28288 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S964874AbWGMJfg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 05:35:36 -0400
+Message-ID: <44B613ED.4000809@drzeus.cx>
+Date: Thu, 13 Jul 2006 11:35:41 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713070445.GA30842@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5005]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: multipart/mixed; boundary="=_hera.drzeus.cx-13285-1152783334-0001-2"
+To: Greg KH <greg@kroah.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: resource_size_t and printk()
+References: <44AAD59E.7010206@drzeus.cx> <20060704214508.GA23607@kroah.com> <44AB3DF7.8080107@drzeus.cx> <20060711231537.GC18973@kroah.com> <44B4B041.9050808@drzeus.cx> <20060712213723.GB9049@kroah.com>
+In-Reply-To: <20060712213723.GB9049@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+--=_hera.drzeus.cx-13285-1152783334-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-> utrace enables something like 'transparent live debugging': an app 
-> crashes in your distro, a window pops up, and you can 'hand over' a 
-> debugging session to a developer you trust. Or you can instruct the 
-> system to generate a coredump. Or you can generate a shorter summary 
-> of the crash, sent to a central site.
+Greg KH wrote:
+> Like Randy said, please use "unsigned long long".
+>
+> Care to redo this?
+>   
 
-not to mention that utrace could be used to move most of the ELF 
-coredumping code out of the kernel. (the moment you have access to all 
-crashed threads userspace can construct its own coredump - instead of 
-having the kernel construct a coredump file) Roland's patch does not go 
-as far yet, but it could be a possible target.
+Here you go.
 
-	Ingo
+--=_hera.drzeus.cx-13285-1152783334-0001-2
+Content-Type: text/x-patch; name="pnp-fixprintk.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pnp-fixprintk.patch"
+
+[PNP] Add missing casts in printk() arguments
+
+Some resource_size_t values are fed to printk() without handling the fact
+that they can have different size depending on your .config.
+
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
+
+ drivers/pnp/interface.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
+index 3163e3d..9d8b415 100644
+--- a/drivers/pnp/interface.c
++++ b/drivers/pnp/interface.c
+@@ -265,8 +265,8 @@ static ssize_t pnp_show_current_resource
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+ 				pnp_printf(buffer," 0x%llx-0x%llx\n",
+-						pnp_port_start(dev, i),
+-						pnp_port_end(dev, i));
++					(unsigned long long)pnp_port_start(dev, i),
++					(unsigned long long)pnp_port_end(dev, i));
+ 		}
+ 	}
+ 	for (i = 0; i < PNP_MAX_MEM; i++) {
+@@ -276,8 +276,8 @@ static ssize_t pnp_show_current_resource
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+ 				pnp_printf(buffer," 0x%llx-0x%llx\n",
+-						pnp_mem_start(dev, i),
+-						pnp_mem_end(dev, i));
++					(unsigned long long)pnp_mem_start(dev, i),
++					(unsigned long long)pnp_mem_end(dev, i));
+ 		}
+ 	}
+ 	for (i = 0; i < PNP_MAX_IRQ; i++) {
+@@ -287,7 +287,7 @@ static ssize_t pnp_show_current_resource
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+ 				pnp_printf(buffer," %lld\n",
+-						pnp_irq(dev, i));
++					(unsigned long long)pnp_irq(dev, i));
+ 		}
+ 	}
+ 	for (i = 0; i < PNP_MAX_DMA; i++) {
+@@ -297,7 +297,7 @@ static ssize_t pnp_show_current_resource
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+ 				pnp_printf(buffer," %lld\n",
+-						pnp_dma(dev, i));
++					(unsigned long long)pnp_dma(dev, i));
+ 		}
+ 	}
+ 	ret = (buffer->curr - buf);
+
+--=_hera.drzeus.cx-13285-1152783334-0001-2--

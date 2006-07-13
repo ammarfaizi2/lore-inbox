@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWGMOYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGMO3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWGMOYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 10:24:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWGMOYV
+	id S1030187AbWGMO3J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 10:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWGMO3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 10:24:21 -0400
-Received: from fnoeppeil48.netpark.at ([217.175.205.176]:47122 "EHLO
-	roarinelk.homelinux.net") by vger.kernel.org with ESMTP
-	id S1751542AbWGMOYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 10:24:20 -0400
-Date: Thu, 13 Jul 2006 16:24:18 +0200
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-To: Sergej Pupykin <ps@lx-ltd.ru>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bugs in usb-skeleton.c??? :)
-Message-ID: <20060713142418.GA14320@roarinelk.homelinux.net>
-References: <m3odvtvj8w.fsf@lx-ltd.ru> <1152791917.3024.39.camel@laptopd505.fenrus.org> <m37j2helb4.fsf@lx-ltd.ru> <1152795650.3024.44.camel@laptopd505.fenrus.org> <m364i17irn.fsf@lx-ltd.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m364i17irn.fsf@lx-ltd.ru>
-User-Agent: Mutt/1.5.11
+	Thu, 13 Jul 2006 10:29:09 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:18446 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751542AbWGMO3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 10:29:08 -0400
+Date: Thu, 13 Jul 2006 10:29:05 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Pavel Machek <pavel@ucw.cz>
+cc: Dave Jones <davej@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: annoying frequent overcurrent messages.
+In-Reply-To: <20060713120815.GA5727@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44L0.0607131027200.6702-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 05:10:20PM +0400, Sergej Pupykin wrote:
->  >> Does kmalloc always allocate pages that can be used in DMA?
+On Thu, 13 Jul 2006, Pavel Machek wrote:
+
+> > Well, overcurrent is a potentially dangerous situation.  That's why it 
+> > gets reported with dev_err priority.
 > 
->  AvdV> normally yes. HOWEVER....
+> Well, I see overcurrents all the time while doing suspend/resume...
 > 
-> I use sh4 cpu...
+> Why is it dangerous? USB should survive plugging something that
+> connects +5V and ground. It may turn your machine off, but that should
+> be it...?
 
-on SH-4 traditionally the whole memory space is mapped all the
-time, so any space returned by kmalloc is DMA-able.
-(I don't know if this applies to the SH-4A core, too)
- 
->  AvdV> ..it is nicer to use the DMA allocation API (which internally may fall
->  AvdV> back to kmalloc etc), while kmalloc may work, it can be quite slow in
->  AvdV> how it's made to work. So it's just nicer to just use the DMA memory
->  AvdV> allocators... (see Documentation/DMA-API.txt file for a description of
->  AvdV> this)
+The key words here are "potentially", "should", and "may".
 
-agree
+BTW, what sort of overcurrents do you see during suspend/resume?
 
--- 
- ml.
+Alan Stern
+

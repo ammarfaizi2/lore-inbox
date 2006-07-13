@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWGMT0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWGMTec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbWGMT0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWGMT0S
+	id S1030323AbWGMTec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWGMTec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:26:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:55725 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030312AbWGMT0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:26:17 -0400
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org, nagar@watson.ibm.com,
-       balbir@in.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0607131219220.5623@g5.osdl.org>
-References: <1152763195.11343.16.camel@linuxchandra>
-	 <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org>
-	 <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
-	 <20060713124603.GB18936@elte.hu>
-	 <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
-	 <1152817589.3024.64.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0607131219220.5623@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 21:26:02 +0200
-Message-Id: <1152818768.3024.79.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 13 Jul 2006 15:34:32 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:909 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030323AbWGMTeb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:34:31 -0400
+Date: Thu, 13 Jul 2006 12:34:30 -0700 (PDT)
+From: Dave Olson <olson@pathscale.com>
+Reply-To: olson@pathscale.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
+Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
+In-Reply-To: <m1fyh5z4ys.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0607131232350.3583@topaz.pathscale.com>
+References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
+ <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com> <p734pxnojyt.fsf@verdi.suse.de>
+ <m1wtajed4d.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
+ <m1psgbcnv9.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0607122048230.4819@topaz.pathscale.com>
+ <m1d5c94jx8.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0607131109540.3583@topaz.pathscale.com>
+ <m1ac7d1h6g.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0607131158300.3583@topaz.pathscale.com>
+ <m1fyh5z4ys.fsf@ebiederm.dsl.xmission.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 12:21 -0700, Linus Torvalds wrote:
-> 
-> On Thu, 13 Jul 2006, Arjan van de Ven wrote:
-> 
-> > On Thu, 2006-07-13 at 11:50 -0700, Linus Torvalds wrote:
-> > > 
-> > > Why isn't the "on_slab_key" local to just the init_lock_keys()
-> > > function, 
-> > > and the #ifdef around it all?
-> > 
-> > it's the same net results; the variable is 0 bytes in size for !LOCKDEP 
-> 
-> That's not why I reacted. I reacted because the code is ugly, and would be 
-> much cleaner if it had everything in one place.
+On Thu, 13 Jul 2006, Eric W. Biederman wrote:
+| > I imagine at least some other drivers would like to know when their interrupt
+| > configuration changes, also, so an interface where a driver can register
+| > a callback handler seems like the right generic answer, or more simply,
+| > a way for a driver to say it doesn't want it's interrupt handler
+| > migrated (which we would like anyway, for performance reasons).
+| 
+| As I recall that is "killall irqbalanced"
 
-fair enough
+That's the way for the user or admin to do it.  It would be good
+for a driver to be able to say "I like my interrupt here, please
+don't move it".   It can be advisory, rather than mandatory, but
+there are often cases where one driver is hurt by something that
+is generally beneficial, and disabling it everywhere is a big
+hammer.
 
+It works, but it's not ideal.   Different issue than you are
+dealing with, but I thought it was worth bringing up, as long
+as we are talking about moving interrupts.
+
+Dave Olson
+dave.olson@qlogic.com

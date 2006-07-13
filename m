@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWGMXKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbWGMXRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWGMXKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWGMXKJ
+	id S1161043AbWGMXRF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWGMXRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:10:09 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:14479
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1161042AbWGMXKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:10:07 -0400
-Date: Fri, 14 Jul 2006 01:11:18 +0200
-From: andrea@cpushare.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Lee Revell <rlrevell@joe-job.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060713231118.GA1913@opteron.random>
-References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060712210545.GB24367@opteron.random> <1152741776.22943.103.camel@localhost.localdomain> <20060712234441.GA9102@opteron.random> <20060713212940.GB4101@ucw.cz>
+	Thu, 13 Jul 2006 19:17:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16105 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161043AbWGMXRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 19:17:03 -0400
+Date: Thu, 13 Jul 2006 16:16:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: arjan@infradead.org, torvalds@osdl.org, penberg@cs.helsinki.fi,
+       mingo@elte.hu, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-Id: <20060713161620.f61d2ac0.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
+References: <1152763195.11343.16.camel@linuxchandra>
+	<20060713071221.GA31349@elte.hu>
+	<20060713002803.cd206d91.akpm@osdl.org>
+	<20060713072635.GA907@elte.hu>
+	<20060713004445.cf7d1d96.akpm@osdl.org>
+	<20060713124603.GB18936@elte.hu>
+	<84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
+	<Pine.LNX.4.64.0607131156060.5623@g5.osdl.org>
+	<1152818472.3024.75.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713212940.GB4101@ucw.cz>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 09:29:41PM +0000, Pavel Machek wrote:
-> Actually random delays are unlike to help (much). You have just added
-> noise, but you can still decode original signal...
+On Thu, 13 Jul 2006 15:51:09 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-You're wrong, the random delays added to every packet will definitely
-wipe out any signal.
+> On Thu, 13 Jul 2006, Arjan van de Ven wrote:
+> 
+> > [*] Note Note Note
+> > there is a corner case in the slab code that I personally don't trust at
+> > all. In the NUMA case, if the memory is not originally from your own
+> > node, the cache_free_alien() function takes, while having your own local
+> > lock, the lock of the remote node as well. (at least on my reading of
+> > the code) to free the memory to that node. I have yet to see where in
+> > the code it safeguards against that remote node doing the exact same
+> > thing in the opposite direction concurrently, and causing a basic ABBA
+> > deadlock.
+> 
+> Second look: I cannot find where we take our own local nodes list_lock.
+> We only take the lock from the remote node. Or is this related to the 
+> OFF_SLAB kfree issue?
+> 
+> 
+> We either have a alien cache structure established then:
+> 
+> We take a lock on the alien structure for node x from our own node 
+> (without holding our local list_lock!) and then we need take the remote 
+> list_lock for node x if the alien structure overflows and we then free
+> to the remote nodes list.
+> 
+> Or we do not have a alien cache structure established yet. Then:
+> 
+> We simply take the remote list_lock on node x and free directly to the 
+> foreign nodes list.
+> 
+> 
+> 
+> In an OFF_SLAB situation this may differ because then we call 
+> kmem_cache_free from slab_destroy. Ughhh... This looks extremely bad. 
 
-But regardless of what is the best fix for the network attack I quote
-Ingo:
+uh-oh.
 
-   correct. But when i suggested to do precisely that i got a rant from
-   Andrea of how super duper important it was to disable the TSC for
-   seccomp ... (which argument is almost total hogwash)
+> Whew! We drop the list lock before calling slab_destroy.
 
-Now if the availability of the nanosecond precision of the TSC is
-almost total hogwash, how can the network attack be a real concern?
+Well we did, up until about ten minutes ago.
 
-Either the NOTSC feature is critically important (and I don't think it
-is but it's not total hogwash either), or the network attach is an
-absolute red-herring.
-
-You can't get it both ways. It can't be the NOTSC isn't needed but the
-network attack is a serious concern.
-
-What is currently shocking me is that if you really think the network
-attack isn't an absolute red-herring, then it's very weird you're
-answering to my email instead of answering to Ingo when he says the
-availability of the TSC is almost total hogwash.
-
-And please feel free to demonstrate the network attack, remote seccomp
-computations are already possible so if you want to start listening to
-a signal you can.
+free_block()'s droppage of l3->list_lock around the slab_destroy() call was
+just reverted, due to Shailabh confirming that it caused corruption.

@@ -1,132 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWGMQBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWGMQCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWGMQBz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 12:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWGMQBz
+	id S1751486AbWGMQCw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 12:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWGMQCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 12:01:55 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:48771 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932225AbWGMQBy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 12:01:54 -0400
-Message-ID: <44B66E68.90204@fr.ibm.com>
-Date: Thu, 13 Jul 2006 18:01:44 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 13 Jul 2006 12:02:52 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:31763 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1751491AbWGMQCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 12:02:51 -0400
+X-IronPort-AV: i="4.06,238,1149490800"; 
+   d="scan'208"; a="305539482:sNHT25129556"
+To: David Miller <davem@davemloft.net>
+Cc: ralphc@pathscale.com, rolandd@cisco.com, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Suggestions for how to remove bus_to_virt()
+X-Message-Flag: Warning: May contain useful information
+References: <1152746967.4572.263.camel@brick.pathscale.com>
+	<adar70quzwx.fsf@cisco.com>
+	<20060712.174013.95062313.davem@davemloft.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 13 Jul 2006 09:02:47 -0700
+Message-ID: <adaodvttrvc.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain> <20060711075420.937831000@localhost.localdomain> <44B3D435.8090706@sw.ru> <44B3E21E.7090205@fr.ibm.com> <44B4DB39.2040208@sw.ru>
-In-Reply-To: <44B4DB39.2040208@sw.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Jul 2006 16:02:49.0869 (UTC) FILETIME=[CA2973D0:01C6A695]
+Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev wrote:
->>> Lets take a look at sys_setpriority() or any other function calling
->>> find_user():
->>> it can change the priority for all user or group processes like:
->>>
->>> do_each_thread_ve(g, p) {
->>>   if (p->uid == who)
->>>       error = set_one_prio(p, niceval, error);
->>> } while_each_thread_ve(g, p);
->>
->>
->> eh. this is openvz code ! thanks :)
-> it doesn't matter :)
+ > > A cleaner solution would be to make the dma_ API really use the device
+ > > it's passed anyway, and allow drivers to override the standard PCI
+ > > stuff nicely.  But that would be major surgery, I guess.
 
-it does. it means for me that you are studying proposals to see how if fits
-with your existing code. which is good.
+ > Clean but expensive, you should not force the rest of the kernel
+ > to eat the cost of something you want to do when it's totally
+ > unnecessary for most other users.
 
-> 2.6.17 code is:
->                        do_each_thread(g, p)
->                                if (p->uid == who)
->                                        error = set_one_prio(p, niceval,
-> error);
->                        while_each_thread(g, p);
-> 
-> when introducing process namespaces we will have to isolate processes
-> somehow and this loop, agree?
+OK, fair enough.
 
-yes
+ > For example, x86 never needs to do anything other than a direct
+ > virt_to_phys translation to produce a DMA address, no matter what
+ > bus the device is on.  It's a single simple integer adjustment
+ > that can be done inline in about 2 or 3 instructions at most.
 
-> in this case 1 user-namespace can belong to 2 process-namespaces, agree?
-> how do you see this loop in the future making sure that above situation
-> is handled correctly?
+<pedantic>Except x86 needs to handle systems with IOMMUs now...</pedantic>
 
-IMO, the loop should apply to the current->pidspace or equivalent inside
-the loop
+ > If you need device level DMA mapping semantics, create them for your
+ > device type.  This is what USB does, btw.
 
-> how many other such places do we have?
+Makes sense -- Ralph, I would suggest looking at USB as a model.
 
-if it's embedded in the loop, it should not be too much of an issue ?
-
->>> which essentially means that user-namespace becomes coupled with
->>> process-namespace. Sure, we can check in every such place for
->>> p->nsproxy->user_ns == current->nsproxy->user_ns
->>> condition. But this a way IMHO leading to kernel full of security
->>> crap which is hardly maintainable.
->>
->> only 4 syscalls use find_user() : sys_setpriority, sys_getpriority,
->> sys_ioprio_set, sys_ioprio_get and they use it very simply to check if a
->> user_struct exists for a given uid. So, it should be OK. But please
->> see the attached patch.
->
-> the problem is not in find_user() actually. but in uid comparison inside
-> some kind of process iteration loop. In this case you select processes
-> p which belong to both namespaces simultenously: i.e. processes p which
-> belong both to user-namespace U and process-namespace P.
-> 
-> I hope I was more clear this time :)
-
-yes thanks,
-
-for the moment, if processes are not isolated in some others ways, like in
-openvz, these kind of loops would need the extra test 'p->nsproxy->user_ns
-== current->nsproxy->user_ns' on user namespace to be valid. same issue for
-filesystem and many other places. eric raised that point.
-
-In theory, if I understand well eric's concept of namespaces, a task
-belongs to a union of namespaces : ipc, process, user, net, utsname, fs,
-etc. some of these namespaces could be default namespaces and some not
-because they were unshared in some way: clone, unshare, exec, but in a safe
-way.
-
-They are necessary bricks for a bigger abstraction, let's call it
-container, but they not sufficient by them selves because they have
-dependencies. The container comes as a whole and not subsystem by
-subsystem, I agree with you on that point.
-
->>> Another example of not so evident coupling here:
->>> user structure maintains number of processes/opened
->>> files/sigpending/locked_shm etc.
->>> if a single user can belong to different proccess/ipc/... namespaces
->>> all these becomes unusable.
->>
->>
->> this is the purpose of execns.
->>
->> user namespace can't be unshared through the unshare syscall().
->
-> why? we do it fine in OpenVZ.
-
-probably because you use the full container approach in openvz and start
-the container by running init ? namespaces are a bit more painful ... I agree.
-
-I'm still struggling with the limits of that namespace concept. Hopefully,
-we meet next week because I'm also reaching my limits of digital
-interaction on this topic :)
-
-thanks,
-
-C.
-
+ - R.

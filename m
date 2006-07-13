@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWGMSJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWGMSPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbWGMSJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWGMSJ2
+	id S1030265AbWGMSPT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWGMSPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:09:28 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49108 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030260AbWGMSJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:09:27 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain>
-	<20060711075420.937831000@localhost.localdomain>
-	<44B3D435.8090706@sw.ru> <m1k66jebut.fsf@ebiederm.dsl.xmission.com>
-	<44B4D970.90007@sw.ru> <m164i2ae3m.fsf@ebiederm.dsl.xmission.com>
-	<44B67C4B.7050009@fr.ibm.com>
-Date: Thu, 13 Jul 2006 12:07:33 -0600
-In-Reply-To: <44B67C4B.7050009@fr.ibm.com> (Cedric Le Goater's message of
-	"Thu, 13 Jul 2006 19:00:59 +0200")
-Message-ID: <m1r70p1iqi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 13 Jul 2006 14:15:19 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:21894 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030265AbWGMSPS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 14:15:18 -0400
+Date: Thu, 13 Jul 2006 11:15:17 -0700 (PDT)
+From: Dave Olson <olson@pathscale.com>
+Reply-To: olson@pathscale.com
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, discuss@x86-64.org
+Subject: Re: [PATCH 2/2] Initial generic hypertransport interrupt support.
+In-Reply-To: <m1d5c94jx8.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.64.0607131109540.3583@topaz.pathscale.com>
+References: <m1fyh9m7k6.fsf@ebiederm.dsl.xmission.com>
+ <m1bqrxm6zm.fsf@ebiederm.dsl.xmission.com> <p734pxnojyt.fsf@verdi.suse.de>
+ <m1wtajed4d.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.61.0607112307130.10551@osa.unixfolk.com>
+ <m1psgbcnv9.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0607122048230.4819@topaz.pathscale.com>
+ <m1d5c94jx8.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater <clg@fr.ibm.com> writes:
+On Thu, 13 Jul 2006, Eric W. Biederman wrote:
+| And I tested it on one of them.  The problem is that there is no API in
+| the kernel for properly handling hypertransport interrupts or even faking
+| it well currently.  There is no shame in breaking a bad unmaintainable
+| hack, as I did.  The responsible thing is to when you find one to
+| fix up the code so that things work by design in a maintainable way,
+| which I am attempting to do.
 
-> hmm, slightly, I would say much harder and these weird interactions are
-> very hard to anticipate without some experience in the field. We could
-> continue on arguing for ages without making any progress.
+There's no problem providing a better replacement, just make sure
+that the existing drivers can use it.
 
-I have not been intending to argue but to point out short comings.
+| All existing drivers that use HT interrupts are broken by design.
 
-> let's apply that incremental development approach now. Let's work on simple
-> namespaces which would make _some_ container scenarios possible and not
-> all. IMHO, that would mean tying some namespaces together and find a way to
-> unshare them safely as a whole. Get some experience on it and then work on
-> unsharing some more independently for the benefit of more use case
-> scenarios. I like the concept and I think it will be useful.
+That's a statement designed to provoke arguments, and I'll just leave
+it that we disagree.
 
-I think we have a different conception of where the problems lie.
+| Sure.  In that case can I please have a good description of what
+| weird hacks your hardware designers have done.
 
-The easy cases I see are everything as a unit, or everything as
-separate pieces.  I do not see natural connection between namespaces
-that will help us out.
+There's really nothing special at all about the interrupt
+setup, except in one very minor way.   The value of the HT interrupt
+destination address needs to be copied from HT config space, to
+an internal chip register (which is, can, and should be, handled by
+the driver init code).
 
-> just being pragmatic, i like things to start working in simple cases before
-> over optimizing them.
+| As I understand
+| it I cannot write to the standard registers HT capability registers
+| and have things work correctly.
 
-I agree we incremental development is good and what we need.
+There is nothing unusual or special about that part at all.  The only
+unusual item is that mentioned in the paragraph above.
 
-The hard part is that we can never undo any part of our user interface.
-So we must have complete an sane semantics when we implement a namespace,
-before it gets merged anywhere beyond a purely development tree.
+| The functions I exported I intend to export.  The complaint seems to
+| be that you don't have anything that will work on earlier kernels.
+| I have to agree you don't.
 
-Then in addition to that usually you find that the existing implementation
-does not have a good 1-1 change and must be refactored and have the cruft
-removed before you can start extending it.
+Huh?  I didn't say anything that could possibly be read as applying
+to earlier kernels, and to be crystal clear, that's not my concern
+at all.
 
-Eric
+Maybe somebody else can articulate what I'm trying to say, but I don't
+think I can say it in a clearer way.
+
+Dave Olson
+dave.olson@qlogic.com

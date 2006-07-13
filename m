@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWGMSQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWGMSSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWGMSQG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 14:16:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWGMSQG
+	id S1030268AbWGMSSK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 14:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWGMSSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 14:16:06 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15774 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030266AbWGMSQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 14:16:05 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain>
-	<20060711075420.937831000@localhost.localdomain>
-	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
-	<44B50088.1010103@fr.ibm.com>
-	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
-	<44B684A5.2040008@fr.ibm.com>
-	<20060713174721.GA21399@sergelap.austin.ibm.com>
-Date: Thu, 13 Jul 2006 12:14:25 -0600
-In-Reply-To: <20060713174721.GA21399@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Thu, 13 Jul 2006 12:47:21 -0500")
-Message-ID: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 Jul 2006 14:18:09 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:64166 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1030268AbWGMSSI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 14:18:08 -0400
+Date: Thu, 13 Jul 2006 14:17:55 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/5] UML - Fix ZONE_HIGHMEM compilation error
+Message-ID: <20060713181754.GA5343@ccure.user-mode-linux.org>
+References: <200607121639.k6CGdiMw021221@ccure.user-mode-linux.org> <20060713012421.b59f05d4.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713012421.b59f05d4.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Thu, Jul 13, 2006 at 01:24:21AM -0700, Andrew Morton wrote:
+> >  	for(i=0;i<sizeof(zones_size)/sizeof(zones_size[0]);i++) 
+> 
+> I spy an ARRAY_SIZE().
 
-> Rather than try to store (uid, namespace) on the filesystem, I like the
-> idea of doing something like
->
-> 	mount --bind -o ro --uidswap 500,1001 --uidswap 501,0 /home /home
->
-> In other words, when you unshare the user namespace, nothing
-> filesystem-related changes unless you also unshare the fs-namespace and
-> set uid info on the vfsmount.  This is fully backward-compatible and
-> should have no overhead if you don't need the feature.
+Yup, I did an ARRAY_SIZE pass a while ago, but I missed that somehow,
+and some grepping shows there are a bunch more.
 
-Maybe.  I really think the sane semantics are in a different uid namespace.
-So you can't assumes uids are the same.  Otherwise you can't handle open
-file descriptors or files passed through unix domain sockets.
+> Maybe this is an rc1-mm1 fix?  Did Christoph's patches break UML, perhaps??
 
-A user namespace is fundamentally about breaking the assumption that
-you can test to see if two users are the same by comparing uids.
-If you don't want to break that assumption don't use a user namespace.
+Yes, it's this bit in mmzone.h:
+    #ifdef CONFIG_HIGHMEM
+	/*
+	 * A memory area that is only addressable by the kernel through
+	 * mapping portions into its own address space. This is for example
+	 * used by i386 to allow the kernel to address the memory beyond
+	 * 900MB. The kernel will set up special mappings (page
+	 * table entries on i386) for each page that the kernel needs to
+	 * access.
+	 */
+	ZONE_HIGHMEM,
+    #endif
 
-Mapping uids is a separate but related problem that we probably need to
-tackle in a generic manner, usable for network filesystems.
-
-Eric
+				Jeff

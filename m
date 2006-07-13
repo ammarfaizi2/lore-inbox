@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGMO3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWGMObG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWGMO3J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 10:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWGMO3J
+	id S1751542AbWGMObG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 10:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWGMObG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 10:29:09 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:18446 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751542AbWGMO3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 10:29:08 -0400
-Date: Thu, 13 Jul 2006 10:29:05 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Pavel Machek <pavel@ucw.cz>
-cc: Dave Jones <davej@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: annoying frequent overcurrent messages.
-In-Reply-To: <20060713120815.GA5727@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44L0.0607131027200.6702-100000@iolanthe.rowland.org>
+	Thu, 13 Jul 2006 10:31:06 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62404 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751542AbWGMObF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 10:31:05 -0400
+Message-ID: <44B65924.7060602@us.ibm.com>
+Date: Thu, 13 Jul 2006 07:31:00 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: HOLZHEU@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 hypfs fixes for 2.6.18-rc1-mm1
+References: <44B5C7CE.6090606@us.ibm.com>	<44B5C971.7030403@us.ibm.com> <20060713022304.9291852d.akpm@osdl.org>
+In-Reply-To: <20060713022304.9291852d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006, Pavel Machek wrote:
+Andrew Morton wrote:
+> On Wed, 12 Jul 2006 21:17:53 -0700
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>   
+>> +static ssize_t hypfs_aio_read(struct kiocb *iocb, const struct iovec *iov,
+>> +			      unsigned long nr_segs, loff_t offset)
+>>  {
+>>  	char *data;
+>>  	size_t len;
+>>  	struct file *filp = iocb->ki_filp;
+>> +	/* XXX: temporary */
+>> +	char __user *buf = iov[0].iov_base;
+>> +	size_t count = iov[0].iov_len;
+>> +
+>> +	if (nr_segs != 1) {
+>> +		count = -EINVAL;
+>> +		goto out;
+>> +	}
+>>     
+>
+> err, "temporary" things tend to become permanent.  What's the real fix?
+>   
+I am not sure, if we really need to vectorize this method or not - 
+meaning will this be ever called
+with more than one items in the vector. 
 
-> > Well, overcurrent is a potentially dangerous situation.  That's why it 
-> > gets reported with dev_err priority.
-> 
-> Well, I see overcurrents all the time while doing suspend/resume...
-> 
-> Why is it dangerous? USB should survive plugging something that
-> connects +5V and ground. It may turn your machine off, but that should
-> be it...?
+Micheal, is it possible ? Can some one directly use AIO interface on 
+hypfs ? If not, we can always
+look at only first element and ignore rest of them. Otherwise, we need 
+to iterate on all the elements
+of the vector.
 
-The key words here are "potentially", "should", and "may".
+Thanks,
+Badari
 
-BTW, what sort of overcurrents do you see during suspend/resume?
-
-Alan Stern
 

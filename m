@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWGMTAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWGMTD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWGMTAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWGMTAn
+	id S1030293AbWGMTD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWGMTD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:00:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3733 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030223AbWGMTAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:00:42 -0400
-Date: Thu, 13 Jul 2006 11:56:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org, nagar@watson.ibm.com,
-       balbir@in.ibm.com, arjan@infradead.org
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-In-Reply-To: <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org>
-References: <1152763195.11343.16.camel@linuxchandra>  <20060713071221.GA31349@elte.hu>
-  <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu> 
- <20060713004445.cf7d1d96.akpm@osdl.org>  <20060713124603.GB18936@elte.hu>
- <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
+	Thu, 13 Jul 2006 15:03:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16295 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030284AbWGMTD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:03:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+	<44B684A5.2040008@fr.ibm.com>
+	<20060713174721.GA21399@sergelap.austin.ibm.com>
+	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+Date: Thu, 13 Jul 2006 13:02:13 -0600
+In-Reply-To: <1152815391.7650.58.camel@localhost.localdomain> (Dave Hansen's
+	message of "Thu, 13 Jul 2006 11:29:50 -0700")
+Message-ID: <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Hansen <haveblue@us.ibm.com> writes:
 
+> On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
+>> Maybe.  I really think the sane semantics are in a different uid namespace.
+>> So you can't assumes uids are the same.  Otherwise you can't handle open
+>> file descriptors or files passed through unix domain sockets.
+>
+> Eric, could you explain this a little bit more?  I'm not sure I
+> understand the details of why this is a problem?
 
-On Thu, 13 Jul 2006, Pekka Enberg wrote:
-> 
-> What's "nested lock" btw? If I understood from the other patch, you're
-> talking about ac->lock. Surely you can't take the same lock twice but
-> it's perfectly legal to take lock as long as the ac instance is
-> different...
+Very simply.
 
-Normally, no. You can't take another lock just because the instance is 
-different. That causes ABBA deadlocks unless you have some underlying 
-_ordering_ of the different lock instances.
+In the presence of a user namespace.  
+All comparisons of a user equality need to be of the tuple (user namespace, user id).
+Any comparison that does not do that is an optimization.
 
-		Linus
+Because you can have access to files created in another user namespace it
+is very unlikely that optimization will apply very frequently.  The easy scenario
+to get access to a file descriptor from another context is to consider unix
+domain sockets.
+
+So my impression was that Cedric's patchset was overoptimized because
+it did not change most of the uid comparisons, to (user namespace, user id).
+
+This is one of those strange cases where the optimization is less work
+because it means not applying a patch.
+
+Eric

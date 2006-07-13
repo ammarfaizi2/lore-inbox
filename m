@@ -1,59 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWGMXA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWGMXD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161034AbWGMXA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWGMXA3
+	id S1161039AbWGMXD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWGMXD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:00:29 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:46752 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161034AbWGMXA2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:00:28 -0400
-Date: Thu, 13 Jul 2006 16:00:18 -0700
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       achirica@users.sourceforge.net, "David C. Hansen" <haveblue@us.ibm.com>,
-       serue@us.ibm.com, clg@fr.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread: airo.c
-Message-ID: <20060713230018.GA24359@us.ibm.com>
-References: <20060713205319.GA23594@us.ibm.com> <20060713212824.GA14729@infradead.org>
+	Thu, 13 Jul 2006 19:03:59 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41883
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161035AbWGMXD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 19:03:59 -0400
+Date: Thu, 13 Jul 2006 16:04:01 -0700 (PDT)
+Message-Id: <20060713.160401.38711087.davem@davemloft.net>
+To: mikpe@it.uu.se
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: 2.6.18-rc1 fails to boot on Ultra 5
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
+References: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713212824.GA14729@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig [hch@infradead.org] wrote:
-| On Thu, Jul 13, 2006 at 01:53:19PM -0700, Sukadev Bhattiprolu wrote:
-| > Andrew,
-| > 
-| > Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
-| > took a look at this patch, and doesn't have any problems with it. It doesn't
-| > fix any bugs and is just a cleanup, so it certainly isn't a candidate
-| > for this mainline cycle
-| 
-| I'm not sure it's that easy.  I think it needs some more love:
-| 
-|  - switch to wake_uo_process
-|  - kill JOB_DIE
-|  - cleanup a the convoluted mess in airo_thread a bit
-| 
-| Note that it's still reimplementing the single threaded workqueue
-| functionality quite badly.  So if someone could switch it over and while
-| we're at it try to kill the idiociy of doing the trylock in the calling
-| context and only then calling the thread by always calling the thread
-| (which also solves the synchronization problem).
-| 
-| Anywhy, here's a small incremental patch ontop of yours to implement my
-| above items:
+From: Mikael Pettersson <mikpe@it.uu.se>
+Date: Thu, 13 Jul 2006 14:18:33 +0200 (MEST)
 
-I had a quick look at your patch and looks fine to me. I agree we could
-do more to clean up the driver.
+> No actual problems, but I noticed some differences in the
+> kernel log:
 
-My inital goal was to  replace kernel_thread() with kthread_*(). So can I
-assume you are ok with my patch and that it can go in as is ?
+This should take care of all 4 issues.  The typo in the sunsab
+driver causing the first port to not show up was good for a
+laugh. :)
 
-Suka
+Let me know if it works for you too.
+
+diff --git a/arch/sparc64/kernel/head.S b/arch/sparc64/kernel/head.S
+index 75684b5..c8e9dc9 100644
+--- a/arch/sparc64/kernel/head.S
++++ b/arch/sparc64/kernel/head.S
+@@ -551,9 +551,10 @@ setup_trap_table:
+ 	save	%sp, -192, %sp
+ 
+ 	/* Force interrupts to be disabled. */
+-	rdpr	%pstate, %o1
+-	andn	%o1, PSTATE_IE, %o1
++	rdpr	%pstate, %l0
++	andn	%l0, PSTATE_IE, %o1
+ 	wrpr	%o1, 0x0, %pstate
++	rdpr	%pil, %l1
+ 	wrpr	%g0, 15, %pil
+ 
+ 	/* Make the firmware call to jump over to the Linux trap table.  */
+@@ -622,11 +623,9 @@ setup_trap_table:
+ 	call	init_irqwork_curcpu
+ 	 nop
+ 
+-	/* Now we can turn interrupts back on. */
+-	rdpr	%pstate, %o1
+-	or	%o1, PSTATE_IE, %o1
+-	wrpr	%o1, 0, %pstate
+-	wrpr	%g0, 0x0, %pil
++	/* Now we can restore interrupt state. */
++	wrpr	%l0, 0, %pstate
++	wrpr	%l1, 0x0, %pil
+ 
+ 	ret
+ 	 restore
+diff --git a/arch/sparc64/kernel/time.c b/arch/sparc64/kernel/time.c
+index b43de64..094d3e3 100644
+--- a/arch/sparc64/kernel/time.c
++++ b/arch/sparc64/kernel/time.c
+@@ -928,8 +928,6 @@ static void sparc64_start_timers(void)
+ 	__asm__ __volatile__("wrpr	%0, 0x0, %%pstate"
+ 			     : /* no outputs */
+ 			     : "r" (pstate));
+-
+-	local_irq_enable();
+ }
+ 
+ struct freq_table {
+diff --git a/drivers/serial/sunsab.c b/drivers/serial/sunsab.c
+index 0dbd4df..979497f 100644
+--- a/drivers/serial/sunsab.c
++++ b/drivers/serial/sunsab.c
+@@ -1052,7 +1052,7 @@ static int __devinit sab_probe(struct of
+ 	if (err)
+ 		return err;
+ 
+-	err = sunsab_init_one(&up[0], op, 0,
++	err = sunsab_init_one(&up[1], op, 0,
+ 			      (inst * 2) + 1);
+ 	if (err) {
+ 		of_iounmap(up[0].port.membase,
+diff --git a/drivers/serial/sunsu.c b/drivers/serial/sunsu.c
+index 93bdaa3..d3a5aee 100644
+--- a/drivers/serial/sunsu.c
++++ b/drivers/serial/sunsu.c
+@@ -1200,6 +1200,11 @@ static int __init sunsu_kbd_ms_init(stru
+ 	if (up->port.type == PORT_UNKNOWN)
+ 		return -ENODEV;
+ 
++	printk("%s: %s port at %lx, irq %u\n",
++	       to_of_device(up->port.dev)->node->full_name,
++	       (up->su_type == SU_PORT_KBD) ? "Keyboard" : "Mouse",
++	       up->port.mapbase, up->port.irq);
++
+ #ifdef CONFIG_SERIO
+ 	serio = &up->serio;
+ 	serio->port_data = up;

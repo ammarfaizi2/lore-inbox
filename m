@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWGMM6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWGMNAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWGMM6s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWGMM6r
+	id S1030190AbWGMNAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWGMNAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:58:47 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31763 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030185AbWGMM6r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:58:47 -0400
-Date: Tue, 11 Jul 2006 15:54:49 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: andrea@cpushare.com
-Cc: Ingo Molnar <mingo@elte.hu>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060711155449.GA8230@ucw.cz>
-References: <20060629192121.GC19712@stusta.de> <1151628246.22380.58.camel@mindpipe> <20060629180706.64a58f95.akpm@osdl.org> <20060630014050.GI19712@stusta.de> <20060630045228.GA14677@opteron.random> <20060630094753.GA14603@elte.hu> <20060630145825.GA10667@opteron.random> <20060711073625.GA4722@elte.hu> <20060711141709.GE7192@opteron.random>
+	Thu, 13 Jul 2006 09:00:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40101 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030191AbWGMNAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 09:00:52 -0400
+Subject: Re: Bugs in usb-skeleton.c??? :)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Sergej Pupykin <ps@lx-ltd.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m37j2helb4.fsf@lx-ltd.ru>
+References: <m3odvtvj8w.fsf@lx-ltd.ru>
+	 <1152791917.3024.39.camel@laptopd505.fenrus.org> <m37j2helb4.fsf@lx-ltd.ru>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 15:00:50 +0200
+Message-Id: <1152795650.3024.44.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060711141709.GE7192@opteron.random>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > and both are pledged and available to GPL users. [..]
-> > > 
-> > > If the GPL offered any protection to my system software I would 
-> > > consider it too, but the GPL can't protect software that runs behind 
-> > > the corporate firewall. [...]
-> > 
-> > so you admit and confirm that you explicitly and intentionally do not 
-> > pledge your patent to GPL users. [..]
+On Thu, 2006-07-13 at 16:33 +0400, Sergej Pupykin wrote:
+>  >> As I understand, USB subsystem uses urb->transfer_buffer directly with
+>  >> DMA. I see that usb-skeleton.c and (at least) bluez's hci_usb allocates it
+>  >> without GFP_DMA flag. (skeleton with GFP_KERNEL, bluez with GFP_ATOMIC)
 > 
-> How many times do I need to say it. The pending patent has nothing to do
-> with the kernel, and it is _not_ pledged under the GPL.
-...
-> Talking about patents when submitting seccomp, would be like talking
-> about mp3 patents when submitting alsa code or talking about google
+>  AvdV> I think GFP_DMA means something different than that you think it means.
+>  AvdV> GFP_DMA is a bad old hack that means "this is for ISA bus cards to DMA
+>  AvdV> to/from". Since there are no ISA bus USB controllers... the USB code
+>  AvdV> doesn't need to use GFP_DMA.
+> 
+> Does kmalloc always allocate pages that can be used in DMA?
 
-Well, if mp3 was only known user of alsa, yes that would be relevant
-discussion... and that seems to be the case here.
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+normally yes. HOWEVER....
+> 
+> I see pci_map_single gives address that incremented later without page
+> boundary checking. Are allocated pages sequented? (usb-ohci.c)
+
+..it is nicer to use the DMA allocation API (which internally may fall
+back to kmalloc etc), while kmalloc may work, it can be quite slow in
+how it's made to work. So it's just nicer to just use the DMA memory
+allocators... (see Documentation/DMA-API.txt file for a description of
+this)
+
+Greetings,
+   Arjan van de Ven
+

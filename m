@@ -1,47 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWGMXZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161050AbWGMXhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161037AbWGMXZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWGMXZQ
+	id S1161050AbWGMXhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWGMXhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:25:16 -0400
-Received: from compunauta.com ([69.36.170.169]:46523 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S1161037AbWGMXZP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:25:15 -0400
-From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
-	<gustavo@compunauta.com>
-Organization: www.compunauta.com
-To: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with 2.6.11/12/13/14/15
-Date: Thu, 13 Jul 2006 18:25:13 -0500
-User-Agent: KMail/1.8.2
-References: <200607111906.06343.gustavo@compunauta.com> <200607112104.03673.gustavo@compunauta.com> <20060711195401.1045c8dd.rdunlap@xenotime.net>
-In-Reply-To: <20060711195401.1045c8dd.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607131825.13989.gustavo@compunauta.com>
+	Thu, 13 Jul 2006 19:37:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35969 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161050AbWGMXhu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 19:37:50 -0400
+Date: Thu, 13 Jul 2006 16:37:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: nigel@suspend2.net
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, tglx@timesys.com,
+       linux-pm@lists.osdl.org
+Subject: Re: [PATCH] Rt-tester makes freezing processes fail.
+Message-Id: <20060713163743.e71975b0.akpm@osdl.org>
+In-Reply-To: <200607140918.49040.nigel@suspend2.net>
+References: <200607140918.49040.nigel@suspend2.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Martes, 11 de Julio de 2006 21:54, escribió:
-> On Tue, 11 Jul 2006 21:04:02 -0500 Gustavo Guillermo Pérez wrote:
-> > booting kernel 2.6.15 with all drivers compiled, and loading Intelfb
-> > agp-intel the oops appears, I'm using an extra NVidia card.
-> >
-> > Deleting the intel810 and friends the oops disappear.
->
-> Can you capture any oops messages?  (without using any
-> proprietary drivers)
-The bug appears at boot time, or at intel frame buffer loading, no drivers 
-loaded until the oops, but I'll try again.
+On Fri, 14 Jul 2006 09:18:43 +1000
+Nigel Cunningham <nigel@suspend2.net> wrote:
 
-I can use a serial port, but I can't remember who? did you?
+> Compiling in the rt-tester currently makes freezing processes fail.
+> I don't think there's anything wrong with it running during
+> suspending, so adding PF_NOFREEZE to the flags set seems to be the
+> right solution.
+> 
+> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> 
+>  rtmutex-tester.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> diff -ruNp 9971-rt-tester.patch-old/kernel/rtmutex-tester.c 9971-rt-tester.patch-new/kernel/rtmutex-tester.c
+> --- 9971-rt-tester.patch-old/kernel/rtmutex-tester.c	2006-07-07 10:27:46.000000000 +1000
+> +++ 9971-rt-tester.patch-new/kernel/rtmutex-tester.c	2006-07-14 07:48:01.000000000 +1000
+> @@ -259,7 +259,7 @@ static int test_func(void *data)
+>  	struct test_thread_data *td = data;
+>  	int ret;
+>  
+> -	current->flags |= PF_MUTEX_TESTER;
+> +	current->flags |= PF_MUTEX_TESTER | PF_NOFREEZE;
+>  	allow_signal(SIGHUP);
+>  
+>  	for(;;) {
 
--- 
-Gustavo Guillermo Pérez
-Compunauta uLinux
-www.compunauta.com
+
+I yesterday queued up the below patch.  Which approach is most appropriate?
+
+
+
+From: Luca Tettamanti <kronos.it@gmail.com>
+
+When CONFIG_RT_MUTEX_TESTER is enabled kernel refuses to suspend the
+machine because it's unable to freeze the rt-test-* threads.
+
+Add try_to_freeze() after schedule() so that the threads will be freezed
+correctly; I've tested the patch and it lets the notebook suspends and
+resumes nicely.
+
+Signed-off-by: Luca Tettamanti <kronos.it@gmail.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ kernel/rtmutex-tester.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN kernel/rtmutex-tester.c~add-try_to_freeze-to-rt-test-kthreads kernel/rtmutex-tester.c
+--- a/kernel/rtmutex-tester.c~add-try_to_freeze-to-rt-test-kthreads
++++ a/kernel/rtmutex-tester.c
+@@ -275,6 +275,7 @@ static int test_func(void *data)
+ 
+ 		/* Wait for the next command to be executed */
+ 		schedule();
++		try_to_freeze();
+ 
+ 		if (signal_pending(current))
+ 			flush_signals(current);
+_
+

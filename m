@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWGMXU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWGMXZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbWGMXU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 19:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWGMXU7
+	id S1161037AbWGMXZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWGMXZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 19:20:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60637 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161045AbWGMXU6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 19:20:58 -0400
-Date: Fri, 14 Jul 2006 01:20:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: andrea@cpushare.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Lee Revell <rlrevell@joe-job.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060713232026.GA6117@elf.ucw.cz>
-References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060712210545.GB24367@opteron.random> <1152741776.22943.103.camel@localhost.localdomain> <20060712234441.GA9102@opteron.random> <20060713212940.GB4101@ucw.cz> <20060713231118.GA1913@opteron.random>
+	Thu, 13 Jul 2006 19:25:16 -0400
+Received: from compunauta.com ([69.36.170.169]:46523 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S1161037AbWGMXZP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 19:25:15 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+Subject: Re: Pentium D on GW fail to boot with 2.6.16/17 but not with 2.6.11/12/13/14/15
+Date: Thu, 13 Jul 2006 18:25:13 -0500
+User-Agent: KMail/1.8.2
+References: <200607111906.06343.gustavo@compunauta.com> <200607112104.03673.gustavo@compunauta.com> <20060711195401.1045c8dd.rdunlap@xenotime.net>
+In-Reply-To: <20060711195401.1045c8dd.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060713231118.GA1913@opteron.random>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200607131825.13989.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+El Martes, 11 de Julio de 2006 21:54, escribió:
+> On Tue, 11 Jul 2006 21:04:02 -0500 Gustavo Guillermo Pérez wrote:
+> > booting kernel 2.6.15 with all drivers compiled, and loading Intelfb
+> > agp-intel the oops appears, I'm using an extra NVidia card.
+> >
+> > Deleting the intel810 and friends the oops disappear.
+>
+> Can you capture any oops messages?  (without using any
+> proprietary drivers)
+The bug appears at boot time, or at intel frame buffer loading, no drivers 
+loaded until the oops, but I'll try again.
 
-I do not want to enter seccomp flamewar, and that's why I did not
-answer to Ingo.
-
-> > Actually random delays are unlike to help (much). You have just added
-> > noise, but you can still decode original signal...
-> 
-> You're wrong, the random delays added to every packet will definitely
-> wipe out any signal.
-
-Strictly speaking, this is wrong. This is like adding noise into the
-room. You have to pick up maximum delay (ammount of noise), and you
-clearly can't override signal that's longer than maximum delay. But
-you also can't override signal that's half the maximum delay, given
-that transmitter will retransmit it 4-or-so times. Just average 4
-samples, and your random delays will cancel out.
-
-No, this probably does not apply to seccomp, because we are picking
-unintended noise from affected computer.
-
-OTOH I'm pretty sure I could communicate from seccomp process by
-sending zeros alone, and I cound communicate from another process on
-box running seccomp through your randomizing packetizer to my machine.
-
-								Pavel
+I can use a serial port, but I can't remember who? did you?
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

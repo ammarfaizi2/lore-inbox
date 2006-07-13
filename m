@@ -1,79 +1,293 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbWGMV1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWGMV2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030399AbWGMV1K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWGMV1K
+	id S1030403AbWGMV2i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 17:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWGMV2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:27:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15051 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030399AbWGMV1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:27:08 -0400
-Date: Thu, 13 Jul 2006 14:27:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Tim Pepper" <lnxninja@us.ibm.com>
-Cc: viro@ftp.linux.org.uk, hpa@zytor.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] symlink nesting level change
-Message-Id: <20060713142702.9b1f7c61.akpm@osdl.org>
-In-Reply-To: <eada2a070607131135k7e361132t957bfbb78f341cc2@mail.gmail.com>
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com>
-	<44580CF2.7070602@tlinx.org>
-	<e3966u$dje$1@terminus.zytor.com>
-	<20060503030849.GZ27946@ftp.linux.org.uk>
-	<20060503183554.87f0218d.akpm@osdl.org>
-	<eada2a070607131135k7e361132t957bfbb78f341cc2@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 13 Jul 2006 17:28:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3209 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030403AbWGMV2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 17:28:37 -0400
+Date: Thu, 13 Jul 2006 22:28:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+Cc: akpm@osdl.org, achirica@users.sourceforge.net,
+       "David C. Hansen" <haveblue@us.ibm.com>, serue@us.ibm.com,
+       clg@fr.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kthread: airo.c
+Message-ID: <20060713212824.GA14729@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Sukadev Bhattiprolu <sukadev@us.ibm.com>, akpm@osdl.org,
+	achirica@users.sourceforge.net,
+	"David C. Hansen" <haveblue@us.ibm.com>, serue@us.ibm.com,
+	clg@fr.ibm.com, linux-kernel@vger.kernel.org
+References: <20060713205319.GA23594@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713205319.GA23594@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 11:35:28 -0700
-"Tim Pepper" <lnxninja@us.ibm.com> wrote:
-
-> On 5/3/06, Andrew Morton <akpm@osdl.org> wrote:
-> > On Wed, 3 May 2006 04:08:49 +0100
-> > Al Viro <viro@ftp.linux.org.uk> wrote:
-> >
-> > > No.  It's way past time to bump it to 8.  Everyone had been warned - for
-> > > months now.
-> > >
-> > > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-> > > ----
-> > > --- a/include/linux/namei.h   2006-03-31 20:08:42.000000000 -0500
-> > > +++ b/include/linux/namei.h   2006-05-02 23:06:46.000000000 -0400
-> > > @@ -11,7 +11,7 @@
-> > >       struct file *file;
-> > >  };
-> > >
-> > > -enum { MAX_NESTED_LINKS = 5 };
-> > > +enum { MAX_NESTED_LINKS = 8 };
-> > >
-> > >  struct nameidata {
-> > >       struct dentry   *dentry;
-> >
-> > It's a non-back-compatible change which means that people will install
-> > 2.6.18+, will set stuff up which uses more that five nested links and some
-> > will discover that they can no longer run their software on older kernels.
-> >
-> > It'll only hurt a very small number of people, but for those people, it
-> > will hurt a lot.  And I can't really think of anything we can do to help
-> > them, apart from making the new behaviour runtime-controllable, defaulting
-> > to "off", but add a once-off printk when we hit MAX_NESTED_LINKS, pointing
-> > them at a document which tells them how to turn on the new behaviour and
-> > which explains the problems.  Which sucks.
-> >
-> > But I guess as major distros are 2.6.16-based, this is a good time to make
-> > this change.
+On Thu, Jul 13, 2006 at 01:53:19PM -0700, Sukadev Bhattiprolu wrote:
+> Andrew,
 > 
-> Doesn't look like this ended up in 2.6.18-rc nor -mm.  The email
-> thread in May was tending towards finally bumping it.  Major distros
-> already have it at 8 for a long time.  Is there any reason left (aside
-> now from possibly waiting until 2.6.19's window?) to wait?
+> Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
+> took a look at this patch, and doesn't have any problems with it. It doesn't
+> fix any bugs and is just a cleanup, so it certainly isn't a candidate
+> for this mainline cycle
 
-hm, thanks, it fell through a crack.  I queued it.
+I'm not sure it's that easy.  I think it needs some more love:
 
-Given that distros are already shipping this, I guess we should do this
-asap (ie: 2.6.18), to keep the various Linuxes out there in sync.
+ - switch to wake_uo_process
+ - kill JOB_DIE
+ - cleanup a the convoluted mess in airo_thread a bit
+
+Note that it's still reimplementing the single threaded workqueue
+functionality quite badly.  So if someone could switch it over and while
+we're at it try to kill the idiociy of doing the trylock in the calling
+context and only then calling the thread by always calling the thread
+(which also solves the synchronization problem).
+
+Anywhy, here's a small incremental patch ontop of yours to implement my
+above items:
+
+Index: linux-2.6/drivers/net/wireless/airo.c
+===================================================================
+--- linux-2.6.orig/drivers/net/wireless/airo.c	2006-07-13 23:23:28.000000000 +0200
++++ linux-2.6/drivers/net/wireless/airo.c	2006-07-13 23:25:38.000000000 +0200
+@@ -1173,7 +1173,6 @@
+ #define FLAG_FLASHING	15
+ #define FLAG_WPA_CAPABLE	16
+ 	unsigned long flags;
+-#define JOB_DIE	0
+ #define JOB_XMIT	1
+ #define JOB_XMIT11	2
+ #define JOB_STATS	3
+@@ -1191,7 +1190,6 @@
+ 	struct task_struct *list_bss_task;
+ 	struct task_struct *airo_thread_task;
+ 	struct semaphore sem;
+-	wait_queue_head_t thr_wait;
+ 	unsigned long expires;
+ 	struct {
+ 		struct sk_buff *skb;
+@@ -2182,7 +2180,7 @@
+ 		set_bit(FLAG_PENDING_XMIT, &priv->flags);
+ 		netif_stop_queue(dev);
+ 		set_bit(JOB_XMIT, &priv->jobs);
+-		wake_up_interruptible(&priv->thr_wait);
++		wake_up_process(priv->airo_thread_task);
+ 	} else
+ 		airo_end_xmit(dev);
+ 	return 0;
+@@ -2253,7 +2251,7 @@
+ 		set_bit(FLAG_PENDING_XMIT11, &priv->flags);
+ 		netif_stop_queue(dev);
+ 		set_bit(JOB_XMIT11, &priv->jobs);
+-		wake_up_interruptible(&priv->thr_wait);
++		wake_up_process(priv->airo_thread_task);
+ 	} else
+ 		airo_end_xmit11(dev);
+ 	return 0;
+@@ -2295,7 +2293,7 @@
+ 		/* Get stats out of the card if available */
+ 		if (down_trylock(&local->sem) != 0) {
+ 			set_bit(JOB_STATS, &local->jobs);
+-			wake_up_interruptible(&local->thr_wait);
++			wake_up_process(local->airo_thread_task);
+ 		} else
+ 			airo_read_stats(local);
+ 	}
+@@ -2322,7 +2320,7 @@
+ 		change_bit(FLAG_PROMISC, &ai->flags);
+ 		if (down_trylock(&ai->sem) != 0) {
+ 			set_bit(JOB_PROMISC, &ai->jobs);
+-			wake_up_interruptible(&ai->thr_wait);
++			wake_up_process(ai->airo_thread_task);
+ 		} else
+ 			airo_set_promisc(ai);
+ 	}
+@@ -2399,7 +2397,6 @@
+ 		}
+ 		clear_bit(FLAG_REGISTERED, &ai->flags);
+ 	}
+-	set_bit(JOB_DIE, &ai->jobs);
+ 	kthread_stop(ai->airo_thread_task);
+ 
+ 	/*
+@@ -2809,7 +2806,6 @@
+ 	sema_init(&ai->sem, 1);
+ 	ai->config.len = 0;
+ 	ai->pci = pci;
+-	init_waitqueue_head (&ai->thr_wait);
+ 	ai->airo_thread_task = kthread_run(airo_thread, dev, dev->name);
+ 	if (IS_ERR(ai->airo_thread_task))
+ 		goto err_out_free;
+@@ -2927,7 +2923,6 @@
+ err_out_unlink:
+ 	del_airo_dev(dev);
+ err_out_thr:
+-	set_bit(JOB_DIE, &ai->jobs);
+ 	kthread_stop(ai->airo_thread_task);
+ err_out_free:
+ 	free_netdev(dev);
+@@ -3055,70 +3050,52 @@
+ 	wireless_send_event(ai->dev, SIOCGIWSCAN, &wrqu, NULL);
+ }
+ 
+-static int airo_thread(void *data) {
++static int airo_thread(void *data)
++{
+ 	struct net_device *dev = data;
+ 	struct airo_info *ai = dev->priv;
+-	int locked;
+ 	
+-	while(1) {
++	while (1) {
+ 		/* make swsusp happy with our thread */
+ 		try_to_freeze();
+ 
+-		if (test_bit(JOB_DIE, &ai->jobs))
+-			break;
++		for (;;) {
++			unsigned long wake_at;
+ 
+-		if (ai->jobs) {
+-			locked = down_interruptible(&ai->sem);
+-		} else {
+-			wait_queue_t wait;
++			set_current_state(TASK_INTERRUPTIBLE);
++			if (kthread_should_stop())
++				break;
++			if (ai->jobs)
++				break;
++			if (ai->scan_timeout &&
++			    time_after_eq(jiffies, ai->scan_timeout)) {
++				set_bit(JOB_SCAN_RESULTS, &ai->jobs);
++				break;
++			}
+ 
+-			init_waitqueue_entry(&wait, current);
+-			add_wait_queue(&ai->thr_wait, &wait);
+-			for (;;) {
+-				set_current_state(TASK_INTERRUPTIBLE);
+-				if (ai->jobs)
+-					break;
+-				if (ai->expires || ai->scan_timeout) {
+-					if (ai->scan_timeout &&
+-							time_after_eq(jiffies,ai->scan_timeout)){
+-						set_bit(JOB_SCAN_RESULTS, &ai->jobs);
+-						break;
+-					} else if (ai->expires &&
+-							time_after_eq(jiffies,ai->expires)){
+-						set_bit(JOB_AUTOWEP, &ai->jobs);
+-						break;
+-					}
+-					if (!kthread_should_stop()) {
+-						unsigned long wake_at;
+-						if (!ai->expires || !ai->scan_timeout) {
+-							wake_at = max(ai->expires,
+-								ai->scan_timeout);
+-						} else {
+-							wake_at = min(ai->expires,
+-								ai->scan_timeout);
+-						}
+-						schedule_timeout(wake_at - jiffies);
+-						continue;
+-					}
+-				} else if (!kthread_should_stop()) {
+-					schedule();
+-					continue;
+-				}
++			if (ai->expires &&
++			    time_after_eq(jiffies, ai->expires)){
++				set_bit(JOB_AUTOWEP, &ai->jobs);
+ 				break;
+ 			}
+-			current->state = TASK_RUNNING;
+-			remove_wait_queue(&ai->thr_wait, &wait);
+-			locked = 1;
+-		}
+ 
+-		if (locked)
+-			continue;
++			if (ai->expires && ai->scan_timeout)
++				wake_at = min(ai->expires, ai->scan_timeout);
++			else if (ai->expires || ai->scan_timeout)
++				wake_at = max(ai->expires, ai->scan_timeout);
++			else
++				wake_at = MAX_SCHEDULE_TIMEOUT;
+ 
+-		if (test_bit(JOB_DIE, &ai->jobs)) {
+-			up(&ai->sem);
+-			break;
++			schedule_timeout(wake_at - jiffies);
+ 		}
+ 
++		__set_current_state(TASK_RUNNING);
++		if (kthread_should_stop())
++			break;
++
++		if (down_interruptible(&ai->sem)) 
++			continue;
++
+ 		if (ai->power.event || test_bit(FLAG_FLASHING, &ai->flags)) {
+ 			up(&ai->sem);
+ 			continue;
+@@ -3180,7 +3157,7 @@
+ 			OUT4500( apriv, EVACK, EV_MIC );
+ 			if (test_bit(FLAG_MIC_CAPABLE, &apriv->flags)) {
+ 				set_bit(JOB_MIC, &apriv->jobs);
+-				wake_up_interruptible(&apriv->thr_wait);
++				wake_up_process(apriv->airo_thread_task);
+ 			}
+ 		}
+ 		if ( status & EV_LINK ) {
+@@ -3234,13 +3211,13 @@
+ 
+ 				if (down_trylock(&apriv->sem) != 0) {
+ 					set_bit(JOB_EVENT, &apriv->jobs);
+-					wake_up_interruptible(&apriv->thr_wait);
++					wake_up_process(apriv->airo_thread_task);
+ 				} else
+ 					airo_send_event(dev);
+ 			} else if (!scan_forceloss) {
+ 				if (auto_wep && !apriv->expires) {
+ 					apriv->expires = RUN_AT(3*HZ);
+-					wake_up_interruptible(&apriv->thr_wait);
++					wake_up_process(apriv->airo_thread_task);
+ 				}
+ 
+ 				/* Send event to user space */
+@@ -3903,7 +3880,7 @@
+ 
+ 	if (auto_wep) {
+ 		ai->expires = RUN_AT(3*HZ);
+-		wake_up_interruptible(&ai->thr_wait);
++		wake_up_process(ai->airo_thread_task);
+ 	}
+ 
+ 	return SUCCESS;
+@@ -7179,7 +7156,7 @@
+ out:
+ 	up(&ai->sem);
+ 	if (wake)
+-		wake_up_interruptible(&ai->thr_wait);
++		wake_up_process(ai->airo_thread_task);
+ 	return 0;
+ }
+ 
+@@ -7677,7 +7654,7 @@
+ 		/* Get stats out of the card if available */
+ 		if (down_trylock(&local->sem) != 0) {
+ 			set_bit(JOB_WSTATS, &local->jobs);
+-			wake_up_interruptible(&local->thr_wait);
++			wake_up_process(local->airo_thread_task);
+ 		} else
+ 			airo_read_wireless_stats(local);
+ 	}

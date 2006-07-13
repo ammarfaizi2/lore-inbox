@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWGMOdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWGMOjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWGMOdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 10:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWGMOdo
+	id S1751549AbWGMOjt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 10:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWGMOjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 10:33:44 -0400
-Received: from outbound-haw.frontbridge.com ([12.129.219.97]:59341 "EHLO
-	outbound5-haw-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751545AbWGMOdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 10:33:43 -0400
-X-BigFish: V
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-Subject: Re: [discuss] Re: [PATCH] Allow all Opteron processors to
- change pstate at same time
-From: "Joachim Deguara" <joachim.deguara@amd.com>
-To: "Pavel Machek" <pavel@suse.cz>
-cc: "shin, jacob" <jacob.shin@amd.com>, "Andi Kleen" <ak@suse.de>,
-       "Langsdorf, Mark" <mark.langsdorf@amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-In-Reply-To: <20060713130604.GC8230@ucw.cz>
-References: <B3870AD84389624BAF87A3C7B831499302935A76@SAUSEXMB2.amd.com>
- <20060713130604.GC8230@ucw.cz>
-Date: Thu, 13 Jul 2006 16:32:12 +0200
-Message-ID: <1152801132.4519.10.camel@lapdog.site>
-MIME-Version: 1.0
-X-Mailer: Evolution 2.6.0
-X-OriginalArrivalTime: 13 Jul 2006 14:32:42.0077 (UTC)
- FILETIME=[32DDE0D0:01C6A689]
-X-WSS-ID: 68A8860740W16587466-01-01
+	Thu, 13 Jul 2006 10:39:49 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47562 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751546AbWGMOjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 10:39:48 -0400
+Subject: Re: [PATCH] Airprime driver improvements to allow full speed EvDO
+	transfers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Sergei Organov <osv@javad.com>
+Cc: Andrew Morton <akpm@osdl.org>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <8764i1h9nd.fsf@javad.com>
+References: <1151646482.3285.410.camel@tahini.andynet.net>
+	 <20060630001021.2b49d4bd.akpm@osdl.org> <87veq9cosq.fsf@javad.com>
+	 <1152302831.20883.63.camel@localhost.localdomain>
+	 <87d5cdg308.fsf@javad.com>
+	 <1152529855.27368.114.camel@localhost.localdomain>
+	 <873bd9fobb.fsf@javad.com>
+	 <1152552683.27368.185.camel@localhost.localdomain>
+	 <8764i1h9nd.fsf@javad.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 13 Jul 2006 16:40:45 +0100
+Message-Id: <1152805246.17919.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 13:06 +0000, Pavel Machek wrote:
-> Can you run two such tests *in parallel*? That seemed to break it
-> really quickly.
-parallel sounds fun, but I don't get it.  Two machine or trying to go
-online and offline at the same time?  Firestorming two busy parallel
-while loops, one turning the core offline and the other online, did not
-bring an oops so I guess this kernel is in the clear in that regard.
+On Iau, 2006-07-13 at 18:17 +0400, Sergei Organov wrote:
+> This problem may occur with any tty driver that doesn't stop to insert
+> data into the tty buffers in throttled state. And yes, there are such
+> drivers in the tree. Before Paul's changes, the tty just dropped bytes
+> that aren't accepted by ldisc, so this problem had no chances to arise.
 
-I can't get it to crash again and I am afraid that it crashed under an
-old devel kernel.  After another ~20 hour test with heavy freq changes
-with the tscsync patch
+You must honour throttle. That has always been the case. At all times
+you should attempt to homour tty->receive_room and also ->throttle. If
+you don't it breaks. There will always be some "reaction time" overruns.
 
-CPU 1: Syncing TSC to CPU 0.
-CPU 1: synchronized TSC with CPU 0 (last diff 4 cycles, maxerr 499
-cycles)
-...
-CPU 2: Syncing TSC to CPU 0.
-CPU 2: synchronized TSC with CPU 0 (last diff -105 cycles, maxerr 600
-cycles)
-...
-CPU 3: Syncing TSC to CPU 0.
-CPU 3: synchronized TSC with CPU 0 (last diff -122 cycles, maxerr 1126
-cycles)
+> latter cases drivers that insert too much data without pushing to ldisc
+> may cause similar problem. Anyway, you definitely know better what to do
+> about it.
 
+Might be a good idea to put a limiter in before 2.6.18 proper just to
+trap any other drivers that have that bug. At least printk a warning and
+refuse the allocation once there is say 64K queued. That way the driver
+author gets a hint all is not well.
 
-after 5 hours of no PowerNow!
-
-CPU 1: Syncing TSC to CPU 0.
-CPU 1: synchronized TSC with CPU 0 (last diff -3 cycles, maxerr 598
-cycles)
-...
-CPU 2: Syncing TSC to CPU 0.
-CPU 2: synchronized TSC with CPU 0 (last diff -124 cycles, maxerr 1129
-cycles)
-...
-CPU 3: Syncing TSC to CPU 0.
-CPU 3: synchronized TSC with CPU 0 (last diff -124 cycles, maxerr 1127
-cycles)
-
-
-huh?? I don't understand but it does not matter what I do or how long I
-do it, the difference looks to always be about the same.  
-
--joachim
-
-
+Alan
 

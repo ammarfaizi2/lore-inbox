@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWGMMPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWGMMRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbWGMMPn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 08:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWGMMPn
+	id S1751498AbWGMMRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 08:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWGMMRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 08:15:43 -0400
-Received: from ns.suse.de ([195.135.220.2]:35554 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932227AbWGMMPm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 08:15:42 -0400
-From: Andi Kleen <ak@suse.de>
-To: Theodore Tso <tytso@mit.edu>
-Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
-Date: Thu, 13 Jul 2006 14:15:48 +0200
-User-Agent: KMail/1.9.1
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
-References: <m1psgdkrt8.fsf@ebiederm.dsl.xmission.com> <200607130131.46753.ak@suse.de> <20060713001222.GJ9040@thunk.org>
-In-Reply-To: <20060713001222.GJ9040@thunk.org>
+	Thu, 13 Jul 2006 08:17:15 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:29312 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750982AbWGMMRO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 08:17:14 -0400
+Message-ID: <44B639D0.4040903@drzeus.cx>
+Date: Thu, 13 Jul 2006 14:17:20 +0200
+From: Pierre Ossman <drzeus@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Change SDHCI version error to a warning
+References: <20060711190710.12686.11805.stgit@poseidon.drzeus.cx> <20060713121328.GA8376@flint.arm.linux.org.uk>
+In-Reply-To: <20060713121328.GA8376@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607131415.49075.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 July 2006 02:12, Theodore Tso wrote:
-> On Thu, Jul 13, 2006 at 01:31:46AM +0200, Andi Kleen wrote:
-> > glibc still works, just slower. But I think the best strategy
-> > is just to emulate the single sysctl glibc is using and printk
-> > for the rest.
->
-> That sounds reasonable, yes.
->
-> > > point is moot.  But at the same time, what is the cost of leaving
-> > > sys_sysctl in the kernel for an extra 6-12 months, or even longer,
-> > > starting from now?
-> >
-> > The numerical namespace for sysctl is unsalvagable imho. e.g.
-> > distributions regularly break it because there is no central repository
-> > of numbers so it's not very usable anyways in practice.
->
-> That may be true, but it doesn't answer the question, what's the cost
-> of leaving in sys_sysctl in there for now?
+Russell King wrote:
+> On Tue, Jul 11, 2006 at 09:07:10PM +0200, Pierre Ossman wrote:
+>> O2 Micro's controllers have a larger specification version value and are
+>> therefore denied by the driver. When bypassing this check they seem to work
+>> fine. This patch makes the code a bit more forgiving by changing the
+>> warning to an error.
+> 
+> Doesn't this patch change the error to a warning instead?
 
-For once linux/sysctl.h is one of the biggest source of patch rejects.
-The sooner it goes the better.
+*doh*
 
->
-> In any case, if we really do want to get rid of it, the next step
-> should be a working deprecation printk 
+Must have been late when I wrote the commit message. It should of course
+be a change from an error to a warning in order to just nag users
+instead of completely blocking them.
 
-It was in there for months already.
+Rgds
+Pierre
 
-> and adding something to 
-> Documentation/feature-removal-schedule.txt.
-
-That is what Eric's patch did.
-
--Andi

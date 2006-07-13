@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWGMLXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWGMLXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWGMLXU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 07:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGMLXT
+	id S932066AbWGMLXA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 07:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWGMLXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 07:23:19 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:22803 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932444AbWGMLXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 07:23:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=kCXg+fQhxJQKyef1vsbrSyTBZeGxYb5Edj+CquAGxNfYezPTqGD/Ay2owiPC84qXfRLeetOD4ZcXYi0ey8SxkvuaqiHl8gnkYmuvwzigY6rayNUFaAfniM8C59dCy4kWbrt6VA0M16H7hi4FrmNXzPsWhse+r6O4DiKkail4Wj4=
-Date: Thu, 13 Jul 2006 13:23:29 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Mark Hounschell <dmarkh@cfl.rr.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark Hounschell <markh@compro.net>
-Subject: Re: PI support for semaphores?
-In-Reply-To: <44B626BB.8020907@cfl.rr.com>
-Message-ID: <Pine.LNX.4.64.0607131317570.19255@localhost.localdomain>
-References: <44B626BB.8020907@cfl.rr.com>
+	Thu, 13 Jul 2006 07:23:00 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:27049 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932066AbWGMLXA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 07:23:00 -0400
+Date: Thu, 13 Jul 2006 13:22:38 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+cc: Ralf Baechle <ralf@linux-mips.org>
+Subject: [PATCH] correct oldconfig for unset choice options
+Message-ID: <Pine.LNX.4.64.0607131315230.12900@scrub.home>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+oldconfig currently ignores unset choice options and doesn't ask for them.
+Correct the SYMBOL_DEF_USER flag of the choice symbol to be only set if 
+it's set for all values.
 
-On Thu, 13 Jul 2006, Mark Hounschell wrote:
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-> Does PI support for user land semaphores exist?
->
+---
+ scripts/kconfig/confdata.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yes.
-But please stop call them "semaphores". PI only makes sense for the kind 
-of semaphores called "mutexes" (which can be just a basic semaphore).
-
-2.6.18-rc1 and 2.6.17-rt7 (and earlier) have PI futexes.
-You still need a patch to glibc. I downloaded it from
-  http://people.redhat.com/mingo/PI-futex-patches/
-
-I have tested it and it works fine (except for a small problem with 
-pthread_mutex_timedlock(), which shouldn't be a problem for 95% of the 
-applications :-)
-
-Esben
-
-> Thanks
-> Mark
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Index: linux-2.6-mm/scripts/kconfig/confdata.c
+===================================================================
+--- linux-2.6-mm.orig/scripts/kconfig/confdata.c	2006-07-12 11:58:59.000000000 +0200
++++ linux-2.6-mm/scripts/kconfig/confdata.c	2006-07-12 12:17:20.000000000 +0200
+@@ -357,7 +357,7 @@ int conf_read(const char *name)
+ 		for (e = prop->expr; e; e = e->left.expr)
+ 			if (e->right.sym->visible != no)
+ 				flags &= e->right.sym->flags;
+-		sym->flags |= flags & SYMBOL_DEF_USER;
++		sym->flags &= flags | ~SYMBOL_DEF_USER;
+ 	}
+ 
+ 	sym_change_count += conf_warnings || conf_unsaved;

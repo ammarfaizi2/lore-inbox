@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbWGMVH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWGMVXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030394AbWGMVH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWGMVH1
+	id S1030393AbWGMVXR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 17:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWGMVXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:07:27 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:19627 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030395AbWGMVH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:07:27 -0400
-Date: Thu, 13 Jul 2006 23:07:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Roman Zippel <zippel@linux-m68k.org>, wookey@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Support DOS line endings
-Message-ID: <20060713210725.GA1923@mars.ravnborg.org>
-References: <20060707173458.GB1605@parisc-linux.org> <Pine.LNX.4.64.0607080513280.17704@scrub.home> <20060713181825.GA22895@mars.ravnborg.org> <Pine.LNX.4.64.0607132039560.12900@scrub.home> <20060713193543.GB312@mars.ravnborg.org> <20060713200223.GL1629@parisc-linux.org>
+	Thu, 13 Jul 2006 17:23:17 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:29340 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030393AbWGMVXR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 17:23:17 -0400
+Date: Thu, 13 Jul 2006 16:22:18 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+Message-ID: <20060713212218.GA2169@sergelap.austin.ibm.com>
+References: <20060711075051.382004000@localhost.localdomain> <20060711075420.937831000@localhost.localdomain> <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com> <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com> <m1sll51j3r.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060713200223.GL1629@parisc-linux.org>
+In-Reply-To: <m1sll51j3r.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 02:02:23PM -0600, Matthew Wilcox wrote:
-> On Thu, Jul 13, 2006 at 09:35:43PM +0200, Sam Ravnborg wrote:
-> > --- a/scripts/kconfig/confdata.c
-> > +++ b/scripts/kconfig/confdata.c
-> > @@ -195,6 +195,8 @@ load:
-> >  			p2 = strchr(p, '\n');
-> >  			if (p2)
-> >  				*p2 = 0;
-> > +			if (*--p2 == '\r')
-> > +				*p2 = 0;
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> >> keys are essentially security credentials for something besides the
+> >> local kernel.  Think kerberos tickets.  That makes the keys the
+> >> obvious place to say what uid you are in a different user namespace
+> >> and similar things.
+> >
+> > what about performance ? wouldn't that slow the checking ?
 > 
-> ... but if p2 is NULL ... 
-> 
-> so:
-> 			if (p2) {
-> 				*p2 = 0;
-> 				if (*--p2 == '\r')
-> 					*p2 = 0;
-> 			}
-> 
-> but maybe it'd be better to do ...
-> 
-> 			if (p2) {
-> 				*p2-- = 0;
-> 				if (*p2 == '\r')
-> 					*p2 = 0;
-> 			}
-Thanks. Maybe I should just stop trying to code anything today ;-)
+> It needs to be looked at, but it shouldn't slow the same namespace
+> case,
 
-	Sam
+How so?  The processesing is the same.
+
+> and permission checking is largely a slow path issue.  So a little
+> overhead at open time is preferred to overhead after you get the file
+> open.
+
+Unsure which approach has overhead after file open...
+
+-serge

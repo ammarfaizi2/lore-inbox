@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWGMTGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWGMTGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWGMTGN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 15:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWGMTGM
+	id S1030290AbWGMTGk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 15:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWGMTGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 15:06:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49046 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030290AbWGMTGK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 15:06:10 -0400
-Date: Thu, 13 Jul 2006 12:05:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>, Albert Cahalan <acahalan@gmail.com>,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-Subject: Re: utrace vs. ptrace
-In-Reply-To: <200607131521.52505.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
- <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu>
- <200607131521.52505.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jul 2006 15:06:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15076 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030290AbWGMTGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 15:06:39 -0400
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       sekharan@us.ibm.com, linux-kernel@vger.kernel.org, nagar@watson.ibm.com,
+       balbir@in.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+References: <1152763195.11343.16.camel@linuxchandra>
+	 <20060713071221.GA31349@elte.hu> <20060713002803.cd206d91.akpm@osdl.org>
+	 <20060713072635.GA907@elte.hu> <20060713004445.cf7d1d96.akpm@osdl.org>
+	 <20060713124603.GB18936@elte.hu>
+	 <Pine.LNX.4.64.0607131147530.5623@g5.osdl.org>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 21:06:29 +0200
+Message-Id: <1152817589.3024.64.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 13 Jul 2006, Andi Kleen wrote:
-
+On Thu, 2006-07-13 at 11:50 -0700, Linus Torvalds wrote:
 > 
-> > > I'm not sure that's particularly useful (I think I would prefer to 
-> > > keep it in kernel), [...]
-> > 
-> > why would we want to keep this in the kernel? Coredumping in the kernel 
-> > is fragile, and it's nowhere near performance-critical to really live 
-> > within the kernel.
-> 
-> Mostly because I fear it would become another udev like disaster, requiring user 
-> space updates regularly, and core dumps are a fairly critical debugging feature
-> that I wouldn't like to become unreliable.
+> Why isn't the "on_slab_key" local to just the init_lock_keys()
+> function, 
+> and the #ifdef around it all?
 
-Doing core-dumping in user space would be insane. It doesn't give _any_ 
-advantages, only disadvantages.
+it's the same net results; the variable is 0 bytes in size for !LOCKDEP 
 
-Why do people keep thinking that doing things in user space is "safer" and 
-"easier". It's quite often not. For example, all the "fragile" stuff would 
-be true for a user-space dumper (don't tell me it's safer - it would 
-obviously have to run with elevated capabilities), and a lot of it would 
-be a hell of a lot harder.
 
-		Linus

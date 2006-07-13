@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWGMHOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWGMHPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWGMHOh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWGMHOg
+	id S1751492AbWGMHPF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWGMHPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:14:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751207AbWGMHOg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:14:36 -0400
-Date: Thu, 13 Jul 2006 00:14:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kiszka <jan.kiszka@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: fix oom roll-back of __vmalloc_area_node
-Message-Id: <20060713001433.801fa304.akpm@osdl.org>
-In-Reply-To: <44B3FDE4.4040209@web.de>
-References: <44B3FDE4.4040209@web.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 13 Jul 2006 03:15:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10668 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751492AbWGMHPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:15:03 -0400
+Subject: Re: Very long startup time for a new thread
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mikael Starvik <mikael.starvik@axis.com>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668030B55B0@exmail1.se.axis.com>
+References: <BFECAF9E178F144FAEF2BF4CE739C668030B55B0@exmail1.se.axis.com>
+Content-Type: text/plain
+Date: Thu, 13 Jul 2006 09:14:55 +0200
+Message-Id: <1152774895.3024.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jul 2006 21:37:08 +0200
-Jan Kiszka <jan.kiszka@web.de> wrote:
+On Thu, 2006-07-13 at 08:07 +0200, Mikael Starvik wrote:
+> (This is on a 200 MIPS embedded architecture).
+> 
+> On a heavily loaded system (loadavg ~4) I create a new pthread. In this
+> situation it takes ~4 seconds (!) before the thread is first scheduled in
+> (yes, I have debug outputs in the scheduler to check that). In a 2.4 based
+> system I don't see the same thing. I don't have any RT or FIFO tasks. Any
+> ideas why it takes so long time and what I can do about it?
 
-> __vunmap must not rely on area->nr_pages when picking the
-> release methode for area->pages. It may be too small when
-> __vmalloc_area_node failed early due to lacking memory.
-> Instead, use a flag in vmstruct to differentiate.
+I assume you're using a new enough glibc that supports NPTL ?
 
-So you mean that when this:
-
-		if (unlikely(!area->pages[i])) {
-			/* Successfully allocated i pages, free them in __vunmap() */
-			area->nr_pages = i;
-			goto fail;
-
-happens, it could be that i <= PAGE_SIZE/sizeof(struct page *) and __vunmap
-kfree()s something which it should have vfree()d, yes?
-
-That sounds like a dead box, or worse.
-
-I think the change would be a good one even if it didn't fix a bug, thanks.
 

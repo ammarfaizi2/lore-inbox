@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWGMW6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWGMXA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbWGMW6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 18:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161033AbWGMW6Z
+	id S1161034AbWGMXA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 19:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWGMXA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 18:58:25 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63149 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161032AbWGMW6Y (ORCPT
+	Thu, 13 Jul 2006 19:00:29 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:46752 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161034AbWGMXA2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 18:58:24 -0400
-Date: Fri, 14 Jul 2006 00:58:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Using select in boolean dependents of a tristate symbol
-In-Reply-To: <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0607140033030.12900@scrub.home>
-References: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
- <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jul 2006 19:00:28 -0400
+Date: Thu, 13 Jul 2006 16:00:18 -0700
+From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       achirica@users.sourceforge.net, "David C. Hansen" <haveblue@us.ibm.com>,
+       serue@us.ibm.com, clg@fr.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kthread: airo.c
+Message-ID: <20060713230018.GA24359@us.ibm.com>
+References: <20060713205319.GA23594@us.ibm.com> <20060713212824.GA14729@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713212824.GA14729@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Hellwig [hch@infradead.org] wrote:
+| On Thu, Jul 13, 2006 at 01:53:19PM -0700, Sukadev Bhattiprolu wrote:
+| > Andrew,
+| > 
+| > Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
+| > took a look at this patch, and doesn't have any problems with it. It doesn't
+| > fix any bugs and is just a cleanup, so it certainly isn't a candidate
+| > for this mainline cycle
+| 
+| I'm not sure it's that easy.  I think it needs some more love:
+| 
+|  - switch to wake_uo_process
+|  - kill JOB_DIE
+|  - cleanup a the convoluted mess in airo_thread a bit
+| 
+| Note that it's still reimplementing the single threaded workqueue
+| functionality quite badly.  So if someone could switch it over and while
+| we're at it try to kill the idiociy of doing the trylock in the calling
+| context and only then calling the thread by always calling the thread
+| (which also solves the synchronization problem).
+| 
+| Anywhy, here's a small incremental patch ontop of yours to implement my
+| above items:
 
-On Thu, 13 Jul 2006, Dmitry Torokhov wrote:
+I had a quick look at your patch and looks fine to me. I agree we could
+do more to clean up the driver.
 
-> config THRUSTMASTER_FF
->       bool "ThrustMaster FireStorm Dual Power 2 support (EXPERIMENTAL)"
->       depends on HID_FF && EXPERIMENTAL
-> +       select INPUT_FF_MEMLESS
->       help
->         Say Y here if you have a THRUSTMASTER FireStore Dual Power 2,
->         and want to enable force feedback support for it.
-> 
-> Unfortunately this forces INPUT_FF_MEMLESS to always be built-in,
-> although if HID is a module it could be a module as well. Do you have
-> any suggestions as to how allow INPUT_FF_MEMLESS to be compiled as a
-> module?
+My inital goal was to  replace kernel_thread() with kthread_*(). So can I
+assume you are ok with my patch and that it can go in as is ?
 
-You need to directly include HID into the dependencies, only the direct 
-dependencies for config entry are used for the select.
-
-bye, Roman
-
+Suka

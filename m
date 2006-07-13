@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWGMPmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWGMPov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWGMPmu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 11:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWGMPmu
+	id S1030239AbWGMPov (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 11:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWGMPov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 11:42:50 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:62074 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S964786AbWGMPmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 11:42:50 -0400
-X-IronPort-AV: i="4.06,238,1149490800"; 
-   d="scan'208"; a="1838196644:sNHT25046558"
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjan@infradead.org, mingo@elte.hu, zach.brown@oracle.com,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
-X-Message-Flag: Warning: May contain useful information
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
-	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
-	<20060712093820.GA9218@elte.hu> <adaveq2v9gn.fsf@cisco.com>
-	<20060712183049.bcb6c404.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 13 Jul 2006 08:42:47 -0700
-Message-ID: <adau05ltsso.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 13 Jul 2006 11:44:51 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:60070 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030239AbWGMPou (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 11:44:50 -0400
+Message-ID: <44B66A70.90502@oracle.com>
+Date: Thu, 13 Jul 2006 08:44:48 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 13 Jul 2006 15:42:48.0251 (UTC) FILETIME=[FDF118B0:01C6A692]
-Authentication-Results: sj-dkim-8.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Xavier Roche <roche+kml2@exalead.com>
+CC: linux-kernel@vger.kernel.org, linux-aio <linux-aio@kvack.org>
+Subject: Re: io_submit() taking a long time to return ?
+References: <44B5ED5F.1040606@exalead.com>
+In-Reply-To: <44B5ED5F.1040606@exalead.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Sigh.  It was always a mistake (of the kernel programming 101 type) to put
- > any locking at all in the idr code.  At some stage we need to weed it all
- > out and move it to callers.
- > 
- > Your fix is yet more fallout from that mistake.
 
-Agreed.  Consider me on the hook to fix this up in a better way once
-my life is a little saner.  Maybe I'll try to cook something up on the
-plane ride to Ottawa.
+> By reading the aio documentation, we expected the io_submit call to
+> always return immediately,
 
-Anyway you can punch me in the stomach if I don't have something in
-time for 2.6.19.
+Sadly, that isn't guaranteed.
 
- - R.
+> but in our preliminary tests we noticed that
+> sometimes this call can take a long time (more than 10 ms, even
+> sometimes more than 30 ms !!).
+
+If I had to guess I'd suspect that these delays are due to sync block
+mapping lookups in the submit path.  Do these tend to show up the first
+time you read a file?
+
+- z

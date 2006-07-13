@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWGMIY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWGMIa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWGMIY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 04:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWGMIY0
+	id S932443AbWGMIa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 04:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWGMIa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 04:24:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6576 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932284AbWGMIY0 (ORCPT
+	Thu, 13 Jul 2006 04:30:57 -0400
+Received: from gw.goop.org ([64.81.55.164]:45740 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932443AbWGMIa4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 04:24:26 -0400
-Date: Thu, 13 Jul 2006 01:24:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/5] UML - Fix ZONE_HIGHMEM compilation error
-Message-Id: <20060713012421.b59f05d4.akpm@osdl.org>
-In-Reply-To: <200607121639.k6CGdiMw021221@ccure.user-mode-linux.org>
-References: <200607121639.k6CGdiMw021221@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Jul 2006 04:30:56 -0400
+Message-ID: <44B604C8.90607@goop.org>
+Date: Thu, 13 Jul 2006 01:31:04 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: George Nychis <gnychis@cmu.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+References: <44B5CE77.9010103@cmu.edu>
+In-Reply-To: <44B5CE77.9010103@cmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2006 12:39:43 -0400
-Jeff Dike <jdike@addtoit.com> wrote:
+George Nychis wrote:
+> I was wondering if anyone has gotten suspend or hibernate to work on a
+> Thinkpad x60s?  I have googled around for support in the kernel and
+> haven't been able to find anyone fully successful with it.
+>   
+I have suspend/resume working fine on an X60.  Needs some patches to 
+make it work though.  What problems are you seeing?
 
-> References to ZONE_HIGHMEM need to depend on CONFIG_HIGHMEM.
-> 
-
-There are several such references in mm/page_alloc.c
-
-> 
-> Index: linux-2.6.17/arch/um/kernel/mem.c
-> ===================================================================
-> --- linux-2.6.17.orig/arch/um/kernel/mem.c	2006-07-12 11:29:02.000000000 -0400
-> +++ linux-2.6.17/arch/um/kernel/mem.c	2006-07-12 11:29:11.000000000 -0400
-> @@ -226,7 +226,9 @@ void paging_init(void)
->  	for(i=0;i<sizeof(zones_size)/sizeof(zones_size[0]);i++) 
-
-I spy an ARRAY_SIZE().
-
->  		zones_size[i] = 0;
->  	zones_size[ZONE_DMA] = (end_iomem >> PAGE_SHIFT) - (uml_physmem >> PAGE_SHIFT);
-> +#ifdef CONFIG_HIGHMEM
->  	zones_size[ZONE_HIGHMEM] = highmem >> PAGE_SHIFT;
-> +#endif
->  	free_area_init(zones_size);
->  
-
-Maybe this is an rc1-mm1 fix?  Did Christoph's patches break UML, perhaps??
+    J

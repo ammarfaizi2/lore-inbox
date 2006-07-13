@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWGMVh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWGMVlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030413AbWGMVh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 17:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWGMVh6
+	id S1030358AbWGMVlx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 17:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbWGMVlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 17:37:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:1428 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030410AbWGMVh5 (ORCPT
+	Thu, 13 Jul 2006 17:41:53 -0400
+Received: from ns.firmix.at ([62.141.48.66]:23445 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1030358AbWGMVlw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 17:37:57 -0400
-Date: Thu, 13 Jul 2006 14:22:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       fedora@adslpipe.co.uk
-Subject: Re: strange kobject messages in .18rc1git3
-Message-ID: <20060713212201.GB4218@kroah.com>
-References: <20060712041642.GG32707@redhat.com>
+	Thu, 13 Jul 2006 17:41:52 -0400
+Subject: Re: [PATCH] Support DOS line endings
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060713210725.GA1923@mars.ravnborg.org>
+References: <20060707173458.GB1605@parisc-linux.org>
+	 <Pine.LNX.4.64.0607080513280.17704@scrub.home>
+	 <20060713181825.GA22895@mars.ravnborg.org>
+	 <Pine.LNX.4.64.0607132039560.12900@scrub.home>
+	 <20060713193543.GB312@mars.ravnborg.org>
+	 <20060713200223.GL1629@parisc-linux.org>
+	 <20060713210725.GA1923@mars.ravnborg.org>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Thu, 13 Jul 2006 23:41:44 +0200
+Message-Id: <1152826904.3084.1.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060712041642.GG32707@redhat.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.363 () AWL,BAYES_00,FORGED_RCVD_HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 12:16:43AM -0400, Dave Jones wrote:
-> Here's an odd suspend/resume regression reported by a Fedora user. (Andy Cc'd)
-> 
-> hub 4-0:1.0: resuming
-> ac97 1-1:unknown codec: resuming
-> usb 2-2: resuming
-> hci_usb 2-2:1.0: resuming
-> hci_usb 2-2:1.1: resuming
-> platform bluetooth: resuming
-> ACPI Exception (acpi_bus-0071): AE_NOT_FOUND, No context for object [c1deb4a4]
-> [20060623]
-> Restarting tasks...<6>usb 2-2: USB disconnect, address 2
-> PM: Removing info for No Bus:usbdev2.2_ep81
-> PM: Removing info for No Bus:usbdev2.2_ep02
-> PM: Removing info for No Bus:usbdev2.2_ep82
-> PM: Removing info for No Bus:hci0
->  done
-> Thawing cpus ...
-> 
-> 
-> kobject_add failed for vcs63 with -EEXIST, don't try to register things with the
-> same name in the same directory.
+On Thu, 2006-07-13 at 23:07 +0200, Sam Ravnborg wrote:
+[...]
+> Thanks. Maybe I should just stop trying to code anything today ;-)
 
-Does the machine work properly after this message?
+Or take it as a sign to not support DOS line endings.
+SCNR,
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Looks like some bad issues with the console core :(
-
-thanks,
-
-greg k-h

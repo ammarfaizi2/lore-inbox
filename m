@@ -1,119 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWGMG3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWGMGjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbWGMG3K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 02:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWGMG3K
+	id S932567AbWGMGjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 02:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWGMGjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 02:29:10 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:54256 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932563AbWGMG3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 02:29:09 -0400
-Message-ID: <44B5E833.6000808@free.fr>
-Date: Thu, 13 Jul 2006 08:29:07 +0200
-From: Olivier Croquette <ocroquette@free.fr>
-User-Agent: Thunderbird 1.5 (Macintosh/20051025)
+	Thu, 13 Jul 2006 02:39:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12681 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932566AbWGMGjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 02:39:46 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Albert Cahalan" <acahalan@gmail.com>
+Cc: ak@suse.de, tytso@mit.edu, drepper@redhat.com, arjan@infradead.org,
+       rdunlap@xenotime.net, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+References: <787b0d920607122200m4785f7ddmddf40c079a7460cb@mail.gmail.com>
+Date: Thu, 13 Jul 2006 00:38:02 -0600
+In-Reply-To: <787b0d920607122200m4785f7ddmddf40c079a7460cb@mail.gmail.com>
+	(Albert Cahalan's message of "Thu, 13 Jul 2006 01:00:38 -0400")
+Message-ID: <m164i257sl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Scheduling parameters of a process and its main thread
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+"Albert Cahalan" <acahalan@gmail.com> writes:
 
-When a process only has one thread, I would expect that sched_get* and 
-pthread_getschedparam return equivalent priorities.
+> Andi Kleen writes:
+>> On Thursday 13 July 2006 01:24, Theodore Tso wrote:
+>
+>>> P.S.  I happen to be one those developers who think the binary
+>>> interface is not so bad, and for compared to reading from /proc/sys,
+>>> the sysctl syscall *is* faster.  But at the same there, there really
+>>> isn't anything where really does require that kind of speed, so that
+>>> point is moot.  But at the same time, what is the cost of leaving
+>>> sys_sysctl in the kernel for an extra 6-12 months, or even longer,
+>>> starting from now?
+>>
+>> The numerical namespace for sysctl is unsalvagable imho. e.g.
+>> distributions regularly break it because there is no central
+>> repository of numbers so it's not very usable anyways in practice.
+>
+> Huh? How exactly is this different from system call numbers,
+> ioctl numbers, fcntl numbers, ptrace command numbers, and every
+> other part of the Linux ABI?
 
-But in the example below, it's not the case.
-What I do:
-- print priorities
-- give RT priority to the process
-- print priorities
-- give RT priority to the thread
-- print priorities
+The only practical difference is that what people use is
+/proc/sys so the binary sysctl interface is not seriously maintained
+and bugs crop up.
 
-1. Process 3938 : policy=0 prio=0
-1. Thread 1075147872 : policy=0  prio=0
+> Normal sysctl works very well for FreeBSD. I'm jealous.
+> They also have a few related calls that are very nice.
+>
+> Here we fight over a few CPU cycles in the syscall entry path,
+> then piss away performance by requiring open-read-close and
+> marshalling everything through decimal ASCII text. WTF? Let's
+> just have one system call (make_XML_SOAP_request) and be done.
 
-2.  Process 3938 : policy=1 prio=20
-2.  Thread 1075147872 : policy=0  prio=0
+There is a cost to open-read-close.  But as a simple benchmark
+against a file will show reading data from /proc/sys is much slower
+than reading data from a file.
 
-3.  Process 3938 : policy=1 prio=30
-3.  Thread 1075147872 : policy=1  prio=30
+>From what I have been able to measure so far, open-read-close only
+seems to double the cost over sysctl, and access can do the filename
+resolution about as quickly as sysctl can deal with a binary path.  So
+I suspect it is the allocation of struct file that makes
+open-read-close more expensive.  Reading the data is in the noise.
 
-As you can see, at the step to, the process and the thread don't have 
-the same parameters.
-Is that normal?
+sysfs current does a lot better than /proc/sys I think it was only
+60% heavier than performing the same operation on a real file.
 
+Part of the problem with /proc/sys and other data in proc is
+that we deliberately kill the drop everything out of the dcache
+as soon as we have found it.  Which is terrible performance wise.
 
+All of those measurements were with string data that I don't
+interpret on either side.
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <pthread.h>
+Performance wise there does seem to be a problem with the
+implementation.  How to fix it I don't yet know.  But I have
+yet to see ascii text be implicated.
 
-/* gcc schedparam.c -o schedparam -Wall -pthread */
-
-int print_process_sched(pid_t pid) {
-   struct sched_param param;
-   int prio;
-   int policy;
-
-   policy = sched_getscheduler(pid);
-
-   sched_getparam(pid,&param);
-   prio = param.sched_priority;
-
-   printf("Process %d : policy=%d prio=%d\n",(int)pid, policy,prio);
-
-   return 0;
-}
-
-int utilities_print_thread_sched(pthread_t id) {
-   struct sched_param param;
-   int policy;
-   int prio;
-   unsigned long int lid = id;
-
-   if ( pthread_getschedparam(id, &policy, &param) ) {
-     perror("pthread_getschedparam()"); return 1;
-   }
-
-   prio = param.sched_priority;
-
-   printf("Thread %ld : policy=%d  prio=%d\n", (long)lid, policy,prio);
-
-   return 0;
-}
-
-int main(void ) {
-
-   struct sched_param p;
-
-   printf("1. "); print_process_sched(getpid());
-   printf("1. "); utilities_print_thread_sched(pthread_self());
-
-   p.sched_priority = 20;
-   if ( sched_setscheduler(getpid(),SCHED_FIFO,&p) ) {
-     perror("sched_setscheduler()");
-     return 1;
-   }
-
-   printf("2.  "); print_process_sched(getpid());
-   printf("2.  "); utilities_print_thread_sched(pthread_self());
-
-   p.sched_priority = 30;
-   if ( pthread_setschedparam(pthread_self(),SCHED_FIFO,&p) ) {
-     perror("sched_setscheduler()");
-     return 1;
-   }
-
-   printf("3.  "); print_process_sched(getpid());
-   printf("3.  "); utilities_print_thread_sched(pthread_self());
-
-   return 0;
-}
+Eric

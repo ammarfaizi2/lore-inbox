@@ -1,102 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWGMHHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWGMHKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWGMHHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWGMHHE
+	id S1751490AbWGMHKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWGMHKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:07:04 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:13491 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750960AbWGMHHC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:07:02 -0400
-Date: Thu, 13 Jul 2006 00:04:31 -0700
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: viro@ftp.linux.org.uk, serue@us.ibm.com, linux-kernel@vger.kernel.org,
-       linuxram@us.ibm.com
-Subject: Re: [RFC][PATCH 00/27] Mount writer count and read-only bind mounts (v4)
-Message-ID: <20060713070431.GA12953@RAM>
-References: <20060712181709.5C1A4353@localhost.localdomain>
-MIME-Version: 1.0
+	Thu, 13 Jul 2006 03:10:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:61123 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751490AbWGMHKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:10:31 -0400
+Date: Thu, 13 Jul 2006 09:04:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: torvalds@osdl.org, ak@suse.de, alan@lxorguk.ukuu.org.uk,
+       arjan@infradead.org, bunk@stusta.de, akpm@osdl.org,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       Roland McGrath <roland@redhat.com>
+Subject: Re: utrace vs. ptrace
+Message-ID: <20060713070445.GA30842@elte.hu>
+References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
-From: linuxram@us.ibm.com (Ram Pai)
+In-Reply-To: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2006 at 11:17:09AM -0700, Dave Hansen wrote:
-> Tries to incorporate comments from Al:
-> http://article.gmane.org/gmane.linux.kernel/421029
-> 
-> Al wrote:
-> >  b) figuring out what (if anything) should be done with
-> >  propagation when we have shared subtrees... (not trivial at all)
-> 
-> Talked with Ram:  Shared subtrees are about having identical views
-> into the filesystem.  Changing the mount permissions doesn't affect
-> the view of the filesystem, so it should not be propagated.  
 
+* Albert Cahalan <acahalan@gmail.com> wrote:
 
-I think shared subtrees propagates mount/unmount events only.
-This is a case where we are just changing the access permission
-for a mount instance. So it should not be treated as a propagation event.
+> The utrace stuff offers some hope for eventually fixing this mess. 
+> Please accept that or something similar.
 
-Lets say we propagated the event. In that case we would end up with a
-awkward situation.
+yeah. Much of the API and usage problems of ptrace stem from its (mostly 
+artificial) coupling to signals (and other, mostly historical baggage).
 
-1) mount --make-shared /mnt
-2) mount --bind /mnt /tmp
-3) mount --make-slave /tmp
-4) mount -o remount,rw /tmp
-5) mount -o remount,ro /mnt
+utrace gets rid of all of that baggage and artificial coupling! The 
+utrace patchset first rips out all of ptrace (completely!), then adds 
+utrace (which is in essence the CPU state fiddling bits of ptrace), then 
+adds the ptrace API as an utrace module. It really doesnt get cleaner 
+than that. See:
 
-In step (5) all of a sudden the mount at /tmp which was readwrite will
-be downgraded to read-only. There must have been a reason why /tmp was
-mounted rw in the first place. Also there would be no way for /mnt to be
-made 'ro' without effecting /tmp.
+  http://people.redhat.com/roland/utrace/0-intro.txt
 
-Hence I feel the readwrite semantics must be decoupled from the
-sharedsubtree semantics,
+and:
 
-RP
+  http://people.redhat.com/roland/utrace/
 
+for the actual code.
 
-> 
-> The things that probably need the heaviest review in here are the
-> i_nlink monitoring patch (including the inode state flag patches 03
-> and 06) and the new MNT_SB_WRITABLE flag (patch 05).  
-> 
-> ---
-> 
-> The following series implements read-only bind mounts.  This feature
-> allows a read-only view into a read-write filesystem.  In the process
-> of doing that, it also provides infrastructure for keeping track of
-> the number of writers to any given mount.  In this version, if there
-> are writers on a superblock, the filesystem may not be remounted 
-> r/o.  The same goes for MS_BIND mounts, and writers on a vfsmount.
-> 
-> This has a number of uses.  It allows chroots to have parts of
-> filesystems writable.  It will be useful for containers in the future
-> and is intended to replace patches that vserver has had out of the
-> tree for several years.  It allows security enhancement by making
-> sure that parts of your filesystem read-only, when you don't want
-> to have entire new filesystems mounted, or when you want atime
-> selectively updated.
-> 
-> This set makes no attempt to keep the return codes for these
-> r/o bind mounts the same as for a real r/o filesystem or device.
-> It would require significantly more code and be quite a bit more
-> invasive.
-> 
-> Using this feature requires two steps:
-> 
-> 	mount --bind /source /dest
-> 	mount -o remount,ro  /dest
-> 
-> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+utrace enables exciting things like a global crash-handling daemon that 
+can collect live info from crashing (segfaulting) apps transparently, 
+_without_ having all apps in the system ptraced in advance!
+
+One of the biggest QA problems Linux has is that we very frequently lose 
+information about the 'first incidence of crashing'. [Some of the GUIs 
+have automatic crash-reporting, but those solutions are obviously 
+limited to those GUIs and they dont use ptrace and have various 
+shortcomings.]
+
+utrace enables something like 'transparent live debugging': an app 
+crashes in your distro, a window pops up, and you can 'hand over' a 
+debugging session to a developer you trust. Or you can instruct the 
+system to generate a coredump. Or you can generate a shorter summary of 
+the crash, sent to a central site.
+
+utrace enables the distro to automatically (and transparently) download 
+debuginfo packages of an app that segfaults so that next time the crash 
+happens there's better info to debug it - without the user having to 
+bother about this.
+
+utrace enables multiple debugging infrastructures being attached to the 
+same task.
+
+and last but not least, utrace enables the prototyping of debuging 
+infrastructure without having to revamp the kernel APIs all the time.
+
+Even if i wanted i couldnt over-hype utrace: it is by far the most 
+important thing that happened to ptrace (and Linux debugging in general) 
+in the past 10 years or so.
+
+	Ingo

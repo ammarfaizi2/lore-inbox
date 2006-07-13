@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWGMJIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWGMJKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWGMJIO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 05:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWGMJIO
+	id S964860AbWGMJKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 05:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWGMJKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 05:08:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46267 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964816AbWGMJIN (ORCPT
+	Thu, 13 Jul 2006 05:10:13 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15312 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964860AbWGMJKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 05:08:13 -0400
-Date: Thu, 13 Jul 2006 02:08:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: sekharan@us.ibm.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com, arjan@infradead.org
-Subject: Re: [patch] lockdep: more annotations for mm/slab.c
-Message-Id: <20060713020801.44b99061.akpm@osdl.org>
-In-Reply-To: <20060713084613.GA7177@elte.hu>
-References: <1152763195.11343.16.camel@linuxchandra>
-	<20060713071221.GA31349@elte.hu>
-	<20060713002803.cd206d91.akpm@osdl.org>
-	<20060713072635.GA907@elte.hu>
-	<20060713004445.cf7d1d96.akpm@osdl.org>
-	<20060713084213.GA6985@elte.hu>
-	<20060713084613.GA7177@elte.hu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 13 Jul 2006 05:10:11 -0400
+Date: Thu, 13 Jul 2006 11:04:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC] Move NTP related code to ntp.c
+Message-ID: <20060713090434.GA7480@elte.hu>
+References: <1152749914.11963.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152749914.11963.33.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5215]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 10:46:13 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> the SLAB code can hold multiple slab locks at once,
-> for example at:
-> 
->  [<c0105dd5>] show_trace+0xd/0x10
->  [<c0105def>] dump_stack+0x17/0x1c
->  [<c014182e>] __lock_acquire+0x7ab/0xa0e
->  [<c0141d6e>] lock_acquire+0x5e/0x80
->  [<c10b0d8e>] _spin_lock_nested+0x26/0x37
->  [<c017178b>] __cache_free+0x30d/0x3d2
->  [<c0171200>] slab_destroy+0xfd/0x11d
->  [<c0171360>] free_block+0x140/0x17d
->  [<c01717dd>] __cache_free+0x35f/0x3d2
->  [<c01718cd>] kfree+0x7d/0x9a
->  [<c0127889>] free_task+0xe/0x24
->  [<c0127ee8>] __put_task_struct+0xc2/0xc7
->  [<c012bc8f>] delayed_put_task_struct+0x1e/0x20
->  [<c0139d94>] __rcu_process_callbacks+0xff/0x15d
->  [<c0139e1a>] rcu_process_callbacks+0x28/0x40
->  [<c012f125>] tasklet_action+0x6e/0xd1
->  [<c012f2c7>] __do_softirq+0x6e/0xec
->  [<c01061b7>] do_softirq+0x61/0xc7
-> 
-> so add the 'nested' parameter to the affected functions.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> ---
->  mm/slab.c |   45 +++++++++++++++++++++++++--------------------
+* john stultz <johnstul@us.ibm.com> wrote:
 
-geeze, what fuss.  Can't we just tell lockdep "the locking here is correct,
-so buzz off"?
+> Hey all,
+> 	I know I've been moving a bit slowly, but I wanted to get my current
+> tree out there so folks could see where I'm heading w/ the timekeeping
+> code now that the largest chunk of logical changes has landed.
+
+looks good to me! A few minor nits:
+
+> + * This code was mainly moved from kernel/timer.c and kerenl/time.c
+
+s/kerenl/kernel
+
+> + * Please see those files for relavent copyright info and historical
+
+s/relavent/relevant
+
+> +/*
+> + * this routine handles the overflow of the microsecond field
+> + *
+> + * The tricky bits of code to handle the accurate clock support
+> + * were provided by Dave Mills (Mills@UDEL.EDU) of NTP fame.
+> + * They were originally developed for SUN and DEC kernels.
+> + * All the kudos should go to Dave for this stuff.
+> + *
+> + */
+
+remove the extra empty ' *' line above.
+
+> +/* adjtimex mainly allows reading (and writing, if superuser) of
+> + * kernel time-keeping variables. used by xntpd.
+> + */
+> +int do_adjtimex(struct timex *txc)
+> +{
+> +        long ltemp, mtemp, save_adjust;
+
+whitespace damage.
+
+suggestion for future cleanups: this function (do_adjtimex()) should be 
+cleaned up further to conform to the kernel coding style standard. 
+(currently it has 4-space tabs, etc.) I did that before - maybe some of 
+those cleanups still apply?
+
+[obviously that cleanup shouldnt be part of this move-the-code patch.]
+
+	Ingo

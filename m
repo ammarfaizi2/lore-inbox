@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWGMNiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWGMNic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWGMNiG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 09:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWGMNiG
+	id S1750880AbWGMNic (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 09:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWGMNib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 09:38:06 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3811 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750790AbWGMNiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 09:38:05 -0400
-Subject: Re: utrace vs. ptrace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Albert Cahalan <acahalan@gmail.com>,
-       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-In-Reply-To: <200607131534.16819.ak@suse.de>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
-	 <200607131521.52505.ak@suse.de>
-	 <1152797295.3024.50.camel@laptopd505.fenrus.org>
-	 <200607131534.16819.ak@suse.de>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 15:37:50 +0200
-Message-Id: <1152797870.3024.54.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 13 Jul 2006 09:38:31 -0400
+Received: from beer.tclug.org ([71.36.145.29]:30929 "EHLO beer.tclug.org")
+	by vger.kernel.org with ESMTP id S1750881AbWGMNia (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 09:38:30 -0400
+Date: Thu, 13 Jul 2006 08:38:28 -0500 (CDT)
+From: Jima <jima@beer.tclug.org>
+To: Mikael Pettersson <mikpe@it.uu.se>
+cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+In-Reply-To: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.64.0607130836140.13948@beer.tclug.org>
+References: <200607131218.k6DCIX3Y025756@harpo.it.uu.se>
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: jima@beer.tclug.org
+Subject: Re: 2.6.18-rc1 fails to boot on Ultra 5
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SA-Exim-Version: 4.1+cvs (built Mon, 23 Aug 2004 08:44:05 -0700)
+X-SA-Exim-Scanned: No (on beer.tclug.org); Unknown failure
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 15:34 +0200, Andi Kleen wrote:
-> On Thursday 13 July 2006 15:28, Arjan van de Ven wrote:
-> > 
-> > > That said extended core dumping (e.g. automatic processing of the output) 
-> > > in user space makes sense. I had a prototype for that once that uploaded
-> > > a simple crash report to a web 
-> > 
-> > the script I use for that is at
-> > http://www.fenrus.org/bt.sh
-> > 
-> > it tries to include things like rpm versions of the package it was in
-> > etc, and suggests/downloads the right debuginfo rpms to improve the
-> > backtrace. Clearly that's all userspace stuff; but it can run from a
-> > daemon easily; eg have all core dumps go to a special directory where
-> > the daemon reaps them and analyzes.
-> 
-> You can't do that right now because core_pattern doesn't support slashes.
-> The coredumps will be always all over the fs or not be there at all
-> if the cwd is write protected.
+On Thu, 13 Jul 2006, Mikael Pettersson wrote:
+> So ttyS0 became ttyS1, and the serial port at 0x1fff1400040
+> disappeared. OTOH, my Ultra5 only has a single serial port
+> connector so perhaps the old kernel was wrong in reporting
+> two serial ports.
 
-are you sure? I had this working in the 2.6.9 timeframe, I could set
-core pattern to /tmp/corefiles/core and such just fine..
-(and the core files ended up in the /tmp/corefiles/ directory as well)
+  I don't know about you, but my Ultra 5 has two: the DB25 female connector 
+on the board ("A"), and the DB9 male connector on a ribbon cable ("B"). 
+This is going off memory, but I'm fairly confident of this.
 
+      Jima

@@ -1,52 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWGMHGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWGMHHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWGMHGY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 03:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWGMHGX
+	id S1750960AbWGMHHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 03:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWGMHHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 03:06:23 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:38016
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1750830AbWGMHGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 03:06:23 -0400
-Date: Thu, 13 Jul 2006 09:07:18 +0200
-From: andrea@cpushare.com
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: torvalds@osdl.org, ak@suse.de, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, bunk@stusta.de, akpm@osdl.org,
-       rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-Message-ID: <20060713070718.GC28310@opteron.random>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 13 Jul 2006 03:07:04 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:13491 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750960AbWGMHHC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 03:07:02 -0400
+Date: Thu, 13 Jul 2006 00:04:31 -0700
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: viro@ftp.linux.org.uk, serue@us.ibm.com, linux-kernel@vger.kernel.org,
+       linuxram@us.ibm.com
+Subject: Re: [RFC][PATCH 00/27] Mount writer count and read-only bind mounts (v4)
+Message-ID: <20060713070431.GA12953@RAM>
+References: <20060712181709.5C1A4353@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
+In-Reply-To: <20060712181709.5C1A4353@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: linuxram@us.ibm.com (Ram Pai)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Jul 12, 2006 at 11:17:09AM -0700, Dave Hansen wrote:
+> Tries to incorporate comments from Al:
+> http://article.gmane.org/gmane.linux.kernel/421029
+> 
+> Al wrote:
+> >  b) figuring out what (if anything) should be done with
+> >  propagation when we have shared subtrees... (not trivial at all)
+> 
+> Talked with Ram:  Shared subtrees are about having identical views
+> into the filesystem.  Changing the mount permissions doesn't affect
+> the view of the filesystem, so it should not be propagated.  
 
-On Thu, Jul 13, 2006 at 01:43:42AM -0400, Albert Cahalan wrote:
-> SECCOMP is a good idea, but currently a tad too limiting.
-> There are a few dozen system calls that would be safe and useful,
-> particularly those related to signals, memory, and synchronization.
 
-malloc/free can be emulated in userland so that's not a big
-problem. All the rest is a problem instead, unmodified software just
-won't run.
+I think shared subtrees propagates mount/unmount events only.
+This is a case where we are just changing the access permission
+for a mount instance. So it should not be treated as a propagation event.
 
-seccomp mode 1 is the absolute minimum you need to compute ;). Every
-single syscall we add it gets less secure. Several exploits happened
-in mremap for example, even if at first glance it may sound a safe
-syscall. It's safe now, but it may get buggy again later as new
-features are being added.
+Lets say we propagated the event. In that case we would end up with a
+awkward situation.
 
-I'd be skeptical adding seccomp mode 2 with more syscalls, otherwise
-it's better to make it more flexible and to specify the syscalls to
-allow from userland (which I'm not against if you've usages for it).
+1) mount --make-shared /mnt
+2) mount --bind /mnt /tmp
+3) mount --make-slave /tmp
+4) mount -o remount,rw /tmp
+5) mount -o remount,ro /mnt
 
->From my part to go beyond seccomp, as jail for the interpreters I'll
-probably use virtualization like ourgrid and tycoon (seccomp is the
-safest and simplest mode but there's simply no way to run an
-interpreter under it ;).
+In step (5) all of a sudden the mount at /tmp which was readwrite will
+be downgraded to read-only. There must have been a reason why /tmp was
+mounted rw in the first place. Also there would be no way for /mnt to be
+made 'ro' without effecting /tmp.
+
+Hence I feel the readwrite semantics must be decoupled from the
+sharedsubtree semantics,
+
+RP
+
+
+> 
+> The things that probably need the heaviest review in here are the
+> i_nlink monitoring patch (including the inode state flag patches 03
+> and 06) and the new MNT_SB_WRITABLE flag (patch 05).  
+> 
+> ---
+> 
+> The following series implements read-only bind mounts.  This feature
+> allows a read-only view into a read-write filesystem.  In the process
+> of doing that, it also provides infrastructure for keeping track of
+> the number of writers to any given mount.  In this version, if there
+> are writers on a superblock, the filesystem may not be remounted 
+> r/o.  The same goes for MS_BIND mounts, and writers on a vfsmount.
+> 
+> This has a number of uses.  It allows chroots to have parts of
+> filesystems writable.  It will be useful for containers in the future
+> and is intended to replace patches that vserver has had out of the
+> tree for several years.  It allows security enhancement by making
+> sure that parts of your filesystem read-only, when you don't want
+> to have entire new filesystems mounted, or when you want atime
+> selectively updated.
+> 
+> This set makes no attempt to keep the return codes for these
+> r/o bind mounts the same as for a real r/o filesystem or device.
+> It would require significantly more code and be quite a bit more
+> invasive.
+> 
+> Using this feature requires two steps:
+> 
+> 	mount --bind /source /dest
+> 	mount -o remount,ro  /dest
+> 
+> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

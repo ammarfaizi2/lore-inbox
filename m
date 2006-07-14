@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWGNIdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWGNIlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWGNIdk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 04:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWGNIdk
+	id S932323AbWGNIlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 04:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWGNIlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 04:33:40 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:23056 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S964808AbWGNIdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 04:33:39 -0400
-Message-ID: <44B756AB.50102@shadowen.org>
-Date: Fri, 14 Jul 2006 09:32:43 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
+	Fri, 14 Jul 2006 04:41:36 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:13934 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932323AbWGNIlg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 04:41:36 -0400
+Date: Fri, 14 Jul 2006 10:39:19 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: mbligh@google.com, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.18-rc1-git4 and 2.6.18-rc1-mm1 OOM's on boot
-References: <44B528F4.6080409@google.com>	<20060712181636.d7cbbb99.akpm@osdl.org>	<44B5A0DD.9070200@google.com>	<44B654EA.3030301@shadowen.org>	<44B74F24.2060209@shadowen.org> <20060714010858.d6824f1f.akpm@osdl.org>
-In-Reply-To: <20060714010858.d6824f1f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, bibo.mao@intel.com,
+       Michael Grundy <grundym@us.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [patch -mm] s390: kprobes compile fix
+Message-ID: <20060714083919.GA9561@osiris.boeblingen.de.ibm.com>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713224800.6cbdbf5d.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 14 Jul 2006 09:00:36 +0100
-> Andy Whitcroft <apw@shadowen.org> wrote:
-> 
->>> Yep, I've run this with badari's fix as a set across the whole family. I 
->>> did all dbenchall runs for now as this example is showing on that and 
->>> badari's is triggered same.  If there is any measure of success there 
->>> I'll throw in the externals too.
->> General goodness from this one.  Except where we're getting issues with 
->> the e1000's.  That seems to be fixed up by backing out some driver changes.
->>
->> All moot, as -mm2 is showing similar goodness.
-> 
-> Is -mm2's e1000 OK?
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Whilst calling it the e1000 problem (that was how it was originally 
-reported) I should say that this was related to the sysfs change in the 
-following patches:
+Add missing flush_insn_slot define to let kprobes compile on s390.
 
-     gregkh-driver-network-class_device-to-device.patch
-     gregkh-driver-class_device_rename-remove.patch
+Cc: bibo,mao <bibo.mao@intel.com>
+Cc: Michael Grundy <grundym@us.ibm.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-I have two boxes under test which were failing on -mm1 similar to teh 
-following (from userland):
+ia64-kprobe-invalidate-icache-of-jump-buffer.patch breaks kprobes on s390
+which comes with git-s390.patch.
 
-     eth-id-00:02:55:d3:37:4a            No interface found
+ include/asm-s390/kprobes.h |    3 +++
+ 1 files changed, 3 insertions(+)
 
-Both are booting -mm2 fine.
-
-I can only see two outstanding issues.  An IDE lost interrupt issue on a 
-blade we have under test which I believe benh is looking at, and what 
-looks like an s390 tool chain issue which I am told is being looked at.
-
--apw
+diff -purN a/include/asm-s390/kprobes.h b/include/asm-s390/kprobes.h
+--- a/include/asm-s390/kprobes.h	2006-07-14 10:33:40.000000000 +0200
++++ b/include/asm-s390/kprobes.h	2006-07-14 10:28:48.000000000 +0200
+@@ -96,6 +96,9 @@ void arch_remove_kprobe(struct kprobe *p
+ void kretprobe_trampoline(void);
+ int  is_prohibited_opcode(kprobe_opcode_t *instruction);
+ void get_instruction_type(struct arch_specific_insn *ainsn);
++
++#define flush_insn_slot(p)	do { } while (0)
++
+ #endif	/* _ASM_S390_KPROBES_H */
+ 
+ #ifdef CONFIG_KPROBES

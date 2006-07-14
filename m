@@ -1,81 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWGNL2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWGNLaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWGNL2s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 07:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWGNL2s
+	id S1161075AbWGNLaX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 07:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbWGNLaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 07:28:48 -0400
-Received: from server.mrvanes.com ([81.17.40.76]:28859 "EHLO mail.mrvanes.com")
-	by vger.kernel.org with ESMTP id S932402AbWGNL2r (ORCPT
+	Fri, 14 Jul 2006 07:30:23 -0400
+Received: from tornado.reub.net ([202.89.145.182]:59883 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1161075AbWGNLaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 07:28:47 -0400
-From: Martin van Es <martin@mrvanes.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: Kernel 2.6.17.1 bug/oops in snd_usb_audio subsystem
-Date: Fri, 14 Jul 2006 13:28:40 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607141154.36939.martin@mrvanes.com> <20060714105421.GA6831@martell.zuzino.mipt.ru>
-In-Reply-To: <20060714105421.GA6831@martell.zuzino.mipt.ru>
+	Fri, 14 Jul 2006 07:30:22 -0400
+Message-ID: <44B7804E.4030908@reub.net>
+Date: Fri, 14 Jul 2006 23:30:22 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 3.0a1 (Windows/20060713)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: 2.6.18-rc1-mm2
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+In-Reply-To: <20060713224800.6cbdbf5d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607141328.40680.martin@mrvanes.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 July 2006 12:54, Alexey Dobriyan wrote:
-> On Fri, Jul 14, 2006 at 11:54:36AM +0200, Martin van Es wrote:
-> > I already sent this mail to perex@suse.cz a couple of days ago since I
-> > thought that was the closest match in the MAINTAINERS list for this oops.
-> > Since I didn't receive any reply
->
-> Your kernel is tainted. Please complain to kqemu developers. Don't waste
-> Jaroslav's time.
 
-Thank you Alexey for pointing out I reported this oops while running a tainted 
-kernel (kqemu was indeed tainting it). I interpreted the reply as a request 
-for reproducing the oops on a untainted version of the Kernel of which I'll 
-post the dmesg output below.
 
-Hope this helps.
-Is there anything else I can do to contribute?
+On 14/07/2006 5:48 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/
+> 
+> - Patches were merged, added, dropped and fixed.  Nothing particularly exciting.
+> 
+> - Added the avr32 architecture.  Review is sought, please.
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 
-000001b8
- printing eip:
-dea9a514
-*pde = 00000000
-Oops: 0002 [#1]
-Modules linked in: snd_usb_audio snd_usb_lib pwc snd_rawmidi snd_hwdep 
-videodev v4l2_common capability commoncap ipw2200
-CPU:    0
-EIP:    0060:[<dea9a514>]    Not tainted VLI
-EFLAGS: 00210202   (2.6.17.1 #5)
-EIP is at snd_usb_pcm_open+0x34/0x4d0 [snd_usb_audio]
-eax: d681e9c0   ebx: 00000000   ecx: 0000000e   edx: 000001a8
-esi: deaa8d20   edi: ca6a7e50   ebp: c8f5afc0   esp: ca6a7d9c
-ds: 007b   es: 007b   ss: 0068
-Process ffmpeg (pid: 4793, threadinfo=ca6a6000 task=caf275b0)
-Stack: 00000020 ca6a7dd8 00000000 cedf1c00 00000010 c8f5afc0 c030f7f4 cedf1c00
-       00000000 00000010 cedf1c00 000001a8 00000011 0000000b ffffffff d3eaba00
-       00000000 0000000d ca6a7e50 c8f5afc0 c030fb17 d681e9c0 00000001 c8edeb00
+Another oops, USB related perhaps?
+
+Fedora Core release 5.90 (Test)
+Kernel 2.6.18-rc1-mm2 on an x86_64
+
+tornado.reub.net login: Unable to handle kernel NULL pointer dereference at 
+0000000000000020 RIP:
+  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+PGD 27153067 PUD 27152067 PMD 0
+Oops: 0000 [1] SMP
+last sysfs file: /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/usbdev2.4/dev
+CPU 0
+Modules linked in: hidp rfcomm l2cap bluetooth ipv6 ip_gre iptable_filter 
+iptable_nat ip_nat ip_conntrack nfnetlink iptable_mangle ip_tables binfmt_misc 
+iTCO_wdt i2c_i801 serio_raw
+Pid: 104, comm: khubd Not tainted 2.6.18-rc1-mm2 #1
+RIP: 0010:[<ffffffff8029a9b1>]  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+RSP: 0018:ffff81003f2ddc98  EFLAGS: 00010046
+RAX: 0000000000000002 RBX: 0000000000000246 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffff81003f2ddd08 R08: 0000000000000001 R09: 0000000000000000
+R10: ffffffff80488338 R11: 0000000000000001 R12: 0000000000000000
+R13: ffffffff805ac760 R14: ffff810037f96140 R15: 0000000000000018
+FS:  0000000000000000(0000) GS:ffffffff808af000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000020 CR3: 000000002725c000 CR4: 00000000000006e0
+Process khubd (pid: 104, threadinfo ffff81003f2dc000, task ffff810037f96140)
+Stack:  ffffffff80263d05 0000000000000246 ffff81003ec0f4f0 ffff810012202370
+  000000003f2ddcd8 0000000000000002 0000000000000000 ffff81003ec0f4e8
+  ffff81003f2ddd08 0000000000000246 0000000000000000 ffffffff805ac760
 Call Trace:
- <c030f7f4> snd_pcm_hw_constraints_init+0x704/0x790  <c030fb17> 
-snd_pcm_open_substream+0x57/0xb0
- <c031df41> snd_pcm_oss_open+0x221/0x4a0  <c0163800> 
-generic_permission+0x110/0x120
- <c02126c7> kobject_get+0x17/0x20  <c01185c0> default_wake_function+0x0/0x20
- <c030482d> soundcore_open+0x8d/0x1c0  <c015e826> chrdev_open+0x76/0x160
- <c015e7b0> chrdev_open+0x0/0x160  <c0153aeb> __dentry_open+0xbb/0x200
- <c0153d4c> do_filp_open+0x5c/0x70  <c01539cb> get_unused_fd+0x5b/0xc0
- <c0153db3> do_sys_open+0x53/0x100  <c0153eb7> sys_open+0x27/0x30
- <c0102f47> syscall_call+0x7/0xb
-Code: 8b 48 5c 8d 14 52 fc 89 4c 24 28 89 d1 c1 e1 04 01 ca b9 0e 00 00 00 8d 
-14 d5 10 00 00 00 89 54 24 2c 8b 58 08 01 da 89 54 24 2c <c7> 42 10 ff ff ff 
-ff c7 42 24 00 00 00 00 8b 7c 24 28 81 c7 d0
-EIP: [<dea9a514>] snd_usb_pcm_open+0x34/0x4d0 [snd_usb_audio] SS:ESP 
-0068:ca6a7d9c
+  [<ffffffff8029b63a>] lock_acquire+0x4f/0x75
+  [<ffffffff802654fa>] _spin_lock+0x25/0x34
+  [<ffffffff80488338>] klist_remove+0x15/0x36
+  [<ffffffff803b63fe>] bus_remove_device+0xa7/0xc9
+  [<ffffffff803b4d4d>] device_del+0x162/0x195
+  [<ffffffff803f5b96>] usb_disconnect+0xbb/0x10e
+  [<ffffffff803f69df>] hub_thread+0x3ff/0xc36
+  [<ffffffff802332a3>] kthread+0xd3/0x100
+  [<ffffffff802602f2>] child_rip+0x8/0x12
 
+Code: 49 8b 5f 08 48 85 db 0f 85 4e 03 00 00 49 83 3f 00 75 03 4d
+RIP  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+  RSP <ffff81003f2ddc98>
+CR2: 0000000000000020
+
+I didn't see this one but more than likely it happened when my 2 yr old hit the 
+KVM "change console" button (it's a USB KVM and there are no other USB devices 
+on the system).
+
+Reuben

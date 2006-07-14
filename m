@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbWGNOUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbWGNO2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161110AbWGNOUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWGNOUQ
+	id S1161111AbWGNO2P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWGNO2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:20:16 -0400
-Received: from sonicyouth.fatport.com ([216.187.77.179]:19402 "EHLO
-	sonicyouth.fatport.com") by vger.kernel.org with ESMTP
-	id S1161110AbWGNOUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:20:15 -0400
-Subject: Re: [PATCH 1/2] mm: nonresident page tracking
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Feng Jin <lkmaillist@gmail.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@redhat.com>
-In-Reply-To: <215036450607140155w67df26fan5b2342ead686ce8b@mail.gmail.com>
-References: <20060711182936.31293.58306.sendpatchset@lappy>
-	 <20060711182943.31293.3449.sendpatchset@lappy>
-	 <215036450607140155w67df26fan5b2342ead686ce8b@mail.gmail.com>
+	Fri, 14 Jul 2006 10:28:15 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:37779 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161109AbWGNO2O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 10:28:14 -0400
+Subject: Re: [PATCH -mm 5/7] add user namespace
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+In-Reply-To: <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+References: <20060711075051.382004000@localhost.localdomain>
+	 <20060711075420.937831000@localhost.localdomain>
+	 <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com>
+	 <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com>
+	 <20060713174721.GA21399@sergelap.austin.ibm.com>
+	 <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	 <1152815391.7650.58.camel@localhost.localdomain>
+	 <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	 <1152821011.24925.7.camel@localhost.localdomain>
+	 <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
 Content-Type: text/plain
-Date: Fri, 14 Jul 2006 16:19:59 +0200
-Message-Id: <1152886799.15525.21.camel@lappy>
+Date: Fri, 14 Jul 2006 07:28:06 -0700
+Message-Id: <1152887287.24925.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 16:55 +0800, Feng Jin wrote:
-> Hi,
-> 
-> I have applied the patch on 2.6.18-rc1-mm1, and when boot my system,
-> kernel panic occured, :(
-> I have tyied debug it with kdb, but panic occured at startup, although
-> I have add kdb=early, but it still
-> could not debug it. 
-> attachment is my config file.
+On Thu, 2006-07-13 at 21:45 -0600, Eric W. Biederman wrote:
+> I think for filesystems like /proc and /sys that there will normally
+> be problems.  However many of those problems can be rationalized away
+> as a reasonable optimization, or are not immediately apparent.
 
->From the fact that the patch doesn't apply cleanly to .18-rc1-mm1, and
-that when I fixup the rejects it does boot, I can reach no other
-conclusion than that you blotched it somehow.
+Could you talk about some of these problems?
 
-This patch was against mainline from the day of the post.
+> Passing a file descriptor between process in a unix domain socket is
+> a case where I can easily construct scenarios where there are
+> indisputable problems.  It is one of my standard thought experiments
+> to see if a namespace is sound.
 
-As for your suggestion of putting #ifdef CONFIG_MM_NONRESIDENT all over
-the place; have you seen how the nonresident.h file declares empty stubs
-for the functions?
+Care to share some of those indisputable problems?
 
-Peter
+-- Dave
 

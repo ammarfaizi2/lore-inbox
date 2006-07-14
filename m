@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161306AbWGNW1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161315AbWGNW3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161306AbWGNW1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 18:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161314AbWGNW1J
+	id S1161315AbWGNW3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 18:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161316AbWGNW3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 18:27:09 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:42402 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1161306AbWGNW1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 18:27:08 -0400
-Subject: Re: [openib-general] Suggestions for how to remove bus_to_virt()
-From: Ralph Campbell <ralphc@pathscale.com>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Cc: David Miller <davem@davemloft.net>, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20060713054658.GC5096@rhun.ibm.com>
-References: <1152746967.4572.263.camel@brick.pathscale.com>
-	 <adar70quzwx.fsf@cisco.com> <20060712.174013.95062313.davem@davemloft.net>
-	 <20060713054658.GC5096@rhun.ibm.com>
+	Fri, 14 Jul 2006 18:29:19 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:45539 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1161315AbWGNW3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 18:29:19 -0400
+Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
+In-Reply-To: <m3odvrc2vo.fsf@telia.com>
+References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
+	 <m3sllxtfbf.fsf@telia.com> <1151000451.3120.56.camel@laptopd505.fenrus.org>
+	 <m3u05kqvla.fsf@telia.com> <1152884770.3159.37.camel@laptopd505.fenrus.org>
+	 <m3odvrc2vo.fsf@telia.com>
 Content-Type: text/plain
-Date: Fri, 14 Jul 2006 15:27:07 -0700
-Message-Id: <1152916027.4572.391.camel@brick.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
+Date: Sat, 15 Jul 2006 00:29:13 +0200
+Message-Id: <1152916153.3159.51.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 08:46 +0300, Muli Ben-Yehuda wrote:
-> On Wed, Jul 12, 2006 at 05:40:13PM -0700, David Miller wrote:
-> > From: Roland Dreier <rdreier@cisco.com>
-> > Date: Wed, 12 Jul 2006 17:11:26 -0700
-> > 
-> > > A cleaner solution would be to make the dma_ API really use the device
-> > > it's passed anyway, and allow drivers to override the standard PCI
-> > > stuff nicely.  But that would be major surgery, I guess.
-> > 
-> > Clean but expensive, you should not force the rest of the kernel
-> > to eat the cost of something you want to do when it's totally
-> > unnecessary for most other users.
-> > 
-> > For example, x86 never needs to do anything other than a direct
-> > virt_to_phys translation to produce a DMA address, no matter what
-> > bus the device is on.  It's a single simple integer adjustment
-> > that can be done inline in about 2 or 3 instructions at most.
+
 > 
-> It's possible that even x86 will support multiple IOMMUs in the future
-> - for example, the Calgary IOMMU support we recently added to x86-64
-> could be modified to work on plain x86 as well.
+> In the first call chain, do_open -> pkt_open, the bd_mutex object that
+> is being locked corresponds to a pktcdvd block device, because those
+> are the only devices that have their open method set to pkt_open.
 > 
-> I like the idea of a per-device DMA-API implementation, but only if it
-> can be done in a way that is zero cost to the majority of the users of
-> the API. We already have dynamic dma_ops on x86-64 to support nommu,
-> swiotlb, gart and Calgary cleanly, extending it to use a per-device
-> dma-ops isn't too difficult.
+> In the second call chain, pkt_ctl_ioctl -> pkt_new_dev -> do_open, the
+> bd_mutex object that is being locked *does not* correspond to a
+> pktcdvd block device, because pkt_new_dev will bail out with a "Can't
+> chain pktcdvd devices" error if you call it with "dev" set to a
+> pktcdvd device.
 > 
-> Cheers,
-> Muli
+> Therefore, there is no AB-BA deadlock possibility. The locking
+> dependencies are A -> B and B -> A', where it is known that A, B and
+> A' are all different.
+> 
+> So the claim from the lockdep code, "BUG: possible circular locking
+> deadlock detected!", is a false alarm.
 
-A per-device DMA-API would solve my problem.
-It would be a fairly invasive changeset though.
-The basic idea would be to add a struct dma_mapping_ops *
-to struct device and change all the inline dma_* routines
-to something like:
-
-static inline dma_addr_t
-dma_map_single(struct device *hwdev, void *ptr, size_t size,
-               int direction)
-{
-        BUG_ON(!valid_dma_direction(direction));
-        return hwdev->dma_ops ? 
-                hwdev->dma_ops->map_single(hwdev, ptr, size, direction) :
-                dma_ops->map_single(hwdev, ptr, size, direction);
-}
-
-Note that the current design only supports one IOMMU type in a system.
-This could support multiple IOMMU types at the same time.
-
-Another possibility is to only do this for the infiniband subsystem.
-The idea would be to replace calls to dma_* with ib_dma_* which
-would be defined as above.
-
+ok I'll try to find a annotation for that that works

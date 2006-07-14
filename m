@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWGNDBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161197AbWGNDDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161196AbWGNDBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 23:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161211AbWGNDBP
+	id S1161197AbWGNDDE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 23:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161206AbWGNDDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 23:01:15 -0400
-Received: from [202.99.27.194] ([202.99.27.194]:5778 "EHLO mail1.topsec.com.cn")
-	by vger.kernel.org with ESMTP id S1161196AbWGNDBP (ORCPT
+	Thu, 13 Jul 2006 23:03:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39853 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161197AbWGNDDC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 23:01:15 -0400
-Message-ID: <002001c6a6f1$74ff85f0$0100000a@codingman>
-From: <wyb@topsec.com.cn>
-To: <linux-kernel@vger.kernel.org>
-Subject: SMP share data declaration
-Date: Fri, 14 Jul 2006 10:58:57 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
+	Thu, 13 Jul 2006 23:03:02 -0400
+Date: Thu, 13 Jul 2006 20:02:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: arjan@infradead.org, torvalds@osdl.org, penberg@cs.helsinki.fi,
+       mingo@elte.hu, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
+       nagar@watson.ibm.com, balbir@in.ibm.com
+Subject: Re: [patch] lockdep: annotate mm/slab.c
+Message-Id: <20060713200234.d30cf1b8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607131944260.31824@schroedinger.engr.sgi.com>
+References: <1152763195.11343.16.camel@linuxchandra>
+	<20060713071221.GA31349@elte.hu>
+	<20060713002803.cd206d91.akpm@osdl.org>
+	<20060713072635.GA907@elte.hu>
+	<20060713004445.cf7d1d96.akpm@osdl.org>
+	<20060713124603.GB18936@elte.hu>
+	<84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
+	<Pine.LNX.4.64.0607131156060.5623@g5.osdl.org>
+	<1152818472.3024.75.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
+	<20060713161620.f61d2ac0.akpm@osdl.org>
+	<Pine.LNX.4.64.0607131929050.31444@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.64.0607131944260.31824@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
-X-Junkmail-Whitelist: YES (by domain whitelist at mail1.topsec.com.cn)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know that an integer variable should be declared volatile to share between
-CPUs.
-But for more complicated variable, I don't know if it should be volatile.
-for example:
+On Thu, 13 Jul 2006 19:46:09 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-linux-2.6.6/kernel/workqueue.c:
-struct workqueue_struct *__create_workqueue(const char *name,int
-singlethread)
-{
-    ...
-    if (singlethread) {
-        ...
-    } else {
-        spin_lock(&workqueue_lock);
-        list_add(&wq->list, &workqueues);
-        spin_unlock_irq(&workqueue_lock);
-        ...
-    }
-    ...
-}
+> Could we please remove the fake revert from the git tree immediately?
 
-workqueues is a none volatile list_head. The spin_lock/unlock act as memory
-barrier, so gcc flush any register cached value to memory. But if another
-CPU allocate workqueues.next/prev in registers, how to make sure this cpu
-get new value ?
+Let's not do anything immediately, OK?  We're thrashing around here.
 
-static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
-      unsigned long action,
-      void *hcpu)
-{
-    ...
-    switch (action) {
-    case CPU_UP_PREPARE:
-    /* Create a new workqueue thread for it. */
-    list_for_each_entry(wq, &workqueues, list) {
-        ...
-}
+> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=fc818301a8a39fedd7f0a71f878f29130c72193d
 
-how to make sure workqueue_cpu_callback() get new value ?
+Not fake - it's a partial reversion of 
+2b2d5493e10051694ae3a57ea6a153e3cb4d4488
 
-thanks very much
+> 2.6.17 code has also the dropping of the lock.
 
+It doesn't.
+
+> This was no reversion. 
+> Maybe there is a problem but then I'd like to hear about it:
+
+It's all in this thread - see Chandra's testing results.
 

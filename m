@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWGNANB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWGNAST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWGNANB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 20:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161151AbWGNANB
+	id S1161152AbWGNAST (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 20:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161156AbWGNASS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 20:13:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44205 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161146AbWGNANA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 20:13:00 -0400
-Date: Thu, 13 Jul 2006 20:12:54 -0400
-From: Dave Jones <davej@redhat.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 18rc1 soft lockup
-Message-ID: <20060714001253.GE10855@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	john stultz <johnstul@us.ibm.com>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060711190346.GK5362@redhat.com> <1152645227.760.9.camel@cog.beaverton.ibm.com> <20060711191658.GM5362@redhat.com> <20060713220722.GA3371@redhat.com> <1152828943.6845.107.camel@localhost> <Pine.LNX.4.64.0607140058400.12900@scrub.home> <1152835358.6845.119.camel@localhost>
-Mime-Version: 1.0
+	Thu, 13 Jul 2006 20:18:18 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:8521 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1161152AbWGNASS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 20:18:18 -0400
+X-IronPort-AV: i="4.06,238,1149490800"; 
+   d="scan'208"; a="434298942:sNHT34124276"
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, zach.brown@oracle.com,
+       openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
+X-Message-Flag: Warning: May contain useful information
+References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
+	<20060712093820.GA9218@elte.hu> <adaveq2v9gn.fsf@cisco.com>
+	<20060712183049.bcb6c404.akpm@osdl.org> <adau05ltsso.fsf@cisco.com>
+	<20060713135446.5e2c6dd5.akpm@osdl.org> <adau05lrzdy.fsf@cisco.com>
+	<1152824747.3024.92.camel@laptopd505.fenrus.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 13 Jul 2006 17:18:14 -0700
+Message-ID: <adad5c9rqd5.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152835358.6845.119.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 14 Jul 2006 00:18:16.0269 (UTC) FILETIME=[007A1FD0:01C6A6DB]
+Authentication-Results: sj-dkim-3.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 05:02:38PM -0700, john stultz wrote:
- 
- > > I don't quite understand how this is clock related, soft lockup uses 
- > > jiffies and there is nothing clock related in the trace???
- > 
- > Hmmm. Well, its easy to check:
- > 
- > Dave, could you comment out the "clocksource_adjust(...)" line in
- > kernel/timer.c::update_wall_time() just to check if its the same issue?
+    Arjan> it does get harder if this is needed for your IB device to
+    Arjan> do more work, so that your swap device on your IB can take
+    Arjan> more IO's to free up ram..
 
-I'll try, but just like every other bug I've hit together, it's
-non-deterministic.  I'll do a half dozen boots to see if turns up again.
+That's the classic problem, but it's more a matter of the consumer
+using GFP_NOIO in the right places.
 
-Whatever happened to the good old days of reproducable bugs? :)
-
-		Dave
--- 
-http://www.codemonkey.org.uk
+ - R.

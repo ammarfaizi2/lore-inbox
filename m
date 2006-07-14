@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161156AbWGNQNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWGNQPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161156AbWGNQNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161164AbWGNQNJ
+	id S1161149AbWGNQPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbWGNQPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:13:09 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:48560 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161156AbWGNQNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:13:08 -0400
-Date: Fri, 14 Jul 2006 09:13:05 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       greg@kroah.com, harmon@ksu.edu, linux-kernel@vger.kernel.org,
-       Daniel Drake <dsd@gentoo.org>
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-Message-ID: <20060714161305.GA23918@tuatara.stupidest.org>
-References: <20060714095233.5678A8B6253@zog.reactivated.net> <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org> <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org> <1152891980.3205.15.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 12:15:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53694 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161149AbWGNQPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:15:14 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+	<20060714141728.GE28436@sergelap.austin.ibm.com>
+	<6D6A2B70-5BE7-4B32-B6BF-E1AB33491A9F@mac.com>
+Date: Fri, 14 Jul 2006 10:13:47 -0600
+In-Reply-To: <6D6A2B70-5BE7-4B32-B6BF-E1AB33491A9F@mac.com> (Kyle Moffett's
+	message of "Fri, 14 Jul 2006 11:43:24 -0400")
+Message-ID: <m1k66guptw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152891980.3205.15.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 14, 2006 at 04:46:20PM +0100, Sergio Monteiro Basto wrote:
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-> I think DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID,
-> quirk_via_irq) is wright if interrupts are in XT-PIC mode, If we
-> disable APIC or/and Local APIC, yes we have to quirk the VIA PCI
-> interrupts, ok ?
+> On Jul 14, 2006, at 10:17:28, Serge E. Hallyn wrote:
+>> Quoting Eric W. Biederman (ebiederm@xmission.com):
+>>> No.  The uids in a filesystem are interpreted in some user  namespace
+>>> context.  We can discover that context at the first mount of the filesystem.
+>>> Assuming the uids on a filesystem are  the same set of uids your process is
+>>> using is just wrong.
+>>
+>> But, when I insert a usb keychain disk into my laptop, that fs  assumes the
+>> uids on it's fs are the same as uids on my laptop...
+>>
+>> Solving that problem is interesting, but may be something to work with a much
+>> wider community on.  I.e. the cifs and nifs folks.  I haven't even googled to
+>> see what they say about it.
+>
+> IMHO filesystems _and_ processes should be primary objects in a UID  namespace.
+> This would make it possible to solve the usb-key problems  _and_ the
+> user-mounted FUSE problems.  If "ns0" is the boot uid  namespace, then put the
+> freshly mounted USB key in a new "ns1" (names  just for convenience).  All the
+> user processes would continue to be  in ns0, but with the kernel keyring system
+> you could create a new "uid" keytype and give the logged in user (ns0,user_uid)
+> a user-key  with (ns1,0*).  If you added bits to the user-keys to represent the
+> equivalent of CAP_DAC_OVERRIDE/CAP_CHOWN/etc for that process and UID
+> namespace, then the user could do anything to any file on their USB  key, even
+> change ownership, without disrupting the rest of the  system.  Likewise, if you
+> did that for user FUSE filesystems, then suid binaries would not be able to get
+> themselves into trouble in  exploitive FUSE infinitely-recursive monstrosities.
 
-i have a patch (that takes a command line argument to override this)
-that more-or-less does that, by default it will frob all VIA devices
-if no IO-APIC or is present or you can pass an argument to always do
-everything or do nothing
+Thank you!
 
-i was hoping we could figure out something smarter than just looking
-to see if an IO-APIC was found though, maybe someting like checking if
-ACPI actually did something sane, but i know zilch about the ACPI side
-of things
+It is nice to see when someone else gets the point :)
 
-i can refresh that against, -git and -mm if people want it
+I had not quite considered how that affects user mounted filesystems
+but that does look like a real solution.
+
+Now we just need to implement these things and work out the details of
+user keys to map user ids.
+
+Eric
 

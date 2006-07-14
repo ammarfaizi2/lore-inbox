@@ -1,45 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161279AbWGNGWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWGNGaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161279AbWGNGWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 02:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbWGNGWk
+	id S1030221AbWGNGaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 02:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWGNGaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 02:22:40 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:15279 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161279AbWGNGWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 02:22:39 -0400
-Message-ID: <44B73827.9070108@zytor.com>
-Date: Thu, 13 Jul 2006 23:22:31 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>,
-       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-References: <44A04F5F.8030405@ed-soft.at>	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>	<44A0CCEA.7030309@ed-soft.at>	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>	<44A304C1.2050304@zytor.com>	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>	<44A8058D.3030905@zytor.com>	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>	<44AB8878.7010203@ed-soft.at>	<m1lkr83v73.fsf@ebiederm.dsl.xmission.com>	<44B6BF2F.6030401@ed-soft.at>	<Pine.LNX.4.64.0607131507220.5623@g5.osdl.org> <m1lkqwyfv0.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1lkqwyfv0.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 02:30:08 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:10210
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1030221AbWGNGaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 02:30:07 -0400
+Date: Fri, 14 Jul 2006 08:30:06 +0200
+From: andrea@cpushare.com
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [test patch] seccomp: add code to disable TSC when enabling seccomp
+Message-ID: <20060714063006.GF18774@opteron.random>
+References: <200607140205_MC3-1-C4F5-E9D4@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607140205_MC3-1-C4F5-E9D4@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Fri, Jul 14, 2006 at 02:02:55AM -0400, Chuck Ebbert wrote:
+> But it looks like the mismatch could persist indefinitely: if a seccomp
+> task inherits the wrong cr4 flag it could pass it on to another, or back
+> to the original one and so on.  I think this is the only safe way:
 > 
-> While we are thinking about this I have a stupid question.
-> Currently if a memory mapped region does not fall in a standard PCI
-> bar we insist it must be E820 reserved.  However if we E820 reserve
-> the memory of a standard pci bar it becomes unusable.
+> 	if (test_tsk_thread_flag(next_p, TIF_NOTSC) ||
+> 	    test_tsk_thread_flag(prev_p, TIF_NOTSC)) {
 > 
-> Is this really the behavior that we intend?
+> 		/* Flip TSC disable bit if necessary. */
+> 		unsigned int cr4 = read_cr4();
 > 
-> It gets confusing that E820 reserved gets double duty as memory
-> the BIOS is using and MMIO space that is mapped by a non-standard bar.
+> 		if (test_tsk_thread_flag(next_p, TIF_NOTSC)) {
+> 			if (!(cr4 & X86_CR4_TSD))
+> 				write_cr4(cr4 | X86_CR4_TSD);
+> 		} else
+> 			write_cr4(cr4 & ~X86_CR4_TSD);
+> 	}
 > 
+> (Testing TSD in the 'else' path is not worth the trouble.)
 
-Well, they are both really the same thing... "memory space the OS has no 
-idea how it works; here there be dragons."
+Yes that solves the problem of the first seccomp task propagating it
+to the other seccomp tasks.
 
-	-hpa
+> The tiny window shouldn't be a problem, should it?  Just what is the
+> risk to begin with, and how much harder is it to exploit in such a
+> small window?
 
+Even the original patch of yours was perfectly fine in
+practice. Eventually one of the per-cpu daemons would also be
+scheduled even if there are more seccomp tasks per cpu.
+
+But in my opinion if we care about this window and we change
+something, it worth to close it completely, mostly for code-style
+reasons (i.e. strict code). Note that the NOTSC will never be checked
+unless there's a second task, so it's not a single timeslice.
+
+As far as I can tell, the only way to close it completely, is to
+require that the task that fires up seccomp is the current task. That
+is a very fine requirement. That guarantees that no other cpu could
+require any update in-core. So it's enough to always flip the NOTSC
+bit in the current cpu with test_and_set_bit and to synchronously
+update the cr4 accordingly to the result of test_and_set_bit, then we
+can go back to the nicer (and faster) xor way in the scheduler slow
+path ;).
+
+This is incidentally exactly what I implemented and tested with my
+last patch ;) (which is of course a modification and extension of
+yours)
+
+Thanks.

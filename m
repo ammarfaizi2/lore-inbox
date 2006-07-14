@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbWGNAKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWGNANB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbWGNAKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 20:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbWGNAKr
+	id S1161146AbWGNANB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 20:13:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161151AbWGNANB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 20:10:47 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:228 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161148AbWGNAKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 20:10:46 -0400
-Subject: Re: RFC: cleaning up the in-kernel headers
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-In-Reply-To: <20060711160639.GY13938@stusta.de>
-References: <20060711160639.GY13938@stusta.de>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 01:11:14 +0100
-Message-Id: <1152835875.31372.27.camel@shinybook.infradead.org>
+	Thu, 13 Jul 2006 20:13:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44205 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161146AbWGNANA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 20:13:00 -0400
+Date: Thu, 13 Jul 2006 20:12:54 -0400
+From: Dave Jones <davej@redhat.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 18rc1 soft lockup
+Message-ID: <20060714001253.GE10855@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	john stultz <johnstul@us.ibm.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060711190346.GK5362@redhat.com> <1152645227.760.9.camel@cog.beaverton.ibm.com> <20060711191658.GM5362@redhat.com> <20060713220722.GA3371@redhat.com> <1152828943.6845.107.camel@localhost> <Pine.LNX.4.64.0607140058400.12900@scrub.home> <1152835358.6845.119.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152835358.6845.119.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 18:06 +0200, Adrian Bunk wrote:
-> I'd like to cleanup the mess of the in-kernel headers, based on the 
-> following rules:
-> - every header should #include everything it uses
-> - remove unneeded #include's from headers 
+On Thu, Jul 13, 2006 at 05:02:38PM -0700, john stultz wrote:
+ 
+ > > I don't quite understand how this is clock related, soft lockup uses 
+ > > jiffies and there is nothing clock related in the trace???
+ > 
+ > Hmmm. Well, its easy to check:
+ > 
+ > Dave, could you comment out the "clocksource_adjust(...)" line in
+ > kernel/timer.c::update_wall_time() just to check if its the same issue?
 
-If you also fancy removing gratuitous instances of #ifdef __KERNEL__,
-that might be useful...
+I'll try, but just like every other bug I've hit together, it's
+non-deterministic.  I'll do a half dozen boots to see if turns up again.
 
-$ for a in `grep -rl __KERNEL__ include` ; do DIR=`dirname $a` ;
-NAME=`basename $a` ; grep -q $NAME $DIR/Kbuild 2>/dev/null || grep -q
-$NAME include/asm-generic/Kbuild.asm || echo $DIR/$NAME ; done | wc -l
-481
+Whatever happened to the good old days of reproducable bugs? :)
 
-
+		Dave
 -- 
-dwmw2
-
+http://www.codemonkey.org.uk

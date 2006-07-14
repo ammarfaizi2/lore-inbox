@@ -1,76 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161245AbWGNDyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWGNDyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161245AbWGNDyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 23:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWGNDyQ
+	id S1161242AbWGNDyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 23:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWGNDyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 23:54:16 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23700 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161245AbWGNDyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 23:54:14 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain>
-	<20060711075420.937831000@localhost.localdomain>
-	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
-	<44B50088.1010103@fr.ibm.com>
-	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
-	<44B684A5.2040008@fr.ibm.com>
-	<20060713174721.GA21399@sergelap.austin.ibm.com>
-	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-	<1152815391.7650.58.camel@localhost.localdomain>
-	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-	<20060713214101.GB2169@sergelap.austin.ibm.com>
-Date: Thu, 13 Jul 2006 21:52:40 -0600
-In-Reply-To: <20060713214101.GB2169@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Thu, 13 Jul 2006 16:41:01 -0500")
-Message-ID: <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 13 Jul 2006 23:54:04 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:53314 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1161242AbWGNDyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 23:54:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uD84TeLUg0XQ85InJHras68XrEkuBBZf+kUDOTfFmgJO6CzdpCTPjq8hL98eTAmCrihumKMx1Y/DrLlB3SfBZx0r/TJcBAOorz9f1WMoce4wh5TqFNSs3GgXaAtv19CHs1FL65tDvXALRa6IxtdZvMM5F5tm1+/DeoumODj/hRU=
+Message-ID: <bde732200607132054g3f0f6c25ke1f0c1756f768611@mail.gmail.com>
+Date: Fri, 14 Jul 2006 11:54:00 +0800
+From: "cjacker huang" <cjacker@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [PATCH v1] ata_piix: attempt to fix
+Cc: "Jeff Garzik" <jeff@garzik.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, albertcc@tw.ibm.com
+In-Reply-To: <20060713235038.GA3613@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060711160202.GA2503@havoc.gtf.org>
+	 <20060713235038.GA3613@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+I had test the ata-piix fix patch for kernel-2.6.17 and kernel-2.6.18rc1-mm1.
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> Dave Hansen <haveblue@us.ibm.com> writes:
->> 
->> > On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
->> >> Maybe.  I really think the sane semantics are in a different uid namespace.
->> >> So you can't assumes uids are the same.  Otherwise you can't handle open
->> >> file descriptors or files passed through unix domain sockets.
->> >
->> > Eric, could you explain this a little bit more?  I'm not sure I
->> > understand the details of why this is a problem?
->> 
->> Very simply.
->> 
->> In the presence of a user namespace.  
->> All comparisons of a user equality need to be of the tuple (user namespace,
-> user id).
->> Any comparison that does not do that is an optimization.
->> 
->> Because you can have access to files created in another user namespace it
->> is very unlikely that optimization will apply very frequently.  The easy
-> scenario
->> to get access to a file descriptor from another context is to consider unix
->> domain sockets.
+my sata controller is 0x8086 0x8020, that is to say, it is ICH8.
+
+It works for me. long boot delay disappears.
+
+
+
+2006/7/14, Greg KH <greg@kroah.com>:
+> On Tue, Jul 11, 2006 at 12:02:02PM -0400, Jeff Garzik wrote:
+> > This patch attempts to address problems on ata_piix that people have
+> > been reporting:  long boot delay, ghost devices, and ICH8 brokenness.
+> >
+> > Testing feedback is requested as soon as possible, so that we can
+> > potentially stick this into 2.6.18-rc2.
+> >
+> > I'm booting up several boxes locally here, mainly ICH5 and ICH8, as well.
 >
-> What does that have to do with uids?  If you receive an fd, uids don't
-> matter in any case.  The only permission checks which happen are LSM
-> hooks, which should be uid-agnostic.
-
-You are guest uid 0.  You get a directory file descriptor from another namespace.
-You call fchdir.
-
-If you permission checks are not (user namespace, uid) what can't you do?
-
-Eric
+> Sorry for the delay, but no, this does not solve the timeout at boot for
+> me.  Do you need the boot log messages?
+>
+> thanks,
+>
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

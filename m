@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWGNRSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422648AbWGNRTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWGNRSe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbWGNRSe
+	id S1422648AbWGNRTr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWGNRTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:18:34 -0400
-Received: from lucidpixels.com ([66.45.37.187]:1242 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1422648AbWGNRSd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:18:33 -0400
-Date: Fri, 14 Jul 2006 13:18:32 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Mark Lord <liml@rtr.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.17.3 (What is the next step?)
-In-Reply-To: <44B7D168.2080304@rtr.ca>
-Message-ID: <Pine.LNX.4.64.0607141318040.1687@p34.internal.lan>
-References: <Pine.LNX.4.64.0602140439580.3567@p34>  <44AEB3CA.8080606@pobox.com>
-  <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>  <200607091224.31451.liml@rtr.ca>
-  <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan> 
- <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan> 
- <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan> 
- <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan> 
- <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan> 
- <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan> 
- <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
- <1152545639.27368.137.camel@localhost.localdomain>
- <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan>
- <Pine.LNX.4.64.0607110926150.858@p34.internal.lan> <44B7D168.2080304@rtr.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 14 Jul 2006 13:19:47 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:49824 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422648AbWGNRTq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 13:19:46 -0400
+Subject: Re: [PATCH -mm 5/7] add user namespace
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+In-Reply-To: <20060714170814.GE25303@sergelap.austin.ibm.com>
+References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	 <1152815391.7650.58.camel@localhost.localdomain>
+	 <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	 <1152821011.24925.7.camel@localhost.localdomain>
+	 <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+	 <1152887287.24925.22.camel@localhost.localdomain>
+	 <m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
+	 <20060714162935.GA25303@sergelap.austin.ibm.com>
+	 <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
+	 <1152896138.24925.74.camel@localhost.localdomain>
+	 <20060714170814.GE25303@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 10:19:39 -0700
+Message-Id: <1152897579.24925.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-They are Western Digital 400* drives.
+On Fri, 2006-07-14 at 12:08 -0500, Serge E. Hallyn wrote:
+> yes, of course, vfsmount, which I assume is what Eric meant?
+> 
+> Which means we'd have to do this at permission() using the nameidata, or
+> pass nd to generic_permission. 
 
-[4294678.049000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
-[4294678.050000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
+Yeah, I think so.  But, this is well into Al territory, and there might
+be a better way.
 
-On a SiL controller, it also happens when they are on a promise controller 
-too.
+-- Dave
 
-
-On Fri, 14 Jul 2006, Mark Lord wrote:
-
-> Justin Piszcz wrote:
->> 
->> opcode=0x35 & opcode=0xca
->
-> Those are non-DMA WRITE opcodes.  Using PIO for I/O is pretty rare these 
-> days,
-> so I'm betting that this is not a hard disk device -- compactflash?
->
-> -ml
->

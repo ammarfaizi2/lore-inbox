@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWGND6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWGNENO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161247AbWGND6S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 23:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWGND6S
+	id S1161251AbWGNENO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 00:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161252AbWGNENO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 23:58:18 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:60856 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161247AbWGND6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 23:58:18 -0400
-Subject: [PATCH] remove unnecessary barrier in rtc_get_rtc_time
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Joseph Fannin <jfannin@gmail.com>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org,
-       John Stultz <johnstul@us.ibm.com>,
-       Chase Venters <chase.venters@clientec.com>
-In-Reply-To: <20060711074541.GA5263@elte.hu>
-References: <20060709050525.GA1149@nineveh.rivenstone.net>
-	 <20060708232512.12b59269.akpm@osdl.org> <20060709074543.GA4444@elte.hu>
-	 <20060711051108.GA13574@nineveh.rivenstone.net>
-	 <20060711074541.GA5263@elte.hu>
-Content-Type: text/plain
-Date: Thu, 13 Jul 2006 23:57:53 -0400
-Message-Id: <1152849473.1883.19.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 00:13:14 -0400
+Received: from 1wt.eu ([62.212.114.60]:19210 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1161251AbWGNENO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 00:13:14 -0400
+Date: Fri, 14 Jul 2006 06:12:54 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: memory corruptor in .18rc1-git
+Message-ID: <20060714041254.GG2037@1wt.eu>
+References: <20060713221330.GB3371@redhat.com> <20060713152425.86412ea3.akpm@osdl.org> <20060713223029.GD3371@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713223029.GD3371@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 09:45 +0200, Ingo Molnar wrote:
-
+On Thu, Jul 13, 2006 at 06:30:29PM -0400, Dave Jones wrote:
+> On Thu, Jul 13, 2006 at 03:24:25PM -0700, Andrew Morton wrote:
 > 
-> ouch! That's another HPET bug i believe. AFAICS rtc_get_rtc_time() is 
-> really not meant to be called from any sort of timer interrupt! In 
-> particular this looping code:
+>  > > I've up'd the speed of the serial console, in the hope that more chars
+>  > > make it over the wire before reboot should this happen again.
+>  > 
+>  > Are you using SMP?  We have a known slab locking bug.
 > 
->         while (rtc_is_updating() != 0 && jiffies - uip_watchdog < 2*HZ/100) {
->                 barrier();
->                 cpu_relax();
->         }
+> Yes, dual EM64T's with HT.
+> 
+>  > There have been a couple of slab.c patches committed today, but neither of
+>  > them appear to actually fix the bug.
+>  > 
+>  > The below should fix it, and testing this (disable lockdep) would be
+>  > useful.
+> 
+> I can give it a shot, but as it takes a while for this to manifest, I may
+> not be able to say for certain whether it fixes it or not.
 
-Seeing this after reading the volatile thread and then Chase's patch:
+Then you might consider slightly changing the debug messages, because they
+are identical in list_add and list_del. Having a way to differenciate
+between the two functions might give one more indication.
 
-([PATCH] Make cpu_relax() imply barrier() on all arches)
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115237514517594&w=2
+> 		Dave
 
-(yes I'm a bit behind in my LKML reading... 1663 messages to go)
-
-There's no reason to have a barrier in this loop.
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.18-rc1/drivers/char/rtc.c
-===================================================================
---- linux-2.6.18-rc1.orig/drivers/char/rtc.c	2006-07-13 23:40:58.000000000 -0400
-+++ linux-2.6.18-rc1/drivers/char/rtc.c	2006-07-13 23:41:06.000000000 -0400
-@@ -1238,10 +1238,8 @@ void rtc_get_rtc_time(struct rtc_time *r
- 	 * Once the read clears, read the RTC time (again via ioctl). Easy.
- 	 */
- 
--	while (rtc_is_updating() != 0 && jiffies - uip_watchdog < 2*HZ/100) {
--		barrier();
-+	while (rtc_is_updating() != 0 && jiffies - uip_watchdog < 2*HZ/100)
- 		cpu_relax();
--	}
- 
- 	/*
- 	 * Only the values that we read from the RTC are set. We leave
-
+Willy
 

@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWGNNqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWGNOEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbWGNNqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 09:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWGNNqb
+	id S1161074AbWGNOEX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbWGNOEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 09:46:31 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:47756 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1030449AbWGNNqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 09:46:30 -0400
-Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
-In-Reply-To: <m3u05kqvla.fsf@telia.com>
-References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
-	 <m3sllxtfbf.fsf@telia.com> <1151000451.3120.56.camel@laptopd505.fenrus.org>
-	 <m3u05kqvla.fsf@telia.com>
-Content-Type: text/plain
+	Fri, 14 Jul 2006 10:04:23 -0400
+Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:23493 "EHLO
+	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030453AbWGNOEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 10:04:22 -0400
+Date: Fri, 14 Jul 2006 09:57:54 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch, take 3] PCI: use ACPI to verify extended config
+  space on x86
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607141000_MC3-1-C4FF-945F@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Jul 2006 15:46:10 +0200
-Message-Id: <1152884770.3159.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 13:22 +0200, Peter Osterlund wrote:
-> > and what locking prevents this? And via multiple opens?
-> 
-> You are right that my reasoning was incorrect. If someone is doing
-> "pktsetup ; pktsetup -d" quickly in a loop while someone else is
-> trying to open the device, one thread could be at the start of
-> pkt_open() at the same time as another thread is in pkt_new_dev().
-> 
-> However, I added a 5s delay in pkt_open() to enlarge the race window.
-> I still couldn't make the driver lock up though. The explanation is
-> that pkt_new_dev() calls blkdev_get() with the CD device (eg /dev/hdc)
-> as bdev parameter, while do_open() locks the bd_mutex for the pktcdvd
-> device (eg /dev/pktcdvd/0).
-> 
-> Do you still think this could deadlock? If not, how should the code be
-> annotated to make this warning go away?
+In-Reply-To: <1152869988.3159.25.camel@laptopd505.fenrus.org>
 
-unless we KNOW it won't deadlock (eg we have a "this cannot deadlock
-BECAUSE of X, Y and Z") I don't think annotations are the right idea. In
-addition, the "how to annotate" really depends on what X, Y and Z
-are....
+On Fri, 14 Jul 2006 11:39:48 +0200, Arjan van de Ven wrote:
 
+> > Extend the verification for PCI-X/PCI-Express extended config
+> > space pointer. Checks whether the MCFG address range is listed
+> > as a motherboard resource, per the PCI firmware spec.
+> 
+> I'm still not quite happy about this; the entire point of the check is
+> that we CAN'T trust the ACPI implementation, and want a second opinion.
+> This patch basically asks the ACPI implementation if we can trust the
+> ACPI implementation. I'm not sure that's a good idea.
+> And I understood that most issues went away with the more relaxed check
+> that is in gregkh's tree already (if not in mainline, I should check
+> that). 
+
+The more-relaxed check is in mainline.  I wrote it, but it didn't even
+fix the problem on my own machine. This did.
+
+According to Rajesh, the spec doesn't require the MCFG space to be
+e820-reserved, so that's not really a valid check.
+
+-- 
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

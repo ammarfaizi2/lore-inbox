@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbWGNJXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWGNJWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161004AbWGNJXB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 05:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWGNJXB
+	id S1030427AbWGNJWV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 05:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWGNJWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 05:23:01 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6834 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1030432AbWGNJXA (ORCPT
+	Fri, 14 Jul 2006 05:22:21 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:37251 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030427AbWGNJWU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 05:23:00 -0400
-Date: Fri, 14 Jul 2006 11:22:47 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dave Jones <davej@redhat.com>
-cc: john stultz <johnstul@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 18rc1 soft lockup
-In-Reply-To: <20060713222830.GC3371@redhat.com>
-Message-ID: <Pine.LNX.4.64.0607141121450.12900@scrub.home>
-References: <20060711190346.GK5362@redhat.com> <1152645227.760.9.camel@cog.beaverton.ibm.com>
- <20060711191658.GM5362@redhat.com> <20060713220722.GA3371@redhat.com>
- <1152828943.6845.107.camel@localhost> <20060713222830.GC3371@redhat.com>
+	Fri, 14 Jul 2006 05:22:20 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Rt-tester makes freezing processes fail.
+Date: Fri, 14 Jul 2006 10:17:27 +0200
+User-Agent: KMail/1.9.3
+Cc: nigel@suspend2.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       tglx@timesys.com, linux-pm@lists.osdl.org, Pavel Machek <pavel@ucw.cz>
+References: <200607140918.49040.nigel@suspend2.net> <20060713163743.e71975b0.akpm@osdl.org>
+In-Reply-To: <20060713163743.e71975b0.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200607141017.27832.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 13 Jul 2006, Dave Jones wrote:
-
-> On Thu, Jul 13, 2006 at 03:15:43PM -0700, john stultz wrote:
+On Friday 14 July 2006 01:37, Andrew Morton wrote:
+> On Fri, 14 Jul 2006 09:18:43 +1000
+> Nigel Cunningham <nigel@suspend2.net> wrote:
 > 
->  > > Just when I thought it had gotten fixed..
->  > > 2.6.18rc1-git6 this time on x86-64..
->  > > 
->  > > BUG: soft lockup detected on CPU#3!
->  > > 
->  > > Call Trace:
->  > >  [<ffffffff80270865>] show_trace+0xaa/0x23d
->  > >  [<ffffffff80270a0d>] dump_stack+0x15/0x17
->  > >  [<ffffffff802c44e6>] softlockup_tick+0xd5/0xea
->  > >  [<ffffffff80250bea>] run_local_timers+0x13/0x15
->  > >  [<ffffffff8029cc1d>] update_process_times+0x4c/0x79
->  > >  [<ffffffff8027bfeb>] smp_local_timer_interrupt+0x2b/0x50
->  > >  [<ffffffff8027c766>] smp_apic_timer_interrupt+0x58/0x62
->  > >  [<ffffffff802628ae>] apic_timer_interrupt+0x6a/0x70
->  > 
->  > Hmmm.. grumble. Was this on bootup, or after some time period?
+> > Compiling in the rt-tester currently makes freezing processes fail.
+> > I don't think there's anything wrong with it running during
+> > suspending, so adding PF_NOFREEZE to the flags set seems to be the
+> > right solution.
+> > 
+> > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> > 
+> >  rtmutex-tester.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > diff -ruNp 9971-rt-tester.patch-old/kernel/rtmutex-tester.c 9971-rt-tester.patch-new/kernel/rtmutex-tester.c
+> > --- 9971-rt-tester.patch-old/kernel/rtmutex-tester.c	2006-07-07 10:27:46.000000000 +1000
+> > +++ 9971-rt-tester.patch-new/kernel/rtmutex-tester.c	2006-07-14 07:48:01.000000000 +1000
+> > @@ -259,7 +259,7 @@ static int test_func(void *data)
+> >  	struct test_thread_data *td = data;
+> >  	int ret;
+> >  
+> > -	current->flags |= PF_MUTEX_TESTER;
+> > +	current->flags |= PF_MUTEX_TESTER | PF_NOFREEZE;
+> >  	allow_signal(SIGHUP);
+> >  
+> >  	for(;;) {
 > 
-> Right at the end of boot up, between the switch from runlevel 3 to 5.
+> 
+> I yesterday queued up the below patch.  Which approach is most appropriate?
 
-When it waits, a SysRq+T might be useful.
+I prefer the one that makes these threads freeze (ie. the Luca's patch).
 
-bye, Roman
+Greetings,
+Rafael

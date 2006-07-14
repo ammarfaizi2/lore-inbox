@@ -1,213 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWGNTZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422723AbWGNT0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422725AbWGNTZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 15:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161294AbWGNTZ5
+	id S1422723AbWGNT0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 15:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWGNT0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 15:25:57 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:57734 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161292AbWGNTZ4 (ORCPT
+	Fri, 14 Jul 2006 15:26:50 -0400
+Received: from mga01.intel.com ([192.55.52.88]:57254 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1422723AbWGNT0t convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 15:25:56 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1152901664.314.35.camel@localhost.localdomain>
-References: <1152897878.23584.6.camel@localhost.localdomain>
-	 <1152901664.314.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 12:25:57 -0700
-Message-Id: <1152905158.23584.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 15:26:49 -0400
+X-IronPort-AV: i="4.06,244,1149490800"; 
+   d="scan'208"; a="98207393:sNHT20478857"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+Date: Fri, 14 Jul 2006 15:26:45 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6FBB114@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+Thread-Index: AcanZamXUTJ+LOG8RVSj6bd2vq0GJQAEMVbw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Daniel Drake" <dsd@gentoo.org>, "Chris Wedgwood" <cw@f00f.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jeff@garzik.org>,
+       <greg@kroah.com>, <harmon@ksu.edu>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Jul 2006 19:26:47.0498 (UTC) FILETIME=[72C532A0:01C6A77B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comments inline below.
+I've been trying very hard to stay away from VIA quirks,
+but there are some things to be aware of.
 
-On Fri, 2006-07-14 at 11:27 -0700, Dave Hansen wrote:
-> On Fri, 2006-07-14 at 10:24 -0700, Kylene Jo Hall wrote:
-> > +static int is_guard_integrity(struct slm_file_xattr *level)
-> > +{
-> > +	if ((level->guard.iac_r != SLM_IAC_NOTDEFINED)
-> > +	    && (level->guard.iac_wx != SLM_IAC_NOTDEFINED))
-> > +		return 1;
-> > +	return 0;
-> > +}
-> > +
-> > +static int is_guard_secrecy(struct slm_file_xattr *level)
-> > +{
-> > +	if ((level->guard.sac_rx != SLM_SAC_NOTDEFINED)
-> > +	    && (level->guard.sac_w != SLM_SAC_NOTDEFINED))
-> > +		return 1;
-> > +	return 0;
-> > +}
-> 
-> This is a nice helper function.  I think there are a couple of other
-> places where nice helpers like this could really clean things up.
-> 
-I'll try to clean this up better in the next version.
+1. quirks are independent of ACPI on/off
 
-> > +
-> > +#define do_demote_thread_list(head, member) { \
-> > +	struct task_struct *thread_tsk; \
-> > +	list_for_each_entry(thread_tsk, head, member) \
-> > +		do_demote_thread_entry(thread_tsk); \
-> > +}
-> 
-> Can this be an inline function instead?
-> 
-I wanted to make it a static inline but how would I pass the member
-field name that list_for_each_entry needs.  I presume this is why the
-list_for_each_* functions are #defines themselves.
+Note that ACPI PCI Interrupt Link Devices
+are just a wrapper around the same legacy PIRQ router
+seen in legacy mode.
 
-> > +static void demote_threads(void)
-> > +{
-> > +	do_demote_thread_list(&current->sibling, sibling);
-> > +	do_demote_thread_list(&current->children, children);
-> > +}
-> > +
-> > +/*
-> > + * Revoke write permissions and demote threads using shared memory
-> > + */
-> > +static void revoke_permissions(struct slm_file_xattr *cur_level)
-> > +{
-> > +	if ((!is_kernel_thread(current)) && (current->pid != 1)) {
-> > +		if (using_shmem())
-> > +			demote_threads();
-> > +
-> > +		revoke_mmap_wperm(cur_level);
-> > +		revoke_file_wperm(cur_level);
-> > +	}
-> > +}
-> 
-> Is that using_shmem() check really necessary?  IF you're not a threaded
-> process and you get asked to demote your threads, I would imagine that
-> the code would fall out of the loop immediately.  What does this protect
-> against?
+The added twist is that it is possible for VIA
+to do quirks in ACPI automatically if they want to --
+since all it takes is a few lines of AML where we set the link
+to a new state.  (we should go see if they're doing this now --
+in the past I don not think they did, and so quirks are probably
+still needed in ACPI mode on at least old machines)
 
-I'll test it out.
-> 
-> > +static enum slm_iac_level set_iac(char *token)
-> > +{
-> > +	int iac;
-> > +
-> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
-> > +		return SLM_IAC_EXEMPT;
-> > +	else {
-> 
-> Might as well add brackets here.  Or, just kill the else{} block and
-> pull the code back to the lower indenting level.  The else is really
-> unnecessary because of the return;
+2. quirks are independent of PIC/IOAPIC
 
-I'll fix next revision.
-> 
-> > +		for (iac = 0; iac < sizeof(slm_iac_str) / sizeof(char *); iac++) {
-> > +			if (memcmp(token, slm_iac_str[iac],
-> > +				   strlen(slm_iac_str[iac])) == 0)
-> > +				return iac;
-> 
-> Why not use strcmp?
-> 
-> > +static enum slm_sac_level set_sac(char *token)
-> > +{
-> > +	int sac;
-> > +
-> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
-> > +		return SLM_SAC_EXEMPT;
-> > +	else {
-> > +		for (sac = 0; sac < sizeof(slm_sac_str) / sizeof(char *); sac++) {
-> > +			if (memcmp(token, slm_sac_str[sac],
-> > +				   strlen(slm_sac_str[sac])) == 0)
-> > +				return sac;
-> > +		}
-> > +	}
-> > +	return SLM_SAC_ERROR;
-> > +}
-> 
-> This function looks awfully similar :).  Can you just pass that array in
-> as an argument, and get rid of one of the functions?
+In both ACPI on and ACPI off modes, we tend to touch PIC
+interrupts as _little_ as possible.  So it may be that
+our system boots up just fine in PIC mode w/o quirks --
+but the reason may be because we didn't try to invoke any irq mappings
+--
+we found we could live with what the BIOS left us and we
+used it untouched.
 
-Sure that shouldn't be a problem.
+As the IOAPIC is disabled in the default BIOS mode,
+we always have to set that up, and a good part of the time
+we have to choose our own mappings, so quirks are more likely
+to be noticed to be ncessary in IOAPIC mode.
 
-> 
-> > +static inline int set_bounds(char *token)
-> > +{
-> > +	if (memcmp(token, UNLIMITED_STR, strlen(UNLIMITED_STR)) == 0)
-> > +		return 1;
-> > +	return 0;
-> > +}
-> 
-> strcmp?
-> 
-> > +/* 
-> > + * Get the 7 access class levels from the extended attribute 
-> > + * Format: TIMESTAMP INTEGRITY SECRECY [INTEGRITY_GUARD INTEGRITY_GUARD] [SECRECY_GUARD SECRECY_GUARD] [GUARD_ TYPE]
-> > + */
-> > +static int slm_parse_xattr(char *xattr_value, int xattr_len,
-> > +			   struct slm_file_xattr *level)
-> > +{
-> > +	char *token;
-> > +	int token_len;
-> > +	char *buf, *buf_end;
-> > +	int fieldno = 0;
-> > +	int rc = -1;
-> > +
-> > +	buf = xattr_value + sizeof(time_t);
-> > +	if (*buf == 0x20)
-> > +		buf++;		/* skip blank after timestamp */
-> > +	buf_end = xattr_value + xattr_len;
-> > +
-> > +	while ((token = get_token(buf, buf_end, ' ', &token_len)) != NULL) {
-> > +		buf = token + token_len;
-> > +		switch (++fieldno) {
-> > +		case 1:
-> > +			if ((level->iac_level =
-> > +			     set_iac(token)) != SLM_IAC_ERROR)
-> > +				rc = 0;
-> > +			break;
-> 
-> How about:
-> 
-> 			level->iac_level = set_iac(token);
-> 			if (level->iac_level != SLM_IAC_ERROR)
-> 				rc = 0;
-> 			break;
-
-ok
-
-> > +	isec->lock = SPIN_LOCK_UNLOCKED;
-> > +	return isec;
-> > +}
-> 
-> Is that safe, or is will the spin_lock_init() version make the lock
-> debugging code happier?
-
-Ok.
-
-> > +/*
-> > + * Exempt objects without extended attribute support 
-> > + */
-> > +static int is_exempt(struct inode *inode)
-> > +{
-> > +	if ((inode->i_sb->s_magic == PROC_SUPER_MAGIC)
-> > +	    || S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
-> > +		return 1;
-> > +	return 0;
-> > +}
-> 
-> This could probably be a much more generic function, no?  
-> 
-> inode_supports_xaddr()?  Seems like something that should check a
-> superblock flag or something.
-
-I don't know of any such flags.
-
-Thanks,
-Kylie
-
+hope this helps,
+-Len

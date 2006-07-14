@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWGNOwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWGNOxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbWGNOwM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGNOwM
+	id S1161119AbWGNOxf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbWGNOxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:52:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60349 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161117AbWGNOwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:52:11 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
-	<44B50088.1010103@fr.ibm.com>
-	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
-	<44B684A5.2040008@fr.ibm.com>
-	<20060713174721.GA21399@sergelap.austin.ibm.com>
-	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-	<1152815391.7650.58.camel@localhost.localdomain>
-	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-	<20060713214101.GB2169@sergelap.austin.ibm.com>
-	<m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
-	<20060714140237.GD28436@sergelap.austin.ibm.com>
-Date: Fri, 14 Jul 2006 08:50:42 -0600
-In-Reply-To: <20060714140237.GD28436@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Fri, 14 Jul 2006 09:02:37 -0500")
-Message-ID: <m1k66gw88t.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 14 Jul 2006 10:53:35 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:36487 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1161119AbWGNOxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 10:53:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q4OP9fbuDpH++frXN6/JeRcJ8i6Elwof9kRJJCbzLhS9UJLEGuzpomzlpIyhWC4598qLwBEF5IAE8p0XT3CSJrrPxWS3Ji4OlwS/4d4CAC7anLwq83gX41z7QtLqQ1oeie8T23HxtJg+VRryPEnwXN0TCuTny1TQmiBLQsrlOZ4=
+Message-ID: <b0943d9e0607140753k6a551cb8m6bc8416b180872d4@mail.gmail.com>
+Date: Fri, 14 Jul 2006 15:53:33 +0100
+From: "Catalin Marinas" <catalin.marinas@gmail.com>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607131214l68232de8lf8cf03f805822f07@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060710220901.5191.66488.stgit@localhost.localdomain>
+	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
+	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
+	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
+	 <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
+	 <6bffcb0e0607120435x31eceab7r3fdb055a7bee6da2@mail.gmail.com>
+	 <b0943d9e0607120917pa0c191aw5814a19b9e6f31fd@mail.gmail.com>
+	 <6bffcb0e0607121555n20a9df53q8589109024629f7a@mail.gmail.com>
+	 <b0943d9e0607130935l2d8b2ff1qf1abec1af876f155@mail.gmail.com>
+	 <6bffcb0e0607131214l68232de8lf8cf03f805822f07@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+On 13/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> After applying context_struct_to_string-not-leak.patch and reverting
+> alloc_skb-false-positive.patch I haven't noticed that soft lockup.
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> If you permission checks are not (user namespace, uid) what can't you do?
->
-> File descripters can only be passed over a unix socket, right?
+You still need the apply alloc_skb-false-positive.patch as it just
+avoids a false positive (I'll add it to kmemleak 0.9). Does anything
+change with this (and the context_struct_... one)?
 
-No.  You can use /proc to do the same thing.  You can inherit
-file descriptors, etc.  This isn't a door you can just close and ignore.
-It is too easy to do this to assume you have closed every possible
-way to get a descriptor from outside of ``container''.
+> Here is something new
+> orphan pointer 0xf40d61ac (size 1536):
+>   c017392a: <__kmalloc_track_caller>
+>   c01631b1: <__kzalloc>
+>   f98869cd: <skge_ring_alloc>
+>   f9888a1d: <skge_up>
+>   c02b17b6: <dev_open>
+>   c02b2e94: <dev_change_flags>
+>   c02e6e17: <devinet_ioctl>
+>   c02e8a02: <inet_ioctl>
 
-Suppose you have user fred uid 1000 outside of any containers,
-and you have user joe uid 1000 inside user uid namespace.  If you don't
-make your permission checks (user namespace, uid) fred can do terrible
-things to joe.
+This looks like a leak but I couldn't find anything obvious with the
+code. I'll keep looking.
 
-If I we don't do the expanded permission checks the only alternative
-is to check to see if every object is in our ``container'' at every
-access.  That isn't something I want to do.
+> http://www.stardust.webpages.pl/files/o_bugs/kml/ml2/
+> http://www.stardust.webpages.pl/files/o_bugs/kml/ml3/
 
-I don't intend to partition objects just partition object look ups by name.
-Which means that if you very carefully setup your initial process you
-will never be able to find an object outside of your namespace.  But
-the kernel never should assume user space has done that.
+I would also need to investigate why the report shows some orphan
+pointers without any back-trace information. It seems to disappear
+after a while.
 
-> So this seems to fall into the same "userspace should set things up
-> sanely" argument you've brought up before.
+Thanks.
 
-For using it yes.  But not for correct kernel operation.
-
-> Don't get me wrong though - the idea of using in-kernel keys as
-> cross-namespace uid's is definately interesting.
-
-That is their role in the kernel.  A flavor of key to handle uid
-mapping needs to be added, but that is all.
-
-Eric
+-- 
+Catalin

@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWGNQsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWGNQtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422639AbWGNQsT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161268AbWGNQsS
+	id S1422642AbWGNQtK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422643AbWGNQtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:48:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:55462 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161267AbWGNQsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:48:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VJO7fccKaryeB6CXeh/sfT4ZZeRQYy90uD1SRDezfSSPprBxU7NdTAdP8aGSqq6LZNPx/NCz8blRSk4OvvWBn3qt67Xw7wA4+8iU0WBQr8YTD6IkmobN/FqQTpfWwysPuEy0eNi4W9l0IDteYGedQQFrJuawhYPXZIGkFl44VOg=
-Message-ID: <35f686220607140948g2b0eab42i8c2f182e729cc8e1@mail.gmail.com>
-Date: Fri, 14 Jul 2006 09:48:15 -0700
-From: "Alok kataria" <alokkataria1@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-Cc: "Andrew Morton" <akpm@osdl.org>, arjan@infradead.org, torvalds@osdl.org,
-       penberg@cs.helsinki.fi, mingo@elte.hu, sekharan@us.ibm.com,
-       linux-kernel@vger.kernel.org, nagar@watson.ibm.com, balbir@in.ibm.com,
-       alok.kataria@calsoftinc.com, kiran@scalex86.com
-In-Reply-To: <Pine.LNX.4.64.0607132040550.32134@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1152763195.11343.16.camel@linuxchandra>
-	 <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org>
-	 <1152818472.3024.75.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
-	 <20060713161620.f61d2ac0.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607131929050.31444@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.64.0607131944260.31824@schroedinger.engr.sgi.com>
-	 <20060713200234.d30cf1b8.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607132009520.32134@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.64.0607132040550.32134@schroedinger.engr.sgi.com>
+	Fri, 14 Jul 2006 12:49:09 -0400
+Received: from relay3.ptmail.sapo.pt ([212.55.154.23]:17899 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S1422642AbWGNQtI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:49:08 -0400
+X-AntiVirus: PTMail-AV 0.3-0.88.2
+Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, greg@kroah.com, harmon@ksu.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44B7C521.5080009@gentoo.org>
+References: <20060714095233.5678A8B6253@zog.reactivated.net>
+	 <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org>
+	 <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org>
+	 <20060714154240.GA23480@tuatara.stupidest.org>
+	 <44B7C37F.1050400@gentoo.org>  <44B7C521.5080009@gentoo.org>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 14 Jul 2006 17:48:54 +0100
+Message-Id: <1152895734.11043.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/13/06, Christoph Lameter <clameter@sgi.com> wrote:
-> On Thu, 13 Jul 2006, Christoph Lameter wrote:
->
-> > The fix by removing the dropping of the lock in free_block could cause
-> > retaking the list_lock that we already hold in the OFF_SLAB case (even in
-> > the non NUMA case).
->
-> That retaking only occurs if the general slab cache used for the cache
-> management is the same general slab where we are freeing from.
->
-> Otherwise we are acquiring the list_locks of two distinct slab caches
+On Fri, 2006-07-14 at 17:24 +0100, Daniel Drake wrote:
+> Daniel Drake wrote:
+> > It is worth noting that on the Gentoo bug report, the user could not 
+> > boot from VIA SATA while that ID was not in the list. However, if the 
+> > ACPI was *disabled* then the system booted fine (even without the SATA 
+> > ID in the list, i.e. no quirk applied).
+> > 
+> > This suggests that the quirk is only needed for ACPI users, at least on 
+> > that system.
+> 
+> I just confirmed this on my own system, at least partially. I removed 
+> the quirk and the system booted fine.
+> 
+> This is with ACPI enabled, but APIC not enabled (hence the interrupts 
+> are XT-PIC). I cannot enable APIC on this system due to buggy BIOS.
+> 
+> Daniel
 
-There can be a _theoretical_ case in which we have a cache (X) which
-has its slab descriptor  from another cache (Y), and this caches slab
-descriptor too comes from another cache (Z) ...and so on.
-In this case there can be a recursive lock issue.
-But _practically_ speaking i don't think this nesting of
-slab-descriptors can go down till a depth greater than 2 (because
-slab-descriptors come from a array-size cache, and getting a slab
-descriptor which has size greater than 1K is very rare). And this
-thing forming a cycle is virtually impossible.
+Daniel, VIA_SATA is not in the list , so when you write remove , you
+remove what ? or you want say the opposite ?  
+Please rephrase your sentence .
 
-> which may introduce an issue of lock ordering.
->
+Do you need quirk SATA with acpi=off  ?
 
-> So reversing the patch seems to be the right measure after all. But we
-> have the two weird locking scenarios above.
+Do you need quirk with ACPI enabled ? 
 
-Yes that is the easiest way out, but let me give it a second thought.
+Sérgio M. B. 
 
-Thanks & Regards,
-Alok
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
--- 
-A computer scientist is someone who, when told to "Go to Hell," sees
-the "go to," rather than the destination, as harmful.
-
-Alok Kataria

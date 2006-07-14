@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWGNKfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWGNKnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161020AbWGNKfx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 06:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWGNKfx
+	id S1161029AbWGNKnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 06:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWGNKnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 06:35:53 -0400
-Received: from mkedef1.rockwellautomation.com ([208.22.104.18]:4932 "EHLO
-	ranasmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S1161020AbWGNKfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 06:35:53 -0400
-To: Kevin Hilman <khilman@deeprooted.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.17-rt add clockevent to ixp4xx
-MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF17E03102.B88C1774-ONC12571AB.003987F5-C12571AB.003A4830@ra.rockwell.com>
-From: Milan Svoboda <msvoboda@ra.rockwell.com>
-Date: Fri, 14 Jul 2006 12:36:20 +0200
-X-MIMETrack: Serialize by Router on RANASMTP01/NorthAmerica/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 07/14/2006 05:36:41 AM,
-	Serialize complete at 07/14/2006 05:36:41 AM
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 14 Jul 2006 06:43:16 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49821 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161029AbWGNKnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 06:43:16 -0400
+Date: Fri, 14 Jul 2006 03:42:44 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, ak@suse.de, acahalan@gmail.com,
+       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, roland@redhat.com
+Subject: Re: utrace vs. ptrace
+Message-Id: <20060714034244.87b95930.pj@sgi.com>
+In-Reply-To: <20060713194735.GA27807@elte.hu>
+References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
+	<200607131437.28727.ak@suse.de>
+	<20060713124316.GA18852@elte.hu>
+	<200607131521.52505.ak@suse.de>
+	<Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
+	<20060713194735.GA27807@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin,
+Ingo wrote:
+> it wouldnt be fundamentally easier - but lots of policy stuff could be 
+> done there which we would otherwise reject to add to the kernel. Like 
+> more complex rules for "do we want to dump core for this particular 
+> app".
 
-> On Thu, 2006-07-13 at 10:53 +0000, Milan Svoboda wrote:
-> 
-> > there are patches that enable clock event on ixp4xx platform. This 
-should
-> > enable high resolution timers... Option for hrtimers in menuconfig is
-> > also enabled.
-> 
-> Milan,
-> 
-> I've also done a clockevent driver for ixp4xx and it looks pretty much
-> like yours.  I've been waiting to submit as Thomas has recently reworked
-> the clockevent layer a bit in his -hrt-dyntick patchset.
-> 
-> Here are a couple comments on your patchset
-> 
-> - since you've registered the clockevent with CAP_TICK, both the
-> arch interrupt handler and the clockevent handler are handling the tick
-> and calling do_timer().  While I don't think this will negatively affect
-> timekeeping, it's unncessary overhead.
+Reading this brought to mind the 'user exit' hooks that are common
+in IBM's mainframe O.S.'s.
 
-Yeah, I had a headache from this mistake, I found it a few minutes
-after sendig mail ;-)
+Their system code does what system code does (and likely a whole lot
+more than Linux would consider doing.)  But they also provide many
+places for user level code to get called off a variety of hooks,
+to allow for special cases.
 
-> - why the addition of clockevent_hz2mult()? since shift is 32, you
-> could use existing div_sc32()
+I had fantasies of our core dumping code using call_usermodehelper()
+to call a user command by a well known path, passing it the pid of
+the corpse.  While waiting for the user command to exit, the kernel
+would accept non-default core dump settings via special /sys or /proc
+files for that pid.  The user mode helper command could set these
+options before returning (by exiting) to the kernel for the core dump
+to be processed.  By default, the user command would do nothing but
+exit and the core dump would proceed as it does now.
 
-I didn't know about div_sc32... Simply, I have no problem with using
-div_sc32 now when I know that is exists ;-)
-
-> The attached patch is a combination of my patch and yours and addresses
-> my comments above.  I simply removed the CLOCK_CAP_TICK and removed your
-> clockevent_hz2mult() and used div_sc32().
-> 
-
-Good.
-
-> Also, below are a few runs of the nanosleep_jitter test that comes with
-> the sourceforge HRT test suite.  Something strange is that with the
-> nanosleep_jitter test, I only see max sleeps of ~300-400 usec but with
-> your test I see max sleeps up to 1.3 msec.
-> 
-
-Maybe my test program is not as good as nanosleep_jitter :-)
-
-I did patch against -hrt-dyntick (see lkml, this thread) wich is almost 
-the same
-as this one against -rt (for ixp4xx part only) and I found that when timer 
-is
-loaded with IXP4XX_OST_ONE_SHOT the latency time suddenly drops to ~30usec instead
-of ~2000usec! I'd like know what's the reason for this...
-
-Best regards,
-Milan
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

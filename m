@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWGNRA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbWGNRGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWGNRA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbWGNRA7
+	id S1161268AbWGNRGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbWGNRGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:00:59 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29885 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161267AbWGNRA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:00:58 -0400
-Subject: Re: [PATCH] remove volatile from nmi.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chase Venters <chase.venters@clientec.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0607140941170.5623@g5.osdl.org>
-References: <1152882288.1883.30.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org>
-	 <Pine.LNX.4.64.0607141131390.27161@turbotaz.ourhouse>
-	 <Pine.LNX.4.64.0607140941170.5623@g5.osdl.org>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 13:00:51 -0400
-Message-Id: <1152896451.27135.16.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 13:06:25 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:61150 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161268AbWGNRGY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 13:06:24 -0400
+Date: Fri, 14 Jul 2006 12:05:23 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+Message-ID: <20060714170523.GD25303@sergelap.austin.ibm.com>
+References: <20060713174721.GA21399@sergelap.austin.ibm.com> <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com> <1152815391.7650.58.camel@localhost.localdomain> <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com> <1152821011.24925.7.camel@localhost.localdomain> <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com> <1152887287.24925.22.camel@localhost.localdomain> <m17j2gw76o.fsf@ebiederm.dsl.xmission.com> <20060714162935.GA25303@sergelap.austin.ibm.com> <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 09:47 -0700, Linus Torvalds wrote:
-
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> So I'd argue that it's actually _worse_ to do a "mindless" conversion away 
-> from volatile, than it is to just remove them outright. Removing them 
-> outright may show a bug that the volatile hid (and at that point, people 
-> may see what the _deeper_ problem was), but at least it won't add a memory 
-> barrier that isn't necessary and will potentially just confuse people.
+> > Quoting Eric W. Biederman (ebiederm@xmission.com):
+> >> Dave Hansen <haveblue@us.ibm.com> writes:
+> >> 
+> >> > On Thu, 2006-07-13 at 21:45 -0600, Eric W. Biederman wrote:
+> >> >> I think for filesystems like /proc and /sys that there will normally
+> >> >> be problems.  However many of those problems can be rationalized away
+> >> >> as a reasonable optimization, or are not immediately apparent.
+> >> >
+> >> > Could you talk about some of these problems?
+> >> 
+> >> Already mentioned but.  rw permissions on sensitive files are for 
+> >> uid == 0.  No capability checks are performed.
+> >
+> > As Herbert (IIRC) pointed out that could/should be fixed.
+> 
+> Capabilities have always fitted badly in with the normal unix
+> permissions.
 
-Perfectly agree, and that is why in my post I said this was a learning
-experience for me and to please review.  Thinking, at worst you guys
-just tell me I'm completely wrong.  At best I find a real bug and have a
-fix for it.  Seems I'm in between the two ;)
+Well they're not supposed to fit in.
 
-I believe I did find a real bug (just luck that it worked) but as you
-say, my fix is wrong and if applied would hide the bug.  So this was to
-bring attention to would be bugs, and in the mean time, I learn exactly
-how to use memory barriers and how to get rid of volatiles.  Yes, this
-was more of a blind change, and I should have looked more into exactly
-what the code was doing.  But this was more to bring attention to a
-problem area than really to solve it.
+If we keep permchecks as uid==0 on files which invoke kernel callbacks,
+then we can only say once what root is allowed to do.  If we make them
+capability checks, then for differnet uses of namespaces we can have
+them do different things.  For instance if we're making a separate user
+namespace for a checkpoint/restart purpose, we might want root to retain
+more privs than if we're making a vserver.
 
-Thanks for responding and giving me a lesson :)
+Look I just have to keep responding because you keep provoking :), but
+I'm looking at other code and don't even know which entries we're
+talking about.  If when I get to looking at them I find they really
+should be done by capabilities, I'll submit a patch and we can argue
+then.
 
--- Steve
+> So if we have a solution that works nicely with normal
+> unix permissions we will have a nice general solution, that is
+> easy for people to understand.
+> 
+> What I am talking about is making a small tweak to the permission
+> checking as below.  Why do you keep avoiding even considering it?
 
+Not only don't I avoid considering it, I thought I'd even suggested it
+a while ago  :)
 
+It sounds good to me.
+
+-serge

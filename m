@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbWGNNc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWGNNpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbWGNNc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 09:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWGNNc0
+	id S1030448AbWGNNpt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 09:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWGNNpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 09:32:26 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:64529 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1030447AbWGNNcZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 09:32:25 -0400
-Date: Fri, 14 Jul 2006 09:33:39 -0400 (EDT)
-Message-Id: <20060714.093339.109616319.yoshfuji@linux-ipv6.org>
-To: rajib.majumder@credit-suisse.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X.25 support on Linux
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <F444CAE5E62A714C9F45AA292785BED30EB972DB@esng11p33001.sg.csfb.com>
-References: <F444CAE5E62A714C9F45AA292785BED30EB972DB@esng11p33001.sg.csfb.com>
-Organization: USAGI/WIDE Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 14 Jul 2006 09:45:49 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:47281 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030448AbWGNNpt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 09:45:49 -0400
+Message-ID: <44B7A007.2010204@garzik.org>
+Date: Fri, 14 Jul 2006 09:45:43 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: jdike@karaya.com
+CC: user-mode-linux-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: UML build broken everywhere?
+References: <44B79AB9.3020401@garzik.org>
+In-Reply-To: <44B79AB9.3020401@garzik.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <F444CAE5E62A714C9F45AA292785BED30EB972DB@esng11p33001.sg.csfb.com> (at Fri, 14 Jul 2006 21:14:58 +0800), "Majumder, Rajib" <rajib.majumder@credit-suisse.com> says:
+Jeff Garzik wrote:
+> I tried to build 2.6.17 and 2.6.17.4 UML on x86-64 with the attached 
+> .config on a Fedora Core 5 OS, and it broke:
 
-> I am just wondering if there's any kernel support for X.25 on Linux. I can use either RHEL3(2.4.21) or SLES9(2.6.5). 
-> Any input would be appreciated. 
+I just verified that ARCH=um on 32-bit x86 is also broken, with the same 
+build errors, on 2.6.17, 2.6.17.4, and 2.6.18-rc1-gitX (latest).
 
-Ask your vendor.
-Linux kernel itself has long history of X.25 support.
+	Jeff
 
---yoshfuji
+
 

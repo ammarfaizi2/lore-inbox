@@ -1,562 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161278AbWGNGJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWGNGUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161278AbWGNGJe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 02:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161279AbWGNGJe
+	id S1161180AbWGNGUF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 02:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWGNGUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 02:09:34 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:44772
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1161278AbWGNGJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 02:09:33 -0400
-Date: Fri, 14 Jul 2006 08:09:32 +0200
-From: andrea@cpushare.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: bruce@andrew.cmu.edu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       bunk@stusta.de, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       alan@redhat.com, torvalds@osdl.org, mingo@elte.hu
-Subject: [PATCH] TIF_NOTSC and SECCOMP prctl
-Message-ID: <20060714060932.GE18774@opteron.random>
-References: <20060711141709.GE7192@opteron.random> <1152628374.3128.66.camel@laptopd505.fenrus.org> <20060711153117.GJ7192@opteron.random> <1152635055.18028.32.camel@localhost.localdomain> <p73wtain80h.fsf@verdi.suse.de> <20060712210732.GA10182@elte.hu> <20060712185103.f41b51d2.akpm@osdl.org> <44B5F9E6.8070501@andrew.cmu.edu> <20060713083441.GD28310@opteron.random> <20060713021818.b0c0093e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713021818.b0c0093e.akpm@osdl.org>
+	Fri, 14 Jul 2006 02:20:05 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:43179
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1161180AbWGNGUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 02:20:03 -0400
+Message-ID: <44B73791.9080601@ed-soft.at>
+Date: Fri, 14 Jul 2006 08:20:01 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, LKML <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org> <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org> <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com> <44A8058D.3030905@zytor.com> <m11wt3983j.fsf@ebiederm.dsl.xmission.com> <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com> <44B6BF2F.6030401@ed-soft.at> <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 02:18:18AM -0700, Andrew Morton wrote:
-> removed me from cc.  Possibly an act of mercy ;)
+This is the memory map from the efi shell :
 
-;)
+available  0000000000000000-000000000008EFFF  000000000000008F 000000000000000F
+ACPI_NVS   000000000008F000-000000000008FFFF  0000000000000001 000000000000000F
+available  0000000000090000-000000000009FFFF  0000000000000010 000000000000000F
+available  0000000000100000-000000007C64FFFF  000000000007C550 000000000000000F
+BS_data    000000007C650000-000000007C697FFF  0000000000000048 000000000000000F
+available  000000007C698000-000000007CEA9FFF  0000000000000812 000000000000000F
+LoaderData 000000007CEAA000-000000007CEC2FFF  0000000000000019 000000000000000F
+LoaderCode 000000007CEC3000-000000007CFD5FFF  0000000000000113 000000000000000F
+LoaderData 000000007CFD6000-000000007D08DFFF  00000000000000B8 000000000000000F
+LoaderCode 000000007D08E000-000000007D09EFFF  0000000000000011 000000000000000F
+available  000000007D09F000-000000007D37DFFF  00000000000002DF 000000000000000F
+BS_data    000000007D37E000-000000007DCF0FFF  0000000000000973 000000000000000F
+available  000000007DCF1000-000000007DD2EFFF  000000000000003E 000000000000000F
+BS_data    000000007DD2F000-000000007DDD7FFF  00000000000000A9 000000000000000F
+available  000000007DDD8000-000000007DE10FFF  0000000000000039 000000000000000F
+BS_data    000000007DE11000-000000007E0D0FFF  00000000000002C0 000000000000000F
+ACPI_NVS   000000007E0D1000-000000007E2D1FFF  0000000000000201 000000000000000F
+BS_data    000000007E2D2000-000000007ECEDFFF  0000000000000A1C 000000000000000F
+available  000000007ECEE000-000000007ED30FFF  0000000000000043 000000000000000F
+BS_code    000000007ED31000-000000007EE3FFFF  000000000000010F 000000000000000F
+available  000000007EE40000-000000007EE48FFF  0000000000000009 000000000000000F
+RT_code    000000007EE49000-000000007EE6EFFF  0000000000000026 800000000000000F
+available  000000007EE6F000-000000007EE7EFFF  0000000000000010 000000000000000F
+RT_data    000000007EE7F000-000000007EEAAFFF  000000000000002C 800000000000000F
+available  000000007EEAB000-000000007EEBAFFF  0000000000000010 000000000000000F
+ACPI_recl  000000007EEBB000-000000007EEBFFFF  0000000000000005 000000000000000F
+available  000000007EEC0000-000000007EEC1FFF  0000000000000002 000000000000000F
+ACPI_NVS   000000007EEC2000-000000007EEEEFFF  000000000000002D 000000000000000F
+ACPI_recl  000000007EEEF000-000000007EEFEFFF  0000000000000010 000000000000000F
+RT_data    000000007EEFF000-000000007EEFFFFF  0000000000000001 800000000000000F
+MemMapIO   00000000E00F8000-00000000E00F8FFF  0000000000000001 8000000000000000
+MemMapIO   00000000FED1C000-00000000FED1FFFF  0000000000000004 8000000000000000
+MemMapIO   00000000FFFB0000-00000000FFFDFFFF  0000000000000030 8000000000000000
 
-> I see "[compile tested only; requires just-sent fix to i386 system.h]", so
-> an appropriate next step would be for you to review, test, sign-off and
-> forward it, please.
+This is the Memory what the kernel efi funktions get :
 
-I took the liberty to add Chuck's signoff as well since I started
-hacking on top of his patch, if this is not ok Chuck please let us
-know.
+mem00: type=7, attr=0xf, range=[0x0000000000000000-0x000000000008f000) (0MB)
+mem01: type=10, attr=0xf, range=[0x000000000008f000-0x0000000000090000) (0MB)
+mem02: type=7, attr=0xf, range=[0x0000000000090000-0x00000000000a0000) (0MB)
+mem03: type=2, attr=0xf, range=[0x0000000000100000-0x0000000003300000) (50MB)
+mem04: type=7, attr=0xf, range=[0x0000000003300000-0x000000007c650000) (1939MB)
+mem05: type=4, attr=0xf, range=[0x000000007c650000-0x000000007c698000) (0MB)
+mem06: type=7, attr=0xf, range=[0x000000007c698000-0x000000007cf9a000) (9MB)
+mem07: type=2, attr=0xf, range=[0x000000007cf9a000-0x000000007cfa5000) (0MB)
+mem08: type=1, attr=0xf, range=[0x000000007cfa5000-0x000000007cfd6000) (0MB)
+mem09: type=2, attr=0xf, range=[0x000000007cfd6000-0x000000007d032000) (0MB)
+mem10: type=1, attr=0xf, range=[0x000000007d032000-0x000000007d033000) (0MB)
+mem11: type=7, attr=0xf, range=[0x000000007d033000-0x000000007d034000) (0MB)
+mem12: type=2, attr=0xf, range=[0x000000007d034000-0x000000007d08e000) (0MB)
+mem13: type=1, attr=0xf, range=[0x000000007d08e000-0x000000007d09f000) (0MB)
+mem14: type=7, attr=0xf, range=[0x000000007d09f000-0x000000007d3bf000) (3MB)
+mem15: type=4, attr=0xf, range=[0x000000007d3bf000-0x000000007dcf1000) (9MB)
+mem16: type=7, attr=0xf, range=[0x000000007dcf1000-0x000000007ddc1000) (0MB)
+mem17: type=4, attr=0xf, range=[0x000000007ddc1000-0x000000007e0d1000) (3MB)
+mem18: type=10, attr=0xf, range=[0x000000007e0d1000-0x000000007e2d2000) (2MB)
+mem19: type=4, attr=0xf, range=[0x000000007e2d2000-0x000000007ecee000) (10MB)
+mem20: type=7, attr=0xf, range=[0x000000007ecee000-0x000000007ed31000) (0MB)
+mem21: type=3, attr=0xf, range=[0x000000007ed31000-0x000000007ee40000) (1MB)
+mem22: type=7, attr=0xf, range=[0x000000007ee40000-0x000000007ee49000) (0MB)
+mem23: type=5, attr=0x800000000000000f, range=[0x000000007ee49000-0x000000007ee6f000) (0MB)
+mem24: type=7, attr=0xf, range=[0x000000007ee6f000-0x000000007ee7f000) (0MB)
+mem25: type=6, attr=0x800000000000000f, range=[0x000000007ee7f000-0x000000007eeab000) (0MB)
+mem26: type=7, attr=0xf, range=[0x000000007eeab000-0x000000007eebb000) (0MB)
+mem27: type=9, attr=0xf, range=[0x000000007eebb000-0x000000007eec0000) (0MB)
+mem28: type=7, attr=0xf, range=[0x000000007eec0000-0x000000007eec2000) (0MB)
+mem29: type=10, attr=0xf, range=[0x000000007eec2000-0x000000007eeef000) (0MB)
+mem30: type=9, attr=0xf, range=[0x000000007eeef000-0x000000007eeff000) (0MB)
+mem31: type=6, attr=0x800000000000000f, range=[0x000000007eeff000-0x000000007ef00000) (0MB)
+mem32: type=11, attr=0x8000000000000000, range=[0x00000000e00f8000-0x00000000e00f9000) (0MB)
+mem33: type=11, attr=0x8000000000000000, range=[0x00000000fed1c000-0x00000000fed20000) (0MB)
+mem34: type=11, attr=0x8000000000000000, range=[0x00000000fffb0000-0x00000000fffe0000) (0MB)
 
-The below patch seems to work, I ported all my client code on top of
-prctl already. (it's a bit more painful to autodetect a kernel with
-CONFIG_SECCOMP turned off but I already adapted to it)
+This is the converted memory map :
 
-The only thing left worth discussing is why if I set TIF_NOTSC to 10
-instead of 19 the kernel was crashing hard... After I checked and
-rechecked everything else I deduced it had to be that number and after
-changing it to 19 everything works fine... I also verified the first
-rdtsc kills the task with a sigsegv. It would be nice to make sure
-it's not a bug in the below patch that 10 didn't work but just some
-hidden kernel "feature" ;).
 
-The reduction of 36 lines should be a welcome thing. I also left a
-CONFIG_SECCOMP in the slow path around the TIF_NOTSC stuff, so the ones
-setting CONFIG_SECCOMP=n won't notice any bytecode size
-difference. (those two CONFIG_SECCOMP should be removed if somebody
-adds a standalone prctl that only calls disable_TSC()).
+ BIOS-EFI: 0000000000000000 - 000000000008f000 (usable)
+ BIOS-EFI: 000000000008f000 - 0000000000090000 (ACPI NVS)
+ BIOS-EFI: 0000000000090000 - 00000000000a0000 (usable)
+ BIOS-EFI: 0000000003300000 - 000000007c650000 (usable)
+ BIOS-EFI: 000000007c698000 - 000000007cf9a000 (usable)
+ BIOS-EFI: 000000007d033000 - 000000007d034000 (usable)
+ BIOS-EFI: 000000007d09f000 - 000000007d3bf000 (usable)
+ BIOS-EFI: 000000007dcf1000 - 000000007ddc1000 (usable)
+ BIOS-EFI: 000000007e0d1000 - 000000007e2d2000 (ACPI NVS)
+ BIOS-EFI: 000000007ecee000 - 000000007ed31000 (usable)
+ BIOS-EFI: 000000007ee40000 - 000000007ee49000 (usable)
+ BIOS-EFI: 000000007ee6f000 - 000000007ee7f000 (usable)
+ BIOS-EFI: 000000007eeab000 - 000000007eebb000 (usable)
+ BIOS-EFI: 000000007eebb000 - 000000007eec0000 (ACPI data)
+ BIOS-EFI: 000000007eec0000 - 000000007eec2000 (usable)
+ BIOS-EFI: 000000007eec2000 - 000000007eeef000 (ACPI NVS)
+ BIOS-EFI: 000000007eeef000 - 000000007eeff000 (ACPI data)
+ BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+ BIOS-EFI: 00000000fed1c000 - 00000000fed20000 (reserved)
+ BIOS-EFI: 00000000fffb0000 - 00000000fffe0000 (reserved)
 
-Compared to Chuck's patch I also moved the io_bitmap in a path that
-only executes if either prev or next have the TIF_IO_BITMAP set, which
-seems more optimal.
+This is the funktion i used for converting :
 
-Reviews are welcome (then I will move into x86-64, all other archs
-supporting seccomp should require no changes despite the API
-change). Thanks.
+void __init efi_init_e820_map(void)
+{
+        efi_memory_desc_t *md;
+        unsigned long long start = 0;
+        unsigned long long end = 0;
+        unsigned long long size = 0;
+        void *p;
 
- arch/i386/kernel/process.c     |  124 +++++++++++++++++++++--------------------
- fs/proc/base.c                 |   91 ------------------------------
- include/asm-i386/processor.h   |    4 +
- include/asm-i386/thread_info.h |    5 +
- include/linux/prctl.h          |    4 +
- include/linux/seccomp.h        |   19 +++---
- kernel/seccomp.c               |   31 +++++++++-
- kernel/sys.c                   |    8 ++
- 8 files changed, 125 insertions(+), 161 deletions(-)
+        e820.nr_map = 0;
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
+        for (p = memmap.map; p < memmap.map_end;
+                p += memmap.desc_size) {
+                md = p;
+                switch (md->type) {
+                case EFI_ACPI_RECLAIM_MEMORY:
+                        add_memory_region(md->phys_addr, md->num_pages << EFI_PAGE_SHIFT, E820_ACPI);
+                        break;
+                case EFI_RESERVED_TYPE:
+                case EFI_MEMORY_MAPPED_IO:
+                case EFI_MEMORY_MAPPED_IO_PORT_SPACE:
+                case EFI_UNUSABLE_MEMORY:
+                        add_memory_region(md->phys_addr, md->num_pages << EFI_PAGE_SHIFT, E820_RESERVED);
+                        break;
+                case EFI_CONVENTIONAL_MEMORY:
+                        start = md->phys_addr;
+                        size = md->num_pages << EFI_PAGE_SHIFT;
+                        end = start + size;
+                        if (start < 0x100000ULL && end > 0xA0000ULL) {
+                                if (start < 0xA0000ULL)
+                                        add_memory_region(start, 0xA0000ULL-start, E820_RAM);
+                                if (end <= 0x100000ULL)
+                                        continue;
+                                start = 0x100000ULL;
+                                size = end - start;
+                        }
+                        add_memory_region(start, size, E820_RAM);
+                        break;
+                case EFI_ACPI_MEMORY_NVS:
+                        add_memory_region(md->phys_addr, md->num_pages << EFI_PAGE_SHIFT, E820_NVS);
+                        break;
+                }
+        }
+}
 
-# HG changeset patch
-# User andrea@cpushare.com
-# Date 1152856077 -7200
-# Node ID 9be99cbb325935c2a7af96ac39411fdde58d4eef
-# Parent  bcfd682ea605a2ab00469eaa875988de6b910814
-Removes the overhead of disabling the TSC under SECCCOMP
-with a new TIF_NOTSC bitflag (idea and part of the code from Chuck Ebbert).
-disable_TSC can be called by other kernel code without interfering with SECCOMP
-in any way. A prctl could be added just to disable the TSC if anybody needs it.
-Only the "current" task can call disable_TSC.
 
-To reduce the bytes of .text to the minimum, the seccomp API is moved from
-/proc to prctl. /proc wasn't necessary anymore because only the "current" task
-can safely turn on the NOTSC bit without SMP race conditions.
+cu
 
-diff -r bcfd682ea605 -r 9be99cbb3259 arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Thu Jul 13 03:03:35 2006 +0700
-+++ b/arch/i386/kernel/process.c	Fri Jul 14 07:47:57 2006 +0200
-@@ -535,8 +535,29 @@ int dump_task_regs(struct task_struct *t
- 	return 1;
- }
- 
--static noinline void __switch_to_xtra(struct task_struct *next_p,
--				    struct tss_struct *tss)
-+#ifdef CONFIG_SECCOMP
-+void hard_disable_TSC(void)
-+{
-+	write_cr4(read_cr4() | X86_CR4_TSD);
-+}
-+void disable_TSC(void)
-+{
-+	if (!test_and_set_thread_flag(TIF_NOTSC))
-+		/*
-+		 * Must flip the CPU state synchronously with
-+		 * TIF_NOTSC in the current running context.
-+		 */
-+		hard_disable_TSC();
-+}
-+void hard_enable_TSC(void)
-+{
-+	write_cr4(read_cr4() & ~X86_CR4_TSD);
-+}
-+#endif /* CONFIG_SECCOMP */
-+
-+static noinline void
-+__switch_to_xtra(struct task_struct *prev_p, struct task_struct *next_p,
-+		 struct tss_struct *tss)
- {
- 	struct thread_struct *next;
- 
-@@ -552,60 +573,47 @@ static noinline void __switch_to_xtra(st
- 		set_debugreg(next->debugreg[7], 7);
- 	}
- 
--	if (!test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
-+#ifdef CONFIG_SECCOMP
-+	if (test_tsk_thread_flag(prev_p, TIF_NOTSC) ^
-+	    test_tsk_thread_flag(next_p, TIF_NOTSC)) {
-+		/* prev and next are different */
-+		if (test_tsk_thread_flag(next_p, TIF_NOTSC))
-+			hard_disable_TSC();
-+		else
-+			hard_enable_TSC();
-+	}
-+#endif
-+
-+	if (test_tsk_thread_flag(prev_p, TIF_IO_BITMAP) ||
-+	    test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
-+		if (!test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
-+			/*
-+			 * Disable the bitmap via an invalid offset. We still cache
-+			 * the previous bitmap owner and the IO bitmap contents:
-+			 */
-+			tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
-+			return;
-+		}
-+
-+		if (likely(next == tss->io_bitmap_owner)) {
-+			/*
-+			 * Previous owner of the bitmap (hence the bitmap content)
-+			 * matches the next task, we dont have to do anything but
-+			 * to set a valid offset in the TSS:
-+			 */
-+			tss->io_bitmap_base = IO_BITMAP_OFFSET;
-+			return;
-+		}
- 		/*
--		 * Disable the bitmap via an invalid offset. We still cache
--		 * the previous bitmap owner and the IO bitmap contents:
-+		 * Lazy TSS's I/O bitmap copy. We set an invalid offset here
-+		 * and we let the task to get a GPF in case an I/O instruction
-+		 * is performed.  The handler of the GPF will verify that the
-+		 * faulting task has a valid I/O bitmap and, it true, does the
-+		 * real copy and restart the instruction.  This will save us
-+		 * redundant copies when the currently switched task does not
-+		 * perform any I/O during its timeslice.
- 		 */
--		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
--		return;
--	}
--
--	if (likely(next == tss->io_bitmap_owner)) {
--		/*
--		 * Previous owner of the bitmap (hence the bitmap content)
--		 * matches the next task, we dont have to do anything but
--		 * to set a valid offset in the TSS:
--		 */
--		tss->io_bitmap_base = IO_BITMAP_OFFSET;
--		return;
--	}
--	/*
--	 * Lazy TSS's I/O bitmap copy. We set an invalid offset here
--	 * and we let the task to get a GPF in case an I/O instruction
--	 * is performed.  The handler of the GPF will verify that the
--	 * faulting task has a valid I/O bitmap and, it true, does the
--	 * real copy and restart the instruction.  This will save us
--	 * redundant copies when the currently switched task does not
--	 * perform any I/O during its timeslice.
--	 */
--	tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET_LAZY;
--}
--
--/*
-- * This function selects if the context switch from prev to next
-- * has to tweak the TSC disable bit in the cr4.
-- */
--static inline void disable_tsc(struct task_struct *prev_p,
--			       struct task_struct *next_p)
--{
--	struct thread_info *prev, *next;
--
--	/*
--	 * gcc should eliminate the ->thread_info dereference if
--	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
--	 */
--	prev = task_thread_info(prev_p);
--	next = task_thread_info(next_p);
--
--	if (has_secure_computing(prev) || has_secure_computing(next)) {
--		/* slow path here */
--		if (has_secure_computing(prev) &&
--		    !has_secure_computing(next)) {
--			write_cr4(read_cr4() & ~X86_CR4_TSD);
--		} else if (!has_secure_computing(prev) &&
--			   has_secure_computing(next))
--			write_cr4(read_cr4() | X86_CR4_TSD);
-+		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET_LAZY;
- 	}
- }
- 
-@@ -690,11 +698,9 @@ struct task_struct fastcall * __switch_t
- 	/*
- 	 * Now maybe handle debug registers and/or IO bitmaps
- 	 */
--	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
--	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
--		__switch_to_xtra(next_p, tss);
--
--	disable_tsc(prev_p, next_p);
-+	if (unlikely(task_thread_info(prev_p)->flags & _TIF_WORK_CTXSW_PREV ||
-+		     task_thread_info(next_p)->flags & _TIF_WORK_CTXSW_NEXT))
-+		__switch_to_xtra(prev_p, next_p, tss);
- 
- 	return prev_p;
- }
-diff -r bcfd682ea605 -r 9be99cbb3259 fs/proc/base.c
---- a/fs/proc/base.c	Thu Jul 13 03:03:35 2006 +0700
-+++ b/fs/proc/base.c	Fri Jul 14 07:47:57 2006 +0200
-@@ -67,7 +67,6 @@
- #include <linux/mount.h>
- #include <linux/security.h>
- #include <linux/ptrace.h>
--#include <linux/seccomp.h>
- #include <linux/cpuset.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
-@@ -98,9 +97,6 @@ enum pid_directory_inos {
- 	PROC_TGID_TASK,
- 	PROC_TGID_STATUS,
- 	PROC_TGID_MEM,
--#ifdef CONFIG_SECCOMP
--	PROC_TGID_SECCOMP,
--#endif
- 	PROC_TGID_CWD,
- 	PROC_TGID_ROOT,
- 	PROC_TGID_EXE,
-@@ -141,9 +137,6 @@ enum pid_directory_inos {
- 	PROC_TID_INO,
- 	PROC_TID_STATUS,
- 	PROC_TID_MEM,
--#ifdef CONFIG_SECCOMP
--	PROC_TID_SECCOMP,
--#endif
- 	PROC_TID_CWD,
- 	PROC_TID_ROOT,
- 	PROC_TID_EXE,
-@@ -212,9 +205,6 @@ static struct pid_entry tgid_base_stuff[
- 	E(PROC_TGID_NUMA_MAPS, "numa_maps", S_IFREG|S_IRUGO),
- #endif
- 	E(PROC_TGID_MEM,       "mem",     S_IFREG|S_IRUSR|S_IWUSR),
--#ifdef CONFIG_SECCOMP
--	E(PROC_TGID_SECCOMP,   "seccomp", S_IFREG|S_IRUSR|S_IWUSR),
--#endif
- 	E(PROC_TGID_CWD,       "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_ROOT,      "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
-@@ -255,9 +245,6 @@ static struct pid_entry tid_base_stuff[]
- 	E(PROC_TID_NUMA_MAPS,  "numa_maps",    S_IFREG|S_IRUGO),
- #endif
- 	E(PROC_TID_MEM,        "mem",     S_IFREG|S_IRUSR|S_IWUSR),
--#ifdef CONFIG_SECCOMP
--	E(PROC_TID_SECCOMP,    "seccomp", S_IFREG|S_IRUSR|S_IWUSR),
--#endif
- 	E(PROC_TID_CWD,        "cwd",     S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_ROOT,       "root",    S_IFLNK|S_IRWXUGO),
- 	E(PROC_TID_EXE,        "exe",     S_IFLNK|S_IRWXUGO),
-@@ -970,78 +957,6 @@ static struct file_operations proc_login
- 	.write		= proc_loginuid_write,
- };
- #endif
--
--#ifdef CONFIG_SECCOMP
--static ssize_t seccomp_read(struct file *file, char __user *buf,
--			    size_t count, loff_t *ppos)
--{
--	struct task_struct *tsk = get_proc_task(file->f_dentry->d_inode);
--	char __buf[20];
--	loff_t __ppos = *ppos;
--	size_t len;
--
--	if (!tsk)
--		return -ESRCH;
--	/* no need to print the trailing zero, so use only len */
--	len = sprintf(__buf, "%u\n", tsk->seccomp.mode);
--	put_task_struct(tsk);
--	if (__ppos >= len)
--		return 0;
--	if (count > len - __ppos)
--		count = len - __ppos;
--	if (copy_to_user(buf, __buf + __ppos, count))
--		return -EFAULT;
--	*ppos = __ppos + count;
--	return count;
--}
--
--static ssize_t seccomp_write(struct file *file, const char __user *buf,
--			     size_t count, loff_t *ppos)
--{
--	struct task_struct *tsk = get_proc_task(file->f_dentry->d_inode);
--	char __buf[20], *end;
--	unsigned int seccomp_mode;
--	ssize_t result;
--
--	result = -ESRCH;
--	if (!tsk)
--		goto out_no_task;
--
--	/* can set it only once to be even more secure */
--	result = -EPERM;
--	if (unlikely(tsk->seccomp.mode))
--		goto out;
--
--	result = -EFAULT;
--	memset(__buf, 0, sizeof(__buf));
--	count = min(count, sizeof(__buf) - 1);
--	if (copy_from_user(__buf, buf, count))
--		goto out;
--
--	seccomp_mode = simple_strtoul(__buf, &end, 0);
--	if (*end == '\n')
--		end++;
--	result = -EINVAL;
--	if (seccomp_mode && seccomp_mode <= NR_SECCOMP_MODES) {
--		tsk->seccomp.mode = seccomp_mode;
--		set_tsk_thread_flag(tsk, TIF_SECCOMP);
--	} else
--		goto out;
--	result = -EIO;
--	if (unlikely(!(end - __buf)))
--		goto out;
--	result = end - __buf;
--out:
--	put_task_struct(tsk);
--out_no_task:
--	return result;
--}
--
--static struct file_operations proc_seccomp_operations = {
--	.read		= seccomp_read,
--	.write		= seccomp_write,
--};
--#endif /* CONFIG_SECCOMP */
- 
- static void *proc_pid_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
-@@ -1726,12 +1641,6 @@ static struct dentry *proc_pident_lookup
- 		case PROC_TGID_MEM:
- 			inode->i_fop = &proc_mem_operations;
- 			break;
--#ifdef CONFIG_SECCOMP
--		case PROC_TID_SECCOMP:
--		case PROC_TGID_SECCOMP:
--			inode->i_fop = &proc_seccomp_operations;
--			break;
--#endif /* CONFIG_SECCOMP */
- 		case PROC_TID_MOUNTS:
- 		case PROC_TGID_MOUNTS:
- 			inode->i_fop = &proc_mounts_operations;
-diff -r bcfd682ea605 -r 9be99cbb3259 include/asm-i386/processor.h
---- a/include/asm-i386/processor.h	Thu Jul 13 03:03:35 2006 +0700
-+++ b/include/asm-i386/processor.h	Fri Jul 14 07:47:57 2006 +0200
-@@ -256,6 +256,10 @@ static inline void clear_in_cr4 (unsigne
- 	cr4 &= ~mask;
- 	write_cr4(cr4);
- }
-+
-+extern void hard_disable_TSC(void);
-+extern void disable_TSC(void);
-+extern void hard_enable_TSC(void);
- 
- /*
-  *      NSC/Cyrix CPU configuration register indexes
-diff -r bcfd682ea605 -r 9be99cbb3259 include/asm-i386/thread_info.h
---- a/include/asm-i386/thread_info.h	Thu Jul 13 03:03:35 2006 +0700
-+++ b/include/asm-i386/thread_info.h	Fri Jul 14 07:47:57 2006 +0200
-@@ -142,6 +142,7 @@ static inline struct thread_info *curren
- #define TIF_MEMDIE		16
- #define TIF_DEBUG		17	/* uses debug registers */
- #define TIF_IO_BITMAP		18	/* uses I/O bitmap */
-+#define TIF_NOTSC		19	/* TSC is not accessible in userland */
- 
- #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
- #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-@@ -153,6 +154,7 @@ static inline struct thread_info *curren
- #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
- #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
- #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
-+#define _TIF_NOTSC		(1<<TIF_NOTSC)
- #define _TIF_DEBUG		(1<<TIF_DEBUG)
- #define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
- 
-@@ -164,7 +166,8 @@ static inline struct thread_info *curren
- #define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP)
- 
- /* flags to check in __switch_to() */
--#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
-+#define _TIF_WORK_CTXSW_NEXT (_TIF_IO_BITMAP | _TIF_NOTSC | _TIF_DEBUG)
-+#define _TIF_WORK_CTXSW_PREV (_TIF_IO_BITMAP | _TIF_NOTSC)
- 
- /*
-  * Thread-synchronous status.
-diff -r bcfd682ea605 -r 9be99cbb3259 include/linux/prctl.h
---- a/include/linux/prctl.h	Thu Jul 13 03:03:35 2006 +0700
-+++ b/include/linux/prctl.h	Fri Jul 14 07:47:57 2006 +0200
-@@ -59,4 +59,8 @@
- # define PR_ENDIAN_LITTLE	1	/* True little endian mode */
- # define PR_ENDIAN_PPC_LITTLE	2	/* "PowerPC" pseudo little endian */
- 
-+/* Get/set process seccomp mode */
-+#define PR_GET_SECCOMP	21
-+#define PR_SET_SECCOMP	22
-+
- #endif /* _LINUX_PRCTL_H */
-diff -r bcfd682ea605 -r 9be99cbb3259 include/linux/seccomp.h
---- a/include/linux/seccomp.h	Thu Jul 13 03:03:35 2006 +0700
-+++ b/include/linux/seccomp.h	Fri Jul 14 07:47:57 2006 +0200
-@@ -3,8 +3,6 @@
- 
- 
- #ifdef CONFIG_SECCOMP
--
--#define NR_SECCOMP_MODES 1
- 
- #include <linux/thread_info.h>
- #include <asm/seccomp.h>
-@@ -18,20 +16,23 @@ static inline void secure_computing(int 
- 		__secure_computing(this_syscall);
- }
- 
--static inline int has_secure_computing(struct thread_info *ti)
--{
--	return unlikely(test_ti_thread_flag(ti, TIF_SECCOMP));
--}
-+extern long prctl_get_seccomp(void);
-+extern long prctl_set_seccomp(unsigned long);
- 
- #else /* CONFIG_SECCOMP */
- 
- typedef struct { } seccomp_t;
- 
- #define secure_computing(x) do { } while (0)
--/* static inline to preserve typechecking */
--static inline int has_secure_computing(struct thread_info *ti)
-+
-+static inline long prctl_get_seccomp(void)
- {
--	return 0;
-+	return -EINVAL;
-+}
-+
-+static inline long prctl_set_seccomp(unsigned long arg2)
-+{
-+	return -EINVAL;
- }
- 
- #endif /* CONFIG_SECCOMP */
-diff -r bcfd682ea605 -r 9be99cbb3259 kernel/seccomp.c
---- a/kernel/seccomp.c	Thu Jul 13 03:03:35 2006 +0700
-+++ b/kernel/seccomp.c	Fri Jul 14 07:47:57 2006 +0200
-@@ -1,7 +1,7 @@
- /*
-  * linux/kernel/seccomp.c
-  *
-- * Copyright 2004-2005  Andrea Arcangeli <andrea@cpushare.com>
-+ * Copyright 2004-2006  Andrea Arcangeli <andrea@cpushare.com>
-  *
-  * This defines a simple but solid secure-computing mode.
-  */
-@@ -10,6 +10,7 @@
- #include <linux/sched.h>
- 
- /* #define SECCOMP_DEBUG 1 */
-+#define NR_SECCOMP_MODES 1
- 
- /*
-  * Secure computing mode 1 allows only read/write/exit/sigreturn.
-@@ -54,3 +55,31 @@ void __secure_computing(int this_syscall
- #endif
- 	do_exit(SIGKILL);
- }
-+
-+long prctl_get_seccomp(void)
-+{
-+	return current->seccomp.mode;
-+}
-+
-+long prctl_set_seccomp(unsigned long seccomp_mode)
-+{
-+	long ret;
-+
-+	/* can set it only once to be even more secure */
-+	ret = -EPERM;
-+	if (unlikely(current->seccomp.mode))
-+		goto out;
-+
-+	ret = -EINVAL;
-+	if (seccomp_mode && seccomp_mode <= NR_SECCOMP_MODES) {
-+		current->seccomp.mode = seccomp_mode;
-+		set_thread_flag(TIF_SECCOMP);
-+#ifdef TIF_NOTSC
-+		disable_TSC();
-+#endif
-+		ret = 0;
-+	}
-+
-+ out:
-+	return ret;
-+}
-diff -r bcfd682ea605 -r 9be99cbb3259 kernel/sys.c
---- a/kernel/sys.c	Thu Jul 13 03:03:35 2006 +0700
-+++ b/kernel/sys.c	Fri Jul 14 07:47:57 2006 +0200
-@@ -28,6 +28,7 @@
- #include <linux/tty.h>
- #include <linux/signal.h>
- #include <linux/cn_proc.h>
-+#include <linux/seccomp.h>
- 
- #include <linux/compat.h>
- #include <linux/syscalls.h>
-@@ -2056,6 +2057,13 @@ asmlinkage long sys_prctl(int option, un
- 			error = SET_ENDIAN(current, arg2);
- 			break;
- 
-+		case PR_GET_SECCOMP:
-+			error = prctl_get_seccomp();
-+			break;
-+		case PR_SET_SECCOMP:
-+			error = prctl_set_seccomp(arg2);
-+			break;
-+
- 		default:
- 			error = -EINVAL;
- 			break;
+Edgar Hucek
+
+
+Linus Torvalds schrieb:
+> 
+> On Thu, 13 Jul 2006, Edgar Hucek wrote:
+>> I converted the efi memory map to use the e820 table.
+>> While converting i discovered why the kernel would allways
+>> fail to boot through efi on Intel Macs without a proper fix.
+> 
+> Ok, can you show what the converted and the original map looks like?
+> 
+>> From kernel 2.6.16 to kernel 2.6.17 a new check is made.
+>> File arch/i386/pci/mmconfig.c -> funktion pci_mmcfg_init -> check e820_all_mapped
+>> The courios thing is that this check will always fail on the
+>> Intel Macs booted through efi. Parsing of the ACPI_MCFG table
+>> returns e0000000 for the start. But this location is
+>> not in the memory map which the efi firmware have :
+>> BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+> 
+> It _sounds_ like you may not have converted all the EFI types 
+> (EFI_UNUSABLE_MEMORY?), but regardless, I think it would be fine to have 
+> perhaps a "PCI_FORCE_MMCONF" flag that avoided that sanity check, and then 
+> you could have some code (either the EFI code _or_ some DMI code) that 
+> sets it for the Intel Macs.
+> 
+> Note that the check in pci_mmcfg_init() shouldn't be some EFI hack itself, 
+> it would be a real flag for the PCI subsystem, independently of EFI (I can 
+> see it being useful for a kernel command line option, even), and the only 
+> EFI connection would be that perhaps the EFI code ends up setting that 
+> flag (especially if there is some EFI command for doing this).
+> 
+> Btw, if you do do this, I think we should make sure that the MMCONFIG base 
+> address is reserved in the PCI MMIO resource structures (which we don't do 
+> now, I think - part of the whole point of verifying that it's marked as 
+> E820_RESERVED is exactly the fact that otherwise we migth have problems 
+> with PCI MMIO resource allocations allocating a regular PCI resource over 
+> the MMCONFIG space..)
+> 
+> 			Linus
+> 
+

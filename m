@@ -1,99 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161263AbWGNQkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161259AbWGNQpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161263AbWGNQkI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWGNQkI
+	id S1161259AbWGNQpU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161265AbWGNQpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:40:08 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:63922 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161263AbWGNQkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:40:06 -0400
-Date: Fri, 14 Jul 2006 11:39:05 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-Message-ID: <20060714163905.GB25303@sergelap.austin.ibm.com>
-References: <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com> <20060713174721.GA21399@sergelap.austin.ibm.com> <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com> <1152815391.7650.58.camel@localhost.localdomain> <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com> <20060713214101.GB2169@sergelap.austin.ibm.com> <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com> <20060714140237.GD28436@sergelap.austin.ibm.com> <m1k66gw88t.fsf@ebiederm.dsl.xmission.com>
+	Fri, 14 Jul 2006 12:45:19 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:11201 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161259AbWGNQpS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:45:18 -0400
+Subject: Process Events: Fix biarch compatibility issue. use __u64 timestamp
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 14 Jul 2006 09:45:13 -0700
+Message-Id: <1152895513.19016.12.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1k66gw88t.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
-> 
-> > Quoting Eric W. Biederman (ebiederm@xmission.com):
-> >> If you permission checks are not (user namespace, uid) what can't you do?
-> >
-> > File descripters can only be passed over a unix socket, right?
-> 
-> No.  You can use /proc to do the same thing.  You can inherit
+Linus, Andrew,
 
-How?
+Events sent by Process Events Connector from a 64-bit kernel are not binary
+compatible with a 32-bit userspace program because the "timestamp" field
+(struct timespec) is not arch independent. This affects the fields
+that follow "timestamp" as they will be be off by 8 bytes.
 
-> file descriptors, etc.  This isn't a door you can just close and ignore.
-> It is too easy to do this to assume you have closed every possible
-> way to get a descriptor from outside of ``container''.
-> 
-> Suppose you have user fred uid 1000 outside of any containers,
-> and you have user joe uid 1000 inside user uid namespace.  If you don't
-> make your permission checks (user namespace, uid) fred can do terrible
+This is a problem for 32-bit userspace programs running with 64-bit kernels
+on ppc64, s390, x86-64.. any "biarch" system.
 
-Only if user fred can reach user joe's files.
+Matt had submitted a different solution to lkml as an RFC earlier. We have since
+switched to a solution recommended by Evgeniy Polyakov.
 
-> If I we don't do the expanded permission checks the only alternative
-> is to check to see if every object is in our ``container'' at every
-> access.  That isn't something I want to do.
+This patch fixes the problem by changing the timestamp to be a __u64, which
+stores the number of nanoseconds.
 
-Ditto.
+Tested on a x86_64 system with both 32 bit application and 64 bit
+application and on a i386 system.
 
-> I don't intend to partition objects just partition object look ups by name.
-> Which means that if you very carefully setup your initial process you
-> will never be able to find an object outside of your namespace.  But
-> the kernel never should assume user space has done that.
+Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+---
+Index: linux-2.6.18-rc1/include/linux/cn_proc.h
+===================================================================
+--- linux-2.6.18-rc1.orig/include/linux/cn_proc.h	2006-07-13 15:14:25.000000000 -0700
++++ linux-2.6.18-rc1/include/linux/cn_proc.h	2006-07-13 15:14:38.000000000 -0700
+@@ -57,7 +57,8 @@ struct proc_event {
+ 		PROC_EVENT_EXIT = 0x80000000
+ 	} what;
+ 	__u32 cpu;
+-	struct timespec timestamp;
++	__u64 __attribute__((aligned(8))) timestamp_ns;
++		/* Number of nano seconds since system boot */
+ 	union { /* must be last field of proc_event struct */
+ 		struct {
+ 			__u32 err;
+Index: linux-2.6.18-rc1/drivers/connector/cn_proc.c
+===================================================================
+--- linux-2.6.18-rc1.orig/drivers/connector/cn_proc.c	2006-07-13 15:14:25.000000000 -0700
++++ linux-2.6.18-rc1/drivers/connector/cn_proc.c	2006-07-13 15:16:36.000000000 -0700
+@@ -51,6 +51,7 @@ void proc_fork_connector(struct task_str
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
++	struct timespec ts;
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+ 		return;
+@@ -58,7 +59,8 @@ void proc_fork_connector(struct task_str
+ 	msg = (struct cn_msg*)buffer;
+ 	ev = (struct proc_event*)msg->data;
+ 	get_seq(&msg->seq, &ev->cpu);
+-	ktime_get_ts(&ev->timestamp); /* get high res monotonic timestamp */
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_ns = timespec_to_ns(&ts);
+ 	ev->what = PROC_EVENT_FORK;
+ 	ev->event_data.fork.parent_pid = task->real_parent->pid;
+ 	ev->event_data.fork.parent_tgid = task->real_parent->tgid;
+@@ -76,6 +78,7 @@ void proc_exec_connector(struct task_str
+ {
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
++	struct timespec ts;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+@@ -84,7 +87,8 @@ void proc_exec_connector(struct task_str
+ 	msg = (struct cn_msg*)buffer;
+ 	ev = (struct proc_event*)msg->data;
+ 	get_seq(&msg->seq, &ev->cpu);
+-	ktime_get_ts(&ev->timestamp);
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_ns = timespec_to_ns(&ts);
+ 	ev->what = PROC_EVENT_EXEC;
+ 	ev->event_data.exec.process_pid = task->pid;
+ 	ev->event_data.exec.process_tgid = task->tgid;
+@@ -100,6 +104,7 @@ void proc_id_connector(struct task_struc
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
++	struct timespec ts;
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+ 		return;
+@@ -118,7 +123,8 @@ void proc_id_connector(struct task_struc
+ 	} else
+ 	     	return;
+ 	get_seq(&msg->seq, &ev->cpu);
+-	ktime_get_ts(&ev->timestamp);
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_ns = timespec_to_ns(&ts);
+ 
+ 	memcpy(&msg->id, &cn_proc_event_id, sizeof(msg->id));
+ 	msg->ack = 0; /* not used */
+@@ -131,6 +137,7 @@ void proc_exit_connector(struct task_str
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
++	struct timespec ts;
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+ 		return;
+@@ -138,7 +145,8 @@ void proc_exit_connector(struct task_str
+ 	msg = (struct cn_msg*)buffer;
+ 	ev = (struct proc_event*)msg->data;
+ 	get_seq(&msg->seq, &ev->cpu);
+-	ktime_get_ts(&ev->timestamp);
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_ns = timespec_to_ns(&ts);
+ 	ev->what = PROC_EVENT_EXIT;
+ 	ev->event_data.exit.process_pid = task->pid;
+ 	ev->event_data.exit.process_tgid = task->tgid;
+@@ -164,6 +172,7 @@ static void cn_proc_ack(int err, int rcv
+ 	struct cn_msg *msg;
+ 	struct proc_event *ev;
+ 	__u8 buffer[CN_PROC_MSG_SIZE];
++	struct timespec ts;
+ 
+ 	if (atomic_read(&proc_event_num_listeners) < 1)
+ 		return;
+@@ -171,7 +180,8 @@ static void cn_proc_ack(int err, int rcv
+ 	msg = (struct cn_msg*)buffer;
+ 	ev = (struct proc_event*)msg->data;
+ 	msg->seq = rcvd_seq;
+-	ktime_get_ts(&ev->timestamp);
++	ktime_get_ts(&ts); /* get high res monotonic timestamp */
++	ev->timestamp_ns = timespec_to_ns(&ts);
+ 	ev->cpu = -1;
+ 	ev->what = PROC_EVENT_NONE;
+ 	ev->event_data.ack.err = err;
 
-Are you contradicting yourself here?
+-- 
 
-> > So this seems to fall into the same "userspace should set things up
-> > sanely" argument you've brought up before.
-> 
-> For using it yes.  But not for correct kernel operation.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-Well if we say the kernel controls files (barring LSMs) based on simple
-uids, then that is correct kernel operation :)
 
-In other words we're not letting the kernel do anything it isn't
-supposed to do.
-
-> > Don't get me wrong though - the idea of using in-kernel keys as
-> > cross-namespace uid's is definately interesting.
-> 
-> That is their role in the kernel.
-
-They have more roles than that...
-
-I phrased it the way I did to point out we shouldn't need to be using
-ecryptfs - which uses the keyring to store actual encryptions keys - to
-do this.
-
-> A flavor of key to handle uid
-> mapping needs to be added, but that is all.
-
-How can that be all?  How do we represent this on the filesystem then?
-
-We can't store (namespace, uid) because we presumably dont' have actual
-external unique ids for a namespace.  So we really will need to provide
-global uids, and store those in the keys (and with the files).  So now
-3475276bc0dcd9cc501ba9bb7f12683f1b867066 is my uid no matter where I am,
-for instance.
-
--serge

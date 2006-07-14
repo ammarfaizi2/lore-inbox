@@ -1,69 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161320AbWGNWjF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWGNWiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161320AbWGNWjF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 18:39:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161319AbWGNWjE
+	id S1161318AbWGNWiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 18:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161319AbWGNWiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 18:39:04 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:37018 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1161320AbWGNWjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 18:39:03 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 14 Jul 2006 15:38:55 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Michael Lindner <mikell@optonline.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: epoll_wait() returns wrong events for EOF with EPOLLOUT
-In-Reply-To: <200607141518.58635.mikell@optonline.net>
-Message-ID: <Pine.LNX.4.64.0607141535070.2463@alien.or.mcafeemobile.com>
-References: <200607141518.58635.mikell@optonline.net>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Fri, 14 Jul 2006 18:38:50 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21934 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1161318AbWGNWit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 18:38:49 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Reply-To: nigel@suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH] Rt-tester makes freezing processes fail.
+Date: Sat, 15 Jul 2006 08:38:49 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, tglx@timesys.com, linux-pm@lists.osdl.org,
+       Pavel Machek <pavel@ucw.cz>
+References: <200607140918.49040.nigel@suspend2.net> <20060713163743.e71975b0.akpm@osdl.org> <200607141017.27832.rjw@sisk.pl>
+In-Reply-To: <200607141017.27832.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1615659.YCDIlZWo73";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607150838.53591.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jul 2006, Michael Lindner wrote:
+--nextPart1615659.YCDIlZWo73
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> [2.] Full description of the problem/report:
-> 	If a program is waiting in epoll_wait() for EPOLLOUT event on a
-> 	socket and the socket is closed, epoll_wait() returns EPOLLHUP|EPOLLERR,
-> 	but *not* EPOLLOUT.
+Hi.
+
+On Friday 14 July 2006 18:17, Rafael J. Wysocki wrote:
+> On Friday 14 July 2006 01:37, Andrew Morton wrote:
+> > On Fri, 14 Jul 2006 09:18:43 +1000
+> >
+> > Nigel Cunningham <nigel@suspend2.net> wrote:
+> > > Compiling in the rt-tester currently makes freezing processes fail.
+> > > I don't think there's anything wrong with it running during
+> > > suspending, so adding PF_NOFREEZE to the flags set seems to be the
+> > > right solution.
+> > >
+> > > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+> > >
+> > >  rtmutex-tester.c |    2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > diff -ruNp 9971-rt-tester.patch-old/kernel/rtmutex-tester.c
+> > > 9971-rt-tester.patch-new/kernel/rtmutex-tester.c ---
+> > > 9971-rt-tester.patch-old/kernel/rtmutex-tester.c	2006-07-07
+> > > 10:27:46.000000000 +1000 +++
+> > > 9971-rt-tester.patch-new/kernel/rtmutex-tester.c	2006-07-14
+> > > 07:48:01.000000000 +1000 @@ -259,7 +259,7 @@ static int test_func(void
+> > > *data)
+> > >  	struct test_thread_data *td =3D data;
+> > >  	int ret;
+> > >
+> > > -	current->flags |=3D PF_MUTEX_TESTER;
+> > > +	current->flags |=3D PF_MUTEX_TESTER | PF_NOFREEZE;
+> > >  	allow_signal(SIGHUP);
+> > >
+> > >  	for(;;) {
+> >
+> > I yesterday queued up the below patch.  Which approach is most
+> > appropriate?
 >
-> 	This differs from the expected behavior in several ways:
->
-> 	1. epoll_wait is not returning the events it was told to wait for.
-> 	    Why not return EPOLLOUT? select() returns an FD as writable on EOF.
+> I prefer the one that makes these threads freeze (ie. the Luca's patch).
 
-Because it is not supposed to.
+Ok.
 
+Nigel
+=2D-=20
+See http://www.suspend2.net for Howtos, FAQs, mailing
+lists, wiki and bugzilla info.
 
+--nextPart1615659.YCDIlZWo73
+Content-Type: application/pgp-signature
 
-> 	2. epoll_wait() is returning events it was not told to wait for.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-Because they are non-maskeable.
+iD8DBQBEuBz9N0y+n1M3mo0RAhltAJ9UxALBiWAhZhkj5Q+R89nXIUZ0/QCfR3XS
+XAnsRxtK9OBhs/M+7pQB8V4=
+=kcGL
+-----END PGP SIGNATURE-----
 
-
-
-> 	3. EPOLLHUP is not returned if EPOLLIN was requested, why
-> 	   do so on EPOLLOUT?
-
-Please take a look at the POSIX docs for poll(2).
-
-
-
-> 	Also a minor issue - epoll_ctl doesn't check if the fd in events.data.fd
-> 	is the same as the fd that's been passed in as argument 3. If they differ
-> 	(due to programmer error), epoll_wait will return an event with the
-> 	incorrect events.data.fd specified to epoll_ctl().
-
-That's an opaque union and epoll couldn't care less of the content.
-
-
-
-- Davide
-
-
+--nextPart1615659.YCDIlZWo73--

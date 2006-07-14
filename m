@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWGNUyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWGNVB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161300AbWGNUyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 16:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161302AbWGNUyp
+	id S1161124AbWGNVB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 17:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161126AbWGNVB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 16:54:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9480 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161300AbWGNUyp (ORCPT
+	Fri, 14 Jul 2006 17:01:57 -0400
+Received: from jg555.com ([64.30.195.78]:1152 "EHLO jg555.com")
+	by vger.kernel.org with ESMTP id S1161124AbWGNVB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 16:54:45 -0400
-Date: Fri, 14 Jul 2006 20:54:30 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: George Nychis <gnychis@cmu.edu>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-Message-ID: <20060714205430.GD8731@ucw.cz>
-References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org> <44B64F57.4060407@cmu.edu> <44B66740.2040706@goop.org> <44B6A9CA.8040808@cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B6A9CA.8040808@cmu.edu>
-User-Agent: Mutt/1.5.9i
+	Fri, 14 Jul 2006 17:01:57 -0400
+Message-ID: <44B80543.4050608@jg555.com>
+Date: Fri, 14 Jul 2006 13:57:39 -0700
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: dwmw2@infradead.org, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       ralf@linux-mips.org
+Subject: Re: 2.6.18 Headers - Long
+References: <44B7F062.8040102@jg555.com>	<1152905987.3159.46.camel@laptopd505.fenrus.org>	<1152908202.3191.98.camel@pmac.infradead.org> <20060714.131957.57444250.davem@davemloft.net>
+In-Reply-To: <20060714.131957.57444250.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+ When I wrote my script to sanitize, I was really surprised on which 
+headers gets utilized and which ones didn't.. I have it down to the bare 
+minimums in my script.
 
-> Okay I think I am getting closer, after doing some searching it turns
-> out that Hot pluggable CPU support is needed in the kernel to get
-> suspend working on a thinkpad x60.
-> 
-> Now, what I thought was fixed from reading threads, may not be
-> 
-> I am running 2.6.18-rc1-git7 and whenever I suspend, and then restore,
-> my screen remains black and I never get my shell back.  The machine
-> seems to be alive because I can ping it, however I cannot ssh into it.
-> 
-> Any more ideas?
+As far as glibc goes, from my people who are helping me the alpha 
+architecture is the culprit there.
 
-See suspend.sf.net, s2ram will fix the console for you.
--- 
-Thanks for all the (sleeping) penguins.
+Do we have a list of what headers are "user-space" and which ones should 
+not be "user-space"?
+
+Also David W, let me know what I can do to help you out, a lot of people 
+on my end want to get this working properly.
+
+Who's maintaining util-linux these days, we probably should get a patch 
+to them.
+
+
+

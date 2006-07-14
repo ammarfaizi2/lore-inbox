@@ -1,67 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWGOSu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWGOTRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWGOSu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 14:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWGOSuz
+	id S1030229AbWGOTRd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 15:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWGOTRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 14:50:55 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:37270 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id S1030208AbWGOSuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 14:50:55 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Linux 2.6.17.5
-Date: Sat, 15 Jul 2006 18:50:53 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e9bded$qco$1@news.cistron.nl>
-References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org> <44B8A720.3030309@gentoo.org> <44B90DF1.8070400@ns666.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1152989453 27032 194.109.0.112 (15 Jul 2006 18:50:53 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Sat, 15 Jul 2006 15:17:33 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:19370 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030229AbWGOTRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 15:17:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fKhUiAYzVzNqDDDpQkGfFJ0v5m1oY5BFp/QdzS6jafVZSMr4lkiN273ikqzOYPjLe8Q2DMWnirA8T/2bAjp2L9Hr3RDTtlzLjRC4tyQwmUtZ/VL8GfvT7ELm+5Q84rf3yO5VVVnPEeb5b/e0QfX8/XWmyB0yjNIkZg1cO/5AOIA=  ;
+Message-ID: <44B79BFD.10005@yahoo.com.au>
+Date: Fri, 14 Jul 2006 23:28:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove volatile from nmi.c
+References: <1152882288.1883.30.camel@localhost.localdomain>
+In-Reply-To: <1152882288.1883.30.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <44B90DF1.8070400@ns666.com>,
-Von Wolher  <trilight@ns666.com> wrote:
->Daniel Drake wrote:
->> Hi Linus,
->> 
->> Linus Torvalds wrote:
->> 
->>> I did a slight modification of the patch I committed initially, in the
->>> face of the report from Marcel that the initial sledge-hammer approach
->>> broke his hald setup.
->>>
->>> See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix
->>> a bit", which should still fix the bug (can somebody verify? I'm 100%
->>> sure, but still..), but is pretty much guaranteed to not have any
->>> secondary side effects.
->>>
->>> It still leaves the whole issue of whether /proc should honor chmod AT
->>> ALL open, and I'd love to close that one, but from a "minimal fix"
->>> standpoint, I think it's a reasonable (and simple) patch.
->>>
->>> Marcel, can you check current git?
->> 
->> 
->> I can confirm that the new fix prevents the exploit from working, with
->> no immediately visible side effects.
->> 
->> Thanks,
->> Daniel
->> 
->
->Can some one release a 2.6.17.6 ? I think many people are waiting at
->their keyboard to get their systems protected.
+Steven Rostedt wrote:
+> OK, I'm using this as something of an exercise to completely understand
+> memory barriers.  So if something is incorrect, please let me know.
+> 
+> This patch removes the volatile keyword from arch/i386/kernel/nmi.c.
+> 
+> The first removal is trivial, since the barrier in the while loop makes
+> it unnecessary. (as proved in "[patch] spinlocks: remove 'volatile'"
+> thread)
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=115217423929806&w=2
+> 
+> 
+> The second is what I think is correct.  So please review.
 
-# mount -o remount,nosuid /proc
+Please comment memory barriers if possible.
 
-Haven't tested it but that should be the workaround.
+The second adds memory barriers that weren't there before... how come
+they are needed? Basically, the comment should be a pointer to the
+read side, or illustrate a typical readside where write reordering
+would cause a problem.
 
-Mike.
+> 
+> Thanks,
+> 
+> -- Steve
+> 
+> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> 
+> Index: linux-2.6.18-rc1/arch/i386/kernel/nmi.c
+> ===================================================================
+> --- linux-2.6.18-rc1.orig/arch/i386/kernel/nmi.c	2006-07-14 08:35:00.000000000 -0400
+> +++ linux-2.6.18-rc1/arch/i386/kernel/nmi.c	2006-07-14 08:38:07.000000000 -0400
+> @@ -106,7 +106,7 @@ int nmi_active;
+>   */
+>  static __init void nmi_cpu_busy(void *data)
+>  {
+> -	volatile int *endflag = data;
+> +	int *endflag = data;
+>  	local_irq_enable_in_hardirq();
+>  	/* Intentionally don't use cpu_relax here. This is
+>  	   to make sure that the performance counter really ticks,
+> @@ -121,7 +121,7 @@ static __init void nmi_cpu_busy(void *da
+>  
+>  static int __init check_nmi_watchdog(void)
+>  {
+> -	volatile int endflag = 0;
+> +	int endflag = 0;
+>  	unsigned int *prev_nmi_count;
+>  	int cpu;
+>  
+> @@ -150,7 +150,7 @@ static int __init check_nmi_watchdog(voi
+>  			continue;
+>  #endif
+>  		if (nmi_count(cpu) - prev_nmi_count[cpu] <= 5) {
+> -			endflag = 1;
+> +			set_wmb(endflag, 1);
+>  			printk("CPU#%d: NMI appears to be stuck (%d->%d)!\n",
+>  				cpu,
+>  				prev_nmi_count[cpu],
+> @@ -161,7 +161,7 @@ static int __init check_nmi_watchdog(voi
+>  			return -1;
+>  		}
+>  	}
+> -	endflag = 1;
+> +	set_wmb(endflag, 1);
+>  	printk("OK.\n");
+>  
+>  	/* now that we know it works we can reduce NMI frequency to
 
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

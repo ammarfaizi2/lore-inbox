@@ -1,73 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422745AbWGNUIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422754AbWGNUKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422745AbWGNUIT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 16:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422757AbWGNUIT
+	id S1422754AbWGNUKy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 16:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422758AbWGNUKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 16:08:19 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6818 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1422745AbWGNUIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 16:08:18 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
-	<44B684A5.2040008@fr.ibm.com>
-	<20060713174721.GA21399@sergelap.austin.ibm.com>
-	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-	<1152815391.7650.58.camel@localhost.localdomain>
-	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-	<20060713214101.GB2169@sergelap.austin.ibm.com>
-	<m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
-	<20060714140237.GD28436@sergelap.austin.ibm.com>
-	<m1k66gw88t.fsf@ebiederm.dsl.xmission.com>
-	<20060714163905.GB25303@sergelap.austin.ibm.com>
-	<m1mzbct895.fsf@ebiederm.dsl.xmission.com>
-	<1152897846.24925.83.camel@localhost.localdomain>
-	<m1u05krrhz.fsf@ebiederm.dsl.xmission.com>
-	<1152902522.314.47.camel@localhost.localdomain>
-Date: Fri, 14 Jul 2006 13:07:14 -0600
-In-Reply-To: <1152902522.314.47.camel@localhost.localdomain> (Dave Hansen's
-	message of "Fri, 14 Jul 2006 11:42:02 -0700")
-Message-ID: <m18xmwronx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 14 Jul 2006 16:10:54 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:19353 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1422754AbWGNUKy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 16:10:54 -0400
+Message-ID: <44B7FA09.5070803@zytor.com>
+Date: Fri, 14 Jul 2006 13:09:45 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Theodore Tso <tytso@mit.edu>, Arjan van de Ven <arjan@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl: Allow /proc/sys without sys_sysctl
+References: <m1u05pkruk.fsf@ebiederm.dsl.xmission.com> <200607121652.21920.ak@suse.de> <m1lkqyc00d.fsf@ebiederm.dsl.xmission.com> <200607121808.26555.ak@suse.de> <m1ac7ebx0v.fsf@ebiederm.dsl.xmission.com> <20060712112432.0cd5996f@dxpl.pdx.osdl.net> <1152734309.3217.71.camel@laptopd505.fenrus.org> <20060713005218.GK9040@thunk.org>
+In-Reply-To: <20060713005218.GK9040@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+Theodore Tso wrote:
+> On Wed, Jul 12, 2006 at 09:58:29PM +0200, Arjan van de Ven wrote:
+>> On Wed, 2006-07-12 at 11:24 -0700, Stephen Hemminger wrote:
+>>> What is the motivation behind killing the sys_sysctl call anyway?
+>>> Sure its more ugly esthetically but it works.
+>> it "works" but the thing is that the number space is NOT stable, and as
+>> such it's a really bad ABI
+> 
+> To be fair, the older, "base" numbers are actually stable, such as
+> what glibc is depending on, have in practice been quite stable.  It's
+> only the newer fields that tend to be unstable.
+> 
+> But that means we can afford to do an orderly migration away from it;
+> it's not something that has to be urgently done within a few weeks or
+> even a few months.
+> 
 
-> On Fri, 2006-07-14 at 12:06 -0600, Eric W. Biederman wrote:
->> > On Fri, 2006-07-14 at 11:18 -0600, Eric W. Biederman wrote:
->> >> /proc/<pid>/fd/...
->> >> /proc/<pid>/exe
->> >> /proc/<pid>/cwd
->> >> 
->> >> It isn't quite the same as you are actually opening a second
->> >> copy of the file descriptor but the essence is the same. 
->> >
->> > Last I checked, those were symlinks and didn't work for things like
->> > deleted files.  Am I wrong?
->> 
->> Yes.  They are not really symlinks.
->> 
->> Wanting to have an executable that was deleted after it was done
->> executing.  I wrote it to a file. opened it, unlinked it, set close
->> on exec, and the exec'd it with /proc/self/fd/N.
->
-> Well, on one hand, it makes checkpoints with deleted files easier ;)
->
-> Now that I'm actually looking at the code, isn't
-> proc_fd_access_allowed()'s permission just derived from ptrace
-> permissions?  It doesn't seem to involve uids directly at all!
+Another alternative would be to publish a limited set of sysctl numbers 
+that will be maintained forever.
 
-You still have to actually open the file and from there you get to permission().
-
-Eric
+	-hpa

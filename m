@@ -1,92 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWGNRAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWGNRA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbWGNRAE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161267AbWGNRAE
+	id S1161267AbWGNRA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbWGNRA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:00:04 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:28913 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1161122AbWGNRAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:00:03 -0400
-Message-ID: <44B7CF00.8090204@gentoo.org>
-Date: Fri, 14 Jul 2006 18:06:08 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
-MIME-Version: 1.0
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-CC: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, greg@kroah.com, harmon@ksu.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-References: <20060714095233.5678A8B6253@zog.reactivated.net>	 <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org>	 <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org>	 <20060714154240.GA23480@tuatara.stupidest.org>	 <44B7C37F.1050400@gentoo.org>  <44B7C521.5080009@gentoo.org> <1152895734.11043.5.camel@localhost.localdomain>
-In-Reply-To: <1152895734.11043.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Fri, 14 Jul 2006 13:00:59 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:29885 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161267AbWGNRA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 13:00:58 -0400
+Subject: Re: [PATCH] remove volatile from nmi.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chase Venters <chase.venters@clientec.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0607140941170.5623@g5.osdl.org>
+References: <1152882288.1883.30.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org>
+	 <Pine.LNX.4.64.0607141131390.27161@turbotaz.ourhouse>
+	 <Pine.LNX.4.64.0607140941170.5623@g5.osdl.org>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 13:00:51 -0400
+Message-Id: <1152896451.27135.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
->> I just confirmed this on my own system, at least partially. I removed 
->> the quirk and the system booted fine.
->>
->> This is with ACPI enabled, but APIC not enabled (hence the interrupts 
->> are XT-PIC). I cannot enable APIC on this system due to buggy BIOS.
->>
->> Daniel
+On Fri, 2006-07-14 at 09:47 -0700, Linus Torvalds wrote:
+
 > 
-> Daniel, VIA_SATA is not in the list , so when you write remove , you
-> remove what ? or you want say the opposite ?  
-> Please rephrase your sentence .
+> So I'd argue that it's actually _worse_ to do a "mindless" conversion away 
+> from volatile, than it is to just remove them outright. Removing them 
+> outright may show a bug that the volatile hid (and at that point, people 
+> may see what the _deeper_ problem was), but at least it won't add a memory 
+> barrier that isn't necessary and will potentially just confuse people.
 
-Sorry, I should have been clearer. I do not own any VIA SATA hardware 
-(that info was relayed from a Gentoo bug report). My own hardware is 
-older, [Apollo KT266/A/333]. The quirk gets applied to my IDE controller 
-only (both before and after Chris's changes), and I boot from a disk 
-connected to this IDE controller.
+Perfectly agree, and that is why in my post I said this was a learning
+experience for me and to please review.  Thinking, at worst you guys
+just tell me I'm completely wrong.  At best I find a real bug and have a
+fix for it.  Seems I'm in between the two ;)
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo 
-KT266/A/333 AGP]
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-Controller (rev 23)
-00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-Controller (rev 23)
-01:00.0 VGA compatible controller: nVidia Corporation NV15 [GeForce2 
-GTS/Pro] (rev a3)
+I believe I did find a real bug (just luck that it worked) but as you
+say, my fix is wrong and if applied would hide the bug.  So this was to
+bring attention to would be bugs, and in the mean time, I learn exactly
+how to use memory barriers and how to get rid of volatiles.  Yes, this
+was more of a blind change, and I should have looked more into exactly
+what the code was doing.  But this was more to bring attention to a
+problem area than really to solve it.
 
-When I said I removed the quirk, I meant I removed the whole quirk, 
-which prevented it from running on my hardware.
+Thanks for responding and giving me a lesson :)
 
-> Do you need quirk SATA with acpi=off  ?
-
-Assuming you mean "quirk IDE", no.
-
-> Do you need quirk with ACPI enabled ? 
-
-No. But, my interrupts are always XT-PIC, I cannot enable IO-APIC (not 
-sure how much relevance that has, possibly worth noting though).
+-- Steve
 
 
-
-Just for clarity, I'll respond to those 2 questions again with Aiko 
-Barz's system in mind (the user on the Gentoo bug report) -- this is the 
-one with the VIA SATA hardware.
-
- > Do you need quirk SATA with acpi=off  ?
-
-No.
-
- > Do you need quirk with ACPI enabled ?
-
-Yes.
-
-
-Daniel

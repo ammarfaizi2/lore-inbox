@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWGNPJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWGNPOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbWGNPJj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 11:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWGNPJj
+	id S1161113AbWGNPOo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 11:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWGNPOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 11:09:39 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:46781 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030456AbWGNPJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 11:09:38 -0400
-Subject: Re: [PATCH] remove volatile from x86 cmos_lock
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200607141653.35011.oliver@neukum.org>
-References: <1152888523.27135.2.camel@localhost.localdomain>
-	 <200607141653.35011.oliver@neukum.org>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 11:09:25 -0400
-Message-Id: <1152889765.27135.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 11:14:44 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64640 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030457AbWGNPOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 11:14:44 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+	<44B684A5.2040008@fr.ibm.com>
+	<20060713174721.GA21399@sergelap.austin.ibm.com>
+	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	<1152821011.24925.7.camel@localhost.localdomain>
+	<m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+	<1152887287.24925.22.camel@localhost.localdomain>
+Date: Fri, 14 Jul 2006 09:13:35 -0600
+In-Reply-To: <1152887287.24925.22.camel@localhost.localdomain> (Dave Hansen's
+	message of "Fri, 14 Jul 2006 07:28:06 -0700")
+Message-ID: <m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 16:53 +0200, Oliver Neukum wrote:
-> Am Freitag, 14. Juli 2006 16:48 schrieb Steven Rostedt:
-> > @@ -52,14 +54,16 @@ static inline void lock_cmos(unsigned ch
-> >  
-> >  static inline void unlock_cmos(void)
-> >  {
-> > -       cmos_lock = 0;
-> > +       set_wmb(cmos_lock, 0);
-> >  }
-> >  static inline int do_i_have_lock_cmos(void)
-> >  {
-> > +       barrier();
-> 
-> Shouldn't these be rmb() ?
+Dave Hansen <haveblue@us.ibm.com> writes:
 
-I was thinking that too, but I'm still not sure when to use rmb or
-barrier.  wmb seems pretty straight forward though.  hmm, maybe this
-really should be a smb_rmb since I believe a barrier would be ok for UP.
+> On Thu, 2006-07-13 at 21:45 -0600, Eric W. Biederman wrote:
+>> I think for filesystems like /proc and /sys that there will normally
+>> be problems.  However many of those problems can be rationalized away
+>> as a reasonable optimization, or are not immediately apparent.
+>
+> Could you talk about some of these problems?
 
--- Steve
+Already mentioned but.  rw permissions on sensitive files are for 
+uid == 0.  No capability checks are performed.
 
+>> Passing a file descriptor between process in a unix domain socket is
+>> a case where I can easily construct scenarios where there are
+>> indisputable problems.  It is one of my standard thought experiments
+>> to see if a namespace is sound.
+>
+> Care to share some of those indisputable problems?
 
+Already done.
+
+Eric

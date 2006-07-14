@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWGNSpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161276AbWGNSs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWGNSpd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 14:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161276AbWGNSpd
+	id S1161276AbWGNSs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 14:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161281AbWGNSs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 14:45:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61149 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161038AbWGNSpd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 14:45:33 -0400
-Date: Fri, 14 Jul 2006 11:18:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?Q+lkcmlj?= Augonnet <Cedric.Augonnet@ens-lyon.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm2
-Message-Id: <20060714111804.39af438a.akpm@osdl.org>
-In-Reply-To: <44B7DB25.4050905@ens-lyon.fr>
+	Fri, 14 Jul 2006 14:48:27 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36871 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161274AbWGNSs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 14:48:27 -0400
+Date: Fri, 14 Jul 2006 20:48:25 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org
+Subject: 2.6.18-rc1-mm2: drivers/char/*synclink* compile errors
+Message-ID: <20060714184825.GB3633@stusta.de>
 References: <20060713224800.6cbdbf5d.akpm@osdl.org>
-	<44B7DB25.4050905@ens-lyon.fr>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060713224800.6cbdbf5d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jul 2006 19:57:57 +0200
-C�dric Augonnet <Cedric.Augonnet@ens-lyon.fr> wrote:
+Krzysztof, the following compile errors are caused by your commit 
+c2ce920468624d87ec5f91f080ea99681dae6d88 in Linus' tree:
 
-> 
-> I got this bug and this oops when booting with my USB hard-drive plugged 
-> (it was not in mm1).  I also have the same problem when hot-plugging it. 
-> And there is no oops at all without this USB hard-drive. Here is what 
-> appears in my dmesg, and I join my .config.
+<--  snip  -->
 
-yup, sorry. 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/hot-fixes/drivers-base-check-errors-fix.patch
-should fix it.
+...
+  CC      drivers/char/pcmcia/synclink_cs.o
+drivers/char/pcmcia/synclink_cs.c: In function ‘dcd_change’:
+drivers/char/pcmcia/synclink_cs.c:1171: error: implicit declaration of function ‘hdlc_set_carrier’
+...
+  CC      drivers/char/synclink.o
+drivers/char/synclink.c: In function ‘mgsl_isr_io_pin’:
+drivers/char/synclink.c:1348: error: implicit declaration of function ‘hdlc_set_carrier’
+...
+  CC      drivers/char/synclinkmp.o
+drivers/char/synclinkmp.c: In function ‘hdlcdev_open’:
+drivers/char/synclinkmp.c:1755: error: implicit declaration of function ‘hdlc_set_carrier’
+...
+  CC      drivers/char/synclink_gt.o
+drivers/char/synclink_gt.c: In function ‘hdlcdev_open’:
+drivers/char/synclink_gt.c:1500: error: implicit declaration of function ‘hdlc_set_carrier’
+
+<--   snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

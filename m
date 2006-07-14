@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWGNOgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbWGNOn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWGNOgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbWGNOga
+	id S1161115AbWGNOn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWGNOn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:36:30 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:25615 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161011AbWGNOga (ORCPT
+	Fri, 14 Jul 2006 10:43:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8080 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161115AbWGNOnZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:36:30 -0400
-Date: Fri, 14 Jul 2006 10:35:39 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       achirica@users.sourceforge.net, "David C. Hansen" <haveblue@us.ibm.com>,
-       serue@us.ibm.com, clg@fr.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread: airo.c
-Message-ID: <20060714143527.GA1738@tuxdriver.com>
-References: <20060713205319.GA23594@us.ibm.com> <20060713212824.GA14729@infradead.org> <20060713230018.GA24359@us.ibm.com>
+	Fri, 14 Jul 2006 10:43:25 -0400
+Date: Fri, 14 Jul 2006 07:43:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: greg@kroah.com, cw@f00f.org, harmon@ksu.edu, linux-kernel@vger.kernel.org,
+       Daniel Drake <dsd@gentoo.org>
+Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+Message-Id: <20060714074305.1248b98e.akpm@osdl.org>
+In-Reply-To: <44B78538.6030909@garzik.org>
+References: <20060714095233.5678A8B6253@zog.reactivated.net>
+	<44B77B1A.6060502@garzik.org>
+	<44B78294.1070308@gentoo.org>
+	<44B78538.6030909@garzik.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713230018.GA24359@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 04:00:18PM -0700, Sukadev Bhattiprolu wrote:
-> Christoph Hellwig [hch@infradead.org] wrote:
-> | On Thu, Jul 13, 2006 at 01:53:19PM -0700, Sukadev Bhattiprolu wrote:
-> | > Andrew,
-> | > 
-> | > Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
-> | > took a look at this patch, and doesn't have any problems with it. It doesn't
-> | > fix any bugs and is just a cleanup, so it certainly isn't a candidate
-> | > for this mainline cycle
-> | 
-> | I'm not sure it's that easy.  I think it needs some more love:
+On Fri, 14 Jul 2006 07:51:20 -0400
+Jeff Garzik <jeff@garzik.org> wrote:
 
-> My inital goal was to  replace kernel_thread() with kthread_*(). So can I
-> assume you are ok with my patch and that it can go in as is ?
+> Daniel Drake wrote:
+> > Jeff Garzik wrote:
+> >> Daniel Drake wrote:
+> >>> Gentoo users at http://bugs.gentoo.org/138036 reported a 2.6.16.17 
+> >>> regression:
+> >>> new kernels will not boot their system from their VIA SATA hardware.
+> >>>
+> >>> The solution is just to add the SATA device to the fixup list.
+> >>> This should also fix the same problem reported by Scott J. Harmon on 
+> >>> LKML.
+> >>>
+> >>> Signed-off-by: Daniel Drake <dsd@gentoo.org>
+> >>
+> >> Same NAK comment as before...
+> > 
+> > I didn't see this patch posted anywhere before, but I just did some more 
+> > searching and found something similar. Are you referring to 
+> > http://lkml.org/lkml/2006/6/24/184 ?
+> 
+> Same rationale, but the VIA SATA PCI ID had been submitted before, as 
+> well...
+> 
 
-Could you please repost your (final) patch(es) to
-netdev@vger.kernel.org, and cc: me as well?  I missed your original
-post, since it was (apparently) just to LKML.
+argh.  Is someone able to confirm that 2.6.18-rc1-mm2 works OK?  In that
+kernel I did a desperation reversion of the offending patches
+(revert-VIA-quirk-fixup-additional-PCI-IDs.patch and
+revert-PCI-quirk-VIA-IRQ-fixup-should-only-run-for-VIA-southbridges.patch).
 
-Thanks,
+Guys, this is a really serious failure but afaict nobody is working on it
+and generally nothing at all is happening.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+How do we fix all this?  (Who owns it?)

@@ -1,94 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbWGNPAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbWGNPG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161106AbWGNPAY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 11:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWGNPAY
+	id S1030453AbWGNPG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 11:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWGNPG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 11:00:24 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:38805 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030453AbWGNPAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 11:00:23 -0400
-Date: Fri, 14 Jul 2006 08:00:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.18-rc1-mm2
-Message-Id: <20060714080006.bac6e937.akpm@osdl.org>
-In-Reply-To: <44B7804E.4030908@reub.net>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org>
-	<44B7804E.4030908@reub.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 11:06:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56299 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030453AbWGNPGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 11:06:55 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <20060711075051.382004000@localhost.localdomain>
+	<20060711075420.937831000@localhost.localdomain>
+	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+	<20060714141728.GE28436@sergelap.austin.ibm.com>
+Date: Fri, 14 Jul 2006 09:05:41 -0600
+In-Reply-To: <20060714141728.GE28436@sergelap.austin.ibm.com> (Serge
+	E. Hallyn's message of "Fri, 14 Jul 2006 09:17:28 -0500")
+Message-ID: <m1fyh4w7ju.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jul 2006 23:30:22 +1200
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-> 
-> 
-> On 14/07/2006 5:48 p.m., Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/
-> > 
-> > - Patches were merged, added, dropped and fixed.  Nothing particularly exciting.
-> > 
-> > - Added the avr32 architecture.  Review is sought, please.
-> 
-> Another oops, USB related perhaps?
+> Quoting Eric W. Biederman (ebiederm@xmission.com):
+>> Cedric Le Goater <clg@fr.ibm.com> writes:
+>> 
+>> > Eric W. Biederman wrote:
+>> >> Cedric Le Goater <clg@fr.ibm.com> writes:
+>> >> 
+>> >>> This patch adds the user namespace.
+>> >>>
+>> >>> Basically, it allows a process to unshare its user_struct table,
+>> >>> resetting at the same time its own user_struct and all the associated
+>> >>> accounting.
+>> >>>
+>> >>> For the moment, the root_user is added to the new user namespace when
+>> >>> it is cloned. An alternative behavior would be to let the system
+>> >>> allocate a new user_struct(0) in each new user namespace. However,
+>> >>> these 0 users would not have the privileges of the root_user and it
+>> >>> would be necessary to work on the process capabilities to give them
+>> >>> some permissions.
+>> >> 
+>> >> It is completely the wrong thing for a the root_user to span multiple
+>> >> namespaces as you describe.  It is important for uid 0 in other namespaces
+>> >> to not have the privileges of the root_user.  That is half the point.
+>> >
+>> > ok good. that's what i thought also.
+>> >
+>> >> Too many files in sysfs and proc don't require caps but instead simply
+>> >> limit things to uid 0.  Having a separate uid 0 in the different namespaces
+>> >> instantly makes all of these files inaccessible, and keeps processes from
+>> >> doing something bad.
+>> >
+>> > but in order to be useful, the uid 0 in other namespaces will need to have
+>> > some capabilities.
+>> 
+>> Yes.  It is useful for uid 0 in other namespaces to have some capabilities.
+>> But that is just a matter of giving another user some additional
+>> capabilities.  That mechanism may still work but it should not be
+>> namespace specific magic there.  The trick I guess is which
+>> capabilities a setuid binary for the other root user gets.
+>
+> Agreed.  Any ideas for how to specify this?  In a sane way?  I suppose
+> it could be a part of forking off the user namespace.  No idea what
+> interface we'd want to use.  Perhaps root user in the child namespace by
+> default gets all the caps as the root user, and is expected to drop what
+> it doesn't need?
 
-Yes, or driver core.
+Currently this is a security module policy, so it gets weird.
+The default is:
+> int cap_bprm_set_security (struct linux_binprm *bprm)
+> {
+> 	/* Copied from fs/exec.c:prepare_binprm. */
+> 
+> 	/* We don't have VFS support for capabilities yet */
+> 	cap_clear (bprm->cap_inheritable);
+> 	cap_clear (bprm->cap_permitted);
+> 	cap_clear (bprm->cap_effective);
+> 
+> 	/*  To support inheritance of root-permissions and suid-root
+> 	 *  executables under compatibility mode, we raise all three
+> 	 *  capability sets for the file.
+> 	 *
+> 	 *  If only the real uid is 0, we only raise the inheritable
+> 	 *  and permitted sets of the executable file.
+> 	 */
+> 
+> 	if (!issecure (SECURE_NOROOT)) {
+> 		if (bprm->e_uid == 0 || current->uid == 0) {
+> 			cap_set_full (bprm->cap_inheritable);
+> 			cap_set_full (bprm->cap_permitted);
+> 		}
+> 		if (bprm->e_uid == 0)
+> 			cap_set_full (bprm->cap_effective);
+> 	}
+> 	return 0;
+> }
 
-> Fedora Core release 5.90 (Test)
-> Kernel 2.6.18-rc1-mm2 on an x86_64
-> 
-> tornado.reub.net login: Unable to handle kernel NULL pointer dereference at 
-> 0000000000000020 RIP:
->   [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
-> PGD 27153067 PUD 27152067 PMD 0
-> Oops: 0000 [1] SMP
-> last sysfs file: /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/usbdev2.4/dev
-> CPU 0
-> Modules linked in: hidp rfcomm l2cap bluetooth ipv6 ip_gre iptable_filter 
-> iptable_nat ip_nat ip_conntrack nfnetlink iptable_mangle ip_tables binfmt_misc 
-> iTCO_wdt i2c_i801 serio_raw
-> Pid: 104, comm: khubd Not tainted 2.6.18-rc1-mm2 #1
-> RIP: 0010:[<ffffffff8029a9b1>]  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
-> RSP: 0018:ffff81003f2ddc98  EFLAGS: 00010046
-> RAX: 0000000000000002 RBX: 0000000000000246 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: ffff81003f2ddd08 R08: 0000000000000001 R09: 0000000000000000
-> R10: ffffffff80488338 R11: 0000000000000001 R12: 0000000000000000
-> R13: ffffffff805ac760 R14: ffff810037f96140 R15: 0000000000000018
-> FS:  0000000000000000(0000) GS:ffffffff808af000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000020 CR3: 000000002725c000 CR4: 00000000000006e0
-> Process khubd (pid: 104, threadinfo ffff81003f2dc000, task ffff810037f96140)
-> Stack:  ffffffff80263d05 0000000000000246 ffff81003ec0f4f0 ffff810012202370
->   000000003f2ddcd8 0000000000000002 0000000000000000 ffff81003ec0f4e8
->   ffff81003f2ddd08 0000000000000246 0000000000000000 ffffffff805ac760
-> Call Trace:
->   [<ffffffff8029b63a>] lock_acquire+0x4f/0x75
->   [<ffffffff802654fa>] _spin_lock+0x25/0x34
->   [<ffffffff80488338>] klist_remove+0x15/0x36
->   [<ffffffff803b63fe>] bus_remove_device+0xa7/0xc9
->   [<ffffffff803b4d4d>] device_del+0x162/0x195
->   [<ffffffff803f5b96>] usb_disconnect+0xbb/0x10e
->   [<ffffffff803f69df>] hub_thread+0x3ff/0xc36
->   [<ffffffff802332a3>] kthread+0xd3/0x100
->   [<ffffffff802602f2>] child_rip+0x8/0x12
-> 
-> Code: 49 8b 5f 08 48 85 db 0f 85 4e 03 00 00 49 83 3f 00 75 03 4d
-> RIP  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
->   RSP <ffff81003f2ddc98>
-> CR2: 0000000000000020
-> 
-> I didn't see this one but more than likely it happened when my 2 yr old hit the 
-> KVM "change console" button (it's a USB KVM and there are no other USB devices 
-> on the system).
-> 
+My gut feel is that we put a cap_suid in struct user, and the
+setup some kind of user interface to it.  And then just
+have the above routine copy cap_suid from the struct user
+and not special case uid == 0.
 
-n->n_klist is NULL in klist_remove().
+But only the root user would by default have any caps in his
+struct user.
 
+>> No.  The uids in a filesystem are interpreted in some user namespace
+>> context.  We can discover that context at the first mount of the
+>> filesystem.  Assuming the uids on a filesystem are the same set
+>> of uids your process is using is just wrong.
+>
+> But, when I insert a usb keychain disk into my laptop, that fs assumes
+> the uids on it's fs are the same as uids on my laptop...
+
+I agree that setting the fs_user_namespace at mount time is fine.
+However when we use a mount that a process in another user namespace
+we need to not assume the uids are the same.
+
+Do you see the difference?
+
+> Solving that problem is interesting, but may be something to work with a
+> much wider community on.  I.e. the cifs and nifs folks.  I haven't even
+> googled to see what they say about it.
+
+Yes.
+
+>> Yes.  Your patch does lay some interesting foundation work.
+>> But we must not merge it upstream until we have a complete patchset
+>> that handles all of the user namespace issues.
+>
+> Don't think Cedric expected this to be merged  :)  Just to start
+> discussion, which it certainly did...
+
+If we could have [RFC] in front of these proof of concept patches
+it would clear up a lot of confusion.
+
+> If we're going to talk about keys (which I'd like to) I think we need to
+> decide whether we are just using them as an easy wider-than-uid
+> identifier, or if we actually need cryptographic keys to prevent
+> "identity theft"  (heheh).  I don't know that we need the latter for
+> anything, but of course if we're going to try for a more general
+> solution, then we do.
+
+Actually I was thinking something as mundane as a mapping table.  This
+uid in this namespace equals that uid in that other namespace.
+
+Eric

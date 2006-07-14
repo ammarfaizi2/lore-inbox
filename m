@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWGNT6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWGNUBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422653AbWGNT6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 15:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWGNT6S
+	id S1422738AbWGNUBi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 16:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWGNUBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 15:58:18 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:60603 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1422653AbWGNT6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 15:58:18 -0400
-Subject: Re: 2.6.18 Headers - Long
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org
-In-Reply-To: <44B7F062.8040102@jg555.com>
-References: <44B443D2.4070600@jg555.com>
-	 <1152836749.31372.36.camel@shinybook.infradead.org>
-	 <44B6FEDE.4040505@jg555.com> <1152903332.3191.87.camel@pmac.infradead.org>
-	 <44B7F062.8040102@jg555.com>
+	Fri, 14 Jul 2006 16:01:37 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62900 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422671AbWGNUBg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 16:01:36 -0400
+Subject: Re: [RFC][PATCH 3/6] SLIM main patch
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <1152901664.314.35.camel@localhost.localdomain>
+References: <1152897878.23584.6.camel@localhost.localdomain>
+	 <1152901664.314.35.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 14 Jul 2006 20:57:54 +0100
-Message-Id: <1152907074.3191.90.camel@pmac.infradead.org>
+Date: Fri, 14 Jul 2006 13:01:41 -0700
+Message-Id: <1152907301.23584.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 12:28 -0700, Jim Gifford wrote:
-> Unfortunately, a lot programs out there are using page.h, and a lot of 
-> people are using that in their programs. The 2 program I know for sure 
-> that use page.h are glibc and util-linux. 
+On Fri, 2006-07-14 at 11:27 -0700, Dave Hansen wrote:
 
-I don't believe glibc does. It certainly copes fine with an empty page.h
-on PowerPC.
+> > +static enum slm_iac_level set_iac(char *token)
+> > +{
+> > +	int iac;
+> > +
+> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
+> > +		return SLM_IAC_EXEMPT;
+> > +	else {
+> 
+> Might as well add brackets here.  Or, just kill the else{} block and
+> pull the code back to the lower indenting level.  The else is really
+> unnecessary because of the return;
+> 
+> > +		for (iac = 0; iac < sizeof(slm_iac_str) / sizeof(char *); iac++) {
+> > +			if (memcmp(token, slm_iac_str[iac],
+> > +				   strlen(slm_iac_str[iac])) == 0)
+> > +				return iac;
+> 
+> Why not use strcmp?
+> 
+> > +static enum slm_sac_level set_sac(char *token)
+> > +{
+> > +	int sac;
+> > +
+> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
+> > +		return SLM_SAC_EXEMPT;
+> > +	else {
+> > +		for (sac = 0; sac < sizeof(slm_sac_str) / sizeof(char *); sac++) {
+> > +			if (memcmp(token, slm_sac_str[sac],
+> > +				   strlen(slm_sac_str[sac])) == 0)
+> > +				return sac;
+> > +		}
+> > +	}
+> > +	return SLM_SAC_ERROR;
+> > +}
+> 
+> This function looks awfully similar :).  Can you just pass that array in
+> as an argument, and get rid of one of the functions?
+> 
+On closer look combining these would require collapsing them into one
+enum or returning int and doing a bunch of casting.  Kind of seems to
+void the point of using an enum.  Thus I propose leaving them as is,
+okay?
 
--- 
-dwmw2
 

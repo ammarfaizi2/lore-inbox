@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWGNODi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWGNOP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbWGNODi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbWGNODi
+	id S1161104AbWGNOP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbWGNOP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:03:38 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:2180 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030451AbWGNODh (ORCPT
+	Fri, 14 Jul 2006 10:15:57 -0400
+Received: from mx1.suse.de ([195.135.220.2]:58567 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030453AbWGNOP4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:03:37 -0400
-Date: Fri, 14 Jul 2006 09:02:37 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-Message-ID: <20060714140237.GD28436@sergelap.austin.ibm.com>
-References: <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com> <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com> <20060713174721.GA21399@sergelap.austin.ibm.com> <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com> <1152815391.7650.58.camel@localhost.localdomain> <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com> <20060713214101.GB2169@sergelap.austin.ibm.com> <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 14 Jul 2006 10:15:56 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch, take 3] PCI: use ACPI to verify extended config space on x86
+Date: Fri, 14 Jul 2006 16:15:41 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, Rajesh Shah <rajesh.shah@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200607141000_MC3-1-C4FF-945F@compuserve.com>
+In-Reply-To: <200607141000_MC3-1-C4FF-945F@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200607141615.41338.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+On Friday 14 July 2006 15:57, Chuck Ebbert wrote:
+> In-Reply-To: <1152869988.3159.25.camel@laptopd505.fenrus.org>
 > 
-> > Quoting Eric W. Biederman (ebiederm@xmission.com):
-> >> Dave Hansen <haveblue@us.ibm.com> writes:
-> >> 
-> >> > On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
-> >> >> Maybe.  I really think the sane semantics are in a different uid namespace.
-> >> >> So you can't assumes uids are the same.  Otherwise you can't handle open
-> >> >> file descriptors or files passed through unix domain sockets.
-> >> >
-> >> > Eric, could you explain this a little bit more?  I'm not sure I
-> >> > understand the details of why this is a problem?
-> >> 
-> >> Very simply.
-> >> 
-> >> In the presence of a user namespace.  
-> >> All comparisons of a user equality need to be of the tuple (user namespace,
-> > user id).
-> >> Any comparison that does not do that is an optimization.
-> >> 
-> >> Because you can have access to files created in another user namespace it
-> >> is very unlikely that optimization will apply very frequently.  The easy
-> > scenario
-> >> to get access to a file descriptor from another context is to consider unix
-> >> domain sockets.
-> >
-> > What does that have to do with uids?  If you receive an fd, uids don't
-> > matter in any case.  The only permission checks which happen are LSM
-> > hooks, which should be uid-agnostic.
+> On Fri, 14 Jul 2006 11:39:48 +0200, Arjan van de Ven wrote:
 > 
-> You are guest uid 0.  You get a directory file descriptor from another namespace.
-> You call fchdir.
+> > > Extend the verification for PCI-X/PCI-Express extended config
+> > > space pointer. Checks whether the MCFG address range is listed
+> > > as a motherboard resource, per the PCI firmware spec.
+> > 
+> > I'm still not quite happy about this; the entire point of the check is
+> > that we CAN'T trust the ACPI implementation, and want a second opinion.
+> > This patch basically asks the ACPI implementation if we can trust the
+> > ACPI implementation. I'm not sure that's a good idea.
+> > And I understood that most issues went away with the more relaxed check
+> > that is in gregkh's tree already (if not in mainline, I should check
+> > that). 
 > 
-> If you permission checks are not (user namespace, uid) what can't you do?
+> The more-relaxed check is in mainline.  I wrote it, but it didn't even
+> fix the problem on my own machine. 
 
-File descripters can only be passed over a unix socket, right?
+Why did you submit it then when it didn't work?
 
-So this seems to fall into the same "userspace should set things up
-sanely" argument you've brought up before.
+> This did. 
+> 
+> According to Rajesh, the spec doesn't require the MCFG space to be
+> e820-reserved, so that's not really a valid check.
 
-Don't get me wrong though - the idea of using in-kernel keys as
-cross-namespace uid's is definately interesting.
+Anyways Rajesh's patch is probably the way to go. If the ACPI
+implementatin is self consistent it can be probably trusted.
 
--serge
+The e820 check was just a heuristic and it clearly wasn't a good one. 
+
+-Andi
+ 

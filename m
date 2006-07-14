@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWGNQpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWGNQqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWGNQpx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422637AbWGNQpx
+	id S1422637AbWGNQqi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWGNQqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:45:53 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:5350 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1422636AbWGNQpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:45:52 -0400
-Message-ID: <44B7CBA8.9010507@gentoo.org>
-Date: Fri, 14 Jul 2006 17:51:52 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Fri, 14 Jul 2006 12:46:38 -0400
+Received: from web81212.mail.mud.yahoo.com ([68.142.199.116]:3180 "HELO
+	web81212.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422637AbWGNQqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:46:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bZrJYjhQAvu3t2y4oAqvCj2LsoGbOS3g9klOm+Qz3hlw9LYhl24ZeKBAVWe2JWJleqmjLVwun6is4i4N0+SJE20dFb2gJ8LY3b/v/UBX1LfyaEv3gRw9WocWGB7a3ehmpXr5HmtXQhl+x9etfDOZDERfc90Sy//Wl3/oQEXO3rs=  ;
+Message-ID: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
+Date: Fri, 14 Jul 2006 09:46:36 -0700 (PDT)
+From: Aleksey Gorelov <dared1st@yahoo.com>
+Subject: Re: [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, david-b@pacbell.net, stern@rowland.harvard.edu
+In-Reply-To: <20060713191559.53ba7726.akpm@osdl.org>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       greg@kroah.com, harmon@ksu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-References: <20060714095233.5678A8B6253@zog.reactivated.net> <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org> <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org> <20060714154240.GA23480@tuatara.stupidest.org> <44B7C37F.1050400@gentoo.org> <44B7C521.5080009@gentoo.org> <20060714163351.GA24377@tuatara.stupidest.org>
-In-Reply-To: <20060714163351.GA24377@tuatara.stupidest.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Fri, Jul 14, 2006 at 05:24:01PM +0100, Daniel Drake wrote:
+--- Andrew Morton <akpm@osdl.org> wrote:
+
+> On Tue, 11 Jul 2006 23:38:41 -0700 (PDT)
+> Aleksey Gorelov <dared1st@yahoo.com> wrote:
 > 
->> are XT-PIC). I cannot enable APIC on this system due to buggy BIOS.
->                                ^^^^
+> >   If some problem occurs during ehci startup, for instance, request_irq fails, echi hcd driver
+> > tries it best to cleanup, but fails to unregister reboot notifier, which in turn leads to
+> crash on
+> > reboot/poweroff. Below is the patch against current git to fix this.
+> >   I did not check if the same problem existed for uhci/ohci host drivers.
 > 
-> IO-APIC you mean?
+> This patch causes hangs at reboot/shutdown/suspend time.  See
+> http://www.zip.com.au/~akpm/linux/patches/stuff/dsc03597.jpg
+> 
+Oops, I did not test it with suspend/resume stuff, sorry. The problem is that ehci_run is called
+from resume without its counterpart ehci_stop in suspend, so notifier ends up registered twice.
 
-Yes.
+David, Alan,
 
-> what system have you got there?
+Do you think it is Ok to unregister reboot notifier in ehci_run before registering one to make
+sure there is no 'double registering' of notifier, or is it better to move register/unregister
+reboot notifier from ehci_run/ehci_stop completely to some other place ?
 
-Abit KX7-333 (VIA Apollo KT266/A/333).
+Aleks.
 
-I also tried disabling ACPI completely, and the system booted without 
-the quirk applied. I was of the suspicion that if I could get IO-APIC 
-enabled, then the system would be unable to boot, but this is only 
-guesswork based on the info in the Gentoo bug report.
-
-Perhaps we can discount my system, but Aiko Barz's case from the Gentoo 
-bug should definitely be considered: Without ACPI, the quirk is not 
-needed. With ACPI, the quirk is needed.
-
-Daniel

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbWGNVB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWGNVCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161124AbWGNVB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 17:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161126AbWGNVB5
+	id S1161126AbWGNVCH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 17:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWGNVCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 17:01:57 -0400
-Received: from jg555.com ([64.30.195.78]:1152 "EHLO jg555.com")
-	by vger.kernel.org with ESMTP id S1161124AbWGNVB5 (ORCPT
+	Fri, 14 Jul 2006 17:02:06 -0400
+Received: from deeprooted.net ([216.254.16.51]:32693 "EHLO paris.internal.net")
+	by vger.kernel.org with ESMTP id S1161126AbWGNVCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 17:01:57 -0400
-Message-ID: <44B80543.4050608@jg555.com>
-Date: Fri, 14 Jul 2006 13:57:39 -0700
-From: Jim Gifford <maillist@jg555.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: dwmw2@infradead.org, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       ralf@linux-mips.org
-Subject: Re: 2.6.18 Headers - Long
-References: <44B7F062.8040102@jg555.com>	<1152905987.3159.46.camel@laptopd505.fenrus.org>	<1152908202.3191.98.camel@pmac.infradead.org> <20060714.131957.57444250.davem@davemloft.net>
-In-Reply-To: <20060714.131957.57444250.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 14 Jul 2006 17:02:05 -0400
+Subject: Re: [PATCH] 2.6.17-rt add clockevent to ixp4xx
+From: Kevin Hilman <khilman@deeprooted.net>
+To: Milan Svoboda <msvoboda@ra.rockwell.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF17E03102.B88C1774-ONC12571AB.003987F5-C12571AB.003A4830@ra.rockwell.com>
+References: <OF17E03102.B88C1774-ONC12571AB.003987F5-C12571AB.003A4830@ra.rockwell.com>
+Content-Type: text/plain
+Organization: Deep Root Systems
+Date: Fri, 14 Jul 2006 16:02:04 -0500
+Message-Id: <1152910924.16702.34.camel@vence.internal.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- When I wrote my script to sanitize, I was really surprised on which 
-headers gets utilized and which ones didn't.. I have it down to the bare 
-minimums in my script.
+On Fri, 2006-07-14 at 12:36 +0200, Milan Svoboda wrote:
 
-As far as glibc goes, from my people who are helping me the alpha 
-architecture is the culprit there.
+> I did patch against -hrt-dyntick (see lkml, this thread) wich is almost 
+> the same
+> as this one against -rt (for ixp4xx part only) and I found that when timer 
+> is
+> loaded with IXP4XX_OST_ONE_SHOT the latency time suddenly drops to ~30usec instead
+> of ~2000usec! I'd like know what's the reason for this...
 
-Do we have a list of what headers are "user-space" and which ones should 
-not be "user-space"?
+You should implement the set_mode method as well and set the
+IXP4XX_OST_ONE_SHOT when the clockevent layer mode == CLOCK_EVT_ONESHOT.
 
-Also David W, let me know what I can do to help you out, a lot of people 
-on my end want to get this working properly.
-
-Who's maintaining util-linux these days, we probably should get a patch 
-to them.
+Kevin
 
 
 

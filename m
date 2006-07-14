@@ -1,69 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWGNOD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWGNODi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWGNOD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWGNOD6
+	id S1030451AbWGNODi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbWGNODi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:03:58 -0400
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:17853 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030452AbWGNOD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:03:57 -0400
-Date: Fri, 14 Jul 2006 09:57:55 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Edgar Hucek <hostmaster@ed-soft.at>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607141000_MC3-1-C4FF-9460@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Fri, 14 Jul 2006 10:03:38 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:2180 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030451AbWGNODh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 10:03:37 -0400
+Date: Fri, 14 Jul 2006 09:02:37 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+Message-ID: <20060714140237.GD28436@sergelap.austin.ibm.com>
+References: <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com> <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <44B684A5.2040008@fr.ibm.com> <20060713174721.GA21399@sergelap.austin.ibm.com> <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com> <1152815391.7650.58.camel@localhost.localdomain> <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com> <20060713214101.GB2169@sergelap.austin.ibm.com> <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
-
-On Thu, 13 Jul 2006 15:15:21 -0700, Linus Torvalds wrote:
-
-> > From kernel 2.6.16 to kernel 2.6.17 a new check is made.
-> > File arch/i386/pci/mmconfig.c -> funktion pci_mmcfg_init -> check e820_all_mapped
-> > The courios thing is that this check will always fail on the
-> > Intel Macs booted through efi. Parsing of the ACPI_MCFG table
-> > returns e0000000 for the start. But this location is
-> > not in the memory map which the efi firmware have :
-> > BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> It _sounds_ like you may not have converted all the EFI types 
-> (EFI_UNUSABLE_MEMORY?), but regardless, I think it would be fine to have 
-> perhaps a "PCI_FORCE_MMCONF" flag that avoided that sanity check, and then 
-> you could have some code (either the EFI code _or_ some DMI code) that 
-> sets it for the Intel Macs.
+> > Quoting Eric W. Biederman (ebiederm@xmission.com):
+> >> Dave Hansen <haveblue@us.ibm.com> writes:
+> >> 
+> >> > On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
+> >> >> Maybe.  I really think the sane semantics are in a different uid namespace.
+> >> >> So you can't assumes uids are the same.  Otherwise you can't handle open
+> >> >> file descriptors or files passed through unix domain sockets.
+> >> >
+> >> > Eric, could you explain this a little bit more?  I'm not sure I
+> >> > understand the details of why this is a problem?
+> >> 
+> >> Very simply.
+> >> 
+> >> In the presence of a user namespace.  
+> >> All comparisons of a user equality need to be of the tuple (user namespace,
+> > user id).
+> >> Any comparison that does not do that is an optimization.
+> >> 
+> >> Because you can have access to files created in another user namespace it
+> >> is very unlikely that optimization will apply very frequently.  The easy
+> > scenario
+> >> to get access to a file descriptor from another context is to consider unix
+> >> domain sockets.
+> >
+> > What does that have to do with uids?  If you receive an fd, uids don't
+> > matter in any case.  The only permission checks which happen are LSM
+> > hooks, which should be uid-agnostic.
 > 
-> Note that the check in pci_mmcfg_init() shouldn't be some EFI hack itself, 
-> it would be a real flag for the PCI subsystem, independently of EFI (I can 
-> see it being useful for a kernel command line option, even), and the only 
-> EFI connection would be that perhaps the EFI code ends up setting that 
-> flag (especially if there is some EFI command for doing this).
+> You are guest uid 0.  You get a directory file descriptor from another namespace.
+> You call fchdir.
 > 
-> Btw, if you do do this, I think we should make sure that the MMCONFIG base 
-> address is reserved in the PCI MMIO resource structures (which we don't do 
-> now, I think - part of the whole point of verifying that it's marked as 
-> E820_RESERVED is exactly the fact that otherwise we migth have problems 
-> with PCI MMIO resource allocations allocating a regular PCI resource over 
-> the MMCONFIG space..)
+> If you permission checks are not (user namespace, uid) what can't you do?
 
-I just reposted Rajesh's patch for this (fixed the one previous complaint
-from the list.)
+File descripters can only be passed over a unix socket, right?
 
- Subj:  [patch, take 3] PCI: use ACPI to verify extended config space on x86
+So this seems to fall into the same "userspace should set things up
+sanely" argument you've brought up before.
 
-Edgar, can you get it and test?
+Don't get me wrong though - the idea of using in-kernel keys as
+cross-namespace uid's is definately interesting.
 
-Discussion should probably continue in that thread...
-
--- 
-Chuck
- "You can't read a newspaper if you can't read."  --George W. Bush
+-serge

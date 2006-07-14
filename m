@@ -1,82 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWGNRAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWGNRAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWGNRAS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161269AbWGNRAS
+	id S1161122AbWGNRAE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161267AbWGNRAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:00:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42655 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161267AbWGNRAQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:00:16 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH -mm 5/7] add user namespace
-References: <20060711075051.382004000@localhost.localdomain>
-	<20060711075420.937831000@localhost.localdomain>
-	<m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
-	<44B50088.1010103@fr.ibm.com>
-	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
-	<20060714141728.GE28436@sergelap.austin.ibm.com>
-	<m1fyh4w7ju.fsf@ebiederm.dsl.xmission.com>
-	<20060714164640.GC25303@sergelap.austin.ibm.com>
-Date: Fri, 14 Jul 2006 10:58:57 -0600
-In-Reply-To: <20060714164640.GC25303@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Fri, 14 Jul 2006 11:46:40 -0500")
-Message-ID: <m1zmfct966.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 14 Jul 2006 13:00:04 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:28913 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1161122AbWGNRAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 13:00:03 -0400
+Message-ID: <44B7CF00.8090204@gentoo.org>
+Date: Fri, 14 Jul 2006 18:06:08 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+CC: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, greg@kroah.com, harmon@ksu.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+References: <20060714095233.5678A8B6253@zog.reactivated.net>	 <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org>	 <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org>	 <20060714154240.GA23480@tuatara.stupidest.org>	 <44B7C37F.1050400@gentoo.org>  <44B7C521.5080009@gentoo.org> <1152895734.11043.5.camel@localhost.localdomain>
+In-Reply-To: <1152895734.11043.5.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serge E. Hallyn" <serue@us.ibm.com> writes:
+Sergio Monteiro Basto wrote:
+>> I just confirmed this on my own system, at least partially. I removed 
+>> the quirk and the system booted fine.
+>>
+>> This is with ACPI enabled, but APIC not enabled (hence the interrupts 
+>> are XT-PIC). I cannot enable APIC on this system due to buggy BIOS.
+>>
+>> Daniel
+> 
+> Daniel, VIA_SATA is not in the list , so when you write remove , you
+> remove what ? or you want say the opposite ?  
+> Please rephrase your sentence .
 
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
->> "Serge E. Hallyn" <serue@us.ibm.com> writes:
->> >> No.  The uids in a filesystem are interpreted in some user namespace
->> >> context.  We can discover that context at the first mount of the
->> >> filesystem.  Assuming the uids on a filesystem are the same set
->> >> of uids your process is using is just wrong.
->> >
->> > But, when I insert a usb keychain disk into my laptop, that fs assumes
->> > the uids on it's fs are the same as uids on my laptop...
->> 
->> I agree that setting the fs_user_namespace at mount time is fine.
->> However when we use a mount that a process in another user namespace
->> we need to not assume the uids are the same.
->> 
->> Do you see the difference?
->
-> Aaah - so you don't want to store this on the fs.  So this is actually
-> like what I had mentioned many many emails ago?
+Sorry, I should have been clearer. I do not own any VIA SATA hardware 
+(that info was relayed from a Gentoo bug report). My own hardware is 
+older, [Apollo KT266/A/333]. The quirk gets applied to my IDE controller 
+only (both before and after Chris's changes), and I boot from a disk 
+connected to this IDE controller.
 
-Quite possibly.  I'm not certain where you go the idea I was thinking
-of storing this on the fs.  I think you must have been thinking of
-the Linux-Vserver implementation.
+00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo 
+KT266/A/333 AGP]
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+RTL-8139/8139C/8139C+ (rev 10)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233A ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 23)
+00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+Controller (rev 23)
+01:00.0 VGA compatible controller: nVidia Corporation NV15 [GeForce2 
+GTS/Pro] (rev a3)
 
->> Actually I was thinking something as mundane as a mapping table.  This
->> uid in this namespace equals that uid in that other namespace.
->
-> I see.
->
-> That's also what I was imagining earlier, but it seems crass somehow.
-> I'd almost prefer to just tag a mount with a user namespace implicitly,
-> and only allow the mounter to say 'do' or 'don't' allow this to be read
-> by users in another namespace.  Then in the 'don't' case, user joe
-> [1000] can't read files belonging to user jack [1000] in another
-> namespace.  It's stricter, but clean.
->
-> But whether we do mapping tables or simple isolation, I do still like
-> the idea of pursuing the use of the keystore for global uids.
+When I said I removed the quirk, I meant I removed the whole quirk, 
+which prevented it from running on my hardware.
 
-Yes.  I guess my thinking is that the mapping effort and keys are an
-enhancement after we get the basic user namespace working, to overcome
-the limitations.
+> Do you need quirk SATA with acpi=off  ?
 
-Eric
+Assuming you mean "quirk IDE", no.
+
+> Do you need quirk with ACPI enabled ? 
+
+No. But, my interrupts are always XT-PIC, I cannot enable IO-APIC (not 
+sure how much relevance that has, possibly worth noting though).
+
+
+
+Just for clarity, I'll respond to those 2 questions again with Aiko 
+Barz's system in mind (the user on the Gentoo bug report) -- this is the 
+one with the VIA SATA hardware.
+
+ > Do you need quirk SATA with acpi=off  ?
+
+No.
+
+ > Do you need quirk with ACPI enabled ?
+
+Yes.
+
+
+Daniel

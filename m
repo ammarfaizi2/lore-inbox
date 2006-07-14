@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWGNHUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWGNHdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWGNHUi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 03:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbWGNHUi
+	id S964805AbWGNHdb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 03:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWGNHdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 03:20:38 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:9657 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1161066AbWGNHUh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 03:20:37 -0400
-From: Ian Campbell <ijc@hellion.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
-In-Reply-To: <1152835150.31372.23.camel@shinybook.infradead.org>
-References: <1152835150.31372.23.camel@shinybook.infradead.org>
-Content-Type: text/plain; charset=iso-8859-15
-Date: Fri, 14 Jul 2006 08:20:19 +0100
-Message-Id: <1152861620.6977.3.camel@insmouth>
+	Fri, 14 Jul 2006 03:33:31 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22709
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964801AbWGNHda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 03:33:30 -0400
+Date: Fri, 14 Jul 2006 00:33:34 -0700 (PDT)
+Message-Id: <20060714.003334.57160916.davem@davemloft.net>
+To: reuben-lkml@reub.net
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm2
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44B73FEE.6040908@reub.net>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	<44B73FEE.6040908@reub.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 8BIT
-X-SA-Exim-Connect-IP: 192.168.1.176
-X-SA-Exim-Mail-From: ijc@hellion.org.uk
-Subject: Re: Kernel headers git tree
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on hopkins.hellion.org.uk)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 00:59 +0100, David Woodhouse wrote:
-> At http://git.kernel.org/git/?p=linux/kernel/git/dwmw2/kernel-headers.git
-> there's a git tree which contains the sanitised exported headers for all
-> architectures -- basically the result of 'make headers_install'.
+From: Reuben Farrelly <reuben-lkml@reub.net>
+Date: Fri, 14 Jul 2006 18:55:42 +1200
+
+> Ugh.  This on bootup..
 > 
-> It tracks Linus' kernel tree, by means of some evil scripts.¹
-> 
-> Only commits in Linus' tree which actually affect the exported result
-> should have an equivalent commit in the above tree, which means that any
-> changes which affect userspace should be clearly visible for review.
+> Starting HAL daemon: BUG: warning at net/core/dev.c:1171/skb_checksum_help()
 
-It might be useful to append the commit checksum from Linus' tree to the
-comments so it is easier to backtrack to the original commit.
+It's perfectly normal, and it's there to remind us that
+we need to deal with an incremental checksumming issue
+wrt. ip_nat_fn for GSO segments at some point.
 
-Ian. 
--- 
-Ian Campbell
-
-Your step will soil many countries.
-
+You can safely ignore it for now.

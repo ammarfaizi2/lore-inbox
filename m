@@ -1,94 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWGNWiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWGNW5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161318AbWGNWiu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 18:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161319AbWGNWiu
+	id S1030368AbWGNW5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 18:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbWGNW5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 18:38:50 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21934 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1161318AbWGNWit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 18:38:49 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Reply-To: nigel@suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] Rt-tester makes freezing processes fail.
-Date: Sat, 15 Jul 2006 08:38:49 +1000
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, tglx@timesys.com, linux-pm@lists.osdl.org,
-       Pavel Machek <pavel@ucw.cz>
-References: <200607140918.49040.nigel@suspend2.net> <20060713163743.e71975b0.akpm@osdl.org> <200607141017.27832.rjw@sisk.pl>
-In-Reply-To: <200607141017.27832.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1615659.YCDIlZWo73";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Fri, 14 Jul 2006 18:57:30 -0400
+Received: from www.webhostingstar.com ([69.222.0.225]:7404 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S1030368AbWGNW53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 18:57:29 -0400
+Message-ID: <20060714224204.31311.qmail@mail.webhostingstar.com>
+From: "art" <art@usfltd.com>
+To: linux-kernel@vger.kernel.org
+Cc: venkatesh.pallipadi@intel.com, alexey.y.starikovskiy@intel.com,
+       torvalds@osdl.org, akpm@osdl.org, mingo@elte.hu
+Subject: cpufreq_ondemand governor - problem
+Date: Fri, 14 Jul 2006 17:42:04 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607150838.53591.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1615659.YCDIlZWo73
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+problem:
+on dualcore AMD - if you use cpufreq_ondemand governor and your program is 
+one_process/one_thread intensive one core is busy and second is doing 
+nothing - governor is droping speed on both cores to lowest speed - slowing 
+down busy core process - my dualcore-AMD do this i'm not shure if it is only 
+AMD or INTEL problem too 
 
-Hi.
+to test this set ondemand governor 
 
-On Friday 14 July 2006 18:17, Rafael J. Wysocki wrote:
-> On Friday 14 July 2006 01:37, Andrew Morton wrote:
-> > On Fri, 14 Jul 2006 09:18:43 +1000
-> >
-> > Nigel Cunningham <nigel@suspend2.net> wrote:
-> > > Compiling in the rt-tester currently makes freezing processes fail.
-> > > I don't think there's anything wrong with it running during
-> > > suspending, so adding PF_NOFREEZE to the flags set seems to be the
-> > > right solution.
-> > >
-> > > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-> > >
-> > >  rtmutex-tester.c |    2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > diff -ruNp 9971-rt-tester.patch-old/kernel/rtmutex-tester.c
-> > > 9971-rt-tester.patch-new/kernel/rtmutex-tester.c ---
-> > > 9971-rt-tester.patch-old/kernel/rtmutex-tester.c	2006-07-07
-> > > 10:27:46.000000000 +1000 +++
-> > > 9971-rt-tester.patch-new/kernel/rtmutex-tester.c	2006-07-14
-> > > 07:48:01.000000000 +1000 @@ -259,7 +259,7 @@ static int test_func(void
-> > > *data)
-> > >  	struct test_thread_data *td =3D data;
-> > >  	int ret;
-> > >
-> > > -	current->flags |=3D PF_MUTEX_TESTER;
-> > > +	current->flags |=3D PF_MUTEX_TESTER | PF_NOFREEZE;
-> > >  	allow_signal(SIGHUP);
-> > >
-> > >  	for(;;) {
-> >
-> > I yesterday queued up the below patch.  Which approach is most
-> > appropriate?
->
-> I prefer the one that makes these threads freeze (ie. the Luca's patch).
+# echo "ondemand" > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 
 
-Ok.
+now
+start in terminal-1 
 
-Nigel
-=2D-=20
-See http://www.suspend2.net for Howtos, FAQs, mailing
-lists, wiki and bugzilla info.
+#awk 'BEGIN {for(i=0;i<100000;i++)for(j=0;j<100000;j++);}' 
 
---nextPart1615659.YCDIlZWo73
-Content-Type: application/pgp-signature
+observe cpu speed and utilization
+core1 - utilization 100% speed lowest possible
+core2 - utilization 0% speed lowest possible 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+now
+start in terminal-2 
 
-iD8DBQBEuBz9N0y+n1M3mo0RAhltAJ9UxALBiWAhZhkj5Q+R89nXIUZ0/QCfR3XS
-XAnsRxtK9OBhs/M+7pQB8V4=
-=kcGL
------END PGP SIGNATURE-----
+#awk 'BEGIN {for(i=0;i<100000;i++)for(j=0;j<100000;j++);}' 
 
---nextPart1615659.YCDIlZWo73--
+observe cpu speed and utilization
+core1 - utilization 100% speed max possible
+core2 - utilization 100% speed max possible 
+
+now kill one awk 
+
+observe cpu speed and utilization
+core1 - utilization 100% speed lowest possible
+core2 - utilization 0% speed lowest possible 
+
+looks like cpufreq ondemand governor sets two frequency dependent cores to 
+speed level ok for that one with lowest utilization slowing down 
+process/thread working on other core. For now it is ok for independent 
+multiprocessor bad for multicore-freq-dependent. 
+
+
+temporary dirty patch works for me - your result my vary (for shure it will 
+not work for multi-processor/dualcore - we need identify and pair cores to 
+do same thing) 
+
+
+ --- cpufreq_ondemand.c-org	2006-07-05 23:09:49.000000000 -0500
++++ cpufreq_ondemand.c	2006-07-14 15:50:56.000000000 -0500
+@@ -39,6 +39,7 @@
+  * All times here are in uS.
+  */
+ static unsigned int def_sampling_rate;
++static unsigned int load_max_core=0;
+ #define MIN_SAMPLING_RATE_RATIO			(2)
+ /* for correct statistics, we need at least 10 ticks between each measure 
+*/
+ #define MIN_STAT_SAMPLING_RATE			(MIN_SAMPLING_RATE_RATIO * 
+jiffies_to_usecs(10))
+@@ -268,6 +269,8 @@ static void dbs_check_cpu(struct cpu_dbs
+ 			idle_ticks = tmp_idle_ticks;
+ 	}
+ 	load = (100 * (total_ticks - idle_ticks)) / total_ticks;
++	if (load_max_core > load)
++		load = load_max_core;
+
+ 	/* Check for frequency increase */
+ 	if (load > dbs_tuners_ins.up_threshold) {
+@@ -297,6 +300,7 @@ static void dbs_check_cpu(struct cpu_dbs
+
+ 		__cpufreq_driver_target(policy, freq_next, CPUFREQ_RELATION_L);
+ 	}
++load_max_core = 0;
+ }
+
+ static void do_dbs_timer(void *data) 
+
+
+ --------------------------------------------------- 
+
+after this patch dualcore-AMD is working OK max speed for 100% utilization 
+on core1 and 0% utilization on core2 
+
+
+xboom
+art@usfltd.com

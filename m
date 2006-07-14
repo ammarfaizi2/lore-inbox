@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWGNCI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161172AbWGNCCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161175AbWGNCI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 22:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWGNCI2
+	id S1161172AbWGNCCL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 22:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWGNCCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 22:08:28 -0400
-Received: from maxipes.logix.cz ([217.11.251.249]:56275 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S1161169AbWGNCI1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 22:08:27 -0400
-Message-ID: <44B6FC90.2060501@logix.cz>
-Date: Fri, 14 Jul 2006 14:08:16 +1200
-From: Michal Ludvig <michal@logix.cz>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [CRYPTO] padlock: Fix alignment after aes_ctx rearrange
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jul 2006 22:02:11 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:16524
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1161172AbWGNCCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 22:02:09 -0400
+Date: Fri, 14 Jul 2006 04:02:57 +0200
+From: andrea@cpushare.com
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [test patch] seccomp: add code to disable TSC when enabling seccomp
+Message-ID: <20060714020257.GC18774@opteron.random>
+References: <200607131613_MC3-1-C4EC-45F9@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607131613_MC3-1-C4EC-45F9@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Herbert,
+On Thu, Jul 13, 2006 at 04:11:12PM -0400, Chuck Ebbert wrote:
+> Is the below patch acceptable in generic code, or should some arch
+> helper function hide it?  It lets i386 / x86_64 add TIF_NOTSC
+> independently.  
+>
+> Also, what prevents this flag from being set on a running process?
+> If that happens the CPU state and flag could get out of sync and
+> this could cause problems because of the way the current code tests
+> the flag.
 
-I just recently discovered that your patch that rearranges struct
-aes_ctx in padlock-aes.c breaks the alignment rules for xcrypt leading
-to GPF Oopses.
+Yes, there could be a tiny race where if the controller and seccomp
+tasks run on two different CPUs: the seccomp task may write to the
+pipe, and then read, but the read may not actually stop anywhere,
+because the second CPU may have enabled seccomp and answered faster
+than the first cpu. So there's tiny window for the TSC not to be
+disabled synchronously at the start of the seccomp computations (and
+if there are multiple seccomp tasks running the new ones could let the
+old ones run a timeslice with the tsc enabled). The inverse isn't
+possible because the SECCOMP/TSC bits cannot be cleared anywhere. In
+short the only problem is that it's not a guarantee that the tsc is
+always permanently disabled with seccomp in SMP.
 
-Note that *all* addresses passed to xcrypt must be 16-Bytes aligned for
-VIA C3 (including IV and Key - the latter one was not aligned and
-triggered this Oops).
+To fix the tiny window if it's the current task writing to self, we
+should also update the cr4 before returning from base.c. If it was a
+different task it's more complicated (we would need to send a forced
+sigstop, and wait the task->state to change, but then we go into the
+ptrace parallelism I truly don't want to deal with in any way in
+seccomp context). The whole point of seccomp is to be simple. So my
+suggestion is either we ignore the tiny window, or we do it only from
+the current task. If I've to deal with any sigstop then I could use
+ptrace or utrace in the first place ;).
 
-As the rearrange patch made it to 2.6.18-rc1 it must be fixed before
-2.6.18 is out. Attached is a patch.
+I generally preferred to be the controller task that fires up seccomp
+(the controller tasks did a number of checks that everything was going
+ok before firing it up), but if we forbid other tasks to fire up
+seccomp, then perhaps there's no more reason to leave it a /proc
+interface. I guess we could move it to a prctl which would probably
+waste a few less bytes, so it gets even more friendly.
 
-Michal
-
-
+Thanks Chunk!

@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWGNRj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWGNRmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422683AbWGNRj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWGNRj2
+	id S1422660AbWGNRmO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422680AbWGNRmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:39:28 -0400
-Received: from rtr.ca ([64.26.128.89]:60901 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1422679AbWGNRj1 (ORCPT
+	Fri, 14 Jul 2006 13:42:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41159 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422660AbWGNRmN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:39:27 -0400
-Message-ID: <44B7D6CE.4030406@rtr.ca>
-Date: Fri, 14 Jul 2006 13:39:26 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Fri, 14 Jul 2006 13:42:13 -0400
+Date: Fri, 14 Jul 2006 10:41:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] remove volatile from nmi.c
+In-Reply-To: <1152898699.27135.20.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0607141040550.5623@g5.osdl.org>
+References: <1152882288.1883.30.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org>  <Pine.LNX.4.64.0607141017520.5623@g5.osdl.org>
+ <1152898699.27135.20.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.17.3 (What is the next step?)
-References: <Pine.LNX.4.64.0602140439580.3567@p34>  <44AEB3CA.8080606@pobox.com>  <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>  <200607091224.31451.liml@rtr.ca>  <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>  <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>  <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>  <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan> <1152545639.27368.137.camel@localhost.localdomain> <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan> <Pine.LNX.4.64.0607110926150.858@p34.internal.lan> <44B7D168.2080304@rtr.ca> <Pine.LNX.4.64.0607141318040.1687@p34.internal.lan>
-In-Reply-To: <Pine.LNX.4.64.0607141318040.1687@p34.internal.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> They are Western Digital 400* drives.
-> 
-> [4294678.049000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
-> [4294678.050000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
-> 
-> On a SiL controller, it also happens when they are on a promise 
-> controller too.
-> 
-> On Fri, 14 Jul 2006, Mark Lord wrote:
-> 
->> Justin Piszcz wrote:
->>>
->>> opcode=0x35 & opcode=0xca
->>
->> Those are non-DMA WRITE opcodes.  Using PIO for I/O is pretty rare 
->> these days,
->> so I'm betting that this is not a hard disk device -- compactflash?
 
-Okay.  So why are we issuing PIO WRITE commands to drives that
-obviously should only be sent DMA commands by libata?
 
-Perhaps that's the bug.
+On Fri, 14 Jul 2006, Steven Rostedt wrote:
+> 
+> > 	endflag = 1;
+> > 	smp_wmb();
+> 
+> This was what I originally wrote, and then I saw the set_wmb which made
+> me think that it was the proper way to do things (why else is it
+> there?). So if it shouldn't be used, then we should get rid of it or at
+> least mark it deprecated, otherwise you have people like me thinking
+> that we should use it.
+
+Yeah, we should probably get rid of it. No need to even mark it 
+deprecated, since nobody uses it anyway. 
+
+At a minimum, I think we should not document it in the locking 
+documentation, making people incorrectly think it might be a good idea.
+
+Hmm? Andrew?
+
+		Linus

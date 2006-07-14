@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161307AbWGNVdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161306AbWGNW1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161307AbWGNVdz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 17:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161308AbWGNVdz
+	id S1161306AbWGNW1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 18:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161314AbWGNW1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 17:33:55 -0400
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:41579 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161307AbWGNVdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 17:33:54 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
-Date: Fri, 14 Jul 2006 14:33:47 -0700
-User-Agent: KMail/1.7.1
-Cc: Aleksey Gorelov <dared1st@yahoo.com>, Andrew Morton <akpm@osdl.org>,
-       gregkh@suse.de, stern@rowland.harvard.edu, linux-kernel@vger.kernel.org
-References: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
-In-Reply-To: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 14 Jul 2006 18:27:09 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:42402 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161306AbWGNW1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 18:27:08 -0400
+Subject: Re: [openib-general] Suggestions for how to remove bus_to_virt()
+From: Ralph Campbell <ralphc@pathscale.com>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: David Miller <davem@davemloft.net>, rdreier@cisco.com,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <20060713054658.GC5096@rhun.ibm.com>
+References: <1152746967.4572.263.camel@brick.pathscale.com>
+	 <adar70quzwx.fsf@cisco.com> <20060712.174013.95062313.davem@davemloft.net>
+	 <20060713054658.GC5096@rhun.ibm.com>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 15:27:07 -0700
+Message-Id: <1152916027.4572.391.camel@brick.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607141433.48695.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 July 2006 9:46 am, Aleksey Gorelov wrote:
-
-> David, Alan,
+On Thu, 2006-07-13 at 08:46 +0300, Muli Ben-Yehuda wrote:
+> On Wed, Jul 12, 2006 at 05:40:13PM -0700, David Miller wrote:
+> > From: Roland Dreier <rdreier@cisco.com>
+> > Date: Wed, 12 Jul 2006 17:11:26 -0700
+> > 
+> > > A cleaner solution would be to make the dma_ API really use the device
+> > > it's passed anyway, and allow drivers to override the standard PCI
+> > > stuff nicely.  But that would be major surgery, I guess.
+> > 
+> > Clean but expensive, you should not force the rest of the kernel
+> > to eat the cost of something you want to do when it's totally
+> > unnecessary for most other users.
+> > 
+> > For example, x86 never needs to do anything other than a direct
+> > virt_to_phys translation to produce a DMA address, no matter what
+> > bus the device is on.  It's a single simple integer adjustment
+> > that can be done inline in about 2 or 3 instructions at most.
 > 
-> Do you think it is Ok to unregister reboot notifier in ehci_run before registering one to make
-> sure there is no 'double registering' of notifier, or is it better to move register/unregister
-> reboot notifier from ehci_run/ehci_stop completely to some other place ?
+> It's possible that even x86 will support multiple IOMMUs in the future
+> - for example, the Calgary IOMMU support we recently added to x86-64
+> could be modified to work on plain x86 as well.
+> 
+> I like the idea of a per-device DMA-API implementation, but only if it
+> can be done in a way that is zero cost to the majority of the users of
+> the API. We already have dynamic dma_ops on x86-64 to support nommu,
+> swiotlb, gart and Calgary cleanly, extending it to use a per-device
+> dma-ops isn't too difficult.
+> 
+> Cheers,
+> Muli
 
-Probably the best way is to stop using the notifier, and brute force it
-by making every EHCI subdriver get its own shutdown() method.  That'd be
-obvious enough for PCI bus glue, and due to recent patches probably even
-for the non-PCI ones ... since they all use "platform_bus" now, they can
-all share the same method.  Though I could imagine some platforms might
-want to do extra stuff like clk_disable() after the root hub reset.
+A per-device DMA-API would solve my problem.
+It would be a fairly invasive changeset though.
+The basic idea would be to add a struct dma_mapping_ops *
+to struct device and change all the inline dma_* routines
+to something like:
 
-I could see the tail end of ehci-hcd.c with a forward decl for a method
-like ehci_platform_shutdown(), updating the subdrivers to reference that,
-and then #ifdef PLATFORM_DRIVER provide the definition of that routine
-(doing what the reboot notifier does) for use by the non-PCI subdrivers.
+static inline dma_addr_t
+dma_map_single(struct device *hwdev, void *ptr, size_t size,
+               int direction)
+{
+        BUG_ON(!valid_dma_direction(direction));
+        return hwdev->dma_ops ? 
+                hwdev->dma_ops->map_single(hwdev, ptr, size, direction) :
+                dma_ops->map_single(hwdev, ptr, size, direction);
+}
 
-- Dave
+Note that the current design only supports one IOMMU type in a system.
+This could support multiple IOMMU types at the same time.
+
+Another possibility is to only do this for the infiniband subsystem.
+The idea would be to replace calls to dma_* with ib_dma_* which
+would be defined as above.
 

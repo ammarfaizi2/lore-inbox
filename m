@@ -1,408 +1,656 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWGNW6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945901AbWGNXII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWGNW6X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 18:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbWGNW6W
+	id S1945901AbWGNXII (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 19:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945902AbWGNXII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 18:58:22 -0400
-Received: from smtp6.libero.it ([193.70.192.59]:38129 "EHLO smtp6.libero.it")
-	by vger.kernel.org with ESMTP id S1030215AbWGNW6W convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 18:58:22 -0400
-Date: Sat, 15 Jul 2006 00:58:19 +0200
-Message-Id: <J2F157$15229623685EEACF62B37CFE3EDA5997@libero.it>
-Subject: unusual messages with kernel 2.6.18-rc1-git6
-MIME-Version: 1.0
-X-Sensitivity: 3
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "ricciare\@libero\.it" <ricciare@libero.it>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 4.3 (R1) (B3pl17)
-X-notifreq: 123
-X-SenderIP: 87.17.207.3
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Fri, 14 Jul 2006 19:08:08 -0400
+Received: from mail.gmx.net ([213.165.64.21]:941 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1945901AbWGNXIF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 19:08:05 -0400
+X-Authenticated: #2308221
+Date: Sat, 15 Jul 2006 01:08:01 +0200
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: FYI: strange libata EH lines in dmesg once after every bootup
+Message-ID: <20060714230801.GA6645@zeus.uziel.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using FC4 and an updated kernel version (I've both 2.6.17-1.2141_FC4 and the most recent 2.6.18-rc1-git6 (I've compiled it).
-While using Kde in both occasions appeared the following simple window (it had just the classical close button) named "KWrited - listening device /dev/pts/1" and it contained the following messages:
+
+--aM3YZ0Iwxop3KEKx
+Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
 
 
-Message from syslogd@localhost at Fri Jul 14 17:00:12 2006 ...
-localhost kernel: Oops: 0000 [#1]
-
-Message from syslogd@localhost at Fri Jul 14 17:00:12 2006 ...
-localhost kernel: CPU: 0
-
-Message from syslogd@localhost at Fri Jul 14 17:00:14 2006 ...
-localhost kernel: EIP is at find_get_pages+0x1f/0x3a
-
-Message from syslogd@localhost at Fri Jul 14 17:00:14 2006 ...
-localhost kernel: eax: 80010028 ebx: 00000004 ecx: db959ee4 edx: 00000400
-
-Message from syslogd@localhost at Fri Jul 14 17:00:14 2006 ...
-localhost kernel: esi: 00000005 edi: 00000051 ebp: 00000000 esp: db959ea4
-
-Message from syslogd@localhost at Fri Jul 14 17:00:15 2006 ...
-localhost kernel: ds: 007b es: 007b ss: 0068
-
-Message from syslogd@localhost at Fri Jul 14 17:00:15 2006 ...
-localhost kernel: Process kswapd0 (pid: 128, ti=db958000 task=db92fab0 task.ti=db958000)
-Message from syslogd@localhost at Fri Jul 14 17:00:17 2006 ...
-localhost kernel: 00000400 c10cfe80 c10e39e0 c126be20 c11ad860 c10c5600 c1202ba0 c103e280
-
-Message from syslogd@localhost at Fri Jul 14 17:00:17 2006 ...
-localhost kernel: Call Trace:
-
-Message from syslogd@localhost at Fri Jul 14 17:00:17 2006 ...
-localhost kernel: Code: 74 03 8b 51 0c ff 42 04 fb 89 c8 c3 56 53 8b 5c 24 0c fa 51 83 c0 04 89 d1 89 da e8 50 da 07 00 89 d9 31 db 89 c6 58 eb 13 8b 11 <8b> 02 f6 c4 40 74 03 8b 52 0c ff 42 04 43 83 c1 04 39 f3 72 e9
-
-Message from syslogd@localhost at Fri Jul 14 17:00:17 2006 ...
-localhost kernel: EIP: [<c0136bfa>] find_get_pages+0x1f/0x3a SS:ESP 0068:db959ea4
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Message from syslogd@localhost at Fri Jul 14 17:00:16 2006 ...
-localhost kernel: Stack: 00000000 db959ecc c013be56 db959ed4 da7269dc 00000000 c013c7a8 0000000e
+Hi,
 
-Message from syslogd@localhost at Fri Jul 14 17:00:16 2006 ...
-localhost kernel: ffffffff da726a7c 00000000 00000000 c1072ee0 c10b5280 c10b52a0 c1076980
-
+the following happens every time after bootup, tested with freshly built
+2.6.18-rc1-mm2:=20
 
 
-.. any ideas on the possible cause of such messages?
-Thanks,
+DMA write timed out
+ata1: EH complete
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata2: EH complete
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
 
-Nicola
+
+Both disks are SAMSUNG SV1203N on a Promise 20269. What remained of
+dmesg, hdparm -I and lspci attached.
+
+Kind regards,
+Chris
+
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline; filename=lspci
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
+00:0c.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 61)
+00:0c.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 61)
+00:0c.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 63)
+00:0d.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+00:0e.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
+00:0f.0 Mass storage controller: Promise Technology, Inc. 20269 (rev 02)
+00:10.0 SCSI storage controller: Adaptec AHA-2940UW Pro / AIC-788x (rev 01)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G550 AGP (rev 01)
+
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline; filename=sda
+Content-Transfer-Encoding: quoted-printable
 
 
-.. this is my dmesg output: 
+/dev/sda:
+
+ATA device, with non-removable media
+	Model Number:       SAMSUNG SV1203N                        =20
+	Serial Number:      S01CJ10Y410901     =20
+	Firmware Revision:  TQ100-30
+Standards:
+	Used: ATA/ATAPI-7 T13 1532D revision 0=20
+	Supported: 7 6 5 4=20
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	--
+	CHS current addressable sectors:   16514064
+	LBA    user addressable sectors:  234493056
+	LBA48  user addressable sectors:  234493056
+	device size with M =3D 1024*1024:      114498 MBytes
+	device size with M =3D 1000*1000:      120060 MBytes (120 GB)
+Capabilities:
+	LBA, IORDY(can be disabled)
+	Standby timer values: spec'd by Standard, no device specific minimum
+	R/W multiple sector transfer: Max =3D 16	Current =3D 16
+	Recommended acoustic management value: 254, current value: 254
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6=20
+	     Cycle time: min=3D120ns recommended=3D120ns
+	PIO: pio0 pio1 pio2 pio3 pio4=20
+	     Cycle time: no flow control=3D240ns  IORDY flow control=3D120ns
+Commands/features:
+	Enabled	Supported:
+	   *	SMART feature set
+	    	Security Mode feature set
+	   *	Power Management feature set
+	   *	Write cache
+	   *	Look-ahead
+	   *	Host Protected Area feature set
+	   *	WRITE_BUFFER command
+	   *	READ_BUFFER command
+	   *	DOWNLOAD_MICROCODE
+	    	SET_MAX security extension
+	   *	Automatic Acoustic Management feature set
+	   *	48-bit Address feature set
+	   *	Device Configuration Overlay feature set
+	   *	Mandatory FLUSH_CACHE
+	   *	FLUSH_CACHE_EXT
+	   *	SMART error logging
+	   *	SMART self-test
+Security:=20
+	Master password revision code =3D 65534
+		supported
+	not	enabled
+	not	locked
+	not	frozen
+	not	expired: security count
+		supported: enhanced erase
+	56min for SECURITY ERASE UNIT. 56min for ENHANCED SECURITY ERASE UNIT.
+HW reset results:
+	CBLID- above Vih
+	Device num =3D 0 determined by the jumper
+Checksum: correct
+
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline; filename=sdb
+Content-Transfer-Encoding: quoted-printable
 
 
-Linux version 2.6.18-rc1-git6 (root@localhost.localdomain) (gcc version 4.0.2 20051125 (Red Hat 4.0.2-8)) #2 Thu Jul 13 17:35:55
-CEST 2006
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001c000000 (usable)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-0MB HIGHMEM available.
-448MB LOWMEM available.
-On node 0 totalpages: 114688
-  DMA zone: 4096 pages, LIFO batch:0
-  Normal zone: 110592 pages, LIFO batch:31
-DMI 2.2 present.
-ACPI: Unable to locate RSDP
-Allocating PCI resources starting at 20000000 (gap: 1c000000:e3ff0000)
-Detected 997.503 MHz processor.
-Built 1 zonelists.  Total pages: 114688
-Kernel command line: ro root=LABEL=/ rhgb quiet
-Local APIC disabled by BIOS -- you can enable it with "lapic"
-mapped APIC to ffffd000 (01382000)
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Initializing CPU#0
-PID hash table entries: 2048 (order: 11, 8192 bytes)
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Memory: 449924k/458752k available (1832k kernel code, 8312k reserved, 774k data, 192k init, 0k highmem)
+/dev/sdb:
+
+ATA device, with non-removable media
+	Model Number:       SAMSUNG SV1203N                        =20
+	Serial Number:      S01CJ10Y410900     =20
+	Firmware Revision:  TQ100-30
+Standards:
+	Used: ATA/ATAPI-7 T13 1532D revision 0=20
+	Supported: 7 6 5 4=20
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	--
+	CHS current addressable sectors:   16514064
+	LBA    user addressable sectors:  234493056
+	LBA48  user addressable sectors:  234493056
+	device size with M =3D 1024*1024:      114498 MBytes
+	device size with M =3D 1000*1000:      120060 MBytes (120 GB)
+Capabilities:
+	LBA, IORDY(can be disabled)
+	Standby timer values: spec'd by Standard, no device specific minimum
+	R/W multiple sector transfer: Max =3D 16	Current =3D 16
+	Recommended acoustic management value: 254, current value: 254
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6=20
+	     Cycle time: min=3D120ns recommended=3D120ns
+	PIO: pio0 pio1 pio2 pio3 pio4=20
+	     Cycle time: no flow control=3D240ns  IORDY flow control=3D120ns
+Commands/features:
+	Enabled	Supported:
+	   *	SMART feature set
+	    	Security Mode feature set
+	   *	Power Management feature set
+	   *	Write cache
+	   *	Look-ahead
+	   *	Host Protected Area feature set
+	   *	WRITE_BUFFER command
+	   *	READ_BUFFER command
+	   *	DOWNLOAD_MICROCODE
+	    	SET_MAX security extension
+	   *	Automatic Acoustic Management feature set
+	   *	48-bit Address feature set
+	   *	Device Configuration Overlay feature set
+	   *	Mandatory FLUSH_CACHE
+	   *	FLUSH_CACHE_EXT
+	   *	SMART error logging
+	   *	SMART self-test
+Security:=20
+	Master password revision code =3D 65534
+		supported
+	not	enabled
+	not	locked
+	not	frozen
+	not	expired: security count
+		supported: enhanced erase
+	56min for SECURITY ERASE UNIT. 56min for ENHANCED SECURITY ERASE UNIT.
+HW reset results:
+	CBLID- above Vih
+	Device num =3D 0 determined by the jumper
+Checksum: correct
+
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline; filename=dmesg
+Content-Transfer-Encoding: quoted-printable
+
+36 (order: 6, 262144 bytes)
+Memory: 898632k/917504k available (3368k kernel code, 18268k reserved, 867k=
+ data, 200k init, 0k highmem)
 Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay using timer specific routine.. 1996.32 BogoMIPS (lpj=998162)
-Security Framework v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-selinux_register_security:  Registering secondary module capability
-Capability LSM initialized as secondary
+Calibrating delay using timer specific routine.. 3001.33 BogoMIPS (lpj=3D15=
+00666)
 Mount-cache hash table entries: 512
-CPU: After generic identify, caps: 0387f9ff 00000000 00000000 00000000 00000000 00000000 00000000
-CPU: After vendor identify, caps: 0387f9ff 00000000 00000000 00000000 00000000 00000000 00000000
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU serial number disabled.
-CPU: After all inits, caps: 0383f9ff 00000000 00000000 00000040 00000000 00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-Compat vDSO mapped to ffffe000.
-CPU: Intel Pentium III (Coppermine) stepping 0a
+CPU: After generic identify, caps: 0383f9ff c1c3f9ff 00000000 00000000 0000=
+0000 00000000 00000000
+CPU: After vendor identify, caps: 0383f9ff c1c3f9ff 00000000 00000000 00000=
+000 00000000 00000000
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+CPU: After all inits, caps: 0383f9ff c1c3f9ff 00000000 00000420 00000000 00=
+000000 00000000
+CPU: AMD Athlon(TM) XP2000+ stepping 00
 Checking 'hlt' instruction... OK.
+ACPI: Core revision 20060707
+ACPI: setting ELCR to 0200 (from 0e18)
 checking if image is initramfs... it is
-Freeing initrd memory: 1183k freed
-PM: Adding info for No Bus:platform
+Freeing initrd memory: 5639k freed
 NET: Registered protocol family 16
-ACPI Exception (utmutex-0262): AE_BAD_PARAMETER, Thread C13FCAB0 could not acquire Mutex [2] [20060707]
-PCI: PCI BIOS revision 2.10 entry at 0xfb1b0, last bus=1
+ACPI: bus type pci registered
+PCI: PCI BIOS revision 2.10 entry at 0xf0f00, last bus=3D1
 Setting up standard PCI resources
-ACPI: Interpreter disabled.
-Linux Plug and Play Support v0.97 (c) Adam Belay
-pnp: PnP ACPI: disabled
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Probing PCI hardware
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 *4 5 6 7 9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs *3 4 5 6 7 9 10 11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (0000:00)
 PCI: Probing PCI hardware (bus 00)
-PM: Adding info for No Bus:pci0000:00
-PCI quirk: region 4000-40ff claimed by vt82c586 ACPI
-PCI quirk: region 6000-607f claimed by vt82c686 HW-mon
-PCI quirk: region 5000-500f claimed by vt82c686 SMB
+ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
 Boot video device is 0000:01:00.0
-PM: Adding info for pci:0000:00:00.0
-PM: Adding info for pci:0000:00:01.0
-PM: Adding info for pci:0000:00:07.0
-PM: Adding info for pci:0000:00:07.1
-PM: Adding info for pci:0000:00:07.2
-PM: Adding info for pci:0000:00:07.4
-PM: Adding info for pci:0000:00:08.0
-PM: Adding info for pci:0000:00:09.0
-PM: Adding info for pci:0000:00:0a.0
-PM: Adding info for pci:0000:00:0a.1
-PM: Adding info for pci:0000:00:0b.0
-PM: Adding info for pci:0000:00:0c.0
-PM: Adding info for pci:0000:01:00.0
-PM: Adding info for pci:0000:01:00.1
-PCI: Using IRQ router VIA [1106/0686] at 0000:00:07.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 12 devices
+SCSI subsystem initialized
+usbcore: registered new interface driver usbfs
+usbcore: registered new interface driver hub
+usbcore: registered new device driver usb
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=3Drouteirq".  If it helps, post a r=
+eport
+pnp: 00:03: ioport range 0xe400-0xe47f could not be reserved
+pnp: 00:03: ioport range 0xe800-0xe80f has been reserved
+pnp: 00:03: ioport range 0x290-0x291 has been reserved
+pnp: 00:03: ioport range 0x370-0x373 has been reserved
 PCI: Bridge: 0000:00:01.0
-  IO window: 9000-9fff
-  MEM window: e8000000-e9ffffff
-  PREFETCH window: d0000000-dfffffff
+  IO window: disabled.
+  MEM window: f8800000-f9dfffff
+  PREFETCH window: f9f00000-fbffffff
 PCI: Setting latency timer of device 0000:00:01.0 to 64
 NET: Registered protocol family 2
-IP route cache hash table entries: 4096 (order: 2, 16384 bytes)
-TCP established hash table entries: 16384 (order: 4, 65536 bytes)
-TCP bind hash table entries: 8192 (order: 3, 32768 bytes)
-TCP: Hash tables configured (established 16384 bind 8192)
+IP route cache hash table entries: 32768 (order: 5, 131072 bytes)
+TCP established hash table entries: 131072 (order: 7, 524288 bytes)
+TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 131072 bind 65536)
 TCP reno registered
-PM: Adding info for platform:pcspkr
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16ac)
-audit: initializing netlink socket (disabled)
-audit(1152897054.716:1): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
-SELinux:  Registering netfilter hooks
+Simple Boot Flag at 0x3a set to 0x1
+Loading Reiser4. See www.namesys.com for a description of Reiser4.
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+SGI XFS with no debug enabled
 Initializing Cryptographic API
 io scheduler noop registered
-io scheduler anticipatory registered
 io scheduler deadline registered
 io scheduler cfq registered (default)
-PCI: Disabling Via external APIC routing
-pci_hotplug: PCI Hot Plug PCI Core version: 0.5
-PM: Adding info for platform:vesafb.0
-Real Time Clock Driver v1.12ac
-Non-volatile memory driver v1.2
-Linux agpgart interface v0.101 (c) Dave Jones
-agpgart: Detected VIA Apollo Pro 133 chipset
-agpgart: AGP aperture is 128M @ 0xe0000000
-Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enabled
-PM: Adding info for platform:serial8250
-serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-RAMDISK driver initialized: 16 RAM disks of 16384K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:07.1
-PCI: VIA IRQ fixup for 0000:00:07.1, from 255 to 0
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:07.1
-    ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: Maxtor 6L120P0, ATA DISK drive
-PM: Adding info for No Bus:ide0
-hdb: ST315323A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-PM: Adding info for ide:0.0
-PM: Adding info for ide:0.1
-Probing IDE interface ide1...
-hdc: HL-DT-STDVD-ROM GDR8163B, ATAPI CD/DVD-ROM drive
-PM: Adding info for No Bus:ide1
-hdd: _NEC DVD_RW ND-3520A, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-PM: Adding info for ide:1.0
-PM: Adding info for ide:1.1
-hda: max request size: 128KiB
-hda: 240121728 sectors (122942 MB) w/8192KiB Cache, CHS=65535/16/63, UDMA(66)
-hda: cache flushes supported
- hda: hda1 hda2 < hda5 hda6 hda7 >
-hdb: max request size: 128KiB
-hdb: 30008475 sectors (15364 MB) w/512KiB Cache, CHS=29770/16/63, UDMA(66)
-hdb: cache flushes not supported
- hdb: hdb1 hdb2
-hdc: ATAPI 52X DVD-ROM drive, 256kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdd: ATAPI 48X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-ide-floppy driver 0.99.newide
-usbcore: registered new driver libusual
-usbcore: registered new driver hiddev
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.6:USB HID core driver
-PNP: No PS/2 controller found. Probing ports directly.
-PM: Adding info for platform:i8042
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-PM: Adding info for serio:serio0
-mice: PS/2 mouse device common for all mice
-md: md driver 0.90.3 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: bitmap version 4.39
-TCP bic registered
-Initializing IPsec netlink socket
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-Using IPI Shortcut mode
-Freeing unused kernel memory: 192k freed
-Time: tsc clocksource has been installed.
-PM: Adding info for serio:serio1
-SCSI subsystem initialized
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
 PCI: setting IRQ 11 as level-triggered
-PCI: Found IRQ 11 for device 0000:00:0b.0
-PCI: Sharing IRQ 11 with 0000:00:07.2
-input: AT Translated Set 2 keyboard as /class/input/input0
-logips2pp: Detected unknown logitech mouse model 90
-input: ImExPS/2 Logitech Explorer Mouse as /class/input/input1
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-        <Adaptec 2940 Ultra SCSI adapter>
-        aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
-
-PM: Adding info for No Bus:host0
-PM: Adding info for No Bus:target0:0:0
-PM: Removing info for No Bus:target0:0:0
-PM: Adding info for No Bus:target0:0:1
-PM: Removing info for No Bus:target0:0:1
-PM: Adding info for No Bus:target0:0:2
-PM: Removing info for No Bus:target0:0:2
-PM: Adding info for No Bus:target0:0:3
-PM: Removing info for No Bus:target0:0:3
-PM: Adding info for No Bus:target0:0:4
-PM: Removing info for No Bus:target0:0:4
-PM: Adding info for No Bus:target0:0:5
-  Vendor: EPSON     Model: SCANNER GT-5500   Rev: 1.01
-  Type:   Processor                          ANSI SCSI revision: 02
- target0:0:5: Beginning Domain Validation
- target0:0:5: Ending Domain Validation
-PM: Adding info for scsi:0:0:5:0
-PM: Adding info for No Bus:target0:0:6
-PM: Removing info for No Bus:target0:0:6
-PM: Adding info for No Bus:target0:0:8
-PM: Removing info for No Bus:target0:0:8
-PM: Adding info for No Bus:target0:0:9
-PM: Removing info for No Bus:target0:0:9
-PM: Adding info for No Bus:target0:0:10
-PM: Removing info for No Bus:target0:0:10
-PM: Adding info for No Bus:target0:0:11
-PM: Removing info for No Bus:target0:0:11
-PM: Adding info for No Bus:target0:0:12
-PM: Removing info for No Bus:target0:0:12
-PM: Adding info for No Bus:target0:0:13
-PM: Removing info for No Bus:target0:0:13
-PM: Adding info for No Bus:target0:0:14
-PM: Removing info for No Bus:target0:0:14
-PM: Adding info for No Bus:target0:0:15
-PM: Removing info for No Bus:target0:0:15
-EXT3-fs: INFO: recovery required on readonly filesystem.
-EXT3-fs: write access will be enabled during recovery.
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: recovery complete.
-EXT3-fs: mounted filesystem with ordered data mode.
-SELinux:  Disabled at runtime.
-SELinux:  Unregistering netfilter hooks
-audit(1152897081.469:2): selinux=0 auid=4294967295
-scsi 0:0:5:0: Attached scsi generic sg0 type 3
+ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [LNKA] -> GSI 11 (level, low) -=
+> IRQ 11
+matroxfb: Matrox G550 detected
+PInS memtype =3D 5
+matroxfb: MTRR's turned on
+matroxfb: 1280x1024x32bpp (virtual: 1280x3276)
+matroxfb: framebuffer at 0xFA000000, mapped to 0xf8880000, size 33554432
+Console: switching to colour frame buffer device 160x128
+fb0: MATROX frame buffer device
+matroxfb_crtc2: secondary head of fb0 was registered as fb1
+ACPI: Power Button (FF) [PWRF]
+ACPI: Power Button (CM) [PWRB]
+lp: driver loaded but no devices found
+Real Time Clock Driver v1.12ac
+Linux agpgart interface v0.101 (c) Dave Jones
+agpgart: Detected VIA KT266/KY266x/KT333 chipset
+agpgart: AGP aperture is 32M @ 0xfc000000
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,EP=
+P,ECP,DMA]
+parport0: Printer, Hewlett-Packard HP LaserJet 1100
+lp0: using parport0 (interrupt-driven).
 Floppy drive(s): fd0 is 1.44M
 FDC 0 is a post-1991 82077
-PM: Adding info for platform:floppy.0
-dmfe: Davicom DM9xxx net driver, version 1.36.4 (2002-01-17)
+RAMDISK driver initialized: 16 RAM disks of 8192K size 1024 blocksize
+loop: loaded (max 8 devices)
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
 PCI: setting IRQ 10 as level-triggered
-PCI: Found IRQ 10 for device 0000:00:09.0
-eth0: Davicom DM9102 at pci0000:00:09.0, 00:60:6e:75:b7:c2, irq 10.
-Linux Tulip driver version 1.1.13 (May 11, 2002)
-8139too Fast Ethernet driver 0.9.27
-PCI: setting IRQ 5 as level-triggered
-PCI: Found IRQ 5 for device 0000:00:08.0
-eth1: RealTek RTL8139 at 0xdc88e000, 00:06:7b:08:e6:bb, IRQ 5
-eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
-8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
-eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-PCI: setting IRQ 9 as level-triggered
-PCI: Found IRQ 9 for device 0000:00:0a.0
-PCI: Sharing IRQ 9 with 0000:00:0c.0
-PM: Adding info for ac97:0-0:STAC9721,23
-gameport: EMU10K1 is pci0000:00:0a.1/gameport0, io 0xb800, speed 1242kHz
-PM: Adding info for gameport:gameport0
-PM: Adding info for No Bus:i2c-9191
-PM: Adding info for i2c:9191-6000
-parport_pc: VIA 686A/8231 detected
-parport_pc: probing current configuration
-parport_pc: Current parallel port base: 0x378
-parport0: PC-style at 0x378, irq 7 [PCSPP,EPP]
-parport_pc: VIA parallel port: io=0x378, irq=7
-USB Universal Host Controller Interface driver v3.0
-PCI: Found IRQ 11 for device 0000:00:07.2
-PCI: Sharing IRQ 11 with 0000:00:0b.0
-8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
-eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-PCI: setting IRQ 9 as level-triggered
-PCI: Found IRQ 9 for device 0000:00:0a.0
-PCI: Sharing IRQ 9 with 0000:00:0c.0
-PM: Adding info for ac97:0-0:STAC9721,23
-gameport: EMU10K1 is pci0000:00:0a.1/gameport0, io 0xb800, speed 1242kHz
-PM: Adding info for gameport:gameport0
-PM: Adding info for No Bus:i2c-9191
-PM: Adding info for i2c:9191-6000
-parport_pc: VIA 686A/8231 detected
-parport_pc: probing current configuration
-parport_pc: Current parallel port base: 0x378
-parport0: PC-style at 0x378, irq 7 [PCSPP,EPP]
-parport_pc: VIA parallel port: io=0x378, irq=7
-USB Universal Host Controller Interface driver v3.0
-PCI: Found IRQ 11 for device 0000:00:07.2
-PCI: Sharing IRQ 11 with 0000:00:0b.0
-uhci_hcd 0000:00:07.2: UHCI Host Controller
-uhci_hcd 0000:00:07.2: new USB bus registered, assigned bus number 1
-uhci_hcd 0000:00:07.2: irq 11, io base 0x0000a400
-PM: Adding info for usb:usb1
-PM: Adding info for No Bus:usbdev1.1_ep00
+ACPI: PCI Interrupt 0000:00:0e.0[A] -> Link [LNKB] -> GSI 10 (level, low) -=
+> IRQ 10
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+0000:00:0e.0: 3Com PCI 3c905B Cyclone 100baseTx at f8802000.
+PCI: Enabling device 0000:00:10.0 (0016 -> 0017)
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 3
+PCI: setting IRQ 3 as level-triggered
+ACPI: PCI Interrupt 0000:00:10.0[A] -> Link [LNKD] -> GSI 3 (level, low) ->=
+ IRQ 3
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
+        <Adaptec 2940 Pro Ultra SCSI adapter>
+        aic7880: Ultra Wide Channel A, SCSI Id=3D7, 16/253 SCBs
+
+libata version 2.00 loaded.
+pata_pdc2027x 0000:00:0f.0: version 0.74-ac3
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 4
+PCI: setting IRQ 4 as level-triggered
+ACPI: PCI Interrupt 0000:00:0f.0[A] -> Link [LNKC] -> GSI 4 (level, low) ->=
+ IRQ 4
+pata_pdc2027x 0000:00:0f.0: PLL input clock 18759 kHz
+ata1: PATA max UDMA/133 cmd 0xF88217C0 ctl 0xF8821FDA bmdma 0xF8821000 irq 4
+ata2: PATA max UDMA/133 cmd 0xF88215C0 ctl 0xF8821DDA bmdma 0xF8821008 irq 4
+scsi1 : pata_pdc2027x
+ata1.00: ATA-7, max UDMA/133, 234493056 sectors: LBA48=20
+ata1.00: ata1: dev 0 multi count 16
+ata1.00: configured for UDMA/133
+scsi2 : pata_pdc2027x
+ata2.00: ATA-7, max UDMA/133, 234493056 sectors: LBA48=20
+ata2.00: ata2: dev 0 multi count 16
+ata2.00: configured for UDMA/133
+  Vendor: ATA       Model: SAMSUNG SV1203N   Rev: TQ10
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: ATA       Model: SAMSUNG SV1203N   Rev: TQ10
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+pata_via 0000:00:11.1: version 0.1.13
+ACPI: PCI Interrupt 0000:00:11.1[A] -> Link [LNKA] -> GSI 11 (level, low) -=
+> IRQ 11
+PCI: VIA IRQ fixup for 0000:00:11.1, from 0 to 11
+ata3: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x9400 irq 14
+scsi3 : pata_via
+ata3.00: ATAPI, max UDMA/33
+ata3.00: configured for UDMA/33
+  Vendor: SAMSUNG   Model: CD-R/RW SW-248F   Rev: R605
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+ata4: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0x9408 irq 15
+scsi4 : pata_via
+ata4.00: ATAPI, max UDMA/33
+ata4.00: configured for UDMA/33
+  Vendor: TOSHIBA   Model: DVD-ROM SD-M1912  Rev: TM01
+  Type:   CD-ROM                             ANSI SCSI revision: 05
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3
+sd 1:0:0:0: Attached scsi disk sda
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+ sdb: sdb1 sdb2 sdb3
+sd 2:0:0:0: Attached scsi disk sdb
+sr0: scsi3-mmc drive: 48x/48x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.20
+sr 3:0:0:0: Attached scsi CD-ROM sr0
+sr1: scsi3-mmc drive: 1x/48x cd/rw xa/form2 cdda tray
+sr 4:0:0:0: Attached scsi CD-ROM sr1
+sd 1:0:0:0: Attached scsi generic sg0 type 0
+sd 2:0:0:0: Attached scsi generic sg1 type 0
+sr 3:0:0:0: Attached scsi generic sg2 type 5
+sr 4:0:0:0: Attached scsi generic sg3 type 5
+ACPI: PCI Interrupt 0000:00:0c.2[C] -> Link [LNKB] -> GSI 10 (level, low) -=
+> IRQ 10
+PCI: VIA IRQ fixup for 0000:00:0c.2, from 255 to 10
+ehci_hcd 0000:00:0c.2: EHCI Host Controller
+ehci_hcd 0000:00:0c.2: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:0c.2: irq 10, io mem 0xf8000000
+ehci_hcd 0000:00:0c.2: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+usb usb1: new device found, idVendor=3D0000, idProduct=3D0000
+usb usb1: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
+usb usb1: Product: EHCI Host Controller
+usb usb1: Manufacturer: Linux 2.6.18-rc1-mm2 ehci_hcd
+usb usb1: SerialNumber: 0000:00:0c.2
 usb usb1: configuration #1 chosen from 1 choice
-PM: Adding info for usb:1-0:1.0
 hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 2 ports detected
-PM: Adding info for No Bus:usbdev1.1_ep81
-PM: Adding info for No Bus:usbdev1.1
-ieee1394: Initialized config rom entry `ip1394'
-PCI: Found IRQ 9 for device 0000:00:0c.0
-PCI: Sharing IRQ 9 with 0000:00:0a.0
-PM: Adding info for ieee1394:fw-host0
-ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[9]  MMIO=[eb003000-eb0037ff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-PM: Adding info for ieee1394:2000000004002f6d
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[2000000004002f6d]
-PM: Adding info for ieee1394:2000000004002f6d-0
-NET: Registered protocol family 10
-lo: Disabled Privacy Extensions
-IPv6 over IPv4 tunneling driver
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-device-mapper: ioctl: 4.7.0-ioctl (2006-06-24) initialised: dm-devel@redhat.com
-eth0: no IPv6 routers present
-eth1: no IPv6 routers present
-EXT3 FS on hdb1, internal journal
-Adding 915696k swap on /dev/hdb2.  Priority:-1 extents:1 across:915696k
-audit(1152889914.618:3): audit_pid=1990 old=0 by auid=4294967295
-lp0: using parport0 (interrupt-driven).
-lp0: console ready
-[drm] Initialized drm 1.0.1 20051102
-[drm] Initialized radeon 1.25.0 20060524 on minor 0
-agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 1x mode
-agpgart: Putting AGP V2 device at 0000:01:00.0 into 1x mode
-[drm] Setting GART location based on old memory map
-[drm] Loading R200 Microcode
-[drm] writeback test succeeded in 1 usecs
-atkbd.c: Unknown key pressed (translated set 2, code 0xbb on isa0060/serio0).
-atkbd.c: Use 'setkeycodes e03b <keycode>' to make it known.
-atkbd.c: Unknown key released (translated set 2, code 0xbb on isa0060/serio0).
-atkbd.c: Use 'setkeycodes e03b <keycode>' to make it known.
-NET: Registered protocol family 4
-NET: Registered protocol family 5
+hub 1-0:1.0: 4 ports detected
+USB Universal Host Controller Interface driver v3.0
+ACPI: PCI Interrupt 0000:00:0c.0[A] -> Link [LNKD] -> GSI 3 (level, low) ->=
+ IRQ 3
+uhci_hcd 0000:00:0c.0: UHCI Host Controller
+uhci_hcd 0000:00:0c.0: new USB bus registered, assigned bus number 2
+uhci_hcd 0000:00:0c.0: irq 3, io base 0x0000d800
+usb usb2: new device found, idVendor=3D0000, idProduct=3D0000
+usb usb2: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
+usb usb2: Product: UHCI Host Controller
+usb usb2: Manufacturer: Linux 2.6.18-rc1-mm2 uhci_hcd
+usb usb2: SerialNumber: 0000:00:0c.0
+usb usb2: configuration #1 chosen from 1 choice
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:0c.1[B] -> Link [LNKA] -> GSI 11 (level, low) -=
+> IRQ 11
+uhci_hcd 0000:00:0c.1: UHCI Host Controller
+uhci_hcd 0000:00:0c.1: new USB bus registered, assigned bus number 3
+uhci_hcd 0000:00:0c.1: irq 11, io base 0x0000d400
+usb usb3: new device found, idVendor=3D0000, idProduct=3D0000
+usb usb3: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
+usb usb3: Product: UHCI Host Controller
+usb usb3: Manufacturer: Linux 2.6.18-rc1-mm2 uhci_hcd
+usb usb3: SerialNumber: 0000:00:0c.1
+usb usb3: configuration #1 chosen from 1 choice
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+usbcore: registered new interface driver libusual
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+mice: PS/2 mouse device common for all mice
+md: raid0 personality registered for level 0
+md: raid1 personality registered for level 1
+md: md driver 0.90.3 MAX_MD_DEVS=3D256, MD_SB_DISKS=3D27
+md: bitmap version 4.39
+Advanced Linux Sound Architecture Driver Version 1.0.12rc1 (Thu Jun 22 13:5=
+5:50 2006 UTC).
+ACPI: PCI Interrupt 0000:00:0d.0[A] -> Link [LNKA] -> GSI 11 (level, low) -=
+> IRQ 11
+ALSA device list:
+  #0: Ensoniq AudioPCI ENS1370 at 0xd000, irq 11
+TCP westwood registered
+Using IPI Shortcut mode
+ACPI: (supports S0 S1 S4 S5)
+Freeing unused kernel memory: 200k freed
+Time: tsc clocksource has been installed.
+input: AT Translated Set 2 keyboard as /class/input/input0
+logips2pp: Detected unknown logitech mouse model 56
+input: ImExPS/2 Logitech Explorer Mouse as /class/input/input1
+warning: process `touch' used the removed sysctl system call
+md: md0 stopped.
+md: bind<sdb1>
+md: bind<sda1>
+raid1: raid set md0 active with 2 out of 2 mirrors
+md0: bitmap initialized from disk: read 1/1 pages, set 0 bits, status: 0
+created bitmap (4 pages) for device md0
+md: md_d0 stopped.
+md: bind<sdb2>
+md: bind<sda2>
+raid1: raid set md_d0 active with 2 out of 2 mirrors
+md_d0: bitmap initialized from disk: read 9/9 pages, set 192 bits, status: 0
+created bitmap (129 pages) for device md_d0
+md: md_d1 stopped.
+md: bind<sdb3>
+md: bind<sda3>
+md_d1: setting max_sectors to 2048, segment boundary to 524287
+raid0: looking at sda3
+raid0:   comparing sda3(100421632) with sda3(100421632)
+raid0:   END
+raid0:   =3D=3D> UNIQUE
+raid0: 1 zones
+raid0: looking at sdb3
+raid0:   comparing sdb3(100421632) with sda3(100421632)
+raid0:   EQUAL
+raid0: FINAL 1 zones
+raid0: done.
+raid0 : md_size is 200843264 blocks.
+raid0 : conf->hash_spacing is 200843264 blocks.
+raid0 : nb_zone is 1.
+raid0 : Allocating 4 bytes for hash.
+ md_d0: p1 < p5 p6 p7 p8 p9 p10 p11 p12 p13 p14 p15 p16 >
+ md_d1: p1 < p5 p6 p7<7>spurious 8259A interrupt: IRQ7.
+ p8 p9 >
+NET: Registered protocol family 1
+warning: process `touch' used the removed sysctl system call
+warning: process `touch' used the removed sysctl system call
+warning: process `touch' used the removed sysctl system call
+Adding 1023992k swap on /dev/md_d0p7.  Priority:0 extents:1 across:1023992k
+warning: process `touch' used the removed sysctl system call
+XFS mounting filesystem md_d1p8
+Ending clean XFS mount for filesystem: md_d1p8
+XFS mounting filesystem md_d1p6
+Ending clean XFS mount for filesystem: md_d1p6
+XFS mounting filesystem md_d1p9
+Ending clean XFS mount for filesystem: md_d1p9
+XFS mounting filesystem md_d0p11
+Ending clean XFS mount for filesystem: md_d0p11
+eth0:  setting full-duplex.
+NET: Registered protocol family 17
+eth0:  setting full-duplex.
+lp0: ECP mode
+lp0: ECP mode
+lp0: ECP mode
+lp0: ECP mode
+NFSD: Using /var/lib/nfs/v4recovery as the NFSv4 state recovery directory
+NFSD: starting 90-second grace period
+DMA write timed out
+ata1: EH complete
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata1.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata1: EH complete
+ata2: EH complete
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x0
+ata2.00: tag 0 cmd 0xb0 Emask 0x1 stat 0x51 err 0x4 (device error)
+ata2: EH complete
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+
+--FL5UXtIhxfXey3p5--
+
+--aM3YZ0Iwxop3KEKx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+
+iQIVAwUBRLgj0KnY3eLOiwZcAQqL+hAAywqxA3vJCwTlbf++7VVzjxD/A+O2SOgD
+SAyRN+gYSoUj1KQhrHL8dNXv//PL/xKJy0BlptM2ThOR2dU83g3wlO/Qlf4xzNwQ
+Lp4fBwu1dr6ViBK/SSN0nXe4MYvu7+wKrdZqxwjYiryyjmyDTInW45USgyrC/sTL
+x82+jXT3sx93e3fSzRPd+dap7PGjhPIdCCqTu5CN+/TCK9lfDw/1H+SvDRaEvL8p
+rUfa3C/psccJvzasHryOgxo67GL1Cx4kRqCYx/9bMWBaCFy4STtgHj2IpH5OHga6
+EXSiebjmsk3anw71dOj2Oh5j5KL9CxJw12dYOKS5o7EHAII/3OfIoM05B244k5+B
+2qOF2i/p6Dhw3HNeCH2cN7DWFROSgTgfS/iqphPXT3M2cC/DOQwZ2dCCswsOxaSG
+H2PWOAPfsO4LIbfMqWw8j9jXOv0LrmoCBb/CyY2N2u0XDYumP+lFzIZJ7yLtzH/u
+21es+PcgGHrVOH0f1qoTuxd55RF9qaWHrgUOh5gFeGTwTxtoFfhpH+ngnqx+d5x0
+GKh2mxIwAqmTwphWMXTDoFBT9KzLnkEX0rbNODtDJ8F4M+SiQNNLAklY2chPqsIZ
+RkE2646bDey4Di6OSa0BLai8fT4M8RP32hbGVKNNP7Doumayu7HBN8cTre7TH1vT
+n2NOTjaHWB8=
+=wma0
+-----END PGP SIGNATURE-----
+
+--aM3YZ0Iwxop3KEKx--
 

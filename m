@@ -1,72 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWGNOxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161106AbWGNPAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWGNOxf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbWGNOxf
+	id S1161106AbWGNPAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 11:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbWGNPAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:53:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:36487 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161119AbWGNOxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:53:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q4OP9fbuDpH++frXN6/JeRcJ8i6Elwof9kRJJCbzLhS9UJLEGuzpomzlpIyhWC4598qLwBEF5IAE8p0XT3CSJrrPxWS3Ji4OlwS/4d4CAC7anLwq83gX41z7QtLqQ1oeie8T23HxtJg+VRryPEnwXN0TCuTny1TQmiBLQsrlOZ4=
-Message-ID: <b0943d9e0607140753k6a551cb8m6bc8416b180872d4@mail.gmail.com>
-Date: Fri, 14 Jul 2006 15:53:33 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [PATCH 00/10] Kernel memory leak detector 0.8
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0607131214l68232de8lf8cf03f805822f07@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 14 Jul 2006 11:00:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38805 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030453AbWGNPAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 11:00:23 -0400
+Date: Fri, 14 Jul 2006 08:00:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.18-rc1-mm2
+Message-Id: <20060714080006.bac6e937.akpm@osdl.org>
+In-Reply-To: <44B7804E.4030908@reub.net>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	<44B7804E.4030908@reub.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060710220901.5191.66488.stgit@localhost.localdomain>
-	 <6bffcb0e0607110902u4e24a4f2jc6acf2eb4c3bae93@mail.gmail.com>
-	 <b0943d9e0607110931n4ce1c569x83aa134e2889926c@mail.gmail.com>
-	 <6bffcb0e0607111000q228673a9kcbc6c91f76331885@mail.gmail.com>
-	 <b0943d9e0607111454l1f9919eahbb3b683492a651e@mail.gmail.com>
-	 <6bffcb0e0607120435x31eceab7r3fdb055a7bee6da2@mail.gmail.com>
-	 <b0943d9e0607120917pa0c191aw5814a19b9e6f31fd@mail.gmail.com>
-	 <6bffcb0e0607121555n20a9df53q8589109024629f7a@mail.gmail.com>
-	 <b0943d9e0607130935l2d8b2ff1qf1abec1af876f155@mail.gmail.com>
-	 <6bffcb0e0607131214l68232de8lf8cf03f805822f07@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> After applying context_struct_to_string-not-leak.patch and reverting
-> alloc_skb-false-positive.patch I haven't noticed that soft lockup.
+On Fri, 14 Jul 2006 23:30:22 +1200
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
 
-You still need the apply alloc_skb-false-positive.patch as it just
-avoids a false positive (I'll add it to kmemleak 0.9). Does anything
-change with this (and the context_struct_... one)?
+> 
+> 
+> On 14/07/2006 5:48 p.m., Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/
+> > 
+> > - Patches were merged, added, dropped and fixed.  Nothing particularly exciting.
+> > 
+> > - Added the avr32 architecture.  Review is sought, please.
+> 
+> Another oops, USB related perhaps?
 
-> Here is something new
-> orphan pointer 0xf40d61ac (size 1536):
->   c017392a: <__kmalloc_track_caller>
->   c01631b1: <__kzalloc>
->   f98869cd: <skge_ring_alloc>
->   f9888a1d: <skge_up>
->   c02b17b6: <dev_open>
->   c02b2e94: <dev_change_flags>
->   c02e6e17: <devinet_ioctl>
->   c02e8a02: <inet_ioctl>
+Yes, or driver core.
 
-This looks like a leak but I couldn't find anything obvious with the
-code. I'll keep looking.
+> Fedora Core release 5.90 (Test)
+> Kernel 2.6.18-rc1-mm2 on an x86_64
+> 
+> tornado.reub.net login: Unable to handle kernel NULL pointer dereference at 
+> 0000000000000020 RIP:
+>   [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+> PGD 27153067 PUD 27152067 PMD 0
+> Oops: 0000 [1] SMP
+> last sysfs file: /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.2/usbdev2.4/dev
+> CPU 0
+> Modules linked in: hidp rfcomm l2cap bluetooth ipv6 ip_gre iptable_filter 
+> iptable_nat ip_nat ip_conntrack nfnetlink iptable_mangle ip_tables binfmt_misc 
+> iTCO_wdt i2c_i801 serio_raw
+> Pid: 104, comm: khubd Not tainted 2.6.18-rc1-mm2 #1
+> RIP: 0010:[<ffffffff8029a9b1>]  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+> RSP: 0018:ffff81003f2ddc98  EFLAGS: 00010046
+> RAX: 0000000000000002 RBX: 0000000000000246 RCX: 0000000000000000
+> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+> RBP: ffff81003f2ddd08 R08: 0000000000000001 R09: 0000000000000000
+> R10: ffffffff80488338 R11: 0000000000000001 R12: 0000000000000000
+> R13: ffffffff805ac760 R14: ffff810037f96140 R15: 0000000000000018
+> FS:  0000000000000000(0000) GS:ffffffff808af000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000020 CR3: 000000002725c000 CR4: 00000000000006e0
+> Process khubd (pid: 104, threadinfo ffff81003f2dc000, task ffff810037f96140)
+> Stack:  ffffffff80263d05 0000000000000246 ffff81003ec0f4f0 ffff810012202370
+>   000000003f2ddcd8 0000000000000002 0000000000000000 ffff81003ec0f4e8
+>   ffff81003f2ddd08 0000000000000246 0000000000000000 ffffffff805ac760
+> Call Trace:
+>   [<ffffffff8029b63a>] lock_acquire+0x4f/0x75
+>   [<ffffffff802654fa>] _spin_lock+0x25/0x34
+>   [<ffffffff80488338>] klist_remove+0x15/0x36
+>   [<ffffffff803b63fe>] bus_remove_device+0xa7/0xc9
+>   [<ffffffff803b4d4d>] device_del+0x162/0x195
+>   [<ffffffff803f5b96>] usb_disconnect+0xbb/0x10e
+>   [<ffffffff803f69df>] hub_thread+0x3ff/0xc36
+>   [<ffffffff802332a3>] kthread+0xd3/0x100
+>   [<ffffffff802602f2>] child_rip+0x8/0x12
+> 
+> Code: 49 8b 5f 08 48 85 db 0f 85 4e 03 00 00 49 83 3f 00 75 03 4d
+> RIP  [<ffffffff8029a9b1>] __lock_acquire+0x81/0xcbb
+>   RSP <ffff81003f2ddc98>
+> CR2: 0000000000000020
+> 
+> I didn't see this one but more than likely it happened when my 2 yr old hit the 
+> KVM "change console" button (it's a USB KVM and there are no other USB devices 
+> on the system).
+> 
 
-> http://www.stardust.webpages.pl/files/o_bugs/kml/ml2/
-> http://www.stardust.webpages.pl/files/o_bugs/kml/ml3/
+n->n_klist is NULL in klist_remove().
 
-I would also need to investigate why the report shows some orphan
-pointers without any back-trace information. It seems to disappear
-after a while.
-
-Thanks.
-
--- 
-Catalin

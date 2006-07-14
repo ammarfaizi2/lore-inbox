@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161296AbWGNTfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422731AbWGNThU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161296AbWGNTfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 15:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161298AbWGNTfJ
+	id S1422731AbWGNThU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 15:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422730AbWGNThU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 15:35:09 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:48608 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161296AbWGNTfI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 15:35:08 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1152905158.23584.35.camel@localhost.localdomain>
-References: <1152897878.23584.6.camel@localhost.localdomain>
-	 <1152901664.314.35.camel@localhost.localdomain>
-	 <1152905158.23584.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 12:34:51 -0700
-Message-Id: <1152905691.314.62.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 14 Jul 2006 15:37:20 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:65441 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422729AbWGNThT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 15:37:19 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Fri, 14 Jul 2006 12:37:14 -0700
+User-Agent: KMail/1.7.1
+Cc: "Andy Chittenden" <AChittenden@bluearc.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>
+References: <89E85E0168AD994693B574C80EDB9C270464C6DC@uk-email.terastack.bluearc.com> <20060714093014.2a6e68ff.akpm@osdl.org>
+In-Reply-To: <20060714093014.2a6e68ff.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607141237.15503.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 12:25 -0700, Kylene Jo Hall wrote:
-> > inode_supports_xaddr()?  Seems like something that should check a
-> > superblock flag or something.
+On Friday 14 July 2006 9:30 am, Andrew Morton wrote:
 > 
-> I don't know of any such flags.
+> But when the flock returns, hopefully they will remember that we have a
+> straightforward box-killing regression in the 2.6.17 OHCI controller quirk
+> handling.
 
-There probably aren't any.  The superblock may not even be the right
-place for it.  It just seems a bit silly to say that the only files in
-the system that don't support xaddrs are device files and /proc.  What
-about all of the other filesystems?  Have you tested things like
-ISO9660, VFAT, sysfs?
+More likely in some other code, since that "quirk" handling code hasn't
+changed in forever.  Sometimes BIOS changes hurt (including setup/config),
+sometimes pci/acpi init is a factor.
 
--- Dave
+- Dave
 

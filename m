@@ -1,224 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWGNK2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWGNKfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161026AbWGNK2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 06:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWGNK2p
+	id S1161020AbWGNKfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 06:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWGNKfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 06:28:45 -0400
-Received: from mkedef1.rockwellautomation.com ([208.22.104.18]:48360 "EHLO
+	Fri, 14 Jul 2006 06:35:53 -0400
+Received: from mkedef1.rockwellautomation.com ([208.22.104.18]:4932 "EHLO
 	ranasmtp01.ra.rockwell.com") by vger.kernel.org with ESMTP
-	id S1161026AbWGNK2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 06:28:44 -0400
-To: tglx@linutronix.de
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
+	id S1161020AbWGNKfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 06:35:53 -0400
+To: Kevin Hilman <khilman@deeprooted.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.6.17-rt add clockevent to ixp4xx
 MIME-Version: 1.0
 X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFA0912668.4E3AC4E3-ONC12571AB.0037BD2B-C12571AB.003987E8@ra.rockwell.com>
+Message-ID: <OF17E03102.B88C1774-ONC12571AB.003987F5-C12571AB.003A4830@ra.rockwell.com>
 From: Milan Svoboda <msvoboda@ra.rockwell.com>
-Date: Fri, 14 Jul 2006 12:27:56 +0200
+Date: Fri, 14 Jul 2006 12:36:20 +0200
 X-MIMETrack: Serialize by Router on RANASMTP01/NorthAmerica/RA/Rockwell(Release 6.5.4FP1|June
- 19, 2005) at 07/14/2006 05:29:32 AM
-Content-Type: multipart/mixed; boundary="=_mixed 003987E6C12571AB_="
+ 19, 2005) at 07/14/2006 05:36:41 AM,
+	Serialize complete at 07/14/2006 05:36:41 AM
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_mixed 003987E6C12571AB_=
-Content-Type: text/plain; charset="us-ascii"
+Kevin,
 
-> On Thu, 2006-07-13 at 07:41 -0700, Daniel Walker wrote:
-> > On Thu, 2006-07-13 at 10:53 +0000, Milan Svoboda wrote:
-> > > Hello,
-> > > 
-> > > there are patches that enable clock event on ixp4xx platform. This 
+> On Thu, 2006-07-13 at 10:53 +0000, Milan Svoboda wrote:
+> 
+> > there are patches that enable clock event on ixp4xx platform. This 
 should
-> > > enable high resolution timers... Option for hrtimers in menuconfig 
-is 
-> > > also enabled.
-> > > 
-> > > I tested it on nanosleep test program (included in attachments) and 
-obtained
-> > > this results:
-> > > 
-> > > requested: 899000 us, got: 899159 us, diff: -159 us
-> > > requested: 897000 us, got: 897209 us, diff: -209 us
-> > > requested: 895000 us, got: 899803 us, diff: -4803 us
-> > > requested: 893000 us, got: 899425 us, diff: -6425 us
-> > > requested: 891000 us, got: 899806 us, diff: -8806 us
-> > > requested: 889000 us, got: 890142 us, diff: -1142 us
-> > > requested: 887000 us, got: 889873 us, diff: -2873 us
-> > > requested: 885000 us, got: 888096 us, diff: -3096 us
-> > 
-> > I'd turn off some of the debugging options, and retest. For instance,
-> > the pi-list debugging option will cause arbitrary latency, which you
-> > seem to show in your results. Normally with PREEMPT_RT turned on you
-> > would expect the timers to trigger within a constant amount of time 
-from
-> > when they are suppose to.
+> > enable high resolution timers... Option for hrtimers in menuconfig is
+> > also enabled.
 > 
-> No, the time differences looks like the high res mode never gets
-> switched on. its oszillating between 0 and 10ms, which is the usual
-> behaviour for a non hrt kernel.
+> Milan,
 > 
-> Also I would recommend to test without preempt-rt in the first place.
-> Preempt-rt on ARM is not really well tested, so you dont fight two
-> battles at once.
+> I've also done a clockevent driver for ixp4xx and it looks pretty much
+> like yours.  I've been waiting to submit as Thomas has recently reworked
+> the clockevent layer a bit in his -hrt-dyntick patchset.
+> 
+> Here are a couple comments on your patchset
+> 
+> - since you've registered the clockevent with CAP_TICK, both the
+> arch interrupt handler and the clockevent handler are handling the tick
+> and calling do_timer().  While I don't think this will negatively affect
+> timekeeping, it's unncessary overhead.
 
-Ok ;-), I did what you told me and there is patch agains 
-2.6.17-hrt-dyntick5
-which enables clocksource and clockevent for ixp4xx. There were
-some changes in common code to be able to compile it for arm, I'm
-not sure If these changes are correct, can you please check this out?
+Yeah, I had a headache from this mistake, I found it a few minutes
+after sendig mail ;-)
 
-I tested it with my nanosleep test program and got beautiful
-results - differency between requested and real time of sleep
-is stable around 30us.
+> - why the addition of clockevent_hz2mult()? since shift is 32, you
+> could use existing div_sc32()
 
-Important thing is to use IXP4XX_OST_ONE_SHOT! Without this set, results
-are as bad as I reported previously...
+I didn't know about div_sc32... Simply, I have no problem with using
+div_sc32 now when I know that is exists ;-)
 
-I'm trying to fix -rt to use this, but interface has been changed and I
-don't know hot to switch hrtimers to use one-shots. It looks like it wants
-to always use cyclic timers...
+> The attached patch is a combination of my patch and yours and addresses
+> my comments above.  I simply removed the CLOCK_CAP_TICK and removed your
+> clockevent_hz2mult() and used div_sc32().
+> 
 
-The bad thing is that I tested it also using timer_create with 
-CLOCK_REALTIME
-and the best what I got was 100 tick per sec... I'll try to find where is 
-problem.
+Good.
 
-Signed-off-by: Milan Svoboda <msvoboda@ra.rockwell.com>
----
+> Also, below are a few runs of the nanosleep_jitter test that comes with
+> the sourceforge HRT test suite.  Something strange is that with the
+> nanosleep_jitter test, I only see max sleeps of ~300-400 usec but with
+> your test I see max sleeps up to 1.3 msec.
+> 
 
+Maybe my test program is not as good as nanosleep_jitter :-)
 
---=_mixed 003987E6C12571AB_=
-Content-Type: application/octet-stream; name="hrt_ixp4xx.patch"
-Content-Disposition: attachment; filename="hrt_ixp4xx.patch"
-Content-Transfer-Encoding: base64
+I did patch against -hrt-dyntick (see lkml, this thread) wich is almost 
+the same
+as this one against -rt (for ixp4xx part only) and I found that when timer 
+is
+loaded with IXP4XX_OST_ONE_SHOT the latency time suddenly drops to ~30usec instead
+of ~2000usec! I'd like know what's the reason for this...
 
-ZGlmZiAtdXByTiAtWCBocnRfb3JpZy9Eb2N1bWVudGF0aW9uL2RvbnRkaWZmIGhydF9vcmlnL2Fy
-Y2gvYXJtL0tjb25maWcgaHJ0L2FyY2gvYXJtL0tjb25maWcKLS0tIGhydF9vcmlnL2FyY2gvYXJt
-L0tjb25maWcJMjAwNi0wNi0yNyAxMzo1MDozMC4wMDAwMDAwMDAgKzAwMDAKKysrIGhydC9hcmNo
-L2FybS9LY29uZmlnCTIwMDYtMDctMTEgMTQ6NDU6MDUuMDAwMDAwMDAwICswMDAwCkBAIC0zODUs
-NiArMzg1LDEyIEBAIGVuZG1lbnUKIAogbWVudSAiS2VybmVsIEZlYXR1cmVzIgogCitjb25maWcg
-R0VORVJJQ19USU1FCisJYm9vbAorCWRlZmF1bHQgeQorCitzb3VyY2UgImtlcm5lbC90aW1lL0tj
-b25maWciCisKIGNvbmZpZyBTTVAKIAlib29sICJTeW1tZXRyaWMgTXVsdGktUHJvY2Vzc2luZyAo
-RVhQRVJJTUVOVEFMKSIKIAlkZXBlbmRzIG9uIEVYUEVSSU1FTlRBTCAmJiBSRUFMVklFV19NUENP
-UkUKZGlmZiAtdXByTiAtWCBocnRfb3JpZy9Eb2N1bWVudGF0aW9uL2RvbnRkaWZmIGhydF9vcmln
-L2FyY2gvYXJtL21hY2gtaXhwNHh4L2NvbW1vbi5jIGhydC9hcmNoL2FybS9tYWNoLWl4cDR4eC9j
-b21tb24uYwotLS0gaHJ0X29yaWcvYXJjaC9hcm0vbWFjaC1peHA0eHgvY29tbW9uLmMJMjAwNi0w
-Ni0yNyAxMzo1MDozMC4wMDAwMDAwMDAgKzAwMDAKKysrIGhydC9hcmNoL2FybS9tYWNoLWl4cDR4
-eC9jb21tb24uYwkyMDA2LTA3LTE0IDExOjUzOjIzLjAwMDAwMDAwMCArMDAwMApAQCAtMjcsNiAr
-MjcsOCBAQAogI2luY2x1ZGUgPGxpbnV4L2JpdG9wcy5oPgogI2luY2x1ZGUgPGxpbnV4L3RpbWUu
-aD4KICNpbmNsdWRlIDxsaW51eC90aW1leC5oPgorI2luY2x1ZGUgPGxpbnV4L2Nsb2Nrc291cmNl
-Lmg+CisjaW5jbHVkZSA8bGludXgvY2xvY2tjaGlwcy5oPgogCiAjaW5jbHVkZSA8YXNtL2hhcmR3
-YXJlLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KQEAgLTI1NCwyNSArMjU2LDM4IEBAIHZv
-aWQgX19pbml0IGl4cDR4eF9pbml0X2lycSh2b2lkKQogCiBzdGF0aWMgdW5zaWduZWQgdm9sYXRp
-bGUgbGFzdF9qaWZmeV90aW1lOwogCi0jZGVmaW5lIENMT0NLX1RJQ0tTX1BFUl9VU0VDCSgoQ0xP
-Q0tfVElDS19SQVRFICsgVVNFQ19QRVJfU0VDLzIpIC8gVVNFQ19QRVJfU0VDKQorI2lmZGVmIENP
-TkZJR19ISUdIX1JFU19USU1FUlMKIAotLyogSVJRcyBhcmUgZGlzYWJsZWQgYmVmb3JlIGVudGVy
-aW5nIGhlcmUgZnJvbSBkb19nZXR0aW1lb2ZkYXkoKSAqLwotc3RhdGljIHVuc2lnbmVkIGxvbmcg
-aXhwNHh4X2dldHRpbWVvZmZzZXQodm9pZCkKK3N0YXRpYyB2b2lkIGl4cDR4eF9zZXRfbW9kZShp
-bnQgbW9kZSwgc3RydWN0IGNsb2NrX2V2ZW50ICpldnQpCiB7Ci0JdTMyIGVsYXBzZWQ7Ci0KLQll
-bGFwc2VkID0gKklYUDRYWF9PU1RTIC0gbGFzdF9qaWZmeV90aW1lOworfQogCi0JcmV0dXJuIGVs
-YXBzZWQgLyBDTE9DS19USUNLU19QRVJfVVNFQzsKK3N0YXRpYyB2b2lkIGl4cDR4eF9zZXRfbmV4
-dF9ldmVudCh1bnNpZ25lZCBsb25nIGRlbHRhLCBzdHJ1Y3QgY2xvY2tfZXZlbnQgKmV2dCkKK3sK
-KwkqSVhQNFhYX09TUlQxID0gKGRlbHRhICYgfklYUDRYWF9PU1RfUkVMT0FEX01BU0spIHwgSVhQ
-NFhYX09TVF9FTkFCTEUgfAorCQlJWFA0WFhfT1NUX09ORV9TSE9UOwogfQogCitzdGF0aWMgc3Ry
-dWN0IGNsb2NrX2V2ZW50IGNsb2NrZXZlbnRfaXhwNHh4ID0geworCS5uYW1lCQk9ICJPU1RTIGNs
-b2NrIGV2ZW50IGludGVyZmFjZSIsCisJLmNhcGFiaWxpdGllcwk9IENMT0NLX0NBUF9ORVhURVZU
-LAorCS5zaGlmdAkJPSAzMiwKKwkuc2V0X21vZGUJPSBpeHA0eHhfc2V0X21vZGUsCisJLnNldF9u
-ZXh0X2V2ZW50CT0gaXhwNHh4X3NldF9uZXh0X2V2ZW50LAorfTsKKyNlbmRpZgorCiBzdGF0aWMg
-aXJxcmV0dXJuX3QgaXhwNHh4X3RpbWVyX2ludGVycnVwdChpbnQgaXJxLCB2b2lkICpkZXZfaWQs
-IHN0cnVjdCBwdF9yZWdzICpyZWdzKQogewotCXdyaXRlX3NlcWxvY2soJnh0aW1lX2xvY2spOwot
-CiAJLyogQ2xlYXIgUGVuZGluZyBJbnRlcnJ1cHQgYnkgd3JpdGluZyAnMScgdG8gaXQgKi8KIAkq
-SVhQNFhYX09TU1QgPSBJWFA0WFhfT1NTVF9USU1FUl8xX1BFTkQ7CiAKKyNpZmRlZiBDT05GSUdf
-SElHSF9SRVNfVElNRVJTCisJaWYgKGNsb2NrZXZlbnRfaXhwNHh4LmV2ZW50X2hhbmRsZXIpCisJ
-CWNsb2NrZXZlbnRfaXhwNHh4LmV2ZW50X2hhbmRsZXIocmVncyk7CisjZW5kaWYKKwl3cml0ZV9z
-ZXFsb2NrKCZ4dGltZV9sb2NrKTsKKwogCS8qCiAJICogQ2F0Y2ggdXAgd2l0aCB0aGUgcmVhbCBp
-ZGVhIG9mIHRpbWUKIAkgKi8KQEAgLTMwMCw4ICszMTUsNiBAQCBzdGF0aWMgdm9pZCBfX2luaXQg
-aXhwNHh4X3RpbWVyX2luaXQodm9pCiAJLyogU2V0dXAgdGhlIFRpbWVyIGNvdW50ZXIgdmFsdWUg
-Ki8KIAkqSVhQNFhYX09TUlQxID0gKExBVENIICYgfklYUDRYWF9PU1RfUkVMT0FEX01BU0spIHwg
-SVhQNFhYX09TVF9FTkFCTEU7CiAKLQkvKiBSZXNldCB0aW1lLXN0YW1wIGNvdW50ZXIgKi8KLQkq
-SVhQNFhYX09TVFMgPSAwOwogCWxhc3RfamlmZnlfdGltZSA9IDA7CiAKIAkvKiBDb25uZWN0IHRo
-ZSBpbnRlcnJ1cHQgaGFuZGxlciBhbmQgZW5hYmxlIHRoZSBpbnRlcnJ1cHQgKi8KQEAgLTMxMCw3
-ICszMjMsNiBAQCBzdGF0aWMgdm9pZCBfX2luaXQgaXhwNHh4X3RpbWVyX2luaXQodm9pCiAKIHN0
-cnVjdCBzeXNfdGltZXIgaXhwNHh4X3RpbWVyID0gewogCS5pbml0CQk9IGl4cDR4eF90aW1lcl9p
-bml0LAotCS5vZmZzZXQJCT0gaXhwNHh4X2dldHRpbWVvZmZzZXQsCiB9OwogCiBzdGF0aWMgc3Ry
-dWN0IHJlc291cmNlIGl4cDQ2eF9pMmNfcmVzb3VyY2VzW10gPSB7CkBAIC0zNjYsMyArMzc4LDQ2
-IEBAIHZvaWQgX19pbml0IGl4cDR4eF9zeXNfaW5pdCh2b2lkKQogCQkJaXhwNHh4X2V4cF9idXNf
-c2l6ZSA+PiAyMCk7CiB9CiAKK2N5Y2xlX3QgaXhwNHh4X2dldF9jeWNsZXModm9pZCkKK3sKKwly
-ZXR1cm4gKklYUDRYWF9PU1RTOworfQorCitzdGF0aWMgc3RydWN0IGNsb2Nrc291cmNlIGNsb2Nr
-c291cmNlX2l4cDR4eCA9IHsKKwkubmFtZSAJCT0gIk9TVFMiLAorCS5yYXRpbmcJCT0gMjAwLAor
-CS5yZWFkCQk9IGl4cDR4eF9nZXRfY3ljbGVzLAorCS5tYXNrCQk9IDB4RkZGRkZGRkYsCisJLnNo
-aWZ0IAkJPSAyMCwKKwkuaXNfY29udGludW91cyAJPSAxLAorfTsKKworc3RhdGljIGludCBfX2lu
-aXQgaXhwNHh4X2Nsb2Nrc291cmNlX2luaXQodm9pZCkKK3sKKwkvKiBSZXNldCB0aW1lLXN0YW1w
-IGNvdW50ZXIgKi8KKwkqSVhQNFhYX09TVFMgPSAwOworCisJY2xvY2tzb3VyY2VfaXhwNHh4Lm11
-bHQgPQorCQljbG9ja3NvdXJjZV9raHoybXVsdCg2NjY2MCwgY2xvY2tzb3VyY2VfaXhwNHh4LnNo
-aWZ0KTsKKwljbG9ja3NvdXJjZV9yZWdpc3RlcigmY2xvY2tzb3VyY2VfaXhwNHh4KTsKKworCXJl
-dHVybiAwOworfQorZGV2aWNlX2luaXRjYWxsKGl4cDR4eF9jbG9ja3NvdXJjZV9pbml0KTsKKwor
-I2lmZGVmIENPTkZJR19ISUdIX1JFU19USU1FUlMKK3N0YXRpYyBpbnQgX19pbml0IGl4cDR4eF9j
-bG9ja2V2ZW50X2luaXQodm9pZCkKK3sKKwljbG9ja2V2ZW50X2l4cDR4eC5tdWx0ID0KKwkJZGl2
-X3NjKEZSRVEsIE5TRUNfUEVSX1NFQywgY2xvY2tldmVudF9peHA0eHguc2hpZnQpOworCWNsb2Nr
-ZXZlbnRfaXhwNHh4Lm1heF9kZWx0YV9ucyA9CisJCWNsb2NrZXZlbnRfZGVsdGEybnMoMHhmZmZm
-ZmZmZSwgJmNsb2NrZXZlbnRfaXhwNHh4KTsKKwljbG9ja2V2ZW50X2l4cDR4eC5taW5fZGVsdGFf
-bnMgPQorCQljbG9ja2V2ZW50X2RlbHRhMm5zKDB4ZiwgJmNsb2NrZXZlbnRfaXhwNHh4KTsKKwly
-ZWdpc3Rlcl9sb2NhbF9jbG9ja2V2ZW50KCZjbG9ja2V2ZW50X2l4cDR4eCk7CisKKwlyZXR1cm4g
-MDsKK30KK2RldmljZV9pbml0Y2FsbChpeHA0eHhfY2xvY2tldmVudF9pbml0KTsKKyNlbmRpZgor
-CmRpZmYgLXVwck4gLVggaHJ0X29yaWcvRG9jdW1lbnRhdGlvbi9kb250ZGlmZiBocnRfb3JpZy9h
-cmNoL2FybS9tYWNoLWl4cDR4eC9jb21tb24tcGNpLmMgaHJ0L2FyY2gvYXJtL21hY2gtaXhwNHh4
-L2NvbW1vbi1wY2kuYwotLS0gaHJ0X29yaWcvYXJjaC9hcm0vbWFjaC1peHA0eHgvY29tbW9uLXBj
-aS5jCTIwMDYtMDYtMjggMTA6MDY6MzMuMDAwMDAwMDAwICswMDAwCisrKyBocnQvYXJjaC9hcm0v
-bWFjaC1peHA0eHgvY29tbW9uLXBjaS5jCTIwMDYtMDctMTEgMTE6MDg6NDMuMDAwMDAwMDAwICsw
-MDAwCkBAIC01MzIsNiArNTMyLDggQEAgcGNpX3NldF9jb25zaXN0ZW50X2RtYV9tYXNrKHN0cnVj
-dCBwY2lfZAogCXJldHVybiAtRUlPOwogfQogCitFWFBPUlRfU1lNQk9MKHBjaV9zZXRfZG1hX21h
-c2spOworRVhQT1JUX1NZTUJPTChwY2lfc2V0X2NvbnNpc3RlbnRfZG1hX21hc2spOwogRVhQT1JU
-X1NZTUJPTChpeHA0eHhfcGNpX3JlYWQpOwogRVhQT1JUX1NZTUJPTChpeHA0eHhfcGNpX3dyaXRl
-KTsKIApkaWZmIC11cHJOIC1YIGhydF9vcmlnL0RvY3VtZW50YXRpb24vZG9udGRpZmYgaHJ0X29y
-aWcvaW5jbHVkZS9hc20tYXJtL2h3X2lycS5oIGhydC9pbmNsdWRlL2FzbS1hcm0vaHdfaXJxLmgK
-LS0tIGhydF9vcmlnL2luY2x1ZGUvYXNtLWFybS9od19pcnEuaAkxOTcwLTAxLTAxIDAwOjAwOjAw
-LjAwMDAwMDAwMCArMDAwMAorKysgaHJ0L2luY2x1ZGUvYXNtLWFybS9od19pcnEuaAkyMDA2LTA3
-LTExIDE1OjE2OjE0LjAwMDAwMDAwMCArMDAwMApAQCAtMCwwICsxLDkgQEAKKy8qCisgKiBOb3Ro
-aW5nIHRvIHNlZSBoZXJlIHlldAorICovCisjaWZuZGVmIF9BUkNIX0FSTV9IV19JUlFfSAorI2Rl
-ZmluZSBfQVJDSF9BUk1fSFdfSVJRX0gKKworI2luY2x1ZGUgPGFzbS9tYWNoL2lycS5oPgorCisj
-ZW5kaWYKZGlmZiAtdXByTiAtWCBocnRfb3JpZy9Eb2N1bWVudGF0aW9uL2RvbnRkaWZmIGhydF9v
-cmlnL2luY2x1ZGUvbGludXgvaXJxLmggaHJ0L2luY2x1ZGUvbGludXgvaXJxLmgKLS0tIGhydF9v
-cmlnL2luY2x1ZGUvbGludXgvaXJxLmgJMjAwNi0wNi0yNyAxMzo1MDo0Mi4wMDAwMDAwMDAgKzAw
-MDAKKysrIGhydC9pbmNsdWRlL2xpbnV4L2lycS5oCTIwMDYtMDctMTEgMTU6MjA6MjAuMDAwMDAw
-MDAwICswMDAwCkBAIC02OCwyOCArNjgsMjkgQEAgdHlwZWRlZiBzdHJ1Y3QgaHdfaW50ZXJydXB0
-X3R5cGUgIGh3X2lycQogICoKICAqIFBhZCB0aGlzIG91dCB0byAzMiBieXRlcyBmb3IgY2FjaGUg
-YW5kIGluZGV4aW5nIHJlYXNvbnMuCiAgKi8KLXR5cGVkZWYgc3RydWN0IGlycV9kZXNjIHsKLQlo
-d19pcnFfY29udHJvbGxlciAqaGFuZGxlcjsKLQl2b2lkICpoYW5kbGVyX2RhdGE7Ci0Jc3RydWN0
-IGlycWFjdGlvbiAqYWN0aW9uOwkvKiBJUlEgYWN0aW9uIGxpc3QgKi8KLQl1bnNpZ25lZCBpbnQg
-c3RhdHVzOwkJLyogSVJRIHN0YXR1cyAqLwotCXVuc2lnbmVkIGludCBkZXB0aDsJCS8qIG5lc3Rl
-ZCBpcnEgZGlzYWJsZXMgKi8KLQl1bnNpZ25lZCBpbnQgaXJxX2NvdW50OwkJLyogRm9yIGRldGVj
-dGluZyBicm9rZW4gaW50ZXJydXB0cyAqLwotCXVuc2lnbmVkIGludCBpcnFzX3VuaGFuZGxlZDsK
-LQlzcGlubG9ja190IGxvY2s7Ci0jaWYgZGVmaW5lZCAoQ09ORklHX0dFTkVSSUNfUEVORElOR19J
-UlEpIHx8IGRlZmluZWQgKENPTkZJR19JUlFCQUxBTkNFKQotCXVuc2lnbmVkIGludCBtb3ZlX2ly
-cTsJCS8qIEZsYWcgbmVlZCB0byByZS10YXJnZXQgaW50ciBkZXN0Ki8KLSNlbmRpZgotfSBfX19f
-Y2FjaGVsaW5lX2FsaWduZWQgaXJxX2Rlc2NfdDsKIAotZXh0ZXJuIGlycV9kZXNjX3QgaXJxX2Rl
-c2MgW05SX0lSUVNdOworLy90eXBlZGVmIHN0cnVjdCBpcnFfZGVzYyB7CisvLwlod19pcnFfY29u
-dHJvbGxlciAqaGFuZGxlcjsKKy8vCXZvaWQgKmhhbmRsZXJfZGF0YTsKKy8vCXN0cnVjdCBpcnFh
-Y3Rpb24gKmFjdGlvbjsJLyogSVJRIGFjdGlvbiBsaXN0ICovCisvLwl1bnNpZ25lZCBpbnQgc3Rh
-dHVzOwkJLyogSVJRIHN0YXR1cyAqLworLy8JdW5zaWduZWQgaW50IGRlcHRoOwkJLyogbmVzdGVk
-IGlycSBkaXNhYmxlcyAqLworLy8JdW5zaWduZWQgaW50IGlycV9jb3VudDsJCS8qIEZvciBkZXRl
-Y3RpbmcgYnJva2VuIGludGVycnVwdHMgKi8KKy8vCXVuc2lnbmVkIGludCBpcnFzX3VuaGFuZGxl
-ZDsKKy8vCXNwaW5sb2NrX3QgbG9jazsKKy8vI2lmIGRlZmluZWQgKENPTkZJR19HRU5FUklDX1BF
-TkRJTkdfSVJRKSB8fCBkZWZpbmVkIChDT05GSUdfSVJRQkFMQU5DRSkKKy8vCXVuc2lnbmVkIGlu
-dCBtb3ZlX2lycTsJCS8qIEZsYWcgbmVlZCB0byByZS10YXJnZXQgaW50ciBkZXN0Ki8KKy8vI2Vu
-ZGlmCisvL30gX19fX2NhY2hlbGluZV9hbGlnbmVkIGlycV9kZXNjX3Q7CisKKy8vZXh0ZXJuIGly
-cV9kZXNjX3QgaXJxX2Rlc2MgW05SX0lSUVNdOwogCiAvKiBSZXR1cm4gYSBwb2ludGVyIHRvIHRo
-ZSBpcnEgZGVzY3JpcHRvciBmb3IgSVJRLiAgKi8KLXN0YXRpYyBpbmxpbmUgaXJxX2Rlc2NfdCAq
-Ci1pcnFfZGVzY3AgKGludCBpcnEpCi17Ci0JcmV0dXJuIGlycV9kZXNjICsgaXJxOwotfQorLy9z
-dGF0aWMgaW5saW5lIGlycV9kZXNjX3QgKgorLy9pcnFfZGVzY3AgKGludCBpcnEpCisvL3sKKy8v
-CXJldHVybiBpcnFfZGVzYyArIGlycTsKKy8vfQogCiAjaW5jbHVkZSA8YXNtL2h3X2lycS5oPiAv
-KiB0aGUgYXJjaCBkZXBlbmRlbnQgc3R1ZmYgKi8KIApkaWZmIC11cHJOIC1YIGhydF9vcmlnL0Rv
-Y3VtZW50YXRpb24vZG9udGRpZmYgaHJ0X29yaWcva2VybmVsL2hydGltZXIuYyBocnQva2VybmVs
-L2hydGltZXIuYwotLS0gaHJ0X29yaWcva2VybmVsL2hydGltZXIuYwkyMDA2LTA3LTE0IDExOjQ0
-OjA4LjAwMDAwMDAwMCArMDAwMAorKysgaHJ0L2tlcm5lbC9ocnRpbWVyLmMJMjAwNi0wNy0xMSAx
-NToxNDowNC4wMDAwMDAwMDAgKzAwMDAKQEAgLTQwLDYgKzQwLDcgQEAKICNpbmNsdWRlIDxsaW51
-eC9pbnRlcnJ1cHQuaD4KICNpbmNsdWRlIDxsaW51eC9jbG9ja2NoaXBzLmg+CiAjaW5jbHVkZSA8
-bGludXgvc2VxX2ZpbGUuaD4KKyNpbmNsdWRlIDxsaW51eC9wcm9maWxlLmg+CiAKICNpbmNsdWRl
-IDxhc20vdWFjY2Vzcy5oPgogCg==
+Best regards,
+Milan
 
---=_mixed 003987E6C12571AB_=--

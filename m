@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbWGNQCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbWGNQKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161143AbWGNQCR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbWGNQCR
+	id S1161145AbWGNQKE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161147AbWGNQKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:02:17 -0400
-Received: from lecar.isp.oct.net ([216.147.229.12]:60933 "EHLO
-	lecar.isp.oct.net") by vger.kernel.org with ESMTP id S1161143AbWGNQCQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:02:16 -0400
-Message-ID: <44B7BFF7.1000500@ksu.edu>
-Date: Fri, 14 Jul 2006 11:01:59 -0500
-From: "Scott J. Harmon" <harmon@ksu.edu>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 14 Jul 2006 12:10:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29356 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161145AbWGNQKC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:10:02 -0400
+Date: Fri, 14 Jul 2006 09:09:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Edgar Hucek <hostmaster@ed-soft.at>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "H. Peter Anvin" <hpa@zytor.com>, LKML <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+In-Reply-To: <44B73791.9080601@ed-soft.at>
+Message-ID: <Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
+References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+ <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+ <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+ <44A8058D.3030905@zytor.com> <m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+ <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+ <44B6BF2F.6030401@ed-soft.at> <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+ <44B73791.9080601@ed-soft.at>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org,
-       Daniel Drake <dsd@gentoo.org>
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-References: <20060714095233.5678A8B6253@zog.reactivated.net> <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org> <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org> <20060714154240.GA23480@tuatara.stupidest.org>
-In-Reply-To: <20060714154240.GA23480@tuatara.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> On Fri, Jul 14, 2006 at 07:43:05AM -0700, Andrew Morton wrote:
+
+
+On Fri, 14 Jul 2006, Edgar Hucek wrote:
+>
+> This is the memory map from the efi shell :
+
+Ok, it really looks like EFI is broken. You said that "ACPI_MCFG table
+returns e0000000", ie we should find the config space thing there, yet:
+
+> [ snip snip ... ]
+> ACPI_recl  000000007EEEF000-000000007EEFEFFF  0000000000000010 000000000000000F
+> RT_data    000000007EEFF000-000000007EEFFFFF  0000000000000001 800000000000000F
+> MemMapIO   00000000E00F8000-00000000E00F8FFF  0000000000000001 8000000000000000
+> MemMapIO   00000000FED1C000-00000000FED1FFFF  0000000000000004 8000000000000000
+> MemMapIO   00000000FFFB0000-00000000FFFDFFFF  0000000000000030 8000000000000000
+
+It clearly wasn't there..
+
+However, it looks like your conversion is a bit buggy:
+
+> This is the converted memory map :
 > 
->> How do we fix all this?  (Who owns it?)
+> [ snip snip .. ]
+>  BIOS-EFI: 000000007eeef000 - 000000007eeff000 (ACPI data)
+>  BIOS-EFI: 00000000e00f8000 - 00000000e00f9000 (reserved)
+>  BIOS-EFI: 00000000fed1c000 - 00000000fed20000 (reserved)
+>  BIOS-EFI: 00000000fffb0000 - 00000000fffe0000 (reserved)
+
+The above is missing the "RT_data" thing (which was there in your input):
+
+	mem31: type=6, attr=0x800000000000000f, range=[0x000000007eeff000-0x000000007ef00000) (0MB)
+
+> This is the funktion i used for converting :
 > 
-> If someone who has this problem with ACPI is enabled can verify that
-> Windows works that would be helpful, then we might be able to figure
-> out why CONFIG_ACPI=y doesn't suffice for *some* people.  I've been
-> told that VIA got their ACPI wrong in some cases so that might be why
-> it doesn't work --- but if Windows deals with it we might be able to
-> do whatever windows does in this case.
+>                 case EFI_RESERVED_TYPE:
+>                 case EFI_MEMORY_MAPPED_IO:
+>                 case EFI_MEMORY_MAPPED_IO_PORT_SPACE:
+>                 case EFI_UNUSABLE_MEMORY:
+>                         add_memory_region(md->phys_addr, md->num_pages << EFI_PAGE_SHIFT, E820_RESERVED);
+>                         break;
 
-Windows worked when I had it installed.
+I think that should be a "default:", to make sure that you don't have any 
+memory region types that get ignored. Because it looks like you missed the 
+EFI_RUNTIME_SERVICES_CODE/EFI_RUNTIME_SERVICES_DATA ones at a minimum (an 
+dmaybe others - I didn't check).
 
-> 
-> Doing the quick blindly as we did before (and current -mm does) breaks
-> for some people and trying to list all the IDs breaks for others
-> (apparently a larger or certainly louder group).
+Anyway, that won't fix your bug, and yes, it sounds like you should add a 
+PCI_PROBE_FORCE_MMCFG flag (and then do the proper MMIO region reservation 
+to make sure that we don't allocate over it when allocating PCI 
+resources).
 
-Thanks,
+Looks good otherwise.
 
-Scott.
-
+		Linus

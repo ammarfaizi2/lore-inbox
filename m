@@ -1,100 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWGNJyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWGNJys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161014AbWGNJyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 05:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGNJyq
+	id S1161015AbWGNJys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 05:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGNJys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 05:54:46 -0400
-Received: from server.mrvanes.com ([81.17.40.76]:42391 "EHLO mail.mrvanes.com")
-	by vger.kernel.org with ESMTP id S1161014AbWGNJyp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 05:54:45 -0400
-From: Martin van Es <martin@mrvanes.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.17.1 bug/oops in snd_usb_audio subsystem
-Date: Fri, 14 Jul 2006 11:54:36 +0200
-User-Agent: KMail/1.9.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607141154.36939.martin@mrvanes.com>
+	Fri, 14 Jul 2006 05:54:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51609 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964812AbWGNJyr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 05:54:47 -0400
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dinakar Guniguntala <dino@in.ibm.com>, Simon.Derr@bull.net,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+Date: Fri, 14 Jul 2006 02:54:34 -0700
+Message-Id: <20060714095434.24283.5979.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] Cpuset: fix ABBA deadlock with cpu hotplug lock
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Paul Jackson <pj@sgi.com>
 
-I already sent this mail to perex@suse.cz a couple of days ago since I thought 
-that was the closest match in the MAINTAINERS list for this oops.
-Since I didn't receive any reply I am not sure if the information in this mail 
-is known to the developing community so I'll send a one time copy to the 
-list. Please forgive me for not being a member of the list, I just happen to 
-follow (stable) kernel development and stumbled upon this oops...
+Fix ABBA deadlock between lock_cpu_hotplug() and the cpuset
+callback_mutex lock.
 
-If there's anything I forgot, or should test/send to this list or person, 
-please CC me on the reply.
+It only happens on cpu_exclusive cpusets, due to the dynamic
+sched domain code trying to take the cpu hotplug lock inside
+the cpuset callback_mutex lock.
 
-Regards,
-Martin van Es
+This bug has apparently been here for several months, but didn't
+get hit until the right customer load on a large system.
 
--- original message --
+This fix appears right from inspection, but it will take a few
+more days running it on that customers workload to be confident
+we nailed it.  We don't have any other reproducible test case.
 
-Device:
-The mentioned usb SOUND device is part of a philips webcam, dmesg output:
-pwc: Philips PCVC675K (Vesta) USB webcam detected.
+The cpu_hotplug_lock() tends to cover large runs of code.
+The other places that hold both that lock and the cpuset callback
+mutex lock always nest the cpuset lock inside the hotplug lock.
+This place tries to do the reverse, risking an ABBA deadlock.
 
-and registers as /dev/dsp1
+This is in the cpuset_rmdir() code, where we:
+  * take the callback_mutex lock
+  * mark the cpuset CS_REMOVED
+  * call update_cpu_domains for cpu_exclusive cpusets
+  * in that call, take the cpu_hotplug lock if the
+    cpuset is marked for removal.
 
-I was able to reproduce the bug every time I start up ffmpeg (using /dev/dsp1) 
-in 2.6.17.1, but for 1 time. I tried the same with 2.6.16 (only) once which 
-worked fine.
+Thanks to Jack Steiner for identifying this deadlock.
 
-Maybe helpful:
-I deselected support for old ALSA API in 2.6.17.1
+The fix is to tear down the dynamic sched domain before we grab
+the cpuset callback_mutex lock.  This way, the two locks are
+serialized, with the hotplug lock taken and released before
+trying for the cpuset lock.
 
-I didn't find a reference to the snd_usb_audio subsystem in recent 2.6.17 
-releases (> .1) changelog so didn't try to compile a new version of the 
-2.6.17.x kernel.
+I suspect that this bug was introduced when I changed the
+cpuset locking from one lock to two.  The dynamic sched domain
+dependency on cpu_exclusive cpusets and its hotplug hooks were
+added to this code earlier, when cpusets had only a single lock.
+It may well have been fine then.
 
-Grtz.
-Martin van Es
+Signed-off-by: Paul Jackson <pj@sgi.com>
 
-dmesg output:
+---
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 
-000001b8
- printing eip:
-deae2514
-*pde = 00000000
-Oops: 0002 [#1]
-Modules linked in: snd_usb_audio pwc snd_usb_lib videodev v4l2_common 
-snd_rawmidi snd_hwdep capability commoncap kqemu ipw2200
-CPU:    0
-EIP:    0060:[<deae2514>]    Tainted: P      VLI
-EFLAGS: 00210202   (2.6.17.1 #5)
-EIP is at snd_usb_pcm_open+0x34/0x4d0 [snd_usb_audio]
-eax: db67e780   ebx: 00000000   ecx: 0000000e   edx: 000001a8
-esi: deaf0d20   edi: c5be1e50   ebp: c56379c0   esp: c5be1d9c
-ds: 007b   es: 007b   ss: 0068
-Process ffmpeg (pid: 19504, threadinfo=c5be0000 task=c678aa70)
-Stack: 00000020 c5be1dd8 00000000 d1d49000 00000010 c56379c0 c030f7f4 d1d49000
-       00000000 00000010 d1d49000 000001a8 00000011 0000000b ffffffff cfcdf600
-       00000000 0000000d c5be1e50 c56379c0 c030fb17 db67e780 00000001 c61a4c80
-Call Trace:
- <c030f7f4> snd_pcm_hw_constraints_init+0x704/0x790  <c030fb17> 
-snd_pcm_open_substream+0x57/0xb0
- <c031df41> snd_pcm_oss_open+0x221/0x4a0  <c0163800> 
-generic_permission+0x110/0x120
- <c02126c7> kobject_get+0x17/0x20  <c01185c0> default_wake_function+0x0/0x20
- <c030482d> soundcore_open+0x8d/0x1c0  <c015e826> chrdev_open+0x76/0x160
- <c015e7b0> chrdev_open+0x0/0x160  <c0153aeb> __dentry_open+0xbb/0x200
- <c0153d4c> do_filp_open+0x5c/0x70  <c01539cb> get_unused_fd+0x5b/0xc0
- <c0153db3> do_sys_open+0x53/0x100  <c0153eb7> sys_open+0x27/0x30
- <c0102f47> syscall_call+0x7/0xb
-Code: 8b 48 5c 8d 14 52 fc 89 4c 24 28 89 d1 c1 e1 04 01 ca b9 0e 00 00 00 8d 
-14 d5 10 00 00 00 89 54 24 2c 8b 58 08 01 da 89 54 24 2c <c7> 42 10 ff ff ff 
-ff c7 42 24 00 00 00 00 8b 7c 24 28 81 c7 d0
-EIP: [<deae2514>] snd_usb_pcm_open+0x34/0x4d0 [snd_usb_audio] SS:ESP 
-0068:c5be1d9c
+ kernel/cpuset.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
+--- 2.6.18-rc1-mm1.orig/kernel/cpuset.c	2006-07-13 01:43:26.944147637 -0700
++++ 2.6.18-rc1-mm1/kernel/cpuset.c	2006-07-13 01:43:30.144185379 -0700
+@@ -761,6 +761,8 @@ static int validate_change(const struct 
+  *
+  * Call with manage_mutex held.  May nest a call to the
+  * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
++ * Must not be called holding callback_mutex, because we must
++ * not call lock_cpu_hotplug() while holding callback_mutex.
+  */
+ 
+ static void update_cpu_domains(struct cpuset *cur)
+@@ -780,7 +782,7 @@ static void update_cpu_domains(struct cp
+ 		if (is_cpu_exclusive(c))
+ 			cpus_andnot(pspan, pspan, c->cpus_allowed);
+ 	}
+-	if (is_removed(cur) || !is_cpu_exclusive(cur)) {
++	if (!is_cpu_exclusive(cur)) {
+ 		cpus_or(pspan, pspan, cur->cpus_allowed);
+ 		if (cpus_equal(pspan, cur->cpus_allowed))
+ 			return;
+@@ -1916,6 +1918,17 @@ static int cpuset_mkdir(struct inode *di
+ 	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
+ }
+ 
++/*
++ * Locking note on the strange update_flag() call below:
++ *
++ * If the cpuset being removed is marked cpu_exclusive, then simulate
++ * turning cpu_exclusive off, which will call update_cpu_domains().
++ * The lock_cpu_hotplug() call in update_cpu_domains() must not be
++ * made while holding callback_mutex.  Elsewhere the kernel nests
++ * callback_mutex inside lock_cpu_hotplug() calls.  So the reverse
++ * nesting would risk an ABBA deadlock.
++ */
++
+ static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
+ {
+ 	struct cpuset *cs = dentry->d_fsdata;
+@@ -1935,11 +1948,16 @@ static int cpuset_rmdir(struct inode *un
+ 		mutex_unlock(&manage_mutex);
+ 		return -EBUSY;
+ 	}
++	if (is_cpu_exclusive(cs)) {
++		int retval = update_flag(CS_CPU_EXCLUSIVE, cs, "0");
++		if (retval < 0) {
++			mutex_unlock(&manage_mutex);
++			return retval;
++		}
++	}
+ 	parent = cs->parent;
+ 	mutex_lock(&callback_mutex);
+ 	set_bit(CS_REMOVED, &cs->flags);
+-	if (is_cpu_exclusive(cs))
+-		update_cpu_domains(cs);
+ 	list_del(&cs->sibling);	/* delete my sibling from parent->children */
+ 	spin_lock(&cs->dentry->d_lock);
+ 	d = dget(cs->dentry);
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

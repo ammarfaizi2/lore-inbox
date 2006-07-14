@@ -1,318 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422665AbWGNRYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422662AbWGNRYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422665AbWGNRYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWGNRYj
+	id S1422662AbWGNRYx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbWGNRYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:24:39 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:58794 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422656AbWGNRY2 (ORCPT
+	Fri, 14 Jul 2006 13:24:50 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:61357 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422662AbWGNRYh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:24:28 -0400
-Subject: [RFC][PATCH 2/6] Integrity Service API and dummy provider
+	Fri, 14 Jul 2006 13:24:37 -0400
+Subject: [RFC][PATCH 4/6] slim: secfs patch
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        LSM ML <linux-security-module@vger.kernel.org>
 Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
        Serge Hallyn <sergeh@us.ibm.com>
 Content-Type: text/plain
-Date: Fri, 14 Jul 2006 10:24:32 -0700
-Message-Id: <1152897872.23584.5.camel@localhost.localdomain>
+Date: Fri, 14 Jul 2006 10:24:42 -0700
+Message-Id: <1152897882.23584.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides a framework and dummy provider for an
-integrity service. The three integrity functions provided are:
-
-	integrity_verify_metadata
-	integrity_verity_data
-	integrity_measure
-
-(Details on the calls and their exact arguments are in
-linux/integrity.h, included in the patch.)
-
-Normally these functions would be called by an LSM module
-during d_instantiate. The first function is used to retrieve
-a requested dentry's label (xattr, such as security.selinux, or
-security.slim.level), along with the result of integrity
-verification of the label.
-
-Based on the result of this call, the LSM module may also choose
-to use integrity_verify_data to request a verification of the
-file's data, and integrity_measure, to commit the file's
-measurement to some form of logging/attestation service, such
-as a TPM.
-
-The latter two functions are separate calls, so that the LSM
-module can optimize performance by using them only as needed.
-For example, if the integrity_verify_metadata call shows that
-the label is not trustworthy, it is probably not necessary to
-hash and measure the file, as the current LSM check will
-likely be denied anyway.
+This patch provides the securityfs used by SLIM.
 
 Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
----
- include/linux/integrity.h  |   85 +++++++++++++++++++++++++++++++++++
- security/Makefile          |    1
- security/integrity.c       |   45 ++++++++++++++++++
- security/integrity_dummy.c |   78 ++++++++++++++++++++++++++++++++
- security/integrity_dummy.h |   12 ++++
- 5 files changed, 221 insertions(+)
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+--- 
+ security/slim/slm_secfs.c |   73 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 73 insertions(+)
 
-Index: linux-2.6.17/security/integrity.c
-===================================================================
---- /dev/null
-+++ linux-2.6.17/security/integrity.c
-@@ -0,0 +1,45 @@
+--- linux-2.6.17/security/slim/slm_secfs.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.17/security/slim/slm_secfs.c	2006-07-13 16:28:17.000000000 -0700
+@@ -0,0 +1,73 @@
 +/*
-+ * integrity.c
++ * SLIM securityfs support: debugging control files
 + *
-+ * register integrity subsystem
-+ *
-+ * Copyright (C) 2005,2006 IBM Corporation
++ * Copyright (C) 2005, 2006 IBM Corporation
 + * Author: Mimi Zohar <zohar@us.ibm.com>
++ *	   Kylene Hall <kjhall@us.ibm.com>
 + *
 + *      This program is free software; you can redistribute it and/or modify
 + *      it under the terms of the GNU General Public License as published by
 + *      the Free Software Foundation, version 2 of the License.
 + */
 +
++#include <asm/uaccess.h>
 +#include <linux/config.h>
 +#include <linux/module.h>
-+#include <linux/init.h>
 +#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/integrity.h>
++#include <linux/security.h>
++#include <linux/debugfs.h>
++#include "slim.h"
 +
-+#include "integrity_dummy.h"
++static struct dentry *slim_sec_dir, *slim_level;
 +
-+struct integrity_operations *integrity_ops = &dummy_integrity_ops;
-+
-+int register_integrity(struct integrity_operations *ops)
++static ssize_t slm_read_level(struct file *file, char __user *buf,
++			      size_t buflen, loff_t *ppos)
 +{
-+	if (integrity_ops != &dummy_integrity_ops)
-+		return -EAGAIN;
++	struct slm_tsec_data *cur_tsec = current->security;
++	ssize_t len;
++	char *page = (char *)__get_free_page(GFP_KERNEL);
++	
++	if (!page)
++		return -ENOMEM;
 +
-+	integrity_ops = ops;
-+	return 0;
-+}
-+
-+int unregister_integrity(struct integrity_operations *ops)
-+{
-+	if (ops != integrity_ops)
-+		return -EINVAL;
-+
-+	integrity_ops = &dummy_integrity_ops;
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL_GPL(register_integrity);
-+EXPORT_SYMBOL_GPL(unregister_integrity);
-+EXPORT_SYMBOL_GPL(integrity_ops);
-Index: linux-2.6.17/security/integrity_dummy.c
-===================================================================
---- /dev/null
-+++ linux-2.6.17/security/integrity_dummy.c
-@@ -0,0 +1,78 @@
-+/*
-+ * integrity_dummy.c
-+ *
-+ * Instantiate integrity subsystem
-+ *
-+ * Copyright (C) 2005,2006 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/integrity.h>
-+
-+/*
-+ *  Return the extended attribute
-+ */
-+static int dummy_verify_metadata(struct dentry *dentry, char *xattr_name,
-+				 char **xattr_value, int *xattr_value_len,
-+				 int *xattr_status)
-+{
-+	char *value;
-+	int size;
-+	int error;
-+
-+	if (!xattr_value || !xattr_value_len || !xattr_status)
-+		return 0;
-+
-+	if (!dentry || !dentry->d_inode || !dentry->d_inode->i_op
-+	    || !dentry->d_inode->i_op->getxattr) {
-+		*xattr_status = -EOPNOTSUPP;
-+		return 0;
++	if (is_kernel_thread(current))
++		len = sprintf(page, "level: KERNEL\n");
++	else if (!cur_tsec)
++		len = sprintf(page, "level: UNKNOWN\n");
++	else {
++		if (cur_tsec->iac_wx != cur_tsec->iac_r)
++			len = sprintf(page, "level: GUARD wx:%s r:%s\n",
++				      slm_iac_str[cur_tsec->iac_wx],
++				      slm_iac_str[cur_tsec->iac_r]);
++		else
++			len = sprintf(page, "level: %s\n",
++				      slm_iac_str[cur_tsec->iac_wx]);
 +	}
-+
-+	size = dentry->d_inode->i_op->getxattr(dentry, xattr_name, NULL, 0);
-+	if (size < 0) {
-+		*xattr_value_len = 0;
-+		*xattr_status = size;
-+		return 0;
-+	}
-+
-+	value = kzalloc(size + 1, GFP_KERNEL);
-+	if (!value) {
-+		*xattr_value_len = 0;
-+		*xattr_status = -ENOMEM;
-+		return 0;
-+	}
-+
-+	error = dentry->d_inode->i_op->getxattr(dentry, xattr_name,
-+						value, size);
-+	*xattr_value_len = size;
-+	*xattr_value = value;
-+	*xattr_status = error;
-+	return 0;
++	len = simple_read_from_buffer(buf, buflen, ppos, page, len);
++	free_page((unsigned long)page);
++	return len;
 +}
 +
-+static int dummy_verify_data(struct dentry *dentry)
-+{
-+	return 0;
-+}
-+
-+static void dummy_measure(struct dentry *dentry,
-+			  const unsigned char *filename, int mask)
-+{
-+	return;
-+}
-+
-+struct integrity_operations dummy_integrity_ops = {
-+	.verify_metadata = dummy_verify_metadata,
-+	.verify_data = dummy_verify_data,
-+	.measure = dummy_measure
++static struct file_operations slm_level_ops = {
++	.read = slm_read_level,
 +};
 +
-Index: linux-2.6.17/include/linux/integrity.h
-===================================================================
---- /dev/null
-+++ linux-2.6.17/include/linux/integrity.h
-@@ -0,0 +1,85 @@
-+/*
-+ * integrity.h
-+ *
-+ * Copyright (C) 2005,2006 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+#ifndef _LINUX_INTEGRITY_H
-+#define _LINUX_INTEGRITY_H
-+
-+#include <linux/fs.h>
-+
-+/*
-+ * struct integrity_operations - main integrity structure
-+ *
-+ * @verify_data:
-+ *	Verify the integrity of a dentry.
-+ *	@dentry contains the dentry structure to be verified.
-+ *	Possible return codes are: INTEGRITY_PASS, INTEGRITY_FAIL,
-+ * 		INTEGRITY_NOLABEL
-+ *
-+ * @verify_metadata:
-+ *	Verify the integrity of a dentry's metadata; return the value
-+ * 	of the requested xattr_name and the verification result of the
-+ *	dentry's metadata.
-+ *	@dentry contains the dentry structure of the metadata to be verified.
-+ *	@xattr_name, if not null, contains the name of the xattr
-+ *		 being requested.
-+ *	@xattr_value, if not null, is a pointer for the xattr value.
-+ *	@xattr_val_len will be set to the length of the xattr value.
-+ *	@xattr_status is the result of the getxattr request for the xattr.
-+ *	Possible return codes are: INTEGRITY_PASS, INTEGRITY_FAIL,
-+ *		INTEGRITY_NOLABEL, -EOPNOTSUPP, -ENOMEM,
-+ *
-+ * @measure:
-+ *	Update an aggregate integrity value with the inode's measurement.
-+ *	The aggregate integrity value is maintained in secure storage such
-+ *	as in a TPM PCR.
-+ *	@dentry contains the dentry structure of the inode to be measured.
-+ *	@filename either contains the full pathname/short file name.
-+ *	@mask contains the filename permission status(i.e. read, write, append).
-+ *
-+ */
-+
-+struct integrity_operations {
-+	int (*verify_metadata) (struct dentry *dentry, char *xattr_name,
-+			char **xattr_value, int *xattr_val_len,
-+			int *xattr_status);
-+	int (*verify_data) (struct dentry *dentry);
-+	void (*measure) (struct dentry *dentry,
-+			const unsigned char *filename, int mask);
-+};
-+extern int register_integrity(struct integrity_operations *ops);
-+extern int unregister_integrity(struct integrity_operations *ops);
-+
-+/* global variables */
-+extern struct integrity_operations *integrity_ops;
-+enum integrity_verify_status {
-+	INTEGRITY_PASS = 0, INTEGRITY_FAIL = -1, INTEGRITY_NOLABEL = -2
-+};
-+
-+/* inline stuff */
-+static inline int integrity_verify_metadata(struct dentry *dentry,
-+			char *xattr_name, char **xattr_value,
-+			int *xattr_val_len, int *xattr_status)
++int __init slm_init_secfs(void)
 +{
-+	return integrity_ops->verify_metadata(dentry, xattr_name,
-+			xattr_value, xattr_val_len, xattr_status);
++	slim_sec_dir = securityfs_create_dir("slim", NULL);
++	if (!slim_sec_dir || IS_ERR(slim_sec_dir))
++		return -EFAULT;
++	slim_level = securityfs_create_file("level", S_IRUGO,
++					    slim_sec_dir, NULL, &slm_level_ops);
++	if (!slim_level || IS_ERR(slim_level)) {
++		securityfs_remove(slim_sec_dir);
++		return -EFAULT;
++	}
++	return 0;
 +}
 +
-+static inline int integrity_verify_data(struct dentry *dentry)
++void __exit slm_cleanup_secfs(void)
 +{
-+	return integrity_ops->verify_data(dentry);
++	securityfs_remove(slim_level);
++	securityfs_remove(slim_sec_dir);
 +}
-+
-+static inline void integrity_measure(struct dentry *dentry,
-+			const unsigned char *filename, int mask)
-+{
-+	return integrity_ops->measure(dentry, filename, mask);
-+}
-+#endif
-Index: linux-2.6.17/security/Makefile
-===================================================================
---- linux-2.6.17.orig/security/Makefile
-+++ linux-2.6.17/security/Makefile
-@@ -12,6 +12,7 @@ endif
- 
- # Object file lists
- obj-$(CONFIG_SECURITY)			+= security.o dummy.o inode.o
-+obj-$(CONFIG_SECURITY)			+= integrity.o integrity_dummy.o
- # Must precede capability.o in order to stack properly.
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
-Index: linux-2.6.17/security/integrity_dummy.h
-===================================================================
---- /dev/null
-+++ linux-2.6.17/security/integrity_dummy.h
-@@ -0,0 +1,12 @@
-+/*
-+ * integrity_dummy.h
-+ *
-+ * Copyright (C) 2005,2006 IBM Corporation
-+ * Author: Mimi Zohar <zohar@us.ibm.com>
-+ *
-+ *      This program is free software; you can redistribute it and/or modify
-+ *      it under the terms of the GNU General Public License as published by
-+ *      the Free Software Foundation, version 2 of the License.
-+ */
-+
-+extern struct integrity_operations dummy_integrity_ops;
 
 

@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWGNJUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbWGNJXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161002AbWGNJUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 05:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161004AbWGNJUp
+	id S1161004AbWGNJXB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 05:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWGNJXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 05:20:45 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6066 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161002AbWGNJUo (ORCPT
+	Fri, 14 Jul 2006 05:23:01 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:6834 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030432AbWGNJXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 05:20:44 -0400
-Date: Fri, 14 Jul 2006 11:20:37 +0200 (CEST)
+	Fri, 14 Jul 2006 05:23:00 -0400
+Date: Fri, 14 Jul 2006 11:22:47 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Dmitry Torokhov <dtor@insightbb.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Using select in boolean dependents of a tristate symbol
-In-Reply-To: <200607132231.46776.dtor@insightbb.com>
-Message-ID: <Pine.LNX.4.64.0607141115010.12900@scrub.home>
-References: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
- <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
- <Pine.LNX.4.64.0607140033030.12900@scrub.home> <200607132231.46776.dtor@insightbb.com>
+To: Dave Jones <davej@redhat.com>
+cc: john stultz <johnstul@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 18rc1 soft lockup
+In-Reply-To: <20060713222830.GC3371@redhat.com>
+Message-ID: <Pine.LNX.4.64.0607141121450.12900@scrub.home>
+References: <20060711190346.GK5362@redhat.com> <1152645227.760.9.camel@cog.beaverton.ibm.com>
+ <20060711191658.GM5362@redhat.com> <20060713220722.GA3371@redhat.com>
+ <1152828943.6845.107.camel@localhost> <20060713222830.GC3371@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,37 +28,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, 13 Jul 2006, Dmitry Torokhov wrote:
+On Thu, 13 Jul 2006, Dave Jones wrote:
 
-> On Thursday 13 July 2006 18:58, Roman Zippel wrote:
-> > Hi,
-> > 
-> > On Thu, 13 Jul 2006, Dmitry Torokhov wrote:
-> > 
-> > > config THRUSTMASTER_FF
-> > >       bool "ThrustMaster FireStorm Dual Power 2 support (EXPERIMENTAL)"
-> > >       depends on HID_FF && EXPERIMENTAL
-> > > +       select INPUT_FF_MEMLESS
-> > >       help
-> > >         Say Y here if you have a THRUSTMASTER FireStore Dual Power 2,
-> > >         and want to enable force feedback support for it.
-> > > 
-> > > Unfortunately this forces INPUT_FF_MEMLESS to always be built-in,
-> > > although if HID is a module it could be a module as well. Do you have
-> > > any suggestions as to how allow INPUT_FF_MEMLESS to be compiled as a
-> > > module?
-> > 
-> > You need to directly include HID into the dependencies, only the direct 
-> > dependencies for config entry are used for the select.
-> >
+> On Thu, Jul 13, 2006 at 03:15:43PM -0700, john stultz wrote:
 > 
-> Oh, this indeed works, thanks a lot! And I was thinking I would need to
-> implement something like "select <expr> as <expr>" in kconfig ;)  
+>  > > Just when I thought it had gotten fixed..
+>  > > 2.6.18rc1-git6 this time on x86-64..
+>  > > 
+>  > > BUG: soft lockup detected on CPU#3!
+>  > > 
+>  > > Call Trace:
+>  > >  [<ffffffff80270865>] show_trace+0xaa/0x23d
+>  > >  [<ffffffff80270a0d>] dump_stack+0x15/0x17
+>  > >  [<ffffffff802c44e6>] softlockup_tick+0xd5/0xea
+>  > >  [<ffffffff80250bea>] run_local_timers+0x13/0x15
+>  > >  [<ffffffff8029cc1d>] update_process_times+0x4c/0x79
+>  > >  [<ffffffff8027bfeb>] smp_local_timer_interrupt+0x2b/0x50
+>  > >  [<ffffffff8027c766>] smp_apic_timer_interrupt+0x58/0x62
+>  > >  [<ffffffff802628ae>] apic_timer_interrupt+0x6a/0x70
+>  > 
+>  > Hmmm.. grumble. Was this on bootup, or after some time period?
+> 
+> Right at the end of boot up, between the switch from runlevel 3 to 5.
 
-What you could do is to use "select INPUT_FF_MEMLESS if HID" to make it 
-visible that this dependency is actually for select.
-This point is a little subtle and I'm not completely happy with it, maybe 
-I'm going to split this into two select variations - one which includes 
-all the dependencies and one which only uses the config symbol to select.
+When it waits, a SysRq+T might be useful.
 
 bye, Roman

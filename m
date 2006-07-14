@@ -1,163 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWGNPYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161127AbWGNPdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWGNPYW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 11:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWGNPYW
+	id S1161127AbWGNPdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 11:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWGNPdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 11:24:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7580 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932408AbWGNPYW (ORCPT
+	Fri, 14 Jul 2006 11:33:53 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:30593 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1161122AbWGNPdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 11:24:22 -0400
-Date: Fri, 14 Jul 2006 08:23:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove volatile from nmi.c
-In-Reply-To: <1152882288.1883.30.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org>
-References: <1152882288.1883.30.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 11:33:52 -0400
+Message-ID: <44B7B958.9030703@dgreaves.com>
+Date: Fri, 14 Jul 2006 16:33:44 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <liml@rtr.ca>,
+       Jeff Garzik <jgarzik@pobox.com>, Sander <sander@humilis.net>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>, htejun@gmail.com
+Subject: Re: LibPATA code issues / 2.6.17.3 (What is the next step?)
+References: <Pine.LNX.4.64.0602140439580.3567@p34>  <44AEB3CA.8080606@pobox.com>  <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>  <200607091224.31451.liml@rtr.ca>  <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>  <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>  <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>  <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>  <1152545639.27368.137.camel@localhost.localdomain>  <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan>  <Pine.LNX.4.64.0607110926150.858@p34.internal.lan> <1152634324.18028.21.camel@localhost.localdomain> <44B57373.2030907@dgreaves.com> <Pine.LNX.4.64.0607121828290.11285@p34.internal.lan>
+In-Reply-To: <Pine.LNX.4.64.0607121828290.11285@p34.internal.lan>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Justin Piszcz wrote:
+> On Wed, 12 Jul 2006, David Greaves wrote:
+> 
+>> Alan Cox wrote:
+>>> Ar Maw, 2006-07-11 am 09:28 -0400, ysgrifennodd Justin Piszcz:
+>>>> Alan/Jeff/Mark,
+>>>>
+>>>> Is there anything else I can do to further troubleshoot this problem
+>>>> now
+>>>> that we have the failed opcode(s)?  Again, there is never any
+>>>> corruption
+>>>> on these drives, so it is more of an annoyance than anything else.
+>>>
+>>> Nothing strikes me so far other than the data not making sense. Possibly
+>>> it will become clearer later if/when we see other examples.
+>>
+>> For me it's SMART related.
+>>
+>> smartctl -data -o on /dev/sda reliably gets a similar message.
+>> Justin - does this smartctl command trigger a message for you?
+>>
+>> I've been mailing on and off since January-ish.
+>> (http://marc.theaimsgroup.com/?l=linux-ide&w=2&r=7&s=libpata&q=b)
+>>
+>> Back in March I was running 2.6.16 (with a different version of Mark's
+>> opcode patch) and I sent an email with the following info:
+>>
+> Unfortunately not, the correct patch you need is attached to get the
+> ata_op code, against 2.6.17.3.
 
+[mutter, mutter, getting a teeny bit fed up with applying the same
+diagnostic patch (thanks Mark) and reporting this and getting no real
+feedback (apart from Erik - ta - who was off base, it doesn't appear to
+be BIOS and here's the pair of commands :) ... Ok, added Tejun to the
+list since he's been doing EH for libata and this is some kind of E that
+needs better H]
 
-On Fri, 14 Jul 2006, Steven Rostedt wrote:
->
-> OK, I'm using this as something of an exercise to completely understand
-> memory barriers.  So if something is incorrect, please let me know.
+2.6.17.3 with op-code patch
 
-It's not an incorrect change, but perhaps more importantly, the old code 
-was buggy in other ways too. Which is sadly more-than-common with anything 
-that uses volatile - the issues that make people think using "volatile" is 
-a good idea also tend to cause other problems if the person in question 
-isn't careful (and using "volatile" obviously means that he/she/it wasn't 
-very careful when writing it).
+smartctl -data --smart=on /dev/sda
+no dmesg output
+smartctl -data -o on /dev/sda
+dmesg:
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: PIO error
+ata_gen_ata_desc_sense: failed ata_op=0xb0
+ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata_gen_ata_desc_sense: failed ata_op=0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
 
-In particular, notice how "endflag" is on the _stack_ of the CPU that 
-wants to send out the NMI to another CPU?
+David
 
-Now, think what that means for the case where we time out and return from 
-the function with an error.. In particular, think about the case of the 
-other CPU having been very busy, and now having a stale pointer that 
-points _where_ exactly?
-
-Also, when the caller sets "endflag", it doesn't (for barrier reasons, see 
-more below) actually need to use a write barrier in either of the two 
-cases, because of some _other_ issues. There are two cases of the caller 
-setting endflag, and neither of them needs "set_wmb()", but it's perhaps 
-instructive to show _why_.
-
-The first case is the initialization to zero. That one doesn't need a 
-write barrier, because it has _other_ serialization to any reader. In 
-order for another CPU to read that value, the other CPU needs to have 
-_gotten_ the pointer to it in the first place, and that implies that it 
-got the "smp_call_function()" thing.
-
-And "smp_call_function()" will better have a serialization in it, because 
-otherwise _any_ user of smp_call_function() would potentially set up data 
-structures that aren't then readable from other CPUs. So for the 
-particular case of x86, see the "mb()" in smp_call_function() just before 
-it does the "send_IPI_allbutself()".
-
-Now, the other case is the case where we set endflag to 1 because we're no 
-longer interested in the other CPU's. And the reason we don't need a 
-barrier there is that WE OBVIOUSLY NO LONGER CARE when the other side 
-sees the value - at that point, it's all moot, because there isn't any 
-serialization left, and it's just a flag to the other CPU's saying "don't 
-bother".
-
-So let's go back to the bigger problem..
-
-Now, there is a "reason" we'd want "endflag" to either be volatile, or 
-have the "set_wmb()", and that is that the code is incorrect in the first 
-place. 
-
-Without the volatile, or the "set_wmb()", the compiler could decide to not 
-do the last "endflag = 1" write _at_all_, because
-
- - endflag is an automatic variable
-
- - we're going to return from the function RSN, which de-allocates it
-
-and as such, the "volatile" or "set_wmb()" actually forces that write to 
-happen at all. It so happens that because we have a printk() in there, and 
-gcc doesn't know that the printk() didn't get the address of the variable 
-through the "smp_call_function()" thing, gcc won't dare to remove the 
-write anyway, but let's say that the final 'printk("OK.\n");' wasn't 
-there, then the compiler could have removed it.
-
-So in that sense, "volatile" and "set_wmb()" superficially "remove a bug", 
-since optimizing out the write is wrong. However, the REAL bug was totally 
-elsewhere, and is the fact that "endflag" is an automatic variable in the 
-first place! The compiler would have been _correct_ to optimize the store 
-away, because the compiler (unlike the programmer) would have correctly 
-realized that it cannot matter.
-
-> The first removal is trivial, since the barrier in the while loop makes
-> it unnecessary.
-
-Yes, and the first removal is also very much correct.
-
-> The second is what I think is correct.
-
-See above. The second is "correct", in the sense that from a "volatile 
-removal" standpoint it does all the right things. But it's incorrect, 
-because it misses the bigger problem with the code.
-
-So I would suggest that the _real_ fix is actually something like the 
-appended, but I have to say that I didn't really look very closely into 
-it.
-
-I think that in _practice_ it probably doesn't really matter (in practice, 
-the other CPU's will either get the NMI or not, and in practice, the stack 
-location - even after it is released - will probably be overwritten by 
-something non-zero later anyway), but I think that my fix makes it more 
-obvious what is really going on, and it's easier to explain why it does 
-what it does because it no longer depends on insane code.
-
-But somebody like Ingo should probably double-check this.
-
-(The "Have we done this already" test is just covering my ass - I don't 
-think we should be calling that function more than once, but one of the 
-things that happens when the "endflag" semantics are fixed is that the 
-function now has history and the variable is no longer "per CPU". The 
-point is, that changes how initializations etc may need to be done: in 
-this case we only want to do it once, but in other cases this kind of 
-change may have more far-reaching implications).
-
-		Linus
-
----
-diff --git a/arch/i386/kernel/nmi.c b/arch/i386/kernel/nmi.c
-index 2dd928a..eb8bbbb 100644
---- a/arch/i386/kernel/nmi.c
-+++ b/arch/i386/kernel/nmi.c
-@@ -106,7 +106,7 @@ #ifdef CONFIG_SMP
-  */
- static __init void nmi_cpu_busy(void *data)
- {
--	volatile int *endflag = data;
-+	int *endflag = data;
- 	local_irq_enable_in_hardirq();
- 	/* Intentionally don't use cpu_relax here. This is
- 	   to make sure that the performance counter really ticks,
-@@ -121,10 +121,14 @@ #endif
- 
- static int __init check_nmi_watchdog(void)
- {
--	volatile int endflag = 0;
-+	static int endflag = 0;
- 	unsigned int *prev_nmi_count;
- 	int cpu;
- 
-+	/* Have we done this already? */
-+	if (endflag)
-+		return 0;
-+
- 	if (nmi_watchdog == NMI_NONE)
- 		return 0;
- 
+-- 

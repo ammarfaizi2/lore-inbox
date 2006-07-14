@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161162AbWGNBWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbWGNBeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161162AbWGNBWE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 21:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWGNBWE
+	id S1161168AbWGNBeH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 21:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbWGNBeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 21:22:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3227 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161162AbWGNBWC (ORCPT
+	Thu, 13 Jul 2006 21:34:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24733 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161168AbWGNBeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 21:22:02 -0400
-Date: Thu, 13 Jul 2006 18:18:35 -0700
+	Thu, 13 Jul 2006 21:34:06 -0400
+Date: Thu, 13 Jul 2006 18:30:47 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: arjan@infradead.org, mingo@elte.hu, zach.brown@oracle.com,
-       openib-general@openib.org, linux-kernel@vger.kernel.org
+To: rdreier@cisco.com, arjan@infradead.org, mingo@elte.hu,
+       zach.brown@oracle.com, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
-Message-Id: <20060713181835.ad5eeff6.akpm@osdl.org>
-In-Reply-To: <adazmfdq9ha.fsf@cisco.com>
+Message-Id: <20060713183047.642bd9e6.akpm@osdl.org>
+In-Reply-To: <20060713181835.ad5eeff6.akpm@osdl.org>
 References: <44B405C8.4040706@oracle.com>
 	<adawtajzra5.fsf@cisco.com>
 	<44B433CE.1030103@oracle.com>
@@ -29,6 +29,7 @@ References: <44B405C8.4040706@oracle.com>
 	<adau05lrzdy.fsf@cisco.com>
 	<20060713144341.97d4f771.akpm@osdl.org>
 	<adazmfdq9ha.fsf@cisco.com>
+	<20060713181835.ad5eeff6.akpm@osdl.org>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -36,31 +37,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006 18:08:17 -0700
-Roland Dreier <rdreier@cisco.com> wrote:
+On Thu, 13 Jul 2006 18:18:35 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
->  > Good point, a try-again loop would work.  Do we really need the caller to
->  > maintain a cache?  I suspect something like
->  > 
->  > drat:
->  > 	if (idr_pre_get(GFP_KERNEL) == ENOMEM)
->  > 		give_up();
->  > 	spin_lock();
->  > 	ret = idr_get_new();
->  > 	spin_unlock();
->  > 	if (ret == ENOMEM)
->  > 		goto drat;
->  > 
->  > would do it.
+> > Having the caller hold a chunk of memory in a stack variable was the
+> > trick I came up with to get around that.
 > 
-> The problem (for my tiny brain at least) is that I don't know where
-> idr_pre_get() can put the memory it allocates if there's no lock in
-> the idr structure -- how do you maintain internal consistency if no
-> locks are held when filling the cache?
+> Yes, that certainly works.
 
-argh.  Aren't you supposed to be on vacation or something?
 
-> Having the caller hold a chunk of memory in a stack variable was the
-> trick I came up with to get around that.
+Problem is, I think, you'll need to preallocate IDR_FREE_MAX items.  And
+then free them all again when none of them were consumed (usual).
 
-Yes, that certainly works.
+Yes, storing the preallocated nodes in the idr itself requires locking. 
+But that locking is 100% private to the IDR implementation.  It locks only
+the preload list and not the user's stuff.
+
+radix_tree_preload() effectively does this.  Except the preload list is
+kernel-wide.  It's split across CPUs and uses
+local_irq_disable/preempt_disable locking tricks as a performance
+optimisation.  But conceptually it's the same.
+
+Simply copying that would give something which is known to work...  It
+seems like a large amount of fuss, but when you think about it the problem
+isn't simple.

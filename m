@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161200AbWGNCaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWGNCI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161200AbWGNCaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 22:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161192AbWGNCaS
+	id S1161175AbWGNCI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 22:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161171AbWGNCI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 22:30:18 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:36574 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161200AbWGNCaQ (ORCPT
+	Thu, 13 Jul 2006 22:08:28 -0400
+Received: from maxipes.logix.cz ([217.11.251.249]:56275 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S1161169AbWGNCI1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 22:30:16 -0400
-Date: Thu, 13 Jul 2006 19:29:52 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: arjan@infradead.org, torvalds@osdl.org, penberg@cs.helsinki.fi,
-       mingo@elte.hu, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-In-Reply-To: <20060713161620.f61d2ac0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607131929050.31444@schroedinger.engr.sgi.com>
-References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu>
- <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu>
- <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu>
- <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
- <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org> <1152818472.3024.75.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
- <20060713161620.f61d2ac0.akpm@osdl.org>
+	Thu, 13 Jul 2006 22:08:27 -0400
+Message-ID: <44B6FC90.2060501@logix.cz>
+Date: Fri, 14 Jul 2006 14:08:16 +1200
+From: Michal Ludvig <michal@logix.cz>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [CRYPTO] padlock: Fix alignment after aes_ctx rearrange
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006, Andrew Morton wrote:
+Hi Herbert,
 
-> > Whew! We drop the list lock before calling slab_destroy.
-> 
-> Well we did, up until about ten minutes ago.
-> 
-> free_block()'s droppage of l3->list_lock around the slab_destroy() call was
-> just reverted, due to Shailabh confirming that it caused corruption.
+I just recently discovered that your patch that rearranges struct
+aes_ctx in padlock-aes.c breaks the alignment rules for xcrypt leading
+to GPF Oopses.
 
-How would this slab become corrupted if it is no longer on the lists?
+Note that *all* addresses passed to xcrypt must be 16-Bytes aligned for
+VIA C3 (including IV and Key - the latter one was not aligned and
+triggered this Oops).
+
+As the rearrange patch made it to 2.6.18-rc1 it must be fixed before
+2.6.18 is out. Attached is a patch.
+
+Michal
+
+

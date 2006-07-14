@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWGNTMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422720AbWGNTNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbWGNTMH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 15:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422719AbWGNTMH
+	id S1422720AbWGNTNN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 15:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422719AbWGNTNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 15:12:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35076 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1422718AbWGNTMG
+	Fri, 14 Jul 2006 15:13:13 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:36064 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1422715AbWGNTNM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 15:12:06 -0400
-Date: Fri, 14 Jul 2006 19:06:05 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] IDE: Touch NMI watchdog during resume from STR
-Message-ID: <20060714190604.GA8731@ucw.cz>
-References: <44B61D0A.7010305@stud.feec.vutbr.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B61D0A.7010305@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.5.9i
+	Fri, 14 Jul 2006 15:13:12 -0400
+Message-ID: <44B7EC64.5070907@zytor.com>
+Date: Fri, 14 Jul 2006 12:11:32 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+       Roland McGrath <roland@redhat.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sourceware.org
+Subject: Re: [PATCH] Use uname not sysctl to get the kernel revision
+References: <20060712184412.2BD57180061@magilla.sf.frob.com>	 <44B54EA4.5060506@redhat.com> <20060712195349.GW3823@sunsite.mff.cuni.cz>	 <44B556E5.5000702@zytor.com> <m1k66i8ql5.fsf@ebiederm.dsl.xmission.com>	 <1152739766.3217.83.camel@laptopd505.fenrus.org>	 <m1bqru8p36.fsf@ebiederm.dsl.xmission.com>	 <1152741665.3217.85.camel@laptopd505.fenrus.org>	 <44B57191.5000802@zytor.com>  <m1zmfe794e.fsf@ebiederm.dsl.xmission.com>	 <1152745664.22943.115.camel@localhost.localdomain> <1152902745.23037.88.camel@localhost.localdomain>
+In-Reply-To: <1152902745.23037.88.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> When resuming from suspend-to-RAM, the NMI watchdog 
-> detects a lockup in ide_wait_not_busy.
-> Here's a screenshot of the trace taken by a digital 
-> camera: 
-> http://www.uamt.feec.vutbr.cz/rizeni/pom/DSC03510-2.JPG
+Benjamin Herrenschmidt wrote:
+>>
+>> If you want to do the job right then do this
+>>
+>> - Stick an indicator of how much else wants to run on this CPU in the
+>> vsyscall page or similar location
 > 
-> Let's touch the NMI watchdog in ide_wait_not_busy. The 
-> system then resumes correctly from STR.
+> Except that "this cpu" doesn't really mean anything in userspace, and
+> while I think Andi has some tricks to get some sort of CPU number to
+> userspace (though it's really only valid during the execution of the
+> instruction that reads it :) I haven't yet found an equivalent for
+> powerpc (and possibly other architectures will have the same problem).
 > 
-> Signed-off-by: Michal Schmidt 
-> <xschmi00@stud.feec.vutbr.cz>
 
-ACK.
+Sure it does... although its validity in terms of a locality metric 
+decays with time.
 
-> diff --git a/drivers/ide/ide-iops.c 
-> b/drivers/ide/ide-iops.c
-> index 6571652..77703ac 100644
-> --- a/drivers/ide/ide-iops.c
-> +++ b/drivers/ide/ide-iops.c
-> @@ -23,6 +23,7 @@ #include <linux/delay.h>
-> #include <linux/hdreg.h>
-> #include <linux/ide.h>
-> #include <linux/bitops.h>
-> +#include <linux/nmi.h>
-> 
-> #include <asm/byteorder.h>
-> #include <asm/irq.h>
-> @@ -1243,6 +1244,7 @@ int ide_wait_not_busy(ide_hwif_t 
-> *hwif, if (stat == 0xff)
-> 			return -ENODEV;
-> 		touch_softlockup_watchdog();
-> +		touch_nmi_watchdog();
-
-Perhaps we need touch_all_watchdogs()?
-
-						Pavel
-
--- 
-Thanks for all the (sleeping) penguins.
+	-hpa

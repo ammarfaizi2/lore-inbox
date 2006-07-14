@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWGNUBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422741AbWGNUC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422738AbWGNUBi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 16:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWGNUBh
+	id S1422741AbWGNUC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 16:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWGNUC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 16:01:37 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:62900 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422671AbWGNUBg (ORCPT
+	Fri, 14 Jul 2006 16:02:29 -0400
+Received: from rtr.ca ([64.26.128.89]:35272 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1422724AbWGNUC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 16:01:36 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1152901664.314.35.camel@localhost.localdomain>
-References: <1152897878.23584.6.camel@localhost.localdomain>
-	 <1152901664.314.35.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 13:01:41 -0700
-Message-Id: <1152907301.23584.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Fri, 14 Jul 2006 16:02:28 -0400
+Message-ID: <44B7F852.3040501@rtr.ca>
+Date: Fri, 14 Jul 2006 16:02:26 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.17.3 (What is the next step?)
+References: <Pine.LNX.4.64.0602140439580.3567@p34>  <44AEB3CA.8080606@pobox.com>  <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>  <200607091224.31451.liml@rtr.ca>  <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan>  <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan>  <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan>  <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan>  <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan> <1152545639.27368.137.camel@localhost.localdomain> <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan> <Pine.LNX.4.64.0607110926150.858@p34.internal.lan> <44B7D168.2080304@rtr.ca> <Pine.LNX.4.64.0607141318040.1687@p34.internal.lan> <44B7D6CE.4030406@rtr.ca>
+In-Reply-To: <44B7D6CE.4030406@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 11:27 -0700, Dave Hansen wrote:
+Mark Lord wrote:
+> Justin Piszcz wrote:
+>> They are Western Digital 400* drives.
+>>
+>> [4294678.049000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
+>> [4294678.050000]   Vendor: ATA       Model: WDC WD4000KD-00N  Rev: 01.0
+>>
+>> On a SiL controller, it also happens when they are on a promise 
+>> controller too.
+>>
+>> On Fri, 14 Jul 2006, Mark Lord wrote:
+>>
+>>> Justin Piszcz wrote:
+>>>>
+>>>> opcode=0x35 & opcode=0xca
+>>>
+>>> Those are non-DMA WRITE opcodes.  Using PIO for I/O is pretty rare 
+>>> these days,
+>>> so I'm betting that this is not a hard disk device -- compactflash?
+> 
+> Okay.  So why are we issuing PIO WRITE commands to drives that
+> obviously should only be sent DMA commands by libata?
+> 
+> Perhaps that's the bug.
 
-> > +static enum slm_iac_level set_iac(char *token)
-> > +{
-> > +	int iac;
-> > +
-> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
-> > +		return SLM_IAC_EXEMPT;
-> > +	else {
-> 
-> Might as well add brackets here.  Or, just kill the else{} block and
-> pull the code back to the lower indenting level.  The else is really
-> unnecessary because of the return;
-> 
-> > +		for (iac = 0; iac < sizeof(slm_iac_str) / sizeof(char *); iac++) {
-> > +			if (memcmp(token, slm_iac_str[iac],
-> > +				   strlen(slm_iac_str[iac])) == 0)
-> > +				return iac;
-> 
-> Why not use strcmp?
-> 
-> > +static enum slm_sac_level set_sac(char *token)
-> > +{
-> > +	int sac;
-> > +
-> > +	if (memcmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
-> > +		return SLM_SAC_EXEMPT;
-> > +	else {
-> > +		for (sac = 0; sac < sizeof(slm_sac_str) / sizeof(char *); sac++) {
-> > +			if (memcmp(token, slm_sac_str[sac],
-> > +				   strlen(slm_sac_str[sac])) == 0)
-> > +				return sac;
-> > +		}
-> > +	}
-> > +	return SLM_SAC_ERROR;
-> > +}
-> 
-> This function looks awfully similar :).  Can you just pass that array in
-> as an argument, and get rid of one of the functions?
-> 
-On closer look combining these would require collapsing them into one
-enum or returning int and doing a bunch of casting.  Kind of seems to
-void the point of using an enum.  Thus I propose leaving them as is,
-okay?
+Oh wait.. I remember this.. No, those are DMA commands,
+despite the misleading libata name for them.  We went through
+this before last spring..
 
+Okay.  So I wonder what's really going on.
+The next step would be to instrument the interrupt handler,
+so that when it sees bad-status, it dumps out the stat/err values
+right then and there, before anything else can muck with them.
 
+It might also be good to have it dump out the controller engine's
+DMA status/err values, assuming the controller has registers for those.
+
+Then we should get a better picture of what's going on.
+Assuming the drives aren't lying to us (a perfectly good assumption here),
+then the controller must be aborting the transfer unexpectedly.
+
+Cheers

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWGNRmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422686AbWGNRmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWGNRmO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422680AbWGNRmN
+	id S1422686AbWGNRmp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWGNRmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:42:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41159 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422660AbWGNRmN (ORCPT
+	Fri, 14 Jul 2006 13:42:45 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62142 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1422680AbWGNRmo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:42:13 -0400
-Date: Fri, 14 Jul 2006 10:41:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove volatile from nmi.c
-In-Reply-To: <1152898699.27135.20.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607141040550.5623@g5.osdl.org>
-References: <1152882288.1883.30.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org>  <Pine.LNX.4.64.0607141017520.5623@g5.osdl.org>
- <1152898699.27135.20.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Jul 2006 13:42:44 -0400
+Subject: Re: [RFC][PATCH 1/6] mprotect patch for use by SLIM
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <1152897868.23584.4.camel@localhost.localdomain>
+References: <1152897868.23584.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 10:42:28 -0700
+Message-Id: <1152898948.314.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-07-14 at 10:24 -0700, Kylene Jo Hall wrote:
+> This small patch makes mprotect available for use by SLIM for
+> write revocation. 
 
+Hmmm.   Do you really want mprotect() itself?  Or, do you just want to
+keep people from writing?  (there is a difference :)
 
-On Fri, 14 Jul 2006, Steven Rostedt wrote:
-> 
-> > 	endflag = 1;
-> > 	smp_wmb();
-> 
-> This was what I originally wrote, and then I saw the set_wmb which made
-> me think that it was the proper way to do things (why else is it
-> there?). So if it shouldn't be used, then we should get rid of it or at
-> least mark it deprecated, otherwise you have people like me thinking
-> that we should use it.
+If somebody mmap()s something with write permissions, I would expect
+them to expect to see rw in /proc/<pid>/maps.  If you use mprotect() on
+that mmap() to remove the write permissions, the permissions will be
+reflected in /proc/<pid>/maps.  
 
-Yeah, we should probably get rid of it. No need to even mark it 
-deprecated, since nobody uses it anyway. 
+-- Dave
 
-At a minimum, I think we should not document it in the locking 
-documentation, making people incorrectly think it might be a good idea.
-
-Hmm? Andrew?
-
-		Linus

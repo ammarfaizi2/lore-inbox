@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWGNFfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWGNFh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWGNFfF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 01:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWGNFfF
+	id S1161210AbWGNFh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 01:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWGNFh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 01:35:05 -0400
-Received: from mga06.intel.com ([134.134.136.21]:18592 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964793AbWGNFfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 01:35:01 -0400
+	Fri, 14 Jul 2006 01:37:58 -0400
+Received: from mga07.intel.com ([143.182.124.22]:60848 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161210AbWGNFh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 01:37:57 -0400
 X-IronPort-AV: i="4.06,239,1149490800"; 
-   d="scan'208"; a="65064555:sNHT475938799"
-Subject: Re: [PATCH 4/5] PCI-Express AER implemetation: pcie_portdrv error
+   d="scan'208"; a="65802431:sNHT72118746"
+Subject: Re: [PATCH 5/5] PCI-Express AER implemetation: pcie_portdrv error
 	handler
 From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
        Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1152855040.28493.294.camel@ymzhang-perf.sh.intel.com>
+In-Reply-To: <1152855124.28493.297.camel@ymzhang-perf.sh.intel.com>
 References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
 	 <1152854749.28493.286.camel@ymzhang-perf.sh.intel.com>
 	 <1152854873.28493.289.camel@ymzhang-perf.sh.intel.com>
 	 <1152854937.28493.291.camel@ymzhang-perf.sh.intel.com>
 	 <1152855040.28493.294.camel@ymzhang-perf.sh.intel.com>
+	 <1152855124.28493.297.camel@ymzhang-perf.sh.intel.com>
 Content-Type: text/plain
-Message-Id: <1152855124.28493.297.camel@ymzhang-perf.sh.intel.com>
+Message-Id: <1152855338.28493.300.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 14 Jul 2006 13:32:04 +0800
+Date: Fri, 14 Jul 2006 13:35:38 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry. The patch number in subject is incorrect. Resend the last patch.
 
 From: Zhang, Yanmin <yanmin.zhang@intel.com>
 

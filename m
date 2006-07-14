@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWGNBLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161162AbWGNBWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161160AbWGNBLc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 21:11:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWGNBLc
+	id S1161162AbWGNBWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 21:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161163AbWGNBWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 21:11:32 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:5511 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1161160AbWGNBLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 21:11:31 -0400
-X-IronPort-AV: i="4.06,238,1149490800"; 
-   d="scan'208"; a="305708532:sNHT12076888254"
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 13 Jul 2006 21:22:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3227 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161162AbWGNBWC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 21:22:02 -0400
+Date: Thu, 13 Jul 2006 18:18:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <rdreier@cisco.com>
 Cc: arjan@infradead.org, mingo@elte.hu, zach.brown@oracle.com,
        openib-general@openib.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Convert idr's internal locking to _irqsave variant
-X-Message-Flag: Warning: May contain useful information
-References: <44B405C8.4040706@oracle.com> <adawtajzra5.fsf@cisco.com>
-	<44B433CE.1030103@oracle.com> <adasll7zp0p.fsf@cisco.com>
-	<20060712093820.GA9218@elte.hu> <adaveq2v9gn.fsf@cisco.com>
-	<20060712183049.bcb6c404.akpm@osdl.org> <adau05ltsso.fsf@cisco.com>
-	<20060713135446.5e2c6dd5.akpm@osdl.org> <adau05lrzdy.fsf@cisco.com>
+Message-Id: <20060713181835.ad5eeff6.akpm@osdl.org>
+In-Reply-To: <adazmfdq9ha.fsf@cisco.com>
+References: <44B405C8.4040706@oracle.com>
+	<adawtajzra5.fsf@cisco.com>
+	<44B433CE.1030103@oracle.com>
+	<adasll7zp0p.fsf@cisco.com>
+	<20060712093820.GA9218@elte.hu>
+	<adaveq2v9gn.fsf@cisco.com>
+	<20060712183049.bcb6c404.akpm@osdl.org>
+	<adau05ltsso.fsf@cisco.com>
+	<20060713135446.5e2c6dd5.akpm@osdl.org>
+	<adau05lrzdy.fsf@cisco.com>
 	<20060713144341.97d4f771.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 13 Jul 2006 18:08:17 -0700
-Message-ID: <adazmfdq9ha.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Jul 2006 01:08:19.0489 (UTC) FILETIME=[FE892110:01C6A6E1]
-Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+	<adazmfdq9ha.fsf@cisco.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Good point, a try-again loop would work.  Do we really need the caller to
- > maintain a cache?  I suspect something like
- > 
- > drat:
- > 	if (idr_pre_get(GFP_KERNEL) == ENOMEM)
- > 		give_up();
- > 	spin_lock();
- > 	ret = idr_get_new();
- > 	spin_unlock();
- > 	if (ret == ENOMEM)
- > 		goto drat;
- > 
- > would do it.
+On Thu, 13 Jul 2006 18:08:17 -0700
+Roland Dreier <rdreier@cisco.com> wrote:
 
-The problem (for my tiny brain at least) is that I don't know where
-idr_pre_get() can put the memory it allocates if there's no lock in
-the idr structure -- how do you maintain internal consistency if no
-locks are held when filling the cache?
+>  > Good point, a try-again loop would work.  Do we really need the caller to
+>  > maintain a cache?  I suspect something like
+>  > 
+>  > drat:
+>  > 	if (idr_pre_get(GFP_KERNEL) == ENOMEM)
+>  > 		give_up();
+>  > 	spin_lock();
+>  > 	ret = idr_get_new();
+>  > 	spin_unlock();
+>  > 	if (ret == ENOMEM)
+>  > 		goto drat;
+>  > 
+>  > would do it.
+> 
+> The problem (for my tiny brain at least) is that I don't know where
+> idr_pre_get() can put the memory it allocates if there's no lock in
+> the idr structure -- how do you maintain internal consistency if no
+> locks are held when filling the cache?
 
-Having the caller hold a chunk of memory in a stack variable was the
-trick I came up with to get around that.
+argh.  Aren't you supposed to be on vacation or something?
 
- - R.
+> Having the caller hold a chunk of memory in a stack variable was the
+> trick I came up with to get around that.
+
+Yes, that certainly works.

@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161298AbWGNUiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161292AbWGNUpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161298AbWGNUiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 16:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422755AbWGNUiQ
+	id S1161292AbWGNUpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 16:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWGNUpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 16:38:16 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:32439 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1161298AbWGNUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 16:38:16 -0400
-Date: Fri, 14 Jul 2006 16:37:44 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Garzik <jeff@garzik.org>,
-       jdike@karaya.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [uml-devel] UML build broken everywhere?
-Message-ID: <20060714203744.GA6260@ccure.user-mode-linux.org>
-References: <44B79AB9.3020401@garzik.org> <44B7A007.2010204@garzik.org> <200607142052.05666.blaisorblade@yahoo.it>
+	Fri, 14 Jul 2006 16:45:01 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58376 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161292AbWGNUpA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 16:45:00 -0400
+Date: Fri, 14 Jul 2006 20:44:46 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: annoying frequent overcurrent messages.
+Message-ID: <20060714204445.GC8731@ucw.cz>
+References: <200607132350.55978.a1426z@gawab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200607142052.05666.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200607132350.55978.a1426z@gawab.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 14, 2006 at 08:52:05PM +0200, Blaisorblade wrote:
-> Jeff (Dike), please choose one of the "simple" patches I suggested (comment 
-> out offending code, for instance) since you (correctly) deferred the real fix
-> (incorporating klibc's setjmp implementation) to later.
+On Thu 13-07-06 23:50:55, Al Boldi wrote:
+> On Thu, 2006-07-13 at 14:08 +0200, Pavel Machek wrote:
+> > > > I have a box that's having its dmesg flooded with..
+> > > > 
+> > > > hub 1-0:1.0: over-current change on port 1
+> > > > hub 1-0:1.0: over-current change on port 2
+> > > > hub 1-0:1.0: over-current change on port 1
+> > > > hub 1-0:1.0: over-current change on port 2
+> > > ...
+> > > 
+> > > > over and over again..
+> > > > The thing is, this box doesn't even have any USB devices connected to 
+> > > > it, so there's absolutely nothing I can do to remedy this.
+> > > 
+> > > Well, overcurrent is a potentially dangerous situation.  That's why it 
+> > > gets reported with dev_err priority.
+> > 
+> > Well, I see overcurrents all the time while doing suspend/resume...
+> > 
+> > Why is it dangerous? USB should survive plugging something that
+> > connects +5V and ground. It may turn your machine off, but that should
+> > be it...?
+> 
+> I don't want to sound alarming here, but I just had a USBFlashStick fried by 
+> a machine, while in suspend-to-ram running 2.6.17.
 
-Well, I have a patch which just copies the klibc setjmp stuff into the UML
-tree until such time as klibc makes it into mainline.
+Well, I have one usb sticdk fried by regular use under linux (like --
+5 minutes of regular use!) and another fried by my dad on windows. So
+these beasts are crap.
 
-Any objections?
+> I am blaming hw, but does anybody know how I can get my data back?
 
-				Jeff
+Probably not easily. Specialized shop might desolder flash chip and
+read it directly... or you may try swapping flash chip into
+'not-yet-fried' stick...
+
+-- 
+Thanks for all the (sleeping) penguins.

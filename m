@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWGNGzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWGNHAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWGNGzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 02:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWGNGzr
+	id S1030338AbWGNHAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 03:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbWGNHAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 02:55:47 -0400
-Received: from tornado.reub.net ([202.89.145.182]:14763 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1030386AbWGNGzq (ORCPT
+	Fri, 14 Jul 2006 03:00:24 -0400
+Received: from tornado.reub.net ([202.89.145.182]:48775 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1030338AbWGNHAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 02:55:46 -0400
-Message-ID: <44B73FEE.6040908@reub.net>
-Date: Fri, 14 Jul 2006 18:55:42 +1200
+	Fri, 14 Jul 2006 03:00:24 -0400
+Message-ID: <44B74109.6040205@reub.net>
+Date: Fri, 14 Jul 2006 19:00:25 +1200
 From: Reuben Farrelly <reuben-lkml@reub.net>
 User-Agent: Thunderbird 3.0a1 (Windows/20060713)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Linux Netdev List <netdev@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.18-rc1-mm2
 References: <20060713224800.6cbdbf5d.akpm@osdl.org>
 In-Reply-To: <20060713224800.6cbdbf5d.akpm@osdl.org>
@@ -33,61 +33,58 @@ On 14/07/2006 5:48 p.m., Andrew Morton wrote:
 > 
 > - Added the avr32 architecture.  Review is sought, please.
 
-Ugh.  This on bootup..
+Still seeing problems with this ATA CD-RW device (same one as I had problems 
+with in -mm1).
 
-Starting HAL daemon: BUG: warning at net/core/dev.c:1171/skb_checksum_help()
-
-Call Trace:
-  [<ffffffff8026963e>] show_trace+0xae/0x265
-  [<ffffffff8026980a>] dump_stack+0x15/0x1b
-  [<ffffffff8043ba7b>] skb_checksum_help+0x61/0x126
-  [<ffffffff8802f35f>] :iptable_nat:ip_nat_fn+0x5f/0x1d2
-  [<ffffffff8802f71b>] :iptable_nat:ip_nat_local_fn+0x33/0xbc
-  [<ffffffff80234c6e>] nf_iterate+0x5a/0x9b
-  [<ffffffff802588d0>] nf_hook_slow+0x60/0xcd
-  [<ffffffff8023511a>] ip_queue_xmit+0x41a/0x490
-  [<ffffffff80221507>] tcp_transmit_skb+0x697/0x6d4
-  [<ffffffff80233b37>] __tcp_push_pending_frames+0x867/0x95b
-  [<ffffffff80226546>] tcp_sendmsg+0xa76/0xba6
-  [<ffffffff80245c49>] inet_sendmsg+0x46/0x53
-  [<ffffffff80247ebf>] sock_aio_write+0x13b/0x15c
-  [<ffffffff8021758c>] do_sync_write+0xec/0x135
-  [<ffffffff802160b5>] vfs_write+0xe5/0x180
-  [<ffffffff80216ade>] sys_write+0x47/0x79
-  [<ffffffff8025f3a2>] system_call+0x7e/0x83
-  [<00002b145e465350>]
-BUG: warning at net/core/dev.c:1225/skb_gso_segment()
-
-Call Trace:
-  [<ffffffff8026963e>] show_trace+0xae/0x265
-  [<ffffffff8026980a>] dump_stack+0x15/0x1b
-  [<ffffffff8043b8df>] skb_gso_segment+0xbf/0x1fa
-  [<ffffffff8043bf28>] dev_hard_start_xmit+0x168/0x21c
-  [<ffffffff80447a35>] __qdisc_run+0x115/0x1e5
-  [<ffffffff8022fcef>] dev_queue_xmit+0x11f/0x256
-  [<ffffffff802327f7>] ip_output+0x207/0x251
-  [<ffffffff80235130>] ip_queue_xmit+0x430/0x490
-  [<ffffffff80221507>] tcp_transmit_skb+0x697/0x6d4
-  [<ffffffff80233b37>] __tcp_push_pending_frames+0x867/0x95b
-  [<ffffffff80226546>] tcp_sendmsg+0xa76/0xba6
-  [<ffffffff80245c49>] inet_sendmsg+0x46/0x53
-  [<ffffffff80247ebf>] sock_aio_write+0x13b/0x15c
-  [<ffffffff8021758c>] do_sync_write+0xec/0x135
-  [<ffffffff802160b5>] vfs_write+0xe5/0x180
-  [<ffffffff80216ade>] sys_write+0x47/0x79
-  [<ffffffff8025f3a2>] system_call+0x7e/0x83
-  [<00002b145e465350>]
-[  OK  ]
-Starting mailman: [  OK  ]
-Starting nagios:  Starting network monitor: nagios
-[  OK  ]
-
-Fedora Core release 5.90 (Test)
-Kernel 2.6.18-rc1-mm2 on an x86_64
-
-tornado.reub.net login:
+Alan - is there anything else I can do to help with this one or is it just a 
+case of it being a "Work in progress" ?
 
 
+ata4: SATA link down (SStatus 0 SControl 300)
+   Vendor: ATA       Model: ST3300622AS       Rev: 3.AA
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+   Vendor: ATA       Model: ST380817AS        Rev: 3.42
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+   Vendor: ATA       Model: ST3300622AS       Rev: 3.AA
+   Type:   Direct-Access                      ANSI SCSI revision: 05
+ata_piix 0000:00:1f.1: version 2.00ac6
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 18
+PCI: Setting latency timer of device 0000:00:1f.1 to 64
+ata5: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x30B0 irq 14
+scsi4 : ata_piix
+ata5.00: ATAPI, max UDMA/66
+ata5.00: configured for UDMA/66
+ata5.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata5.00: (BMDMA stat 0x24)
+ata5.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata5: soft resetting port
+ata5.00: configured for UDMA/66
+ata5: EH complete
+ata5.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata5.00: (BMDMA stat 0x24)
+ata5.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata5: soft resetting port
+Losing some ticks... checking if CPU frequency changed.
+ata5.00: configured for UDMA/66
+ata5: EH complete
+ata5.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata5.00: (BMDMA stat 0x24)
+ata5.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata5: soft resetting port
+ata5.00: configured for UDMA/66
+ata5: EH complete
+ata5.00: limiting speed to UDMA/44
+ata5.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata5.00: (BMDMA stat 0x24)
+ata5.00: tag 0 cmd 0xa0 Emask 0x4 stat 0x40 err 0x0 (timeout)
+ata5: soft resetting port
+ata5.00: configured for UDMA/44
+ata5: EH complete
+ata6: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0x30B8 irq 15
+scsi5 : ata_piix
+ata6: port disabled. ignoring.
+ATA: abnormal status 0xFF on port 0x177
+SCSI device sda: 586072368 512-byte hdwr sectors (300069 MB)
 
+Thanks,
 Reuben
-

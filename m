@@ -1,73 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422735AbWGNTxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422653AbWGNT6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422735AbWGNTxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 15:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWGNTxb
+	id S1422653AbWGNT6S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 15:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWGNT6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 15:53:31 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:53226 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422735AbWGNTxa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 15:53:30 -0400
-Date: Fri, 14 Jul 2006 14:52:30 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kylene Jo Hall <kjhall@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-Message-ID: <20060714195230.GB6846@sergelap.austin.ibm.com>
-References: <1152897878.23584.6.camel@localhost.localdomain> <1152901664.314.35.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 15:58:18 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:60603 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1422653AbWGNT6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 15:58:18 -0400
+Subject: Re: 2.6.18 Headers - Long
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jim Gifford <maillist@jg555.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org
+In-Reply-To: <44B7F062.8040102@jg555.com>
+References: <44B443D2.4070600@jg555.com>
+	 <1152836749.31372.36.camel@shinybook.infradead.org>
+	 <44B6FEDE.4040505@jg555.com> <1152903332.3191.87.camel@pmac.infradead.org>
+	 <44B7F062.8040102@jg555.com>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 20:57:54 +0100
+Message-Id: <1152907074.3191.90.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152901664.314.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dave Hansen (haveblue@us.ibm.com):
-> > +static void revoke_file_wperm(struct slm_file_xattr *cur_level)
-> > +{
-> > +	int i, j = 0;
-> > +	struct files_struct *files = current->files;
-> > +	unsigned long fd = 0;
-> > +	struct fdtable *fdt;
-> > +	struct file *file;
-> > +
-> > +	if (!files || !cur_level)
-> > +		return;
-> > +
-> > +	spin_lock(&files->file_lock);
-> > +	fdt = files_fdtable(files);
-> > +
-> > +	for (;;) {
-> > +		i =j * __NFDBITS;
-> > +		if ( i>= fdt->max_fdset || i >= fdt->max_fds)
-> > +			break;
-> > +		fd = fdt->open_fds->fds_bits[j++];
-> > +		while(fd) {
-> > +			if (fd & 1) {
-> > +				file = fdt->fd[i++];
-> > +				if (file && file->f_dentry)
-> > +					do_revoke_file_wperm(file, cur_level);
-> > +			}
-> > +			fd >>= 1;
-> > +		}
-> > +	}
-> > +	spin_unlock(&files->file_lock);
-> > +}
-> 
-> This is an awfully ugly function ;)
-> 
-> Instead of actually walking the fd table and revoking permissions, would
-> doing a hook in generic_write_permission() help?  It might be easier to
-> switch back and forth.
+On Fri, 2006-07-14 at 12:28 -0700, Jim Gifford wrote:
+> Unfortunately, a lot programs out there are using page.h, and a lot of 
+> people are using that in their programs. The 2 program I know for sure 
+> that use page.h are glibc and util-linux. 
 
-Or, would using security_file_permission(), which is called on each read
-and write to an open file, suffice?  Would it perform as well as this
-way?
+I don't believe glibc does. It certainly copes fine with an empty page.h
+on PowerPC.
 
--serge
+-- 
+dwmw2
+

@@ -1,93 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161116AbWGNOsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWGNOwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161116AbWGNOsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 10:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWGNOsz
+	id S1161117AbWGNOwM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 10:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161118AbWGNOwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 10:48:55 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:52890 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161116AbWGNOsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 10:48:55 -0400
-Subject: [PATCH] remove volatile from x86 cmos_lock
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 10:48:43 -0400
-Message-Id: <1152888523.27135.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 10:52:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60349 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161117AbWGNOwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 10:52:11 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com>
+	<44B50088.1010103@fr.ibm.com>
+	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
+	<44B684A5.2040008@fr.ibm.com>
+	<20060713174721.GA21399@sergelap.austin.ibm.com>
+	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	<20060713214101.GB2169@sergelap.austin.ibm.com>
+	<m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
+	<20060714140237.GD28436@sergelap.austin.ibm.com>
+Date: Fri, 14 Jul 2006 08:50:42 -0600
+In-Reply-To: <20060714140237.GD28436@sergelap.austin.ibm.com> (Serge
+	E. Hallyn's message of "Fri, 14 Jul 2006 09:02:37 -0500")
+Message-ID: <m1k66gw88t.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's another exercise to understand barriers. Once again, please
-review to see if this is indeed correct.
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-This patch removes the volatile keyword for cmos_lock and tries to make
-the code correct using barriers.
+> Quoting Eric W. Biederman (ebiederm@xmission.com):
+>> If you permission checks are not (user namespace, uid) what can't you do?
+>
+> File descripters can only be passed over a unix socket, right?
 
--- Steve
+No.  You can use /proc to do the same thing.  You can inherit
+file descriptors, etc.  This isn't a door you can just close and ignore.
+It is too easy to do this to assume you have closed every possible
+way to get a descriptor from outside of ``container''.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Suppose you have user fred uid 1000 outside of any containers,
+and you have user joe uid 1000 inside user uid namespace.  If you don't
+make your permission checks (user namespace, uid) fred can do terrible
+things to joe.
 
-Index: linux-2.6.18-rc1/include/asm-i386/mc146818rtc.h
-===================================================================
---- linux-2.6.18-rc1.orig/include/asm-i386/mc146818rtc.h	2006-07-14 09:09:14.000000000 -0400
-+++ linux-2.6.18-rc1/include/asm-i386/mc146818rtc.h	2006-07-14 09:22:50.000000000 -0400
-@@ -31,7 +31,7 @@
-  * atomically claim the lock and set the owner.
-  */
- #include <linux/smp.h>
--extern volatile unsigned long cmos_lock;
-+extern unsigned long cmos_lock;
- 
- /*
-  * All of these below must be called with interrupts off, preempt
-@@ -43,8 +43,10 @@ static inline void lock_cmos(unsigned ch
- 	unsigned long new;
- 	new = ((smp_processor_id()+1) << 8) | reg;
- 	for (;;) {
--		if (cmos_lock)
-+		if (cmos_lock) {
-+			cpu_relax();
- 			continue;
-+		}
- 		if (__cmpxchg(&cmos_lock, 0, new, sizeof(cmos_lock)) == 0)
- 			return;
- 	}
-@@ -52,14 +54,16 @@ static inline void lock_cmos(unsigned ch
- 
- static inline void unlock_cmos(void)
- {
--	cmos_lock = 0;
-+	set_wmb(cmos_lock, 0);
- }
- static inline int do_i_have_lock_cmos(void)
- {
-+	barrier();
- 	return (cmos_lock >> 8) == (smp_processor_id()+1);
- }
- static inline unsigned char current_lock_cmos_reg(void)
- {
-+	barrier();
- 	return cmos_lock & 0xff;
- }
- #define lock_cmos_prefix(reg) \
-Index: linux-2.6.18-rc1/arch/i386/kernel/time.c
-===================================================================
---- linux-2.6.18-rc1.orig/arch/i386/kernel/time.c	2006-07-14 09:08:56.000000000 -0400
-+++ linux-2.6.18-rc1/arch/i386/kernel/time.c	2006-07-14 09:24:06.000000000 -0400
-@@ -86,7 +86,7 @@ EXPORT_SYMBOL(rtc_lock);
-  * register we are working with.  It is required for NMI access to the
-  * CMOS/RTC registers.  See include/asm-i386/mc146818rtc.h for details.
-  */
--volatile unsigned long cmos_lock = 0;
-+unsigned long cmos_lock = 0;
- EXPORT_SYMBOL(cmos_lock);
- 
- /* Routines for accessing the CMOS RAM/RTC. */
+If I we don't do the expanded permission checks the only alternative
+is to check to see if every object is in our ``container'' at every
+access.  That isn't something I want to do.
 
+I don't intend to partition objects just partition object look ups by name.
+Which means that if you very carefully setup your initial process you
+will never be able to find an object outside of your namespace.  But
+the kernel never should assume user space has done that.
 
+> So this seems to fall into the same "userspace should set things up
+> sanely" argument you've brought up before.
+
+For using it yes.  But not for correct kernel operation.
+
+> Don't get me wrong though - the idea of using in-kernel keys as
+> cross-namespace uid's is definately interesting.
+
+That is their role in the kernel.  A flavor of key to handle uid
+mapping needs to be added, but that is all.
+
+Eric

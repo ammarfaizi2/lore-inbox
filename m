@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWGNJjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWGNJwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWGNJjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 05:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWGNJjX
+	id S1161013AbWGNJwe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 05:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGNJwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 05:39:23 -0400
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:17863 "EHLO
-	idefix.homelinux.org") by vger.kernel.org with ESMTP
-	id S1161007AbWGNJjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 05:39:15 -0400
-Subject: Re: Where is RLIMIT_RT_CPU?
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1152809039.8237.48.camel@mindpipe>
-References: <1152663825.27958.5.camel@localhost>
-	 <1152809039.8237.48.camel@mindpipe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Fri, 14 Jul 2006 19:39:11 +1000
-Message-Id: <1152869952.6374.8.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 14 Jul 2006 05:52:34 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:62375 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964812AbWGNJwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 05:52:33 -0400
+From: Daniel Drake <dsd@gentoo.org>
+To: greg@kroah.com
+Cc: akpm@osdl.org
+Cc: cw@f00f.org
+Cc: harmon@ksu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add SATA device to VIA IRQ quirk fixup list
+Message-Id: <20060714095233.5678A8B6253@zog.reactivated.net>
+Date: Fri, 14 Jul 2006 10:52:33 +0100 (BST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It was not merged.
-> 
-> This problem should be addressed by a userspace RT watchdog.  Ubuntu
-> should not have shipped their system with unlimited non-root realtime
-> enabled and no watchdog.
+Gentoo users at http://bugs.gentoo.org/138036 reported a 2.6.16.17 regression:
+new kernels will not boot their system from their VIA SATA hardware.
 
-Does such a daemon currently exist? Even then, is there any way to
-police all unprivileged RT apps without introducing an O(N) operation
-running continuously at max rt priority? Sort of defeats the purpose of
-having an O(1) scheduler, no? I assume the RT check can be some in O(1)
-time in the kernel, right?
+The solution is just to add the SATA device to the fixup list.
+This should also fix the same problem reported by Scott J. Harmon on LKML.
 
-About Ubuntu, I agree it wasn't a smart thing to do (I'm not an Ubuntu
-devel, so I don't know what the reason was), but it would be nice if
-this could be fixed without having to entirely remove the unprivileged
-real-time feature. In the end, I'm not sure what the best solution is
-(just an RT audio developer).
+Signed-off-by: Daniel Drake <dsd@gentoo.org>
 
-	Jean-Marc
+Index: linux/drivers/pci/quirks.c
+===================================================================
+--- linux.orig/drivers/pci/quirks.c
++++ linux/drivers/pci/quirks.c
+@@ -668,6 +668,7 @@ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_V
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237_SATA, quirk_via_irq);
+ 
+ /*
+  * VIA VT82C598 has its device ID settable and many BIOSes

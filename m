@@ -1,86 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161157AbWGNAZX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160998AbWGNAdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161157AbWGNAZX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 20:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWGNAZW
+	id S1160998AbWGNAdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 20:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWGNAdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 20:25:22 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39838 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161157AbWGNAZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 20:25:22 -0400
-Subject: Re: 2.6.18 Headers - Long
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org
-In-Reply-To: <44B443D2.4070600@jg555.com>
-References: <44B443D2.4070600@jg555.com>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 01:25:48 +0100
-Message-Id: <1152836749.31372.36.camel@shinybook.infradead.org>
+	Thu, 13 Jul 2006 20:33:17 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:65475
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1751430AbWGNAdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 20:33:17 -0400
+Date: Fri, 14 Jul 2006 02:34:29 +0200
+From: andrea@cpushare.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Lee Revell <rlrevell@joe-job.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       bunk@stusta.de, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [2.6 patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060714003429.GA18774@opteron.random>
+References: <20060629192121.GC19712@stusta.de> <200607102159.11994.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060711041600.GC7192@opteron.random> <200607111619.37607.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060712210545.GB24367@opteron.random> <1152741776.22943.103.camel@localhost.localdomain> <20060712234441.GA9102@opteron.random> <20060713212940.GB4101@ucw.cz> <20060713231118.GA1913@opteron.random> <20060713232026.GA6117@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060713232026.GA6117@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-11 at 17:35 -0700, Jim Gifford wrote:
-> I will only document one issue, but there are several more like this
-> in the kernel.
+On Fri, Jul 14, 2006 at 01:20:26AM +0200, Pavel Machek wrote:
+> I do not want to enter seccomp flamewar, and that's why I did not
+> answer to Ingo.
 
-Please elaborate, preferably in 'diff -u' form as below...
+Ok ;), I didn't imagine this was the reason. So we agree that the risk
+introduced by the availability of the TSC is orders of magnitude
+higher than whatever network timing attack.
 
-> I'm going to use the MIPS architecture in my example, along with the 
-> file page.h. 
+> Strictly speaking, this is wrong. This is like adding noise into the
+> room. You have to pick up maximum delay (ammount of noise), and you
+> clearly can't override signal that's longer than maximum delay. But
+>
+> you also can't override signal that's half the maximum delay, given
+> that transmitter will retransmit it 4-or-so times. Just average 4
+> samples, and your random delays will cancel out.
+> 
+> No, this probably does not apply to seccomp, because we are picking
+> unintended noise from affected computer.
 
-[PATCH] Reduce user-visible noise in asm-mips/page.h
+Well, perhaps I wasn't clear enough, but I am only talking about
+seccomp not some other unrelated and hypothetical network system.
 
-Since PAGE_SIZE is variable according to configuration options, don't
-expose it to userspace. Userspace should be using sysconf(_SC_PAGE_SIZE)
-instead. Move some other noise inside __KERNEL__ too while we're at it.
+I know a few algorithms are potentially vulnerable to network timing
+attacks, the tcp sequence number and urandom comes to mind. urandom is
+perhaps the worst of all (which btw, it also gets data from the
+tsc). Those issues have absolutely nothing to do with seccomp.
 
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+As far as seccomp is concerned the only worry is the demonstration of
+the timing side channel that was getting openssl keys by controlling
+the host and running openssl commands on the other cpu at his
+will. And to do that you need the TSC. Even that is totally vapourware
+because the attacked environment was strictly controlled by the
+attacker, it's unclear what would happen shall the attacked
+environment being mostly random like in real life. Disabling the TSC
+has been generally agreed good enough to stop it.
 
-diff --git a/include/asm-mips/page.h b/include/asm-mips/page.h
-index 6ed1151..ee2ef88 100644
---- a/include/asm-mips/page.h
-+++ b/include/asm-mips/page.h
-@@ -14,8 +14,6 @@ #ifdef __KERNEL__
- 
- #include <spaces.h>
- 
--#endif
--
- /*
-  * PAGE_SHIFT determines the page size
-  */
-@@ -35,7 +33,6 @@ #define PAGE_SIZE	(1UL << PAGE_SHIFT)
- #define PAGE_MASK       (~((1 << PAGE_SHIFT) - 1))
- 
- 
--#ifdef __KERNEL__
- #ifndef __ASSEMBLY__
- 
- extern void clear_page(void * page);
-@@ -168,7 +165,6 @@ #define VM_DATA_DEFAULT_FLAGS	(VM_READ |
- #define UNCAC_ADDR(addr)	((addr) - PAGE_OFFSET + UNCAC_BASE)
- #define CAC_ADDR(addr)		((addr) - UNCAC_BASE + PAGE_OFFSET)
- 
--#endif /* defined (__KERNEL__) */
- 
- #ifdef CONFIG_LIMITED_DMA
- #define WANT_PAGE_VIRTUAL
-@@ -177,4 +173,6 @@ #endif
- #include <asm-generic/memory_model.h>
- #include <asm-generic/page.h>
- 
-+#endif /* defined (__KERNEL__) */
-+
- #endif /* _ASM_PAGE_H */
+The second one in the priority list are the readonly ptes mapping HPET
+on some x86-64 config. The network timing attack to CPUShare is way
+over what I could actually worry about.
 
+> OTOH I'm pretty sure I could communicate from seccomp process by
+> sending zeros alone, and I cound communicate from another process on
+> box running seccomp through your randomizing packetizer to my machine.
 
--- 
-dwmw2
+You mean you could communicate using some sort of morse-code and you
+would use the frequency of the zero to send the messages? That's
+certainly possible today (without any randomizer), but the timing will
+be measurable through the internet, so you're talking morse-code in
+cleartext over the internet. The whole internet will sniff your
+message. Furthermore I register all ip and ports for all transactions,
+so it's really no different from direct a tcp connection even if you
+talk encrypted-more-code over it, you're only wasting some resources.
 
+Also note, there's absolutely no way for you to know for sure who you
+are talking with.
+
+So I don't see anything to worry about, feel free to communicate with
+the other side through seccomp if you want, I'm certainly not adding a
+randomizer to prevent that.
+
+Thanks.

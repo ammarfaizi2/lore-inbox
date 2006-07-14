@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWGNQqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161265AbWGNQrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422637AbWGNQqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 12:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWGNQqi
+	id S1161265AbWGNQrn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 12:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbWGNQrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 12:46:38 -0400
-Received: from web81212.mail.mud.yahoo.com ([68.142.199.116]:3180 "HELO
-	web81212.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422637AbWGNQqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 12:46:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=bZrJYjhQAvu3t2y4oAqvCj2LsoGbOS3g9klOm+Qz3hlw9LYhl24ZeKBAVWe2JWJleqmjLVwun6is4i4N0+SJE20dFb2gJ8LY3b/v/UBX1LfyaEv3gRw9WocWGB7a3ehmpXr5HmtXQhl+x9etfDOZDERfc90Sy//Wl3/oQEXO3rs=  ;
-Message-ID: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
-Date: Fri, 14 Jul 2006 09:46:36 -0700 (PDT)
-From: Aleksey Gorelov <dared1st@yahoo.com>
-Subject: Re: [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       gregkh@suse.de, david-b@pacbell.net, stern@rowland.harvard.edu
-In-Reply-To: <20060713191559.53ba7726.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 14 Jul 2006 12:47:43 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:9361 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161265AbWGNQrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 12:47:43 -0400
+Date: Fri, 14 Jul 2006 11:46:40 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+Message-ID: <20060714164640.GC25303@sergelap.austin.ibm.com>
+References: <20060711075051.382004000@localhost.localdomain> <20060711075420.937831000@localhost.localdomain> <m1fyh7eb9i.fsf@ebiederm.dsl.xmission.com> <44B50088.1010103@fr.ibm.com> <m1psgaag7y.fsf@ebiederm.dsl.xmission.com> <20060714141728.GE28436@sergelap.austin.ibm.com> <m1fyh4w7ju.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1fyh4w7ju.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andrew Morton <akpm@osdl.org> wrote:
-
-> On Tue, 11 Jul 2006 23:38:41 -0700 (PDT)
-> Aleksey Gorelov <dared1st@yahoo.com> wrote:
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> >> No.  The uids in a filesystem are interpreted in some user namespace
+> >> context.  We can discover that context at the first mount of the
+> >> filesystem.  Assuming the uids on a filesystem are the same set
+> >> of uids your process is using is just wrong.
+> >
+> > But, when I insert a usb keychain disk into my laptop, that fs assumes
+> > the uids on it's fs are the same as uids on my laptop...
 > 
-> >   If some problem occurs during ehci startup, for instance, request_irq fails, echi hcd driver
-> > tries it best to cleanup, but fails to unregister reboot notifier, which in turn leads to
-> crash on
-> > reboot/poweroff. Below is the patch against current git to fix this.
-> >   I did not check if the same problem existed for uhci/ohci host drivers.
+> I agree that setting the fs_user_namespace at mount time is fine.
+> However when we use a mount that a process in another user namespace
+> we need to not assume the uids are the same.
 > 
-> This patch causes hangs at reboot/shutdown/suspend time.  See
-> http://www.zip.com.au/~akpm/linux/patches/stuff/dsc03597.jpg
+> Do you see the difference?
+
+Aaah - so you don't want to store this on the fs.  So this is actually
+like what I had mentioned many many emails ago?
+
+> > much wider community on.  I.e. the cifs and nifs folks.  I haven't even
+> > googled to see what they say about it.
 > 
-Oops, I did not test it with suspend/resume stuff, sorry. The problem is that ehci_run is called
-from resume without its counterpart ehci_stop in suspend, so notifier ends up registered twice.
+> Yes.
+> 
+> >> Yes.  Your patch does lay some interesting foundation work.
+> >> But we must not merge it upstream until we have a complete patchset
+> >> that handles all of the user namespace issues.
+> >
+> > Don't think Cedric expected this to be merged  :)  Just to start
+> > discussion, which it certainly did...
+> 
+> If we could have [RFC] in front of these proof of concept patches
+> it would clear up a lot of confusion.
 
-David, Alan,
+Agreed.
 
-Do you think it is Ok to unregister reboot notifier in ehci_run before registering one to make
-sure there is no 'double registering' of notifier, or is it better to move register/unregister
-reboot notifier from ehci_run/ehci_stop completely to some other place ?
+> > If we're going to talk about keys (which I'd like to) I think we need to
+> > decide whether we are just using them as an easy wider-than-uid
+> > identifier, or if we actually need cryptographic keys to prevent
+> > "identity theft"  (heheh).  I don't know that we need the latter for
+> > anything, but of course if we're going to try for a more general
+> > solution, then we do.
+> 
+> Actually I was thinking something as mundane as a mapping table.  This
+> uid in this namespace equals that uid in that other namespace.
 
-Aleks.
+I see.
 
+That's also what I was imagining earlier, but it seems crass somehow.
+I'd almost prefer to just tag a mount with a user namespace implicitly,
+and only allow the mounter to say 'do' or 'don't' allow this to be read
+by users in another namespace.  Then in the 'don't' case, user joe
+[1000] can't read files belonging to user jack [1000] in another
+namespace.  It's stricter, but clean.
+
+But whether we do mapping tables or simple isolation, I do still like
+the idea of pursuing the use of the keystore for global uids.
+
+thanks,
+-serge

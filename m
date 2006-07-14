@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWGNNpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWGNNqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbWGNNpt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 09:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWGNNpt
+	id S1030449AbWGNNqb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 09:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWGNNqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 09:45:49 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:47281 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030448AbWGNNpt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 09:45:49 -0400
-Message-ID: <44B7A007.2010204@garzik.org>
-Date: Fri, 14 Jul 2006 09:45:43 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: jdike@karaya.com
-CC: user-mode-linux-devel@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: UML build broken everywhere?
-References: <44B79AB9.3020401@garzik.org>
-In-Reply-To: <44B79AB9.3020401@garzik.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	Fri, 14 Jul 2006 09:46:31 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:47756 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1030449AbWGNNqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 09:46:30 -0400
+Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
+In-Reply-To: <m3u05kqvla.fsf@telia.com>
+References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
+	 <m3sllxtfbf.fsf@telia.com> <1151000451.3120.56.camel@laptopd505.fenrus.org>
+	 <m3u05kqvla.fsf@telia.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Fri, 14 Jul 2006 15:46:10 +0200
+Message-Id: <1152884770.3159.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> I tried to build 2.6.17 and 2.6.17.4 UML on x86-64 with the attached 
-> .config on a Fedora Core 5 OS, and it broke:
+On Fri, 2006-07-14 at 13:22 +0200, Peter Osterlund wrote:
+> > and what locking prevents this? And via multiple opens?
+> 
+> You are right that my reasoning was incorrect. If someone is doing
+> "pktsetup ; pktsetup -d" quickly in a loop while someone else is
+> trying to open the device, one thread could be at the start of
+> pkt_open() at the same time as another thread is in pkt_new_dev().
+> 
+> However, I added a 5s delay in pkt_open() to enlarge the race window.
+> I still couldn't make the driver lock up though. The explanation is
+> that pkt_new_dev() calls blkdev_get() with the CD device (eg /dev/hdc)
+> as bdev parameter, while do_open() locks the bd_mutex for the pktcdvd
+> device (eg /dev/pktcdvd/0).
+> 
+> Do you still think this could deadlock? If not, how should the code be
+> annotated to make this warning go away?
 
-I just verified that ARCH=um on 32-bit x86 is also broken, with the same 
-build errors, on 2.6.17, 2.6.17.4, and 2.6.18-rc1-gitX (latest).
-
-	Jeff
-
-
+unless we KNOW it won't deadlock (eg we have a "this cannot deadlock
+BECAUSE of X, Y and Z") I don't think annotations are the right idea. In
+addition, the "how to annotate" really depends on what X, Y and Z
+are....
 

@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161193AbWGNDAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161196AbWGNDBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161193AbWGNDAH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 23:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbWGNDAH
+	id S1161196AbWGNDBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 23:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161211AbWGNDBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 23:00:07 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33207 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161193AbWGNDAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 23:00:05 -0400
-Date: Thu, 13 Jul 2006 19:59:25 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: arjan@infradead.org, torvalds@osdl.org, penberg@cs.helsinki.fi,
-       mingo@elte.hu, sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       nagar@watson.ibm.com, balbir@in.ibm.com, alokk@calsoftinc.com
-Subject: Re: [patch] lockdep: annotate mm/slab.c
-In-Reply-To: <20060713195419.a955b6dd.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607131957240.31912@schroedinger.engr.sgi.com>
-References: <1152763195.11343.16.camel@linuxchandra> <20060713071221.GA31349@elte.hu>
- <20060713002803.cd206d91.akpm@osdl.org> <20060713072635.GA907@elte.hu>
- <20060713004445.cf7d1d96.akpm@osdl.org> <20060713124603.GB18936@elte.hu>
- <84144f020607130858l60792ac0t5f9cdabf1902339c@mail.gmail.com>
- <Pine.LNX.4.64.0607131156060.5623@g5.osdl.org> <1152818472.3024.75.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0607131543040.30558@schroedinger.engr.sgi.com>
- <20060713161620.f61d2ac0.akpm@osdl.org> <Pine.LNX.4.64.0607131929050.31444@schroedinger.engr.sgi.com>
- <20060713195419.a955b6dd.akpm@osdl.org>
+	Thu, 13 Jul 2006 23:01:15 -0400
+Received: from [202.99.27.194] ([202.99.27.194]:5778 "EHLO mail1.topsec.com.cn")
+	by vger.kernel.org with ESMTP id S1161196AbWGNDBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 23:01:15 -0400
+Message-ID: <002001c6a6f1$74ff85f0$0100000a@codingman>
+From: <wyb@topsec.com.cn>
+To: <linux-kernel@vger.kernel.org>
+Subject: SMP share data declaration
+Date: Fri, 14 Jul 2006 10:58:57 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+X-Junkmail-Whitelist: YES (by domain whitelist at mail1.topsec.com.cn)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jul 2006, Andrew Morton wrote:
+I know that an integer variable should be declared volatile to share between
+CPUs.
+But for more complicated variable, I don't know if it should be volatile.
+for example:
 
-> > How would this slab become corrupted if it is no longer on the lists?
-> 
-> It's a bad sign that this question is flowing in the you->me direction ;)
+linux-2.6.6/kernel/workqueue.c:
+struct workqueue_struct *__create_workqueue(const char *name,int
+singlethread)
+{
+    ...
+    if (singlethread) {
+        ...
+    } else {
+        spin_lock(&workqueue_lock);
+        list_add(&wq->list, &workqueues);
+        spin_unlock_irq(&workqueue_lock);
+        ...
+    }
+    ...
+}
 
-Take it as a rhetorical question reflecting my lack of details about this 
-issue.
-> 
-> I don't see anywhere under slab_destroy() where *cachep state gets altered.
-> 
-> The change did cause
-> free_block->slab_destroy->__cache_free->cache_free_alien to no longer be
-> called under this slab's l3->list_lock.  Maybe that locking is
-> (accidentally?) protecting something?
+workqueues is a none volatile list_head. The spin_lock/unlock act as memory
+barrier, so gcc flush any register cached value to memory. But if another
+CPU allocate workqueues.next/prev in registers, how to make sure this cpu
+get new value ?
 
-Yes this is also protecting the shared array. It is invalid to use 
-free_block on elements of the shared array. It is valid to use free block 
-on per cpu arrays since they are protected only by interrupt disable. It 
-also valid to use free_block on alien caches because they have their own 
-lock.
+static int __devinit workqueue_cpu_callback(struct notifier_block *nfb,
+      unsigned long action,
+      void *hcpu)
+{
+    ...
+    switch (action) {
+    case CPU_UP_PREPARE:
+    /* Create a new workqueue thread for it. */
+    list_for_each_entry(wq, &workqueues, list) {
+        ...
+}
 
-Still looking.....
+how to make sure workqueue_cpu_callback() get new value ?
+
+thanks very much
+
 

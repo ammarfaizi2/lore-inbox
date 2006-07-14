@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161236AbWGNDvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161245AbWGNDyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161236AbWGNDvu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jul 2006 23:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161240AbWGNDvu
+	id S1161245AbWGNDyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jul 2006 23:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWGNDyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jul 2006 23:51:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21396 "EHLO
+	Thu, 13 Jul 2006 23:54:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23700 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161236AbWGNDvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jul 2006 23:51:49 -0400
+	id S1161245AbWGNDyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jul 2006 23:54:14 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
 To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>,
-       Dave Hansen <haveblue@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
 Subject: Re: [PATCH -mm 5/7] add user namespace
 References: <20060711075051.382004000@localhost.localdomain>
 	<20060711075420.937831000@localhost.localdomain>
@@ -23,12 +23,15 @@ References: <20060711075051.382004000@localhost.localdomain>
 	<44B50088.1010103@fr.ibm.com>
 	<m1psgaag7y.fsf@ebiederm.dsl.xmission.com>
 	<44B684A5.2040008@fr.ibm.com>
-	<m1sll51j3r.fsf@ebiederm.dsl.xmission.com>
-	<20060713212218.GA2169@sergelap.austin.ibm.com>
-Date: Thu, 13 Jul 2006 21:50:17 -0600
-In-Reply-To: <20060713212218.GA2169@sergelap.austin.ibm.com> (Serge
-	E. Hallyn's message of "Thu, 13 Jul 2006 16:22:18 -0500")
-Message-ID: <m13bd4zvye.fsf@ebiederm.dsl.xmission.com>
+	<20060713174721.GA21399@sergelap.austin.ibm.com>
+	<m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	<20060713214101.GB2169@sergelap.austin.ibm.com>
+Date: Thu, 13 Jul 2006 21:52:40 -0600
+In-Reply-To: <20060713214101.GB2169@sergelap.austin.ibm.com> (Serge
+	E. Hallyn's message of "Thu, 13 Jul 2006 16:41:01 -0500")
+Message-ID: <m1y7uwyh9z.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -38,29 +41,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 "Serge E. Hallyn" <serue@us.ibm.com> writes:
 
 > Quoting Eric W. Biederman (ebiederm@xmission.com):
->> >> keys are essentially security credentials for something besides the
->> >> local kernel.  Think kerberos tickets.  That makes the keys the
->> >> obvious place to say what uid you are in a different user namespace
->> >> and similar things.
->> >
->> > what about performance ? wouldn't that slow the checking ?
+>> Dave Hansen <haveblue@us.ibm.com> writes:
 >> 
->> It needs to be looked at, but it shouldn't slow the same namespace
->> case,
+>> > On Thu, 2006-07-13 at 12:14 -0600, Eric W. Biederman wrote:
+>> >> Maybe.  I really think the sane semantics are in a different uid namespace.
+>> >> So you can't assumes uids are the same.  Otherwise you can't handle open
+>> >> file descriptors or files passed through unix domain sockets.
+>> >
+>> > Eric, could you explain this a little bit more?  I'm not sure I
+>> > understand the details of why this is a problem?
+>> 
+>> Very simply.
+>> 
+>> In the presence of a user namespace.  
+>> All comparisons of a user equality need to be of the tuple (user namespace,
+> user id).
+>> Any comparison that does not do that is an optimization.
+>> 
+>> Because you can have access to files created in another user namespace it
+>> is very unlikely that optimization will apply very frequently.  The easy
+> scenario
+>> to get access to a file descriptor from another context is to consider unix
+>> domain sockets.
 >
-> How so?  The processesing is the same.
+> What does that have to do with uids?  If you receive an fd, uids don't
+> matter in any case.  The only permission checks which happen are LSM
+> hooks, which should be uid-agnostic.
 
-If you do mapping of uids that would not trigger if you have
-matching user namespaces.
+You are guest uid 0.  You get a directory file descriptor from another namespace.
+You call fchdir.
 
->> and permission checking is largely a slow path issue.  So a little
->> overhead at open time is preferred to overhead after you get the file
->> open.
->
-> Unsure which approach has overhead after file open...
-
-I don't know that I have seen that one yet.  Sorry this was generally
-a statement of principle.
+If you permission checks are not (user namespace, uid) what can't you do?
 
 Eric
-

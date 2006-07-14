@@ -1,131 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWGNJys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWGNJ4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWGNJys (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 05:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGNJys
+	id S1161016AbWGNJ4A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 05:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGNJ4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 05:54:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:51609 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964812AbWGNJyr (ORCPT
+	Fri, 14 Jul 2006 05:56:00 -0400
+Received: from smtp6-g19.free.fr ([212.27.42.36]:5596 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S964812AbWGNJz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 05:54:47 -0400
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dinakar Guniguntala <dino@in.ibm.com>, Simon.Derr@bull.net,
-       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Date: Fri, 14 Jul 2006 02:54:34 -0700
-Message-Id: <20060714095434.24283.5979.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] Cpuset: fix ABBA deadlock with cpu hotplug lock
+	Fri, 14 Jul 2006 05:55:59 -0400
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: held lock freed! (xfs)
+Date: Fri, 14 Jul 2006 11:55:53 +0200
+User-Agent: KMail/1.9.3
+Cc: Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       xfs-masters@oss.sgi.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607141155.55209.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
+Linux version 2.6.18-rc1-git8 (duncan@baldrick) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #5 PREEMPT Fri Jul 14 10:59:33 CEST 2006
 
-Fix ABBA deadlock between lock_cpu_hotplug() and the cpuset
-callback_mutex lock.
+On system shutdown:
 
-It only happens on cpu_exclusive cpusets, due to the dynamic
-sched domain code trying to take the cpu hotplug lock inside
-the cpuset callback_mutex lock.
-
-This bug has apparently been here for several months, but didn't
-get hit until the right customer load on a large system.
-
-This fix appears right from inspection, but it will take a few
-more days running it on that customers workload to be confident
-we nailed it.  We don't have any other reproducible test case.
-
-The cpu_hotplug_lock() tends to cover large runs of code.
-The other places that hold both that lock and the cpuset callback
-mutex lock always nest the cpuset lock inside the hotplug lock.
-This place tries to do the reverse, risking an ABBA deadlock.
-
-This is in the cpuset_rmdir() code, where we:
-  * take the callback_mutex lock
-  * mark the cpuset CS_REMOVED
-  * call update_cpu_domains for cpu_exclusive cpusets
-  * in that call, take the cpu_hotplug lock if the
-    cpuset is marked for removal.
-
-Thanks to Jack Steiner for identifying this deadlock.
-
-The fix is to tear down the dynamic sched domain before we grab
-the cpuset callback_mutex lock.  This way, the two locks are
-serialized, with the hotplug lock taken and released before
-trying for the cpuset lock.
-
-I suspect that this bug was introduced when I changed the
-cpuset locking from one lock to two.  The dynamic sched domain
-dependency on cpu_exclusive cpusets and its hotplug hooks were
-added to this code earlier, when cpusets had only a single lock.
-It may well have been fine then.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- kernel/cpuset.c |   24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
-
---- 2.6.18-rc1-mm1.orig/kernel/cpuset.c	2006-07-13 01:43:26.944147637 -0700
-+++ 2.6.18-rc1-mm1/kernel/cpuset.c	2006-07-13 01:43:30.144185379 -0700
-@@ -761,6 +761,8 @@ static int validate_change(const struct 
-  *
-  * Call with manage_mutex held.  May nest a call to the
-  * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
-+ * Must not be called holding callback_mutex, because we must
-+ * not call lock_cpu_hotplug() while holding callback_mutex.
-  */
- 
- static void update_cpu_domains(struct cpuset *cur)
-@@ -780,7 +782,7 @@ static void update_cpu_domains(struct cp
- 		if (is_cpu_exclusive(c))
- 			cpus_andnot(pspan, pspan, c->cpus_allowed);
- 	}
--	if (is_removed(cur) || !is_cpu_exclusive(cur)) {
-+	if (!is_cpu_exclusive(cur)) {
- 		cpus_or(pspan, pspan, cur->cpus_allowed);
- 		if (cpus_equal(pspan, cur->cpus_allowed))
- 			return;
-@@ -1916,6 +1918,17 @@ static int cpuset_mkdir(struct inode *di
- 	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
- }
- 
-+/*
-+ * Locking note on the strange update_flag() call below:
-+ *
-+ * If the cpuset being removed is marked cpu_exclusive, then simulate
-+ * turning cpu_exclusive off, which will call update_cpu_domains().
-+ * The lock_cpu_hotplug() call in update_cpu_domains() must not be
-+ * made while holding callback_mutex.  Elsewhere the kernel nests
-+ * callback_mutex inside lock_cpu_hotplug() calls.  So the reverse
-+ * nesting would risk an ABBA deadlock.
-+ */
-+
- static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
- {
- 	struct cpuset *cs = dentry->d_fsdata;
-@@ -1935,11 +1948,16 @@ static int cpuset_rmdir(struct inode *un
- 		mutex_unlock(&manage_mutex);
- 		return -EBUSY;
- 	}
-+	if (is_cpu_exclusive(cs)) {
-+		int retval = update_flag(CS_CPU_EXCLUSIVE, cs, "0");
-+		if (retval < 0) {
-+			mutex_unlock(&manage_mutex);
-+			return retval;
-+		}
-+	}
- 	parent = cs->parent;
- 	mutex_lock(&callback_mutex);
- 	set_bit(CS_REMOVED, &cs->flags);
--	if (is_cpu_exclusive(cs))
--		update_cpu_domains(cs);
- 	list_del(&cs->sibling);	/* delete my sibling from parent->children */
- 	spin_lock(&cs->dentry->d_lock);
- 	d = dget(cs->dentry);
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+[ 1919.170295] [ BUG: held lock freed! ]
+[ 1919.181280] -------------------------
+[ 1919.192270] umount/6157 is freeing memory d9d49000-d9d49fff, with a lock still held there!
+[ 1919.217046]  (&(&ip->i_iolock)->mr_lock){----}, at: [<e0a99fa2>] xfs_ilock+0x1c/0x68 [xfs]
+[ 1919.242191] 4 locks held by umount/6157:
+[ 1919.253956]  #0:  (&type->s_umount_key#16){----}, at: [<c015381e>] deactivate_super+0x3a/0x51
+[ 1919.279981]  #1:  (&type->s_lock_key#7){--..}, at: [<c028d8f4>] mutex_lock+0x1c/0x1f
+[ 1919.303669]  #2:  (&(&ip->i_iolock)->mr_lock){----}, at: [<e0a99fa2>] xfs_ilock+0x1c/0x68 [xfs]
+[ 1919.330135]  #3:  (&(&ip->i_lock)->mr_lock){----}, at: [<e0a99fd0>] xfs_ilock+0x4a/0x68 [xfs]
+[ 1919.356083]
+[ 1919.356085] stack backtrace:
+[ 1919.369460]  [<c01039df>] show_trace_log_lvl+0x54/0xfd
+[ 1919.384961]  [<c0104afe>] show_trace+0xd/0x10
+[ 1919.398130]  [<c0104b18>] dump_stack+0x17/0x1b
+[ 1919.411558]  [<c0129264>] debug_check_no_locks_freed+0xe2/0x11c
+[ 1919.429551]  [<c010fb54>] kernel_map_pages+0x28/0x78
+[ 1919.444594]  [<c014a2a5>] cache_free_debugcheck+0x224/0x23e
+[ 1919.461647]  [<c014aa81>] kmem_cache_free+0x66/0xb2
+[ 1919.476568]  [<e0a9d0d3>] xfs_idestroy+0x5e/0x61 [xfs]
+[ 1919.492171]  [<e0a9a06c>] xfs_ireclaim+0x55/0x58 [xfs]
+[ 1919.507708]  [<e0ab4614>] xfs_finish_reclaim+0x111/0x11a [xfs]
+[ 1919.525384]  [<e0ab4686>] xfs_reclaim+0x69/0xca [xfs]
+[ 1919.540695]  [<e0ac03ce>] xfs_fs_clear_inode+0x54/0x70 [xfs]
+[ 1919.557864]  [<c0163767>] clear_inode+0x97/0xc8
+[ 1919.571843]  [<c0163d20>] generic_drop_inode+0x12c/0x13e
+[ 1919.588135]  [<c0163053>] iput+0x67/0x6a
+[ 1919.600263]  [<e0ab2925>] xfs_unmount+0xb5/0x125 [xfs]
+[ 1919.615838]  [<e0ac0f9c>] vfs_unmount+0x1a/0x1e [xfs]
+[ 1919.631183]  [<e0ac0488>] xfs_fs_put_super+0x2e/0x5e [xfs]
+[ 1919.647802]  [<c01535d2>] generic_shutdown_super+0x7f/0x111
+[ 1919.664823]  [<c0153684>] kill_block_super+0x20/0x32
+[ 1919.680043]  [<c0153823>] deactivate_super+0x3f/0x51
+[ 1919.695265]  [<c01651a9>] mntput_no_expire+0x42/0x66
+[ 1919.710528]  [<c01593d9>] path_release_on_umount+0x15/0x18
+[ 1919.727306]  [<c0165f83>] sys_umount+0x199/0x1a3
+[ 1919.741518]  [<c0165f9a>] sys_oldumount+0xd/0xf
+[ 1919.755465]  [<c01027e5>] sysenter_past_esp+0x56/0x8d

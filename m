@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422705AbWGNSwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbWGNSzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422705AbWGNSwB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 14:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161292AbWGNSwB
+	id S1422713AbWGNSzy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 14:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWGNSzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 14:52:01 -0400
-Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:23931 "HELO
-	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1161287AbWGNSv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 14:51:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=NmrHXiV2cC1+fI4v+t8XFUjz+3TmpZ8R0aoRfXm0Mwi8c/YLyA2hoDIZ3rh9kkhcHwNT1ugqI6WuSgIypo9sjcvip4TSClaOP2/iWWZBYt/hT8dPnNSckT3D0bPRl71DQfZZXv7zmrrPGVvA3Gm5fw/EIu7d9NGgFSrGAWcp4Y0=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] UML build broken everywhere?
-Date: Fri, 14 Jul 2006 20:52:05 +0200
-User-Agent: KMail/1.9.1
-Cc: Jeff Garzik <jeff@garzik.org>, jdike@karaya.com,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <44B79AB9.3020401@garzik.org> <44B7A007.2010204@garzik.org>
-In-Reply-To: <44B7A007.2010204@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 14 Jul 2006 14:55:53 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:19591 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1161292AbWGNSzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 14:55:52 -0400
+Subject: Re: 2.6.18 Headers - Long
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jim Gifford <maillist@jg555.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, ralf@linux-mips.org
+In-Reply-To: <44B6FEDE.4040505@jg555.com>
+References: <44B443D2.4070600@jg555.com>
+	 <1152836749.31372.36.camel@shinybook.infradead.org>
+	 <44B6FEDE.4040505@jg555.com>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 19:55:32 +0100
+Message-Id: <1152903332.3191.87.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607142052.05666.blaisorblade@yahoo.it>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 July 2006 15:45, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> > I tried to build 2.6.17 and 2.6.17.4 UML on x86-64 with the attached
-> > .config on a Fedora Core 5 OS, and it broke:
->
-> I just verified that ARCH=um on 32-bit x86 is also broken, with the same
-> build errors, on 2.6.17, 2.6.17.4, and 2.6.18-rc1-gitX (latest).
->
-> 	Jeff
-Jeff (Garzik), the above error is specific to glibc 2.4. There is a workaround 
-patch (which is wrong, but makes UML compile - and the affected code is not 
-normally used except for debugging).
+On Thu, 2006-07-13 at 19:18 -0700, Jim Gifford wrote:
+>     asm-ia64/page.h - Config variables
+>     asm-sparc/page.h - Config variables
+>    asm-sparc64/page.h - Config variables
 
-Jeff (Dike), please choose one of the "simple" patches I suggested (comment 
-out offending code, for instance) since you (correctly) deferred the real fix 
-(incorporating klibc's setjmp implementation) to later.
+Yeah, just as with MIPS, the bits which are affected by CONFIG variables
+just shouldn't be outside the __KERNEL__ ifdef at all -- they shouldn't
+be seen.
+
+>     asm-powerpc/page.h - Config variables 
+
+Er, asm-powerpc/page.h is empty after unifdef, which is entirely
+correect. In fact asm/page.h is one of the files which should probably
+be removed from user visibility entirely. There's nothing there which
+userspace should see, in general.
+
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade
-http://www.user-mode-linux.org/~blaisorblade
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+dwmw2
+

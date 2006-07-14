@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWGNSQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422694AbWGNSRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422687AbWGNSQe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 14:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWGNSQe
+	id S1422694AbWGNSRz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 14:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWGNSRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 14:16:34 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:41388 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1422652AbWGNSQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 14:16:33 -0400
-Subject: Re: Kernel headers git tree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
-In-Reply-To: <200607142005.36998.ioe-lkml@rameria.de>
-References: <1152835150.31372.23.camel@shinybook.infradead.org>
-	 <200607142005.36998.ioe-lkml@rameria.de>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 19:16:11 +0100
-Message-Id: <1152900971.3191.76.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 14 Jul 2006 14:17:55 -0400
+Received: from lucidpixels.com ([66.45.37.187]:59319 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1422653AbWGNSRy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 14:17:54 -0400
+Date: Fri, 14 Jul 2006 14:17:52 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: Mark Lord <liml@rtr.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: Follow up? LibPATA code issues / 2.6.15.4 (found the opcode=0x35)!
+In-Reply-To: <44B7D66E.3070804@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0607141417370.4210@p34.internal.lan>
+References: <Pine.LNX.4.64.0602140439580.3567@p34>  <44AEB3CA.8080606@pobox.com>
+  <Pine.LNX.4.64.0607071520160.2643@p34.internal.lan>  <200607091224.31451.liml@rtr.ca>
+  <Pine.LNX.4.64.0607091327160.23992@p34.internal.lan> 
+ <Pine.LNX.4.64.0607091612060.3886@p34.internal.lan> 
+ <Pine.LNX.4.64.0607091638220.2696@p34.internal.lan> 
+ <Pine.LNX.4.64.0607091645480.2696@p34.internal.lan> 
+ <Pine.LNX.4.64.0607091704250.2696@p34.internal.lan> 
+ <Pine.LNX.4.64.0607091802460.2696@p34.internal.lan> 
+ <Pine.LNX.4.64.0607100958540.3591@p34.internal.lan>
+ <1152545639.27368.137.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607101145030.3591@p34.internal.lan> <44B7D0F7.6000302@rtr.ca>
+ <Pine.LNX.4.64.0607141317300.1687@p34.internal.lan> <44B7D66E.3070804@rtr.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 20:05 +0200, Ingo Oeser wrote:
-> Hi David,
-> 
-> On Friday, 14. July 2006 01:59, David Woodhouse wrote:
-> > Only commits in Linus' tree which actually affect the exported result
-> > should have an equivalent commit in the above tree, which means that any
-> > changes which affect userspace should be clearly visible for review.
-> 
-> Where can I subscribe for commit messages there?
 
-Well, they're all derived from commits in Linus' tree. I could set up
-another mailing list feed script which tracks it, but I'd like to give
-it a while (until I'm happy with the export scripts) first.
 
--- 
-dwmw2
+On Fri, 14 Jul 2006, Mark Lord wrote:
+
+> Justin Piszcz wrote:
+>> 
+>> 
+>> On Fri, 14 Jul 2006, Mark Lord wrote:
+>> 
+>>> So, the drive is rejecting an LBA48 WRITE operation, which should happen
+>>> only if the drive does not have LBA48 support.  Now, I know you posted all
+>>> of this nice info months ago, but let's see it again now, for the exact
+>>> drive that is generating that specific message.  We need to see the output
+>>> from "hdparm --Istdout /dev/sdX" for that drive.
+>>> 
+>>> Thanks
+>>> 
+>> 
+>> Here it is:
+>> 
+>> They are identical disks (the WD 400KD), both show up as 373GB (formatted):
+>
+>
+> Which *exact* unit generated the WRITE errors you posted about?
+>
+
+Both have generated the errors, they are identical drives and firmware.
 

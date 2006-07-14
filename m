@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161302AbWGNVE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161304AbWGNVHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161302AbWGNVE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 17:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161303AbWGNVE6
+	id S1161304AbWGNVHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 17:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161305AbWGNVHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 17:04:58 -0400
-Received: from pat.uio.no ([129.240.10.4]:7832 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161302AbWGNVE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 17:04:57 -0400
-Subject: Re: [PATCH -mm 5/7] add user namespace
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
-       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-In-Reply-To: <m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
-References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-	 <1152815391.7650.58.camel@localhost.localdomain>
-	 <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-	 <1152821011.24925.7.camel@localhost.localdomain>
-	 <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
-	 <1152887287.24925.22.camel@localhost.localdomain>
-	 <m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
-	 <20060714162935.GA25303@sergelap.austin.ibm.com>
-	 <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
-	 <1152896138.24925.74.camel@localhost.localdomain>
-	 <20060714170814.GE25303@sergelap.austin.ibm.com>
-	 <1152897579.24925.80.camel@localhost.localdomain>
-	 <m17j2gt7fo.fsf@ebiederm.dsl.xmission.com>
-	 <1152900911.5729.30.camel@lade.trondhjem.org>
-	 <m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 17:04:38 -0400
-Message-Id: <1152911079.5729.70.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.56, required 12,
-	autolearn=disabled, AWL 1.44, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 14 Jul 2006 17:07:04 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:46471 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1161304AbWGNVHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 17:07:03 -0400
+To: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: 2.6.17-rc6-mm1/pktcdvd - BUG: possible circular locking
+References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
+	<m3sllxtfbf.fsf@telia.com>
+	<1151000451.3120.56.camel@laptopd505.fenrus.org>
+	<m3u05kqvla.fsf@telia.com>
+	<1152884770.3159.37.camel@laptopd505.fenrus.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 14 Jul 2006 23:06:51 +0200
+In-Reply-To: <1152884770.3159.37.camel@laptopd505.fenrus.org>
+Message-ID: <m3odvrc2vo.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 12:40 -0600, Eric W. Biederman wrote:
-> Now I do agree if I can set the information in vfsmount and not in
-> the superblock it is probably better.  But even with nfs mount superblock
-> collapsing (which I almost understand) I don't see it as a real
-> problem, as long as I could prevent the superblock from collapsing.
+Arjan van de Ven <arjan@linux.intel.com> writes:
 
-NFS is the least of your problems. You can only have one superblock for
-most local filesystems too and with good reason: imagine, for instance,
-the effect of having 2 different block allocators working on the same
-device.
+> On Fri, 2006-07-14 at 13:22 +0200, Peter Osterlund wrote:
+> > > and what locking prevents this? And via multiple opens?
+> > 
+> > You are right that my reasoning was incorrect. If someone is doing
+> > "pktsetup ; pktsetup -d" quickly in a loop while someone else is
+> > trying to open the device, one thread could be at the start of
+> > pkt_open() at the same time as another thread is in pkt_new_dev().
+> > 
+> > However, I added a 5s delay in pkt_open() to enlarge the race window.
+> > I still couldn't make the driver lock up though. The explanation is
+> > that pkt_new_dev() calls blkdev_get() with the CD device (eg /dev/hdc)
+> > as bdev parameter, while do_open() locks the bd_mutex for the pktcdvd
+> > device (eg /dev/pktcdvd/0).
+> > 
+> > Do you still think this could deadlock? If not, how should the code be
+> > annotated to make this warning go away?
+> 
+> unless we KNOW it won't deadlock (eg we have a "this cannot deadlock
+> BECAUSE of X, Y and Z") I don't think annotations are the right idea. In
+> addition, the "how to annotate" really depends on what X, Y and Z
+> are....
 
-Cheers
-  Trond
+In the first call chain, do_open -> pkt_open, the bd_mutex object that
+is being locked corresponds to a pktcdvd block device, because those
+are the only devices that have their open method set to pkt_open.
 
+In the second call chain, pkt_ctl_ioctl -> pkt_new_dev -> do_open, the
+bd_mutex object that is being locked *does not* correspond to a
+pktcdvd block device, because pkt_new_dev will bail out with a "Can't
+chain pktcdvd devices" error if you call it with "dev" set to a
+pktcdvd device.
+
+Therefore, there is no AB-BA deadlock possibility. The locking
+dependencies are A -> B and B -> A', where it is known that A, B and
+A' are all different.
+
+So the claim from the lockdep code, "BUG: possible circular locking
+deadlock detected!", is a false alarm.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

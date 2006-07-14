@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161309AbWGNVbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161307AbWGNVdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161309AbWGNVbe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 17:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161307AbWGNVbe
+	id S1161307AbWGNVdz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 17:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161308AbWGNVdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 17:31:34 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62878
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161303AbWGNVbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 17:31:33 -0400
-Date: Fri, 14 Jul 2006 14:31:40 -0700 (PDT)
-Message-Id: <20060714.143140.35508183.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: akpm@osdl.org, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm2: drivers/char/*synclink* compile errors
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060714184825.GB3633@stusta.de>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org>
-	<20060714184825.GB3633@stusta.de>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 14 Jul 2006 17:33:55 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:41579 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161307AbWGNVdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 17:33:54 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
+Date: Fri, 14 Jul 2006 14:33:47 -0700
+User-Agent: KMail/1.7.1
+Cc: Aleksey Gorelov <dared1st@yahoo.com>, Andrew Morton <akpm@osdl.org>,
+       gregkh@suse.de, stern@rowland.harvard.edu, linux-kernel@vger.kernel.org
+References: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
+In-Reply-To: <20060714164637.79842.qmail@web81212.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607141433.48695.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Fri, 14 Jul 2006 20:48:25 +0200
+On Friday 14 July 2006 9:46 am, Aleksey Gorelov wrote:
 
-> Krzysztof, the following compile errors are caused by your commit 
-> c2ce920468624d87ec5f91f080ea99681dae6d88 in Linus' tree:
+> David, Alan,
+> 
+> Do you think it is Ok to unregister reboot notifier in ehci_run before registering one to make
+> sure there is no 'double registering' of notifier, or is it better to move register/unregister
+> reboot notifier from ehci_run/ehci_stop completely to some other place ?
 
-Yes, we let Krzysztof know about this yesterday.
+Probably the best way is to stop using the notifier, and brute force it
+by making every EHCI subdriver get its own shutdown() method.  That'd be
+obvious enough for PCI bus glue, and due to recent patches probably even
+for the non-PCI ones ... since they all use "platform_bus" now, they can
+all share the same method.  Though I could imagine some platforms might
+want to do extra stuff like clk_disable() after the root hub reset.
 
-If we don't get a fix over the weekend I will simply
-revert the changeset.
+I could see the tail end of ehci-hcd.c with a forward decl for a method
+like ehci_platform_shutdown(), updating the subdrivers to reference that,
+and then #ifdef PLATFORM_DRIVER provide the definition of that routine
+(doing what the reboot notifier does) for use by the non-PCI subdrivers.
 
-Thanks Adrian.
+- Dave
+

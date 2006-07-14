@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWGNGds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbWGNGw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWGNGds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 02:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWGNGds
+	id S1030341AbWGNGw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 02:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbWGNGw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 02:33:48 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:14306
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1030222AbWGNGdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 02:33:47 -0400
-Date: Fri, 14 Jul 2006 08:33:46 +0200
-From: andrea@cpushare.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: bruce@andrew.cmu.edu, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       bunk@stusta.de, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       alan@redhat.com, torvalds@osdl.org, mingo@elte.hu
-Subject: Re: [PATCH] TIF_NOTSC and SECCOMP prctl
-Message-ID: <20060714063346.GG18774@opteron.random>
-References: <20060711153117.GJ7192@opteron.random> <1152635055.18028.32.camel@localhost.localdomain> <p73wtain80h.fsf@verdi.suse.de> <20060712210732.GA10182@elte.hu> <20060712185103.f41b51d2.akpm@osdl.org> <44B5F9E6.8070501@andrew.cmu.edu> <20060713083441.GD28310@opteron.random> <20060713021818.b0c0093e.akpm@osdl.org> <20060714060932.GE18774@opteron.random> <20060713232727.ead103f8.akpm@osdl.org>
+	Fri, 14 Jul 2006 02:52:56 -0400
+Received: from www.osadl.org ([213.239.205.134]:5283 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030341AbWGNGwz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 02:52:55 -0400
+Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: john stultz <johnstul@us.ibm.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Pavel Machek <pavel@ucw.cz>,
+       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1152828344.6845.96.camel@localhost>
+References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
+	 <1152554328.5320.6.camel@localhost.localdomain>
+	 <20060710180839.GA16503@elf.ucw.cz>
+	 <Pine.LNX.4.64.0607110035300.17704@scrub.home>
+	 <1152571816.9062.29.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607110054180.12900@scrub.home>
+	 <1152605229.32107.88.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607111120310.12900@scrub.home>
+	 <1152616025.32107.151.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607120039380.12900@scrub.home>
+	 <1152664944.760.70.camel@cog.beaverton.ibm.com>
+	 <1152822433.24345.19.camel@localhost.localdomain>
+	 <1152828344.6845.96.camel@localhost>
+Content-Type: text/plain
+Date: Fri, 14 Jul 2006 08:56:09 +0200
+Message-Id: <1152860169.7809.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713232727.ead103f8.akpm@osdl.org>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 11:27:27PM -0700, Andrew Morton wrote:
-> Using a bit <= 15 will cause kernel to take the work_notifysig path
-> "pending work-to-be-done flags are in LSW".  I'm not sure what happens if
-> there's such a flag set but nothing is set up to handle it.  I guess it
-> stays set and processes never get out of the kernel again.
+On Thu, 2006-07-13 at 15:05 -0700, john stultz wrote:
+> Also note: Assuming no NTP changes during a period, the maximum error in
+> nanosecond accumulated over a period is the number of clocksource cycles
+> in that period shifted down by the clocksource shift value. (This is
+> since the smallest adjustment is 1 mult unit, and mult/2^shift is
+> 1/freq)
+> 
+> So for a counter w/ a 4Ghz frequency and a shift value of 22 (similar to
+> a TSC). Over 1 second, if there was no high-precision adjustment, you
+> could get a *maximum* of error of ~1us (4b/2^22 = ~1024ns), which is a
+> 1ppm drift, if left uncorrected.
+> 
+> Now, if we have high-precision adjustments, the question is "how fast
+> should we fix that 1us error?". If the code assumes we're going to have
+> a tick every 1 ms, it can make a stronger adjustment (of 10 mult units)
+> which it will remove after the next tick. This however could cause
+> problems if we lost ticks and that interrupt was delayed as we would
+> overshoot.
+> 
+> Thus, if we assume that ticks will show up worse case, about once a
+> second or two, we can make an adjustment of a single mult unit and
+> assume that we'll correct it over the next second. This is what Roman
+> was saying would be "slow adjustments", but I don't see it as too
+> unacceptable. 
 
-Ah ok, thanks.
+There is really no need to worry about sub micro second accuracy, when
+you look at the latencies in todays machines. We need a robust design
+and no ivory tower experiments with precisions which are not useful for
+anything.
 
-> Perhaps TIF_SECCOMP should be >= 16 too - the special-case in
-> _TIF_ALLWORK_MASK looks odd.
+	tglx
 
-It's checked with testw so it must be < 16.
+

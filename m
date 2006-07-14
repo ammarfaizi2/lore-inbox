@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161299AbWGNUuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWGNUyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161299AbWGNUuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 16:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWGNUuL
+	id S1161300AbWGNUyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 16:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161302AbWGNUyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 16:50:11 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:60860 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1161299AbWGNUuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 16:50:09 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: David Safford <safford@watson.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kylene Jo Hall <kjhall@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1152905691.314.62.camel@localhost.localdomain>
-References: <1152897878.23584.6.camel@localhost.localdomain>
-	 <1152901664.314.35.camel@localhost.localdomain>
-	 <1152905158.23584.35.camel@localhost.localdomain>
-	 <1152905691.314.62.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 16:51:13 -0400
-Message-Id: <1152910274.2415.10.camel@localhost.localdomain>
+	Fri, 14 Jul 2006 16:54:45 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9480 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161300AbWGNUyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 16:54:45 -0400
+Date: Fri, 14 Jul 2006 20:54:30 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: George Nychis <gnychis@cmu.edu>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+Message-ID: <20060714205430.GD8731@ucw.cz>
+References: <44B5CE77.9010103@cmu.edu> <44B604C8.90607@goop.org> <44B64F57.4060407@cmu.edu> <44B66740.2040706@goop.org> <44B6A9CA.8040808@cmu.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B6A9CA.8040808@cmu.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 12:34 -0700, Dave Hansen wrote:
-> On Fri, 2006-07-14 at 12:25 -0700, Kylene Jo Hall wrote:
-> > > inode_supports_xaddr()?  Seems like something that should check a
-> > > superblock flag or something.
-> > 
-> > I don't know of any such flags.
+Hi!
+
+> Okay I think I am getting closer, after doing some searching it turns
+> out that Hot pluggable CPU support is needed in the kernel to get
+> suspend working on a thinkpad x60.
 > 
-> There probably aren't any.  The superblock may not even be the right
-> place for it.  It just seems a bit silly to say that the only files in
-> the system that don't support xaddrs are device files and /proc.  What
-> about all of the other filesystems?  Have you tested things like
-> ISO9660, VFAT, sysfs?
+> Now, what I thought was fixed from reading threads, may not be
+> 
+> I am running 2.6.18-rc1-git7 and whenever I suspend, and then restore,
+> my screen remains black and I never get my shell back.  The machine
+> seems to be alive because I can ping it, however I cannot ssh into it.
+> 
+> Any more ideas?
 
-is_exempt() is just a quick test to speed up a couple of obvious cases. 
-It does not need to be complete, as the subsequent get_level() will handle
-all other cases where xattrs are not supported....
-
-dave
-
+See suspend.sf.net, s2ram will fix the console for you.
+-- 
+Thanks for all the (sleeping) penguins.

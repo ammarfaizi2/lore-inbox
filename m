@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422674AbWGNRog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWGNRuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422674AbWGNRog (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 13:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWGNRog
+	id S1422672AbWGNRuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 13:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWGNRuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 13:44:36 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21129 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422674AbWGNRof (ORCPT
+	Fri, 14 Jul 2006 13:50:00 -0400
+Received: from ns2.suse.de ([195.135.220.15]:59295 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1422672AbWGNRt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 13:44:35 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <1152897878.23584.6.camel@localhost.localdomain>
-References: <1152897878.23584.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 10:44:30 -0700
-Message-Id: <1152899070.314.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 14 Jul 2006 13:49:59 -0400
+Message-ID: <44B7D97B.20708@suse.com>
+Date: Fri, 14 Jul 2006 13:50:51 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
+MIME-Version: 1.0
+To: 7eggert@gmx.de
+Cc: Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz>
+In-Reply-To: <E1G1QFx-0001IO-K6@be1.lrz>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 10:24 -0700, Kylene Jo Hall wrote:
-> +static void revoke_mmap_wperm(struct slm_file_xattr *cur_level)
-> +{
-> +       struct vm_area_struct *mpnt;
-> +       struct file *file;
-> +       struct dentry *dentry;
-> +       struct slm_isec_data *isec;
-> +
-> +       flush_cache_mm(current->mm);
-> +
-> +       for (mpnt = current->mm->mmap; mpnt; mpnt = mpnt->vm_next) {
-> +               file = mpnt->vm_file;
-> +               if (!file)
-> +                       continue; 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You need to hold the mmap_sem for read while walking this list.
+Bodo Eggert wrote:
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>> On Wednesday 12 July 2006 18:42, Jeff Mahoney wrote:
+> 
+>>>  On systems with block devices containing slashes (virtual dasd, cciss,
+>>>  etc), reiserfs will fail to initialize /proc/fs/reiserfs/<dev> due to
+>>>  it being interpreted as a subdirectory. The generic block device code
+>>>  changes the / to ! for use in the sysfs tree. This patch uses that
+>>>  convention.
+>>>
+>>>  Tested by making dm devices use dm/<number> rather than dm-<number>
+>> Your patch handles at most one slash. But the description mentions 'slashes'
+>> (ie several slashes)
+> 
+> Besides that, there is no reason to prevent the user from using many slashes.
+> OTOH, I'd prefer propper quoting, but having each driver do this would be
+> insane.
 
--- Dave
+The strings aren't user-supplied, they're kernel-internal names of block
+devices, supplied by the driver. At present there is no possibility of
+more than one slash in the name, and I doubt we'll see any new devices
+with one slash in them, never mind more than one.
 
+- -Jeff
+
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+
+iD8DBQFEt9l6LPWxlyuTD7IRAgwsAJ9nvPJRnnJsbqukhtJj3T2mjJC1hQCfYYeh
+lbTYktc+yglYRmxT/LwPcT4=
+=767A
+-----END PGP SIGNATURE-----

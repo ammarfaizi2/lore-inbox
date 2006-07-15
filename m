@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWGOXey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945959AbWGOXtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWGOXey (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 19:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWGOXey
+	id S1945959AbWGOXtE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 19:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946020AbWGOXtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 19:34:54 -0400
-Received: from tomts35-srv.bellnexxia.net ([209.226.175.109]:54242 "EHLO
-	tomts35-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964813AbWGOXey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 19:34:54 -0400
-Date: Sat, 15 Jul 2006 16:33:33 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Willy Tarreau <w@1wt.eu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, stable@kernel.org
-Subject: Re: Linux 2.6.16.26
-Message-ID: <20060715233333.GA17215@suse.de>
-References: <20060715200856.GA15036@kroah.com> <20060715201026.GC15036@kroah.com> <20060715201810.GI2037@1wt.eu> <Pine.LNX.4.64.0607151439020.5623@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607151439020.5623@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Sat, 15 Jul 2006 19:49:03 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:23676 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1945959AbWGOXtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 19:49:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=sERlrtHWb4kmvQikbb3vKIwVZoBx1QDuoBN6o8c+/iebfwU2x7ru1x+6b/w13eYPBGo7bhWpnJeMlfsSHmCKE4RWcj8PcMXnx4qFCYYrqOeImjZ41ji0i/Hm9tK8W9ilLRAmu5yETb+RkEmj4Ir0LGgmPMmfdmj1/mL3QdjC69I=
+Message-ID: <44B97EF6.50202@gmail.com>
+Date: Sat, 15 Jul 2006 17:49:10 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: -mm patch] drivers/char/scx200_gpio.c: make code static
+References: <20060713224800.6cbdbf5d.akpm@osdl.org> <20060715003536.GH3633@stusta.de>
+In-Reply-To: <20060715003536.GH3633@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 15, 2006 at 02:40:30PM -0700, Linus Torvalds wrote:
-> On Sat, 15 Jul 2006, Willy Tarreau wrote:
-> > 
-> > You would need to git-reset then git-commit
-> 
-> Actually, these days we suggest doing
-> 
-> 	git commit --amend
-> 
-> instead to change the top commit if you mis-type something or find a 
-> problem.
-> 
-> But, as you point out:
-> 
-> >					 but it's a little bit dirty
-> > and my annoy the users who will have already fetched your tree.
-> 
-> Indeed. Something that has already been exported should _not_ be amended, 
-> because it generates a whole new commit, and people who have already 
-> gotten the old one would be unhappy.
+Adrian Bunk wrote:
+> This patch makes needlessly global code static.
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+>   
+Nak on 1st 2 chunks - exported vtable is now used, an should (hopefully)
+serve as a universal gpio interface.
+Here it is again, with the 2 chunks stripped.
 
-Yes, I'll just live with it and remember this for next time.
+---
 
-thanks,
+This patch makes a needlessly global variable static.
 
-greg k-h
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Jim Cromie  <jim.cromie@gmail.com>
+---
+
+$ diffstat fxd1/scx200_gpio.c-make-code-static.eml
+ scx200_gpio.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+--- linux-2.6.18-rc1-mm2-full/drivers/char/scx200_gpio.c.old	2006-07-14 22:31:22.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/char/scx200_gpio.c	2006-07-14 22:31:44.000000000 +0200
+@@ -69,7 +68,7 @@
+ 	.release = scx200_gpio_release,
+ };
+ 
+-struct cdev scx200_gpio_cdev;  /* use 1 cdev for all pins */
++static struct cdev scx200_gpio_cdev;  /* use 1 cdev for all pins */
+ 
+ static int __init scx200_gpio_init(void)
+ {
+
+
+
+

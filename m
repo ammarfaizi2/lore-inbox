@@ -1,95 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945997AbWGOEAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945984AbWGOELW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945997AbWGOEAM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 00:00:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945999AbWGOEAM
+	id S1945984AbWGOELW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 00:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945991AbWGOELW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 00:00:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45503 "EHLO
+	Sat, 15 Jul 2006 00:11:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34954 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1945997AbWGOEAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 00:00:10 -0400
+	id S1945984AbWGOELW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 00:11:22 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <fastboot@osdl.org>
-Subject: [PATCH] machine_kexec.c: Fix the description of segment handling.
-Date: Fri, 14 Jul 2006 21:59:19 -0600
-Message-ID: <m1u05jr014.fsf@ebiederm.dsl.xmission.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	<1152821011.24925.7.camel@localhost.localdomain>
+	<m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+	<1152887287.24925.22.camel@localhost.localdomain>
+	<m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
+	<20060714162935.GA25303@sergelap.austin.ibm.com>
+	<m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
+	<1152896138.24925.74.camel@localhost.localdomain>
+	<20060714170814.GE25303@sergelap.austin.ibm.com>
+	<1152897579.24925.80.camel@localhost.localdomain>
+	<m17j2gt7fo.fsf@ebiederm.dsl.xmission.com>
+	<1152900911.5729.30.camel@lade.trondhjem.org>
+	<m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
+	<1152911079.5729.70.camel@lade.trondhjem.org>
+Date: Fri, 14 Jul 2006 22:09:50 -0600
+In-Reply-To: <1152911079.5729.70.camel@lade.trondhjem.org> (Trond Myklebust's
+	message of "Fri, 14 Jul 2006 17:04:38 -0400")
+Message-ID: <m1psg7qzjl.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-One of my original comments in machine_kexec was unclear
-and this should fix it.  
+> On Fri, 2006-07-14 at 12:40 -0600, Eric W. Biederman wrote:
+>> Now I do agree if I can set the information in vfsmount and not in
+>> the superblock it is probably better.  But even with nfs mount superblock
+>> collapsing (which I almost understand) I don't see it as a real
+>> problem, as long as I could prevent the superblock from collapsing.
+>
+> NFS is the least of your problems. You can only have one superblock for
+> most local filesystems too and with good reason: imagine, for instance,
+> the effect of having 2 different block allocators working on the same
+> device.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
+Let me try to explain the idea again.
 
-Be very careful with this patch.  It seems to be surrounded
-by a somebody else's problem field.
+Currently there is a global context in which we interpret uids.
+But different machines can have different global contexts.
 
-I wrote it months ago, and then forgot it.  I started writing this
-email message several days ago and then forgot it.
+Each filesystem to be sane needs to store uids from only one such
+context.  For network filesystems typicall the context is extended to
+multiple machines so that everyone who mounts a filesystem will
+interpret a uid with the same meaning.
 
-Hopefully including this patch won't cause this effect to spread
-and cause the entire kernel to be universally treated as somebody
-else's problem. :) 
+The idea of creating multiple a user id namespaces on a single machine
+creates multiple contexts for the interpretation of uid values on
+the same machine.  Allowing a single id to refer to different
+users depending on the context in which it is interpreted.
 
- arch/i386/kernel/machine_kexec.c   |   13 +++++--------
- arch/x86_64/kernel/machine_kexec.c |   13 +++++--------
- 2 files changed, 10 insertions(+), 16 deletions(-)
+I can think of no circumstance in which a single filesystem
+will have multiple contexts in which user id's will be interpreted.
+Nor can I think of a sane scenario in which that would occur.
 
-diff --git a/arch/i386/kernel/machine_kexec.c b/arch/i386/kernel/machine_kexec.c
-index 511abe5..a696f93 100644
---- a/arch/i386/kernel/machine_kexec.c
-+++ b/arch/i386/kernel/machine_kexec.c
-@@ -189,14 +189,11 @@ NORET_TYPE void machine_kexec(struct kim
- 	memcpy((void *)reboot_code_buffer, relocate_new_kernel,
- 						relocate_new_kernel_size);
- 
--	/* The segment registers are funny things, they are
--	 * automatically loaded from a table, in memory wherever you
--	 * set them to a specific selector, but this table is never
--	 * accessed again you set the segment to a different selector.
--	 *
--	 * The more common model is are caches where the behide
--	 * the scenes work is done, but is also dropped at arbitrary
--	 * times.
-+	/* The segment registers are funny things, they have both a
-+	 * visible and an invisible part.  Whenever the visible part is
-+	 * set to a specific selector, the invisible part is loaded
-+	 * with from a table in memory.  At no other time is the
-+	 * descriptor table in memory accessed. 
- 	 *
- 	 * I take advantage of this here by force loading the
- 	 * segments, before I zap the gdt with an invalid value.
-diff --git a/arch/x86_64/kernel/machine_kexec.c b/arch/x86_64/kernel/machine_kexec.c
-index 83fb24a..ba9b571 100644
---- a/arch/x86_64/kernel/machine_kexec.c
-+++ b/arch/x86_64/kernel/machine_kexec.c
-@@ -207,14 +207,11 @@ NORET_TYPE void machine_kexec(struct kim
- 	__flush_tlb();
- 
- 
--	/* The segment registers are funny things, they are
--	 * automatically loaded from a table, in memory wherever you
--	 * set them to a specific selector, but this table is never
--	 * accessed again unless you set the segment to a different selector.
--	 *
--	 * The more common model are caches where the behide
--	 * the scenes work is done, but is also dropped at arbitrary
--	 * times.
-+	/* The segment registers are funny things, they have both a
-+	 * visible and an invisible part.  Whenever the visible part is
-+	 * set to a specific selector, the invisible part is loaded
-+	 * with from a table in memory.  At no other time is the
-+	 * descriptor table in memory accessed. 
- 	 *
- 	 * I take advantage of this here by force loading the
- 	 * segments, before I zap the gdt with an invalid value.
--- 
-1.4.1.gac83a
+Given the fact that we are referring to a global property of a filesystem
+why is it fundamentally a problem to put it in the superblock?
 
+Eric

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945937AbWGOAfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945944AbWGOAhB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945937AbWGOAfz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 20:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945938AbWGOAfs
+	id S1945944AbWGOAhB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 20:37:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945940AbWGOAge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 20:35:48 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29705 "HELO
+	Fri, 14 Jul 2006 20:36:34 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35593 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1945937AbWGOAf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 20:35:29 -0400
-Date: Sat, 15 Jul 2006 02:35:27 +0200
+	id S1945942AbWGOAgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 20:36:32 -0400
+Date: Sat, 15 Jul 2006 02:36:31 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Jim Cromie <jim.cromie@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] drivers/char/pc8736x_gpio.c: unexport a static struct
-Message-ID: <20060715003527.GG3633@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, swhiteho@redhat.com
+Cc: linux-kernel@vger.kernel.org, cluster-devel@redhat.com
+Subject: [RFC: -mm patch] fs/dlm/lock.c: unexport dlm_lvb_operations
+Message-ID: <20060715003631.GM3633@stusta.de>
 References: <20060713224800.6cbdbf5d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,35 +28,23 @@ On Thu, Jul 13, 2006 at 10:48:00PM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.18-rc1-mm1:
 >...
-> +gpio-rename-exported-vtables-to-better-match.patch
+>  git-gfs2.patch
 >...
->  Misc fixes and updates and cleanups.
+>  git trees.
 >...
 
-A static struct mustn't be exported.
+This patch removes the unused EXPORT_SYMBOL_GPL(dlm_lvb_operations).
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.18-rc1-mm2-full/drivers/char/pc8736x_gpio.c.old	2006-07-14 22:27:28.000000000 +0200
-+++ linux-2.6.18-rc1-mm2-full/drivers/char/pc8736x_gpio.c	2006-07-14 22:27:42.000000000 +0200
-@@ -215,19 +215,18 @@
- static struct nsc_gpio_ops pc8736x_gpio_ops = {
- 	.owner		= THIS_MODULE,
- 	.gpio_config	= pc8736x_gpio_configure,
- 	.gpio_dump	= nsc_gpio_dump,
- 	.gpio_get	= pc8736x_gpio_get,
- 	.gpio_set	= pc8736x_gpio_set,
- 	.gpio_change	= pc8736x_gpio_change,
- 	.gpio_current	= pc8736x_gpio_current
+--- linux-2.6.18-rc1-mm2-full/fs/dlm/lock.c.old	2006-07-15 00:39:11.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/fs/dlm/lock.c	2006-07-15 00:39:17.000000000 +0200
+@@ -128,7 +128,6 @@
+         {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
+         {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
  };
--EXPORT_SYMBOL(pc8736x_gpio_ops);
+-EXPORT_SYMBOL_GPL(dlm_lvb_operations);
  
- static int pc8736x_gpio_open(struct inode *inode, struct file *file)
- {
- 	unsigned m = iminor(inode);
- 	file->private_data = &pc8736x_gpio_ops;
- 
- 	dev_dbg(&pdev->dev, "open %d\n", m);
- 
- 	if (m >= PC8736X_GPIO_CT)
+ #define modes_compat(gr, rq) \
+ 	__dlm_compat_matrix[(gr)->lkb_grmode + 1][(rq)->lkb_rqmode + 1]
 

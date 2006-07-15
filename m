@@ -1,74 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWGOK22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946013AbWGOKcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWGOK22 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 06:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWGOK22
+	id S1946013AbWGOKcU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 06:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946015AbWGOKcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 06:28:28 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52235 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932505AbWGOK21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 06:28:27 -0400
-Date: Sat, 15 Jul 2006 12:28:25 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Dave Jones <davej@redhat.com>,
-       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: tighten ATA kconfig dependancies
-Message-ID: <20060715102825.GR3633@stusta.de>
-References: <20060715053418.GA5557@redhat.com> <1152942548.3114.4.camel@laptopd505.fenrus.org> <20060715063827.GA24579@mars.ravnborg.org> <1152945956.3114.6.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Sat, 15 Jul 2006 06:32:20 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:53519 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1946013AbWGOKcT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 06:32:19 -0400
+Date: Sat, 15 Jul 2006 20:32:07 +1000
+To: David Miller <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm2
+Message-ID: <20060715103207.GA17727@gondor.apana.org.au>
+References: <20060715002623.GE9334@gondor.apana.org.au> <20060714173517.cdd58097.akpm@osdl.org> <20060715010645.GB11515@gondor.apana.org.au> <20060714.224001.71089810.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1152945956.3114.6.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060714.224001.71089810.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 15, 2006 at 08:45:56AM +0200, Arjan van de Ven wrote:
-> On Sat, 2006-07-15 at 08:38 +0200, Sam Ravnborg wrote:
-> > On Sat, Jul 15, 2006 at 07:49:08AM +0200, Arjan van de Ven wrote:
-> > > On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
-> > > > A lot of prehistoric junk shows up on x86-64 configs.
-> > > 
-> > > 
-> > > ... but in general it helps compile testing if you're hacking stuff;
-> > > if your hacking IDE on x86-64 you now have to compile 32 bit as well to
-> > > see if you didn't break the compile for these as well
-> > > 
-> > > So please don't do this, just disable them in your config...
-> > 
-> > An i686 cross compile chain seems to be the natural choice here
-> 
-> the point is that it doesn't fall out naturally, and thus things get
-> needlessly missed.
+On Fri, Jul 14, 2006 at 10:40:01PM -0700, David Miller wrote:
+>
+> Wouldn't it be cleaner to wrap this unlikely around
+> the top-level "({ })"?  When it sits on a line by
+> itself it looks strange, that much is true :)
 
-It seems the main question is:
-Is the kernel configuration mainly designed for users or for developers?
+Sure, in fact there was a name clash as well with __ret and
+I forgot to update the arch-specific versions.
 
-For users, showing drivers for hardware that is not present on their 
-platform only causes confusion.
+[PATCH] Let WARN_ON/WARN_ON_ONCE return the condition
 
-Only developers who want to do compile tests could benefit from 
-compiling such drivers.
+Letting WARN_ON/WARN_ON_ONCE return the condition means that you
+could do
 
-IMHO the kernel configuration is mainly designed for users.
+if (WARN_ON(blah)) {
+	handle_impossible_case
+}
 
-We could do some kind of (X86_32 || DEVELOPER_COMPILE_TEST).
+Rather than
 
-Or simply disable this driver on other platforms - these are only 
-compile errors and amongst all possible problems in the kernel compile 
-errors are amongst my least worries (obvious error, usually quickly 
-fixed after the first bug report).
+if (unlikely(blah)) {
+	WARN_ON(1)
+	handle_impossible_case
+}
 
-cu
-Adrian
+I checked all the newly added WARN_ON_ONCE users and none of them
+test the return status so we can still change it.
 
+Signed-off-by: Herbert Xu herbert@gondor.apana.org.au>
+
+Cheers,
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+index 8ceab7b..672ca90 100644
+--- a/include/asm-generic/bug.h
++++ b/include/asm-generic/bug.h
+@@ -16,12 +16,14 @@ #define BUG_ON(condition) do { if (unlik
+ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
+-#define WARN_ON(condition) do { \
+-	if (unlikely((condition)!=0)) { \
++#define WARN_ON(condition) unlikely({ \
++	int __ret_warn_on = (condition); \
++	if (unlikely(__ret_warn_on)) { \
+ 		printk("BUG: warning at %s:%d/%s()\n", __FILE__, __LINE__, __FUNCTION__); \
+ 		dump_stack(); \
+ 	} \
+-} while (0)
++	__ret_warn_on; \
++})
+ #endif
+ 
+ #else /* !CONFIG_BUG */
+@@ -34,21 +36,19 @@ #define BUG_ON(condition) do { if (condi
+ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
+-#define WARN_ON(condition) do { if (condition) ; } while(0)
++#define WARN_ON(condition) unlikely((condition))
+ #endif
+ #endif
+ 
+ #define WARN_ON_ONCE(condition)				\
+-({							\
++unlikely({						\
+ 	static int __warn_once = 1;			\
+-	int __ret = 0;					\
++	int __ret_warn_once = (condition);		\
+ 							\
+-	if (unlikely((condition) && __warn_once)) {	\
+-		__warn_once = 0;			\
+-		WARN_ON(1);				\
+-		__ret = 1;				\
+-	}						\
+-	__ret;						\
++	if (likely(__warn_once))			\
++		if (WARN_ON(__ret_warn_once)) 		\
++			__warn_once = 0;		\
++	__ret_warn_once;				\
+ })
+ 
+ #ifdef CONFIG_SMP
+diff --git a/include/asm-powerpc/bug.h b/include/asm-powerpc/bug.h
+index f44b529..a5f503f 100644
+--- a/include/asm-powerpc/bug.h
++++ b/include/asm-powerpc/bug.h
+@@ -70,9 +70,10 @@ #define __WARN() do {						\
+ 		    "i" (__FILE__), "i" (__FUNCTION__));	\
+ } while (0)
+ 
+-#define WARN_ON(x) do {						\
+-	if (__builtin_constant_p(x)) {				\
+-		if (x)						\
++#define WARN_ON(x) unlikely({					\
++	long __ret_warn_on = (x);				\
++	if (__builtin_constant_p(__ret_warn_on)) {		\
++		if (__ret_warn_on)				\
+ 			__WARN();				\
+ 	} else {						\
+ 		__asm__ __volatile__(				\
+@@ -80,11 +81,12 @@ #define WARN_ON(x) do {						\
+ 		".section __bug_table,\"a\"\n"			\
+ 		"\t"PPC_LONG"	1b,%1,%2,%3\n"			\
+ 		".previous"					\
+-		: : "r" ((long)(x)),				\
++		: : "r" (__ret_warn_on),			\
+ 		    "i" (__LINE__ + BUG_WARNING_TRAP),		\
+ 		    "i" (__FILE__), "i" (__FUNCTION__));	\
+ 	}							\
+-} while (0)
++	__ret_warn_on;						\
++})
+ 
+ #define HAVE_ARCH_BUG
+ #define HAVE_ARCH_BUG_ON

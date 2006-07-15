@@ -1,112 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWGORHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWGORKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWGORHU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 13:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWGORHU
+	id S1750723AbWGORKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 13:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWGORKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 13:07:20 -0400
-Received: from intrepid.intrepid.com ([192.195.190.1]:61842 "EHLO
-	intrepid.intrepid.com") by vger.kernel.org with ESMTP
-	id S1750722AbWGORHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 13:07:18 -0400
-From: "Gary Funck" <gary@intrepid.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: 2.6.17-1.2145_FC5 mmap-related soft lockup
-Date: Sat, 15 Jul 2006 10:07:26 -0700
-Message-ID: <JCEPIPKHCJGDMPOHDOIGGEKJDFAA.gary@intrepid.com>
+	Sat, 15 Jul 2006 13:10:10 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:53715 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1750723AbWGORKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 13:10:09 -0400
+Message-ID: <44B9216D.4030603@bootc.net>
+Date: Sat, 15 Jul 2006 18:10:05 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jim Cromie <jim.cromie@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: -mm patch] drivers/char/scx200_gpio.c: make code static
+References: <20060713224800.6cbdbf5d.akpm@osdl.org> <20060715003536.GH3633@stusta.de> <44B90063.5070504@bootc.net> <20060715153747.GT3633@stusta.de>
+In-Reply-To: <20060715153747.GT3633@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Spam-Score: -1.44 () ALL_TRUSTED
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> On Sat, Jul 15, 2006 at 03:49:07PM +0100, Chris Boot wrote:
+>> Adrian Bunk wrote:
+>>> This patch makes needlessly global code static.
+>> I don't agree with unexporting scx200_gpio_ops and making the struct 
+>> static, this lets other modules use the scx200_gpio module in a 
+>> semi-independent way. My net48xx LED Class code is going to be modified to 
+>> use the entries in this struct to do its GPIO-twiddling magic, potentially 
+>> allowing my module to do more than just the net48xx Error LED.
+>> ...
+> 
+> Can you express "is going to be modified" in the unit "days"?
 
-A test program which allocates about 256M of MAP_ANONYMOUS mmap memory,
-and then spawns 4 processess, where each process i writes to 1/4 of the
-mapped memory, and then reads the memory written by
-the process (i + 1)%4, triggers a soft lockup, when exiting.
-Hardware:
-dual core dual Opteron 275 (Tyan motherboard, 4G physical memory)
-has been rock solid reliable.
+Hopefully this weekend!
 
-BUG: soft lockup detected on CPU#3!
+I also have a good mind to do some work on both the scx200_gpio and pc8736x_gpio 
+modules to allow whole banks of GPIOs to be changed at once, but that's slightly 
+unrelated.
 
-Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
-       <ffffffff8029708e>{update_process_times+66}
-<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
-       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
-<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
-       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
-<ffffffff8026a128>{_write_unlock_irq+11}
-       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
-<ffffffff80207af6>{unmap_vmas+1037}
-       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
-       <ffffffff80215ece>{do_exit+599}
-<ffffffff8024cacd>{debug_mutex_init+0}
-       <ffffffff80262f01>{tracesys+209}
-BUG: soft lockup detected on CPU#0!
+> I've seen too many times that someone said "I will need this export 
+> soon", and some months or even a year later the code using it was still 
+> part of the kernel.
+> 
+> Unexporting something today does still allow re-exporting it when it's 
+> actually required - simply add the trivial patch undoing my unexport 
+> when you submit your driver for inclusion in the kernel.
 
-Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
-       <ffffffff8029708e>{update_process_times+66}
-<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
-       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
-<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
-       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
-<ffffffff8026a128>{_write_unlock_irq+11}
-       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
-<ffffffff80207af6>{unmap_vmas+1037}
-       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
-       <ffffffff80215ece>{do_exit+599}
-<ffffffff8024cacd>{debug_mutex_init+0}
-       <ffffffff80262f01>{tracesys+209}
-BUG: soft lockup detected on CPU#2!
+Indeed not but it seems silly to remove one line of code one day and revert it 
+the next, unnecessarily!
 
-Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
-       <ffffffff8029708e>{update_process_times+66}
-<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
-       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
-<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
-       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
-<ffffffff8026a128>{_write_unlock_irq+11}
-       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
-<ffffffff80207af6>{unmap_vmas+1037}
-       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
-       <ffffffff80215ece>{do_exit+599}
-<ffffffff8024cacd>{debug_mutex_init+0}
-       <ffffffff80262f01>{tracesys+209}
-BUG: soft lockup detected on CPU#1!
+Chris
 
-Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
-       <ffffffff8029708e>{update_process_times+66}
-<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
-       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
-<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
-       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
-<ffffffff8026a128>{_write_unlock_irq+11}
-       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
-<ffffffff80207af6>{unmap_vmas+1037}
-       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
-       <ffffffff80215ece>{do_exit+599}
-<ffffffff8024cacd>{debug_mutex_init+0}
-       <ffffffff80262f01>{tracesys+209}
-
-The test program runs successfully, but hangs several seconds upon exit.
-
-The hardware and software configuration has been solid for several months,
-but
-we have seen timer-related synchronization issues with recent kernels (where
-ntp has to force a re-sync for example, and an occasional lost ticks
-message).
-
-The test program mentioned above is more complicated than described, and
-can't easily be reproduced in source form, but the binary could be
-made available.
-
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

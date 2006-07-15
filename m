@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945991AbWGOEWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWGOEb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945991AbWGOEWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 00:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945992AbWGOEWF
+	id S1945992AbWGOEb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 00:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945996AbWGOEb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 00:22:05 -0400
-Received: from tomts28.bellnexxia.net ([209.226.175.102]:63962 "EHLO
-	tomts28-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1945991AbWGOEWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 00:22:04 -0400
-Date: Fri, 14 Jul 2006 21:20:46 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: [stable] Linux 2.6.17.5
-Message-ID: <20060715042045.GB4322@kroah.com>
-References: <20060715030047.GC11167@kroah.com> <20060715032834.GA5944@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jul 2006 00:31:58 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:29567 "EHLO
+	asav06.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1945992AbWGOEb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 00:31:57 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KALkKuESBUA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Greg KH <gregkh@suse.de>
+Subject: [PATCH] fix comments in drivers/base/power/resume.c
+Date: Sat, 15 Jul 2006 00:31:54 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060715032834.GA5944@kroah.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200607150031.54724.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 14, 2006 at 08:28:34PM -0700, Greg KH wrote:
-> On Fri, Jul 14, 2006 at 08:00:47PM -0700, Greg KH wrote:
-> > We (the -stable team) are announcing the release of the 2.6.17.5 kernel.
-> 
-> Oops, please note that we now have some reports that this patch breaks
-> some versions of HAL.  So if you're relying on HAL, you might not want
-> to use this fix just yet (please evaluate the risks of doing this on
-> your own.)
+Driver core: fix comments in drivers/base/power/resume.c
 
-Hm, HAL 0.5.7 seems to work fine for me.  Anyone else seeing any
-problems with this version?  Older versions?
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-thanks,
+ drivers/base/power/resume.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-greg k-h
+Index: work/drivers/base/power/resume.c
+===================================================================
+--- work.orig/drivers/base/power/resume.c
++++ work/drivers/base/power/resume.c
+@@ -83,12 +83,12 @@ EXPORT_SYMBOL_GPL(device_resume);
+ 
+ 
+ /**
+- *	device_power_up_irq - Power on some devices.
++ *	dpm_power_up - Power on some devices.
+  *
+  *	Walk the dpm_off_irq list and power each device up. This
+  *	is used for devices that required they be powered down with
+- *	interrupts disabled. As devices are powered on, they are moved to
+- *	the dpm_suspended list.
++ *	interrupts disabled. As devices are powered on, they are moved
++ *	to the dpm_active list.
+  *
+  *	Interrupts must be disabled when calling this.
+  */
+@@ -108,7 +108,7 @@ void dpm_power_up(void)
+ 
+ 
+ /**
+- *	device_pm_power_up - Turn on all devices that need special attention.
++ *	device_power_up - Turn on all devices that need special attention.
+  *
+  *	Power on system devices then devices that required we shut them down
+  *	with interrupts disabled.

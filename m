@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946040AbWGONpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946042AbWGON60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946040AbWGONpk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 09:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946042AbWGONpj
+	id S1946042AbWGON60 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 09:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946048AbWGON60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 09:45:39 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:23246 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1946040AbWGONpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 09:45:39 -0400
-Message-ID: <44B8F0C8.70103@s5r6.in-berlin.de>
-Date: Sat, 15 Jul 2006 15:42:32 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Ralph Campbell <ralphc@pathscale.com>, David Miller <davem@davemloft.net>,
-       muli@il.ibm.com, rdreier@cisco.com, openib-general@openib.org
-Subject: Re: [openib-general] Suggestions for how to remove bus_to_virt()
-References: <20060712.174013.95062313.davem@davemloft.net>	 <20060713054658.GC5096@rhun.ibm.com>	 <1152916027.4572.391.camel@brick.pathscale.com>	 <20060714.153503.123972494.davem@davemloft.net> <1152920719.4572.398.camel@brick.pathscale.com>
-In-Reply-To: <1152920719.4572.398.camel@brick.pathscale.com>
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jul 2006 09:58:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64957 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1946042AbWGON6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 09:58:25 -0400
+Subject: Re: Where is RLIMIT_RT_CPU?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1152919240.6374.38.camel@idefix.homelinux.org>
+References: <1152663825.27958.5.camel@localhost>
+	 <1152809039.8237.48.camel@mindpipe>
+	 <1152869952.6374.8.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
+	 <1152919240.6374.38.camel@idefix.homelinux.org>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 09:58:15 -0400
+Message-Id: <1152971896.16617.4.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralph Campbell wrote:
-> On Fri, 2006-07-14 at 15:35 -0700, David Miller wrote:
-...
->> The dma_mapping_ops idea will never get accepted by folks like Linus,
->> for reasons I've outlined in previous emails in this thread.  So, it's
->> best to look elsewhere for solutions to your problem, such as the
->> ideas used by the USB and IEE1394 device layers.
+On Sat, 2006-07-15 at 09:20 +1000, Jean-Marc Valin wrote:
+> > Can't you just make a prio 1 task which signals a prio 99 once say every 
+> > second. If the priority 99 task doesn't get the signal after say 2 
+> > seconds, it will look for a rt task running wild. At worst it will have to do
+> > an O(n) algorith when things have gone wrong, not when everything is 
+> > working.
 > 
-> The USB code won't work in my case because the USB system is
-> the one doing the memory allocation and IOMMU setup so it
-> can remember the kernel virtual address or physical pages used
-> to create the mapping.
+> Well, that would work in sort of preventing a complete lockup, but the
+> watchdog wouldn't even know if the task eating lots of CPU is privileged
+> (OK) or unprivileged (not OK). Also, the original RLIMIT_RT_CPU feature
+> allowed you to really control how much CPU is available to unprivileged
+> users, not just prevent them from getting 100% CPU. 
 
-Side note: The same is true with the DMA stuff in the ieee1394
-subsystem. And the SCSI subsystem doesn't allocate (all) buffers but
-leaves DMA mapping and unmapping to the low-level drivers --- i.e. Ralph
-can't rip bus_to_virt replacements from there either, because:
+Non-root RT tasks are not "unprivileged" - they have a level of
+privileges between a normal user and root.  Really I think it's OK for
+these tasks to consume 100% CPU, as the admin has explicitly allowed it.
 
-> In my case, the infiniband (SRP) code is doing the mapping and
-> only passing the dma_addr_t to the device driver at which point
-> I have no way to convert it back to a kernel virtual address.
-> I need to either change the IB device API to include mapping functions
-> or intercept the dma_* functions so I can save the inputs.
+The only problem is that Ubuntu shipped with this enabled for everyone.
 
-On the other hand, ieee1394/dma is the rather obvious example of a
-generic layer which keeps book of virtual address and bus address of
-mapped memory regions, for above or below layers to use as they need.
+Lee
 
-Ralph, do you think you can arrange your required API change as a pure
-_extension_ of the IB API? I.e. add fields to data structs or add fields
-to callback templates or add calls into the SRP layer... (I haven't
-bothered to look at the API yet.)
--- 
-Stefan Richter
--=====-=-==- -=== -====
-http://arcgraph.de/sr/

@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWGYLtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWGYLvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWGYLtB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 07:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWGYLtB
+	id S932329AbWGYLvH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 07:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGYLvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 07:49:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:35242 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932332AbWGYLtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 07:49:00 -0400
-Subject: Re: [PATCH for 2.6.18rc2] [1/7] i386/x86-64: Don't randomize stack
-	top when...
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200607251338.45215.ak@suse.de>
-References: <200607250508_MC3-1-C604-C1C9@compuserve.com>
-	 <200607251338.45215.ak@suse.de>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 13:48:54 +0200
-Message-Id: <1153828134.8932.27.camel@laptopd505.fenrus.org>
+	Tue, 25 Jul 2006 07:51:07 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49162 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932329AbWGYLvF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 07:51:05 -0400
+Date: Sat, 15 Jul 2006 16:54:51 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Subject: Re: [RFC][PATCH 3/6] SLIM main patch
+Message-ID: <20060715165450.GE9849@ucw.cz>
+References: <1152897878.23584.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152897878.23584.6.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
 
-> > > the 8K was what Intel proposed for 2.4 quite a while ago and has been in
-> > > use in linux for years and years... Can you explain why you are saying
-> > > 7Kb? throwing away that 1Kb of cache associativity is unfortunate and
-> > > shouldn't be done unless there's a good reason, so I'm quite interested
-> > > in finding out your reason ;)
-> >
-> > Well that's what the Intel IA-32 optimization manual says:
+> SLIM inherently deals with dynamic labels, which is a feature not
+> currently available in selinux. While it might be possible to
+> add support for this to selinux, it would not appear to be simple,
+> and it is not clear if the added complexity would be desirable
+> just to support this one model. (Isn't choice what LSM is all about? :-)
 > 
-> The reason I allowed to disable it is that it is sometimes very useful
-> for debugging if you can get 100% reproducible addresses.
+> Comments on the model:
+> 
+> Some of the prior comments questioned the usefulness of the
+> low water-mark model itself. Two major questions raised concerned
+> a potential progression of the entire system to a fully demoted
+> state, and the security issues surrounding the guard processes.
+> 
+> In normal operation, the system seems to stabilize with a roughly
+> equal mixture of SYSTEM, USER, and UNTRUSTED processes. Most
+> applications seem to do a fixed set of operations in a fixed domain,
+> and stabilize at their appropriate level. Some applications, like
+> firefox and evolution, which inherently deal with untrusted data,
+> immediately go to the UNTRUSTED level, which is where they belong.
+> In a couple of cases, including cups and Notes, the applications
+> did not handle their demotions well, as they occured well into their
+> startup. For these applications, we simply force them to start up
+> as UNTRUSTED, so demotion is not an issue. The one application
+> that does tend to get demoted over time are shells, such as bash.
+> These are not problems, as new ones can be created with the
+> windowing system, or with su, as needed. To help with the associated
+> user interface issue, the user space package README shows how to
+> display the SLIM level in window titles, so it is always clear at
+> what level the process is currently running.
 
-that I fully agree with; if you say as user "hey I don't care about
-anything but give me no randomization" we should give the user no
-randomization.
+This -- or preferably some better explanation -- needs to go into
+Documentation somewhere.
 
+Is this supposed to protect my ~/.ssh/private_key from mozilla?
+
+How will it work in case such as ssh? It takes password / reads
+private key I care about, then communicates with remote server...
+
+> As mentioned earlier, cupsd and notes are applications which are
+> always run directly in untrusted mode, regardless of the level of
+> the invoking process.
+
+So I will not be able to print my private key?
+							Pavel
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Thanks for all the (sleeping) penguins.

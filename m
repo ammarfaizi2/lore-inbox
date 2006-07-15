@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWGOPuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWGOPy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWGOPuE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 11:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWGOPuE
+	id S1750716AbWGOPy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 11:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWGOPy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 11:50:04 -0400
-Received: from [202.67.154.148] ([202.67.154.148]:7060 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S1750713AbWGOPuD (ORCPT
+	Sat, 15 Jul 2006 11:54:29 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:2263 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750716AbWGOPy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 11:50:03 -0400
-Message-ID: <44B90DF1.8070400@ns666.com>
-Date: Sat, 15 Jul 2006 17:46:57 +0200
-From: Von Wolher <trilight@ns666.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.0; Mac_PowerPC)
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, stable@kernel.org,
-       Marcel Holtmann <holtmann@redhat.com>
-Subject: Re: Linux 2.6.17.5
-References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org> <44B8A720.3030309@gentoo.org>
-In-Reply-To: <44B8A720.3030309@gentoo.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jul 2006 11:54:28 -0400
+Subject: Re: [PATCH -mm 5/7] add user namespace
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+In-Reply-To: <m1d5c7qc55.fsf@ebiederm.dsl.xmission.com>
+References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	 <1152815391.7650.58.camel@localhost.localdomain>
+	 <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	 <1152821011.24925.7.camel@localhost.localdomain>
+	 <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+	 <1152887287.24925.22.camel@localhost.localdomain>
+	 <m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
+	 <20060714162935.GA25303@sergelap.austin.ibm.com>
+	 <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
+	 <1152896138.24925.74.camel@localhost.localdomain>
+	 <20060714170814.GE25303@sergelap.austin.ibm.com>
+	 <1152897579.24925.80.camel@localhost.localdomain>
+	 <m17j2gt7fo.fsf@ebiederm.dsl.xmission.com>
+	 <1152900911.5729.30.camel@lade.trondhjem.org>
+	 <m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
+	 <1152911079.5729.70.camel@lade.trondhjem.org>
+	 <m1psg7qzjl.fsf@ebiederm.dsl.xmission.com>
+	 <4DBD2EBA-9AE2-4598-A9E5-FE7ADCA60B44@mac.com>
+	 <m1d5c7qc55.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 08:54:20 -0700
+Message-Id: <1152978860.314.70.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi Linus,
+On Sat, 2006-07-15 at 06:35 -0600, Eric W. Biederman wrote:
+> Currently there are several additional flags that could benefit
+> from a per vfsmount interpretation as well:  nosuid, noexec, nodev,
+> and readonly, how do we handle those?
 > 
-> Linus Torvalds wrote:
-> 
->> I did a slight modification of the patch I committed initially, in the
->> face of the report from Marcel that the initial sledge-hammer approach
->> broke his hald setup.
->>
->> See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix
->> a bit", which should still fix the bug (can somebody verify? I'm 100%
->> sure, but still..), but is pretty much guaranteed to not have any
->> secondary side effects.
->>
->> It still leaves the whole issue of whether /proc should honor chmod AT
->> ALL open, and I'd love to close that one, but from a "minimal fix"
->> standpoint, I think it's a reasonable (and simple) patch.
->>
->> Marcel, can you check current git?
-> 
-> 
-> I can confirm that the new fix prevents the exploit from working, with
-> no immediately visible side effects.
-> 
-> Thanks,
-> Daniel
-> 
+> noexec is on the vfsmount.
+> nosuid is on the vfsmount
+> nodev  is on the vfsmount
+> readonly is not on the vfsmount.
 
-Can some one release a 2.6.17.6 ? I think many people are waiting at
-their keyboard to get their systems protected.
+I can help with one of them:
 
-Appreciate the quick response !
+http://www.opensubscriber.com/message/linux-kernel@vger.kernel.org/4437187.html
 
-Thanks,
+A rollup is here (it includes other things, though)
 
-Mark
+http://www.sr71.net/patches/2.6.18/2.6.18-rc1-mm1-lxc4/
+
+-- Dave
+

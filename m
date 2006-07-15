@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWGOPht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWGOPoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWGOPht (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 11:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWGOPht
+	id S1750709AbWGOPoo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 11:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWGOPoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 11:37:49 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38413 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750708AbWGOPhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 11:37:48 -0400
-Date: Sat, 15 Jul 2006 17:37:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Chris Boot <bootc@bootc.net>
-Cc: Andrew Morton <akpm@osdl.org>, Jim Cromie <jim.cromie@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: -mm patch] drivers/char/scx200_gpio.c: make code static
-Message-ID: <20060715153747.GT3633@stusta.de>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org> <20060715003536.GH3633@stusta.de> <44B90063.5070504@bootc.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44B90063.5070504@bootc.net>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sat, 15 Jul 2006 11:44:44 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:61894 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750709AbWGOPon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 11:44:43 -0400
+Subject: Re: Where is RLIMIT_RT_CPU?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1152975857.6374.65.camel@idefix.homelinux.org>
+References: <1152663825.27958.5.camel@localhost>
+	 <1152809039.8237.48.camel@mindpipe>
+	 <1152869952.6374.8.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
+	 <1152919240.6374.38.camel@idefix.homelinux.org>
+	 <1152971896.16617.4.camel@mindpipe>
+	 <1152973159.6374.59.camel@idefix.homelinux.org>
+	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
+	 <1152975857.6374.65.camel@idefix.homelinux.org>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 11:44:44 -0400
+Message-Id: <1152978284.16617.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 15, 2006 at 03:49:07PM +0100, Chris Boot wrote:
-> Adrian Bunk wrote:
-> >This patch makes needlessly global code static.
+On Sun, 2006-07-16 at 01:04 +1000, Jean-Marc Valin wrote:
+> > as long as you can fork and exec as many of those processes as you want
+> > a per process rlimit is useless security wise... an evil user just fires
+> > off a second process just before the first one gets killed and a non-RT
+> > root still is starved out.
 > 
-> I don't agree with unexporting scx200_gpio_ops and making the struct 
-> static, this lets other modules use the scx200_gpio module in a 
-> semi-independent way. My net48xx LED Class code is going to be modified to 
-> use the entries in this struct to do its GPIO-twiddling magic, potentially 
-> allowing my module to do more than just the net48xx Error LED.
->...
+> Of course, which is why the idea is for the limit to be global, across
+> all non-root users. AFAIK, that's what Ingo's original (pre-2.6.12)
+> patch did and also what Con Kolivas' SCHED_ISO patch does. That's also
+> why I think it would be very hard (if possible at all) to do this in
+> user space.
 
-Can you express "is going to be modified" in the unit "days"?
+I don't think it's a problem.  If the admin does not want non-root users
+to be able to lock up the machine, just don't put them in the realtime
+group.
 
-I've seen too many times that someone said "I will need this export 
-soon", and some months or even a year later the code using it was still 
-part of the kernel.
-
-Unexporting something today does still allow re-exporting it when it's 
-actually required - simply add the trivial patch undoing my unexport 
-when you submit your driver for inclusion in the kernel.
-
-> Chris Boot
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

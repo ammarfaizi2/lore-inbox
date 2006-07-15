@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWGOSgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWGOSlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751516AbWGOSgc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 14:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWGOSg2
+	id S964776AbWGOSlP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 14:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbWGOSlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 14:36:28 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:30687 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751494AbWGOSg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 14:36:26 -0400
-Message-ID: <99640827171626.E153C4EC16@4KP18TI>
-From: "Ericka" <ErickaRankin@publicist.com>
-To: <linux-msdos@vger.kernel.org>
-Subject: Recently added Its the best thing you had ever seen! Delight in
-Date: Sat, 15 Jul 2006 14:35:55 -0400
+	Sat, 15 Jul 2006 14:41:15 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:7556 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1751534AbWGOSlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 14:41:14 -0400
+Message-ID: <44B936C8.9070907@bootc.net>
+Date: Sat, 15 Jul 2006 19:41:12 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: Co79c2zoJxk9hSb84BMkB4rSRXw8RRdatvpv
-Content-Type: text/plain;
-        charset="Windows-1252"
+To: kernel list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jim Cromie <jim.cromie@gmail.com>,
+       Adrian Bunk <bunk@stusta.de>
+Subject: [PATCH] scx200_gpio export cleanups
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Halo!
+Use EXPORT_SYMBOL_GPL for new symbols, and declare the struct in the header file 
+for access by other modules.
 
-Would you like to please your lovely partner completely? 
+Signed-off-by: Chris Boot <bootc@bootc.net>
 
-Become stronger – show your volume
- Worried it won't work?
+diff --git a/drivers/char/scx200_gpio.c b/drivers/char/scx200_gpio.c
+index b956c7b..8ecef2e 100644
+--- a/drivers/char/scx200_gpio.c
++++ b/drivers/char/scx200_gpio.c
+@@ -44,7 +44,7 @@ struct nsc_gpio_ops scx200_gpio_ops = {
+  	.gpio_change	= scx200_gpio_change,
+  	.gpio_current	= scx200_gpio_current
+  };
+-EXPORT_SYMBOL(scx200_gpio_ops);
++EXPORT_SYMBOL_GPL(scx200_gpio_ops);
 
- All you need is here: http://lingvert.com/gall/ 
- We offer reliable service and 5 years expirience on the marcket!
+  static int scx200_gpio_open(struct inode *inode, struct file *file)
+  {
+diff --git a/include/linux/scx200_gpio.h b/include/linux/scx200_gpio.h
+index 90dd069..1a82d30 100644
+--- a/include/linux/scx200_gpio.h
++++ b/include/linux/scx200_gpio.h
+@@ -4,6 +4,7 @@ u32 scx200_gpio_configure(unsigned index
 
+  extern unsigned scx200_gpio_base;
+  extern long scx200_gpio_shadow[2];
++extern struct nsc_gpio_ops scx200_gpio_ops;
+
+  #define scx200_gpio_present() (scx200_gpio_base!=0)
+
+
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

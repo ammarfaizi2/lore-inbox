@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWGOTRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWGOTht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbWGOTRa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 15:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWGOTRa
+	id S1750714AbWGOTht (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 15:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWGOTht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 15:17:30 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:23766 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030254AbWGOTR3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 15:17:29 -0400
-Subject: Re: Linux 2.6.17.5
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e9bded$qco$1@news.cistron.nl>
-References: <20060715030047.GC11167@kroah.com>
-	 <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org>
-	 <44B8A720.3030309@gentoo.org> <44B90DF1.8070400@ns666.com>
-	 <e9bded$qco$1@news.cistron.nl>
-Content-Type: text/plain
-Date: Sat, 15 Jul 2006 21:17:51 +0200
-Message-Id: <1152991071.12764.5.camel@localhost>
+	Sat, 15 Jul 2006 15:37:49 -0400
+Received: from tomts44-srv.bellnexxia.net ([209.226.175.111]:37365 "EHLO
+	tomts44-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750714AbWGOThs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 15:37:48 -0400
+Date: Sat, 15 Jul 2006 12:35:52 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+Subject: Linux 2.6.17.6
+Message-ID: <20060715193552.GA5330@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miquel,
+We (the -stable team) are announcing the release of the 2.6.17.6 kernel.
 
-> >> I can confirm that the new fix prevents the exploit from working, with
-> >> no immediately visible side effects.
-> >
-> >Can some one release a 2.6.17.6 ? I think many people are waiting at
-> >their keyboard to get their systems protected.
-> 
-> # mount -o remount,nosuid /proc
-> 
-> Haven't tested it but that should be the workaround.
+This should fix the reported issue of NetworkManager dying when using
+the 2.6.17.5 kernel release.  All users of the 2.6.17 kernel are
+recommended to upgrade to this kernel, as it fixes a publicly known
+security issue that can provide root access to any local user of the
+machine.
 
-I did test it. And yes, it works.
+I'll also be replying to this message with a copy of the patch between
+2.6.17.5 and 2.6.17.6, as it is small enough to do so.
 
-Regards
+The updated 2.6.17.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.17.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-Marcel
+thanks,
 
+greg k-h
+
+--------
+
+ Makefile       |    2 +-
+ fs/proc/base.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+Summary of changes from v2.6.17.5 to v2.6.17.6
+==============================================
+
+Greg Kroah-Hartman:
+      Linux 2.6.17.6
+
+Linus Torvalds:
+      Relax /proc fix a bit
 

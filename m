@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945936AbWGOAfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945939AbWGOAfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945936AbWGOAfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 20:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945938AbWGOAfY
+	id S1945939AbWGOAfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 20:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945941AbWGOAfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 20:35:24 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28425 "HELO
+	Fri, 14 Jul 2006 20:35:45 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31497 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1945935AbWGOAfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 20:35:20 -0400
-Date: Sat, 15 Jul 2006 02:35:19 +0200
+	id S1945939AbWGOAfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 20:35:42 -0400
+Date: Sat, 15 Jul 2006 02:35:40 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, arjan@linux.intel.com
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       netdev@vger.kernel.org
-Subject: [-mm patch] remove net/core/skbuff.c:skb_queue_lock_key
-Message-ID: <20060715003519.GF3633@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Michal Ludvig <michal@logix.cz>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net,
+       linux-crypto@vger.kernel.org
+Subject: [-mm patch] drivers/crypto/padlock-sha.c: make 2 functions static
+Message-ID: <20060715003540.GI3633@stusta.de>
 References: <20060713224800.6cbdbf5d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -29,46 +30,38 @@ On Thu, Jul 13, 2006 at 10:48:00PM -0700, Andrew Morton wrote:
 >...
 > Changes since 2.6.18-rc1-mm1:
 >...
-> +lockdep-split-the-skb_queue_head_init-lock-class.patch
+>  git-cryptodev.patch 
 > 
->  lockdep-versus-net fix.
+>  git trees.
 >...
 
-skb_queue_lock_key is no longer used.
+This patch makes two needlessly global functions static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- include/linux/skbuff.h |    2 --
- net/core/skbuff.c      |    7 -------
- 2 files changed, 9 deletions(-)
+ drivers/crypto/padlock-sha.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.18-rc1-mm2-full/include/linux/skbuff.h.old	2006-07-14 22:15:15.000000000 +0200
-+++ linux-2.6.18-rc1-mm2-full/include/linux/skbuff.h	2006-07-14 22:15:23.000000000 +0200
-@@ -604,8 +604,6 @@
- 	return list_->qlen;
+--- linux-2.6.18-rc1-mm2-full/drivers/crypto/padlock-sha.c.old	2006-07-14 23:25:40.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/crypto/padlock-sha.c	2006-07-14 23:25:54.000000000 +0200
+@@ -112,7 +112,7 @@
+ 		*dst++ = swab32(*src++);
  }
  
--extern struct lock_class_key skb_queue_lock_key;
--
- /*
-  * This function creates a split out lock class for each invocation;
-  * this is needed for now since a whole lot of users of the skb-queue
---- linux-2.6.18-rc1-mm2-full/net/core/skbuff.c.old	2006-07-14 22:15:30.000000000 +0200
-+++ linux-2.6.18-rc1-mm2-full/net/core/skbuff.c	2006-07-14 22:15:38.000000000 +0200
-@@ -71,13 +71,6 @@
- static kmem_cache_t *skbuff_fclone_cache __read_mostly;
+-void padlock_do_sha1(const char *in, char *out, int count)
++static void padlock_do_sha1(const char *in, char *out, int count)
+ {
+ 	/* We can't store directly to *out as it may be unaligned. */
+ 	/* BTW Don't reduce the buffer size below 128 Bytes!
+@@ -133,7 +133,7 @@
+ 	padlock_output_block((uint32_t *)result, (uint32_t *)out, 5);
+ }
  
- /*
-- * lockdep: lock class key used by skb_queue_head_init():
-- */
--struct lock_class_key skb_queue_lock_key;
--
--EXPORT_SYMBOL(skb_queue_lock_key);
--
--/*
-  *	Keep out-of-line to prevent kernel bloat.
-  *	__builtin_return_address is not used because it is not always
-  *	reliable.
+-void padlock_do_sha256(const char *in, char *out, int count)
++static void padlock_do_sha256(const char *in, char *out, int count)
+ {
+ 	/* We can't store directly to *out as it may be unaligned. */
+ 	/* BTW Don't reduce the buffer size below 128 Bytes!
 

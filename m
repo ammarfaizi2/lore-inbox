@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWGOSnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWGOSqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWGOSnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 14:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWGOSnJ
+	id S1751537AbWGOSqe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 14:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWGOSqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 14:43:09 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:16004 "EHLO
+	Sat, 15 Jul 2006 14:46:34 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:28081 "EHLO
 	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1751367AbWGOSnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 14:43:08 -0400
-Message-ID: <44B9373A.7020408@bootc.net>
-Date: Sat, 15 Jul 2006 19:43:06 +0100
+	id S1751532AbWGOSqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 14:46:34 -0400
+Message-ID: <44B93808.8080703@bootc.net>
+Date: Sat, 15 Jul 2006 19:46:32 +0100
 From: Chris Boot <bootc@bootc.net>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
 To: kernel list <linux-kernel@vger.kernel.org>
 Cc: Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
        Adrian Bunk <bunk@stusta.de>
-Subject: [PATCH] 
+Subject: [RESEND][PATCH] Make net48xx-led use scx200_gpio_ops
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,6 +26,10 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Make the next48xx LED code use scx200_gpio_ops instead of raw SCx200 GPIO accesses.
 
 Signed-off-by: Chris Boot <bootc@bootc.net>
+
+---
+
+Resending since I forgot the subject in the last message! Oops!
 
 diff --git a/drivers/leds/leds-net48xx.c b/drivers/leds/leds-net48xx.c
 index 713c4a8..45ba3d4 100644
@@ -67,3 +71,4 @@ index 713c4a8..45ba3d4 100644
 Chris Boot
 bootc@bootc.net
 http://www.bootc.net/
+

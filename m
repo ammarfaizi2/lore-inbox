@@ -1,69 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945963AbWGOXHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945946AbWGOXSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945963AbWGOXHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 19:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945978AbWGOXHj
+	id S1945946AbWGOXSj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 19:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945959AbWGOXSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 19:07:39 -0400
-Received: from igraine.blacknight.ie ([81.17.252.25]:36783 "EHLO
-	igraine.blacknight.ie") by vger.kernel.org with ESMTP
-	id S1945963AbWGOXHi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 19:07:38 -0400
-Date: Sat, 15 Jul 2006 23:08:49 +0000
-From: Robert Fitzsimons <robfitz@273k.net>
+	Sat, 15 Jul 2006 19:18:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41863 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1945946AbWGOXSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 19:18:38 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
 To: Andrew Morton <akpm@osdl.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, greg@kroah.com,
-       76306.1226@compuserve.com, fork0@t-online.de,
-       linux-kernel@vger.kernel.org, mchehab@infradead.org,
-       shemminger@osdl.org, video4linux-list@redhat.com,
-       v4l-dvb-maintainer@linuxtv.org
-Subject: [PATCH] V4L: struct video_device corruption
-Message-ID: <20060715230849.GA3385@localhost>
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com> <20060713050541.GA31257@kroah.com> <20060712222407.d737129c.rdunlap@xenotime.net> <20060712224453.5faeea4a.akpm@osdl.org>
+Cc: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc1-mm2: process `showconsole' used the removed sysctl system call
+References: <44B8FE64.6040700@imap.cc> <20060715154200.e9138a6b.akpm@osdl.org>
+Date: Sat, 15 Jul 2006 17:17:47 -0600
+In-Reply-To: <20060715154200.e9138a6b.akpm@osdl.org> (Andrew Morton's message
+	of "Sat, 15 Jul 2006 15:42:00 -0700")
+Message-ID: <m14pxiqwys.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060712224453.5faeea4a.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-blacknight-igraine-MailScanner-Information: Please contact the ISP for more information
-X-blacknight-igraine-MailScanner: Found to be clean
-X-blacknight-igraine-MailScanner-SpamCheck: not spam,
-	SpamAssassin (not cached, score=1.713, required 7,
-	RCVD_IN_NJABL_DUL 1.71)
-X-blacknight-igraine-MailScanner-SpamScore: s
-X-MailScanner-From: robfitz@273k.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The layout of struct video_device would change depending on whether
-videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
-the structure to get corrupted.  Include the vidiocgmbuf function
-pointer in video_device regardless of the V4L version.
+Andrew Morton <akpm@osdl.org> writes:
 
-Signed-off-by: Robert Fitzsimons <robfitz@273k.net>
----
- include/media/v4l2-dev.h |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+> On Sat, 15 Jul 2006 16:40:36 +0200
+> Tilman Schmidt <tilman@imap.cc> wrote:
+>
+>> After installing a 2.6.18-rc1-mm2 kernel without sysctl syscall support
+>> on a standard SuSE 10.0 system, I find the following in my dmesg:
+>> 
+>> > [ 36.955720] warning: process `showconsole' used the removed sysctl system
+> call
+>> > [ 39.656410] warning: process `showconsole' used the removed sysctl system
+> call
+>> > [ 43.304401] warning: process `showconsole' used the removed sysctl system
+> call
+>> > [   45.717220] warning: process `ls' used the removed sysctl system call
+>> > [   45.789845] warning: process `touch' used the removed sysctl system call
+>> 
+>> which at face value seems to contradict the statement in the help text
+>> for the CONFIG_SYSCTL_SYSCALL option that "Nothing has been using the
+>> binary sysctl interface for some time time now". (sic)
+>> 
+>> Meanwhile, the second part of that sentence that "nothing should break"
+>> by disabling it seems to hold true anyway. The system runs fine, and
+>> activating CONFIG_SYSCTL_SYSCALL in the kernel doesn't seem to have any
+>> effect apart from changing the word "removed" to "obsolete" in the above
+>> messages.
+>
+> Thanks.
+>
+> Eric, that tends to make the whole idea inviable, doesn't it?
 
-diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
-index 62dae1a..69059d8 100644
---- a/include/media/v4l2-dev.h
-+++ b/include/media/v4l2-dev.h
-@@ -194,10 +194,11 @@ struct video_device
- 
- 
- 	int (*vidioc_overlay) (struct file *file, void *fh, unsigned int i);
--#ifdef HAVE_V4L1
--			/* buffer type is struct vidio_mbuf * */
-+	/*
-+	 * vidiocgmbuf is part of the V4L1 API
-+	 * buffer type is struct vidio_mbuf *
-+	 */
- 	int (*vidiocgmbuf)  (struct file *file, void *fh, struct video_mbuf *p);
--#endif
- 	int (*vidioc_g_fbuf)   (struct file *file, void *fh,
- 				struct v4l2_framebuffer *a);
- 	int (*vidioc_s_fbuf)   (struct file *file, void *fh,
--- 
-1.4.1.ga3e6
+Close but not quite.
 
+It is the glibc pthread library testing to see if you have an SMP
+kernel by greping for SMP in the UTS_VERSION string.  glibc has
+always had a fallback to using /proc/sys/kernel/version so it will
+behave properly, and uname is really the right interface to this
+data.
+
+My next step in testing is to remove that stupid usage from glibc
+and see if any other warnings happen.  I don't have time to
+finish setting up that test before I leave for Ottowa.
+
+I have already sent Ulrich Drepper a patch to have glibc just use
+uname.  The patch was posted to both linux-kernel and libc-alpha.
+
+So yes my understanding was not quite correct, but while I have the
+details wrong I don't know that the substance is wrong.  I need to
+take this at least to the next step so a convincing argument
+can be made for keeping sys_sysctl.
+
+If sys_sysctl really proves to be used and useful we can say
+yes people really do use things thing.  We really need to support
+this.  We can then revert the 2003 deprecated comment from the header
+file and drop patches that do not properly maintain the binary
+interface to sys_sysctl.
+
+I don't really care either way but I want a good case made so
+sys_sysctl can stop being walking dead.  I hate the attitude
+of have a interface from kernel to user space where people
+do not care if they break backwards binary compatibility.
+
+Eric

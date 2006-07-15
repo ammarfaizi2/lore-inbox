@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbWGOUM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWGOUMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422633AbWGOUM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 16:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWGOUMJ
+	id S1030318AbWGOUMI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 16:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWGOUMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 16:12:09 -0400
-Received: from tomts47-srv.bellnexxia.net ([209.226.175.191]:5263 "EHLO
-	tomts47-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1030324AbWGOUMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 16:12:07 -0400
+Received: from tomts31-srv.bellnexxia.net ([209.226.175.105]:33960 "EHLO
+	tomts31-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1030318AbWGOUMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 15 Jul 2006 16:12:03 -0400
-Date: Sat, 15 Jul 2006 13:08:56 -0700
+Date: Sat, 15 Jul 2006 13:10:26 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
-Subject: Linux 2.6.16.26
-Message-ID: <20060715200856.GA15036@kroah.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.16.26
+Message-ID: <20060715201026.GC15036@kroah.com>
+References: <20060715200856.GA15036@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060715200856.GA15036@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.26 kernel.
+On Sat, Jul 15, 2006 at 01:08:56PM -0700, Greg KH wrote:
+> We (the -stable team) are announcing the release of the 2.6.16.26 kernel.
 
-This should fix the reported issue of NetworkManager dying when using
-the 2.6.16.25 kernel release.  All users of the 2.6.16 kernel are
-recommended to upgrade to this kernel, as it fixes a publicly known
-security issue that can provide root access to any local user of the
-machine.
+<snip>
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.25 and 2.6.16.26, as it is small enough to do so.
+> Greg Kroah-Hartman:
+>       Linux 2.6.16.25
 
-The updated 2.6.16.y git tree can be found at:
- 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+Ick, I mistyped this, too many version changes recently, it really is
+the 2.6.16.26 release, as the Makefile shows.
+
+And I don't think there's any way to go back and change a git commit
+message.  Or is there?
 
 thanks,
 
 greg k-h
-
---------
-
- Makefile       |    2 +-
- fs/proc/base.c |    3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
-Summary of changes from v2.6.16.25 to v2.6.16.26
-================================================
-
-Greg Kroah-Hartman:
-      Linux 2.6.16.25
-
-Linus Torvalds:
-      Relax /proc fix a bit
-

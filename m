@@ -1,89 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946032AbWGOMe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946030AbWGOMg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946032AbWGOMe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 08:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946034AbWGOMe2
+	id S1946030AbWGOMg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 08:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946034AbWGOMg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 08:34:28 -0400
-Received: from [212.76.92.164] ([212.76.92.164]:51719 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1946032AbWGOMe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 08:34:28 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCHSET] 0/15 IO scheduler improvements
-Date: Sat, 15 Jul 2006 15:35:03 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200607132350.47388.a1426z@gawab.com> <200607142253.26372.a1426z@gawab.com> <20060715110638.GC22724@suse.de>
-In-Reply-To: <20060715110638.GC22724@suse.de>
+	Sat, 15 Jul 2006 08:36:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13493 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1946030AbWGOMg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 08:36:58 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Dave Hansen <haveblue@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@openvz.org>,
+       Andrey Savochkin <saw@sw.ru>, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam.vilain@catalyst.net.nz>
+Subject: Re: [PATCH -mm 5/7] add user namespace
+References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
+	<1152815391.7650.58.camel@localhost.localdomain>
+	<m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
+	<1152821011.24925.7.camel@localhost.localdomain>
+	<m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
+	<1152887287.24925.22.camel@localhost.localdomain>
+	<m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
+	<20060714162935.GA25303@sergelap.austin.ibm.com>
+	<m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
+	<1152896138.24925.74.camel@localhost.localdomain>
+	<20060714170814.GE25303@sergelap.austin.ibm.com>
+	<1152897579.24925.80.camel@localhost.localdomain>
+	<m17j2gt7fo.fsf@ebiederm.dsl.xmission.com>
+	<1152900911.5729.30.camel@lade.trondhjem.org>
+	<m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
+	<1152911079.5729.70.camel@lade.trondhjem.org>
+	<m1psg7qzjl.fsf@ebiederm.dsl.xmission.com>
+	<4DBD2EBA-9AE2-4598-A9E5-FE7ADCA60B44@mac.com>
+Date: Sat, 15 Jul 2006 06:35:18 -0600
+In-Reply-To: <4DBD2EBA-9AE2-4598-A9E5-FE7ADCA60B44@mac.com> (Kyle Moffett's
+	message of "Sat, 15 Jul 2006 00:35:34 -0400")
+Message-ID: <m1d5c7qc55.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607151535.04042.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Jul 14 2006, Al Boldi wrote:
-> > Jens Axboe wrote:
-> > > On Thu, Jul 13 2006, Al Boldi wrote:
-> > > > Jens Axboe wrote:
-> > > > > This is a continuation of the patches posted yesterday, I
-> > > > > continued to build on them. The patch series does:
-> > > > >
-> > > > > - Move the hash backmerging into the elevator core.
-> > > > > - Move the rbtree handling into the elevator core.
-> > > > > - Abstract the FIFO handling into the elevator core.
-> > > > > - Kill the io scheduler private requests, that require
-> > > > > allocation/free for each request passed through the system.
-> > > > >
-> > > > > The result is a faster elevator core (and faster IO schedulers),
-> > > > > with a nice net reduction of kernel text and code as well.
-> > > >
-> > > > Thanks!
-> > > >
-> > > > Your efforts are much appreciated, as the current situation is a bit
-> > > > awkward.
-> > >
-> > > It's a good step forward, at least.
-> > >
-> > > > > If you have time, please give this patch series a test spin just
-> > > > > to verify that everything still works for you. Thanks!
-> > > >
-> > > > Do you have a combo-patch against 2.6.17?
-> > >
-> > > Not really, but git let me generate one pretty easily. It has a few
-> > > select changes outside of the patchset as well, but should be ok. It's
-> > > not tested though, should work but the rbtree changes needed to be
-> > > done additionally. If it boots, it should work :-)
-> >
-> > patch applies ok
-> > compiles ok
-> > panics on boot at elv_rb_del
-> > patch -R succeeds with lot's of hunks
+Kyle Moffett <mrmacman_g4@mac.com> writes:
+
+> Here's a possible example:
 >
-> So I most likely botched the rbtree conversion, sorry about that. Oh, I
-> think it's a silly reverted condition, can you try this one?
+> I have one disk which I want to share between multiple virtualized  instances
+> for root filesystems.  I bind-mount /onedisk/foo as the foo  virtual machine's
+> root and /onedisk/bar as the bar virtual machine's  root.  There should (must)
+> be two interpretations of the linear UID  space on that disk, one for the foo
+> virtual machine, and one for the  bar virtual machine.  By allowing the
+> administrator to determine UID  namespace per-vfsmount, you make such an
+> arrangement possible where  it otherwise would not be.
 
-Thanks!
+Yes.
 
-patch applies ok
-compiles ok
-boots ok
-patch -R succeeds with lot's of hunks
+With the scenario you describe there is a confusing case of how do
+you interpret uids on the /onedisk mount.  uid mapping may be a more
+appropriate strategy to remove all confusion there.
 
-Tried it anyway, and found an improvement only in cfq, where :
-echo 512 > /sys/block/hda/queue/max_sectors_kb
-gives full speed for 5-10 sec then drops to half speed
-other scheds lock into half speed
-echo 192 > /sys/block/hda/queue/max_sectors_kb
-gives full speed for all scheds
+> With NFS and the proposed superblock-sharing patches (necessary for  efficiency
+> and other reasons I don't entirely understand), the  situation is worse:  A
+> mount of server:/foo/bar on / in the bar virtual machine may get its superblock
+> merged with a mount of server:/ foo/baz on / in the baz virtual machine.  If
+> it's efficient to merge  those superblocks we should, and once again it's
+> necessary to tie the  UID namespace to the vfsmount, not the
+> superblock.
 
-Thanks!
+I completely agree that pushing nameidata down into generic_permission
+where we can use per mount properties in our permission checks is
+ideal.  The benefit I see is just a small increase in flexibility.
+So I don't really care either way.
 
---
-Al
+Currently there are several additional flags that could benefit
+from a per vfsmount interpretation as well:  nosuid, noexec, nodev,
+and readonly, how do we handle those?
 
+noexec is on the vfsmount.
+nosuid is on the vfsmount
+nodev  is on the vfsmount
+readonly is not on the vfsmount.
+
+The existing precedent is clearly in favor of putting this kind of
+information on the vfsmount.  The read-only attribute seems to
+be the only hold out.  If readonly has deep implications like
+no journal replay it makes sense to keep it per mount.  Which
+indicates we could nose a nowrite option to express the per
+vfsmount property.
+
+I hope the confusion has passed for Trond.  My impression was he
+figured this was per process data so it didn't make sense any where
+near a filesystem, and the superblock was the last place it should
+be.
+
+Eric

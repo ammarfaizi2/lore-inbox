@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946006AbWGOHlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946005AbWGOHzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946006AbWGOHlS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 03:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946005AbWGOHlS
+	id S1946005AbWGOHzP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 03:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946001AbWGOHzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 03:41:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19687 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1946004AbWGOHlR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 03:41:17 -0400
-Date: Sat, 15 Jul 2006 03:41:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: sch_htb compile fix.
-Message-ID: <20060715074112.GA18210@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	netdev <netdev@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jul 2006 03:55:15 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.201.20]:8363 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1946005AbWGOHzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 03:55:14 -0400
+Date: Sat, 15 Jul 2006 09:55:12 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Marcel Holtmann <holtmann@redhat.com>
+Subject: Re: Linux 2.6.17.5
+Message-ID: <20060715075512.GA1666@wavehammer.waldi.eu.org>
+Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
+	Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Marcel Holtmann <holtmann@redhat.com>
+References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-net/sched/sch_htb.c: In function 'htb_change_class':
-net/sched/sch_htb.c:1605: error: expected ';' before 'do_gettimeofday'
+On Fri, Jul 14, 2006 at 10:21:22PM -0700, Linus Torvalds wrote:
+> It still leaves the whole issue of whether /proc should honor chmod AT ALL 
+> open,
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Hmm, can you explain why notify_change (fs/attr.c) don't bail out if the
+inode lacks the setattr function and instead just sets the new
+permissions?
 
---- linux-2.6.17.noarch/net/sched/sch_htb.c~	2006-07-15 03:40:14.000000000 -0400
-+++ linux-2.6.17.noarch/net/sched/sch_htb.c	2006-07-15 03:40:21.000000000 -0400
-@@ -1601,7 +1601,7 @@ static int htb_change_class(struct Qdisc
- 		/* set class to be in HTB_CAN_SEND state */
- 		cl->tokens = hopt->buffer;
- 		cl->ctokens = hopt->cbuffer;
--		cl->mbuffer = PSCHED_JIFFIE2US(HZ*60) /* 1min */
-+		cl->mbuffer = PSCHED_JIFFIE2US(HZ*60); /* 1min */
- 		PSCHED_GET_TIME(cl->t_c);
- 		cl->cmode = HTB_CAN_SEND;
+I really think this is the wrong way and inodes which want this default
+behaviour should explicitely define it.
+
+Bastian
+
 -- 
-http://www.codemonkey.org.uk
+Each kiss is as the first.
+		-- Miramanee, Kirk's wife, "The Paradise Syndrome",
+		   stardate 4842.6

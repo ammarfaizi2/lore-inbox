@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWGOPoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWGOPuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWGOPoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 11:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWGOPoo
+	id S1750713AbWGOPuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 11:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWGOPuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 11:44:44 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61894 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750709AbWGOPon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 11:44:43 -0400
-Subject: Re: Where is RLIMIT_RT_CPU?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1152975857.6374.65.camel@idefix.homelinux.org>
-References: <1152663825.27958.5.camel@localhost>
-	 <1152809039.8237.48.camel@mindpipe>
-	 <1152869952.6374.8.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
-	 <1152919240.6374.38.camel@idefix.homelinux.org>
-	 <1152971896.16617.4.camel@mindpipe>
-	 <1152973159.6374.59.camel@idefix.homelinux.org>
-	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
-	 <1152975857.6374.65.camel@idefix.homelinux.org>
-Content-Type: text/plain
-Date: Sat, 15 Jul 2006 11:44:44 -0400
-Message-Id: <1152978284.16617.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 15 Jul 2006 11:50:04 -0400
+Received: from [202.67.154.148] ([202.67.154.148]:7060 "EHLO ns666.com")
+	by vger.kernel.org with ESMTP id S1750713AbWGOPuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 11:50:03 -0400
+Message-ID: <44B90DF1.8070400@ns666.com>
+Date: Sat, 15 Jul 2006 17:46:57 +0200
+From: Von Wolher <trilight@ns666.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.0; Mac_PowerPC)
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Daniel Drake <dsd@gentoo.org>
+CC: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, stable@kernel.org,
+       Marcel Holtmann <holtmann@redhat.com>
+Subject: Re: Linux 2.6.17.5
+References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org> <44B8A720.3030309@gentoo.org>
+In-Reply-To: <44B8A720.3030309@gentoo.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-16 at 01:04 +1000, Jean-Marc Valin wrote:
-> > as long as you can fork and exec as many of those processes as you want
-> > a per process rlimit is useless security wise... an evil user just fires
-> > off a second process just before the first one gets killed and a non-RT
-> > root still is starved out.
+Daniel Drake wrote:
+> Hi Linus,
 > 
-> Of course, which is why the idea is for the limit to be global, across
-> all non-root users. AFAIK, that's what Ingo's original (pre-2.6.12)
-> patch did and also what Con Kolivas' SCHED_ISO patch does. That's also
-> why I think it would be very hard (if possible at all) to do this in
-> user space.
+> Linus Torvalds wrote:
+> 
+>> I did a slight modification of the patch I committed initially, in the
+>> face of the report from Marcel that the initial sledge-hammer approach
+>> broke his hald setup.
+>>
+>> See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix
+>> a bit", which should still fix the bug (can somebody verify? I'm 100%
+>> sure, but still..), but is pretty much guaranteed to not have any
+>> secondary side effects.
+>>
+>> It still leaves the whole issue of whether /proc should honor chmod AT
+>> ALL open, and I'd love to close that one, but from a "minimal fix"
+>> standpoint, I think it's a reasonable (and simple) patch.
+>>
+>> Marcel, can you check current git?
+> 
+> 
+> I can confirm that the new fix prevents the exploit from working, with
+> no immediately visible side effects.
+> 
+> Thanks,
+> Daniel
+> 
 
-I don't think it's a problem.  If the admin does not want non-root users
-to be able to lock up the machine, just don't put them in the realtime
-group.
+Can some one release a 2.6.17.6 ? I think many people are waiting at
+their keyboard to get their systems protected.
 
-Lee
+Appreciate the quick response !
 
+Thanks,
+
+Mark

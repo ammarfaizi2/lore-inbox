@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945976AbWGOCKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945982AbWGOCWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945976AbWGOCKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 22:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945977AbWGOCKa
+	id S1945982AbWGOCWf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 22:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945981AbWGOCWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 22:10:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:19082 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1945976AbWGOCKa (ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Fri, 14 Jul 2006 22:10:30 -0400
-Subject: Re: RT exec for exercising RT kernel capabilities
-From: Lee Revell <rlrevell@joe-job.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: markh@compro.net, linux-kerneL@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <1152929059.5915.11.camel@localhost>
-References: <448876B9.9060906@compro.net>
-	 <1152916456.3119.92.camel@mindpipe>  <1152929059.5915.11.camel@localhost>
-Content-Type: text/plain
-Date: Fri, 14 Jul 2006 22:10:27 -0400
-Message-Id: <1152929428.3119.114.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jul 2006 22:22:35 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:52455 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1945978AbWGOCWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 22:22:34 -0400
+Date: Fri, 14 Jul 2006 20:22:33 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@elte.hu, linux-arch@vger.kernel.org,
+       David Howells <dhowells@redhat.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 01/02] remove set_wmb - doc update
+Message-ID: <20060715022233.GA1578@parisc-linux.org>
+References: <1152882288.1883.30.camel@localhost.localdomain> <Pine.LNX.4.64.0607140757080.5623@g5.osdl.org> <Pine.LNX.4.64.0607141017520.5623@g5.osdl.org> <1152898699.27135.20.camel@localhost.localdomain> <Pine.LNX.4.64.0607141040550.5623@g5.osdl.org> <20060714105841.4490c0e2.akpm@osdl.org> <1152907501.27135.44.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152907501.27135.44.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-15 at 04:04 +0200, Thomas Gleixner wrote:
-> On Fri, 2006-07-14 at 18:34 -0400, Lee Revell wrote:
-> > On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
-> > > ftp://ftp.compro.net/public/rt-exec/
-> > 
-> > The high res timers do not seem to be working.  Using 2.6.17-rt3 and
-> > glibc 2.3.6, I get the exact same (bad) results whether
-> > CONFIG_HIGH_RES_TIMERS is enabled or not.
-> 
-> Can you please send me a boot log ?
+On Fri, Jul 14, 2006 at 04:05:01PM -0400, Steven Rostedt wrote:
+>  There are some more advanced barrier functions:
+>  
+>   (*) set_mb(var, value)
+> - (*) set_wmb(var, value)
+>  
+> -     These assign the value to the variable and then insert at least a write
+> -     barrier after it, depending on the function.  They aren't guaranteed to
+> +     This assigns the value to the variable and then inserts at least a write
+> +     barrier after it, depending on the function.  It isn't guaranteed to
+>       insert anything more than a compiler barrier in a UP compilation.
 
-Sent off-list.
+"There is one more advanced barrier function"?  ;-)  Or did you want to
+remove set_mb()?
 
-Lee
+Plus, the "depending on the function" bit means "respectively".  So what
+you really want as help is something like:
 
+	This assigns the value to the variable and then inserts a
+	barrier after the assignment.  It isn't guaranteed to insert
+	anything more than a compiler barrier in a UP compilation.

@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWGOFjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWGOFtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbWGOFjy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 01:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWGOFjy
+	id S1161059AbWGOFtL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 01:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWGOFtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 01:39:54 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15778
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030188AbWGOFjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 01:39:53 -0400
-Date: Fri, 14 Jul 2006 22:40:01 -0700 (PDT)
-Message-Id: <20060714.224001.71089810.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm2
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060715010645.GB11515@gondor.apana.org.au>
-References: <20060715002623.GE9334@gondor.apana.org.au>
-	<20060714173517.cdd58097.akpm@osdl.org>
-	<20060715010645.GB11515@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 15 Jul 2006 01:49:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61112 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161059AbWGOFtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 01:49:10 -0400
+Subject: Re: tighten ATA kconfig dependancies
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060715053418.GA5557@redhat.com>
+References: <20060715053418.GA5557@redhat.com>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 07:49:08 +0200
+Message-Id: <1152942548.3114.4.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 15 Jul 2006 11:06:45 +1000
+On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
+> A lot of prehistoric junk shows up on x86-64 configs.
 
-> -	__ret;						\
-> +	unlikely(__ret);				\
 
-Wouldn't it be cleaner to wrap this unlikely around
-the top-level "({ })"?  When it sits on a line by
-itself it looks strange, that much is true :)
+... but in general it helps compile testing if you're hacking stuff;
+if your hacking IDE on x86-64 you now have to compile 32 bit as well to
+see if you didn't break the compile for these as well
 
-Actually, the last time I saw a construct like this
-it was a bug, someone was doing:
+So please don't do this, just disable them in your config...
 
-	return unlikely(someval);
-
-which turned someval into a boolean, even though what
-was intended was that the full value was returned.

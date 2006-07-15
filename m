@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946029AbWGOMWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946032AbWGOMe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946029AbWGOMWm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 08:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946030AbWGOMWm
+	id S1946032AbWGOMe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 08:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946034AbWGOMe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 08:22:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26087 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1946029AbWGOMWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 08:22:42 -0400
-Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality
-	permits it
-From: Arjan van de Ven <arjan@infradead.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Frank van Maarseveen <frankvm@frankvm.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-In-Reply-To: <200607151429.32298.a1426z@gawab.com>
-References: <200607112257.22069.a1426z@gawab.com>
-	 <200607132351.04721.a1426z@gawab.com>
-	 <1152824071.3024.89.camel@laptopd505.fenrus.org>
-	 <200607151429.32298.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Sat, 15 Jul 2006 14:22:39 +0200
-Message-Id: <1152966159.3114.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 15 Jul 2006 08:34:28 -0400
+Received: from [212.76.92.164] ([212.76.92.164]:51719 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1946032AbWGOMe2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 08:34:28 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCHSET] 0/15 IO scheduler improvements
+Date: Sat, 15 Jul 2006 15:35:03 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200607132350.47388.a1426z@gawab.com> <200607142253.26372.a1426z@gawab.com> <20060715110638.GC22724@suse.de>
+In-Reply-To: <20060715110638.GC22724@suse.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200607151535.04042.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-15 at 14:29 +0300, Al Boldi wrote:
-> Arjan van de Ven wrote:
-> > > BTW, why does randomize_stack_top() mod against (8192*1024) instead of
-> > > (8192) like arch_align_stack()?
+Jens Axboe wrote:
+> On Fri, Jul 14 2006, Al Boldi wrote:
+> > Jens Axboe wrote:
+> > > On Thu, Jul 13 2006, Al Boldi wrote:
+> > > > Jens Axboe wrote:
+> > > > > This is a continuation of the patches posted yesterday, I
+> > > > > continued to build on them. The patch series does:
+> > > > >
+> > > > > - Move the hash backmerging into the elevator core.
+> > > > > - Move the rbtree handling into the elevator core.
+> > > > > - Abstract the FIFO handling into the elevator core.
+> > > > > - Kill the io scheduler private requests, that require
+> > > > > allocation/free for each request passed through the system.
+> > > > >
+> > > > > The result is a faster elevator core (and faster IO schedulers),
+> > > > > with a nice net reduction of kernel text and code as well.
+> > > >
+> > > > Thanks!
+> > > >
+> > > > Your efforts are much appreciated, as the current situation is a bit
+> > > > awkward.
+> > >
+> > > It's a good step forward, at least.
+> > >
+> > > > > If you have time, please give this patch series a test spin just
+> > > > > to verify that everything still works for you. Thanks!
+> > > >
+> > > > Do you have a combo-patch against 2.6.17?
+> > >
+> > > Not really, but git let me generate one pretty easily. It has a few
+> > > select changes outside of the patchset as well, but should be ok. It's
+> > > not tested though, should work but the rbtree changes needed to be
+> > > done additionally. If it boots, it should work :-)
 > >
-> >  because it wants to randomize for 8Mb, unlike arch_align_stack which
-> > wants to randomize the last 8Kb within this 8Mb ;)
-> 
-> Randomizing twice?
+> > patch applies ok
+> > compiles ok
+> > panics on boot at elv_rb_del
+> > patch -R succeeds with lot's of hunks
+>
+> So I most likely botched the rbtree conversion, sorry about that. Oh, I
+> think it's a silly reverted condition, can you try this one?
 
-a VMA can only be randomized in 4Kb (well page size) granularity, so the
-8Mb randomization can only work in that 4Kb unit, the "second"
-randomization can work in 16 byte granularity.
+Thanks!
 
-> There is even a case where a mere rename or running through an extra shell 
-> causes a slowdown.  And that's with randomization turned off.
+patch applies ok
+compiles ok
+boots ok
+patch -R succeeds with lot's of hunks
 
-randomization off will slow stuff down yes... you get cache alias
-contention that way.
+Tried it anyway, and found an improvement only in cfq, where :
+echo 512 > /sys/block/hda/queue/max_sectors_kb
+gives full speed for 5-10 sec then drops to half speed
+other scheds lock into half speed
+echo 192 > /sys/block/hda/queue/max_sectors_kb
+gives full speed for all scheds
 
+Thanks!
 
-
-
-> 2.4.31 doesn't show these slowdowns.
-
-2.4.31 randomizes the stack with 8Kb.
-
-> What is 2.6 doing?
-
-you're not providing a lot of info ;)
-
-why do you suspect randomization as cause for whatever slowdown you are
-seeing? What kind of slowdown are you seeing?
-
+--
+Al
 

@@ -1,72 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945998AbWGOH3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946003AbWGOHbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945998AbWGOH3D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 03:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946001AbWGOH3C
+	id S1946003AbWGOHbO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 03:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946005AbWGOHbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 03:29:02 -0400
-Received: from quasar.dynaweb.hu ([195.70.37.87]:52869 "EHLO quasar.dynaweb.hu")
-	by vger.kernel.org with ESMTP id S1945998AbWGOH3A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 03:29:00 -0400
-Date: Sat, 15 Jul 2006 09:28:56 +0200
-From: Rumi Szabolcs <rumi_ml@rtfm.hu>
-To: "Allen Martin" <AMartin@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon64 + Nforce4 MCE panic
-Message-Id: <20060715092856.7f9882f5.rumi_ml@rtfm.hu>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B00E48CFD9@hqemmail02.nvidia.com>
-References: <20060714093749.07529924.rumi_ml@rtfm.hu>
-	<DBFABB80F7FD3143A911F9E6CFD477B00E48CFD9@hqemmail02.nvidia.com>
-X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 15 Jul 2006 03:31:14 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:39079 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1946002AbWGOHbN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 03:31:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RRGvoh0zXOYhBgxlHJyFxyccKaNmLTsR/0UJHuWz3ESrs2WolZsFq1VHKFQ83Cnq5wkWaqO7YD8LaOg+g4oJAJaaVAv6wCSUSm0s86Hf6a0ZeiIBB1soj4Y1hPfQRXLMmcRD7gcMC5h4T+AEYAvGMLUK0ztrnbwBtKz6Qp+M8mM=
+Message-ID: <e5bfff550607150031g5cca3d02h61aa6e6565aad132@mail.gmail.com>
+Date: Sat, 15 Jul 2006 09:31:12 +0200
+From: "Marco Costalba" <mcostalba@gmail.com>
+To: "GIT list" <git@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE qgit-1.4]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jul 2006 11:18:38 -0700
-"Allen Martin" <AMartin@nvidia.com> wrote:
+This is qgit-1.4
 
-> > 1x Asrock NF4G-SATA2 motherboard 
-> > (http://www.asrock.com/product/939NF4G-SATA2.htm)
-> > 1x Athlon64 "Venice" 3500+ with a huge Arctic cooler
-> > 1x Corsair kit of 2 matched 512MB DDR400 modules
-> > 1x Seagate 160GB SATA drive
-> > 1x well ventilated Chieftec rackmount chassis w/PSU
-> 
-> You don't have any PATA devices at all?  SATA is a lot more resilient to
-> this type of problem.
+With qgit you will be able to browse revision histories, view patch content
+and changed files, graphically following different development branches.
 
-Exactly. I hooked up a PATA CDROM temporarily when I changed the mobo,
-but otherwise the only storage it has is that SATA disk.
 
-> > So I have a reason to believe that this could be a chipset specific
-> > problem which not only affects me but quite a number of NF4 users,
-> > most of which (using Windo$$$) will probably never know why their
-> > system suddenly hung after some weeks or months of use...
-> 
-> Windows will generate a bugcheck on an MCA exception just like Linux.
-> We have really detailed statistics on Windows bugchecks due to OCA, so I
-> know this is not a widespread issue at least on Windows.
+FEATURES
 
-Do you think that this problem is caused by or at least triggered by
-Linux or it's disk usage patterns? At least if you type "b200000000070f0f"
-into g00gle you get a lot of hits all of which has something to do with
-Linux.
+ - View revisions, diffs, files history, files annotation, archive tree.
 
-> The stack trace will almost always tell you exactly what device timed
-> out the PIO, you should start there.
+ - Commit changes visually cherry picking modified files.
 
-Well I have to admit I'm not a kernel hacker but a simple user without a clue
-so I have no idea how I could have got a stack trace from a kernel that is
-paniced, frozen hard, and couldn't even sync it's disks so after I realized
-there is no reaction to any input devices on the system I've just hit the
-reset button and hoped it will come up again. I guess this is exactly what
-Windo$$$ users used to do when they get a blue screen... ;)
+ - Apply or format patch series from selected commits, drag and
+   drop commits between two instances of qgit.
 
-Thanks!
+ - Associate commands sequences, scripts and anything else executable
+   to a custom action. Actions can be run from menu and corresponding
+   output is grabbed by a terminal window.
 
-Regards,
+  - qgit implements a GUI for the most common StGIT commands like push/pop
+   and apply/format patches. You can also create new patches or refresh
+   current top one using the same semantics of git commit, i.e. cherry
+   picking single modified files.
 
-Sab
+
+NEW IN THIS RELEASE
+
+To let user to quickly invoke native git commands from the menu bar a
+'custom action' build dialog has been added.
+
+It is possible to associate commands sequences, scripts and anything
+else executable to a custom action, give it a name and then call from
+menu when needed. The corresponding output is grabbed by a terminal
+window.
+
+An action can also ask for command line arguments before to run so
+to allow for maximum flexibility.
+
+Just to name a few, I have created some stuff like 'git pull', make,
+'make install', git pull with input argument and so on, and I've found
+them quite useful.
+
+There is also some work on near tag information and better tag markers,
+see changelog for details.
+
+
+Please note that you will need git 1.4.0 or newer.
+
+
+DOWNLOAD
+
+Tarball is
+http://prdownloads.sourceforge.net/qgit/qgit-1.4.tar.bz2?download
+
+Git archive is
+git://git.kernel.org/pub/scm/qgit/qgit.git
+
+See http://digilander.libero.it/mcostalba/ for detailed download information.
+
+
+INSTALLATION
+
+git 1.4.0 is required.
+
+To install from tarball:
+
+./configure
+make
+make install-strip
+
+To install from git archive:
+
+autoreconf -i
+./configure
+make
+make install-strip
+
+Or check the shipped README for detailed information.
+
+
+CHANGELOG from 1.3
+
+- added custom action support
+
+- use markers for refs instead of background color in short log line
+
+- added "Copy link sha1" context menu entry in revision description
+
+- CTRL+right click on a revision to toggle 'diff to selected sha' mode
+
+- added support for applying patches to working directory only
+
+- better diagnostic when a command fails to start
+
+- show branches that revision belongs to
+
+- show near tags information in revision description
+
+- show children list in revision description
+
+- added a tool button to highlight filter matches instead of filtering
+
+For a complete changelog see shipped ChangeLog file or git repository
+revision's history
+
+	Marco

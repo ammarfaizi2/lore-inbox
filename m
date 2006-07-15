@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWGLCzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWGOFWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWGLCzF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jul 2006 22:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWGLCzE
+	id S932429AbWGOFWU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 01:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWGOFWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jul 2006 22:55:04 -0400
-Received: from ns.suse.de ([195.135.220.2]:37603 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932129AbWGLCzD (ORCPT
+	Sat, 15 Jul 2006 01:22:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25493 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932429AbWGOFWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jul 2006 22:55:03 -0400
-Message-ID: <121226.1152672894714.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-Date: Wed, 12 Jul 2006 04:54:54 +0200 (CEST)
-From: Andreas Kleen <ak@suse.de>
-To: Anthony DeRobertis <asd@suespammers.org>
-Subject: Re: skge error; hangs w/ hardware memory hole
-Cc: Stephen Hemminger <shemminger@osdl.org>, Martin Michlmayr <tbm@cyrius.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       kevin@sysexperts.com
-In-Reply-To: <44B46276.5030006@suespammers.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (normal)
-X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
-X-Operating-System: Linux 2.4.21-309-smp i386 (JVM 1.3.1_18)
-Organization: SuSE Linux AG
-References: <20060703205238.GA10851@deprecation.cyrius.com> <20060707141843.73fc6188@dxpl.pdx.osdl.net> <200607072328.51282.ak@suse.de> <44B46276.5030006@suespammers.org>
+	Sat, 15 Jul 2006 01:22:19 -0400
+Date: Fri, 14 Jul 2006 22:21:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, stable@kernel.org,
+       Marcel Holtmann <holtmann@redhat.com>
+Subject: Re: Linux 2.6.17.5
+In-Reply-To: <20060715030047.GC11167@kroah.com>
+Message-ID: <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org>
+References: <20060715030047.GC11167@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Spamming bug robot dropped from cc list.
 
-Am Mi 12.07.2006 04:46 schrieb Anthony DeRobertis <asd@suespammers.org>:
+On Fri, 14 Jul 2006, Greg KH wrote:
+> 
+> I'll also be replying to this message with a copy of the patch between
+> 2.6.17.4 and 2.6.17.5, as it is small enough to do so.
 
-> OK, here are the results with iommu=force. All of these are copied
-> down
-> by hand, so please forgive any transcription errors:
+I did a slight modification of the patch I committed initially, in the 
+face of the report from Marcel that the initial sledge-hammer approach 
+broke his hald setup.
 
-You need to use iommu=soft swiotlb=force
+See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix a 
+bit", which should still fix the bug (can somebody verify? I'm 100% sure, 
+but still..), but is pretty much guaranteed to not have any secondary side 
+effects.
 
-The standard IOMMU is also broken on VIA, but forced swiotlb should
-work.
+It still leaves the whole issue of whether /proc should honor chmod AT ALL 
+open, and I'd love to close that one, but from a "minimal fix" standpoint, 
+I think it's a reasonable (and simple) patch.
 
-However it is a bit slow because it will force all IO through an
-additional copy.
-If it helps I can do a proper patch that only bounces IO > 4GB through
-the copy.
+Marcel, can you check current git?
 
-> Honestly, should I chuck this board through the window of my nearest
-> ASUS and/or VIA office, and buy an NForce board?
-
-We can probably get it to work, but you're clearly outside validated
-territory (= you're running the hardware in a untested by the vendor
-configuration). Normally that's not a good idea.
-
-BTW there are NForce systems with similar problems, but they are
-rare.
-
--Andi
-
-
+		Linus

@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWGOHUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945998AbWGOH3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161248AbWGOHUO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 03:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWGOHUN
+	id S1945998AbWGOH3D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 03:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946001AbWGOH3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 03:20:13 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:23234 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1161248AbWGOHUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 03:20:12 -0400
-Subject: Re: 2.6.18 Headers - Long
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: David Miller <davem@davemloft.net>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, ralf@linux-mips.org
-In-Reply-To: <44B80543.4050608@jg555.com>
-References: <44B7F062.8040102@jg555.com>
-	 <1152905987.3159.46.camel@laptopd505.fenrus.org>
-	 <1152908202.3191.98.camel@pmac.infradead.org>
-	 <20060714.131957.57444250.davem@davemloft.net> <44B80543.4050608@jg555.com>
-Content-Type: text/plain
-Date: Sat, 15 Jul 2006 08:19:42 +0100
-Message-Id: <1152947982.3191.116.camel@pmac.infradead.org>
+	Sat, 15 Jul 2006 03:29:02 -0400
+Received: from quasar.dynaweb.hu ([195.70.37.87]:52869 "EHLO quasar.dynaweb.hu")
+	by vger.kernel.org with ESMTP id S1945998AbWGOH3A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 03:29:00 -0400
+Date: Sat, 15 Jul 2006 09:28:56 +0200
+From: Rumi Szabolcs <rumi_ml@rtfm.hu>
+To: "Allen Martin" <AMartin@nvidia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon64 + Nforce4 MCE panic
+Message-Id: <20060715092856.7f9882f5.rumi_ml@rtfm.hu>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B00E48CFD9@hqemmail02.nvidia.com>
+References: <20060714093749.07529924.rumi_ml@rtfm.hu>
+	<DBFABB80F7FD3143A911F9E6CFD477B00E48CFD9@hqemmail02.nvidia.com>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 13:57 -0700, Jim Gifford wrote:
-> Do we have a list of what headers are "user-space" and which ones should 
-> not be "user-space"?
+On Fri, 14 Jul 2006 11:18:38 -0700
+"Allen Martin" <AMartin@nvidia.com> wrote:
 
-Well, we have the lists in include/*/Kbuild files, of course -- but
-that's all. As I've stated before, I've been somewhat liberal with the
-exports to far, to match what's currently (ab)used, because I wanted to
-concentrate on the _mechanism_, not the policy.
+> > 1x Asrock NF4G-SATA2 motherboard 
+> > (http://www.asrock.com/product/939NF4G-SATA2.htm)
+> > 1x Athlon64 "Venice" 3500+ with a huge Arctic cooler
+> > 1x Corsair kit of 2 matched 512MB DDR400 modules
+> > 1x Seagate 160GB SATA drive
+> > 1x well ventilated Chieftec rackmount chassis w/PSU
+> 
+> You don't have any PATA devices at all?  SATA is a lot more resilient to
+> this type of problem.
 
-The intention is that we can now start to tighten it up -- I've already
-sent the patches which drop asm/atomic.h and asm/io.h, and there are
-more which should go. Next on that list (and already commented as such
-in include/asm-generic/Kbuild.asm) are asm/page.h and asm/elf.h.
+Exactly. I hooked up a PATA CDROM temporarily when I changed the mobo,
+but otherwise the only storage it has is that SATA disk.
 
-> Also David W, let me know what I can do to help you out, a lot of people 
-> on my end want to get this working properly.
+> > So I have a reason to believe that this could be a chipset specific
+> > problem which not only affects me but quite a number of NF4 users,
+> > most of which (using Windo$$$) will probably never know why their
+> > system suddenly hung after some weeks or months of use...
+> 
+> Windows will generate a bugcheck on an MCA exception just like Linux.
+> We have really detailed statistics on Windows bugchecks due to OCA, so I
+> know this is not a widespread issue at least on Windows.
 
-Thanks. One thing you can do which would be extremely useful is to
-investigate dropping page.h and elf.h, and make sure that stuff like gdb
-(and anything using ptrace.h) will still build. Then just look for
-anything else which should be removed from view. The git repository at
-http://git.kernel.org/git/?p=linux/kernel/git/dwmw2/kernel-headers.git
-(git://git.kernel.org/pub/scm/linux/kernel/git/dwmw2/kernel-headers.git)
-should help with that task. Provide patches to move stuff within #ifdef
-__KERNEL__ or to move it to unexported files.
+Do you think that this problem is caused by or at least triggered by
+Linux or it's disk usage patterns? At least if you type "b200000000070f0f"
+into g00gle you get a lot of hits all of which has something to do with
+Linux.
 
-There are some who think that it would be nice to get rid of __KERNEL__
-entirely -- files would be either entirely exported, or not at all. I
-don't think we necessarily need to go that far; the export step with
-unifdef isn't so bad.
+> The stack trace will almost always tell you exactly what device timed
+> out the PIO, you should start there.
 
--- 
-dwmw2
+Well I have to admit I'm not a kernel hacker but a simple user without a clue
+so I have no idea how I could have got a stack trace from a kernel that is
+paniced, frozen hard, and couldn't even sync it's disks so after I realized
+there is no reaction to any input devices on the system I've just hit the
+reset button and hoped it will come up again. I guess this is exactly what
+Windo$$$ users used to do when they get a blue screen... ;)
 
+Thanks!
+
+Regards,
+
+Sab

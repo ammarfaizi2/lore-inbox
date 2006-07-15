@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWGOVJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWGOVTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbWGOVJa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 17:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWGOVJa
+	id S1161041AbWGOVTM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 17:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbWGOVTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 17:09:30 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:46536 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161027AbWGOVJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 17:09:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=MoQdpse+S1FCuMrq8qaN4fMpEhP4+fgirr25nOF+Tp629ST/wEtE5OtFlc+JVRNjf9Jy3PmXllGnDNLuN3OaQtnR3DwmMuiGeRN1pdimtQOqXdYytuyrOzyG/YDj1hE3eEy0hSUMTEsSEX5kjpE3+aPFGNdzoTtKnqG9AoKFBS0=
-Message-ID: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
-Date: Sat, 15 Jul 2006 17:09:28 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: dwmw2@infradead.org, arjan@infradead.org, maillist@jg555.com,
-       ralf@linux-mips.org, linux-kernel@vger.kernel.org, davem@davemloft.net
+	Sat, 15 Jul 2006 17:19:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6579 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161041AbWGOVTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 17:19:12 -0400
 Subject: Re: 2.6.18 Headers - Long
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Arjan van de Ven <arjan@infradead.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: dwmw2@infradead.org, maillist@jg555.com, ralf@linux-mips.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+In-Reply-To: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
+References: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 23:19:06 +0200
+Message-Id: <1152998347.3114.36.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse writes:
+On Sat, 2006-07-15 at 17:09 -0400, Albert Cahalan wrote:
+> David Woodhouse writes:
+> 
+> > Kernel headers are _not_ a library of random crap for userspace to use.
+> 
+> The attraction is that the kernel abstractions are very nice.
+> Much of the POSIX API sucks ass. The kernel stuff is NOT crap.
+> 
+> Here we have a full-featured set of atomic ops,
 
-> Kernel headers are _not_ a library of random crap for userspace to use.
+which are not atomic actually in userspace (hint: most apps don't have
+CONFIG_SMP set)
 
-The attraction is that the kernel abstractions are very nice.
-Much of the POSIX API sucks ass. The kernel stuff is NOT crap.
 
-Here we have a full-featured set of atomic ops, byte swapping
-with readable names and a distinction for pointers, nice macros
-for efficient data structure manipulation...
 
-Sure, you'd like all the app developers to write bloated C++
-and use sucky POSIX threads stuff, but then you're not the
-one who has to write or maintain it.
-
-Don't blame app developers if they go for what is good.
-To stop them, provide the goodness in a sane way.
-(alternately, make the Linux code suck ass more than POSIX)

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946064AbWGOPEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWGOPht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946064AbWGOPEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 11:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946065AbWGOPEU
+	id S1750708AbWGOPht (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 11:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWGOPht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 11:04:20 -0400
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:23735 "EHLO
-	idefix.homelinux.org") by vger.kernel.org with ESMTP
-	id S1946060AbWGOPET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 11:04:19 -0400
-Subject: Re: Where is RLIMIT_RT_CPU?
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1152974578.3114.24.camel@laptopd505.fenrus.org>
-References: <1152663825.27958.5.camel@localhost>
-	 <1152809039.8237.48.camel@mindpipe>
-	 <1152869952.6374.8.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
-	 <1152919240.6374.38.camel@idefix.homelinux.org>
-	 <1152971896.16617.4.camel@mindpipe>
-	 <1152973159.6374.59.camel@idefix.homelinux.org>
-	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Sun, 16 Jul 2006 01:04:17 +1000
-Message-Id: <1152975857.6374.65.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 15 Jul 2006 11:37:49 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38413 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750708AbWGOPhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 11:37:48 -0400
+Date: Sat, 15 Jul 2006 17:37:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Chris Boot <bootc@bootc.net>
+Cc: Andrew Morton <akpm@osdl.org>, Jim Cromie <jim.cromie@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: -mm patch] drivers/char/scx200_gpio.c: make code static
+Message-ID: <20060715153747.GT3633@stusta.de>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org> <20060715003536.GH3633@stusta.de> <44B90063.5070504@bootc.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B90063.5070504@bootc.net>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> as long as you can fork and exec as many of those processes as you want
-> a per process rlimit is useless security wise... an evil user just fires
-> off a second process just before the first one gets killed and a non-RT
-> root still is starved out.
+On Sat, Jul 15, 2006 at 03:49:07PM +0100, Chris Boot wrote:
+> Adrian Bunk wrote:
+> >This patch makes needlessly global code static.
+> 
+> I don't agree with unexporting scx200_gpio_ops and making the struct 
+> static, this lets other modules use the scx200_gpio module in a 
+> semi-independent way. My net48xx LED Class code is going to be modified to 
+> use the entries in this struct to do its GPIO-twiddling magic, potentially 
+> allowing my module to do more than just the net48xx Error LED.
+>...
 
-Of course, which is why the idea is for the limit to be global, across
-all non-root users. AFAIK, that's what Ingo's original (pre-2.6.12)
-patch did and also what Con Kolivas' SCHED_ISO patch does. That's also
-why I think it would be very hard (if possible at all) to do this in
-user space.
+Can you express "is going to be modified" in the unit "days"?
 
-	Jean-Marc
+I've seen too many times that someone said "I will need this export 
+soon", and some months or even a year later the code using it was still 
+part of the kernel.
+
+Unexporting something today does still allow re-exporting it when it's 
+actually required - simply add the trivial patch undoing my unexport 
+when you submit your driver for inclusion in the kernel.
+
+> Chris Boot
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

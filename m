@@ -1,71 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWGORjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGORqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWGORjr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 13:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWGORjr
+	id S1750726AbWGORqK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 13:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWGORqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 13:39:47 -0400
-Received: from [83.101.158.20] ([83.101.158.20]:41224 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1750729AbWGORjq (ORCPT
+	Sat, 15 Jul 2006 13:46:10 -0400
+Received: from mail.gmx.net ([213.165.64.21]:6079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750726AbWGORqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 13:39:46 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality permits it
-Date: Sat, 15 Jul 2006 20:39:58 +0300
-User-Agent: KMail/1.5
-Cc: Frank van Maarseveen <frankvm@frankvm.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-References: <200607112257.22069.a1426z@gawab.com> <1152966159.3114.19.camel@laptopd505.fenrus.org> <200607151709.45870.a1426z@gawab.com>
-In-Reply-To: <200607151709.45870.a1426z@gawab.com>
+	Sat, 15 Jul 2006 13:46:09 -0400
+X-Authenticated: #5082238
+Date: Sat, 15 Jul 2006 19:45:57 +0200
+From: Carsten Otto <c-otto@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Very poor IO performance (high CPU load), libata
+Message-ID: <20060715174555.GA27640@server.c-otto.de>
+Reply-To: c-otto@gmx.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-Message-Id: <200607152039.58733.a1426z@gawab.com>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Sat, 2006-07-15 at 17:09 +0300, Al Boldi wrote:
-> > Arjan van de Ven wrote:
-> > > On Sat, 2006-07-15 at 14:29 +0300, Al Boldi wrote:
-> > > > Arjan van de Ven wrote:
-> > > > > > BTW, why does randomize_stack_top() mod against (8192*1024)
-> > > > > > instead of (8192) like arch_align_stack()?
-> > > > >
-> > > > >  because it wants to randomize for 8Mb, unlike arch_align_stack
-> > > > > which wants to randomize the last 8Kb within this 8Mb ;)
-> > > >
-> > > > Randomizing twice?
-> > >
-> > > a VMA can only be randomized in 4Kb (well page size) granularity, so
-> > > the 8Mb randomization can only work in that 4Kb unit, the "second"
-> > > randomization can work in 16 byte granularity.
-> > >
-> > > > There is even a case where a mere rename or running through an extra
-> > > > shell causes a slowdown.  And that's with randomization turned off.
-> > >
-> > > randomization off will slow stuff down yes... you get cache alias
-> > > contention that way.
->
-> a question.. do you have prelink installed/active on your system? that
-> may very well mess with timings...
 
-No, not that I am aware of.  How can I find out?
-I confirmed this on a standard rhel4 virgin-install.  Does rhel4 have prelink 
-enabled by default?
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But even so, I don't think this is a timing issue, as the slowdowns are so 
-huge it is obvious even without timing.
+Hello (again)!
 
-And 2.4.31 doesn't have this problem.
+System specs below.
 
-Did you try it?
+My system sometimes[1] crashes in the sense that every HDD access is slow
+as hell and most of both CPUs' power is used for IO waiting. Then "top"
+shows more than 80% "wa" and the corresponding counter in /proc/stat
+increases a lot. When plotting these values with rrdtool I see up to 5%
+IO wait with normal behaviour and peaks with up to 40% under heavy load.
 
-Thanks!
+In the problem case the IO wait never drops below 40% no matter how light
+the HDD load is. Logging in into the system via SSH then takes more than
+two minutes and other tasks are equally slow.
 
---
-Al
+Disabling AHCI/ACPI/SMP in the kernel did not help.
+I also tried several kernel versions including 2.6.16 to 2.6.18 (rc,
+mm).
 
+/proc/interrupts shows a lot of interrupts for my network cards, but
+disabling the network does not solve the problem.
+
+A reboot usually solves the problem for some time.
+
+There might be a problem with my hardware (in a not yet determined
+device) causing this problem. But as long as I do not know what is wrong
+I still see the chance of a software error in the kernel.
+
+System specs:
+- Mainboard with Intel 945p and iCH7R (Foxconn 945P7AA-8EKRS2)
+- Intel Pentium D 805 (Dual Core, 2.66 GHz, 1 MB cache each)
+- 4x Maxtor MaXLine III (300GB, 16MB Cache, SATA2)
+
+[1] Sometimes: More than daily, at the moment I am lucky and noticed no
+problem for hours.
+
+Thanks a lot,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEuSnTjUF4jpCSQBQRAoi5AKChMpXiLfXY04Qf26LTDfTTuC8kYwCcDpaF
+ZS4fK2/IygYOxMLzNzgc4J8=
+=m8f9
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

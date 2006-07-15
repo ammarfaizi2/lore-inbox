@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945941AbWGOBbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945971AbWGOBvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945941AbWGOBbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jul 2006 21:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945962AbWGOBbk
+	id S1945971AbWGOBvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jul 2006 21:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945974AbWGOBvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jul 2006 21:31:40 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:55668 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1945941AbWGOBbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jul 2006 21:31:39 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 2.6.18-rc1] genirq: {en,dis}able_irq_wake() need refcounting too
-Date: Fri, 14 Jul 2006 18:31:34 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, tglx@linutronix.de,
-       mingo@redhat.com, Andrew Victor <andrew@sanpeople.com>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
-References: <200607091458.52298.david-b@pacbell.net> <20060710085849.GA6016@elte.hu>
-In-Reply-To: <20060710085849.GA6016@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 14 Jul 2006 21:51:04 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:19639 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1945972AbWGOBvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jul 2006 21:51:03 -0400
+Subject: Re: [2.6 patch] saa7134: rename dmasound_{init,exit}
+From: hermann pitton <hermann-pitton@arcor.de>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, v4l-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060715003710.GO3633@stusta.de>
+References: <20060715003710.GO3633@stusta.de>
+Content-Type: text/plain
+Date: Sat, 15 Jul 2006 03:54:24 +0200
+Message-Id: <1152928464.5738.5.camel@pc08.localdom.local>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607141831.35311.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 July 2006 1:58 am, Ingo Molnar wrote:
+Am Samstag, den 15.07.2006, 02:37 +0200 schrieb Adrian Bunk:
+> Two different exports with the same name are not a good idea:
 > 
-> * David Brownell <david-b@pacbell.net> wrote:
+> $ grep -r EXPORT_SYMBOL\(dmasound_init\) *
+> drivers/media/video/saa7134/saa7134-core.c:EXPORT_SYMBOL(dmasound_init);
+> sound/oss/dmasound/dmasound_core.c:EXPORT_SYMBOL(dmasound_init);
+> $ 
 > 
-> > It's not just "normal" mode operation that needs refcounting for the 
-> > {en,dis}able_irq() calls ... "wakeup" mode calls need it too, for the 
-> > very same reasons.
-> > 
-> > This patch adds that refcounting.  I expect that some ARM drivers will 
-> > be triggering the new warning, but this call isn't yet widely used. 
-> > (Which is probably why the bug has lingered this long...)
+> This patch renames the saa7134 dmasound_{init,exit} to 
+> saa7134_dmasound_{init,exit}.
 > 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> we should also add disable_irq_wake() / enable_irq_wake() APIs and start 
-> migrating most ARM users over to the new APIs, agreed? That makes the 
-> APIs more symmetric and the code more readable too.
+> ---
+> 
+> This patch was already sent on:
+> - 11 Jul 2006
 
-To recap, the driver code _is_ that symmetric, it's just the implementation
-that's asymmetric.  That is, {en,dis}able_irq() are two separate routines,
-while {en,dis}able_irq_wake() are just wrap set_irq_wake().
+Mauro is on a first short vacation after 1 1/2 years.
+Please have patience until he is back.
 
-I'll forward this patch to the the ARM kernel list, to help avoid surprises.
-There aren't many in-tree drivers using these calls.
+You might be used to, that Gerd wasn't for six years.
 
-- Dave
+Hermann
+
+
 

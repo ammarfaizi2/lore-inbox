@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbWGOSt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWGOStT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751539AbWGOSt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 14:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWGOSt1
+	id S1751543AbWGOStT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 14:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbWGOStT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 14:49:27 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:61930 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1751539AbWGOSt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 14:49:26 -0400
-Message-ID: <44B938B4.1050404@bootc.net>
-Date: Sat, 15 Jul 2006 19:49:24 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Chris Boot <bootc@bootc.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [RESEND][PATCH] Make net48xx-led use scx200_gpio_ops
-References: <44B93808.8080703@bootc.net>
-In-Reply-To: <44B93808.8080703@bootc.net>
-Content-Type: multipart/mixed;
- boundary="------------020406010106080402030000"
+	Sat, 15 Jul 2006 14:49:19 -0400
+Received: from tomts29-srv.bellnexxia.net ([209.226.175.103]:47554 "EHLO
+	tomts29-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751539AbWGOStS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 14:49:18 -0400
+Date: Sat, 15 Jul 2006 11:48:10 -0700
+From: Greg KH <gregkh@suse.de>
+To: Daniel Drake <dsd@gentoo.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, stable@kernel.org,
+       Marcel Holtmann <holtmann@redhat.com>
+Subject: Re: Linux 2.6.17.5
+Message-ID: <20060715184810.GA5240@suse.de>
+References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org> <44B8A720.3030309@gentoo.org> <44B90DF1.8070400@ns666.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44B90DF1.8070400@ns666.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020406010106080402030000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Chris Boot wrote:
-> Make the next48xx LED code use scx200_gpio_ops instead of raw SCx200 
-> GPIO accesses.
+On Sat, Jul 15, 2006 at 05:46:57PM +0200, Von Wolher wrote:
+> Daniel Drake wrote:
+> > Hi Linus,
+> > 
+> > Linus Torvalds wrote:
+> > 
+> >> I did a slight modification of the patch I committed initially, in the
+> >> face of the report from Marcel that the initial sledge-hammer approach
+> >> broke his hald setup.
+> >>
+> >> See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix
+> >> a bit", which should still fix the bug (can somebody verify? I'm 100%
+> >> sure, but still..), but is pretty much guaranteed to not have any
+> >> secondary side effects.
+> >>
+> >> It still leaves the whole issue of whether /proc should honor chmod AT
+> >> ALL open, and I'd love to close that one, but from a "minimal fix"
+> >> standpoint, I think it's a reasonable (and simple) patch.
+> >>
+> >> Marcel, can you check current git?
+> > 
+> > 
+> > I can confirm that the new fix prevents the exploit from working, with
+> > no immediately visible side effects.
+> > 
+> > Thanks,
+> > Daniel
+> > 
 > 
-> Signed-off-by: Chris Boot <bootc@bootc.net>
-> 
-> ---
-> 
-> Resending since I forgot the subject in the last message! Oops!
+> Can some one release a 2.6.17.6 ? I think many people are waiting at
+> their keyboard to get their systems protected.
 
-Resending *again* because Thunderbird eats patches and I keep forgetting! 
-Anybody have a fix for this?
+If they are waiting, they should use 2.6.17.5, as only Networkmanager is
+reported to be having problems with it.
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+I'll release .6 in a bit, but it will take an hour or so to get it
+uploaded and out to the mirrors...
 
---------------020406010106080402030000
-Content-Type: text/x-patch;
- name="net48xx-led-use-gpio-ops.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net48xx-led-use-gpio-ops.patch"
+thanks,
 
-diff --git a/drivers/leds/leds-net48xx.c b/drivers/leds/leds-net48xx.c
-index 713c4a8..45ba3d4 100644
---- a/drivers/leds/leds-net48xx.c
-+++ b/drivers/leds/leds-net48xx.c
-@@ -16,6 +16,7 @@
- #include <linux/leds.h>
- #include <linux/err.h>
- #include <asm/io.h>
-+#include <linux/nsc_gpio.h>
- #include <linux/scx200_gpio.h>
- 
- #define DRVNAME "net48xx-led"
-@@ -26,10 +27,7 @@ static struct platform_device *pdev;
- static void net48xx_error_led_set(struct led_classdev *led_cdev,
- 		enum led_brightness value)
- {
--	if (value)
--		scx200_gpio_set_high(NET48XX_ERROR_LED_GPIO);
--	else
--		scx200_gpio_set_low(NET48XX_ERROR_LED_GPIO);
-+	scx200_gpio_ops.gpio_set(NET48XX_ERROR_LED_GPIO, value ? 1 : 0);
- }
- 
- static struct led_classdev net48xx_error_led = {
-@@ -81,7 +79,8 @@ static int __init net48xx_led_init(void)
- {
- 	int ret;
- 
--	if (!scx200_gpio_present()) {
-+	/* small hack, but scx200_gpio doesn't set .dev if the probe fails */
-+	if (!scx200_gpio_ops.dev) {
- 		ret = -ENODEV;
- 		goto out;
- 	}
-
---------------020406010106080402030000--
+greg k-h

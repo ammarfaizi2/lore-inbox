@@ -1,69 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWGORBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWGORHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWGORBt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 13:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWGORBt
+	id S1750722AbWGORHU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 13:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWGORHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 13:01:49 -0400
-Received: from pat.uio.no ([129.240.10.4]:45503 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750720AbWGORBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 13:01:48 -0400
-Subject: Re: [PATCH -mm 5/7] add user namespace
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Dave Hansen <haveblue@us.ibm.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Cedric Le Goater <clg@fr.ibm.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Kirill Korotaev <dev@openvz.org>, Andrey Savochkin <saw@sw.ru>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam.vilain@catalyst.net.nz>
-In-Reply-To: <m1d5c7qc55.fsf@ebiederm.dsl.xmission.com>
-References: <m1mzbd1if1.fsf@ebiederm.dsl.xmission.com>
-	 <1152815391.7650.58.camel@localhost.localdomain>
-	 <m1wtahz5u2.fsf@ebiederm.dsl.xmission.com>
-	 <1152821011.24925.7.camel@localhost.localdomain>
-	 <m17j2gzw5u.fsf@ebiederm.dsl.xmission.com>
-	 <1152887287.24925.22.camel@localhost.localdomain>
-	 <m17j2gw76o.fsf@ebiederm.dsl.xmission.com>
-	 <20060714162935.GA25303@sergelap.austin.ibm.com>
-	 <m18xmwuo5r.fsf@ebiederm.dsl.xmission.com>
-	 <1152896138.24925.74.camel@localhost.localdomain>
-	 <20060714170814.GE25303@sergelap.austin.ibm.com>
-	 <1152897579.24925.80.camel@localhost.localdomain>
-	 <m17j2gt7fo.fsf@ebiederm.dsl.xmission.com>
-	 <1152900911.5729.30.camel@lade.trondhjem.org>
-	 <m1hd1krpx6.fsf@ebiederm.dsl.xmission.com>
-	 <1152911079.5729.70.camel@lade.trondhjem.org>
-	 <m1psg7qzjl.fsf@ebiederm.dsl.xmission.com>
-	 <4DBD2EBA-9AE2-4598-A9E5-FE7ADCA60B44@mac.com>
-	 <m1d5c7qc55.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Sat, 15 Jul 2006 13:01:12 -0400
-Message-Id: <1152982872.5715.15.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 15 Jul 2006 13:07:20 -0400
+Received: from intrepid.intrepid.com ([192.195.190.1]:61842 "EHLO
+	intrepid.intrepid.com") by vger.kernel.org with ESMTP
+	id S1750722AbWGORHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 13:07:18 -0400
+From: "Gary Funck" <gary@intrepid.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-1.2145_FC5 mmap-related soft lockup
+Date: Sat, 15 Jul 2006 10:07:26 -0700
+Message-ID: <JCEPIPKHCJGDMPOHDOIGGEKJDFAA.gary@intrepid.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.355, required 12,
-	autolearn=disabled, AWL 1.46, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Spam-Score: -1.44 () ALL_TRUSTED
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-15 at 06:35 -0600, Eric W. Biederman wrote:
-> I hope the confusion has passed for Trond.  My impression was he
-> figured this was per process data so it didn't make sense any where
-> near a filesystem, and the superblock was the last place it should
-> be.
 
-You are still using the wrong abstraction. Data that is not global to
-the entire machine has absolutely _no_ place being put into the
-superblock. It doesn't matter if it is process-specific,
-container-specific or whatever-else-specific, it will still be vetoed.
+A test program which allocates about 256M of MAP_ANONYMOUS mmap memory,
+and then spawns 4 processess, where each process i writes to 1/4 of the
+mapped memory, and then reads the memory written by
+the process (i + 1)%4, triggers a soft lockup, when exiting.
+Hardware:
+dual core dual Opteron 275 (Tyan motherboard, 4G physical memory)
+has been rock solid reliable.
 
-If your real problem is uid/gid mapping on top of generic filesystems,
-then have you looked into the *BSD solution of using a stackable
-filesystem (i.e. umapfs)?
+BUG: soft lockup detected on CPU#3!
 
-  Trond
+Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
+       <ffffffff8029708e>{update_process_times+66}
+<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
+       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
+<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
+       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
+<ffffffff8026a128>{_write_unlock_irq+11}
+       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
+<ffffffff80207af6>{unmap_vmas+1037}
+       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
+       <ffffffff80215ece>{do_exit+599}
+<ffffffff8024cacd>{debug_mutex_init+0}
+       <ffffffff80262f01>{tracesys+209}
+BUG: soft lockup detected on CPU#0!
+
+Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
+       <ffffffff8029708e>{update_process_times+66}
+<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
+       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
+<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
+       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
+<ffffffff8026a128>{_write_unlock_irq+11}
+       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
+<ffffffff80207af6>{unmap_vmas+1037}
+       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
+       <ffffffff80215ece>{do_exit+599}
+<ffffffff8024cacd>{debug_mutex_init+0}
+       <ffffffff80262f01>{tracesys+209}
+BUG: soft lockup detected on CPU#2!
+
+Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
+       <ffffffff8029708e>{update_process_times+66}
+<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
+       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
+<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
+       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
+<ffffffff8026a128>{_write_unlock_irq+11}
+       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
+<ffffffff80207af6>{unmap_vmas+1037}
+       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
+       <ffffffff80215ece>{do_exit+599}
+<ffffffff8024cacd>{debug_mutex_init+0}
+       <ffffffff80262f01>{tracesys+209}
+BUG: soft lockup detected on CPU#1!
+
+Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
+       <ffffffff8029708e>{update_process_times+66}
+<ffffffff8027a3ed>{smp_local_timer_interrupt+35}
+       <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
+<ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
+       <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
+<ffffffff8026a128>{_write_unlock_irq+11}
+       <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
+<ffffffff80207af6>{unmap_vmas+1037}
+       <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
+       <ffffffff80215ece>{do_exit+599}
+<ffffffff8024cacd>{debug_mutex_init+0}
+       <ffffffff80262f01>{tracesys+209}
+
+The test program runs successfully, but hangs several seconds upon exit.
+
+The hardware and software configuration has been solid for several months,
+but
+we have seen timer-related synchronization issues with recent kernels (where
+ntp has to force a re-sync for example, and an occasional lost ticks
+message).
+
+The test program mentioned above is more complicated than described, and
+can't easily be reproduced in source form, but the binary could be
+made available.
 

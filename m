@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWGOUME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbWGOUM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWGOUME (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 16:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbWGOUME
+	id S1422633AbWGOUM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 16:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWGOUMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 16:12:04 -0400
-Received: from tomts23.bellnexxia.net ([209.226.175.185]:15309 "EHLO
-	tomts23-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1030291AbWGOUMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 16:12:09 -0400
+Received: from tomts47-srv.bellnexxia.net ([209.226.175.191]:5263 "EHLO
+	tomts47-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1030324AbWGOUMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 15 Jul 2006 16:12:03 -0400
-Date: Sat, 15 Jul 2006 13:09:18 -0700
+Date: Sat, 15 Jul 2006 13:08:56 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.16.26
-Message-ID: <20060715200918.GB15036@kroah.com>
-References: <20060715200856.GA15036@kroah.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+Subject: Linux 2.6.16.26
+Message-ID: <20060715200856.GA15036@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060715200856.GA15036@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 84166a1..bea535b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .25
-+EXTRAVERSION = .26
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 9d99674..38f39c1 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1366,8 +1366,8 @@ static int pid_revalidate(struct dentry 
- 		} else {
- 			inode->i_uid = 0;
- 			inode->i_gid = 0;
--			inode->i_mode = 0;
- 		}
-+		inode->i_mode &= ~(S_ISUID | S_ISGID);
- 		security_task_to_inode(task, inode);
- 		return 1;
- 	}
-@@ -1395,6 +1395,7 @@ static int tid_fd_revalidate(struct dent
- 				inode->i_uid = 0;
- 				inode->i_gid = 0;
- 			}
-+			inode->i_mode &= ~(S_ISUID | S_ISGID);
- 			security_task_to_inode(task, inode);
- 			return 1;
- 		}
+We (the -stable team) are announcing the release of the 2.6.16.26 kernel.
+
+This should fix the reported issue of NetworkManager dying when using
+the 2.6.16.25 kernel release.  All users of the 2.6.16 kernel are
+recommended to upgrade to this kernel, as it fixes a publicly known
+security issue that can provide root access to any local user of the
+machine.
+
+I'll also be replying to this message with a copy of the patch between
+2.6.16.25 and 2.6.16.26, as it is small enough to do so.
+
+The updated 2.6.16.y git tree can be found at:
+ 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+
+greg k-h
+
+--------
+
+ Makefile       |    2 +-
+ fs/proc/base.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+Summary of changes from v2.6.16.25 to v2.6.16.26
+================================================
+
+Greg Kroah-Hartman:
+      Linux 2.6.16.25
+
+Linus Torvalds:
+      Relax /proc fix a bit
+

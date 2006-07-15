@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422813AbWGOGp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWGOHF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422813AbWGOGp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 02:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422814AbWGOGp7
+	id S1161140AbWGOHF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 03:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWGOHF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 02:45:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47583 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422813AbWGOGp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 02:45:58 -0400
-Subject: Re: tighten ATA kconfig dependancies
-From: Arjan van de Ven <arjan@infradead.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Dave Jones <davej@redhat.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060715063827.GA24579@mars.ravnborg.org>
-References: <20060715053418.GA5557@redhat.com>
-	 <1152942548.3114.4.camel@laptopd505.fenrus.org>
-	 <20060715063827.GA24579@mars.ravnborg.org>
+	Sat, 15 Jul 2006 03:05:28 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:1469 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1161140AbWGOHF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 03:05:27 -0400
+Subject: [patch] lockdep: annotate pktcdvd natural device hierarchy
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: mingo@elte.hu, akpm@osdl.org, Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>, axboe@suse.de
+In-Reply-To: <m3odvrc2vo.fsf@telia.com>
+References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
+	 <m3sllxtfbf.fsf@telia.com> <1151000451.3120.56.camel@laptopd505.fenrus.org>
+	 <m3u05kqvla.fsf@telia.com> <1152884770.3159.37.camel@laptopd505.fenrus.org>
+	 <m3odvrc2vo.fsf@telia.com>
 Content-Type: text/plain
-Date: Sat, 15 Jul 2006 08:45:56 +0200
-Message-Id: <1152945956.3114.6.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Sat, 15 Jul 2006 09:04:58 +0200
+Message-Id: <1152947098.3114.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-15 at 08:38 +0200, Sam Ravnborg wrote:
-> On Sat, Jul 15, 2006 at 07:49:08AM +0200, Arjan van de Ven wrote:
-> > On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
-> > > A lot of prehistoric junk shows up on x86-64 configs.
-> > 
-> > 
-> > ... but in general it helps compile testing if you're hacking stuff;
-> > if your hacking IDE on x86-64 you now have to compile 32 bit as well to
-> > see if you didn't break the compile for these as well
-> > 
-> > So please don't do this, just disable them in your config...
-> 
-> An i686 cross compile chain seems to be the natural choice here
 
-the point is that it doesn't fall out naturally, and thus things get
-needlessly missed.
+> So the claim from the lockdep code, "BUG: possible circular locking
+> deadlock detected!", is a false alarm.
 
+ok this patch ought to kill the false positive:
+
+
+the pkt_*_dev functions operate on not-this-blockdevice, and that is
+sufficiently checked at setup time. As a result there is a natural
+hierarchy, which needs nesting annotations
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+
+Index: linux-2.6.18-rc1/drivers/block/pktcdvd.c
+===================================================================
+--- linux-2.6.18-rc1.orig/drivers/block/pktcdvd.c
++++ linux-2.6.18-rc1/drivers/block/pktcdvd.c
+@@ -2577,19 +2577,19 @@ static int pkt_ctl_ioctl(struct inode *i
+ 	case PKT_CTRL_CMD_SETUP:
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		mutex_lock(&ctl_mutex);
++		mutex_lock_nested(&ctl_mutex, SINGLE_DEPTH_NESTING);
+ 		ret = pkt_setup_dev(&ctrl_cmd);
+ 		mutex_unlock(&ctl_mutex);
+ 		break;
+ 	case PKT_CTRL_CMD_TEARDOWN:
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		mutex_lock(&ctl_mutex);
++		mutex_lock_nested(&ctl_mutex, SINGLE_DEPTH_NESTING);
+ 		ret = pkt_remove_dev(&ctrl_cmd);
+ 		mutex_unlock(&ctl_mutex);
+ 		break;
+ 	case PKT_CTRL_CMD_STATUS:
+-		mutex_lock(&ctl_mutex);
++		mutex_lock_nested(&ctl_mutex, SINGLE_DEPTH_NESTING);
+ 		pkt_get_status(&ctrl_cmd);
+ 		mutex_unlock(&ctl_mutex);
+ 		break;
 

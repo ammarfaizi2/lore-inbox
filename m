@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWGOSuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWGOSu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWGOSuh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 14:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWGOSuh
+	id S1030208AbWGOSu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 14:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWGOSuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 14:50:37 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:3051 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1030199AbWGOSuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 14:50:37 -0400
-Message-ID: <44B938FB.3010004@bootc.net>
-Date: Sat, 15 Jul 2006 19:50:35 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Chris Boot <bootc@bootc.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jim Cromie <jim.cromie@gmail.com>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH] scx200_gpio export cleanups
-References: <44B936C8.9070907@bootc.net>
-In-Reply-To: <44B936C8.9070907@bootc.net>
-Content-Type: multipart/mixed;
- boundary="------------040302020605010904090700"
+	Sat, 15 Jul 2006 14:50:55 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:37270 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id S1030208AbWGOSuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 14:50:55 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Linux 2.6.17.5
+Date: Sat, 15 Jul 2006 18:50:53 +0000 (UTC)
+Organization: Cistron
+Message-ID: <e9bded$qco$1@news.cistron.nl>
+References: <20060715030047.GC11167@kroah.com> <Pine.LNX.4.64.0607142217020.5623@g5.osdl.org> <44B8A720.3030309@gentoo.org> <44B90DF1.8070400@ns666.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1152989453 27032 194.109.0.112 (15 Jul 2006 18:50:53 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040302020605010904090700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+In article <44B90DF1.8070400@ns666.com>,
+Von Wolher  <trilight@ns666.com> wrote:
+>Daniel Drake wrote:
+>> Hi Linus,
+>> 
+>> Linus Torvalds wrote:
+>> 
+>>> I did a slight modification of the patch I committed initially, in the
+>>> face of the report from Marcel that the initial sledge-hammer approach
+>>> broke his hald setup.
+>>>
+>>> See commit 9ee8ab9fbf21e6b87ad227cd46c0a4be41ab749b: "Relax /proc fix
+>>> a bit", which should still fix the bug (can somebody verify? I'm 100%
+>>> sure, but still..), but is pretty much guaranteed to not have any
+>>> secondary side effects.
+>>>
+>>> It still leaves the whole issue of whether /proc should honor chmod AT
+>>> ALL open, and I'd love to close that one, but from a "minimal fix"
+>>> standpoint, I think it's a reasonable (and simple) patch.
+>>>
+>>> Marcel, can you check current git?
+>> 
+>> 
+>> I can confirm that the new fix prevents the exploit from working, with
+>> no immediately visible side effects.
+>> 
+>> Thanks,
+>> Daniel
+>> 
+>
+>Can some one release a 2.6.17.6 ? I think many people are waiting at
+>their keyboard to get their systems protected.
 
-Chris Boot wrote:
-> Use EXPORT_SYMBOL_GPL for new symbols, and declare the struct in the 
-> header file for access by other modules.
-> 
-> Signed-off-by: Chris Boot <bootc@bootc.net>
+# mount -o remount,nosuid /proc
 
-Corrupted patch... Attached.
+Haven't tested it but that should be the workaround.
 
--- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Mike.
 
---------------040302020605010904090700
-Content-Type: text/x-patch;
- name="scx200-export-cleanups.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="scx200-export-cleanups.patch"
-
-diff --git a/drivers/char/scx200_gpio.c b/drivers/char/scx200_gpio.c
-index b956c7b..8ecef2e 100644
---- a/drivers/char/scx200_gpio.c
-+++ b/drivers/char/scx200_gpio.c
-@@ -44,7 +44,7 @@ struct nsc_gpio_ops scx200_gpio_ops = {
- 	.gpio_change	= scx200_gpio_change,
- 	.gpio_current	= scx200_gpio_current
- };
--EXPORT_SYMBOL(scx200_gpio_ops);
-+EXPORT_SYMBOL_GPL(scx200_gpio_ops);
- 
- static int scx200_gpio_open(struct inode *inode, struct file *file)
- {
-diff --git a/include/linux/scx200_gpio.h b/include/linux/scx200_gpio.h
-index 90dd069..1a82d30 100644
---- a/include/linux/scx200_gpio.h
-+++ b/include/linux/scx200_gpio.h
-@@ -4,6 +4,7 @@ u32 scx200_gpio_configure(unsigned index
- 
- extern unsigned scx200_gpio_base;
- extern long scx200_gpio_shadow[2];
-+extern struct nsc_gpio_ops scx200_gpio_ops;
- 
- #define scx200_gpio_present() (scx200_gpio_base!=0)
- 
-
---------------040302020605010904090700--

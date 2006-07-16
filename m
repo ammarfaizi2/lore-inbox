@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWGPSOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWGPSOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWGPSOv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 14:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWGPSOv
+	id S1751144AbWGPSOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 14:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWGPSOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 14:14:51 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:59865 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751138AbWGPSOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 14:14:50 -0400
-Message-ID: <44BA8214.7040005@namesys.com>
-Date: Sun, 16 Jul 2006 11:14:44 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@suse.com>
-CC: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Sun, 16 Jul 2006 14:14:25 -0400
+Received: from xenotime.net ([66.160.160.81]:38055 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751144AbWGPSOY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 14:14:24 -0400
+Message-Id: <1153073662.7604@shark.he.net>
+Date: Sun, 16 Jul 2006 11:14:22 -0700
+From: "Randy Dunlap" <rdunlap@xenotime.net>
+To: Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Dave Jones <davej@redhat.com>,
+       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com>
-In-Reply-To: <44BA61A2.5090404@suse.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: tighten ATA kconfig dependancies
+X-Mailer: WebMail 1.25
+X-IPAddress: 216.191.251.226
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This sounds like it should be fixed in the driver, not in reiserfs.  It
-sounds like the driver is violating Posix naming, and should be fixed to
-conform to it.  Have the driver create an fs mountpoint, and then have
-the driver handle the number.  I really don't get why reiserfs has any
-role in this problem.  Regarding "a separate name space that doesn't
-follow the same rules
-as the standard file system name space.", linux does not need those to
-be created, but what I don't understand is exactly in what respect the
-driver namespace does not conform.  It has components separated by
-slashes.  Is this related to the difference between BSD's namei and
-Linux's?  BSD is the one getting it right.....
 
-Hans
 
-Jeffrey Mahoney wrote:
+> On Sat, Jul 15, 2006 at 08:45:56AM +0200, Arjan van de Ven wrote:
+> > On Sat, 2006-07-15 at 08:38 +0200, Sam Ravnborg wrote:
+> > > On Sat, Jul 15, 2006 at 07:49:08AM +0200, Arjan van de Ven wrote:
+> > > > On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
+> > > > > A lot of prehistoric junk shows up on x86-64 configs.
+> > > > 
+> > > > 
+> > > > ... but in general it helps compile testing if you're hacking stuff;
+> > > > if your hacking IDE on x86-64 you now have to compile 32 bit as
+well to
+> > > > see if you didn't break the compile for these as well
+> > > > 
+> > > > So please don't do this, just disable them in your config...
+> > > 
+> > > An i686 cross compile chain seems to be the natural choice here
+> > 
+> > the point is that it doesn't fall out naturally, and thus things get
+> > needlessly missed.
+> 
+> It seems the main question is:
+> Is the kernel configuration mainly designed for users or for developers?
+> 
+> For users, showing drivers for hardware that is not present on their 
+> platform only causes confusion.
+> 
+> Only developers who want to do compile tests could benefit from 
+> compiling such drivers.
+> 
+> IMHO the kernel configuration is mainly designed for users.
 
-> Hans Reiser wrote:
->
-> >So the Plan 9 and Unix way would be to let the driver parse the number
-> >part of the name after the last slash.  What I don't understand is why
-> >reiserfs is getting involved here, rather than recognizing the driver as
-> >an extension of the namespace, seeing the driver as a mountpoint, and
-> >just passing number to the driver.  There must be something I don't
-> >grasp here, can you help me?
->
->
-> The name used in procfs isn't parsed anywhere, it could just as easily
-> be fs0, fs1, fs2, etc, but that wouldn't be a very user friendly way of
-> indicating which file system's statistics are described in that
-> directory. It's just presented to the user as a pathname to identify a
-> particular file system. The problem is that reiserfs is attempting to
-> use a name from a separate name space that doesn't follow the same rules
-> as the standard file system name space. Block device names, initially,
-> weren't intended for use as self-contained path components and aren't
-> part of the file system name space. If we wish to use those names, we
-> need to sanitize them to conform to the rules of the file system name
-> space by removing/replacing the path separator character.
->
-> It's unfortunate that some drivers use a slash rather than sticking with
-> the <type><letter> convention. I don't expect new drivers to be added
-> with slashes in them. If at some point the existing drivers are changed
-> to remove the slash, then this patch can be removed again.
->
->
-> -Jeff
+or at least should be.
 
+> We could do some kind of (X86_32 || DEVELOPER_COMPILE_TEST).
+
+Let's not complicate it more.
+
+> Or simply disable this driver on other platforms - these are only 
+> compile errors and amongst all possible problems in the kernel compile 
+> errors are amongst my least worries (obvious error, usually quickly 
+> fixed after the first bug report).
+
+
+---
+~Randy

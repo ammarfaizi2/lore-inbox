@@ -1,34 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGPUY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWGPUgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWGPUY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 16:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGPUY7
+	id S1751135AbWGPUgv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 16:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGPUgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 16:24:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:64828 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751140AbWGPUY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 16:24:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Tfr1wgiNkUoffZccX0SS5DvTGBk4UX4PxUF3xgT14W6qRefHc7qZxvb+tpDoJzuegviG0QOLpQoCBZvKrqusOxeaUNyhS+XqbUSabkOPSJXKYPZig1bkzFn0KIW83R1E+i3JGAvwJPZyvp/xHyJcRI17jhroSEv3DdRXOrBrWgQ=
-Message-ID: <bda6d13a0607161324n37d10a8atbdabdb78c87d867b@mail.gmail.com>
-Date: Sun, 16 Jul 2006 13:24:57 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Rescan IDE interface when no IDE devices are present
-In-Reply-To: <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+	Sun, 16 Jul 2006 16:36:51 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:57740 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751135AbWGPUgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 16:36:50 -0400
+Date: Sun, 16 Jul 2006 13:36:00 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc2 | UTS Release version does not match current version
+Message-ID: <20060716203600.GZ11640@ca-server1.us.oracle.com>
+Mail-Followup-To: Michael Krufky <mkrufky@linuxtv.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org> <44BA4E5E.7060803@linuxtv.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <427c54c0607161212m714f4faew60b8615e06ac885a@mail.gmail.com>
-	 <1153077903.5905.35.camel@localhost.localdomain>
-	 <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+In-Reply-To: <44BA4E5E.7060803@linuxtv.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wonder if its like my laptop: hdc is hard disk, hda is cdrom, and in
-this case removable so it is necessary to scan for ide0 when inserting
-cdrom.
+On Sun, Jul 16, 2006 at 10:34:06AM -0400, Michael Krufky wrote:
+> I get this when building using debian's make-kpkg:
+> 
+> The UTS Release version in include/linux/version.h
+>     ""
+> does not match current version:
+>     "2.6.18-rc2"
+> Please correct this.
+
+	make-kpkg uses version.h to get UTS_RELEASE.  UTS_RELEASE has
+moved to utsrelease.h.
+
+Right after you get the error, modify
+debian/ruleset/misc/version_vars.mk 
+
+-UTS_RELEASE_VERSION=$(shell if [ -f include/linux/version.h ]; then	 \
+-                 grep 'define UTS_RELEASE' include/linux/version.h | \
++UTS_RELEASE_VERSION=$(shell if [ -f include/linux/utsrelease.h ]; then	 \
++                 grep 'define UTS_RELEASE' include/linux/utsrelease.h | \
+
+
+And rerun your make-kpkg.  The above is not a valid patch, you'll have
+to hand change it.
+
+Joel
+
+-- 
+
+"All alone at the end of the evening
+ When the bright lights have faded to blue.
+ I was thinking about a woman who had loved me
+ And I never knew"
+
+Joel Becker
+Principal Software Developer
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

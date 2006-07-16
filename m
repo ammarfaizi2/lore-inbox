@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWGPG1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbWGPGpU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWGPG1E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 02:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGPG1E
+	id S1751512AbWGPGpU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 02:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWGPGpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 02:27:04 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:35048 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751386AbWGPG1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 02:27:03 -0400
-Subject: Re: 2.6.18 Headers - Long
-From: Arjan van de Ven <arjan@infradead.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, maillist@jg555.com,
-       ralf@linux-mips.org, linux-kernel@vger.kernel.org, davem@davemloft.net
-In-Reply-To: <787b0d920607152318o72634affhbb51b3826f8daee5@mail.gmail.com>
-References: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
-	 <1153000020.8427.16.camel@pmac.infradead.org>
-	 <787b0d920607152318o72634affhbb51b3826f8daee5@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 16 Jul 2006 08:26:58 +0200
-Message-Id: <1153031218.3033.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 16 Jul 2006 02:45:20 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:54544 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751512AbWGPGpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 02:45:19 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: close(fd) doesn't wake up read(fd) or select() in another thread
+Date: Sat, 15 Jul 2006 23:44:50 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEFDNDAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+In-Reply-To: <200607141146.52908.mikell@optonline.net>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sat, 15 Jul 2006 23:40:19 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sat, 15 Jul 2006 23:40:20 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Perhaps. This is duplication of effort though.
-> 
-> You're the person trying to change the app developers.
-> If you want to change them, provide an alternative that
-> doesn't totally suck ass.
+> [1.] One line summary of the problem:
+> 	close(fd) doesn't wake up read(fd) or select() in another thread
 
-apr provides all this and doesn't suck.
+	If you delete a resource in one thread while another thread is using it,
+anything can happen. This is as serious a bug as calling 'free' on a block
+of memory while another thread is using it.
+
+	You can never be sure the other thread was in 'read' or 'select' (as
+opposed to being about to call it and then being pre-empted), so such code
+will always have race conditions.
+
+	DS
 
 

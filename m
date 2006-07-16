@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWGPR0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWGPRd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWGPR0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 13:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWGPR0X
+	id S1750898AbWGPRd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 13:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWGPRd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 13:26:23 -0400
-Received: from main.gmane.org ([80.91.229.2]:39616 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750851AbWGPR0W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 13:26:22 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Lexington Luthor <Lexington.Luthor@gmail.com>
-Subject: Re: reiserFS?
-Date: Sun, 16 Jul 2006 18:26:03 +0100
-Message-ID: <e9dsrg$jr1$1@sea.gmane.org>
-References: <20060716161631.GA29437@httrack.com> <20060716162831.GB22562@zeus.uziel.local> <20060716165648.GB6643@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 16 Jul 2006 13:33:28 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:48747 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750893AbWGPRd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 13:33:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=DhcJqWWtdoAacMTz7eVrtm5VcAHT5coNThmRqlW8LPv2vUpgU/M3u/dr1n9G/hRcGBsTU+d7KUglw/ryOIblOWei7l5QupwoqEWNX1IO3a/yhH5jz6q9o9J9+3ELZ1nfA7oRZFO3zhDDWM9DlayLiQ9XgLCswImDNunYTQ54P7k=  ;
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Subject: Re: [2.6.18-rc2][e1000][swsusp] - Regression - Suspend to disk and resume breaks e1000
+Date: Sun, 16 Jul 2006 13:33:20 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, NetDev <netdev@vger.kernel.org>
+References: <200607160509.52930.shawn.starr@rogers.com> <44BA6A4A.5090007@intel.com>
+In-Reply-To: <44BA6A4A.5090007@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-In-Reply-To: <20060716165648.GB6643@thunk.org>
+Content-Disposition: inline
+Message-Id: <200607161333.20858.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> If the disk is known to be bad, yes, and the number of bad blocks is
-> growing.  On the other hand, disks can and will have a few bad blocks,
-> or bad writes that don't mean the disk is going bad, and a modern
-> filesystem should be robust enough that a single failed sector doesn't
-> cause the filesystem to go completely kaput.
+On Sunday 16 July 2006 12:33, Auke Kok wrote:
+> [adding netdev to the cc]
+>
+>
+> unfortunately I didn't.
+>
+> e1000 has a special e1000_pci_save_state/e1000_pci_restore_state set of
+> routines that save and restore the configuration space. the fact that it
+> works for suspend to memory to me suggests that there is nothing wrong with
+> that.
+>
+> I'm surprised that the t42 comes with a PCI/PCI-X e1000, which changes the
+> need for this special routine, and the routine does the exact same thing as
+> pci_save_state in your case. These special routines are made to handle
+> PCI-E cards properly.
+>
+> Also there are no config_pm changes related to this in 2.6.18-rc2. Most of
+> this code has been in the kernel for a few major releases afaik. This code
+> worked fine before, so I don't rule out any suspend-related issues. You
+> should certainly compare with 2.6.18-rc1 and make sure it was a regression,
+> perhaps even bisect the e1000-related changes if you have the time, which
+> is about 22 patches or so.
+>
+> I'll see if I can find out some more once I get back to work.
+>
+> Auke
 
-I never trust a single hard drive with data that cannot be instantly 
-re-generated anyway (eg squid caches). The fact that some people have 
-hardware errors should not require every single fs to accommodate random 
-bad-sectors. Feel free to use ext3 or other fs which handles this 
-situation (and other situations) better, but reiserfs works fine on good 
-hardware. It has been my root filesystem on many systems with no 
-problems whatsoever, even with cheap SATA drives.
+The previous kernel I was using was 2.6.17 vanilla, so between this and -git 
+snapshots I'll have to see where that changed.
 
-> In fact, one of the scary trends with hard drives is that size is
-> continuing to grow expoentially, access times linearly (more or less),
-> and error rates (errors per kilobytes per unit time) are remaining
-> more or less constant.
-> 
-> The fact that reiserfs uses a single B-tree to store all of its data
-> means that very entertaining things can happen if you lose a sector
-> containing a high-level node in the tree.  It's even more entertaining
-> if you have image files (like initrd files) in reiserfs format stored
-> in reiserfs, and you run the recovery program on the filesystem.....
-> 
-> Yes, I know that reiserfs4 is alleged to fix this problem, but as far
-> as I know it is still using a single unitary tree, with all of the
-> pitfalls that this entails.
-> 
-> Now, that being said, that by itself is not a reason not to decide not
-> to include reseirfs4 into the mainline sources.  (I might privately
-> get amused when system administrators use reiserfs and then report
-> massive data loss, but that's my own failure of chairty; I'm working
-> on it.)  For the technical reasons why resierfs4 hasn't been
-> integrated, please see the mailing list archives.
-> 
-
-I read the archives, and most of the problems pointed out during the 
-review were fixed relatively quickly, followed by a flame war due to 
-some suggesting that reiser4 should not be able to affect VFS semantics, 
-and other such matters (which IMO should be outside of the scope of a 
-code review). There has been no follow-up review as far as I can tell. 
-The discussion quickly degenerated into a personality argument against 
-Mr Reiser, with several developers taking a strong position against 
-reiser4 (the exact reasons for which are not specified).
-
-I don't quite know where reiser4 stands at the moment, given that it is 
-in -mm and has been for a very long time. I also looked at the patch 
-again, and it is indeed quite well isolated from the rest of the kernel 
-so I don't understand why it is not being merged as an EXPERIMENTAL option.
-
-Regardless, it is available in -mm for anyone to use, and last I 
-checked, works incredibly well leaving other filesystems miles behind in 
-terms of speed. I haven't tested it enough to comment on the 
-reliability, but if it is as reliable as reiserfs, it is sufficient for 
-me and many others who use RAID and a UPS.
-
-Regards,
-LL
-
+Thanks ,
+Shawn.

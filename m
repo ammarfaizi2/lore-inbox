@@ -1,78 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWGPXYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWGPX1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751332AbWGPXYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 19:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGPXYN
+	id S1751335AbWGPX1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 19:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWGPX1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 19:24:13 -0400
-Received: from mail.suse.de ([195.135.220.2]:19143 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751332AbWGPXYN (ORCPT
+	Sun, 16 Jul 2006 19:27:51 -0400
+Received: from khc.piap.pl ([195.187.100.11]:39831 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751335AbWGPX1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 19:24:13 -0400
-From: Neil Brown <neilb@suse.de>
-To: Janos Farkas <chexum+dev@gmail.com>
-Date: Mon, 17 Jul 2006 09:23:38 +1000
+	Sun, 16 Jul 2006 19:27:51 -0400
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17.3 kernel panic
+References: <m3psg5a5lp.fsf@defiant.localdomain>
+	<6bffcb0e0607160926h25ae8171kf2785f731a62fb6b@mail.gmail.com>
+	<m3lkqta4h9.fsf@defiant.localdomain>
+	<6bffcb0e0607160949j7b38c98ci323c62d9b35e469a@mail.gmail.com>
+	<m3odvpbblv.fsf@defiant.localdomain>
+	<6bffcb0e0607161427x5146caa9v3b11752a6d2bb20d@mail.gmail.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 17 Jul 2006 01:27:48 +0200
+In-Reply-To: <6bffcb0e0607161427x5146caa9v3b11752a6d2bb20d@mail.gmail.com> (Michal Piotrowski's message of "Sun, 16 Jul 2006 23:27:24 +0200")
+Message-ID: <m3y7utuo3v.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17594.51834.20365.820166@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: nfs problems with 2.6.18-rc1
-In-Reply-To: message from Janos Farkas on Thursday July 13
-References: <priv$8d118c145575$b19af6759a@200607.shadow.banki.hu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday July 13, chexum+dev@gmail.com wrote:
-> Hi!
-> 
-> I recently updated two (old) hosts to 2.6.18-rc1, and started noticing
-> weird things with the nfs mounted /home s.
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> writes:
 
-So this is both the client and the server that you upgraded?  That
-makes is harder to point the finger of blame :-)
+>> Both that and memtest86, several times. Will run it again, though.
+>
+> So if you don't have any bad blacks...
 
-> 
-> I frequently face EACCESs where a few minutes ago there wasn't any
-> problem, and after a retry everything does work again.
-> 
+None if you mean HDD. memtest86+ from FC5 boot disk haven't found
+anything wrong with RAM, either.
 
-I wonder if that is pointing the finger at
+> this it similar to my bug
+> report http://www.ussg.iu.edu/hypermail/linux/kernel/0606.3/index.html#2558
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=8c7b389e532e964f07057dac8a56c43465544759
-
-as that is a recent change that returns 'EACCES'... but I cannot see
-that being relevant in this case as it only affects directories.
-
-> 
-> How can I help with tracing this?  git bisecting on these machines takes
-> at least an hour per step, (and no reasonable connectivity either to
-> compile elsewhere much quicker).
-
-The standard answer for tracing nfs problems if 'tcpdump'.
-e.g. 
-  tcpdump -s 0 -w /tmp/trace host $CLIENT and host $SERVER and port 2049
-
-that should show whether the error is coming from the server, or if
-the client is generating it all by itself.
-If you can get a reasonably small '/tmp/trace', compress it and attach
-it to an email.
-
-Also turn on tracing. Something like:
-on server
-   echo 32767 > /proc/sys/sunrpc/nfsd_debug
-on client
-   echo 32767 > /proc/sys/sunrpc/nfs_debug
-
-You can be a bit more selective by only enabling individual flags.
-For the server, these are in include/linux/nfsd/debug.h
-You probably want FH, EXPORT AUTH PROC FILEOP
-
-For the client, they are near the end of include/linux/nfs_fs.h
-Not sure which to choose... maybe just all of them.
-
-NeilBrown
+Not very, actually. Looks it's time to give this machine some
+real exercise. The problem is it's random.
+-- 
+Krzysztof Halasa

@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWGPGRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWGPGSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbWGPGRE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 02:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWGPGRD
+	id S1750785AbWGPGSc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 02:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGPGSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 02:17:03 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:28320 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750751AbWGPGRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 02:17:02 -0400
-Date: Sun, 16 Jul 2006 08:17:06 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: 7eggert@gmx.de, Dave Jones <davej@redhat.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: tighten ATA kconfig dependancies
-Message-ID: <20060716061706.GB29733@mars.ravnborg.org>
-References: <6yL2J-7rR-1@gated-at.bofh.it> <6yLco-7DB-1@gated-at.bofh.it> <E1G1p1y-0000ZU-Io@be1.lrz> <20060716055857.GA29733@mars.ravnborg.org> <1153029887.3033.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jul 2006 02:18:32 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:46275 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750785AbWGPGSb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 02:18:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=r3J226icQ3VnJaqvzgf0dHaAk6CnZl19cp3tgenm+VQqqSIV//QCvD7oke2/1pBDs4MFkrEEV7mIZF1evNPhRZYmzpcRfPeGSxVEt//kALuZz3wkdnW8mUYAfE3ByBgjmAM2wP6oIY9lXgyspTfqODnX1zL0VICS/+6yG93cb+I=
+Message-ID: <787b0d920607152318o72634affhbb51b3826f8daee5@mail.gmail.com>
+Date: Sun, 16 Jul 2006 02:18:30 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Subject: Re: 2.6.18 Headers - Long
+Cc: arjan@infradead.org, maillist@jg555.com, ralf@linux-mips.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+In-Reply-To: <1153000020.8427.16.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1153029887.3033.7.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+References: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
+	 <1153000020.8427.16.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 16, 2006 at 08:04:47AM +0200, Arjan van de Ven wrote:
-> 
-> > A cross compile toolchain is the only real soluion. Otherwise we would
-> > soon end up with far to many drivers selectable for x84-64.
-> 
-> if the *driver* is not platform specific, what is the problem with that?
-and
-> The only difference between x86 and x86-64 is isa-bus
-> cards and things that were put on a motherboard but never on a PCI card.
-and
-> That's maybe a dozen or two total for the entire kernel, and a set that
-> is not growing.
-By that definition there are still a lot of candidates out-side the IDE
-world. The x86 versus x86-64 is irrelevant here. The point is that
-kconfig is used to select only relevant options for any given
-architecture and with the above definition we could simply boil it down
-to "make only what cannot compile for an arch non-selectable".
+On 7/15/06, David Woodhouse <dwmw2@infradead.org> wrote:
+> On Sat, 2006-07-15 at 17:09 -0400, Albert Cahalan wrote:
 
-We have a nice kconfig system that is extensively used to secure we have
-a valid kernel configuration all the time and we go long to secure this.
-Should we now start to breake that apart to start to give drivers more
-compile coverage just becasue that's a tad easier. That brakes the
-fundamental of the kconfig in the first place namely to secure valid
-configurations.
+> > Don't blame app developers if they go for what is good.
+> > To stop them, provide the goodness in a sane way.
+> > (alternately, make the Linux code suck ass more than POSIX)
+>
+> Kernel headers are _not_ a library of random crap for userspace to use.
 
-It is nto the IDE patch as such that is the topic here. It is the
-general issue if kconfig at all shall allow one to select drivers that
-is not suitable for your HW. Tomorrow it will be a bunch of ARM
-drivers..
+Says you, and a number of other people around here.
+App developers seem to feel differently. Accept reality.
 
-	Sam
+> There is no justification for asm/atomic.h being installed
+> in /usr/include. Especially since, as Arjan points out, it doesn't
+> actually provide atomic operations in many cases anyway.
+
+It's fixable via #ifdef __KERNEL__ of course.
+
+> However, the kernel is released under a licence which allows you to
+> re-use code from it if you really want.
+
+Well, ideally it'd be LGPL, but yes.
+
+> If you want to provide a
+> 'libkernelstuff', the GPL permits you to do that. The kernel's ABI
+> headers (and lkml) are not the appropriate place for such a project
+
+Perhaps. This is duplication of effort though.
+
+You're the person trying to change the app developers.
+If you want to change them, provide an alternative that
+doesn't totally suck ass.
+
+> Btw, your mail client omitted the References: and In-Reply-To: headers
+> which RFC2822 says it SHOULD have included. On a list with as much
+> traffic as linux-kernel, that's _very_ suboptimal, because you've
+> detached your message from the thread to which you replied. Please try
+> to fix or work around that.
+
+Most clients won't allow adding such headers manually.
+I don't actually subscribe to the list. Most clients won't
+expire old list traffic, and I certainly can't have lkml pour
+unhindered into my inbox. It really doesn't work for me,
+so I cut and paste from a list archive. Sorry. Ideas are
+welcome of course, but I'm not expecting any reasonable
+solution to exist.

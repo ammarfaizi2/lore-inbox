@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWGPUN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWGPUYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWGPUN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 16:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGPUN3
+	id S1750950AbWGPUYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 16:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWGPUYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 16:13:29 -0400
-Received: from liaag1af.mx.compuserve.com ([149.174.40.32]:1976 "EHLO
-	liaag1af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932075AbWGPUN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 16:13:28 -0400
-Date: Sun, 16 Jul 2006 16:08:25 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: raid io requests not parallel?
-To: "Jonathan Baccash" <jbaccash@gmail.com>
-Cc: Ava Kivity <avi@argo.co.il>, linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607161609_MC3-1-C52A-F449@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Sun, 16 Jul 2006 16:24:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57497 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750950AbWGPUYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 16:24:24 -0400
+Subject: Re: [PATCH] V4L: struct video_device corruption
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Robert Fitzsimons <robfitz@273k.net>
+Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       greg@kroah.com, 76306.1226@compuserve.com, fork0@t-online.de,
+       linux-kernel@vger.kernel.org, shemminger@osdl.org,
+       video4linux-list@redhat.com, v4l-dvb-maintainer@linuxtv.org
+In-Reply-To: <20060715230849.GA3385@localhost>
+References: <200607130047_MC3-1-C4D3-43D6@compuserve.com>
+	 <20060713050541.GA31257@kroah.com>
+	 <20060712222407.d737129c.rdunlap@xenotime.net>
+	 <20060712224453.5faeea4a.akpm@osdl.org>  <20060715230849.GA3385@localhost>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 15 Jul 2006 22:31:04 -0300
+Message-Id: <1153013464.4755.35.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <e0e4cb3e0607160938k70819e40g4172f5917045ebf8@mail.gmail.com>
+Em Sáb, 2006-07-15 às 23:08 +0000, Robert Fitzsimons escreveu:
+> The layout of struct video_device would change depending on whether
+> videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
+> the structure to get corrupted.  
+Hmm... good point! However, I the proper solution would be to trust on
+CONFIG_VIDEO_V4L1_COMPAT or CONFIG_VIDEO_V4L1 instead. it makes no sense
+to keep a pointer to an unsupported callback, when V4L1 is not selected.
 
-On Sun, 16 Jul 2006 09:38:25 -0700, Jonathan Baccash wrote:
 
-> > Each head has to service 1024 write requests (compared to just 512 read
-> > requests).
->
-> By that logic, it would take twice as long for my writes to finish.
-> Why is it taking 4x as long in my parallel test?
+Cheers, 
+Mauro.
 
-Because a single read not only goes to just one disk, it is sent to
-the disk with the lowest expected seek time for that request.  This
-cuts average read time in half, on average.
-
-(See drivers/md/raid1.c::read_balance().)
-
-> I would expect a raid-1 write
-> to take about as long to write a single block as a single write to a
-> single disk (assuming no other disk activity), because I would expect
-> two writes to happen concurrently.
-
-You didn't post any benchmarks showing results for single write to a
-single disk.
-
--- 
-Chuck
- Think. Or you will be replaced with a small shell script.  --dwmw2

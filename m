@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWGPUgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWGPUlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWGPUgv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 16:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGPUgv
+	id S1751202AbWGPUlA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 16:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGPUlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 16:36:51 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:57740 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751135AbWGPUgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 16:36:50 -0400
-Date: Sun, 16 Jul 2006 13:36:00 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Sun, 16 Jul 2006 16:41:00 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57093 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751202AbWGPUk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 16:40:59 -0400
+Date: Sun, 16 Jul 2006 22:40:58 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Olaf Hering <olh@suse.de>, sam@ravnborg.org
+Cc: David Woodhouse <dwmw2@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.18-rc2 | UTS Release version does not match current version
-Message-ID: <20060716203600.GZ11640@ca-server1.us.oracle.com>
-Mail-Followup-To: Michael Krufky <mkrufky@linuxtv.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org> <44BA4E5E.7060803@linuxtv.org>
+Subject: Re: Linux v2.6.18-rc2
+Message-ID: <20060716204057.GB22759@stusta.de>
+References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org> <20060716194134.GB17387@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44BA4E5E.7060803@linuxtv.org>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+In-Reply-To: <20060716194134.GB17387@suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 16, 2006 at 10:34:06AM -0400, Michael Krufky wrote:
-> I get this when building using debian's make-kpkg:
+On Sun, Jul 16, 2006 at 09:41:34PM +0200, Olaf Hering wrote:
 > 
-> The UTS Release version in include/linux/version.h
->     ""
-> does not match current version:
->     "2.6.18-rc2"
-> Please correct this.
+> > David Woodhouse:
+> >       [SPARC64]: Fix make headers_install
+> >       hdrinstall: remove asm/irq.h from user visibility
+> >       hdrinstall: remove asm/atomic.h from user visibility
+> >       hdrinstall: remove asm/io.h from user visibility
+> 
+> Why does the 'headers_install' target require a configured kernel?
+> I just ran 'make headers_install INSTALL_HDR_PATH=/dev/shm/$$'
 
-	make-kpkg uses version.h to get UTS_RELEASE.  UTS_RELEASE has
-moved to utsrelease.h.
+It installs linux/version.h that is generated.
 
-Right after you get the error, modify
-debian/ruleset/misc/version_vars.mk 
+But you are right, can't the rules for the version.h generation be more 
+relaxed?
+Sam?
 
--UTS_RELEASE_VERSION=$(shell if [ -f include/linux/version.h ]; then	 \
--                 grep 'define UTS_RELEASE' include/linux/version.h | \
-+UTS_RELEASE_VERSION=$(shell if [ -f include/linux/utsrelease.h ]; then	 \
-+                 grep 'define UTS_RELEASE' include/linux/utsrelease.h | \
+> Unrelated:
+> Cant you just export all asm-<arch> files? I guess they are all static.
 
+asm/atomic.h is a good example for abuses that are prevented by not 
+installing all asm-<arch> files.
 
-And rerun your make-kpkg.  The above is not a valid patch, you'll have
-to hand change it.
+For more information, please refer to the long discussion about this 
+topic currently taking place on this mailing list.
 
-Joel
+cu
+Adrian
 
 -- 
 
-"All alone at the end of the evening
- When the bright lights have faded to blue.
- I was thinking about a woman who had loved me
- And I never knew"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Joel Becker
-Principal Software Developer
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

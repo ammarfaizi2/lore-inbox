@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWGPVMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWGPVMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWGPVMo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 17:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWGPVMo
+	id S1751204AbWGPVMd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 17:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWGPVMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 17:12:44 -0400
-Received: from mx1.suse.de ([195.135.220.2]:11195 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751209AbWGPVMn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 17:12:43 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH for 2.6.18-rc2] [2/8] i386/x86-64: Don't randomize stack top when no randomization personality is set
-Date: Sun, 16 Jul 2006 23:14:07 +0200
-User-Agent: KMail/1.9.1
-Cc: torvalds@osdl.org, akpm@osdl.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
-References: <44ba2f8d.0hsur33TTkK+bbJl%ak@suse.de> <20060716204712.GA29161@elte.hu>
-In-Reply-To: <20060716204712.GA29161@elte.hu>
+	Sun, 16 Jul 2006 17:12:33 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:27663 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1751204AbWGPVMc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 17:12:32 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Joel Becker <Joel.Becker@oracle.com>
+Subject: Re: Linux v2.6.18-rc2 | UTS Release version does not match current version
+Date: Sun, 16 Jul 2006 22:12:58 +0100
+User-Agent: KMail/1.9.3
+Cc: Michael Krufky <mkrufky@linuxtv.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Manoj Srivastava <srivasta@debian.org>
+References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org> <44BA4E5E.7060803@linuxtv.org> <20060716203600.GZ11640@ca-server1.us.oracle.com>
+In-Reply-To: <20060716203600.GZ11640@ca-server1.us.oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607162314.07764.ak@suse.de>
+Message-Id: <200607162212.58880.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 July 2006 22:47, Ingo Molnar wrote:
-> * Andi Kleen <ak@suse.de> wrote:
-> >  unsigned long arch_align_stack(unsigned long sp)
-> >  {
-> > -	if (randomize_va_space)
-> > +	if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
-> >  		sp -= get_random_int() % 8192;
-> >  	return sp & ~0xf;
+On Sunday 16 July 2006 21:36, Joel Becker wrote:
+> On Sun, Jul 16, 2006 at 10:34:06AM -0400, Michael Krufky wrote:
+> > I get this when building using debian's make-kpkg:
+> >
+> > The UTS Release version in include/linux/version.h
+> >     ""
+> > does not match current version:
+> >     "2.6.18-rc2"
+> > Please correct this.
 >
-> i'm not opposing this patch at all, but didnt the performance problems
-> go away when the 0xf was changed to 0x7f?
+> 	make-kpkg uses version.h to get UTS_RELEASE.  UTS_RELEASE has
+> moved to utsrelease.h.
+>
+> Right after you get the error, modify
+> debian/ruleset/misc/version_vars.mk
+>
+> -UTS_RELEASE_VERSION=$(shell if [ -f include/linux/version.h ]; then	 \
+> -                 grep 'define UTS_RELEASE' include/linux/version.h | \
+> +UTS_RELEASE_VERSION=$(shell if [ -f include/linux/utsrelease.h ]; then	 \
+> +                 grep 'define UTS_RELEASE' include/linux/utsrelease.h | \
+>
+>
+> And rerun your make-kpkg.  The above is not a valid patch, you'll have
+> to hand change it.
 
-Yes, but i sent the patch before that other patch was available.
+It's probably worth letting somebody an upstream Debian maintainer know about 
+this, so that Etch can inherit it (CCed).
 
-I guess it's a separate issue anyways - this patch is just concerned about 
-disabling randomization consistently. Performance optimization can be done
-in another one.
+-- 
+Cheers,
+Alistair.
 
--Andi
-
-
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

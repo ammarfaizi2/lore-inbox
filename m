@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWGPAW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWGPAXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWGPAW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 20:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWGPAW0
+	id S964818AbWGPAXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 20:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWGPAXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 20:22:26 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51652 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964815AbWGPAWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 20:22:25 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Tilman Schmidt <tilman@imap.cc>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc1-mm2: process `showconsole' used the removed sysctl system call
-References: <44B8FE64.6040700@imap.cc> <20060715154200.e9138a6b.akpm@osdl.org>
-	<44B97ADD.5000302@gmail.com>
-Date: Sat, 15 Jul 2006 18:21:34 -0600
-In-Reply-To: <44B97ADD.5000302@gmail.com> (Michal Piotrowski's message of
-	"Sun, 16 Jul 2006 01:31:41 +0200")
-Message-ID: <m1odvqpfg1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Jul 2006 20:23:16 -0400
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:25553 "EHLO
+	idefix.homelinux.org") by vger.kernel.org with ESMTP
+	id S964818AbWGPAXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 20:23:15 -0400
+Subject: Re: Where is RLIMIT_RT_CPU?
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1152978284.16617.7.camel@mindpipe>
+References: <1152663825.27958.5.camel@localhost>
+	 <1152809039.8237.48.camel@mindpipe>
+	 <1152869952.6374.8.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
+	 <1152919240.6374.38.camel@idefix.homelinux.org>
+	 <1152971896.16617.4.camel@mindpipe>
+	 <1152973159.6374.59.camel@idefix.homelinux.org>
+	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
+	 <1152975857.6374.65.camel@idefix.homelinux.org>
+	 <1152978284.16617.7.camel@mindpipe>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Sun, 16 Jul 2006 10:23:11 +1000
+Message-Id: <1153009392.6374.77.camel@idefix.homelinux.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski <michal.k.k.piotrowski@gmail.com> writes:
+> I don't think it's a problem.  If the admin does not want non-root users
+> to be able to lock up the machine, just don't put them in the realtime
+> group.
 
-> Hi Andrew,
->
-> Andrew Morton wrote:
->> On Sat, 15 Jul 2006 16:40:36 +0200
->> Tilman Schmidt <tilman@imap.cc> wrote:
->> 
->>> After installing a 2.6.18-rc1-mm2 kernel without sysctl syscall support
->>> on a standard SuSE 10.0 system, I find the following in my dmesg:
->>>
->>>> [ 36.955720] warning: process `showconsole' used the removed sysctl system
-> call
->>>> [ 39.656410] warning: process `showconsole' used the removed sysctl system
-> call
->>>> [ 43.304401] warning: process `showconsole' used the removed sysctl system
-> call
->>>> [   45.717220] warning: process `ls' used the removed sysctl system call
->>>> [   45.789845] warning: process `touch' used the removed sysctl system call
->>> which at face value seems to contradict the statement in the help text
->>> for the CONFIG_SYSCTL_SYSCALL option that "Nothing has been using the
->>> binary sysctl interface for some time time now". (sic)
->>>
->>> Meanwhile, the second part of that sentence that "nothing should break"
->>> by disabling it seems to hold true anyway. The system runs fine, and
->>> activating CONFIG_SYSCTL_SYSCALL in the kernel doesn't seem to have any
->>> effect apart from changing the word "removed" to "obsolete" in the above
->>> messages.
->> 
->> Thanks.
->> 
->
-> date and salsa also use sysctl.
->
-> warning: process `date' used the removed sysctl system call
-> warning: process `salsa' used the removed sysctl system call
->
->> Eric, that tends to make the whole idea inviable, doesn't it?
->
-> How about _very_ long term to remove sysctl (i.e. January 2010)?
+What if the admin *wants* non-root users to have good quality audio, and
+just doesn't want them to crash the system (voluntarily and especially
+accidentally). Enforcing CPU limits *is* possible and it has already
+been done independently by both Ingo and Con. I'm just waiting for the
+feature to be available out-of-the box, which is not for today if kernel
+space keeps pointing at userspace and vice versa. :-(
 
-That may be reasonable.  However please confirm that everything
-that you have complaints from is using libpthreads.
-
-As there is one use of libpthreads that is using sysctl
-in a very non-serious way.
-
-With libptrheads modified to use uname and not sysctl I am not seeing that
-message.  I thought I had broken my test setup by forgetting to compile
-glibc with --with-tls but I managed but I managed to get things working
-again using LD_ASSUME_KERNEL=2.4.1
-
-Still not the best data point but a very interesting one.
-
-Eric
+	Jean-Marc

@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWGPFq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946116AbWGPF66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWGPFq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 01:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGPFq7
+	id S1946116AbWGPF66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 01:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWGPF65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 01:46:59 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:12041 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1750738AbWGPFq7 (ORCPT
+	Sun, 16 Jul 2006 01:58:57 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:33242 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750739AbWGPF64 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 01:46:59 -0400
-Message-ID: <44B9D2CA.8040306@argo.co.il>
-Date: Sun, 16 Jul 2006 08:46:50 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Jonathan Baccash <jbaccash@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: raid io requests not parallel?
-References: <e0e4cb3e0607151704o479371afpc9332a08fb84ba09@mail.gmail.com>
-In-Reply-To: <e0e4cb3e0607151704o479371afpc9332a08fb84ba09@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jul 2006 05:46:56.0770 (UTC) FILETIME=[3FA34620:01C6A89B]
+	Sun, 16 Jul 2006 01:58:56 -0400
+Date: Sun, 16 Jul 2006 07:58:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: 7eggert@gmx.de
+Cc: Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
+       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tighten ATA kconfig dependancies
+Message-ID: <20060716055857.GA29733@mars.ravnborg.org>
+References: <6yL2J-7rR-1@gated-at.bofh.it> <6yLco-7DB-1@gated-at.bofh.it> <E1G1p1y-0000ZU-Io@be1.lrz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1G1p1y-0000ZU-Io@be1.lrz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Baccash wrote:
->
-> I'm using kernel linux-2.6.15-gentoo-r1, and I noticed performance of
-> the software RAID-1 is not as good as I would have expected on my two
-> SATA drives, and I was wondering if anyone has an idea what may be
-> happening. The test I run is 1024 16k direct-IO reads/writes from
-> random locations within a 1GB file (on a RAID-1 partition), with my
-> disk caches set to
-> write-through mode. In the MT (multi-threaded) case, I issue them from
-> 8 threads (so it's 128 requests per thread):
->
-> Random read: 10.295 sec
-> Random write: 19.142 sec
-> MT Random read: 5.276 sec
-> MT Random write: 19.839 sec
->
-> As expected, the multi-threaded reads are 2x as fast as single-threaded
-> reads. But I would have expected (assuming the write to both disks can
-> occur in parallel) that the random writes are about the same speed (10
-> seconds) as the single-threaded random reads, for both the
-> single-threaded and multi-threaded write cases. The fact that the
-> multi-threaded reads were
-> twice as fast indicates to me that read requests can occur in parallel.
->
-> So.... why doesn't the raid issue the writes in parallel? Thanks in
-> advance for any help.
->
-The writes are issued in parallel, but both disks have to be written.  
-Each head has to service 1024 write requests (compared to just 512 read 
-requests).
+On Sat, Jul 15, 2006 at 08:38:01PM +0200, Bodo Eggert wrote:
+> >> A lot of prehistoric junk shows up on x86-64 configs.
+> > 
+> > ... but in general it helps compile testing if you're hacking stuff;
+> > if your hacking IDE on x86-64 you now have to compile 32 bit as well to
+> > see if you didn't break the compile for these as well
+> > 
+> > So please don't do this, just disable them in your config...
+> 
+> If you want to compile test these drivers, just revert the patch or edit
+> the .config.
+Editing .config will not do the trick. kconfig will make sure the kernel
+is build with a valid config so they will get turned off.
 
+A cross compile toolchain is the only real soluion. Otherwise we would
+soon end up with far to many drivers selectable for x84-64.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+	Sam

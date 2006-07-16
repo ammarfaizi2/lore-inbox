@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWGPRd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWGPRqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWGPRd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 13:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWGPRd2
+	id S1751114AbWGPRqE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 13:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWGPRqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 13:33:28 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:48747 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750893AbWGPRd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 13:33:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:From:Organization:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=DhcJqWWtdoAacMTz7eVrtm5VcAHT5coNThmRqlW8LPv2vUpgU/M3u/dr1n9G/hRcGBsTU+d7KUglw/ryOIblOWei7l5QupwoqEWNX1IO3a/yhH5jz6q9o9J9+3ELZ1nfA7oRZFO3zhDDWM9DlayLiQ9XgLCswImDNunYTQ54P7k=  ;
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Auke Kok <auke-jan.h.kok@intel.com>
-Subject: Re: [2.6.18-rc2][e1000][swsusp] - Regression - Suspend to disk and resume breaks e1000
-Date: Sun, 16 Jul 2006 13:33:20 -0400
+	Sun, 16 Jul 2006 13:46:04 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.192.83]:53402 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751104AbWGPRqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 13:46:02 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc2 ATA Errors
+Date: Sun, 16 Jul 2006 13:46:00 -0400
 User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, NetDev <netdev@vger.kernel.org>
-References: <200607160509.52930.shawn.starr@rogers.com> <44BA6A4A.5090007@intel.com>
-In-Reply-To: <44BA6A4A.5090007@intel.com>
+X-Face: M;&!dfz|m-o'K\Cz\J=6-U&/;8+edm=snaTAX=*NtQpWX@156L1%mHDt3XI%X!5Hw3U+pe
+	nazcjJnz>75*V8\Sz\]3brW#a+Oa,8P7p6L+sVZkP;ZwyeKR0o`*#k2zD&!2Mn,0d3<7qa
+	6%>g:?bp|XU>`.|?x2l;ounL%k85<JW7G=Df&(@a?]WbFJ{3aEyx4\`#@JXn|4Le8c;bgI
+	JIayR9DG$hLN8![[*`T_Y{x(y>T/KB"2a|vqpcO*?ngOt-V0Lo5nTA{)k+Pm|okhK`[ikO
+	;lvKCYCBdfs~Q
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607161333.20858.shawn.starr@rogers.com>
+Message-Id: <200607161346.00352.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 July 2006 12:33, Auke Kok wrote:
-> [adding netdev to the cc]
->
->
-> unfortunately I didn't.
->
-> e1000 has a special e1000_pci_save_state/e1000_pci_restore_state set of
-> routines that save and restore the configuration space. the fact that it
-> works for suspend to memory to me suggests that there is nothing wrong with
-> that.
->
-> I'm surprised that the t42 comes with a PCI/PCI-X e1000, which changes the
-> need for this special routine, and the routine does the exact same thing as
-> pci_save_state in your case. These special routines are made to handle
-> PCI-E cards properly.
->
-> Also there are no config_pm changes related to this in 2.6.18-rc2. Most of
-> this code has been in the kernel for a few major releases afaik. This code
-> worked fine before, so I don't rule out any suspend-related issues. You
-> should certainly compare with 2.6.18-rc1 and make sure it was a regression,
-> perhaps even bisect the e1000-related changes if you have the time, which
-> is about 22 patches or so.
->
-> I'll see if I can find out some more once I get back to work.
->
-> Auke
+Just saw the below error in dmesg - (ATA2 is my CD burner and I wasn't doing 
+anything with it as far as I remember) . Drive seems to work fine after the 
+error. What does it mean?
 
-The previous kernel I was using was 2.6.17 vanilla, so between this and -git 
-snapshots I'll have to see where that changed.
-
-Thanks ,
-Shawn.
+$ dmesg |grep ata2
+[    1.496000] ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xBFA8 irq 15
+[    1.836000] ata2.00: ATAPI, max UDMA/33
+[    2.016000] ata2.00: configured for UDMA/33
+[44087.904000] ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 
+frozen
+[44087.904000] ata2.00: tag 0 cmd 0xa0 Emask 0x2 stat 0x50 err 0x0 (HSM 
+violation)
+[44087.904000] ata2: soft resetting port
+[44088.340000] ata2.00: failed to IDENTIFY (I/O error, err_mask=0x1)
+[44088.340000] ata2.00: revalidation failed (errno=-5)
+[44088.340000] ata2: failed to recover some devices, retrying in 5 secs
+[44093.344000] ata2: soft resetting port
+[44093.876000] ata2.00: configured for UDMA/33
+[44093.876000] ata2: EH complete

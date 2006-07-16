@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWGPOZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946075AbWGPOeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751587AbWGPOZE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 10:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWGPOZE
+	id S1946075AbWGPOeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 10:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946080AbWGPOeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 10:25:04 -0400
-Received: from main.gmane.org ([80.91.229.2]:57270 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751587AbWGPOZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 10:25:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joseph Le-Phan <five0.oss@gmail.com>
-Subject: Re: reiserFS?
-Date: Mon, 17 Jul 2006 00:19:47 +1000
-Message-ID: <slrnebkio3.7ap.five0.oss@sea.gmane.org>
-References: <50d1c22d0607160545rd06c828n55ad9bbbd2f20bfd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c58-107-133-140.rivrw8.nsw.optusnet.com.au
-X-Face: ,>[:$oWa1d@rqX'u1(z8,QN"Dhe-A0}47t;#s]ZpG^mBq$|LEXakL`e!P?)\S%(',/'8pn9WCYWRgO3wsW.r;Hac;(V_6T#S&5WrFoO
-X-PGP-KeyID: 0x292E09A0
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+	Sun, 16 Jul 2006 10:34:14 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:35984 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1946075AbWGPOeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 10:34:11 -0400
+Message-ID: <44BA4E5E.7060803@linuxtv.org>
+Date: Sun, 16 Jul 2006 10:34:06 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc2 | UTS Release version does not match current
+ version
+References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ivo welch wrote:
-> dear linux geeks:  may I ask why the "new" (many years old) reiser
-> filesystem is not making it into the kernel?  it does seem to have
-> some advantages, if nothing else at least over the old reiser v3.
+Linus Torvalds wrote:
+> Ok, there it is, in all the usual places.
 >
-> sincerely,  /ivo welch
->
-> (please cc me personally. I am not a linux geek accdg to the lkml faq,
-> but just an end user.)
+> I think the bulk of it are some MIPS and UML updates, along with a e1000 
+> driver update, but there's various more random things, including just lots 
+> of cleanups.
+>   
 
-There have been countless discussions on this matter. Please search the
-archives.
+I get this when building using debian's make-kpkg:
 
--- 
-Joseph Le-Phan <five0.oss ∈ gmail.com> [GPG key: 292E09A0]
+The UTS Release version in include/linux/version.h
+     ""
+does not match current version:
+     "2.6.18-rc2"
+Please correct this.
 
+
+I didnt test building -rc1 this way yet, so I dont know when this was 
+introduced, but I don't have this problem with 2.6.17.y
+
+-Mike

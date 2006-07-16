@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWGPWra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWGPWyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWGPWra (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 18:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWGPWra
+	id S1751329AbWGPWyF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 18:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWGPWyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 18:47:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:40348 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750897AbWGPWr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 18:47:29 -0400
-Subject: Re: Linux v2.6.18-rc2
-From: David Woodhouse <dwmw2@infradead.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060716194134.GB17387@suse.de>
-References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
-	 <20060716194134.GB17387@suse.de>
-Content-Type: text/plain
-Date: Sun, 16 Jul 2006 18:45:33 -0400
-Message-Id: <1153089953.5491.0.camel@shinybook.infradead.org>
+	Sun, 16 Jul 2006 18:54:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:49605 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751329AbWGPWyE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 18:54:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Lexington Luthor <Lexington.Luthor@gmail.com>
+Subject: Re: "Why Reuser 4 still is not in" doc
+Date: Sun, 16 Jul 2006 23:53:46 +0100
+Message-ID: <e9eg1v$5sf$1@sea.gmane.org>
+References: <20060716161631.GA29437@httrack.com>	 <20060716162831.GB22562@zeus.uziel.local>	 <20060716165648.GB6643@thunk.org> <e9dsrg$jr1$1@sea.gmane.org>	 <20060716174804.GA23114@thunk.org>	 <20060716220115.a1891231.diegocg@gmail.com>	 <e9ea1v$nc4$1@sea.gmane.org> <bda6d13a0607161428j187b737ft6f3925d9a3b2cc72@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.6.dwmw2.1) 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+In-Reply-To: <bda6d13a0607161428j187b737ft6f3925d9a3b2cc72@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-16 at 21:41 +0200, Olaf Hering wrote:
-> Why does the 'headers_install' target require a configured kernel?
-> I just ran 'make headers_install INSTALL_HDR_PATH=/dev/shm/$$'
+Joshua Hudson wrote:
+>> (aside from the VFS integration debate)
+> Anybody know what's in Reiser4 that VFS doesn't like (link please)?
 
-Sam had a patch to fix that. I think he's already asked Linus to pull
-it.
+Reiser4 plug-ins have (had?) the ability to alter the semantics of 
+things, like making files into directories inside which you could see 
+meta-files like file/uid and file/size which contained meta-data and 
+such accessible as normal files to all the unix tools (which is a very 
+good idea IMO). You could get things like chmod by just 'echo root 
+ >file/owner' or something, very nice.
 
-> Unrelated:
-> Cant you just export all asm-<arch> files? I guess they are all static. 
+This was frowned upon by kernel developers who felt that it belonged in 
+the kernel VFS (if at all), rather than in reiser4 directly.
 
-$DEITY no. We want the exported set to be as minimal as possible.
-
--- 
-dwmw2
+Regards,
+LL
 

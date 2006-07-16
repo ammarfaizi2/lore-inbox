@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWGPSW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWGPSir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWGPSW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 14:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWGPSW0
+	id S1751159AbWGPSir (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 14:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWGPSir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 14:22:26 -0400
-Received: from tomts24-srv.bellnexxia.net ([209.226.175.187]:50389 "EHLO
-	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750885AbWGPSW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 14:22:26 -0400
-Date: Sun, 16 Jul 2006 11:20:37 -0700
-From: Greg KH <gregkh@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [stable] Linux 2.6.16.25
-Message-ID: <20060716182037.GA4346@suse.de>
-References: <20060715025906.GA11167@kroah.com> <20060715032907.GB5944@kroah.com> <19700101132635.GB3561@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jul 2006 14:38:47 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:38845 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751159AbWGPSiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 14:38:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aZT913Fi30cPzMoyUSd2rKKE0pUVgVy4mxv6j6ycJeYmWzv+hxoEGF62FrFYyr6B/9S+iAiiqjmVrPIeOTMiDk0z04oo9iXeKWuxUH6XsUstO99Q++ZvocdIJhpkpL3TVMIvCtj1eREw4G4hGZDjv74gSxjHusPHpDe4ES7FrLs=
+Message-ID: <787b0d920607161138l4b6dc25dycaeaaea5e948c769@mail.gmail.com>
+Date: Sun, 16 Jul 2006 14:38:45 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Kyle Moffett" <mrmacman_g4@mac.com>
+Subject: Re: 2.6.18 Headers - Long
+Cc: dwmw2@infradead.org, arjan@infradead.org, maillist@jg555.com,
+       ralf@linux-mips.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <6C943713-549B-453C-A0B2-1286764FFE13@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <19700101132635.GB3561@ucw.cz>
-User-Agent: Mutt/1.5.11
+References: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com>
+	 <6C943713-549B-453C-A0B2-1286764FFE13@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01, 1970 at 01:26:35PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > We (the -stable team) are announcing the release of the 2.6.16.25 kernel.
-> > 
-> > Oops, please note that we now have some reports that this patch breaks
-> > some versions of HAL.  So if you're relying on HAL, you might not want
-> > to use this fix just yet (please evaluate the risks of doing this on
-> > your own.)
-> > 
-> > Note that HAL usually does not run on servers, so this should be safe
-> > there.  We'll try to provide a better fix soon...
-> 
-> So there's going to be one more 2.6.16, good.
+On 7/16/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> On Jul 15, 2006, at 17:09:28, Albert Cahalan wrote:
 
-Already went out :)
+> You realize that on a couple architectures it's fundamentally
+> impossible to get atomic ops completely in userspace, right?
 
-> Did you receive that fix-pdflush-after-wakeup? I believe I mailed it
-> to stable@kernel.org, but I got no reply...
+Sure. Those architectures don't need to drag down the rest.
+Plenty of headers are only exported for some architectures.
 
-Yes, it's in our queue.  Did you want that for 2.6.16 or 2.6.17?  I
-assumed .17.
+(Well actually, such architectures could just give apps a
+writable flag to disable the scheduler -- this is acceptable
+for the embedded things these architectures are used for.
+I've seen it done for user-space spinlocks. It works great.)
 
-thanks,
-
-greg k-h
+It's not as if the app developers would care to support
+those architectures anyway. They don't even support all
+the non-defective ones: I use the second or third most
+popular architecture (ppc), and the app developers have
+made it very clear that they don't give a damn. Something
+else will get you: char being unsigned by default, wrong
+endianness, stack growing the HP way, etc.

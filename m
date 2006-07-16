@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGPRr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWGPRzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWGPRr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 13:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWGPRr6
+	id S1751117AbWGPRzs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 13:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWGPRzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 13:47:58 -0400
-Received: from thunk.org ([69.25.196.29]:32650 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751104AbWGPRr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 13:47:57 -0400
-Date: Sun, 16 Jul 2006 13:48:04 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Lexington Luthor <Lexington.Luthor@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserFS?
-Message-ID: <20060716174804.GA23114@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Lexington Luthor <Lexington.Luthor@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <20060716161631.GA29437@httrack.com> <20060716162831.GB22562@zeus.uziel.local> <20060716165648.GB6643@thunk.org> <e9dsrg$jr1$1@sea.gmane.org>
+	Sun, 16 Jul 2006 13:55:48 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:40592 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751117AbWGPRzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 13:55:48 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc2 ATA Errors
+Date: Sun, 16 Jul 2006 13:55:46 -0400
+User-Agent: KMail/1.9.3
+References: <200607161346.00352.kernel-stuff@comcast.net>
+In-Reply-To: <200607161346.00352.kernel-stuff@comcast.net>
+X-Face: M;&!dfz|m-o'K\Cz\J=6-U&/;8+edm=snaTAX=*NtQpWX@=?utf-8?q?156L1=25mHDt3XI=25X!5Hw3U+pe=0A=09nazcjJnz?=>75*V8\Sz\]3brW#a+Oa,8P7p6L+sVZkP;ZwyeKR0o`*#k2zD&!2Mn,0d3<=?utf-8?q?7qa=0A=096=25?=>g:?bp|XU>`.|?x2l;ounL%k85<JW7G=Df&(@a?]WbFJ{3aEyx4\`#@=?utf-8?q?JXn=7C4Le8c=3BbgI=0A=09JIayR9DG=24hLN8!=5B=5B*=60T=5FY=7Bx?=(y>T/KB"2a|vqpcO*?ngOt-V0Lo5nTA{)=?utf-8?q?k+Pm=7CokhK=60=5BikO=0A=09=3BlvKCYCBdfs=7EQ?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <e9dsrg$jr1$1@sea.gmane.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Message-Id: <200607161355.46517.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 16, 2006 at 06:26:03PM +0100, Lexington Luthor wrote:
-> I read the archives, and most of the problems pointed out during the 
-> review were fixed relatively quickly, followed by a flame war due to 
-> some suggesting that reiser4 should not be able to affect VFS semantics, 
-> and other such matters (which IMO should be outside of the scope of a 
-> code review). There has been no follow-up review as far as I can tell. 
+Before that error, there are a bunch of abnormal status messages - 
 
-As far as I know not all of the problems were fixed.  And it has been
-observed that given the abuse and accusations that were directed at
-the people who did decide to review it, that it would not at all
-surprising if some (all?) of reviewers may have decided they had
-better things to do.  Getting things merged into mainline is not a
-right, and the reviewers are volunteers.....
+[44088.228000] ATA: abnormal status 0x58 on port 0x177
+[44088.228000] ATA: abnormal status 0x58 on port 0x177
+[44088.228000] ATA: abnormal status 0x58 on port 0x177
+[44088.228000] ATA: abnormal status 0x58 on port 0x177
 
-Speaking for myself, since I don't enjoy being accused of partisanship
-and being ascribed of having a desire to backstab reiserfs, I have a
-personal policy to avoid reiserfs review, and recuse myself from any
-votes within program committee discussions regarding Hans Reiser.
-Being accused of taking unfair advantage of my volunteer activities is
-something I allow myself to get into once.
-
-						- Ted
+On Sunday 16 July 2006 13:46, Parag Warudkar wrote:
+> Just saw the below error in dmesg - (ATA2 is my CD burner and I wasn't
+> doing anything with it as far as I remember) . Drive seems to work fine
+> after the error. What does it mean?
+>
+> $ dmesg |grep ata2
+> [    1.496000] ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xBFA8 irq
+> 15 [    1.836000] ata2.00: ATAPI, max UDMA/33
+> [    2.016000] ata2.00: configured for UDMA/33
+> [44087.904000] ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2
+> frozen
+> [44087.904000] ata2.00: tag 0 cmd 0xa0 Emask 0x2 stat 0x50 err 0x0 (HSM
+> violation)
+> [44087.904000] ata2: soft resetting port
+> [44088.340000] ata2.00: failed to IDENTIFY (I/O error, err_mask=0x1)
+> [44088.340000] ata2.00: revalidation failed (errno=-5)
+> [44088.340000] ata2: failed to recover some devices, retrying in 5 secs
+> [44093.344000] ata2: soft resetting port
+> [44093.876000] ata2.00: configured for UDMA/33
+> [44093.876000] ata2: EH complete

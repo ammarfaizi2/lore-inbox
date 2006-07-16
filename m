@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946020AbWGPAI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946021AbWGPASc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946020AbWGPAI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 20:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWGPAI5
+	id S1946021AbWGPASc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 20:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946035AbWGPASc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 20:08:57 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:54742 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1946020AbWGPAI4
+	Sat, 15 Jul 2006 20:18:32 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:56534 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1946021AbWGPASb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 20:08:56 -0400
-Subject: Re: [stable] Linux 2.6.17.5
+	Sat, 15 Jul 2006 20:18:31 -0400
+Subject: Re: Linux 2.6.17.6
 From: Marcel Holtmann <marcel@holtmann.org>
-To: artusemrys@sbcglobal.net
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
-In-Reply-To: <44B9814B.4050103@sbcglobal.net>
-References: <20060715030047.GC11167@kroah.com>
-	 <20060715032834.GA5944@kroah.com> <20060715042045.GB4322@kroah.com>
-	 <44B9814B.4050103@sbcglobal.net>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, stable@kernel.org
+In-Reply-To: <20060715193552.GA5330@kroah.com>
+References: <20060715193552.GA5330@kroah.com>
 Content-Type: text/plain
-Date: Sun, 16 Jul 2006 02:08:09 +0200
-Message-Id: <1153008489.12764.14.camel@localhost>
+Date: Sun, 16 Jul 2006 02:18:03 +0200
+Message-Id: <1153009083.12764.18.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.7.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew,
+Hi Greg,
 
-> >>> We (the -stable team) are announcing the release of the 2.6.17.5 kernel.
-> >> Oops, please note that we now have some reports that this patch breaks
-> >> some versions of HAL.  So if you're relying on HAL, you might not want
-> >> to use this fix just yet (please evaluate the risks of doing this on
-> >> your own.)
-> > 
-> > Hm, HAL 0.5.7 seems to work fine for me.  Anyone else seeing any
-> > problems with this version?  Older versions?
-> > 
-> 
-> I'm running 0.5.7 and also see no problems.
-> 
-> FTR, I'm invoking
-> 
-> /usr/sbin/hald --daemon=yes --verbose=yes --use-syslog
-> 
-> and /var/log/messages looks no different than usual (last under 2.6.17.3).
+> This should fix the reported issue of NetworkManager dying when using
+> the 2.6.17.5 kernel release.  All users of the 2.6.17 kernel are
+> recommended to upgrade to this kernel, as it fixes a publicly known
+> security issue that can provide root access to any local user of the
+> machine.
 
-before this got spread around wrong. What I saw was an error window when
-logging into Gnome. It said "failed to initialize HAL!". In fact it
-seems that this is not a HAL error, it is an error of an application
-using HAL and I suspect it was NetworkManager. However with 2.6.17.6 or
-2.6.18-rc2 this is no problem anymore.
+attached is the backported "don't allow chmod()" patch. Please consider
+including it into the next stable release. Since the 2.6.17.6 kernel is
+no longer vulnerable against CVE-2006-3626, this has no real urgent need
+to get out.
 
 Regards
 

@@ -1,129 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWGPL1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWGPMJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWGPL1e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 07:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWGPL1e
+	id S1751050AbWGPMJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 08:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWGPMJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 07:27:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:327 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751577AbWGPL1e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 07:27:34 -0400
-Date: Sun, 16 Jul 2006 13:26:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] 0/15 IO scheduler improvements
-Message-ID: <20060716112633.GB8936@suse.de>
-References: <200607132350.47388.a1426z@gawab.com> <200607151535.04042.a1426z@gawab.com> <20060715174559.GF22724@suse.de> <200607152327.56763.a1426z@gawab.com>
+	Sun, 16 Jul 2006 08:09:28 -0400
+Received: from www17.your-server.de ([213.133.104.17]:33285 "EHLO
+	www17.your-server.de") by vger.kernel.org with ESMTP
+	id S1751024AbWGPMJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 08:09:27 -0400
+Subject: Re: [PATCH 1/1] Fix boot on efi 32 bit Machines [try #4]
+From: Thomas Meyer <thomas@m3y3r.de>
+To: linux-kernel@vger.kernel.org
+Cc: gimli@dark-green.com
+Content-Type: text/plain
+Date: Sun, 16 Jul 2006 14:09:11 +0200
+Message-Id: <1153051752.12981.0.camel@hotzenplotz.treehouse>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607152327.56763.a1426z@gawab.com>
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: thomas@m3y3r.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 15 2006, Al Boldi wrote:
-> Jens Axboe wrote:
-> > On Sat, Jul 15 2006, Al Boldi wrote:
-> > > Jens Axboe wrote:
-> > > > On Fri, Jul 14 2006, Al Boldi wrote:
-> > > > > Jens Axboe wrote:
-> > > > > > On Thu, Jul 13 2006, Al Boldi wrote:
-> > > > > > > Jens Axboe wrote:
-> > > > > > > > This is a continuation of the patches posted yesterday, I
-> > > > > > > > continued to build on them. The patch series does:
-> > > > > > > >
-> > > > > > > > - Move the hash backmerging into the elevator core.
-> > > > > > > > - Move the rbtree handling into the elevator core.
-> > > > > > > > - Abstract the FIFO handling into the elevator core.
-> > > > > > > > - Kill the io scheduler private requests, that require
-> > > > > > > > allocation/free for each request passed through the system.
-> > > > > > > >
-> > > > > > > > The result is a faster elevator core (and faster IO
-> > > > > > > > schedulers), with a nice net reduction of kernel text and code
-> > > > > > > > as well.
-> > > > > > >
-> > > > > > > Thanks!
-> > > > > > >
-> > > > > > > Your efforts are much appreciated, as the current situation is a
-> > > > > > > bit awkward.
-> > > > > >
-> > > > > > It's a good step forward, at least.
-> > > > > >
-> > > > > > > > If you have time, please give this patch series a test spin
-> > > > > > > > just to verify that everything still works for you. Thanks!
-> > > > > > >
-> > > > > > > Do you have a combo-patch against 2.6.17?
-> > > > > >
-> > > > > > Not really, but git let me generate one pretty easily. It has a
-> > > > > > few select changes outside of the patchset as well, but should be
-> > > > > > ok. It's not tested though, should work but the rbtree changes
-> > > > > > needed to be done additionally. If it boots, it should work :-)
-> > > > >
-> > > > > patch applies ok
-> > > > > compiles ok
-> > > > > panics on boot at elv_rb_del
-> > > > > patch -R succeeds with lot's of hunks
-> > > >
-> > > > So I most likely botched the rbtree conversion, sorry about that. Oh,
-> > > > I think it's a silly reverted condition, can you try this one?
-> > >
-> > > Thanks!
-> > >
-> > > patch applies ok
-> > > compiles ok
-> > > boots ok
-> > > patch -R succeeds with lot's of hunks
-> > >
-> > > Tried it anyway, and found an improvement only in cfq, where :
-> > > echo 512 > /sys/block/hda/queue/max_sectors_kb
-> > > gives full speed for 5-10 sec then drops to half speed
-> > > other scheds lock into half speed
-> > > echo 192 > /sys/block/hda/queue/max_sectors_kb
-> > > gives full speed for all scheds
-> >
-> > Not sure what this all means (full speed for what?)
-> 
-> full speed = max HD thruput
+Hi.
 
-Ok, for a cat test I see. This wasn't really obvious from what you
-wrote, please be more detailed in what tests you are running!
+For the record. Feedback is welcome. But i guess we stick with Edgars
+solution.
 
-> > The patchset mainly
-> > focuses on optimizing the elevator core and schedulers, it wont give a
-> > speedup unless your storage hardware is so fast that you are becoming
-> > CPU bound. Since you are applying to 2.6.17, there are some CFQ changes
-> > that do introduce behavioural changes.
-> >
-> > You should download
-> >
-> > http://brick.kernel.dk/snaps/blktrace-git-20060706102503.tar.gz
-> >
-> > and build+install it, then do:
-> >
-> > - blktrace /dev/hda
-> > - run shortest test that shows the problem
-> > - ctrl-c blktrace
-> >
-> > tar up the hda.* output from blktrace and put it somewhere where I can
-> > reach it and I'll take a look.
-> 
-> The output is a bit large, so here is a summary:
-> # echo 192 > /sys/block/hda/queue/max_sectors_kb
-> # cat /dev/hda > /dev/null &
-> # blktrace /dev/hda ( doesn't work; outputs zero trace)
-> # blktrace /dev/hda -w 1 -o - | blkparse -i - > 
-> /mnt/nfs/10.1/tmp/hdtrace.cfq.192
+PS: Where do i get the PCI firmware specification for free?
 
-I don't see anything wrong in the small excerpts you posted, so can you
-please just generate a few seconds log from a 192 sector and 512 sector
-run and put them somewhere where I can download the two?
+My idea was that the EFI memory map doesn't explicitly reserve all not
+used memory, because the PCI MCFG memory area isn't listed in the EFI
+memory map. but this seems to be a bug?!
 
-Just do the same sequence of commands you just did, but use -o 192_run
-or something to keep the files. It's an interesting issue you have seen,
-I'd like to get to the bottom of it.
 
--- 
-Jens Axboe
+diff --git a/arch/i386/kernel/efi.c b/arch/i386/kernel/efi.c
+index fe15804..4a81f35 100644
+--- a/arch/i386/kernel/efi.c
++++ b/arch/i386/kernel/efi.c
+@@ -39,7 +39,7 @@ #include <asm/processor.h>
+ #include <asm/desc.h>
+ #include <asm/tlbflush.h>
+
+-#define EFI_DEBUG      0
++#define EFI_DEBUG      1
+ #define PFX            "EFI: "
+
+ extern efi_status_t asmlinkage efi_call_phys(void *, ...);
+@@ -649,3 +649,27 @@ u64 efi_mem_attributes(unsigned long phy
+        }
+        return 0;
+ }
++
++int efi_is_free(unsigned long s, unsigned long e)
++{
++
++       int i;
++       efi_memory_desc_t *md;
++       void *p;
++
++       for (p = memmap.map, i = 0; p < memmap.map_end; p +=
+memmap.desc_size, i++) {
++               md = p;
++               /* is the region (part) in overlap with the current
+region ?*/
++               if (md->phys_addr >= e || md->phys_addr + (md->num_pages
+<< EFI_PAGE_SHIFT) <= s) {
++                       continue;
++               } else {
++                       if (md->type == EFI_MEMORY_MAPPED_IO) {
++                               printk("EFI: memmap entry: %i is already
+mapped!\n", i);
++                       } else {
++                               printk("EFI: MCFG blocking memmap entry:
+%i\n", i);
++                               return 0;
++                       }
++               }
++       }
++       return 1;
++}
+diff --git a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
+index e545b09..bcf4665 100644
+--- a/arch/i386/pci/mmconfig.c
++++ b/arch/i386/pci/mmconfig.c
+@@ -13,6 +13,7 @@ #include <linux/pci.h>
+ #include <linux/init.h>
+ #include <linux/acpi.h>
+ #include <asm/e820.h>
++#include <linux/efi.h>
+ #include "pci.h"
+
+ /* aperture is up to 256MB but BIOS may reserve less */
+@@ -198,13 +199,23 @@ void __init pci_mmcfg_init(void)
+            (pci_mmcfg_config[0].base_address == 0))
+                return;
+
+-       if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
+-                       pci_mmcfg_config[0].base_address +
+MMCONFIG_APER_MIN,
+-                       E820_RESERVED)) {
+-               printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not
+E820-reserved\n",
+-                               pci_mmcfg_config[0].base_address);
+-               printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
+-               return;
++       if (efi_enabled) {
++               if (!efi_is_free(pci_mmcfg_config[0].base_address,
++                               pci_mmcfg_config[0].base_address +
+MMCONFIG_APER_MIN)) {
++                       printk(KERN_ERR "PCI: EFI: memory region at %x
+is already in use!\n",
++
+pci_mmcfg_config[0].base_address);
++                       printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
++                       return;
++               }
++       } else {
++               if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
++                               pci_mmcfg_config[0].base_address +
+MMCONFIG_APER_MIN,
++                               E820_RESERVED)) {
++                       printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x
+is not E820-reserved.\n",
++
+pci_mmcfg_config[0].base_address);
++                       printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
++                       return;
++               }
+        }
+
+        printk(KERN_INFO "PCI: Using MMCONFIG\n");
+diff --git a/include/linux/efi.h b/include/linux/efi.h
+index 66d621d..7dffbf9 100644
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -302,6 +302,7 @@ extern void efi_initialize_iomem_resourc
+                                        struct resource *data_resource);
+ extern unsigned long __init efi_get_time(void);
+ extern int __init efi_set_rtc_mmss(unsigned long nowtime);
++extern int efi_is_free(unsigned long s, unsigned long e);
+ extern struct efi_memory_map memmap;
+
+ /**
+
 

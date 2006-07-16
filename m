@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWGPWyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWGPW5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWGPWyF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 18:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWGPWyF
+	id S1751330AbWGPW5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 18:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWGPW5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 18:54:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:49605 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751329AbWGPWyE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 18:54:04 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Lexington Luthor <Lexington.Luthor@gmail.com>
-Subject: Re: "Why Reuser 4 still is not in" doc
-Date: Sun, 16 Jul 2006 23:53:46 +0100
-Message-ID: <e9eg1v$5sf$1@sea.gmane.org>
-References: <20060716161631.GA29437@httrack.com>	 <20060716162831.GB22562@zeus.uziel.local>	 <20060716165648.GB6643@thunk.org> <e9dsrg$jr1$1@sea.gmane.org>	 <20060716174804.GA23114@thunk.org>	 <20060716220115.a1891231.diegocg@gmail.com>	 <e9ea1v$nc4$1@sea.gmane.org> <bda6d13a0607161428j187b737ft6f3925d9a3b2cc72@mail.gmail.com>
-Mime-Version: 1.0
+	Sun, 16 Jul 2006 18:57:47 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:10469 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751330AbWGPW5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 18:57:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QILfBwqxaaj4ecHeTtaNaVcMZwbxU3jeQMSRsg1JZYlIZKqZjq1r4jhU7cqE0B09/n8kWO8ZI2E57zYgyN08Z+QNlkf1BmI+TuDmLUgrnHGjcE5DP5F0Cccc39jZxL+R7IKsOn7rqS1jD5DrV+hnSPVOE59ql7DADbR1izCV/48=
+Message-ID: <e0e4cb3e0607161557l4a24ca4by4a6d9909feb8b1b1@mail.gmail.com>
+Date: Sun, 16 Jul 2006 15:57:45 -0700
+From: "Jonathan Baccash" <jbaccash@gmail.com>
+To: "Chuck Ebbert" <76306.1226@compuserve.com>
+Subject: Re: raid io requests not parallel?
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200607161609_MC3-1-C52A-F449@compuserve.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-In-Reply-To: <bda6d13a0607161428j187b737ft6f3925d9a3b2cc72@mail.gmail.com>
+Content-Disposition: inline
+References: <200607161609_MC3-1-C52A-F449@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson wrote:
->> (aside from the VFS integration debate)
-> Anybody know what's in Reiser4 that VFS doesn't like (link please)?
+> Because a single read not only goes to just one disk, it is sent to
+> the disk with the lowest expected seek time for that request.  This
+> cuts average read time in half, on average.
+>
+> (See drivers/md/raid1.c::read_balance().)
 
-Reiser4 plug-ins have (had?) the ability to alter the semantics of 
-things, like making files into directories inside which you could see 
-meta-files like file/uid and file/size which contained meta-data and 
-such accessible as normal files to all the unix tools (which is a very 
-good idea IMO). You could get things like chmod by just 'echo root 
- >file/owner' or something, very nice.
+Thanks Chuck! That is making some sense, although I think I'll have to
+read and think about it some more before I quite understand.
 
-This was frowned upon by kernel developers who felt that it belonged in 
-the kernel VFS (if at all), rather than in reiser4 directly.
+> You didn't post any benchmarks showing results for single write to a
+> single disk.
 
-Regards,
-LL
-
+I didn't think I could get any repeatable results for a single write,
+so I was trying to understand what is happening based on runs of
+longer writes.

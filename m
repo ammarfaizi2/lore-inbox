@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWGPDZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWGPEEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbWGPDZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 23:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWGPDZ7
+	id S964886AbWGPEEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 00:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWGPEEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 23:25:59 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:12778 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964839AbWGPDZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 23:25:58 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: tighten ATA kconfig dependancies
-To: Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
-       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Sat, 15 Jul 2006 20:38:01 +0200
-References: <6yL2J-7rR-1@gated-at.bofh.it> <6yLco-7DB-1@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sun, 16 Jul 2006 00:04:47 -0400
+Received: from liaag1ag.mx.compuserve.com ([149.174.40.33]:48574 "EHLO
+	liaag1ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964886AbWGPEEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 00:04:46 -0400
+Date: Sat, 15 Jul 2006 23:58:10 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] x86: Don't randomize stack unless
+  current->personality permits it
+To: Al Boldi <a1426z@gawab.com>
+Cc: Frank van Maarseveen <frankvm@frankvm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200607160000_MC3-1-C51D-6B44@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1G1p1y-0000ZU-Io@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
+In-Reply-To: <200607151709.45870.a1426z@gawab.com>
 
->> A lot of prehistoric junk shows up on x86-64 configs.
-> 
-> ... but in general it helps compile testing if you're hacking stuff;
-> if your hacking IDE on x86-64 you now have to compile 32 bit as well to
-> see if you didn't break the compile for these as well
-> 
-> So please don't do this, just disable them in your config...
+On Sat, 15 Jul 2006 17:09:45 +0300, Al Boldi wrote:
 
-If you want to compile test these drivers, just revert the patch or edit
-the .config.
+> Randomization on.  Executable runs with 8x blips/hits.
+> Randomization off.  Executable runs without blips/hits.
+> With randomization off, a mere rename causes an 8x-slowdown to occur.  Run 
+> this renamed executable through sh -c ./tstExec, and the slowdown 
+> disappears.  Really weired :)
+
+Does this help at all?  I don't have a space heater^W^WPentium IV
+to test on.
+
+--- 2.6.18-rc1-nb.orig/arch/i386/kernel/process.c
++++ 2.6.18-rc1-nb/arch/i386/kernel/process.c
+@@ -890,5 +890,5 @@ unsigned long arch_align_stack(unsigned 
+ {
+ 	if (randomize_va_space)
+ 		sp -= get_random_int() % 8192;
+-	return sp & ~0xf;
++	return sp & ~0x7f;
+ }
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+Chuck
+ "You can't read a newspaper if you can't read."  --George W. Bush

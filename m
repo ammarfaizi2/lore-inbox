@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWGPPvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWGPPww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWGPPvG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 11:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWGPPvF
+	id S1750985AbWGPPww (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 11:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWGPPww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 11:51:05 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:52865 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750970AbWGPPvE (ORCPT
+	Sun, 16 Jul 2006 11:52:52 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:55169 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750983AbWGPPww (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 11:51:04 -0400
-Date: Sun, 16 Jul 2006 17:50:34 +0200 (CEST)
+	Sun, 16 Jul 2006 11:52:52 -0400
+Date: Sun, 16 Jul 2006 17:52:47 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: john stultz <johnstul@us.ibm.com>, Pavel Machek <pavel@ucw.cz>,
+To: john stultz <johnstul@us.ibm.com>
+cc: tglx@linutronix.de, Pavel Machek <pavel@ucw.cz>,
        Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
        Ingo Molnar <mingo@elte.hu>
 Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-In-Reply-To: <1152822433.24345.19.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607152209440.12900@scrub.home>
+In-Reply-To: <1152828344.6845.96.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0607161448530.6761@scrub.home>
 References: <200607092352.k69NqZuJ029196@harpo.it.uu.se> 
  <1152554328.5320.6.camel@localhost.localdomain>  <20060710180839.GA16503@elf.ucw.cz>
   <Pine.LNX.4.64.0607110035300.17704@scrub.home>  <1152571816.9062.29.camel@localhost.localdomain>
   <Pine.LNX.4.64.0607110054180.12900@scrub.home>  <1152605229.32107.88.camel@localhost.localdomain>
   <Pine.LNX.4.64.0607111120310.12900@scrub.home>  <1152616025.32107.151.camel@localhost.localdomain>
   <Pine.LNX.4.64.0607120039380.12900@scrub.home>  <1152664944.760.70.camel@cog.beaverton.ibm.com>
- <1152822433.24345.19.camel@localhost.localdomain>
+  <1152822433.24345.19.camel@localhost.localdomain> <1152828344.6845.96.camel@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,84 +33,65 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, 13 Jul 2006, Thomas Gleixner wrote:
+On Thu, 13 Jul 2006, john stultz wrote:
 
-> > > > The timer interrupt itself is not a synchronization point.
-> > > 
-> > > If the timer interrupt is not a synchronization point, what is?
+> However, we do want precise timekeeping. Since there is a resolution
+> difference between NTP's precision and the clocksources, keeping track
+> of that error and adjusting for it is a desirable thing to do. 
+
+I think it makes sense to focus not just on NTP, that's why I gave the 
+example of per cpu clocks. Synchronizing time over the internet doesn't 
+require that much precision, but it might also be used in a local network 
+to keep machines as much as possible in sync.
+Per cpu clocks would really push the limits. We could now chain clocks 
+together where one central clock is controlled via NTP and attached to it 
+run per cpu clocks, which could even run at different frequencies. Between 
+these clocks one really wants to keep the error as small as technically 
+possible, so that there is enough margin so that even in the worst cases 
+it's rather unlikely that two threads on different cpus see widely 
+different time values. The question would be now what is technically 
+possible and what is needed to achieve it.
+
+> Notice, for the high-precsion clocksource adjustments remember the
+> granularity of the error we're keeping track of is nanoseconds shifted
+> up by 32. That's way small.
+
+BTW I chose that 32 mostly for convience, as it makes it easy to extract 
+the nanosecond part. The current NTP code shoehorns various values into 
+32bit using different scale values. Soonish this will be cleaned up to 
+use 64bit values using a single scale value.
+
+> So for a counter w/ a 4Ghz frequency and a shift value of 22 (similar to
+> a TSC). Over 1 second, if there was no high-precision adjustment, you
+> could get a *maximum* of error of ~1us (4b/2^22 = ~1024ns), which is a
+> 1ppm drift, if left uncorrected.
 > 
-> I used the term synchronization point for the points on the timeline,
-> where the information of an external time reference is available, e.g.
-> NTP data, a PPS interrupt ....
-
-This would be even less usable, there is no requirement that NTP is used 
-for time synchronization and the kernel has no idea when then the next 
-NTP adjustment happens.
-
-> At those points we calculate the deviation from the external time
-> reference and refine the conversion and adjustment factors. In the
-> simplest form this boils down to a linear equation where we interpolate
-> between the points which are defined by the external time reference.
-
-This is true for the clock source, but the adjustments that come in via 
-NTP are not exactly linear, so unless you want to rewrite the whole NTP 
-system, I don't think this will work.
-
-> > I think this would give a bit of independence between the clocksource
-> > adjustment code and the interrupt frequency (and likely improve
-> > robustness as well).
+> Now, if we have high-precision adjustments, the question is "how fast
+> should we fix that 1us error?". If the code assumes we're going to have
+> a tick every 1 ms, it can make a stronger adjustment (of 10 mult units)
+> which it will remove after the next tick. This however could cause
+> problems if we lost ticks and that interrupt was delayed as we would
+> overshoot.
 > 
-> John, that's exactly the central point. In an environment where we have
-> non periodic interrupts (high resolution timers, dynamic ticks) this
-> adjustment mechanism which relies on the periodic precise event to do
-> the accumulation does not work any more. I do not like the idea of
-> modifying this in a way that the timekeeping code does this fine grained
-> adjustment on the non periodic timer events. This will be a nightmare of
-> math and decrease robustness a lot.
-> 
-> The whole concept of doing the fine grained adjustment in order to
-> compensate for the inaccuracy of the scaled math factors on a _periodic_
-> event is flawed by design. The latency of interrupts in the kernel and
-> the fact that the periodic interrupt might be driven by a different
-> hardware clock, which has a different drift behaviour than the clock
-> which drives the time source, are reason enough to think about a
-> solution which makes this interdependency go away completely. In a high
-> resolution timer / dyntick system and also on virtualized environments
-> we need to get this dependency removed anyway.
-> 
-> The adjustment code is simply interpolation between points and boils
-> down to linear equations. Due to the fact that the conversion factor is
-> not accurate enough we need some mechanism to compensate this. I accept
-> that the current design has its charm, but I'm quite sure that we can do
-> a equally precise calculation without the interaction with the timer
-> interrupt code.
-> 
-> I know you prefer shopping over math, but it is a solvable problem.
+> Thus, if we assume that ticks will show up worse case, about once a
+> second or two, we can make an adjustment of a single mult unit and
+> assume that we'll correct it over the next second. This is what Roman
+> was saying would be "slow adjustments", but I don't see it as too
+> unacceptable. 
 
-Thomas, do you have any idea how insulting this is?
-First of all you are pretty much wrong with your analysis. It does not 
-rely on "periodic precise event", it helps if they are precise, but it's 
-not a requirement and it's practically a one line change so it can deal 
-with nonperiodic updates (the rest is just a matter of correct tuning). 
-The "fine grained adjustment" doesn't "compensate for the inaccuracy of 
-the scaled math" at all, one has to know here that we only have to be 
-accurate within limits (usually the resolution of the clock), so that the 
-inaccuracy is not really a problem and it has the advantage that is 
-generally cheap. What the adjustments actually compensate for is the 
-difference in resolution and the update delays.
-Since your initial analysis is pretty much wrong, your conclusions are 
-pretty much useless as well. So far so bad, by itself this wouldn't be 
-really a problem yet, everyone makes mistakes. If you would at least ask 
-some questions about whatever problem you'd like to see solved or if you 
-would make some constructive suggestion how to solve these problems, this 
-would have shown respect and could have been a nice discussion. Instead 
-you just piss on my work by asking John to throw away everything I did and 
-to "solve" it somehow.
-Did you even consider for a second that I might have already thought about 
-these problems? Did it enter your mind that the hard problems might 
-already be pretty much solved? Since you don't ask me at all, you don't 
-really seem to care about what I think. Instead of playing Mr. 
-know-it-all, I would really appreciate it if you showed some more respect 
-for my work.
+The error value can be a lot worse than 1us. time_adjust has a limit of 
+0.5ms and NTP adjustments can be even worse than this. If the clock is now 
+updated very infrequently, the clock can accumulate quite a lot of error 
+before it starts changing its frequency. So if you limit the error 
+correction to 1us per second it might take a very long time to reduce the 
+error. You really have to keep the worst cases a bit in mind, even if they 
+are rather unlikely.
+BTW if you already know there will be no adjustment within the next ticks, 
+the current code is very easy to change to deal with it, simply add a line 
+"look_ahead = max(look_ahead, clock->min_look_ahead);" and the error 
+adjustment will be spread over a longer period.
+Also if you know that the average update frequency is that low, it might 
+make sense to increase the shift value to get more precision for the error 
+correction.
 
 bye, Roman

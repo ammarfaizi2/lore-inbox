@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWGPNGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946070AbWGPNKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbWGPNGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 09:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWGPNGq
+	id S1946070AbWGPNKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 09:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946067AbWGPNKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 09:06:46 -0400
-Received: from smtp-out4.iol.cz ([194.228.2.92]:7302 "EHLO smtp-out4.iol.cz")
-	by vger.kernel.org with ESMTP id S1751269AbWGPNGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 09:06:45 -0400
-Message-ID: <44BA39E5.7060002@feix.cz>
-Date: Sun, 16 Jul 2006 15:06:45 +0200
-From: Michal Feix <michal@feix.cz>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Sun, 16 Jul 2006 09:10:51 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:45458 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1946010AbWGPNKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 09:10:50 -0400
+Message-ID: <44BA3C59.9030503@gentoo.org>
+Date: Sun, 16 Jul 2006 14:17:13 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-To: Paul.Clements@steeleye.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] nbd: Check magic before doing anything else
-Content-Type: multipart/mixed;
- boundary="------------080406000500020205020803"
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, linville@tuxdriver.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/wireless/zd1211rw/: possible cleanups
+References: <20060715003511.GE3633@stusta.de>
+In-Reply-To: <20060715003511.GE3633@stusta.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080406000500020205020803
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
+Adrian Bunk wrote:
+> This patch contains the following possible cleanups:
+> - make needlessly global functions static
+> - #if 0 unused functions
+> 
+> Please review which of these functions do make sense and which do 
+> conflict with pending patches.
 
-We should check magic sequence in reply packet before trying to find
-request with it's request handle. This also solves the problem with
-"Unexpected reply" message beeing logged, when packet with invalid magic
-is received.
+Thanks Adrian. I have put this in my tree and made an additional change 
+along the same lines (your patched introduced an unused function warning 
+to the non-debug build). If Ulrich signifies acceptance, I will send 
+this on to John.
 
-Signed-off-by: Michal Feix <michal@feix.cz>
+I have also sent in a patch to add a MAINTAINERS entry for zd1211rw, in 
+hope that this will help you send patches with myself and/or Ulrich CC'd 
+in future :)
 
----
-
-
---------------080406000500020205020803
-Content-Type: text/plain;
- name="nbd.c.magic-check.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nbd.c.magic-check.diff"
-
-diff -upr 2.6.18-rc2.orig/drivers/block/nbd.c 2.6.18-rc2/drivers/block/nbd.c
---- 2.6.18-rc2.orig/drivers/block/nbd.c	2006-07-16 14:34:09.106878500 +0200
-+++ 2.6.18-rc2/drivers/block/nbd.c	2006-07-16 14:48:59.000000000 +0200
-@@ -300,6 +300,15 @@ static struct request *nbd_read_stat(str
- 				lo->disk->disk_name, result);
- 		goto harderror;
- 	}
-+
-+	if (ntohl(reply.magic) != NBD_REPLY_MAGIC) {
-+		printk(KERN_ERR "%s: Wrong magic (0x%lx)\n",
-+				lo->disk->disk_name,
-+				(unsigned long)ntohl(reply.magic));
-+		result = -EPROTO;
-+		goto harderror;
-+	}
-+
- 	req = nbd_find_request(lo, reply.handle);
- 	if (unlikely(IS_ERR(req))) {
- 		result = PTR_ERR(req);
-@@ -312,13 +321,6 @@ static struct request *nbd_read_stat(str
- 		goto harderror;
- 	}
- 
--	if (ntohl(reply.magic) != NBD_REPLY_MAGIC) {
--		printk(KERN_ERR "%s: Wrong magic (0x%lx)\n",
--				lo->disk->disk_name,
--				(unsigned long)ntohl(reply.magic));
--		result = -EPROTO;
--		goto harderror;
--	}
- 	if (ntohl(reply.error)) {
- 		printk(KERN_ERR "%s: Other side returned error (%d)\n",
- 				lo->disk->disk_name, ntohl(reply.error));
-
---------------080406000500020205020803--
+Thanks.
+Daniel

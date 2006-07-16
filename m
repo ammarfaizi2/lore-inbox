@@ -1,46 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWGPUYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGPUY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWGPUYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 16:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWGPUYZ
+	id S1751140AbWGPUY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 16:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWGPUY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 16:24:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57497 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750950AbWGPUYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 16:24:24 -0400
-Subject: Re: [PATCH] V4L: struct video_device corruption
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Robert Fitzsimons <robfitz@273k.net>
-Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       greg@kroah.com, 76306.1226@compuserve.com, fork0@t-online.de,
-       linux-kernel@vger.kernel.org, shemminger@osdl.org,
-       video4linux-list@redhat.com, v4l-dvb-maintainer@linuxtv.org
-In-Reply-To: <20060715230849.GA3385@localhost>
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com>
-	 <20060713050541.GA31257@kroah.com>
-	 <20060712222407.d737129c.rdunlap@xenotime.net>
-	 <20060712224453.5faeea4a.akpm@osdl.org>  <20060715230849.GA3385@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sat, 15 Jul 2006 22:31:04 -0300
-Message-Id: <1153013464.4755.35.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 16 Jul 2006 16:24:59 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:64828 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751140AbWGPUY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 16:24:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Tfr1wgiNkUoffZccX0SS5DvTGBk4UX4PxUF3xgT14W6qRefHc7qZxvb+tpDoJzuegviG0QOLpQoCBZvKrqusOxeaUNyhS+XqbUSabkOPSJXKYPZig1bkzFn0KIW83R1E+i3JGAvwJPZyvp/xHyJcRI17jhroSEv3DdRXOrBrWgQ=
+Message-ID: <bda6d13a0607161324n37d10a8atbdabdb78c87d867b@mail.gmail.com>
+Date: Sun, 16 Jul 2006 13:24:57 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Rescan IDE interface when no IDE devices are present
+In-Reply-To: <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <427c54c0607161212m714f4faew60b8615e06ac885a@mail.gmail.com>
+	 <1153077903.5905.35.camel@localhost.localdomain>
+	 <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sáb, 2006-07-15 às 23:08 +0000, Robert Fitzsimons escreveu:
-> The layout of struct video_device would change depending on whether
-> videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
-> the structure to get corrupted.  
-Hmm... good point! However, I the proper solution would be to trust on
-CONFIG_VIDEO_V4L1_COMPAT or CONFIG_VIDEO_V4L1 instead. it makes no sense
-to keep a pointer to an unsupported callback, when V4L1 is not selected.
-
-
-Cheers, 
-Mauro.
-
+I wonder if its like my laptop: hdc is hard disk, hda is cdrom, and in
+this case removable so it is necessary to scan for ide0 when inserting
+cdrom.

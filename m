@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWGPQP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWGPQQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWGPQP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 12:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWGPQP4
+	id S1751113AbWGPQQi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 12:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWGPQQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 12:15:56 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:63617 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751621AbWGPQPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 12:15:55 -0400
-Date: Sun, 16 Jul 2006 18:15:51 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: john stultz <johnstul@us.ibm.com>, Pavel Machek <pavel@ucw.cz>,
-       Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [BUG] APM resume breakage from 2.6.18-rc1 clocksource changes
-In-Reply-To: <878xmtzg4e.wl%tglx@linutronix.de>
-Message-ID: <Pine.LNX.4.64.0607161814430.6761@scrub.home>
-References: <200607092352.k69NqZuJ029196@harpo.it.uu.se>
- <1152554328.5320.6.camel@localhost.localdomain> <20060710180839.GA16503@elf.ucw.cz>
- <Pine.LNX.4.64.0607110035300.17704@scrub.home> <1152571816.9062.29.camel@localhost.localdomain>
- <Pine.LNX.4.64.0607110054180.12900@scrub.home> <1152605229.32107.88.camel@localhost.localdomain>
- <Pine.LNX.4.64.0607111120310.12900@scrub.home> <1152616025.32107.151.camel@localhost.localdomain>
- <Pine.LNX.4.64.0607120039380.12900@scrub.home> <1152664944.760.70.camel@cog.beaverton.ibm.com>
- <1152822433.24345.19.camel@localhost.localdomain> <Pine.LNX.4.64.0607152209440.12900@scrub.home>
- <878xmtzg4e.wl%tglx@linutronix.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 16 Jul 2006 12:16:38 -0400
+Received: from gob75-2-82-67-192-40.fbx.proxad.net ([82.67.192.40]:3005 "EHLO
+	httrack.net") by vger.kernel.org with ESMTP id S1751596AbWGPQQh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 12:16:37 -0400
+X-Spam-Filter: check_local@httrack.net by digitalanswers.org
+Date: Sun, 16 Jul 2006 18:16:31 +0200
+From: Xavier Roche <roche+kml2@exalead.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: reiserFS?
+Message-ID: <20060716161631.GA29437@httrack.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (httrack.net [127.0.0.1]); Sun, 16 Jul 2006 18:16:35 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> It simply the best filesystem for many kinds of usage patterns.
 
-On Sun, 16 Jul 2006, Thomas Gleixner wrote:
+The most frightening too. Reiserfs might be suitable for very specific appliactions, but to use it in production machine, you need to have some guts.
 
-> At Sun, 16 Jul 2006 17:50:34 +0200 (CEST), Roman Zippel wrote:
-> > > > 
-> > > I know you prefer shopping over math, but it is a solvable problem.
-> > 
-> > Thomas, do you have any idea how insulting this is?
-> 
-> Sigh, 
-> 
-> I was talking to John and referencing his own "Math is hard, lets go shopping" 
-> line.
+My last reiserfs partition was blown up two days ago, because of a bad sector, plus a fatal oops, looping endlessly. This was the second time, and the last one, as none of my ext3 filesystems *ever* had similar problems, despite numerous other bad sector issues. Not mentionning the funny "recovery" tool, which generally finishes to trash your data.
 
-And I was refering to the complete text I quoted, please don't take things 
-out of context. :-(
+Jul 14 23:35:29 linux kernel: hdh: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Jul 14 23:35:29 linux kernel: hdh: dma_intr: error=0x40 { UncorrectableError }, LBAsect=12458384, sector=12458383
+Jul 14 23:35:29 linux kernel: ide: failed opcode was: unknown
+Jul 14 23:35:29 linux kernel: end_request: I/O error, dev hdh, sector 12458383
+Jul 14 23:35:29 linux kernel: ------------[ cut here ]------------
+Jul 14 23:35:29 linux kernel: kernel BUG at fs/reiserfs/file.c:620!
+..
+Jul 14 23:35:29 linux kernel:  <0>Fatal exception: panic in 5 seconds
 
-bye, Roman
+The funny part is that 14 july is the french's fireworks day, generally launched around midnight.

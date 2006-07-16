@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWGPAE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946020AbWGPAI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWGPAE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jul 2006 20:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWGPAE7
+	id S1946020AbWGPAI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jul 2006 20:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946021AbWGPAI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jul 2006 20:04:59 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:12462 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964814AbWGPAE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jul 2006 20:04:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=uaEA1KOS94sR7/Yy50n7Wm3U3nHPf10OE9T0+vVM7GxlluBoq9mM38YI9hp6m8EjGtmZWdDW1ix3SGUjqLiGPlBLym4D0VQofFAmCig7zxDosC72qd+XV7W1QUyfx2oANs6i63K1XuZAbArEaCRoUJ8fisJxtpK/w3sKTinF1cI=
-Message-ID: <e0e4cb3e0607151704o479371afpc9332a08fb84ba09@mail.gmail.com>
-Date: Sat, 15 Jul 2006 17:04:57 -0700
-From: "Jonathan Baccash" <jbaccash@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: raid io requests not parallel?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 15 Jul 2006 20:08:57 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:54742 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1946020AbWGPAI4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jul 2006 20:08:56 -0400
+Subject: Re: [stable] Linux 2.6.17.5
+From: Marcel Holtmann <marcel@holtmann.org>
+To: artusemrys@sbcglobal.net
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, stable@kernel.org
+In-Reply-To: <44B9814B.4050103@sbcglobal.net>
+References: <20060715030047.GC11167@kroah.com>
+	 <20060715032834.GA5944@kroah.com> <20060715042045.GB4322@kroah.com>
+	 <44B9814B.4050103@sbcglobal.net>
+Content-Type: text/plain
+Date: Sun, 16 Jul 2006 02:08:09 +0200
+Message-Id: <1153008489.12764.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using kernel linux-2.6.15-gentoo-r1, and I noticed performance of
-the software RAID-1 is not as good as I would have expected on my two
-SATA drives, and I was wondering if anyone has an idea what may be
-happening. The test I run is 1024 16k direct-IO reads/writes from
-random locations within a 1GB file (on a RAID-1 partition), with my
-disk caches set to
-write-through mode. In the MT (multi-threaded) case, I issue them from
-8 threads (so it's 128 requests per thread):
+Hi Matthew,
 
-Random read: 10.295 sec
-Random write: 19.142 sec
-MT Random read: 5.276 sec
-MT Random write: 19.839 sec
+> >>> We (the -stable team) are announcing the release of the 2.6.17.5 kernel.
+> >> Oops, please note that we now have some reports that this patch breaks
+> >> some versions of HAL.  So if you're relying on HAL, you might not want
+> >> to use this fix just yet (please evaluate the risks of doing this on
+> >> your own.)
+> > 
+> > Hm, HAL 0.5.7 seems to work fine for me.  Anyone else seeing any
+> > problems with this version?  Older versions?
+> > 
+> 
+> I'm running 0.5.7 and also see no problems.
+> 
+> FTR, I'm invoking
+> 
+> /usr/sbin/hald --daemon=yes --verbose=yes --use-syslog
+> 
+> and /var/log/messages looks no different than usual (last under 2.6.17.3).
 
-As expected, the multi-threaded reads are 2x as fast as single-threaded
-reads. But I would have expected (assuming the write to both disks can
-occur in parallel) that the random writes are about the same speed (10
-seconds) as the single-threaded random reads, for both the
-single-threaded and multi-threaded write cases. The fact that the
-multi-threaded reads were
-twice as fast indicates to me that read requests can occur in parallel.
+before this got spread around wrong. What I saw was an error window when
+logging into Gnome. It said "failed to initialize HAL!". In fact it
+seems that this is not a HAL error, it is an error of an application
+using HAL and I suspect it was NetworkManager. However with 2.6.17.6 or
+2.6.18-rc2 this is no problem anymore.
 
-So.... why doesn't the raid issue the writes in parallel? Thanks in
-advance for any help.
+Regards
 
-Jon.
+Marcel
+
+

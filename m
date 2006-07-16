@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWGPFT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWGPFq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWGPFT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 01:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGPFT4
+	id S1750738AbWGPFq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 01:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGPFq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 01:19:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48862 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964901AbWGPFT4 (ORCPT
+	Sun, 16 Jul 2006 01:46:59 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:12041 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750738AbWGPFq7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 01:19:56 -0400
-Date: Sat, 15 Jul 2006 22:19:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Gary Funck" <gary@intrepid.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.17-1.2145_FC5 mmap-related soft lockup
-Message-Id: <20060715221942.9f1543ca.akpm@osdl.org>
-In-Reply-To: <JCEPIPKHCJGDMPOHDOIGGEKJDFAA.gary@intrepid.com>
-References: <JCEPIPKHCJGDMPOHDOIGGEKJDFAA.gary@intrepid.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 16 Jul 2006 01:46:59 -0400
+Message-ID: <44B9D2CA.8040306@argo.co.il>
+Date: Sun, 16 Jul 2006 08:46:50 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jonathan Baccash <jbaccash@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: raid io requests not parallel?
+References: <e0e4cb3e0607151704o479371afpc9332a08fb84ba09@mail.gmail.com>
+In-Reply-To: <e0e4cb3e0607151704o479371afpc9332a08fb84ba09@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Jul 2006 05:46:56.0770 (UTC) FILETIME=[3FA34620:01C6A89B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Jul 2006 10:07:26 -0700
-"Gary Funck" <gary@intrepid.com> wrote:
-
-> 
-> A test program which allocates about 256M of MAP_ANONYMOUS mmap memory,
-> and then spawns 4 processess, where each process i writes to 1/4 of the
-> mapped memory, and then reads the memory written by
-> the process (i + 1)%4, triggers a soft lockup, when exiting.
-> Hardware:
-> dual core dual Opteron 275 (Tyan motherboard, 4G physical memory)
-> has been rock solid reliable.
-> 
-> BUG: soft lockup detected on CPU#3!
-> 
-> Call Trace: <IRQ> <ffffffff802b2fb5>{softlockup_tick+219}
->        <ffffffff8029708e>{update_process_times+66}
-> <ffffffff8027a3ed>{smp_local_timer_interrupt+35}
->        <ffffffff8027aa95>{smp_apic_timer_interrupt+65}
-> <ffffffff80263acb>{apic_timer_interrupt+135} <EOI>
->        <ffffffff8020e578>{__set_page_dirty_nobuffers+0}
-> <ffffffff8026a128>{_write_unlock_irq+11}
->        <ffffffff8020e62d>{__set_page_dirty_nobuffers+181}
-> <ffffffff80207af6>{unmap_vmas+1037}
->        <ffffffff8023c7d9>{exit_mmap+120} <ffffffff8023eda8>{mmput+44}
->        <ffffffff80215ece>{do_exit+599}
-> <ffffffff8024cacd>{debug_mutex_init+0}
->        <ffffffff80262f01>{tracesys+209}
-> 
-> ..
+Jonathan Baccash wrote:
 >
-> The test program runs successfully, but hangs several seconds upon exit.
-> 
-> The hardware and software configuration has been solid for several months,
-> but
-> we have seen timer-related synchronization issues with recent kernels (where
-> ntp has to force a re-sync for example, and an occasional lost ticks
-> message).
-> 
-> The test program mentioned above is more complicated than described, and
-> can't easily be reproduced in source form, but the binary could be
-> made available.
+> I'm using kernel linux-2.6.15-gentoo-r1, and I noticed performance of
+> the software RAID-1 is not as good as I would have expected on my two
+> SATA drives, and I was wondering if anyone has an idea what may be
+> happening. The test I run is 1024 16k direct-IO reads/writes from
+> random locations within a 1GB file (on a RAID-1 partition), with my
+> disk caches set to
+> write-through mode. In the MT (multi-threaded) case, I issue them from
+> 8 threads (so it's 128 requests per thread):
+>
+> Random read: 10.295 sec
+> Random write: 19.142 sec
+> MT Random read: 5.276 sec
+> MT Random write: 19.839 sec
+>
+> As expected, the multi-threaded reads are 2x as fast as single-threaded
+> reads. But I would have expected (assuming the write to both disks can
+> occur in parallel) that the random writes are about the same speed (10
+> seconds) as the single-threaded random reads, for both the
+> single-threaded and multi-threaded write cases. The fact that the
+> multi-threaded reads were
+> twice as fast indicates to me that read requests can occur in parallel.
+>
+> So.... why doesn't the raid issue the writes in parallel? Thanks in
+> advance for any help.
+>
+The writes are issued in parallel, but both disks have to be written.  
+Each head has to service 1024 write requests (compared to just 512 read 
+requests).
 
-ah-hah.  This sounds like the write_lock(tree_lock) starvation bug.
 
-Are you able to confirm that setting CONFIG_DEBUG_SPINLOCK=n fixes it?
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-And are you able to get us a copy of that test app?
-
-Thanks.

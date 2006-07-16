@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWGPPx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWGPPyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWGPPx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 11:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWGPPx5
+	id S1751279AbWGPPyj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 11:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWGPPyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 11:53:57 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:56024 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751275AbWGPPx4 (ORCPT
+	Sun, 16 Jul 2006 11:54:39 -0400
+Received: from mx1.suse.de ([195.135.220.2]:8087 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751279AbWGPPyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 11:53:56 -0400
-Date: Sun, 16 Jul 2006 17:53:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Yuri van Oers <yvanoers@xs4all.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI device order changed
-In-Reply-To: <20060716171547.W18821-100000@xs3.xs4all.nl>
-Message-ID: <Pine.LNX.4.61.0607161751590.3179@yvahk01.tjqt.qr>
-References: <20060716171547.W18821-100000@xs3.xs4all.nl>
+	Sun, 16 Jul 2006 11:54:38 -0400
+Message-ID: <44BA61A2.5090404@suse.com>
+Date: Sun, 16 Jul 2006 11:56:18 -0400
+From: Jeffrey Mahoney <jeffm@suse.com>
+User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060516)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: Hans Reiser <reiser@namesys.com>
+Cc: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com>
+In-Reply-To: <44B9E6D5.2040704@namesys.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hard disks are sda thru sdd, the devices start at sde. That is, up until I
->booted 2.6.17 _with_ the external devices attached. The kernel swapped
->the order of the cards: devices start at sda, and the disks come after,
->which means it can't find / on sda.
->
->I found a related post here: http://lkml.org/lkml/2005/12/3/192
->which suggests this situation arose around 2.6.15. It also says ordering
->can't be guaranteed. If that's the final verdict, I'll simply swap the
->cards on the PCI bus and be done with it.
->
-And then, hope it does not change again?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It usually depends on link time order (when compiled in) or module load 
-order (with initrd), both of which, esp. the latter, can be fine-tuned to 
-the user's needs.
+Hans Reiser wrote:
+> So the Plan 9 and Unix way would be to let the driver parse the number
+> part of the name after the last slash.  What I don't understand is why
+> reiserfs is getting involved here, rather than recognizing the driver as
+> an extension of the namespace, seeing the driver as a mountpoint, and
+> just passing number to the driver.  There must be something I don't
+> grasp here, can you help me?
 
-Also note CONFIG_BLK_DEV_OFFBOARD.
+The name used in procfs isn't parsed anywhere, it could just as easily
+be fs0, fs1, fs2, etc, but that wouldn't be a very user friendly way of
+indicating which file system's statistics are described in that
+directory. It's just presented to the user as a pathname to identify a
+particular file system. The problem is that reiserfs is attempting to
+use a name from a separate name space that doesn't follow the same rules
+as the standard file system name space. Block device names, initially,
+weren't intended for use as self-contained path components and aren't
+part of the file system name space. If we wish to use those names, we
+need to sanitize them to conform to the rules of the file system name
+space by removing/replacing the path separator character.
+
+It's unfortunate that some drivers use a slash rather than sticking with
+the <type><letter> convention. I don't expect new drivers to be added
+with slashes in them. If at some point the existing drivers are changed
+to remove the slash, then this patch can be removed again.
 
 
+- -Jeff
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (Darwin)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Jan Engelhardt
--- 
+iD8DBQFEumGhLPWxlyuTD7IRAvuOAJ4yYUYp9TsUervYGBERSinPyOeAJQCgn7Wm
+lgYoPKKUElaKkWcoECN9e+4=
+=Rp8I
+-----END PGP SIGNATURE-----

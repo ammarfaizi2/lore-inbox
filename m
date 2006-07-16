@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWGPTuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWGPUDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWGPTuL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 15:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWGPTuL
+	id S932094AbWGPUDp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 16:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGPUDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 15:50:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:18343 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932082AbWGPTuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 15:50:10 -0400
-Date: Sun, 16 Jul 2006 21:50:08 +0200
-From: Olaf Hering <olh@suse.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: crash in aty128_set_lcd_enable on PowerBook
-Message-ID: <20060716195008.GA17557@suse.de>
-References: <20060716163728.GA16228@suse.de> <20060716165004.GA16369@suse.de> <1153077550.5905.33.camel@localhost.localdomain> <1153077953.5905.37.camel@localhost.localdomain> <20060716192727.GA17387@suse.de> <1153079015.5905.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sun, 16 Jul 2006 16:03:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:4646 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932094AbWGPUDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 16:03:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O+RxpkYIdEtqhRHmjHcaVI/JSYrh9BeAcgjMdpldAeFa/h37o6NWpQzy854u8xWOrbXqaL+le0nrT/JQfZlqUjg/ClhGiPCwYEbenTpEf4r6kAxsF0MhQU0ZnXP4yxzYTsRTzCIX0vrjDft1WqTbO3O5eg04HHvDYUVcToHutMI=
+Message-ID: <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+Date: Sun, 16 Jul 2006 15:03:42 -0500
+From: "Daniel De Graaf" <danieldegraaf@gmail.com>
+To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+Subject: Re: Rescan IDE interface when no IDE devices are present
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1153077903.5905.35.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1153079015.5905.39.camel@localhost.localdomain>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <427c54c0607161212m714f4faew60b8615e06ac885a@mail.gmail.com>
+	 <1153077903.5905.35.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Jul 16, Benjamin Herrenschmidt wrote:
+On 7/16/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> If you have ide1, you have both hdc and hdd (slave of hdc) unles sit's
+> not really IDE ...
+>
+> Ben.
 
-> > It crashes later for different reasons. The whole init process works by
-> > luck it seems.
-> 
-> I've been having weird things happening with latest linus trees and
-> really no time to debug ... do you have a backtrace for the "other"
-> crash ?
+Yes, I have /dev/hdd, but no device is ever present there. I also have
+/dev/sda for the SATA hard disk, but do not think it is useful for
+HDIO_SCAN_HWIF or HWIO_UNREGISTER_HWIF ioctls.
 
-It was in aty128_bl_set_power(), cant remember the trace.
+- Daniel

@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWGPSOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWGPSO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWGPSOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 14:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWGPSOZ
+	id S1751146AbWGPSO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 14:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWGPSO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 14:14:25 -0400
-Received: from xenotime.net ([66.160.160.81]:38055 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751144AbWGPSOY (ORCPT
+	Sun, 16 Jul 2006 14:14:28 -0400
+Received: from thunk.org ([69.25.196.29]:3219 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751146AbWGPSO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 14:14:24 -0400
-Message-Id: <1153073662.7604@shark.he.net>
-Date: Sun, 16 Jul 2006 11:14:22 -0700
-From: "Randy Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
-       Sam Ravnborg <sam@ravnborg.org>, Dave Jones <davej@redhat.com>,
-       linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: tighten ATA kconfig dependancies
-X-Mailer: WebMail 1.25
-X-IPAddress: 216.191.251.226
+	Sun, 16 Jul 2006 14:14:26 -0400
+Date: Sun, 16 Jul 2006 14:14:31 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserFS?
+Message-ID: <20060716181431.GA27306@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	"Dr. David Alan Gilbert" <linux@treblig.org>,
+	linux-kernel@vger.kernel.org
+References: <20060716161631.GA29437@httrack.com> <20060716162831.GB22562@zeus.uziel.local> <20060716165648.GB6643@thunk.org> <20060716174636.GA3615@gallifrey>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060716174636.GA3615@gallifrey>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 16, 2006 at 06:46:37PM +0100, Dr. David Alan Gilbert wrote:
+> That leads me to ask what level of testing is performed on each
+> filesystem - are there filesystem torture tests that are getting
+> run by someone (who?) on various filesystems (preferably on large
+> TB sized ones, preferably with simulated failures and resets)?
+> The discussions on Ext4 a few weeks ago made me think that the
+> thing I'd value more than anything else would be a damn good
+> test regime.
 
+As far as I know ext2/3 is the only filesystem with a fsck tool that
+has a regression test suite.  It's always amazed me that filesystem
+consistency checkers and repair tools get so little attenion by most
+filesystem developers.
 
-> On Sat, Jul 15, 2006 at 08:45:56AM +0200, Arjan van de Ven wrote:
-> > On Sat, 2006-07-15 at 08:38 +0200, Sam Ravnborg wrote:
-> > > On Sat, Jul 15, 2006 at 07:49:08AM +0200, Arjan van de Ven wrote:
-> > > > On Sat, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
-> > > > > A lot of prehistoric junk shows up on x86-64 configs.
-> > > > 
-> > > > 
-> > > > ... but in general it helps compile testing if you're hacking stuff;
-> > > > if your hacking IDE on x86-64 you now have to compile 32 bit as
-well to
-> > > > see if you didn't break the compile for these as well
-> > > > 
-> > > > So please don't do this, just disable them in your config...
-> > > 
-> > > An i686 cross compile chain seems to be the natural choice here
-> > 
-> > the point is that it doesn't fall out naturally, and thus things get
-> > needlessly missed.
-> 
-> It seems the main question is:
-> Is the kernel configuration mainly designed for users or for developers?
-> 
-> For users, showing drivers for hardware that is not present on their 
-> platform only causes confusion.
-> 
-> Only developers who want to do compile tests could benefit from 
-> compiling such drivers.
-> 
-> IMHO the kernel configuration is mainly designed for users.
+As far as random torture testing, Pavel has written a random test tool
+that punches random errors into random blocks of a filesystem, and
+that was used to uncover a couple of cases that e2fsprogs didn't
+handle cleanly.  Those were reported to me, and I fixed them, and the
+edge cases were encorprated into the regression test suite.
 
-or at least should be.
+IIRC it came up in discussion a few weeks ago one LKML or
+linux-fsdevel (I can't remember which), and I believe either someone
+from XFS or Reiser team was going to take Pavel's torture tester and
+adapt it do some robustifying of their filesystem's repair
+capabilities.
 
-> We could do some kind of (X86_32 || DEVELOPER_COMPILE_TEST).
+Finally, the good folks at the Stanford Metacompilation group did some
+very interesting work to find bugs in three common Linux filesystems:
 
-Let's not complicate it more.
+	http://keeda.stanford.edu/~junfeng/papers/osdi04/osdi04.html
 
-> Or simply disable this driver on other platforms - these are only 
-> compile errors and amongst all possible problems in the kernel compile 
-> errors are amongst my least worries (obvious error, usually quickly 
-> fixed after the first bug report).
+Regards,
 
-
----
-~Randy
+						- Ted

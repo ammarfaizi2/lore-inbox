@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWGQSGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWGQSHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbWGQSGD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWGQSGD
+	id S1751111AbWGQSHV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWGQSHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:06:03 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:40322 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751107AbWGQSGC (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:06:02 -0400
-Message-Id: <200607171805.k6HI5uvD017963@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Caleb Gray <caleb@calebgray.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 Inclusion
-In-Reply-To: Your message of "Sun, 16 Jul 2006 20:02:15 PDT."
-             <44BAFDB7.9050203@calebgray.com>
-From: Valdis.Kletnieks@vt.edu
-References: <44BAFDB7.9050203@calebgray.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153159556_13479P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 17 Jul 2006 14:05:56 -0400
+	Mon, 17 Jul 2006 14:07:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23760 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751111AbWGQSHU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:07:20 -0400
+Date: Mon, 17 Jul 2006 11:08:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] i386: fix recursive fault in page-fault handler
+In-Reply-To: <200607171322_MC3-1-C53B-6253@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0607171107390.15611@evo.osdl.org>
+References: <200607171322_MC3-1-C53B-6253@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153159556_13479P
-Content-Type: text/plain; charset=us-ascii
-
-On Sun, 16 Jul 2006 20:02:15 PDT, Caleb Gray said:
-> Reiser4's responsiveness is undoubtedly at least twice as fast as ext3.
-> I have deployed two nearly identical servers in Florida (I live in
-> Washington state) but one difference: one uses ext3 and the other
-> reiser4. The ping time of the reiser4 server is (on average) 20ms faster
-> than the ext3 server.
-
-OK, I'll bite.  What *POSSIBLE* reason is there for the choice of filesystem
-to matter to an ICMP Echo Request/Reply?  I'm suspecting something else,
-like the ext3 server needs to re-ARP before sending the Echo Reply, or some
-such.
-
-> and directory structures. (Both of the filesystems have slowed down at a
-> similar pace for the duration of their lifetime [about 15ms].)
-
-Unclear why *that* should matter to ICMP either.
 
 
---==_Exmh_1153159556_13479P
-Content-Type: application/pgp-signature
+On Mon, 17 Jul 2006, Chuck Ebbert wrote:
+>
+> Krzysztof Halasa reported recursive faults in do_page_fault()
+> causing a stream of partial oops messages on the console. Fix
+> by adding a fixup for that code.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+This patch is really too ugly to live. Does it even work? If 'tsk' is 
+broken, I'd expect the die() to oops anyway - it does
 
-iD8DBQFEu9GEcC3lWbTT17ARAubTAJ9h7U4f8SwEjkOaHhTQ1SDI9xfyMwCeLgSe
-Gyx+FHH69+x3Ox8qNOJI4j0=
-=9mEn
------END PGP SIGNATURE-----
+	if (notify_die(DIE_OOPS, str, regs, err,
+                       current->thread.trap_no, SIGSEG...
 
---==_Exmh_1153159556_13479P--
+anyway (where that "current->thread.trap_no" gets dereferenced).
+
+		Linus

@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWGQVL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWGQV3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWGQVL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 17:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGQVL6
+	id S1751203AbWGQV3x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWGQV3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 17:11:58 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53461 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751195AbWGQVL5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 17:11:57 -0400
-Date: Mon, 17 Jul 2006 14:04:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: stable@kernel.org, Greg KH <gregkh@suse.de>, torvalds@osdl.org,
-       akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
-Subject: Re: [Fwd: Re: [PATCH] tpm: interrupt clear fix]
-Message-ID: <20060717210425.GA16076@kroah.com>
-References: <1153161320.4808.11.camel@localhost.localdomain>
+	Mon, 17 Jul 2006 17:29:53 -0400
+Received: from deine-taler.de ([217.160.107.63]:46785 "EHLO
+	p15091797.pureserver.info") by vger.kernel.org with ESMTP
+	id S1751194AbWGQV3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 17:29:52 -0400
+Date: Mon, 17 Jul 2006 23:29:51 +0200
+From: Ulrich Kunitz <kune@deine-taler.de>
+To: Daniel Drake <dsd@gentoo.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linville@tuxdriver.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/net/wireless/zd1211rw/: possible cleanups
+Message-ID: <20060717212951.GC29824@p15091797.pureserver.info>
+Mail-Followup-To: Daniel Drake <dsd@gentoo.org>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	linville@tuxdriver.com, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060715003511.GE3633@stusta.de> <44BA3C59.9030503@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1153161320.4808.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44BA3C59.9030503@gentoo.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 17, 2006 at 11:35:20AM -0700, Kylene Jo Hall wrote:
-> -------- Forwarded Message --------
-> From: Kylene Jo Hall <kjhall@us.ibm.com>
-> To: linux-os (Dick Johnson) <linux-os@analogic.com>
-> Cc: linux-kernel <linux-kernel@vger.kernel.org>, TPM Device Driver List
-> <tpmdd-devel@lists.sourceforge.net>, akpm@osdl.org
-> Subject: Re: [PATCH] tpm: interrupt clear fix
-> Date: Thu, 13 Jul 2006 12:24:36 -0700
-> Under stress testing I found that the interrupt is not always cleared.
-> This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
-> 
-> On Thu, 2006-07-13 at 07:45 -0400, linux-os (Dick Johnson) wrote:
-> 
-> > PCI devices need a final read to flush all pending writes. Whatever
-> > mb() does, just hides the problem.
-> 
-> 
-> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> ---
-> 
-> --- linux-2.6.18-rc1/drivers/char/tpm/tpm_tis.c	2006-07-13 14:46:39.727500500 -0500
-> +++ linux-2.6.18-rc1-tpm/drivers/char/tpm/tpm_tis.c	2006-07-13 14:47:33.878884750 -0500
-> @@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
->  	iowrite32(interrupt,
->  		  chip->vendor.iobase +
->  		  TPM_INT_STATUS(chip->vendor.locality));
-> +	ioread32(chip->vendor.iobase + TPM_INT_STATUS(chip->vendor.locality));
->  	return IRQ_HANDLED;
->  }
+On 06-07-16 14:17 Daniel Drake wrote:
 
-So does this replace the other tpm patch?  Or should we apply both of
-them?
+> Adrian Bunk wrote:
+> >This patch contains the following possible cleanups:
+> >- make needlessly global functions static
+> >- #if 0 unused functions
+> >
+> >Please review which of these functions do make sense and which do 
+> >conflict with pending patches.
+> 
+> Thanks Adrian. I have put this in my tree and made an additional change 
+> along the same lines (your patched introduced an unused function warning 
+> to the non-debug build). If Ulrich signifies acceptance, I will send 
+> this on to John.
+> 
+> I have also sent in a patch to add a MAINTAINERS entry for zd1211rw, in 
+> hope that this will help you send patches with myself and/or Ulrich CC'd 
+> in future :)
+> 
+> Thanks.
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-thanks,
+Adrian, I would like to see this patch split up into three at
+least. 
 
-greg k-h
+Patch 1: Remove unused IO emulation functions
+Patch 2: Remove other unused stuff, which could be split up
+         further for each C file and header
+Patch 3: Change DEBUG ifdefs to #if 0
+
+The purpose of patch 3 is bogus, because the follow-up patch will
+be called "removed useless #if 0 stuff". Keep in mind there is
+some reason, why I have such code there. If they ifdefs are not
+acceptable I will make this code dependent on a module parameter
+and compile it into the production module. We have a lot of
+different devices from different vendors out there and people
+report "stuff isn't working" but almost nothing more.
+
+The problem with patch 1 and 2 is, that almost all of the function
+are completing the interface and some of them are even only static
+inlines. They are there because they should be used, before
+somebody reinvents the wheel or makes something completely stupid.
+However if such reasoning is not acceptable I'm ready to
+compromise.
+
+-- 
+Uli Kunitz

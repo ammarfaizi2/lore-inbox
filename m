@@ -1,16 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWGQVyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWGQV4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWGQVyS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 17:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWGQVyS
+	id S1751207AbWGQV4I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGQV4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 17:54:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:16772 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751200AbWGQVyR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 17:54:17 -0400
-Subject: [Patch 2/3] taskstats: free skb, avoid returns in
-	send_cpu_listeners
+	Mon, 17 Jul 2006 17:56:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:54446 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751207AbWGQV4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 17:56:06 -0400
+Subject: [Patch 3/3] delay accounting: temporarily enable by default
 From: Shailabh Nagar <nagar@watson.ibm.com>
 Reply-To: nagar@watson.ibm.com
 To: Andrew Morton <akpm@osdl.org>
@@ -20,93 +19,121 @@ In-Reply-To: <1153173063.4551.10.camel@dyn9002218086.watson.ibm.com>
 References: <1153173063.4551.10.camel@dyn9002218086.watson.ibm.com>
 Content-Type: text/plain
 Organization: IBM
-Message-Id: <1153173255.4551.16.camel@dyn9002218086.watson.ibm.com>
+Message-Id: <1153173363.4551.19.camel@dyn9002218086.watson.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 17 Jul 2006 17:54:15 -0400
+Date: Mon, 17 Jul 2006 17:56:03 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a missing freeing of skb in the case there are no listeners at all.
-Also remove the returning of error values by the function as it is unused by
-the sole caller.
+Enable delay accounting by default so that feature gets coverage testing
+without requiring special measures/
+
+Earlier, it was off by default and had to be enabled via a boot time param.
+This patch reverses the default behaviour to improve coverage testing. It
+can be removed late in the kernel development cycle if its believed users
+shouldn't have to incur any cost if they don't want delay accounting. Or it
+can be retained forever if the utility of the stats is deemed common enough
+to warrant keeping the feature on.
 
 Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
-Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 
- kernel/taskstats.c |   24 +++++++++++-------------
- 1 files changed, 11 insertions(+), 13 deletions(-)
+ Documentation/accounting/delay-accounting.txt |   10 ++++++----
+ Documentation/kernel-parameters.txt           |    4 ++--
+ include/linux/delayacct.h                     |    4 ++--
+ kernel/delayacct.c                            |    8 ++++----
+ 4 files changed, 14 insertions(+), 12 deletions(-)
 
-Index: linux-2.6.18-rc2/kernel/taskstats.c
+Index: linux-2.6.18-rc2/Documentation/accounting/delay-accounting.txt
 ===================================================================
---- linux-2.6.18-rc2.orig/kernel/taskstats.c	2006-07-17 17:03:41.000000000 -0400
-+++ linux-2.6.18-rc2/kernel/taskstats.c	2006-07-17 17:06:52.000000000 -0400
-@@ -121,46 +121,45 @@ static int send_reply(struct sk_buff *sk
- /*
-  * Send taskstats data in @skb to listeners registered for @cpu's exit data
-  */
--static int send_cpu_listeners(struct sk_buff *skb, unsigned int cpu)
-+static void send_cpu_listeners(struct sk_buff *skb, unsigned int cpu)
+--- linux-2.6.18-rc2.orig/Documentation/accounting/delay-accounting.txt	2006-07-17 17:01:41.000000000 -0400
++++ linux-2.6.18-rc2/Documentation/accounting/delay-accounting.txt	2006-07-17 17:07:54.000000000 -0400
+@@ -64,11 +64,13 @@ Compile the kernel with
+ 	CONFIG_TASK_DELAY_ACCT=y
+ 	CONFIG_TASKSTATS=y
+ 
+-Enable the accounting at boot time by adding
+-the following to the kernel boot options
+-	delayacct
++Delay accounting is enabled by default at boot up.
++To disable, add
++   nodelayacct
++to the kernel boot options. The rest of the instructions
++below assume this has not been done.
+ 
+-and after the system has booted up, use a utility
++After the system has booted up, use a utility
+ similar to  getdelays.c to access the delays
+ seen by a given task or a task group (tgid).
+ The utility also allows a given command to be
+Index: linux-2.6.18-rc2/kernel/delayacct.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/delayacct.c	2006-07-17 17:01:51.000000000 -0400
++++ linux-2.6.18-rc2/kernel/delayacct.c	2006-07-17 17:07:54.000000000 -0400
+@@ -19,15 +19,15 @@
+ #include <linux/sysctl.h>
+ #include <linux/delayacct.h>
+ 
+-int delayacct_on __read_mostly;	/* Delay accounting turned on/off */
++int delayacct_on __read_mostly = 1;	/* Delay accounting turned on/off */
+ kmem_cache_t *delayacct_cache;
+ 
+-static int __init delayacct_setup_enable(char *str)
++static int __init delayacct_setup_disable(char *str)
  {
- 	struct genlmsghdr *genlhdr = nlmsg_data((struct nlmsghdr *)skb->data);
- 	struct listener_list *listeners;
- 	struct listener *s, *tmp;
- 	struct sk_buff *skb_next, *skb_cur = skb;
- 	void *reply = genlmsg_data(genlhdr);
--	int rc, ret, delcount = 0;
-+	int rc, delcount = 0;
+-	delayacct_on = 1;
++	delayacct_on = 0;
+ 	return 1;
+ }
+-__setup("delayacct", delayacct_setup_enable);
++__setup("nodelayacct", delayacct_setup_disable);
  
- 	rc = genlmsg_end(skb, reply);
- 	if (rc < 0) {
- 		nlmsg_free(skb);
--		return rc;
-+		return;
- 	}
+ void delayacct_init(void)
+ {
+Index: linux-2.6.18-rc2/Documentation/kernel-parameters.txt
+===================================================================
+--- linux-2.6.18-rc2.orig/Documentation/kernel-parameters.txt	2006-07-17 17:01:41.000000000 -0400
++++ linux-2.6.18-rc2/Documentation/kernel-parameters.txt	2006-07-17 17:07:54.000000000 -0400
+@@ -448,8 +448,6 @@ running once the system is up.
+ 			Format: <area>[,<node>]
+ 			See also Documentation/networking/decnet.txt.
  
- 	rc = 0;
- 	listeners = &per_cpu(listener_array, cpu);
- 	down_read(&listeners->sem);
--	list_for_each_entry_safe(s, tmp, &listeners->list, list) {
-+	list_for_each_entry(s, &listeners->list, list) {
- 		skb_next = NULL;
- 		if (!list_is_last(&s->list, &listeners->list)) {
- 			skb_next = skb_clone(skb_cur, GFP_KERNEL);
--			if (!skb_next) {
--				nlmsg_free(skb_cur);
--				rc = -ENOMEM;
-+			if (!skb_next)
- 				break;
--			}
- 		}
--		ret = genlmsg_unicast(skb_cur, s->pid);
--		if (ret == -ECONNREFUSED) {
-+		rc = genlmsg_unicast(skb_cur, s->pid);
-+		if (rc == -ECONNREFUSED) {
- 			s->valid = 0;
- 			delcount++;
--			rc = ret;
- 		}
- 		skb_cur = skb_next;
- 	}
- 	up_read(&listeners->sem);
+-	delayacct	[KNL] Enable per-task delay accounting
+-
+ 	dhash_entries=	[KNL]
+ 			Set number of hash buckets for dentry cache.
  
-+	if (skb_cur)
-+		nlmsg_free(skb_cur);
+@@ -1031,6 +1029,8 @@ running once the system is up.
+ 
+ 	nocache		[ARM]
+ 
++	nodelayacct	[KNL] Disable per-task delay accounting
 +
- 	if (!delcount)
--		return rc;
-+		return;
+ 	nodisconnect	[HW,SCSI,M68K] Disables SCSI disconnects.
  
- 	/* Delete invalidated entries */
- 	down_write(&listeners->sem);
-@@ -171,7 +170,6 @@ static int send_cpu_listeners(struct sk_
- 		}
- 	}
- 	up_write(&listeners->sem);
--	return rc;
+ 	noexec		[IA-64]
+Index: linux-2.6.18-rc2/include/linux/delayacct.h
+===================================================================
+--- linux-2.6.18-rc2.orig/include/linux/delayacct.h	2006-07-17 17:03:41.000000000 -0400
++++ linux-2.6.18-rc2/include/linux/delayacct.h	2006-07-17 17:07:54.000000000 -0400
+@@ -55,7 +55,7 @@ static inline void delayacct_tsk_init(st
+ {
+ 	/* reinitialize in case parent's non-null pointer was dup'ed*/
+ 	tsk->delays = NULL;
+-	if (unlikely(delayacct_on))
++	if (delayacct_on)
+ 		__delayacct_tsk_init(tsk);
  }
  
- static int fill_pid(pid_t pid, struct task_struct *pidtsk,
+@@ -80,7 +80,7 @@ static inline void delayacct_blkio_end(v
+ static inline int delayacct_add_tsk(struct taskstats *d,
+ 					struct task_struct *tsk)
+ {
+-	if (likely(!delayacct_on) || !tsk->delays)
++	if (!delayacct_on || !tsk->delays)
+ 		return 0;
+ 	return __delayacct_add_tsk(d, tsk);
+ }
 
 

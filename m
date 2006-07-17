@@ -1,110 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWGQPJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWGQPNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWGQPJr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWGQPJr
+	id S1750831AbWGQPNH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWGQPNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:09:47 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:3017 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750818AbWGQPJr (ORCPT
+	Mon, 17 Jul 2006 11:13:07 -0400
+Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:24277 "EHLO
+	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S1750826AbWGQPNF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:09:47 -0400
-Date: Mon, 17 Jul 2006 16:31:06 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: arjan@infradead.org, caleb@calebgray.com, linux-kernel@vger.kernel.org
+	Mon, 17 Jul 2006 11:13:05 -0400
+From: "Jeff Anderson-Lee" <jonah@eecs.berkeley.edu>
+To: "'fsdevel'" <linux-fsdevel@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
 Subject: Re: Reiser4 Inclusion
-In-Reply-To: <20060717160618.013ea282.diegocg@gmail.com>
-Message-ID: <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net>
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
- <20060717160618.013ea282.diegocg@gmail.com>
+Date: Mon, 17 Jul 2006 08:13:04 -0700
+Message-ID: <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1890372446-43599693-1153146666=:10427"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
+Thread-Index: Acapsw8vcZx4W9R0RQKTR6osqEJAEA==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Grzegorz Kulewski wrote:
 
----1890372446-43599693-1153146666=:10427
-Content-Type: TEXT/PLAIN; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+>I too tested Reiser4 some time ago. It didn't have any big problems for me.
 
-On Mon, 17 Jul 2006, Diego Calleja wrote:
-> El Mon, 17 Jul 2006 13:48:02 +0200 (CEST),
-> Grzegorz Kulewski <kangur@polcom.net> escribi=F3:
->> If someone thinks that Reiser4 is too unstable or evil he can set it to =
-N
->> and be happy. And if Reiser4 will be abandoned by Namesys and not fixed
->
-> http://wiki.kernelnewbies.org/WhyReiser4IsNotIn
+>But I am not using (or testing) it now. Why? Mainly because of security: 
+>if Reiser4 is not merged (even as a experminental, subject to change, 
+>unstable, whatever) it will work with new kernels as long as Namesys will 
+>release patches. And if something happens to Namesys I will have to port it
 
-I already read it when it was posted first. I am reading LKML and=20
-reiserfs-list for several years and I already read all that arguments,=20
-flames and so on that were ever pointed here. I think I have enough.
+>to new kernels (and that is usually trivial for kernel developers 
+>introducing incompatible internal kernel API changes but not for me) myself
 
-But if we are there:
+>or will have to use old kernels. And _that_ is a problem for me. 
 
-""But just include it as experimental code regardless of everything,=20
-reiser programmers will fix all the problems eventually!"
+>(Not to mention that I am regulary applying 4-7 patches, some big ones, for
 
-Well, no and yes. As said, nobody expects reiser 4 to be bug-free, but=20
-there're some important issues that need to be fixed, the problems is=20
-that reiser 4 is still working in the important ones. Some of the issues=20
-fixed in the past included severe design issues, BTW. Others are about=20
-being well integrated with Linux: duplication of kernel's own=20
-functionality for no reason, etc. Every piece of code submitted needs to=20
-have some quality - requesting developers to fix severe issues before=20
-getting it into the main tree helps to have better code. If you ask=20
-people people to fix those issues "in the future", they'll be lazy and=20
-there'll be critical issues around all the time - this has happened in=20
-Linux in the past. Quality is important, specially under a stable=20
-development phase. Linux is already being critized a lot for merging new=20
-features during this stable phase - that criticism happens with the=20
-current quality control. Imagine what would happen if linux started to=20
-merge things without caring a bit about what gets merged. Also, consider=20
-what Reiser 4 is. It's a filesystem, once it gets included in the kernel=20
-many people WILL use it and will DEPEND on it (your disk format is=20
-reiser4): Linux needs to ensure that things don't blow up everything."
+>every kernel I am building and resolving merge problems in not your code is
 
-Why do some people think that users are not already depending on it? They=
-=20
-are. I don't know how much but I am willing to bet that at least 100=20
-people. I think that there are some drivers in the kernel that have=20
-smaller user base.
+>not easy thing to do and takes time. While I can live without staircase 
+>scheduler or vesafb-tng if my manual merge attempt fails I can not do so 
+>without my main filesystem. And -mm is a little too unstable for me
+recently.)
+ 
+While I cannot speak directly to the Reiser4 component of this issue, I
+would like to comment on this related issue.
 
-Keeping Reiser4 out of kernel is even worse (for those users, other users=
-=20
-that could test this filesystem, for Reiser4 developers and whole=20
-comunity) than accepting it for a try period with a big fat warning that=20
-it my be removed if Namesys abandons futher fixing of it (after some time=
-=20
-to let user migrate).
+In the past I've wondered why so many experimental FS projects die this
+death of obscurity in that they only work under FreeBSD or some ancient
+version of Linux.  I'm beginning to see why that is so:  the Linux core
+simply changes too fast for it to be a decent FS R&D environment!
 
-And any arguments like "if Reiser4 is not in the kernel then people will=20
-not use and depend on it" are fundamentally flawed IMHO. Everything bad=20
-that could happen with Reiser4 in the kernel can happen with Reiser4 out=20
-of it.
+I have been looking at implementing a COW archival file system for Linux on
+and off for some time now.  While I had hoped to develop these new FS ideas
+under Linux, so that they could have a longer life-time and wider exposure,
+that seems to be a pipe dream with the current situation.  The file system,
+VFS, and mm code has been changing so much lately it would be like trying to
+build on quicksand.  The LKML has such a high volume that I cannot afford
+the time to follow it 100%, but issues that would affect FS development are
+often raised there, instead of in linux-fsdevel.  linux-mm often contains
+issues that would affect linux-fsdevel without cross posting.  The overhead
+of following all of these lists is a huge burden of time that subtracts for
+the time available for development (and the rest of my job).
 
-It may look like some kernel developers are trying hard not to take=20
-responsibility for Reiser4 saying that there is very huge difference=20
-between selecting highly experimental kernel feature that is marked so and=
-=20
-patching the kernel with it. Sorry but I think there is very little=20
-difference. And that little difference is only hurting users that want to=
-=20
-try and test something new.
+I saw a log-structured file system being developed as a Google summer
+project recently.  It's likely doomed to obscurity by the fs-related
+code-churning in the Linux kernel.  Since it is "experimental" it won't be
+included in the kernel distribution and hence won't get the benefit of
+kernel developers making sweeping changes that touch all the file system
+dependent code.  You practically need it to be your full-time job in order
+to do any research or development work under Linux with this kind of
+environment.
 
+The frequent chant of LKML is "don't write a new f/s, make changes to an
+existing FS".   While there is much merit to this approach it limits the
+ideas that can be tried to small incremental changes.  Also, since every
+existing f/s is essentially considered as "production", each change must be
+vetted by the LKML -- not ideal for "experimentation".
 
-Thanks,
+Things that could make Linux a better environment for FS development might
+include:
 
-Grzegorz Kulewski
+1) Create a F/S "sandbox" where experimental FS can be added that will be
+benefit from sweeping changes that affect f/s specific code, or
 
+2) A lessening (moratorium?) on sweeping changes for a while, so that FS
+developers would have a chance to try new ideas without being flooded with
+changes needed just to keep up with the latest kernel, or
 
-PS. I really don't want to begin World War 4 about Reiser4. I just think=20
-that curious people asking from time to time about _current_ Reiser4=20
-status should not be treated bad because that could make them stop=20
-testing and giving back to the open source projects.
+3) Better isolation of the FS dependent and FS independent code, so that
+fewer sweeping changes are needed.
 
----1890372446-43599693-1153146666=:10427--
+Of these: (1) is likely impractical, as it imposes an additional burden on
+kernel developers to support obscure or experimental f/s.  (2) is only a
+stop-gap, as at some point sweeping changes might again be made that would
+out-date most experimental f/s.  (3) seems the most logical course: work
+towards a better interface between the FS dependent and independent layers
+(e.g. VFS, mm) that does a better job of isolating the layers from each
+other.
+
+Without that, *BSD (and now possibly OpenSolaris) will be preferred over
+Linux for FS research, which typically means that few if any people benefit
+from the results: a loss for both Linux and the community at large.
+
+Jeff Anderson-Lee
+Petabyte Storage Infrastructure Project
+UC Berkeley
+

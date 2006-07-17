@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWGQNGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWGQNel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWGQNGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 09:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWGQNGY
+	id S1750745AbWGQNel (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 09:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWGQNel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 09:06:24 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:63706 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1750773AbWGQNGY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 09:06:24 -0400
-Subject: Re: Bad ext3/nfs DoS bug
-From: Marcel Holtmann <marcel@holtmann.org>
-To: James <20@madingley.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060717130128.GA12832@circe.esc.cam.ac.uk>
-References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
-Content-Type: text/plain
-Date: Mon, 17 Jul 2006 15:06:42 +0200
-Message-Id: <1153141602.26860.5.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.4 
+	Mon, 17 Jul 2006 09:34:41 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:24797 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750745AbWGQNek (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 09:34:40 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix line-wrapping in documentation of vmalloc_32_user()
+Date: Mon, 17 Jul 2006 15:34:32 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607171534.33313@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+Fix line-wrapping in documentation of vmalloc_32_user().
 
-> I've tried contacting the relevant maintainers directly,
-> and it's even in the kernel bugzilla, but nothing's happened
-> and it's been over a month now. No-one seems to be doing anyting 
-> about this. Is one meant to post this to bugtraq or what?
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-good contact points are security@kernel.org and vendor-sec@lst.de if
-this problem has a security implication.
+---
+commit dc676c9c7abfac7ed26d48777e4be99e110508f3
+tree 00cbe652d0ed16b324192e74f8f8765b81940bf0
+parent 8352448458ede55c18c98b39823f71ea8e306c70
+author Rolf Eike Beer <eike-kernel@sf-tec.de> Mon, 17 Jul 2006 14:26:27 +0200
+committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Mon, 17 Jul 2006 14:26:27 +0200
 
-Regards
+ mm/vmalloc.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-Marcel
-
-
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 266162d..af05588 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -595,11 +595,12 @@ void *vmalloc_32(unsigned long size)
+ EXPORT_SYMBOL(vmalloc_32);
+ 
+ /**
+- *	vmalloc_32_user  -  allocate virtually contiguous memory (32bit
+- *			      addressable) which is zeroed so it can be
+- *			      mapped to userspace without leaking data.
++ * vmalloc_32_user  -  allocate zeroed virtually contiguous 32bit memory
+  *
+- *	@size:		allocation size
++ * @size:		allocation size
++ *
++ * The resulting memory area is 32bit addressable and zeroed so it can be
++ * mapped to userspace without leaking data.
+  */
+ void *vmalloc_32_user(unsigned long size)
+ {

@@ -1,32 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWGQQeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWGQQeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWGQQeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWGQQdw
+	id S1750963AbWGQQeq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWGQQeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:33:52 -0400
-Received: from mail.kroah.org ([69.55.234.183]:44475 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750956AbWGQQc4 (ORCPT
+	Mon, 17 Jul 2006 12:34:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56764 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750963AbWGQQdu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:32:56 -0400
-Date: Mon, 17 Jul 2006 09:25:31 -0700
+	Mon, 17 Jul 2006 12:33:50 -0400
+Date: Mon, 17 Jul 2006 09:29:15 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 02/45] IB/mthca: restore missing PCI registers after reset
-Message-ID: <20060717162531.GC4829@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
+       Jaroslav Kysela <perex@suse.cz>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 40/45] ALSA: Fix missing array terminators in AD1988 codec support
+Message-ID: <20060717162915.GO4829@kroah.com>
 References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="ib-mthca-restore-missing-pci-registers-after-reset.patch"
+Content-Disposition: inline; filename="alsa-fix-missing-array-terminators-in-ad1988-codec-support.patch"
 In-Reply-To: <20060717162452.GA4829@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,117 +33,53 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-mthca does not restore the following PCI-X/PCI Express registers after reset:
-  PCI-X device: PCI-X command register
-  PCI-X bridge: upstream and downstream split transaction registers
-  PCI Express : PCI Express device control and link control registers
+From: Takashi Iwai <tiwai@suse.de>
 
-This causes instability and/or bad performance on systems where one of
-these registers is set to a non-default value by BIOS.
+[PATCH] ALSA: Fix missing array terminators in AD1988 codec support
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Fixed the missing array terminators in AD1988 codec support code.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jaroslav Kysela <perex@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/infiniband/hw/mthca/mthca_reset.c |   59 ++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ sound/pci/hda/patch_analog.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- linux-2.6.17.2.orig/drivers/infiniband/hw/mthca/mthca_reset.c
-+++ linux-2.6.17.2/drivers/infiniband/hw/mthca/mthca_reset.c
-@@ -49,6 +49,12 @@ int mthca_reset(struct mthca_dev *mdev)
- 	u32 *hca_header    = NULL;
- 	u32 *bridge_header = NULL;
- 	struct pci_dev *bridge = NULL;
-+	int bridge_pcix_cap = 0;
-+	int hca_pcie_cap = 0;
-+	int hca_pcix_cap = 0;
-+
-+	u16 devctl;
-+	u16 linkctl;
+--- linux-2.6.17.6.orig/sound/pci/hda/patch_analog.c
++++ linux-2.6.17.6/sound/pci/hda/patch_analog.c
+@@ -1582,6 +1582,7 @@ static struct snd_kcontrol_new ad1988_6s
+ 	HDA_CODEC_VOLUME_MONO("Center Playback Volume", 0x05, 1, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("LFE Playback Volume", 0x05, 2, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME("Side Playback Volume", 0x0a, 0x0, HDA_OUTPUT),
++	{ } /* end */
+ };
  
- #define MTHCA_RESET_OFFSET 0xf0010
- #define MTHCA_RESET_VALUE  swab32(1)
-@@ -110,6 +116,9 @@ int mthca_reset(struct mthca_dev *mdev)
- 		}
- 	}
+ static struct snd_kcontrol_new ad1988_6stack_mixers1_rev2[] = {
+@@ -1590,6 +1591,7 @@ static struct snd_kcontrol_new ad1988_6s
+ 	HDA_CODEC_VOLUME_MONO("Center Playback Volume", 0x0a, 1, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("LFE Playback Volume", 0x0a, 2, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME("Side Playback Volume", 0x06, 0x0, HDA_OUTPUT),
++	{ } /* end */
+ };
  
-+	hca_pcix_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_PCIX);
-+	hca_pcie_cap = pci_find_capability(mdev->pdev, PCI_CAP_ID_EXP);
-+
- 	if (bridge) {
- 		bridge_header = kmalloc(256, GFP_KERNEL);
- 		if (!bridge_header) {
-@@ -129,6 +138,13 @@ int mthca_reset(struct mthca_dev *mdev)
- 				goto out;
- 			}
- 		}
-+		bridge_pcix_cap = pci_find_capability(bridge, PCI_CAP_ID_PCIX);
-+		if (!bridge_pcix_cap) {
-+				err = -ENODEV;
-+				mthca_err(mdev, "Couldn't locate HCA bridge "
-+					  "PCI-X capability, aborting.\n");
-+				goto out;
-+		}
- 	}
+ static struct snd_kcontrol_new ad1988_6stack_mixers2[] = {
+@@ -1628,6 +1630,7 @@ static struct snd_kcontrol_new ad1988_3s
+ 	HDA_CODEC_VOLUME("Surround Playback Volume", 0x0a, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("Center Playback Volume", 0x05, 1, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("LFE Playback Volume", 0x05, 2, 0x0, HDA_OUTPUT),
++	{ } /* end */
+ };
  
- 	/* actually hit reset */
-@@ -178,6 +194,20 @@ int mthca_reset(struct mthca_dev *mdev)
- good:
- 	/* Now restore the PCI headers */
- 	if (bridge) {
-+		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0x8,
-+				 bridge_header[(bridge_pcix_cap + 0x8) / 4])) {
-+			err = -ENODEV;
-+			mthca_err(mdev, "Couldn't restore HCA bridge Upstream "
-+				  "split transaction control, aborting.\n");
-+			goto out;
-+		}
-+		if (pci_write_config_dword(bridge, bridge_pcix_cap + 0xc,
-+				 bridge_header[(bridge_pcix_cap + 0xc) / 4])) {
-+			err = -ENODEV;
-+			mthca_err(mdev, "Couldn't restore HCA bridge Downstream "
-+				  "split transaction control, aborting.\n");
-+			goto out;
-+		}
- 		/*
- 		 * Bridge control register is at 0x3e, so we'll
- 		 * naturally restore it last in this loop.
-@@ -203,6 +233,35 @@ good:
- 		}
- 	}
+ static struct snd_kcontrol_new ad1988_3stack_mixers1_rev2[] = {
+@@ -1635,6 +1638,7 @@ static struct snd_kcontrol_new ad1988_3s
+ 	HDA_CODEC_VOLUME("Surround Playback Volume", 0x0a, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("Center Playback Volume", 0x06, 1, 0x0, HDA_OUTPUT),
+ 	HDA_CODEC_VOLUME_MONO("LFE Playback Volume", 0x06, 2, 0x0, HDA_OUTPUT),
++	{ } /* end */
+ };
  
-+	if (hca_pcix_cap) {
-+		if (pci_write_config_dword(mdev->pdev, hca_pcix_cap,
-+				 hca_header[hca_pcix_cap / 4])) {
-+			err = -ENODEV;
-+			mthca_err(mdev, "Couldn't restore HCA PCI-X "
-+				  "command register, aborting.\n");
-+			goto out;
-+		}
-+	}
-+
-+	if (hca_pcie_cap) {
-+		devctl = hca_header[(hca_pcie_cap + PCI_EXP_DEVCTL) / 4];
-+		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_DEVCTL,
-+					   devctl)) {
-+			err = -ENODEV;
-+			mthca_err(mdev, "Couldn't restore HCA PCI Express "
-+				  "Device Control register, aborting.\n");
-+			goto out;
-+		}
-+		linkctl = hca_header[(hca_pcie_cap + PCI_EXP_LNKCTL) / 4];
-+		if (pci_write_config_word(mdev->pdev, hca_pcie_cap + PCI_EXP_LNKCTL,
-+					   linkctl)) {
-+			err = -ENODEV;
-+			mthca_err(mdev, "Couldn't restore HCA PCI Express "
-+				  "Link control register, aborting.\n");
-+			goto out;
-+		}
-+	}
-+
- 	for (i = 0; i < 16; ++i) {
- 		if (i * 4 == PCI_COMMAND)
- 			continue;
+ static struct snd_kcontrol_new ad1988_3stack_mixers2[] = {
 
 --

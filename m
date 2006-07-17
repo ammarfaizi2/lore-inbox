@@ -1,117 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWGQPNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWGQPSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWGQPNH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWGQPNH
+	id S1750839AbWGQPSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWGQPSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:13:07 -0400
-Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:24277 "EHLO
-	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S1750826AbWGQPNF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:13:05 -0400
-From: "Jeff Anderson-Lee" <jonah@eecs.berkeley.edu>
-To: "'fsdevel'" <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
-Subject: Re: Reiser4 Inclusion
-Date: Mon, 17 Jul 2006 08:13:04 -0700
-Message-ID: <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
+	Mon, 17 Jul 2006 11:18:15 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:24452 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750839AbWGQPSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 11:18:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=mORlzrnvBMSuRiFrIs46GAP/nO7abO1qYMLgqKlYc/o2pkKFVxX54fZG/mrnlx1ExfOhePK14LsdZRKYmEc0C2yDT7pZ0nOkb4BsPWoD2RVrNYGiA+BCJ/DzStSXyfFq2ktqmjDdKwyXh0tPakLacjW425ECizEC0abqA6mlp9g=
+Date: Mon, 17 Jul 2006 17:18:28 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Jean-Marc Valin <Jean-Marc.Valin@usherbrooke.ca>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Where is RLIMIT_RT_CPU?
+In-Reply-To: <1153137181.24228.16.camel@idefix.homelinux.org>
+Message-ID: <Pine.LNX.4.64.0607171715510.11558@localhost.localdomain>
+References: <1152663825.27958.5.camel@localhost>  <1152809039.8237.48.camel@mindpipe>
+  <1152869952.6374.8.camel@idefix.homelinux.org> 
+ <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain> 
+ <1152919240.6374.38.camel@idefix.homelinux.org>  <1152971896.16617.4.camel@mindpipe>
+  <1152973159.6374.59.camel@idefix.homelinux.org>  <1152974578.3114.24.camel@laptopd505.fenrus.org>
+  <1152975857.6374.65.camel@idefix.homelinux.org>  <1152978284.16617.7.camel@mindpipe>
+  <1153009392.6374.77.camel@idefix.homelinux.org> 
+ <Pine.LNX.4.64.0607161137080.9870@localhost.localdomain> 
+ <1153044864.6374.135.camel@idefix.homelinux.org> 
+ <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
+ <1153137181.24228.16.camel@idefix.homelinux.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
-Thread-Index: Acapsw8vcZx4W9R0RQKTR6osqEJAEA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski wrote:
+On Mon, 17 Jul 2006, Jean-Marc Valin wrote:
 
->I too tested Reiser4 some time ago. It didn't have any big problems for me.
+>> Who said suid root? What about suid realtime or suid audio?
+>
+> Still, I don't see what you gain by making them setuid $group vs
+> allowing member(s) of $group to use rt scheduling.
+>
+>> My point is not that they can lock up the machine. My point is that you
+>> just can't add a rt task to a rt system! A rt-system consists of a fixed
+>> set of threads, which in worst case can meet it's deadlines. If you add
+>> just one task you might break the whole system. Only someone with overview
+>> of the whole system can add those tasks.
+>
+> This issue can also happen if you start 10 suid rt apps. It's the
+> responsibility of the user to make sure there's no bad interaction. The
+> reason we want a limit is to make sure the system remains relatively
+> responsive (not just up). In the ideal case (not sure it's possible),
+> the scheduler would make sure that non-root rt apps wouldn't get (on
+> average) more CPU than they would get running at normal priority. i.e.
+> if there are 3 tasks competing and you start a rt task, then that task
+> couldn't get more than 25% CPU. Of course, it may not be possible to do
+> that perfectly, but anything remotely close would be pretty good.
+>
+> In any case, most audio (and probably other) applications tend to only
+> require a very small amount (<10%) of CPU to run properly. I'd be quite
+> happy is my system was configured to allow me to run rt tasks as long as
+> the total doesn't exceed 30% CPU.
+>
+>> It is very simple if you have only a audio application or only a driver
+>> needing low latencies. What if you have both? You have to make sure that
+>> the higher priority one leaves enough cpu for the lower priority one. And
+>> it is not a question of using a low percentage of cpu. It is a question of
+>> how long the cpu is used in one go and how often it can happen within the
+>> critical timeframe of the lower priority application.
+>
+> I understand that, but adding artificial restrictions (to setuid audio
+> apps) isn't going to help.
+>
+>> You can make a system which checks that but it is much harder to do than
+>> a moving average. The only thing which makes sense is (a) square filter(s)
+>> with a width equal to the required latency of the lower priority task(s).
+>
+> Why not? It could be nice as well if someone wants to implement that.
+> I'd already be quite happy to just have basic control on the CPU time.
+>
+>> So the sys-admin should somehow be able to give the right either to
+>> specific (audio) applications with specific priorities or a developer whom
+>> he trusts (and it does not make sense to give it to both as they would
+>> then mess it up for each other!)
+>
+> How about simply giving rt rights to whomever is logged on the console?
+> That's the user that really counts since he's (usually) next to the
+> audio device.
+>
+>> We have discussed that total lock-up can be prevented with a simple
+>> watchdog. That solution doesn't need anything added into the scheduler.
+>
+> As I mentioned earlier, it's not about total lock-up, but having things
+> run relatively smoothly and (if possible?) even fairly.
+>
+> 	Jean-Marc
+>
 
->But I am not using (or testing) it now. Why? Mainly because of security: 
->if Reiser4 is not merged (even as a experminental, subject to change, 
->unstable, whatever) it will work with new kernels as long as Namesys will 
->release patches. And if something happens to Namesys I will have to port it
+The more I think about it the more it looks like you want a nice -40 task, 
+not a real-time task. The basic behaviour you want is a task which can 
+wake up and get the cpu almost immediately, but if it starts to use too 
+much CPU it looses that privilige. That is you want moving priorities 
+just as a normal SCHED_OTHER tasks. The only difference is that you want 
+it to start further up the scale than usual so it takes much longer before 
+the scheduler has moved it down to a priority, where it has to compete 
+with other tasks. Maybe it is already enough to run your audio application 
+at nice -20 ?
 
->to new kernels (and that is usually trivial for kernel developers 
->introducing incompatible internal kernel API changes but not for me) myself
+When you are not developing for a specific CPU and/or the your application 
+isn't the only RT application on the system, you can't use real-time
+scheduling anyway, it simply doesn't make much sense. Using a very high
+SCHED_OTHER priority would probably work much better. Leave the 
+RT talk for the controlled embedded applications, where the developers (are 
+supposed to) know and test the whole system.
 
->or will have to use old kernels. And _that_ is a problem for me. 
+I also think that Joe user who is locked into the console should only be able
+to start specific applications with extraordinary priorities. That is, it
+should not be enough to look at his permissions, but look at the permissions
+of the program he wants to run. Therefore a suid system is the right thing to
+make.
 
->(Not to mention that I am regulary applying 4-7 patches, some big ones, for
-
->every kernel I am building and resolving merge problems in not your code is
-
->not easy thing to do and takes time. While I can live without staircase 
->scheduler or vesafb-tng if my manual merge attempt fails I can not do so 
->without my main filesystem. And -mm is a little too unstable for me
-recently.)
- 
-While I cannot speak directly to the Reiser4 component of this issue, I
-would like to comment on this related issue.
-
-In the past I've wondered why so many experimental FS projects die this
-death of obscurity in that they only work under FreeBSD or some ancient
-version of Linux.  I'm beginning to see why that is so:  the Linux core
-simply changes too fast for it to be a decent FS R&D environment!
-
-I have been looking at implementing a COW archival file system for Linux on
-and off for some time now.  While I had hoped to develop these new FS ideas
-under Linux, so that they could have a longer life-time and wider exposure,
-that seems to be a pipe dream with the current situation.  The file system,
-VFS, and mm code has been changing so much lately it would be like trying to
-build on quicksand.  The LKML has such a high volume that I cannot afford
-the time to follow it 100%, but issues that would affect FS development are
-often raised there, instead of in linux-fsdevel.  linux-mm often contains
-issues that would affect linux-fsdevel without cross posting.  The overhead
-of following all of these lists is a huge burden of time that subtracts for
-the time available for development (and the rest of my job).
-
-I saw a log-structured file system being developed as a Google summer
-project recently.  It's likely doomed to obscurity by the fs-related
-code-churning in the Linux kernel.  Since it is "experimental" it won't be
-included in the kernel distribution and hence won't get the benefit of
-kernel developers making sweeping changes that touch all the file system
-dependent code.  You practically need it to be your full-time job in order
-to do any research or development work under Linux with this kind of
-environment.
-
-The frequent chant of LKML is "don't write a new f/s, make changes to an
-existing FS".   While there is much merit to this approach it limits the
-ideas that can be tried to small incremental changes.  Also, since every
-existing f/s is essentially considered as "production", each change must be
-vetted by the LKML -- not ideal for "experimentation".
-
-Things that could make Linux a better environment for FS development might
-include:
-
-1) Create a F/S "sandbox" where experimental FS can be added that will be
-benefit from sweeping changes that affect f/s specific code, or
-
-2) A lessening (moratorium?) on sweeping changes for a while, so that FS
-developers would have a chance to try new ideas without being flooded with
-changes needed just to keep up with the latest kernel, or
-
-3) Better isolation of the FS dependent and FS independent code, so that
-fewer sweeping changes are needed.
-
-Of these: (1) is likely impractical, as it imposes an additional burden on
-kernel developers to support obscure or experimental f/s.  (2) is only a
-stop-gap, as at some point sweeping changes might again be made that would
-out-date most experimental f/s.  (3) seems the most logical course: work
-towards a better interface between the FS dependent and independent layers
-(e.g. VFS, mm) that does a better job of isolating the layers from each
-other.
-
-Without that, *BSD (and now possibly OpenSolaris) will be preferred over
-Linux for FS research, which typically means that few if any people benefit
-from the results: a loss for both Linux and the community at large.
-
-Jeff Anderson-Lee
-Petabyte Storage Infrastructure Project
-UC Berkeley
+Esben
 

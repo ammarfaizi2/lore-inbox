@@ -1,113 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWGQPGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWGQPJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWGQPGh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:06:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWGQPGh
+	id S1750818AbWGQPJr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWGQPJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:06:37 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:8904 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750824AbWGQPGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:06:36 -0400
-Subject: Re: Where is RLIMIT_RT_CPU?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1153146757.24228.28.camel@idefix.homelinux.org>
-References: <1152663825.27958.5.camel@localhost>
-	 <1152809039.8237.48.camel@mindpipe>
-	 <1152869952.6374.8.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
-	 <1152919240.6374.38.camel@idefix.homelinux.org>
-	 <1152971896.16617.4.camel@mindpipe>
-	 <1152973159.6374.59.camel@idefix.homelinux.org>
-	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
-	 <1152975857.6374.65.camel@idefix.homelinux.org>
-	 <1152978284.16617.7.camel@mindpipe>
-	 <1153009392.6374.77.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607161137080.9870@localhost.localdomain>
-	 <1153044864.6374.135.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
-	 <1153137181.24228.16.camel@idefix.homelinux.org>
-	 <1153144753.652.12.camel@localhost.localdomain>
-	 <1153146757.24228.28.camel@idefix.homelinux.org>
-Content-Type: text/plain
-Date: Mon, 17 Jul 2006 11:06:07 -0400
-Message-Id: <1153148767.1218.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jul 2006 11:09:47 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:3017 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750818AbWGQPJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 11:09:47 -0400
+Date: Mon, 17 Jul 2006 16:31:06 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: arjan@infradead.org, caleb@calebgray.com, linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 Inclusion
+In-Reply-To: <20060717160618.013ea282.diegocg@gmail.com>
+Message-ID: <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net>
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
+ <20060717160618.013ea282.diegocg@gmail.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1890372446-43599693-1153146666=:10427"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-18 at 00:32 +1000, Jean-Marc Valin wrote:
-> > Have you thought about using something like Xen?  Have a virtual machine
-> > that you can even give root access to users, and still have control of
-> > the actual physical machine.
-> 
-> What does Xen have to do with that? I don't want to run stuff in another
-> virtual machine, just on my desktop. Also, no matter how good the
-> virtualization is, if the host eats CPU, the guest doesn't have it. 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-What exactly is it that you want? Limit an RT process, but not limit
-it???
+---1890372446-43599693-1153146666=:10427
+Content-Type: TEXT/PLAIN; charset=iso-8859-15; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-> 
-> > One issue I think you might have is what exactly is a CPU limit?  If the
-> > system is idle, and you have an app that goes into a busy loop, do you
-> > kill it after it hits the limit, even if it isn't RT?  Or do you just
-> > force it to schedule?  Or do you consider idle a special case?  Do you
-> > want just the apps to be limited, or all the apps that belong to a
-> > specific user.
-> 
-> The standard was is to simply demote ill-behaved tasks to SCHED_OTHER or
-> suspend them temporarily, i.e. limit the percentage of CPU they can get
-> over a certain period of time.
-> 
-> > >From this thread, it seems your goal is to have a single console that
-> > users can log into and run a RT thread for audio but still not be able
-> > to lock up the entire system. Right?  So having an RT limit for this use
-> > might actually be beneficial.  But this is a very rare case, and if you
-> > are the only one needing this type of feature, then it will likely not
-> > make it into the kernel.  
-> 
-> Rare case? So you never use a VoIP app (sure they can work as non-rt,
-> but you get much better quality as latency goes down)? How about media
-> players that don't skip? There are lots of uses for low-latency (i.e. rt
-> scheduling) on a desktop. Pro audio people are the first to benefit, but
-> all users can see an improvement.
+On Mon, 17 Jul 2006, Diego Calleja wrote:
+> El Mon, 17 Jul 2006 13:48:02 +0200 (CEST),
+> Grzegorz Kulewski <kangur@polcom.net> escribi=F3:
+>> If someone thinks that Reiser4 is too unstable or evil he can set it to =
+N
+>> and be happy. And if Reiser4 will be abandoned by Namesys and not fixed
+>
+> http://wiki.kernelnewbies.org/WhyReiser4IsNotIn
 
-If I need something that requires RT I simply set it to be RT.  That is
-not what you are asking.  You want something to be RT but limited.  This
-_is_ a rare case AFAIC.
+I already read it when it was posted first. I am reading LKML and=20
+reiserfs-list for several years and I already read all that arguments,=20
+flames and so on that were ever pointed here. I think I have enough.
 
-> 
-> > But it if turns out that lots of people like
-> > this feature, and want it, then it might have a chance, if there is no
-> > other way to accomplish it.
-> 
-> There *are* lots of people who want it and who have been complaining for
-> quite a while (see threads on linux-audio-dev). All that's missing is a
-> tiny bit, which makes it even more frustrating.
+But if we are there:
 
-People want their RT apps to have a CPU limit?
+""But just include it as experimental code regardless of everything,=20
+reiser programmers will fix all the problems eventually!"
 
-> 
-> > Currently, it looks like you can use either Xen or just stick to one of
-> > the patches you mentioned earlier.
-> 
-> Sure, I can patch my kernel, but then the distros will just keep on
-> ignoring the problem, which is bad.
+Well, no and yes. As said, nobody expects reiser 4 to be bug-free, but=20
+there're some important issues that need to be fixed, the problems is=20
+that reiser 4 is still working in the important ones. Some of the issues=20
+fixed in the past included severe design issues, BTW. Others are about=20
+being well integrated with Linux: duplication of kernel's own=20
+functionality for no reason, etc. Every piece of code submitted needs to=20
+have some quality - requesting developers to fix severe issues before=20
+getting it into the main tree helps to have better code. If you ask=20
+people people to fix those issues "in the future", they'll be lazy and=20
+there'll be critical issues around all the time - this has happened in=20
+Linux in the past. Quality is important, specially under a stable=20
+development phase. Linux is already being critized a lot for merging new=20
+features during this stable phase - that criticism happens with the=20
+current quality control. Imagine what would happen if linux started to=20
+merge things without caring a bit about what gets merged. Also, consider=20
+what Reiser 4 is. It's a filesystem, once it gets included in the kernel=20
+many people WILL use it and will DEPEND on it (your disk format is=20
+reiser4): Linux needs to ensure that things don't blow up everything."
 
-It could just be me. I'm not into audio, and the RT apps that I use are
-in a controlled environment.  So please educate me and tell me what
-exactly is it that you want and why?  And not just a buggy RT app that
-takes down the system.  That is expected behavior.  And it is possible
-to control that in user space.
+Why do some people think that users are not already depending on it? They=
+=20
+are. I don't know how much but I am willing to bet that at least 100=20
+people. I think that there are some drivers in the kernel that have=20
+smaller user base.
 
--- Steve
+Keeping Reiser4 out of kernel is even worse (for those users, other users=
+=20
+that could test this filesystem, for Reiser4 developers and whole=20
+comunity) than accepting it for a try period with a big fat warning that=20
+it my be removed if Namesys abandons futher fixing of it (after some time=
+=20
+to let user migrate).
+
+And any arguments like "if Reiser4 is not in the kernel then people will=20
+not use and depend on it" are fundamentally flawed IMHO. Everything bad=20
+that could happen with Reiser4 in the kernel can happen with Reiser4 out=20
+of it.
+
+It may look like some kernel developers are trying hard not to take=20
+responsibility for Reiser4 saying that there is very huge difference=20
+between selecting highly experimental kernel feature that is marked so and=
+=20
+patching the kernel with it. Sorry but I think there is very little=20
+difference. And that little difference is only hurting users that want to=
+=20
+try and test something new.
 
 
+Thanks,
+
+Grzegorz Kulewski
+
+
+PS. I really don't want to begin World War 4 about Reiser4. I just think=20
+that curious people asking from time to time about _current_ Reiser4=20
+status should not be treated bad because that could make them stop=20
+testing and giving back to the open source projects.
+
+---1890372446-43599693-1153146666=:10427--

@@ -1,78 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWGQN7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWGQOGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWGQN7v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 09:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWGQN7v
+	id S1750779AbWGQOGf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 10:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWGQOGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 09:59:51 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:31187 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750780AbWGQN7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 09:59:50 -0400
-Subject: Re: Where is RLIMIT_RT_CPU?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1153137181.24228.16.camel@idefix.homelinux.org>
-References: <1152663825.27958.5.camel@localhost>
-	 <1152809039.8237.48.camel@mindpipe>
-	 <1152869952.6374.8.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
-	 <1152919240.6374.38.camel@idefix.homelinux.org>
-	 <1152971896.16617.4.camel@mindpipe>
-	 <1152973159.6374.59.camel@idefix.homelinux.org>
-	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
-	 <1152975857.6374.65.camel@idefix.homelinux.org>
-	 <1152978284.16617.7.camel@mindpipe>
-	 <1153009392.6374.77.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607161137080.9870@localhost.localdomain>
-	 <1153044864.6374.135.camel@idefix.homelinux.org>
-	 <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
-	 <1153137181.24228.16.camel@idefix.homelinux.org>
-Content-Type: text/plain
-Date: Mon, 17 Jul 2006 09:59:13 -0400
-Message-Id: <1153144753.652.12.camel@localhost.localdomain>
+	Mon, 17 Jul 2006 10:06:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:23980 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750779AbWGQOGe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 10:06:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=lwg2842Y6+ClVwOl104401HneyN5y29R2e4qRCidtIq4EtHEODgLRAVziAQTvfxtJ79/oRwbudx3YvKAIXpsHYnbY7UYF4I+ZdOGCvKqi2HcIp7w3D91uw7f827EVjjRE33gdtkIFY8b4Y6IdFdDR3gZ3rChHuNsl06CNWKA+ts=
+Date: Mon, 17 Jul 2006 16:06:18 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: arjan@infradead.org, caleb@calebgray.com, linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 Inclusion
+Message-Id: <20060717160618.013ea282.diegocg@gmail.com>
+In-Reply-To: <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
+References: <44BAFDB7.9050203@calebgray.com>
+	<1153128374.3062.10.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-17 at 21:53 +1000, Jean-Marc Valin wrote:
+El Mon, 17 Jul 2006 13:48:02 +0200 (CEST),
+Grzegorz Kulewski <kangur@polcom.net> escribió:
 
-> 
-> Why not? It could be nice as well if someone wants to implement that.
-> I'd already be quite happy to just have basic control on the CPU time.
-> 
 
-Have you thought about using something like Xen?  Have a virtual machine
-that you can even give root access to users, and still have control of
-the actual physical machine.
+> If someone thinks that Reiser4 is too unstable or evil he can set it to N 
+> and be happy. And if Reiser4 will be abandoned by Namesys and not fixed 
 
-> As I mentioned earlier, it's not about total lock-up, but having things
-> run relatively smoothly and (if possible?) even fairly.
 
-One issue I think you might have is what exactly is a CPU limit?  If the
-system is idle, and you have an app that goes into a busy loop, do you
-kill it after it hits the limit, even if it isn't RT?  Or do you just
-force it to schedule?  Or do you consider idle a special case?  Do you
-want just the apps to be limited, or all the apps that belong to a
-specific user.
-
->From this thread, it seems your goal is to have a single console that
-users can log into and run a RT thread for audio but still not be able
-to lock up the entire system. Right?  So having an RT limit for this use
-might actually be beneficial.  But this is a very rare case, and if you
-are the only one needing this type of feature, then it will likely not
-make it into the kernel.  But it if turns out that lots of people like
-this feature, and want it, then it might have a chance, if there is no
-other way to accomplish it.
-
-Currently, it looks like you can use either Xen or just stick to one of
-the patches you mentioned earlier.
-
--- Steve
-
+http://wiki.kernelnewbies.org/WhyReiser4IsNotIn

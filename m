@@ -1,299 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWGQUkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWGQUsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWGQUkr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 16:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWGQUkr
+	id S1751187AbWGQUsI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 16:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWGQUsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 16:40:47 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:7370 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751177AbWGQUkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 16:40:46 -0400
-Subject: [PATCH] mm: use-once cleanup
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       riel <riel@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 17 Jul 2006 22:40:28 +0200
-Message-Id: <1153168829.31891.89.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jul 2006 16:48:08 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:50667 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751187AbWGQUsH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 16:48:07 -0400
+Date: Mon, 17 Jul 2006 22:48:04 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>
+Cc: "'fsdevel'" <linux-fsdevel@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 Inclusion
+Message-ID: <20060717204804.GA18516@harddisk-recovery.com>
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 17, 2006 at 08:13:04AM -0700, Jeff Anderson-Lee wrote:
+> In the past I've wondered why so many experimental FS projects die this
+> death of obscurity in that they only work under FreeBSD or some ancient
+> version of Linux.? I'm beginning to see why that is so:? the Linux core
+> simply changes too fast for it to be a decent FS R&D environment!
 
-This is yet another implementation of the PG_useonce cleanup spoken of
-during the VM summit.
+That hasn't been a problem for OCFS2 and FUSE (recently merged), and
+also doesn't seem to be a problem for GFS.
 
-The idea is to mark a page PG_useonce on pagecache entry and modify the
-page_referenced() check to retry on the inactive list instead of
-promotion to the active list when PG_useonce is set. PG_useonce is
-cleared on first use.
+> I have been looking at implementing a COW archival file system for Linux on
+> and off for some time now.? While I had hoped to develop these new FS ideas
+> under Linux, so that they could have a longer life-time and wider exposure,
+> that seems to be a pipe dream with the current situation.? The file system,
+> VFS, and mm code has been changing so much lately it would be like trying to
+> build on quicksand.? The LKML has such a high volume that I cannot afford
+> the time to follow it 100%, but issues that would affect FS development are
+> often raised there, instead of in linux-fsdevel.? linux-mm often contains
+> issues that would affect linux-fsdevel without cross posting.? The overhead
+> of following all of these lists is a huge burden of time that subtracts for
+> the time available for development (and the rest of my job).
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
----
- include/linux/mm_inline.h  |    2 ++
- include/linux/page-flags.h |    5 +++++
- mm/filemap.c               |   22 +++++++++++++---------
- mm/page_alloc.c            |    9 ++++++---
- mm/shmem.c                 |    7 ++-----
- mm/swap.c                  |   11 ++---------
- mm/vmscan.c                |   36 +++++++++++-------------------------
- 7 files changed, 41 insertions(+), 51 deletions(-)
+A good MUA is very important to follow high volume lists (I use Mutt
+and Sylpheed, anything that supports threading should do): skim the
+subjects, delete any thread you're not interested in. The result is
+quite a small amount of useful posts. If you still think linux-kernel
+is too much, linux-fsdevel should do. In my experience the important
+changes go there first (or are CC'ed from linux-kernel).
 
-Index: linux-2.6/include/linux/mm_inline.h
-===================================================================
---- linux-2.6.orig/include/linux/mm_inline.h	2006-07-17 22:31:06.000000000 +0200
-+++ linux-2.6/include/linux/mm_inline.h	2006-07-17 22:35:32.000000000 +0200
-@@ -37,5 +37,7 @@ del_page_from_lru(struct zone *zone, str
- 	} else {
- 		zone->nr_inactive--;
- 	}
-+	if (PageUseOnce(page))
-+		ClearPageUseOnce(page);
- }
+> I saw a log-structured file system being developed as a Google summer
+> project recently.? It's likely doomed to obscurity by the fs-related
+> code-churning in the Linux kernel.? Since it is "experimental" it won't be
+> included in the kernel distribution and hence won't get the benefit of
+> kernel developers making sweeping changes that touch all the file system
+> dependent code.? You practically need it to be your full-time job in order
+> to do any research or development work under Linux with this kind of
+> environment.
+
+FYI the amount of vfs changes is quite small. Use git to figure out:
+
+  git-log v2.6.12..v2.6.17 | git-shortlog | grep -i vfs | grep -vi devfs | wc -l
+  57
+  git-log v2.6.17..v2.6.18-rc2 | git-shortlog | grep -i vfs | grep -vi devfs | wc -l
+  15
+
+There's some clutter in those numbers, so the real amount is even
+smaller. Your claim about a high amount of changes in the vfs code
+doesn't seem to be backed by evidence from the kernel changelog.
+
+> The frequent chant of LKML is "don't write a new f/s, make changes to an
+> existing FS".?? While there is much merit to this approach it limits the
+> ideas that can be tried to small incremental changes.? Also, since every
+> existing f/s is essentially considered as "production", each change must be
+> vetted by the LKML -- not ideal for "experimentation".
+> 
+> Things that could make Linux a better environment for FS development might
+> include:
+> 
+> 1) Create a F/S "sandbox" where experimental FS can be added that will be
+> benefit from sweeping changes that affect f/s specific code, or
+
+You can use FUSE for that: your fs lives in userspace where you can
+experiment at will. FUSE will take care of the kernel specific things.
  
-Index: linux-2.6/include/linux/page-flags.h
-===================================================================
---- linux-2.6.orig/include/linux/page-flags.h	2006-07-17 22:31:09.000000000 +0200
-+++ linux-2.6/include/linux/page-flags.h	2006-07-17 22:39:14.000000000 +0200
-@@ -86,6 +86,7 @@
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_buddy		19	/* Page is free, on buddy lists */
- 
-+#define PG_useonce		20	/* Page is new to the pagecache */
- 
- #if (BITS_PER_LONG > 32)
- /*
-@@ -247,6 +248,10 @@
- #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
- 
-+#define PageUseOnce(page)	test_bit(PG_useonce, &(page)->flags)
-+#define SetPageUseOnce(page)	set_bit(PG_useonce, &(page)->flags)
-+#define ClearPageUseOnce(page)	clear_bit(PG_useonce, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
-Index: linux-2.6/mm/filemap.c
-===================================================================
---- linux-2.6.orig/mm/filemap.c	2006-07-17 22:31:17.000000000 +0200
-+++ linux-2.6/mm/filemap.c	2006-07-17 22:35:32.000000000 +0200
-@@ -444,6 +444,18 @@ int add_to_page_cache(struct page *page,
- 		error = radix_tree_insert(&mapping->page_tree, offset, page);
- 		if (!error) {
- 			page_cache_get(page);
-+			/*
-+			 * shmem_getpage()
-+			 *   lookup_swap_cache()
-+			 *   TestSetPageLocked()
-+			 *   move_from_swap_cache()
-+			 *     add_to_page_cache()
-+			 *
-+			 * That path calls us with a LRU page instead of a new
-+			 * page. Don't set the hint for LRU pages.
-+			 */
-+			if (!PageLocked(page))
-+				SetPageUseOnce(page);
- 			SetPageLocked(page);
- 			page->mapping = mapping;
- 			page->index = offset;
-@@ -884,7 +896,6 @@ void do_generic_mapping_read(struct addr
- 	unsigned long offset;
- 	unsigned long last_index;
- 	unsigned long next_index;
--	unsigned long prev_index;
- 	loff_t isize;
- 	struct page *cached_page;
- 	int error;
-@@ -893,7 +904,6 @@ void do_generic_mapping_read(struct addr
- 	cached_page = NULL;
- 	index = *ppos >> PAGE_CACHE_SHIFT;
- 	next_index = index;
--	prev_index = ra.prev_page;
- 	last_index = (*ppos + desc->count + PAGE_CACHE_SIZE-1) >> PAGE_CACHE_SHIFT;
- 	offset = *ppos & ~PAGE_CACHE_MASK;
- 
-@@ -940,13 +950,7 @@ page_ok:
- 		if (mapping_writably_mapped(mapping))
- 			flush_dcache_page(page);
- 
--		/*
--		 * When (part of) the same page is read multiple times
--		 * in succession, only mark it as accessed the first time.
--		 */
--		if (prev_index != index)
--			mark_page_accessed(page);
--		prev_index = index;
-+		mark_page_accessed(page);
- 
- 		/*
- 		 * Ok, we have the page, and it's up-to-date, so
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c	2006-07-17 22:31:17.000000000 +0200
-+++ linux-2.6/mm/page_alloc.c	2006-07-17 22:38:25.000000000 +0200
-@@ -154,7 +154,8 @@ static void bad_page(struct page *page)
- 			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_buddy );
-+			1 << PG_buddy |
-+			1 << PG_useonce);
- 	set_page_count(page, 0);
- 	reset_page_mapcount(page);
- 	page->mapping = NULL;
-@@ -389,7 +390,8 @@ static inline int free_pages_check(struc
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
- 			1 << PG_reserved |
--			1 << PG_buddy ))))
-+			1 << PG_buddy |
-+			1 << PF_useonce ))))
- 		bad_page(page);
- 	if (PageDirty(page))
- 		__ClearPageDirty(page);
-@@ -538,7 +540,8 @@ static int prep_new_page(struct page *pa
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
- 			1 << PG_reserved |
--			1 << PG_buddy ))))
-+			1 << PG_buddy |
-+			1 << PG_useonce ))))
- 		bad_page(page);
- 
- 	/*
-Index: linux-2.6/mm/shmem.c
-===================================================================
---- linux-2.6.orig/mm/shmem.c	2006-07-17 22:31:17.000000000 +0200
-+++ linux-2.6/mm/shmem.c	2006-07-17 22:35:32.000000000 +0200
-@@ -1567,11 +1567,8 @@ static void do_shmem_file_read(struct fi
- 			 */
- 			if (mapping_writably_mapped(mapping))
- 				flush_dcache_page(page);
--			/*
--			 * Mark the page accessed if we read the beginning.
--			 */
--			if (!offset)
--				mark_page_accessed(page);
-+
-+			mark_page_accessed(page);
- 		} else {
- 			page = ZERO_PAGE(0);
- 			page_cache_get(page);
-Index: linux-2.6/mm/swap.c
-===================================================================
---- linux-2.6.orig/mm/swap.c	2006-07-17 22:31:18.000000000 +0200
-+++ linux-2.6/mm/swap.c	2006-07-17 22:35:32.000000000 +0200
-@@ -114,19 +114,11 @@ void fastcall activate_page(struct page 
- 
- /*
-  * Mark a page as having seen activity.
-- *
-- * inactive,unreferenced	->	inactive,referenced
-- * inactive,referenced		->	active,unreferenced
-- * active,unreferenced		->	active,referenced
-  */
- void fastcall mark_page_accessed(struct page *page)
- {
--	if (!PageActive(page) && PageReferenced(page) && PageLRU(page)) {
--		activate_page(page);
--		ClearPageReferenced(page);
--	} else if (!PageReferenced(page)) {
-+	if (!PageReferenced(page))
- 		SetPageReferenced(page);
--	}
- }
- 
- EXPORT_SYMBOL(mark_page_accessed);
-@@ -153,6 +145,7 @@ void fastcall lru_cache_add_active(struc
- 	struct pagevec *pvec = &get_cpu_var(lru_add_active_pvecs);
- 
- 	page_cache_get(page);
-+	ClearPageUseOnce(page);
- 	if (!pagevec_add(pvec, page))
- 		__pagevec_lru_add_active(pvec);
- 	put_cpu_var(lru_add_active_pvecs);
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c	2006-07-17 22:31:18.000000000 +0200
-+++ linux-2.6/mm/vmscan.c	2006-07-17 22:35:32.000000000 +0200
-@@ -227,27 +227,6 @@ unsigned long shrink_slab(unsigned long 
- 	return ret;
- }
- 
--/* Called without lock on whether page is mapped, so answer is unstable */
--static inline int page_mapping_inuse(struct page *page)
--{
--	struct address_space *mapping;
--
--	/* Page is in somebody's page tables. */
--	if (page_mapped(page))
--		return 1;
--
--	/* Be more reluctant to reclaim swapcache than pagecache */
--	if (PageSwapCache(page))
--		return 1;
--
--	mapping = page_mapping(page);
--	if (!mapping)
--		return 0;
--
--	/* File is mmap'd by somebody? */
--	return mapping_mapped(mapping);
--}
--
- static inline int is_page_cache_freeable(struct page *page)
- {
- 	return page_count(page) - !!PagePrivate(page) == 2;
-@@ -456,8 +435,13 @@ static unsigned long shrink_page_list(st
- 
- 		referenced = page_referenced(page, 1);
- 		/* In active use or really unfreeable?  Activate it. */
--		if (referenced && page_mapping_inuse(page))
-+		if (referenced) {
-+			if (PageUseOnce(page)) {
-+				ClearPageUseOnce(page);
-+				goto keep_locked;
-+			}
- 			goto activate_locked;
-+		}
- 
- #ifdef CONFIG_SWAP
- 		/*
-@@ -551,6 +535,7 @@ static unsigned long shrink_page_list(st
- 			goto keep_locked;
- 
- free_it:
-+		ClearPageUseOnce(page);
- 		unlock_page(page);
- 		nr_reclaimed++;
- 		if (!pagevec_add(&freed_pvec, page))
-@@ -724,6 +709,7 @@ static void shrink_active_list(unsigned 
- 	struct page *page;
- 	struct pagevec pvec;
- 	int reclaim_mapped = 0;
-+	int referenced;
- 
- 	if (sc->may_swap) {
- 		long mapped_ratio;
-@@ -780,10 +766,10 @@ static void shrink_active_list(unsigned 
- 		cond_resched();
- 		page = lru_to_page(&l_hold);
- 		list_del(&page->lru);
-+		referenced = page_referenced(page, 0);
- 		if (page_mapped(page)) {
--			if (!reclaim_mapped ||
--			    (total_swap_pages == 0 && PageAnon(page)) ||
--			    page_referenced(page, 0)) {
-+			if (referenced || !reclaim_mapped ||
-+			    (total_swap_pages == 0 && PageAnon(page))) {
- 				list_add(&page->lru, &l_active);
- 				continue;
- 			}
+> 2) A lessening (moratorium?) on sweeping changes for a while, so that FS
+> developers would have a chance to try new ideas without being flooded with
+> changes needed just to keep up with the latest kernel, or
+
+See Documentation/stable_api_nonsense.txt.
+
+> 3) Better isolation of the FS dependent and FS independent code, so that
+> fewer sweeping changes are needed.
+> 
+> Of these: (1) is likely impractical, as it imposes an additional burden on
+> kernel developers to support obscure or experimental f/s.? (2) is only a
+> stop-gap, as at some point sweeping changes might again be made that would
+> out-date most experimental f/s.? (3) seems the most logical course: work
+> towards a better interface between the FS dependent and independent layers
+> (e.g. VFS, mm) that does a better job of isolating the layers from each
+> other.
+
+I opt for option (4): accept that the number of changes are low enough
+to follow for any filesystem.
+
+> Without that, *BSD (and now possibly OpenSolaris) will be preferred over
+> Linux for FS research, which typically means that few if any people benefit
+> from the results: a loss for both Linux and the community at large.
+
+IMHO that's just FUD. High rates of change haven't obstructed Linux in
+any way to get a larger installed base than Solaris and *BSD.
 
 
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

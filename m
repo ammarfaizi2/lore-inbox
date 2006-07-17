@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWGQF33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWGQFxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWGQF33 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 01:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWGQF32
+	id S932267AbWGQFxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 01:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWGQFxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 01:29:28 -0400
-Received: from ftp.linux-mips.org ([194.74.144.162]:39903 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932106AbWGQF32
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 01:29:28 -0400
-Date: Mon, 17 Jul 2006 01:21:57 -0400
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Albert Cahalan <acahalan@gmail.com>, dwmw2@infradead.org,
-       maillist@jg555.com, linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: 2.6.18 Headers - Long
-Message-ID: <20060717052157.GA3674@linux-mips.org>
-References: <787b0d920607151409q4d0dfcc1wc787d9dfe7b0a897@mail.gmail.com> <1152998347.3114.36.camel@laptopd505.fenrus.org>
+	Mon, 17 Jul 2006 01:53:06 -0400
+Received: from mo30.po.2iij.net ([210.128.50.53]:59951 "EHLO mo30.po.2iij.net")
+	by vger.kernel.org with ESMTP id S1751239AbWGQFxF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 01:53:05 -0400
+Date: Mon, 17 Jul 2006 14:52:51 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] changed to using CHECK_IRQ_PER_CPU
+Message-Id: <20060717145251.0069d16e.yoichi_yuasa@tripeaks.co.jp>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152998347.3114.36.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 15, 2006 at 11:19:06PM +0200, Arjan van de Ven wrote:
+Hi,
 
-> > The attraction is that the kernel abstractions are very nice.
-> > Much of the POSIX API sucks ass. The kernel stuff is NOT crap.
-> > 
-> > Here we have a full-featured set of atomic ops,
-> 
-> which are not atomic actually in userspace (hint: most apps don't have
-> CONFIG_SMP set)
+This patch has changed to using CHECK_IRQ_PER_CPU.
 
-Atomic ops for some architectures / configuration won't even work at al
-in userspace because they're implemented by disabling interrupts.
+Yoichi
 
-  Ralf
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+
+diff -pruN -X 2.6.18-rc2/Documentation/dontdiff 2.6.18-rc2-orig/arch/powerpc/kernel/irq.c 2.6.18-rc2/arch/powerpc/kernel/irq.c
+--- 2.6.18-rc2-orig/arch/powerpc/kernel/irq.c	2006-07-16 22:27:18.417697000 +0900
++++ 2.6.18-rc2/arch/powerpc/kernel/irq.c	2006-07-16 23:29:05.548305750 +0900
+@@ -164,7 +164,7 @@ void fixup_irqs(cpumask_t map)
+ 	for_each_irq(irq) {
+ 		cpumask_t mask;
+ 
+-		if (irq_desc[irq].status & IRQ_PER_CPU)
++		if (CHECK_IRQ_PER_CPU(irq_desc[irq].status))
+ 			continue;
+ 
+ 		cpus_and(mask, irq_desc[irq].affinity, map);

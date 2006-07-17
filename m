@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWGQPV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWGQP0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWGQPV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWGQPV2
+	id S1750842AbWGQP0J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWGQP0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:21:28 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:29065 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750813AbWGQPV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:21:27 -0400
-Date: Mon, 17 Jul 2006 17:21:19 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: gmu 2k6 <gmu2006@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-In-Reply-To: <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0607171718140.6762@scrub.home>
-References: <20060714150418.120680@gmx.net>  <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-  <20060717133809.150390@gmx.net>  <Pine.LNX.4.64.0607171605500.6761@scrub.home>
- <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
+	Mon, 17 Jul 2006 11:26:09 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:35517 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750842AbWGQP0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 11:26:08 -0400
+Message-ID: <44BBAC0B.4020602@steeleye.com>
+Date: Mon, 17 Jul 2006 11:26:03 -0400
+From: Paul Clements <paul.clements@steeleye.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michal Feix <michal.feix@firma.seznam.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] nbd: Abort request on data reception failure
+References: <44BA3C58.5080708@firma.seznam.cz>
+In-Reply-To: <44BA3C58.5080708@firma.seznam.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 17 Jul 2006, gmu 2k6 wrote:
-
-> I was preparing a post to lkml about a similar hang which happens
-> during init. I also saw an error while ntpdate tried to set the
-> time/get the time. this only happens after I've enabled the NX bit on
-> the dual 32bit Xeons installed in the HP Proliant Server. it works
-> flawlessly with 2.6.17.6 (CONFIG_X86_PAE and CONFIG_HIGHMEM_64) but
-> since 2.6.18-rc2-git4 (including 2.6.18-rc2) it hangs late in the init
-> process.
+Michal Feix wrote:
+> When reading from nbd device, we need to receive all the data after
+> receiving reply packet from the server - otherwise such request will
+> never be ended.
 > 
-> could this be related?
+> If socket is closed right after accepting reply control packet and in
+> the middle of waiting for read data, nbd_read_stat() returns NULL and
+> nbd_end_request() is not called.
 
-Well, it could, but without further information it's impossible to say.
-What error did you see with ntpdate? Could you post the kernel messages 
-and also insert a few stack traces as mentioned earlier?
-Thanks.
+That's right. We can't return NULL after pulling the request off the queue.
 
-bye, Rman
+Thanks,
+Paul
+

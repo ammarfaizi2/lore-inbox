@@ -1,83 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWGQV3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWGQVbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbWGQV3x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 17:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWGQV3x
+	id S1751205AbWGQVbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWGQVbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 17:29:53 -0400
-Received: from deine-taler.de ([217.160.107.63]:46785 "EHLO
-	p15091797.pureserver.info") by vger.kernel.org with ESMTP
-	id S1751194AbWGQV3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 17:29:52 -0400
-Date: Mon, 17 Jul 2006 23:29:51 +0200
-From: Ulrich Kunitz <kune@deine-taler.de>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/wireless/zd1211rw/: possible cleanups
-Message-ID: <20060717212951.GC29824@p15091797.pureserver.info>
-Mail-Followup-To: Daniel Drake <dsd@gentoo.org>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	linville@tuxdriver.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20060715003511.GE3633@stusta.de> <44BA3C59.9030503@gentoo.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44BA3C59.9030503@gentoo.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 17 Jul 2006 17:31:16 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:41921 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751205AbWGQVbP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 17:31:15 -0400
+Message-ID: <44BC015A.5090104@linuxtv.org>
+Date: Mon, 17 Jul 2006 17:30:02 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+CC: Michael Krufky <mkrufky@linuxtv.org>, Andrew Morton <akpm@osdl.org>,
+       Axel Thimm <Axel.Thimm@atrpms.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>,
+       Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: bttv-driver.c:3964: error: void value not ignored as it ought
+ to be
+References: <20060717124505.GD7281@neu.nirvana> <44BBEAB0.3080105@linuxtv.org> <29495f1d0607171355s1858f109xab02c7cc437f180c@mail.gmail.com>
+In-Reply-To: <29495f1d0607171355s1858f109xab02c7cc437f180c@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06-07-16 14:17 Daniel Drake wrote:
-
-> Adrian Bunk wrote:
-> >This patch contains the following possible cleanups:
-> >- make needlessly global functions static
-> >- #if 0 unused functions
-> >
-> >Please review which of these functions do make sense and which do 
-> >conflict with pending patches.
+Nish Aravamudan wrote:
+> On 7/17/06, Michael Krufky <mkrufky@linuxtv.org> wrote:
+>> Axel Thimm wrote:
+>> > latest hg fails on > 2.6.17 due to video_device_create_file being void
+>> > but still being asked for a return value in bttv-driver.c
+>> >
+>> > linux/drivers/media/video/bt8xx/bttv-driver.c:
+>> >
+>> >    3963 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
+>> >    3964         ret = video_device_create_file(btv->video_dev,
+>> class_device_attr_card);
+>> >    3965         if (ret < 0)
+>> >
+>> >
+>> > linux/include/media/v4l2-dev.h:
+>> >
+>> >     379 static inline void
+>> >     380 video_device_create_file(struct video_device *vfd,
+>> >     381                          struct class_device_attribute *attr)
+>> >     382 {
+>> >
 > 
-> Thanks Adrian. I have put this in my tree and made an additional change 
-> along the same lines (your patched introduced an unused function warning 
-> to the non-debug build). If Ulrich signifies acceptance, I will send 
-> this on to John.
+> <snip>
 > 
-> I have also sent in a patch to add a MAINTAINERS entry for zd1211rw, in 
-> hope that this will help you send patches with myself and/or Ulrich CC'd 
-> in future :)
+>> Hmmm... This was caused by the "Check all __must_check warnings in
+>> bttv." patch from Randy Dunlap (cc's from original thread added)
+>>
+>> I am aware that this was done for various reasons of sanity checking,
+>> however, we cannot check the return value of a void ;-)
 > 
-> Thanks.
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> For the sanity checking, I don't think video_device_create_file()
+> should be a void function. It probably should return
+> class_device_create_file()'s return value, no? As it can fail...
+> 
 
-Adrian, I would like to see this patch split up into three at
-least. 
+You are correct... I was merely pointing out the error, but now I see it
+runs deeper than I had thought.  I will fix both
+video_device_create_file and video_device_remove_file to return the
+class_device_foo return values, then I'll push it over to Mauro.
 
-Patch 1: Remove unused IO emulation functions
-Patch 2: Remove other unused stuff, which could be split up
-         further for each C file and header
-Patch 3: Change DEBUG ifdefs to #if 0
+Cheers,
 
-The purpose of patch 3 is bogus, because the follow-up patch will
-be called "removed useless #if 0 stuff". Keep in mind there is
-some reason, why I have such code there. If they ifdefs are not
-acceptable I will make this code dependent on a module parameter
-and compile it into the production module. We have a lot of
-different devices from different vendors out there and people
-report "stuff isn't working" but almost nothing more.
+Michael Krufky
 
-The problem with patch 1 and 2 is, that almost all of the function
-are completing the interface and some of them are even only static
-inlines. They are there because they should be used, before
-somebody reinvents the wheel or makes something completely stupid.
-However if such reasoning is not acceptable I'm ready to
-compromise.
-
--- 
-Uli Kunitz

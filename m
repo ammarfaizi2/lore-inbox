@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWGQWUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWGQW0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWGQWUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 18:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWGQWUF
+	id S1750888AbWGQW0e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 18:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWGQW0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 18:20:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17330 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751213AbWGQWUE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 18:20:04 -0400
-Date: Mon, 17 Jul 2006 15:19:40 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       zaitcev@redhat.com
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Message-Id: <20060717151940.5cd79087.zaitcev@redhat.com>
-In-Reply-To: <200607171435.22128.benjamin.cherian.kernel@gmail.com>
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com>
-	<200607101258.34005.benjamin.cherian.kernel@gmail.com>
-	<20060710134022.c059d06c.zaitcev@redhat.com>
-	<200607171435.22128.benjamin.cherian.kernel@gmail.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 Jul 2006 18:26:34 -0400
+Received: from post-25.mail.nl.demon.net ([194.159.73.195]:35049 "EHLO
+	post-25.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S1750869AbWGQW0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 18:26:33 -0400
+Message-ID: <44BC0E8F.2090504@edsons.demon.nl>
+Date: Tue, 18 Jul 2006 00:26:23 +0200
+From: Rudy Zijlstra <rudy@edsons.demon.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.12) Gecko/20050923
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Jeff Mahoney <jeffm@suse.com>, 7eggert@gmx.de,
+       Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com> <44BB0146.7080702@suse.com> <44BB3C42.1060309@namesys.com> <44BBA4CF.8020901@suse.com> <44BBD4B6.5020801@namesys.com> <44BBD942.3080908@suse.com> <44BBDFFC.70601@namesys.com> <44BBEC17.8020507@suse.com> <44BBFB0D.6040105@namesys.com>
+In-Reply-To: <44BBFB0D.6040105@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jul 2006 14:35:21 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
+Hans Reiser wrote:
 
-I'm skipping the discussion of the spec, but going further, here's
-what we have:
+>Jeff Mahoney wrote:
+>
+>  
+>
+><snip>
+>  
+>
 
-> It is really looking like you are backing me into a corner to make the change 
-> myself.  However, before doing so I'd like to say that I am disappointed that 
-> the kernel developer list has not been more accommodating to this issue.
+>so why did you take their stable branch away from them by working on
+>more than bugfixes for V3?
+>
+>Jeff, working on v3 at this point is nuts.  V4 blows it away....
+>  
+>
+Hans,
 
-I understand, this is not a good situation. The problem is, it's 2.4.
-It is upgraded very slowly, if at all. You came around about a year after
-the fact. At the time, my initial approaches threw similar regressions
-(with ADSL modems). Of course it's very tempting for me to off-load both
-the work and the responsibility on you.
+I appreciate your vision and willingness to work to that vision.
 
-> Besides, the device that is being broken is a 10x CD-ROM drive!
-> Who even uses these anymore? :-)
+The above though, is pure and simple PR. Please do not confuse PR with 
+maintenance, or design maintenance.
 
-This was my reaction too, when Dell people came knocking. But apparently,
-that thing is very popular. Also, they backed up their request with
-a bag of money. In the end, I was glad I did "fix" that thing. Later,
-it turned out to be OEM-ed by NEC, Fujitsu, and others; our own QA
-uses it a lot as well. This happens because the 210PU offers significant
-savings in power and space in OEM applications, and for casual users,
-it's a perfect jump drive.
+I run pretty recent kernels on some of my servers and or workstations 
+(2.6.17.4 at the moment). Some others are still using 2.4. All of them 
+are using reiserfs3. I use reiser3 for most all, except video 
+application partitions where XFS is used. For the past 2 yr i have been 
+really pressed for time, and as a result have needed to scale back on 
+pet projects, like testing new filesystems which are not yet into 
+mainline. Once Reiserfs4 gets into mainline, i will test on a 
+workstation. Till that time (and after) any work done on reiserfs3 is 
+very much appreciated by me. It is keeping v3 up with changing 
+requirements and expectations.
 
-It's the same kind of question as, "who even uses 2.4 anymore".
+You cannot start developing a new version and then quit supporting the 
+previous version. I consider the work Jeff and others have been doing a 
+very good maintenance job. YES, a maintenance job. Addition of 
+relatively minor features is part of normal maintenance.
 
-By the way, did you consider an in-kernel driver? For me, it seems much
-safer to reimplement the whole thing that way than to monkey with devio
-again and risk more regressions.
+I expect you to disagree here, i am used to that (having followed 
+reiserfs list for many years).
 
-Another option would be to change USBDEVFS_BULK to USBDEVFS_SUBMITURB.
-Did you look at doing that?
 
-Yours,
--- Pete
+Cheers,
+
+
+Rudy Zijlstra
+
+P.S. reducing maintenance to pure bug-fixing is tentamount to announcing 
+EOL.

@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWGQAeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWGQAyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWGQAeX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 20:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWGQAeX
+	id S1751593AbWGQAyY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 20:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWGQAyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 20:34:23 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:3243 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751488AbWGQAeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 20:34:22 -0400
-Date: Sun, 16 Jul 2006 17:34:18 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Greg KH <greg@kroah.com>
-Cc: Daniel Drake <dsd@gentoo.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, harmon@ksu.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-Message-ID: <20060717003418.GA27166@tuatara.stupidest.org>
-References: <20060714095233.5678A8B6253@zog.reactivated.net> <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org> <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org> <44BA48A0.2060008@gentoo.org> <20060716183126.GB4483@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060716183126.GB4483@kroah.com>
+	Sun, 16 Jul 2006 20:54:24 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:4266 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751407AbWGQAyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 20:54:23 -0400
+Subject: Re: RFC: cleaning up the in-kernel headers
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org, akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.64.0607142152420.9010@schroedinger.engr.sgi.com>
+References: <20060711160639.GY13938@stusta.de>
+	 <Pine.LNX.4.64.0607131201050.28976@schroedinger.engr.sgi.com>
+	 <1152937109.27135.101.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607142152420.9010@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Sun, 16 Jul 2006 20:53:50 -0400
+Message-Id: <1153097630.17406.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 16, 2006 at 11:31:26AM -0700, Greg KH wrote:
+On Fri, 2006-07-14 at 21:59 -0700, Christoph Lameter wrote:
 
-> Looks ok to me, but I'll defer to Jeff for this one.
+> > Now for the vmstat.h, I just tried removing that, and it seems that this
+> > is a candidate to be removed from mm.h since mm.h compiles fine without
+> > it. But vmstat.h doesn't compile without mm.h.  So it seems that we
+> > should add mm.h to vmstat.h, remove vmstat.h from mm.h and for those .c
+> > files that break, just add vmstat.h to them.
+> 
+> Great if you can detangle that.
 
-Could we make sure this doesn't cause any regressions with KT800
-chipsets (I think that's it, the VIA thing used on some Athlon64
-mainboards).
+Are you supporting the effort if I send in patches that removes the
+vmstat.h and then goes and tries to find all the places that fail to
+compile because of the removal and adds vmstat.h directly, that the
+patches would get accepted?
 
-IIRC some require the quirk and some seem to work without it, the
-later class can use the IOAPIC and if we do this might be be breaking
-that?
+It would probably need to go into -mm for a bit just to find those
+places I missed.
+
+This wouldn't be a problem to do and can be accomplished rather quickly,
+but I wont waste any time on it if it is doomed at the start.
+
+-- Steve
+
+

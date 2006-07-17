@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWGQJDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWGQI7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWGQJDs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 05:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWGQJDs
+	id S1750795AbWGQI7E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 04:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWGQI7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 05:03:48 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:64958 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750804AbWGQJDr convert rfc822-to-8bit (ORCPT
+	Mon, 17 Jul 2006 04:59:04 -0400
+Received: from mo30.po.2iij.net ([210.128.50.53]:25617 "EHLO mo30.po.2iij.net")
+	by vger.kernel.org with ESMTP id S1750795AbWGQI7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 05:03:47 -0400
-Subject: Re: [NFS] nfs problems with 2.6.18-rc1
-From: Tony Reix <tony.reix@bull.net>
-To: Janos Farkas <chexum+dev@gmail.com>
-Cc: =?ISO-8859-1?Q?Aim=E9?= Le Rouzic <Aime.Le-Rouzic@bull.net>,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-In-Reply-To: <priv$8d118c145575$b19af6759a@200607.shadow.banki.hu>
-References: <priv$8d118c145575$b19af6759a@200607.shadow.banki.hu>
-Date: Mon, 17 Jul 2006 11:03:46 +0200
-Message-Id: <1153127026.2871.12.camel@frecb000687.frec.bull.fr>
+	Mon, 17 Jul 2006 04:59:03 -0400
+Date: Mon, 17 Jul 2006 17:58:50 +0900
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] always define IRQ_PER_CPU
+Message-Id: <20060717175850.7eefdb45.yoichi_yuasa@tripeaks.co.jp>
+Organization: TriPeaks Corporation
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/07/2006 11:08:13,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/07/2006 11:08:14,
-	Serialize complete at 17/07/2006 11:08:14
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 13 juillet 2006 à 20:22 +0200, Janos Farkas a écrit :
-> Hi!
-> 
-> I recently updated two (old) hosts to 2.6.18-rc1, and started noticing
-> weird things with the nfs mounted /home s.
-> 
-> I frequently face EACCESs where a few minutes ago there wasn't any
-> problem, and after a retry everything does work again.
-> 
-....
+Hi,
 
-Do you have the same problem with the last stable version (2.6.17-rc2)
-we have tested with in depth ?
-See:	http://nfsv4.bullopensource.org/
+This patch has changed to be always defined IRQ_PER_CPU.
+I think that it has no problem.
 
-Thanks,
-Tony
+Yoichi
 
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+
+diff -pruN -X linux-2.6.18-rc1-mm1/Documentation/dontdiff linux-2.6.18-rc1-mm1-orig/include/linux/irq.h linux-2.6.18-rc1-mm1/include/linux/irq.h
+--- linux-2.6.18-rc1-mm1-orig/include/linux/irq.h	2006-07-14 11:38:15.488772000 +0900
++++ linux-2.6.18-rc1-mm1/include/linux/irq.h	2006-07-14 11:39:00.319573750 +0900
+@@ -47,8 +47,8 @@
+ #define IRQ_WAITING		0x00200000	/* IRQ not yet seen - for autodetection */
+ #define IRQ_LEVEL		0x00400000	/* IRQ level triggered */
+ #define IRQ_MASKED		0x00800000	/* IRQ masked - shouldn't be seen again */
++#define IRQ_PER_CPU		0x01000000	/* IRQ is per CPU */
+ #ifdef CONFIG_IRQ_PER_CPU
+-# define IRQ_PER_CPU		0x01000000	/* IRQ is per CPU */
+ # define CHECK_IRQ_PER_CPU(var) ((var) & IRQ_PER_CPU)
+ #else
+ # define CHECK_IRQ_PER_CPU(var) 0

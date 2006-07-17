@@ -1,145 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWGQDCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWGQDIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWGQDCi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 23:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWGQDCi
+	id S932255AbWGQDIP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 23:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWGQDIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 23:02:38 -0400
-Received: from rwcrmhc15.comcast.net ([204.127.192.85]:44719 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S932250AbWGQDCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 23:02:37 -0400
-Message-ID: <44BAFDC3.7020301@namesys.com>
-Date: Sun, 16 Jul 2006 20:02:27 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@suse.com>
-CC: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com>
-In-Reply-To: <44BAECE2.8070301@suse.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Jul 2006 23:08:15 -0400
+Received: from wx-out-0102.google.com ([66.249.82.201]:40304 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932255AbWGQDIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 23:08:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=bwNVydfe6aGFuz+V8+DG+E2c1qnhrequXEQR4JhXpMa5gxrJnrZKhkF4LL4TTr/uCJ1LldJhG2eAqdKmUjn9XZGr3k7rmjG/W4/b+1lqORWuo2TGzupue0GonCnseGgtiIfuCklstgxzq9hCeLwJS83TQPNEfHnAiwgkrHrolPU=
+Date: Sun, 16 Jul 2006 23:08:10 -0400
+From: Thomas Tuttle <thinkinginbinary@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: i2c-i801 no longer working (was: Re: lm90 no longer working)
+Message-ID: <20060717030810.GA10912@phoenix>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060717020858.GA20290@phoenix>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <20060717020858.GA20290@phoenix>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey Mahoney wrote:
 
-> Hans Reiser wrote:
->
-> >Jeff Mahoney wrote:
->
-> >>Hans Reiser wrote:
-> >>
-> >>
-> >>Hans, we're all in agreement that we'd prefer drivers not use names with
-> >>slashes in them,
->
-> >there is nothing wrong with using names that have slashes.  The thing
-> >that is wrong is somehow needing to translate them into names with
-> "!"'s.
->
->
-> If using something with slashes in it as a file name component isn't
-> problematic, then by all means create a single file system object named
-> "a/b" where "a" doesn't refer to a parent directory and tell us all how.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Create a mountpoint which knows how to resolve a/b without using a
-"directory".
+On July 16 at 22:08 EDT, Thomas Tuttle hastily scribbled:
+> I have a hardware monitoring chip in my laptop that uses the lm90
+> driver, and somewhere between 2.6.16 and 2.6.17, it stopped working.  I
+> don't know why.  I'm going to try installing a bunch of different
+> versions to track down which version precisely stopped working, but I'm
+> curious if anyone has any ideas about what might have caused this.
 
->
-> >>and it would be nice to correct drivers currently using
-> >>them. The problem is that when you change the name of a device, that's a
-> >>userspace visible change.
->
-> >So don't.  Why would user space care how you parse it and whether the
-> >driver or reiserfs does it?
->
->
-> Huh? The block device's name is exported directly via /proc/partitions,
-> but then also used as a file name component in sysfs, and also procfs
-> via reiserfs. How do you propose fixing this without adding an
-> additional field to genhd? Adding a helper function is essentially the
-> same thing as this patch other than it being open coded,
+Sorry to reply to my own message... but I've realized that my I2C bus
+(i2c-i801) is also not showing up.  Even if I load the i2c-i801 and lm90
+modules, I don't have a bus entry listed in /sys/class/i2c-adapter.
 
-what is open coding?  Something different from free software?
+--=20
+Thomas Tuttle (thinkinginbinary@gmail.com)
+A List Apart: For people who make websites. alistapart.com
+aim/y!m:thinkinginbinary; icq:198113263; jabber:thinkinginbinary@jabber.org
+msn: thinkinginbinary@hotmail.com; pgp: 0xAF5112C6
 
-> and I'm not
-> getting the impression that the open coding is your issue.
->
-> >>Scripts that currently expect, say,
-> >>/proc/partitions to contain cciss/<number> will break between kernel
-> >>versions. Sysfs wants to use the device name as a pathname component,
-> >>and as such translates the / to a !, the same as this patch proposes.
-> >>
-> >>Reiserfs gets involved because it expects that name to be usable as a
-> >>file system pathname component when it is not intended to be one without
-> >> translating slashes into another character. The difference is that
-> >>block device names are allowed to have slashes in them, while normal
-> >>file system names are not.
->
-> >We should distinguish here between names and name components.
->
->
-> In terms of file system names, I have been making that distinction. In
-> terms of block devices, the name
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-the name refers to?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-> consists of only one component.
+iD8DBQFEuv8a/UG6u69REsYRAjm2AJ0Y2akzWmdWe2FAYSs9btNeLUkcyQCfXj+T
+0f4TohVIkLeAnYQVF5fwxUM=
+=2/D6
+-----END PGP SIGNATURE-----
 
-So fix that.  Create a pseudo directory, and have a/b and a/c get
-resolved by a.
-
-That is cleaner than converting  / to !.
-
-> More below.
->
-> >>The fact is that device driver names, when in
-> >>/dev can use separate components, like /dev/cciss/0, but when used in
-> >>the manner reiserfs wants them to be used, they can't. Also, I'm not
-> >>talking about name spaces like struct namespace, I mean that the group
-> >>of names that block device drivers use have different constraints than
-> >>the group of names that are allowable as file names.
-> >>
-> >>The fact is that this change is required for users deploying devices
-> >>that use slashes in their names to see the proc data for a reiserfs file
-> >>system. You can point the finger all you want at the block drivers in
-> >>the mean time, but it's still a reiserfs problem.
->
-> >I still do not grok why you need to change / to !.
->
-> >Something is wrong.  Reiserfs is being asked to do something that
-> >somebody else should be doing.
->
->
-> Splitting the block device names with / is applying file system path
-> name rules to the block device name, when they don't.
-
-Don't what?
-
-> The entire point
-> of this is that "cciss/whatever" refers to a single object in the block
-> layer, but when you apply file system rules, it becomes two.
-
-Uh, no, a/b in any POSIX filesystem refers to one object.  Now maybe
-someday....  probably not what you meant....
-
-> This is not
-> the desired interpretation, which is why we need to replace the pathname
-> separator in the name. ReiserFS is the component that is choosing to use
-> the block device name as a pathname component and is responsible for
-> making any translation to that usage.
-
-This makes no sense.  I have the feeling you see trees and I see forest.
-
->
-> -Jeff
-
+--2fHTh5uZTiUOsy+g--

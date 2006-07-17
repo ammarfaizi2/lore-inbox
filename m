@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWGQSJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWGQSPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWGQSJW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWGQSJW
+	id S1751124AbWGQSPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGQSPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:09:22 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17310 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751118AbWGQSJV (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:09:21 -0400
-Message-Id: <200607171808.k6HI8kjL018161@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeffrey Mahoney <jeffm@suse.com>, 7eggert@gmx.de,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-In-Reply-To: Your message of "Sun, 16 Jul 2006 20:02:27 PDT."
-             <44BAFDC3.7020301@namesys.com>
-From: Valdis.Kletnieks@vt.edu
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com>
-            <44BAFDC3.7020301@namesys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153159726_13479P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 17 Jul 2006 14:15:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:29061 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751124AbWGQSPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:15:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=juWWW4KV93VkRSTMgCQEVkAQozHNPp5cHz5/wSO6FzJZmBETWrEvt2hmH3/yzkbCLzJ0vF4FrY5IzwPvP3899YzOrZCciRw1l10C03Zs0oXffBc6IfTWfcxNr+pYfl503w4YakRO53mQGZzNJ7kvB/EcRTY9m+6hn/0eZTpuw9k=
+Message-ID: <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
+Date: Mon, 17 Jul 2006 20:15:53 +0200
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+In-Reply-To: <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 17 Jul 2006 14:08:46 -0400
+Content-Disposition: inline
+References: <20060714150418.120680@gmx.net>
+	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
+	 <20060717133809.150390@gmx.net>
+	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
+	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
+	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153159726_13479P
-Content-Type: text/plain; charset=us-ascii
+On 7/17/06, Roman Zippel <zippel@linux-m68k.org> wrote:
+> Hi,
+>
+> On Mon, 17 Jul 2006, gmu 2k6 wrote:
+>
+> > either I'm too dumb or there is an undocumented way to enable SysRq on
+> > bootup or the machine is really hanging hard. I'm not able use
+> > Alt+Print as nothing happens besides console showing the typed in
+> > characters ^[t.
+>
+> It might be a keyboard problem, try releasing Print, but keeping Alt
+> pressed and then try another key.
 
-On Sun, 16 Jul 2006 20:02:27 PDT, Hans Reiser said:
-
-> Create a mountpoint which knows how to resolve a/b without using a
-> "directory".
-
-And said mountpoint gets past the '/' interpretation in the VFS, how, exactly?
-
-fs/namei.c, do_path_lookup() does magic on a '/' on about the 3rd line.
-So you're going to get handed 'a'.
-
---==_Exmh_1153159726_13479P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEu9IucC3lWbTT17ARAtwoAJ4qfPzyWr0+tF5LqSDEHJ9Krd9H/gCguaw+
-1egFENzXzu6Z6BoFu2XlVs0=
-=ZXoz
------END PGP SIGNATURE-----
-
---==_Exmh_1153159726_13479P--
+maybe the problem is HP's Integrated Lights Out Java Applet. I will
+try tomorrow morning in the server room.

@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWGQO4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWGQO7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWGQO4I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 10:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWGQO4I
+	id S1750822AbWGQO7S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 10:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWGQO7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 10:56:08 -0400
-Received: from mail.gmx.de ([213.165.64.21]:17291 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750817AbWGQO4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 10:56:07 -0400
-X-Authenticated: #428038
-Date: Mon, 17 Jul 2006 16:56:04 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Lexington Luthor <Lexington.Luthor@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserFS?
-Message-ID: <20060717145604.GA8276@merlin.emma.line.org>
-Mail-Followup-To: Lexington Luthor <Lexington.Luthor@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <50d1c22d0607160545rd06c828n55ad9bbbd2f20bfd@mail.gmail.com> <20060716135038.GA8850@merlin.emma.line.org> <e9dm0p$15s$1@sea.gmane.org>
+	Mon, 17 Jul 2006 10:59:18 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:47692 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750818AbWGQO7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 10:59:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=up/NUmPS8H5R5ThRh9n24FNS9v2LQkLC/a5D621M92dBIvka6I5VE2E9sYj6mCjvi1Rap0L9bej34WBExVrFqClt/ubv7tUnbTWfnGZUCDV6OrXGIicGWe6/RXWCgfYj7pyjgI17u89WaS1WQPkMci4lkWeMQEhlpQ7nsVTnw0Y=
+Message-ID: <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
+Date: Mon, 17 Jul 2006 14:59:15 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+In-Reply-To: <Pine.LNX.4.64.0607171605500.6761@scrub.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <e9dm0p$15s$1@sea.gmane.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Y-GMX-Trusted: 0
+References: <20060714150418.120680@gmx.net>
+	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
+	 <20060717133809.150390@gmx.net>
+	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jul 2006, Lexington Luthor wrote:
+On 7/17/06, Roman Zippel <zippel@linux-m68k.org> wrote:
+> Hi,
+>
+> On Mon, 17 Jul 2006, Uwe Bugla wrote:
+>
+> > I have compared 18-rc1-mm1 and 18-rc1-mm2.
+> > mm2 contains a patch for timer.c owning almost twice as many hunks than mm1.
+> > In so far I was sure it was a timer.c issue.
+>
+> You're still guessing, a lot more things changed between 18-rc1-mm1 and
+> 18-rc1-mm2. It's rather unlikely that the timer changes fixed your
+> problem. You might want to try to revert
+> ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/broken-out/improve-timekeeping-resume-robustness.patch
+> to see whether the problem is back afterwards.
 
-> Matthias Andree wrote:
-> >Why would anyone want ReiserFS in the kernel that is discontinued by its
-> >developers when it's just started to become stabile and useful, with
-> >bugs (hashing) remaining, as happened with 3.6? Who is going to make
-> >guarantees this won't happen again with reiser4?
-> 
-> I looked at the reiser4 patch, and it does very little outside of the 
-> fs/reiser4 directory. If it is no longer supported by namesys, why can't 
-> it just be removed from the kernel like all the other bits that are 
-> obsoleted?
+I was preparing a post to lkml about a similar hang which happens
+during init. I also saw an error while ntpdate tried to set the
+time/get the time. this only happens after I've enabled the NX bit on
+the dual 32bit Xeons installed in the HP Proliant Server. it works
+flawlessly with 2.6.17.6 (CONFIG_X86_PAE and CONFIG_HIGHMEM_64) but
+since 2.6.18-rc2-git4 (including 2.6.18-rc2) it hangs late in the init
+process.
 
-People (including you) would scream blue murder if their file system
-were going away. The same would happen if it just didn't work for them.
-
-Somebody, however skilled they may be, just trying out a patch and
-finding it works for them is certainly not sufficient reason to judge if
-a product is of adequate quality. The code was reviewed, found to
-contain major misdesigns, and the maintainers refused to fix those, and
-that's it.
-
-> I am just saddened that kernel decisions are motivated by politics and a 
-> personal dislike of Hans Reiser rather than technical merit. :(
-
-If you had understood my postings, it had been clear to you that there
-have been technical reasons that blocked the inclusion, and there have
-additionally been precedences of such misconduct, or maintainers
-declaring the system stable when in fact it was years (literally) from
-that.
-
-I respect namesys for the efforts they made in getting 3.6 and the
-toolchain workable, but some issues remain that some people never run
-into, are showstoppers for others, and at that point where minor
-polishing was due, namesys moved on to reiser4, dropping 3.6 support -
-and that was a decision that made me phase out reiserfs 3.6, and I'm
-certainly not looking into reiser4 until 2 years after a first major
-distro (that's currently Debian, Ubuntu, Fedora, Opensuse, Mandrake)
-ships it as the default root and user FS.
-
-> >There's ext3, you can set the dir_index option (either for mke2fs, or
-> >afterwards with tune2fs, then unmount and run e2fsck -fD) and you're set.
-> 
-> I am not arguing for the inclusion of reiser4 in the kernel, but you 
-> should know it has its uses. There are very many things that reiser4 can 
-> do that will make ext3 blow up. It simply the best filesystem for many 
-> kinds of usage patterns.
-
-Apparently, kernel coding standard applicability doesn't fall into the
-usage patterns you're referring to. SCNR. I haven't heard the other
-side, but if you're going to contribute to some project you MUST please
-its maintainers - life's bad...
-
--- 
-Matthias Andree
+could this be related?

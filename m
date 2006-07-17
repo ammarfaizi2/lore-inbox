@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWGQP0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWGQP2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWGQP0J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWGQP0J
+	id S1750837AbWGQP2L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWGQP2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:26:09 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:35517 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750842AbWGQP0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:26:08 -0400
-Message-ID: <44BBAC0B.4020602@steeleye.com>
-Date: Mon, 17 Jul 2006 11:26:03 -0400
-From: Paul Clements <paul.clements@steeleye.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 17 Jul 2006 11:28:11 -0400
+Received: from mentel1.mentel.com ([80.239.199.13]:12855 "EHLO
+	mentel1.mentel.com") by vger.kernel.org with ESMTP id S1750837AbWGQP2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 11:28:09 -0400
+From: Matt Heler <matt@mentel.com>
+Reply-To: matt@mentel.com
+To: Folkert van Heusden <folkert@vanheusden.com>
+Subject: Re: adaptive read ahead patch?
+Date: Mon, 17 Jul 2006 08:28:05 -0700
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060717145552.GZ27918@vanheusden.com>
+In-Reply-To: <20060717145552.GZ27918@vanheusden.com>
+Organization: Mentel MultiMedia
 MIME-Version: 1.0
-To: Michal Feix <michal.feix@firma.seznam.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd: Abort request on data reception failure
-References: <44BA3C58.5080708@firma.seznam.cz>
-In-Reply-To: <44BA3C58.5080708@firma.seznam.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607170828.05315.matt@mentel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Feix wrote:
-> When reading from nbd device, we need to receive all the data after
-> receiving reply packet from the server - otherwise such request will
-> never be ended.
-> 
-> If socket is closed right after accepting reply control packet and in
-> the middle of waiting for read data, nbd_read_stat() returns NULL and
-> nbd_end_request() is not called.
+It's been merged into the -mm tree.
 
-That's right. We can't return NULL after pulling the request off the queue.
+On Monday 17 July 2006 7:55 am, Folkert van Heusden wrote:
+> Hi,
+>
+> Could someone please mail me the latest version of the adaptive read
+> ahead patch? It seems Wu fell off the planet or something.
+>
+>
+> Folkert van Heusden
 
-Thanks,
-Paul
-
+-- 
+Matt Heler
+matt@mentel.com
+Mentel MultiMedia

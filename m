@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWGQSPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWGQSPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWGQSPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWGQSPz
+	id S1751123AbWGQSPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWGQSPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:15:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:29061 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751124AbWGQSPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:15:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=juWWW4KV93VkRSTMgCQEVkAQozHNPp5cHz5/wSO6FzJZmBETWrEvt2hmH3/yzkbCLzJ0vF4FrY5IzwPvP3899YzOrZCciRw1l10C03Zs0oXffBc6IfTWfcxNr+pYfl503w4YakRO53mQGZzNJ7kvB/EcRTY9m+6hn/0eZTpuw9k=
-Message-ID: <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
-Date: Mon, 17 Jul 2006 20:15:53 +0200
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-In-Reply-To: <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+	Mon, 17 Jul 2006 14:15:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:19378 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751123AbWGQSPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:15:44 -0400
+Message-ID: <44BBD400.3060504@suse.com>
+Date: Mon, 17 Jul 2006 14:16:32 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Valdis.Kletnieks@vt.edu
+Cc: Hans Reiser <reiser@namesys.com>, 7eggert@gmx.de,
+       Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com>            <44BAFDC3.7020301@namesys.com> <200607171808.k6HI8kjL018161@turing-police.cc.vt.edu>
+In-Reply-To: <200607171808.k6HI8kjL018161@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060714150418.120680@gmx.net>
-	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-	 <20060717133809.150390@gmx.net>
-	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
-	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
-	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
-	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
-	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
-	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/17/06, Roman Zippel <zippel@linux-m68k.org> wrote:
-> Hi,
->
-> On Mon, 17 Jul 2006, gmu 2k6 wrote:
->
-> > either I'm too dumb or there is an undocumented way to enable SysRq on
-> > bootup or the machine is really hanging hard. I'm not able use
-> > Alt+Print as nothing happens besides console showing the typed in
-> > characters ^[t.
->
-> It might be a keyboard problem, try releasing Print, but keeping Alt
-> pressed and then try another key.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-maybe the problem is HP's Integrated Lights Out Java Applet. I will
-try tomorrow morning in the server room.
+Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 16 Jul 2006 20:02:27 PDT, Hans Reiser said:
+> 
+>> Create a mountpoint which knows how to resolve a/b without using a
+>> "directory".
+> 
+> And said mountpoint gets past the '/' interpretation in the VFS, how, exactly?
+> 
+> fs/namei.c, do_path_lookup() does magic on a '/' on about the 3rd line.
+> So you're going to get handed 'a'.
+
+That's where he started talking about how BSD gets namei() right by
+allowing each file system to deal with it how it chooses.
+
+Personally, I think it's insane. On occasion, I've started to port
+ReiserFS to BSD-like systems, and I get so fed up with how you have to
+reinvent the wheel for everything. There's something to be said for
+replaceable-anything semantics, but personally I like the Linux model
+and having an agreed-upon framework to work with.
+
+I also think it's insane to come up with a reisermetafs to export procfs
+information when a simple s#/#!# _on a single directory name_ will do
+the job.
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
+
+iD8DBQFEu9QALPWxlyuTD7IRAqHbAKCVknPt6Gr43YHyrUZVtmuuEWX9UgCfdw74
+tXwbWr5AhupA868D96lw9Eo=
+=NvUr
+-----END PGP SIGNATURE-----

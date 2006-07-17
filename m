@@ -1,103 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWGQMyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWGQNBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWGQMyp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 08:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWGQMyp
+	id S1750772AbWGQNBb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 09:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWGQNBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 08:54:45 -0400
-Received: from lilly.ping.de ([83.97.42.2]:27658 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id S1750771AbWGQMyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 08:54:44 -0400
-Date: Mon, 17 Jul 2006 14:52:16 +0200
-From: Jochen Heuer <jogi-kernel@planetzork.ping.de>
+	Mon, 17 Jul 2006 09:01:31 -0400
+Received: from daleth.esc.cam.ac.uk ([131.111.64.59]:34318 "EHLO
+	aleph.esc.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750772AbWGQNBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 09:01:30 -0400
+Date: Mon, 17 Jul 2006 14:01:28 +0100
+From: James <20@madingley.org>
 To: linux-kernel@vger.kernel.org
-Subject: BUG: soft lockup detected on CPU#1!
-Message-ID: <20060717125216.GA15481@planetzork.ping.de>
+Subject: Bad ext3/nfs DoS bug
+Message-ID: <20060717130128.GA12832@circe.esc.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
+X-Mail-Author: fish
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I've tried contacting the relevant maintainers directly,
+and it's even in the kernel bugzilla, but nothing's happened
+and it's been over a month now. No-one seems to be doing anyting 
+about this. Is one meant to post this to bugtraq or what?
 
-I have been running 2.6.17 on my desktop system (Asus A8V + Athlon64 X2 3800)
-and I am having severe problems with lookups. These only show up when surfing
-the net. During compiling or mprime runs --> absolutly no problem.
+Here's the bug: http://bugzilla.kernel.org/show_bug.cgi?id=6828
+(exploit code follows)
 
-At first I thought this was related to the S-ATA driver since I got error
-messages like these on the console once before it locked up hard (no sysrq!):
+> We found this rather surprising behaviour when debugging a
+> network card for one of our embedded systems. There was a
+> bus problem that occasionally caused the network card to
+> place random data in the outgoing packets. We were using
+> NFS root, as we hadn't written drivers for the block
+> devices yet, and discovered our Linux NFS servers getting
+> ext3 errors. It turned out that the 3com cards we have in
+> the servers lie about checking UDP checksums, and passed
+> the rubbish to knfsd where it was causing the problem. 
+> 
+> Here's an example one of our widgets (dcm503) is talking
+> to an NFS server (dufftown)
+> 
+> 17:28:38.535011 dcm503.guralp.local.984095109 > dufftown.guralp.local.nfs: 116 
+> lookup fh Unknown/1 "" (DF) (ttl 64, id 0, len 144)
+>                          4500 0090 0000 4000 4011 3d45 0a52 01fa
+>                          c0a8 3024 03ff 0801 007c 8e9c 3aa8 1985
+>                          0000 0000 0000 0002 0001 86a3 0000 0002
+>                          0000 0004 0000 0001 0000 001c 028f 5b0c
+>                          0000 0006 6463 6d35 3033 0000 0000 0000
+>                          0000 0000 0000 0000 0000 0000 0000 0000
+>                          0100 0001 0021 0003 3d26 3d00 4a2f ffff
+>                          3d00 2c08 c923 0000 0000 0000 0000 0000
+>                          0000 0000 000a 6d6f 756e 7470 6f69 6e74
+> 
+> so what's happened here is 4a2f ffff should have been 4a2f
+> xxxx but the network card has missed the clock on the bus
+> and gotten ffff instead
+> 
+> nfsd_dispatch: vers 2 proc 4
+> nfsd: LOOKUP   32: 01000001 03002100 003d263d ffff2f4a 082c003d 000023c9
+> nfsd: nfsd_lookup(fh 32: 01000001 03002100 003d263d ffff2f4a 082c003d 
+> 000023c9, )
+> nfsd: fh_verify(32: 01000001 03002100 003d263d ffff2f4a 082c003d 000023c9)
+> 
+> so here the client does a V2 lookup with a DH which has
+> gotten screwed up by my clients network card, this is
+> received by my server, gets past the UDP checksum code
+> (thank you 3com) and ends up at knfsd.
+> 
+> knfsd passes this to fh_verify which decodes it to be hde3
+> and inode 4294913866 (0xffff2f4a)
+> 
+> that then gets passed to ext3 which then panics.
+> 
+> EXT3-fs error (device hde3): ext3_get_inode_block: bad inode number: 
+> 4294913866
+> 
+> marks the file system as containing an error, and remounts
+> the system read only.
+> 
+> Obviously this is sub optimal, and a fairly horrid DoS
+> since anyone can craft a UDP packet, with a bogus FH in
+> it. Whilst this is for V2_LOOKUP it works for all of the
+> V2 procedures we tried.
+> 
 
-ata1: command 0xca timeout, stat 0x50 host_stat 0x4
-ata1: status=0x50 { DriveReady SeekComplete }
-ata1: command 0xea timeout, stat 0x50 host_stat 0x0
-ata1: status=0x50 { DriveReady SeekComplete }
+exploit code is available at
 
-But switching to an IDE drive did not fix the lockups. So I switched to
-2.6.18-rc2 and today I got the following reported via dmesg:
+http://www.madingley.org/uploaded/crash-nfs.tar.gz
 
-Jul 17 09:23:03 [kernel] BUG: soft lockup detected on CPU#1!
-Jul 17 09:23:03 [kernel]  [<c0103cd2>] show_trace+0x12/0x20
-Jul 17 09:23:03 [kernel]  [<c0103de9>] dump_stack+0x19/0x20
-Jul 17 09:23:03 [kernel]  [<c0143e77>] softlockup_tick+0xa7/0xd0
-Jul 17 09:23:03 [kernel]  [<c0129422>] run_local_timers+0x12/0x20
-Jul 17 09:23:03 [kernel]  [<c012923e>] update_process_times+0x6e/0xa0
-Jul 17 09:23:03 [kernel]  [<c011127d>] smp_apic_timer_interrupt+0x6d/0x80
-Jul 17 09:23:03 [kernel]  [<c0103942>] apic_timer_interrupt+0x2a/0x30
-Jul 17 09:23:03 [kernel]  [<c022df93>] cbc_process_decrypt+0x93/0xf0
-Jul 17 09:23:03 [kernel]  [<c022dcbe>] crypt+0xee/0x1e0
-Jul 17 09:23:03 [kernel]  [<c022ddef>] crypt_iv_unaligned+0x3f/0xc0
-Jul 17 09:23:03 [kernel]  [<c022e23d>] cbc_decrypt_iv+0x3d/0x50
-Jul 17 09:23:03 [kernel]  [<c032f6b7>] crypt_convert_scatterlist+0x117/0x170
-Jul 17 09:23:03 [kernel]  [<c032f8b2>] crypt_convert+0x142/0x190
-Jul 17 09:23:03 [kernel]  [<c032fb82>] kcryptd_do_work+0x42/0x60
-Jul 17 09:23:03 [kernel]  [<c012fcff>] run_workqueue+0x6f/0xe0
-Jul 17 09:23:03 [kernel]  [<c012fe98>] worker_thread+0x128/0x150
-Jul 17 09:23:03 [kernel]  [<c0133364>] kthread+0xa4/0xe0
-Jul 17 09:23:03 [kernel]  [<c01010e5>] kernel_thread_helper+0x5/0x10
-Jul 17 09:24:17 [kernel] =============================================
-Jul 17 09:24:17 [kernel] [ INFO: possible recursive locking detected ]
-Jul 17 09:24:17 [kernel] ---------------------------------------------
-Jul 17 09:24:17 [kernel] mv/12680 is trying to acquire lock:
-Jul 17 09:24:17 [kernel]  (&(&ip->i_lock)->mr_lock){----}, at: [<c01f63b0>]
-xfs_ilock+0x60/0xb0
-Jul 17 09:24:17 [kernel] but task is already holding lock:
-Jul 17 09:24:17 [kernel]  (&(&ip->i_lock)->mr_lock){----}, at: [<c01f63b0>]
-xfs_ilock+0x60/0xb0
-Jul 17 09:24:17 [kernel] other info that might help us debug this:
-Jul 17 09:24:17 [kernel] 4 locks held by mv/12680:
-Jul 17 09:24:17 [kernel]  #0:  (&s->s_vfs_rename_mutex){--..}, at: [<c03c2931>]
-mutex_lock+0x21/0x30
-Jul 17 09:24:17 [kernel]  #1:  (&inode->i_mutex/1){--..}, at: [<c017506b>]
-lock_rename+0xbb/0xd0
-Jul 17 09:24:17 [kernel]  #2:  (&inode->i_mutex/2){--..}, at: [<c0175052>]
-lock_rename+0xa2/0xd0
-Jul 17 09:24:17 [kernel]  #3:  (&(&ip->i_lock)->mr_lock){----}, at:
-[<c01f63b0>] xfs_ilock+0x60/0xb0
-Jul 17 09:24:17 [kernel] stack backtrace:
-Jul 17 09:24:17 [kernel]  [<c0103cd2>] show_trace+0x12/0x20
-Jul 17 09:24:17 [kernel]  [<c0103de9>] dump_stack+0x19/0x20
-Jul 17 09:24:17 [kernel]  [<c01385a9>] print_deadlock_bug+0xb9/0xd0
-Jul 17 09:24:17 [kernel]  [<c013862b>] check_deadlock+0x6b/0x80
-Jul 17 09:24:17 [kernel]  [<c0139ed4>] __lock_acquire+0x354/0x990
-Jul 17 09:24:17 [kernel]  [<c013ac35>] lock_acquire+0x75/0xa0
-Jul 17 09:24:17 [kernel]  [<c0136aaf>] down_write+0x3f/0x60
-Jul 17 09:24:17 [kernel]  [<c01f63b0>] xfs_ilock+0x60/0xb0
-Jul 17 09:24:17 [kernel]  [<c0217981>] xfs_lock_inodes+0xb1/0x120
-Jul 17 09:24:17 [kernel]  [<c020ca7b>] xfs_rename+0x20b/0x8e0
-Jul 17 09:24:17 [kernel]  [<c022351a>] xfs_vn_rename+0x3a/0x90
-Jul 17 09:24:17 [kernel]  [<c017687d>] vfs_rename_dir+0xbd/0xd0
-Jul 17 09:24:17 [kernel]  [<c0176a4c>] vfs_rename+0xdc/0x230
-Jul 17 09:24:17 [kernel]  [<c0176d02>] do_rename+0x162/0x190
-Jul 17 09:24:17 [kernel]  [<c0176d9c>] sys_renameat+0x6c/0x80
-Jul 17 09:24:17 [kernel]  [<c0176dd8>] sys_rename+0x28/0x30
-Jul 17 09:24:17 [kernel]  [<c0102e15>] sysenter_past_esp+0x56/0x8d
+James.
 
-I am not sure if these infos are enough to isolate the problem. If you need any
-further infos just let me know.
 
-Best regards,
 
-   Jogi
+

@@ -1,112 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWGQQNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWGQQRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWGQQNE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWGQQNE
+	id S1750763AbWGQQRi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750927AbWGQQRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:13:04 -0400
-Received: from shiva.jussieu.fr ([134.157.0.129]:49123 "EHLO shiva.jussieu.fr")
-	by vger.kernel.org with ESMTP id S1750919AbWGQQNC (ORCPT
+	Mon, 17 Jul 2006 12:17:38 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:57248 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750763AbWGQQRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:13:02 -0400
-X-Ids: 168
-Date: Mon, 17 Jul 2006 18:13:34 +0200
-From: Julien Cristau <julien.cristau@ens-lyon.org>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: Linux v2.6.17 - PCI Bus hidden behind transparent bridge
-Message-ID: <20060717161333.GA5204@bryan.is-a-geek.org>
-References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org> <20060716193452.GA5299@bryan.is-a-geek.org> <20060717141315.GB2771@colo.lackof.org> <20060717142917.GJ5299@bryan.is-a-geek.org> <20060717153128.GA16679@colo.lackof.org>
+	Mon, 17 Jul 2006 12:17:37 -0400
+Date: Mon, 17 Jul 2006 12:17:20 -0400
+From: Horms <horms@verge.net.au>
+To: Russell King <rmk@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-ia64@vger.kernel.org, linuxppc-dev@ozlabs.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] panic_on_oops: remove ssleep()
+Message-ID: <31687.FP.7244@verge.net.au>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060717153128.GA16679@colo.lackof.org>
-X-Operating-System: Linux 2.6.17-1-686 i686
 User-Agent: Mutt/1.5.11+cvs20060403
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (shiva.jussieu.fr [134.157.0.168]); Mon, 17 Jul 2006 18:13:00 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is part of an effort to unify the panic_on_oops behaviour
+across all architectures that implement it.
 
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It was pointed out to me by Andi Kleen that if an oops has occured
+in interrupt context, then calling sleep() in the oops path will only cause
+a panic, and that it would be really better for it not to be in the path at
+all. 
 
-On Mon, Jul 17, 2006 at 09:31:28 -0600, Grant Grundler wrote:
+This patch removes the ssleep() call and reworks the console message
+accordinly.  I have a slght concern that the resulting console message is
+too long, feedback welcome.
 
-> On Mon, Jul 17, 2006 at 04:29:17PM +0200, Julien Cristau wrote:
-> > Loading the driver with modprobe doesn't change anything (it just
-> > outputs the 'Loaded prism54 driver' line), the device still doesn't
-> > appear in lspci or ifconfig -a.
->=20
-> Uhm, that's a different symptom than "doesn't work" :)
-> thanks for clarifying.
->=20
-Sorry for being unclear in my first mail :/
+For powerpc it also unifies the 32bit and 64bit behaviour.
 
-> Sounds more like a problem with the Cardbus controller not providing
-> access to PCI config space, not telling PCI generic code there is a
-> PCI bus below it, or something like that.
->=20
-> Can you post "lspci -vvv -s 02:09" output for 2.6.17 as well?
-> I'd like to compare the CardBus bridge config info for both (2:09.0
-> and 02:09.1) controllers on both kernel releases.
->=20
-Here it is:
+Fror x86_64, this patch only updates the console message, as
+ssleep() is already not present.
 
-02:09.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controlle=
-r (rev 01)
-	Subsystem: Acer Incorporated [ALI] Unknown device 1027
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
-ng- SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
-- <MAbort- >SERR- <PERR-
-	Latency: 168, Cache Line Size: 32 bytes
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at 80101000 (32-bit, non-prefetchable) [size=3D4K]
-	Bus: primary=3D02, secondary=3D03, subordinate=3D06, sec-latency=3D176
-	Memory window 0: 20000000-21fff000 (prefetchable)
-	Memory window 1: 26000000-27fff000
-	I/O window 0: 00007400-000074ff
-	I/O window 1: 00007800-000078ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
+Signed-Off-By: Horms <horms@verge.net.au>
 
-02:09.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controlle=
-r (rev 01)
-	Subsystem: Acer Incorporated [ALI] Unknown device 1027
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
-ng- SERR- FastB2B-
-	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
-- <MAbort- >SERR- <PERR-
-	Latency: 168, Cache Line Size: 32 bytes
-	Interrupt: pin B routed to IRQ 11
-	Region 0: Memory at 80102000 (32-bit, non-prefetchable) [size=3D4K]
-	Bus: primary=3D02, secondary=3D07, subordinate=3D0a, sec-latency=3D176
-	Memory window 0: 22000000-23fff000 (prefetchable)
-	Memory window 1: 28000000-29fff000
-	I/O window 0: 00007c00-00007cff
-	I/O window 1: 00001000-000010ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-	16-bit legacy interface ports at 0001
+ arch/arm/kernel/traps.c     |    7 ++-----
+ arch/i386/kernel/traps.c    |    8 +++-----
+ arch/ia64/kernel/traps.c    |    7 ++-----
+ arch/powerpc/kernel/traps.c |   10 +++-------
+ arch/x86_64/kernel/traps.c  |    2 +-
+ arch/xtensa/kernel/traps.c  |    8 +++-----
+ 6 files changed, 14 insertions(+), 28 deletions(-)
 
-Thanks for your help!
-Julien
-
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQFEu7ctmEvTgKxfcAwRAs+lAJ4yOwUczPGISw0SdyOUhOTbPccpNQCcDeIB
-GHZFUG/ejxUMvw+h7wg19x8=
-=e0Iq
------END PGP SIGNATURE-----
-
---vtzGhvizbBRQ85DL--
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -232,11 +232,8 @@ NORET_TYPE void die(const char *str, str
+ 	bust_spinlocks(0);
+ 	spin_unlock_irq(&die_lock);
+ 
+-	if (panic_on_oops) {
+-		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		ssleep(5);
+-		panic("Fatal exception");
+-	}
++	if (panic_on_oops)
++		panic("Fatal exception: panic_on_oops");
+ 
+ 	do_exit(SIGSEGV);
+ }
+--- a/arch/i386/kernel/traps.c
++++ b/arch/i386/kernel/traps.c
+@@ -442,11 +442,9 @@ #endif
+ 	if (in_interrupt())
+ 		panic("Fatal exception in interrupt");
+ 
+-	if (panic_on_oops) {
+-		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		ssleep(5);
+-		panic("Fatal exception");
+-	}
++	if (panic_on_oops)
++		panic("Fatal exception: panic_on_oops");
++
+ 	oops_exit();
+ 	do_exit(SIGSEGV);
+ }
+--- a/arch/ia64/kernel/traps.c
++++ b/arch/ia64/kernel/traps.c
+@@ -117,11 +117,8 @@ die (const char *str, struct pt_regs *re
+ 	die.lock_owner = -1;
+ 	spin_unlock_irq(&die.lock);
+ 
+-	if (panic_on_oops) {
+-		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		ssleep(5);
+-		panic("Fatal exception");
+-	}
++	if (panic_on_oops)
++		panic("Fatal exception: panic_on_oops");
+ 
+   	do_exit(SIGSEGV);
+ }
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -150,13 +150,9 @@ #endif
+ 	if (in_interrupt())
+ 		panic("Fatal exception in interrupt");
+ 
+-	if (panic_on_oops) {
+-#ifdef CONFIG_PPC64
+-		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		ssleep(5);
+-#endif
+-		panic("Fatal exception");
+-	}
++	if (panic_on_oops)
++		panic("Fatal exception: panic_on_oops");
++
+ 	do_exit(err);
+ 
+ 	return 0;
+--- a/arch/x86_64/kernel/traps.c
++++ b/arch/x86_64/kernel/traps.c
+@@ -521,7 +521,7 @@ void __kprobes oops_end(unsigned long fl
+ 		/* Nest count reaches zero, release the lock. */
+ 		spin_unlock_irqrestore(&die_lock, flags);
+ 	if (panic_on_oops)
+-		panic("Oops");
++		panic("Fatal exception: panic_on_oops");
+ }
+ 
+ void __kprobes __die(const char * str, struct pt_regs * regs, long err)
+--- a/arch/xtensa/kernel/traps.c
++++ b/arch/xtensa/kernel/traps.c
+@@ -487,11 +487,9 @@ #endif
+ 	if (in_interrupt())
+ 		panic("Fatal exception in interrupt");
+ 
+-	if (panic_on_oops) {
+-		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		ssleep(5);
+-		panic("Fatal exception");
+-	}
++	if (panic_on_oops)
++		panic("Fatal exception: panic_on_oops");
++
+ 	do_exit(err);
+ }
+ 

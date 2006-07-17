@@ -1,59 +1,486 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWGQLih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWGQLsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWGQLih (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 07:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWGQLih
+	id S1750761AbWGQLsv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 07:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWGQLsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 07:38:37 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:3759 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750750AbWGQLih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 07:38:37 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: [patch] let CONFIG_SECCOMP default to n
-To: Ingo Molnar <mingo@elte.hu>, Jeff Dike <jdike@addtoit.com>,
-       Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Reply-To: 7eggert@gmx.de
-Date: Mon, 17 Jul 2006 13:37:44 +0200
-References: <6tgj0-8ip-19@gated-at.bofh.it> <6xP8s-5mc-9@gated-at.bofh.it> <6xUhQ-4Wx-33@gated-at.bofh.it> <6xVdX-6oH-53@gated-at.bofh.it> <6xVnz-6AI-21@gated-at.bofh.it> <6xZUd-4Es-13@gated-at.bofh.it> <6y7yy-7ws-13@gated-at.bofh.it> <6y7RK-7TX-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1G2RQL-0000tG-Gb@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+	Mon, 17 Jul 2006 07:48:51 -0400
+Received: from science.horizon.com ([192.35.100.1]:14399 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750764AbWGQLsu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 07:48:50 -0400
+Date: 17 Jul 2006 07:48:48 -0400
+Message-ID: <20060717114848.19032.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc2 oops/crash
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
-> * Jeff Dike <jdike@addtoit.com> wrote:
+x86-32, 1 GB ECC RAM, 2.6.18-rc2 + PPSkit-light-PPSAPI-alpha-1610m-2.6.5.diff
 
->> Now, there were a couple of ways to legitimately escape from UML, and
->> they *did* involve ptrace.  Things like single-stepping a system call
->> instruction or putting a breakpoint on a system call instruction and
->> single-stepping from the breakpoint.  As far as I know, these were
->> discovered and fixed by UML developers before there was any outside
->> awareness of these bugs.
-> 
-> also, UML 'ptrace clients' are allowed alot more leeway than what a
-> seccomp-alike ptrace/utrace based syscall filter would allow. It would
-> clearly exclude activities like 'setting a breakpoint' or
-> 'single-stepping' - valid syscalls would be limited to
-> read/write/sigreturn/exit.
+I came in this morning to find the following on the console, after
+normal-looking log messages:
 
-So instead of breakpointing (using int3), you'd have to write
-'mv flag I_AM_HERE;self:jmp self' and resort to polling?
-This would not prevent (ab)use except for some corner cases.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+hdi: DMA timeout error
+hdi: dma timeout error: status=0x51 { DriveReady SeekComplete Error }
+hdi: dma timeout error: error=0x40 { UncorrectableError }, LBAsect=10763925, sector=10763920
+ide: failed ocode was: unknown
+end_request: I/O error, dev hdi, sector 10763920
+BUG: unable to handle kernel NULL pointer dereference at virtual address 0000002c
+ printing eip:
+ c0264b67
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0264b67>]    Not tainted VLI
+EFLAGS: 00210045   (2.6.18-rc2 #47)
+EIP is at ide_timer_expiry+0x19e/0x256
+eax: f7de7be0   ebx: c04738d4   ecx: 00000000   edx: c04738d4
+esi: 00000000   edi: 00000000   ebp: f7de7be0   esp: c044ff9c
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, ti=c044f000 task=c0376b20 task.ti=c0421000)
+Stack: c04738d4 c03614b0 00000051 00200296 c0473840 00000100 c0462c40 c02649c9
+       f7c86000 c011b5d4 f7de7be0 0000000a f7
 
-http://david.woodhou.se/why-not-spf.html
+It went on to say something about panic, but as I was transcribing it
+from the screen, Something Happened.  The console started displaying
+the following every couple of seconds.  I couldn't shift-PgUp, so the
+top got truncated:
+
+ [<c0239620>] serial8250_interrupt+0x88/0xf0
+ [<c012a9f7>] handle_IRQ_event+0x2e/0x57
+ [<c012aa84>] __do_IRQ+0x64/0xb3
+ [<c01046a1>] do_IRQ+0xb2/0xc3
+ [<c0102992>] common_interrupt+0x1a/0x20
+Mem-info:
+DMA per-cpu:
+cpu 0 hot: high 0, batch 1 used:0
+cpu 0 cold: high 0, batch 1 used:0
+DMA32 per-cpu: empty
+Normal per-cpu:
+cpu 0 hot: high 186, batch 31 used:30
+cpu 0 cold: high 62, batch 15 used:45
+HighMem per-cpu: empty
+Free pages:        4900kB (0kB HighMem)
+Active:111278 inactive:103510 dirty:1271 writeback:1 unstable:0 free:1225 slab:8463 mapped:5848 pagetables:983
+DMA free:3548kB min:68kB low:84kB high:100kB active:4952kB inactive:3340kB present:16384kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 880 880
+DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 880 880
+Normal free:1352kB min:3756kB low:4692kB high:5632kB active:440160kB inactive:410700kB present:901120kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+HighMem free: 0kB min:128kB low:128kB high:128kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+DMA: 1*4kB 1*8kB 1*16kB 0*32kB 1*64kB 0*128kB 1*256kB 0*512kB 1*1024kB 0*2048kB 0*4096kB = 3548kB
+DMA32: empty
+Normal: 0*4kB 1*8kB 0*16kB 0*32kB 1*64kB 0*128kB 1*256kB 0*512kB 1*1024kB 0*2048kB 0*4096kB = 1352kB
+HighMem: empty
+Swap cacle: add 4991, delete 4991, find 16/16, race 0+0
+Free swap  = 2979692kB
+Total swap = 2999592kB
+Free swap:       2979692kB
+229376 pages of RAM
+0 pages of HIGHMEM
+2967 reserved pages
+55645 pages shared
+0 pages swap cached
+1271 pages dirty
+1 pages writeback
+5848 pages mapped
+8463 pages slab
+983 pages pagetables
+
+I'm not sure what to make of it, so I'm throwing it out here.  Note that
+I ran an uneventful badblocks over /dev/hdi after reboot, and it's
+part of a RAID-1 mirrored pair, so its failure should not cause problems.
+
+/proc/cpuinfo is:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 6
+model name      : Celeron (Mendocino)
+stepping        : 5
+cpu MHz         : 467.737
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips        : 936.28
+
+The compiler is
+gcc (GCC) 4.1.2 20060708 (prerelease) (Debian 4.1.1-8)
+
+For what it's worth, hdi is a 60 GB drive attached to a
+00:0b.0 Mass storage controller: Promise Technology, Inc. PDC20268 (Ultra100 TX2) (rev 01)
+00:0c.0 Mass storage controller: Promise Technology, Inc. PDC20268 (Ultra100 TX2) (rev 01)
+
+Here's the .config file:
+
+CONFIG_X86_32=y
+CONFIG_GENERIC_TIME=y
+CONFIG_LOCKDEP_SUPPORT=y
+CONFIG_STACKTRACE_SUPPORT=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+CONFIG_DEFCONFIG_LIST="/lib/modules/$UNAME_RELEASE/.config"
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_KALLSYMS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_RT_MUTEXES=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_VM_EVENT_COUNTERS=y
+CONFIG_BASE_SMALL=0
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_TSC=y
+CONFIG_PREEMPT_NONE=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_VM86=y
+CONFIG_X86_MSR=y
+CONFIG_NOHIGHMEM=y
+CONFIG_PAGE_OFFSET=0xC0000000
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPARSEMEM_STATIC=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_MTRR=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_NET_IPIP=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET_XFRM_TUNNEL=y
+CONFIG_INET_TUNNEL=y
+CONFIG_INET_XFRM_MODE_TRANSPORT=y
+CONFIG_INET_XFRM_MODE_TUNNEL=y
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_NETFILTER=y
+CONFIG_BRIDGE_NETFILTER=y
+CONFIG_NETFILTER_NETLINK=y
+CONFIG_NETFILTER_NETLINK_QUEUE=y
+CONFIG_NETFILTER_NETLINK_LOG=y
+CONFIG_NETFILTER_XTABLES=y
+CONFIG_NETFILTER_XT_TARGET_CLASSIFY=y
+CONFIG_NETFILTER_XT_TARGET_CONNMARK=y
+CONFIG_NETFILTER_XT_TARGET_MARK=y
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
+CONFIG_NETFILTER_XT_TARGET_NOTRACK=y
+CONFIG_NETFILTER_XT_MATCH_CONNMARK=y
+CONFIG_NETFILTER_XT_MATCH_CONNTRACK=y
+CONFIG_NETFILTER_XT_MATCH_HELPER=y
+CONFIG_NETFILTER_XT_MATCH_LENGTH=y
+CONFIG_NETFILTER_XT_MATCH_LIMIT=y
+CONFIG_NETFILTER_XT_MATCH_MAC=y
+CONFIG_NETFILTER_XT_MATCH_MARK=y
+CONFIG_NETFILTER_XT_MATCH_POLICY=y
+CONFIG_NETFILTER_XT_MATCH_PHYSDEV=y
+CONFIG_NETFILTER_XT_MATCH_PKTTYPE=y
+CONFIG_NETFILTER_XT_MATCH_STATE=y
+CONFIG_NETFILTER_XT_MATCH_STATISTIC=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_CONNTRACK_MARK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_HASHLIMIT=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_TTL=y
+CONFIG_IP_NF_RAW=y
+CONFIG_BRIDGE=y
+CONFIG_VLAN_8021Q=y
+CONFIG_LLC=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_CPU=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_NETEM=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_BASIC=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_NET_CLS_ACT=y
+CONFIG_NET_ACT_POLICE=y
+CONFIG_NET_ACT_GACT=y
+CONFIG_GACT_PROB=y
+CONFIG_NET_ACT_IPT=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_NEW=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID10=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_PHYLIB=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_TULIP_NAPI=y
+CONFIG_TULIP_NAPI_HW_MITIGATION=y
+CONFIG_NET_PCI=y
+CONFIG_VIA_VELOCITY=y
+CONFIG_VIA_VELOCITY_VLAN=y
+CONFIG_PPP=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_PPSAPI_SERIAL=y
+CONFIG_SERIAL_8250_PCI=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_PPSAPI=y
+CONFIG_HWMON=y
+CONFIG_VIDEO_V4L2=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_EDAC=y
+CONFIG_EDAC_MM_EDAC=y
+CONFIG_EDAC_POLL=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_INOTIFY=y
+CONFIG_INOTIFY_USER=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_15=y
+CONFIG_TRACE_IRQFLAGS_SUPPORT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_UNWIND_INFO=y
+CONFIG_STACK_UNWIND=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_DOUBLEFAULT=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_AES_586=y
+CONFIG_CRYPTO_TEA=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_PLIST=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_KTIME_SCALAR=y
+
+Hey!  They 2.6.18 took away my VMSPLIT_3G_OPT.  Grumble, now it's
+hidden behind CONFIG_EMBEDDED.  Who the hell thought THAT was a good
+idea?  (Rhetorical question; "git log -p arch/i385/Kconfig" gives
+the answer in no time flat.)

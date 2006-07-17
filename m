@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWGQQpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWGQQqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWGQQpB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWGQQcT
+	id S1751049AbWGQQqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWGQQp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:32:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27322 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750936AbWGQQbu (ORCPT
+	Mon, 17 Jul 2006 12:45:58 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:20129 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750954AbWGQQpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:31:50 -0400
-Date: Mon, 17 Jul 2006 09:29:10 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 39/45] ALSA: Fix model for HP dc7600
-Message-ID: <20060717162910.GN4829@kroah.com>
-References: <20060717160652.408007000@blue.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="alsa-fix-model-for-hp-dc7600.patch"
-In-Reply-To: <20060717162452.GA4829@kroah.com>
-User-Agent: Mutt/1.5.11
+	Mon, 17 Jul 2006 12:45:04 -0400
+From: Horms <horms@verge.net.au>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH] machine_kexec.c: Fix the description of segment?handling.
+In-Reply-To: <m1u05jr014.fsf@ebiederm.dsl.xmission.com>
+X-Newsgroups: gmane.comp.boot-loaders.fastboot.general,gmane.linux.kernel
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+User-Agent: tin/1.8.2-20060425 ("Shillay") (UNIX) (Linux/2.6.16-1-686 (i686))
+Message-Id: <20060717164501.AF7C63404A@koto.vergenet.net>
+Date: Tue, 18 Jul 2006 01:45:01 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On Fri, 14 Jul 2006 21:59:19 -0600, Eric W. Biederman wrote:
+> 
+> One of my original comments in machine_kexec was unclear
+> and this should fix it.  =
+> 
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-------------------
-From: Takashi Iwai <tiwai@suse.de>
+Thanks, that looks a lot clearer to me.
 
-[PATCH] ALSA: Fix model for HP dc7600
+Acked: Horms <horms@verge.net.au>
 
-Changed the assigned model for HP dc7600 with ALC260 codec
-to match better with the actual I/O assignment.
-Patch taken from ALSA bug#2157.
+-- 
+Horms                                           
+  H: http://www.vergenet.net/~horms/
+  W: http://www.valinux.co.jp/en/
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- sound/pci/hda/patch_realtek.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.17.6.orig/sound/pci/hda/patch_realtek.c
-+++ linux-2.6.17.6/sound/pci/hda/patch_realtek.c
-@@ -3827,7 +3827,7 @@ static struct hda_board_config alc260_cf
- 	{ .modelname = "hp", .config = ALC260_HP },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3010, .config = ALC260_HP },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3011, .config = ALC260_HP },
--	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3012, .config = ALC260_HP },
-+	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3012, .config = ALC260_HP_3013 },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3013, .config = ALC260_HP_3013 },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3014, .config = ALC260_HP },
- 	{ .pci_subvendor = 0x103c, .pci_subdevice = 0x3015, .config = ALC260_HP },
-
---

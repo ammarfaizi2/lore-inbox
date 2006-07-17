@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWGQSSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWGQSTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWGQSSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWGQSSD
+	id S1751126AbWGQSTl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWGQSTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:18:03 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:29578 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751120AbWGQSSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:18:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AzyswMTlx3FjrJfeNei4VxJ7mPjqEj5FtrLPrORwYGaQ+oBH28w+8lYFq81Y3+BojLy8oL+Im89qph3LeFDoRxtsOZ/MGINtpLHKeRwLrRNtUogMldigEBzh8cVThfZuZnUfKOjZhiDB+5xulTLp+idzR9kmfcKOXfR9OEIEgCc=
-Message-ID: <f96157c40607171117v439cef52m9750e6b985bcb098@mail.gmail.com>
-Date: Mon, 17 Jul 2006 20:17:59 +0200
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-In-Reply-To: <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
+	Mon, 17 Jul 2006 14:19:41 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:34224 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751126AbWGQSTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:19:40 -0400
+Message-ID: <44BBD4B6.5020801@namesys.com>
+Date: Mon, 17 Jul 2006 11:19:34 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jeff Mahoney <jeffm@suse.com>
+CC: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com> <44BB0146.7080702@suse.com> <44BB3C42.1060309@namesys.com> <44BBA4CF.8020901@suse.com>
+In-Reply-To: <44BBA4CF.8020901@suse.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060714150418.120680@gmx.net>
-	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-	 <20060717133809.150390@gmx.net>
-	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
-	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
-	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
-	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
-	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
-	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
-	 <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-enabling HIGHMEM_64 to get NX bit enabled on a Xeon supporting the bit
-does not make the overall system slower with only 4GiB RAM installed,
-does it?
+Jeff Mahoney wrote:
+
+> Hans Reiser wrote:
+>
+> >I don't understand your patch and cannot support it as it is written.  
+> >Perhaps you can call me and explain it on the phone.
+>
+>
+> I seriously can't tell if you're deliberately trying to be difficult or
+> not. It's a simple "replace / with ! before sending the name to procfs."
+>
+> Reiserfs requests that a procfs directory called
+> /proc/fs/reiserfs/<blockdev> be created. Some block devices contain
+> slashes, so with cciss/c123 it attempts to create a directory called
+> /proc/fs/reiserfs/cciss/c123, but cciss/ doesn't exist, shouldn't, and
+> never will.
+
+Why not check to see if it does not exist, and create it if not,  as
+needed,  and skip the !'s....?
+
+> In order to create a single path component, "cciss/c123"
+> becomes "cciss!c123." This is consistent with how sysfs does it now. For
+> a real example, change the "-" in device mapper block names to "/" and
+> see what happens.
+>
+> Regardless, it's already been checked into mainline as change
+> 6fbe82a952790c634ea6035c223a01a81377daf1.
+>
+> -Jeff
+>
+> --
+> Jeff Mahoney
+> SUSE Labs
+

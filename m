@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWGQPrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWGQPtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWGQPrx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWGQPrx
+	id S1750873AbWGQPtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWGQPtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:47:53 -0400
-Received: from smtp-vbr9.xs4all.nl ([194.109.24.29]:35345 "EHLO
-	smtp-vbr9.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1750863AbWGQPrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:47:52 -0400
-Date: Mon, 17 Jul 2006 17:47:48 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Matt Heler <matt@mentel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: adaptive read ahead patch?
-Message-ID: <20060717154748.GD27918@vanheusden.com>
-References: <20060717145552.GZ27918@vanheusden.com>
-	<200607170828.05315.matt@mentel.com>
-Mime-Version: 1.0
+	Mon, 17 Jul 2006 11:49:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:21678 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750870AbWGQPtP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 11:49:15 -0400
+Date: Mon, 17 Jul 2006 10:50:49 -0500
+From: Brandon Philips <brandon@ifup.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+Message-ID: <20060717154759.GB5661@plankton.ifup.org>
+References: <44B5CE77.9010103@cmu.edu> <20060716222846.GA5741@plankton.ifup.org> <20060716225111.GA5661@plankton.ifup.org> <200607171114.26160.rjw@sisk.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200607170828.05315.matt@mentel.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sun Jul 16 22:13:47 CEST 2006
-X-Message-Flag: MultiTail - tail on steroids
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <200607171114.26160.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 11:14 Mon 17 Jul 2006, Rafael J. Wysocki wrote:
+> On Monday 17 July 2006 00:51, Brandon Philips wrote:
+> > On 17:28 Sun 16 Jul 2006, Brandon Philips wrote:
+> > > On 08:31 Thu 13 Jul 2006, Jeremy Fitzhardinge wrote:
+> > > > George Nychis wrote:
+> > > > >I am not seeing any problems at all, though I am not seeing anything
+> > > > >happen :)
+> > > > >
+> > > > >If I Fn+suspend... nothing happens ... if i Fn+hibernate ... nothing 
+> > > > >happens
+> > > > >
+> > > > >What patches did you use?
+> > > > Sounds like your first step is to set up acpi.  What distro are you 
+> > > > using?  What happens if you do "echo -n mem > /sys/power/state"?
+> > > > 
+> > > > The patches you need are to make the ahci disk interface resume 
+> > > > properly.  There's a series of 6 patches from Forrest Zhao which he 
+> > > > posted to the linux-ide list, and they apply cleanly to 2.6.18-rc1-mm1.
+> > > 
+> > > I have tried Zhao's patches[1] against 2.6.18-rc1-mm{1,2} and 2.6.18-rc1
+> > > and the suspend always stops at:
+> > > 
+> > > "Switching to UP mode"
+> > > 
+> > > At that point it hangs; giving a Ctrl+Alt+Del reboots the machine
+> > > cleanly.
+> > > 
+> > > I want to see AHCI suspend working.  So, I am happy to try other patches
+> > > or debugging steps.
+> > 
+> > I just tried booting 2.6.18-rc1-mm1 again and got the following
+> > stacktrace which suggests a problem with the ondemand governor.   
+> > 
+> > After switching to the performance govenor I was able to suspend on
+> > 2.6.18-rc1 and 2.6.18-rc1-mm1.
+> > 
+> > 	Brandon
+> Could you please create a bugzilla entry for the ondemand governor problem
+> and put this trace in there?
 
-> > Could someone please mail me the latest version of the adaptive read
-> > ahead patch? It seems Wu fell off the planet or something.
-> 
-> It's been merged into the -mm tree.
+Bug URL: http://bugzilla.kernel.org/show_bug.cgi?id=6851
 
-Thanks but I prefer not to change too many parameters; standard kernel
-with adaptive readahead is preferred.
+Thanks,
 
+	Brandon
 
-Folkert van Heusden
-
-www.vanheusden.com/multitail - multitail is tail on steroids. multiple
-               windows, filtering, coloring, anything you can think of
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

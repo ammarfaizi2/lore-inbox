@@ -1,67 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGQKkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWGQKoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWGQKkx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 06:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWGQKkx
+	id S1750709AbWGQKoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 06:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWGQKoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 06:40:53 -0400
-Received: from sandesha.sasken.com ([164.164.56.19]:49643 "EHLO
-	mail3.sasken.com") by vger.kernel.org with ESMTP id S1750716AbWGQKkw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 06:40:52 -0400
-Date: Mon, 17 Jul 2006 16:10:41 +0530 (IST)
-From: Subbu <subbu@sasken.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-cc: linuxanimesh@rediffmail.com, subbu2k_av@yahoo.com
-Subject: Compiling Driver code for 2.6 kernel
-In-Reply-To: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com>
-Message-ID: <Pine.GSO.4.64.0607171557040.15797@sunm21.sasken.com>
-References: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com>
+	Mon, 17 Jul 2006 06:44:16 -0400
+Received: from mailgate.terastack.com ([195.173.195.66]:5651 "EHLO
+	uk-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S1750709AbWGQKoQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 06:44:16 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset=US-ASCII;
-	format=flowed
-X-imss-version: 2.037
-X-imss-result: Passed
-X-imss-scores: Clean:87.63791 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [linux-usb-devel] 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Mon, 17 Jul 2006 11:44:08 +0100
+Message-ID: <89E85E0168AD994693B574C80EDB9C270464C771@uk-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Thread-Index: Acand9OMaf/E5WpaSF2WJYOxlxI5jgCBejZw
+From: "Andy Chittenden" <AChittenden@bluearc.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Alan Stern" <stern@rowland.harvard.edu>
+Cc: <david-b@pacbell.net>, <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Fri, 14 Jul 2006 14:50:16 -0400 (EDT)
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> 
+> > On Fri, 14 Jul 2006, Andrew Morton wrote:
+> > 
+> > > On Fri, 14 Jul 2006 16:54:25 +0100
+> > > "Andy Chittenden" <AChittenden@bluearc.com> wrote:
+> > 
+> > > > > So I guess there's something awry with the USB 
+> controller driver?
+> > > > > 
+> > > > 
+> > > > Is there any other info that someone wants to track 
+> this down? Or has
+> > > > someone got a fix?
+> > 
+> > It's hard to come up with a fix without knowing what's 
+> wrong.  The current 
+> > development version of that subroutine is essentially the 
+> same as the 
+> > version in 2.6.17.
+> > 
+> > If you want to pin down the problem more precisely, try 
+> adding a whole 
+> > bunch of printk() statements to the 
+> quirk_usb_handoff_ohci() function in
+> > drivers/usb/host/pci-quirks.c.
+> > 
+> 
+> Andy, please add the below, work out what line it gets stuck 
+> at and then
+> let us know?  Thanks.
 
+Well I did that and the kernel got a lot further! It ran through the
+pci_init stuff without a hitch and then hung just after this line was
+output:
 
-Hi,
+ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver
+(PCI)
 
-   Please Help me as i am newbie to 2.6 kernel.
+So I littered drivers/usb/host/ohci-pci.c with similar debugging and the
+last line it printed was from (marked with --->):
 
-   I have My driver code for 2.4.20 kernel(Here i generate .o with 100's 
-of .objs linked together).
+static int __init ohci_hcd_pci_init (void)
+{
+    int ret;
+        printk (KERN_DEBUG "%s: " DRIVER_INFO " (PCI)\n", hcd_name);
+        if (usb_disabled())
+                return -ENODEV;
 
-   I have a main GNUMakefile linked with 10's of individual make files 
-w.r.t different directories
+        D();
 
-   i am able to compile my source code and able to link all individual 
-modules and generate final module.o (2.6). but i am not sure how to 
-genrate .ko from the module.o i have.
+        pr_debug ("%s: block sizes: ed %Zd td %Zd\n", hcd_name,
+                sizeof (struct ed), sizeof (struct td));
+--->         D();
 
-   I understand the compilation for 2.6 is different.
+        ret = pci_register_driver (&ohci_pci_driver);
+        D();
+        return ret;
 
-   How i can generate .ko which is required for 2.6.
+}
 
-  1) Is a simple Makefile changes for 2.4 to 2.6 enough..?? then what needs 
-to done in my GNUmakefile(not the kernel source)
-  2) Is it required to use kernel source  GNUMakefile as given in examples 
-***
-  3) Is it o.k to compile individual 'c' files with .obj and linked to 
-module.o
+IE it never returned from pci_register_driver.
 
-  Please help me in this regards
+A bit more sprinkling of debugging showed it got to drivers/base/bus.c
+(bus_add_driver()):
 
-THanx in advance
-Subbu
+        D();
 
+                driver_attach(drv);
+        D();
 
-"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
+It never returned from driver_attach().
 
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+More debugging in drivers/base/dd.c showed the last output to be (marked
+with --->):
+
+static int __driver_attach(struct device * dev, void * data)
+{
+        struct device_driver * drv = data;
+
+        /*
+         * Lock device and try to bind to it. We drop the error
+         * here and always return 0, because we need to keep trying
+         * to bind to devices and some drivers will return an error
+         * simply if it didn't support the device.
+         *
+         * driver_probe_device() will spit a warning if there
+         * is an error.
+         */
+
+--->        D();
+
+        if (dev->parent)        /* Needed for USB */
+                down(&dev->parent->sem);
+        D();
+
+IE it never returned from down.
+
+So why did putting in the initial lot of debug alter where the kernel
+hung? And what's next?
+
+NB a reminder: 2.6.16 boots up fine on this machine.
+
+-- 
+Andy, BlueArc Engineering

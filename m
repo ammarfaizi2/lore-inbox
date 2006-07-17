@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWGQQCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWGQQLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWGQQCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWGQQCn
+	id S1750904AbWGQQLR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWGQQLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:02:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:20239 "EHLO
+	Mon, 17 Jul 2006 12:11:17 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:51495 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750909AbWGQQCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:02:42 -0400
+	id S1750904AbWGQQLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 12:11:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bBwni5zm9S6aVpPhdYGTIsqjltvUJ0GfbOD79zXICo1YSCq85VHHILk1HX7Z9KYGGjQ35LbnAy2IeorgS9dOAD/jsdMXSnCS54m4BjtksPjm6rNnvq49XI7P6X6K8wKxd3gdNBj1ueeEDQ9wy+PMlfuWl7Y34TdfM5219t9ZC8U=
-Message-ID: <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
-Date: Mon, 17 Jul 2006 16:02:36 +0000
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JmgH2/qEDy75yA1UhJM36XXVa88YmBXil8Rr7DCZQd+HQqGbZdH+kZB/k7xYJUMbNs5nhJOqQMBAbFBeC1ndU6sQP2W13HviwZ0pnbd3OIePlUu5AsIvm9rx4BpOs+shCTyfyMbMzv0IE4bmYoJ+k/ZQozVgAvPFO11F5wPvV9c=
+Message-ID: <f96157c40607170911w5289729t41e1c7d4af07e347@mail.gmail.com>
+Date: Mon, 17 Jul 2006 16:11:14 +0000
 From: "gmu 2k6" <gmu2006@gmail.com>
-To: linux-kernel@vger.kernel.org
+To: "Roman Zippel" <zippel@linux-m68k.org>
 Subject: Re: Re: i686 hang on boot in userspace
+Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
@@ -63,7 +64,7 @@ On 7/17/06, gmu 2k6 <gmu2006@gmail.com> wrote:
 > right now I'm trying to get SysRq working (my first try with it) so
 > that I see where it's hanging.
 
-either I'm too dumb or there is an undocumented way to enable SysRq on
-bootup or the machine is really hanging hard. I'm not able use
-Alt+Print as nothing happens besides console showing the typed in
-characters ^[t.
+ignore the ntpdate message, it also appears when normally booting as
+the tg3 interfaces are not up yet when ntpdate is run, but this is ok
+as I've been doing ntpdate @hourly anyway.
+therefore, there must be a different issue which I'm not able to debug yet.

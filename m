@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWGQS24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWGQS3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWGQS24 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWGQS24
+	id S1751143AbWGQS3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWGQS3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:28:56 -0400
-Received: from dvhart.com ([64.146.134.43]:39604 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751136AbWGQS2z (ORCPT
+	Mon, 17 Jul 2006 14:29:22 -0400
+Received: from dvhart.com ([64.146.134.43]:39860 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751141AbWGQS3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:28:55 -0400
-Message-ID: <44BBD6E2.6020309@mbligh.org>
-Date: Mon, 17 Jul 2006 14:28:50 -0400
+	Mon, 17 Jul 2006 14:29:07 -0400
+Message-ID: <44BBD6E5.8080307@mbligh.org>
+Date: Mon, 17 Jul 2006 14:28:53 -0400
 From: "Martin J. Bligh" <mbligh@mbligh.org>
 User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [Fwd: [Bugme-new] [Bug 6853] New: NFS-stress triggers Kernel BUG
- at	mm/truncate.c:76]
+Subject: [Fwd: [Bugme-new] [Bug 6852] New: Kernel BUG at mm/truncate.c:76]
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Please cc: JF@vanbaarlen.demon.nl, and bugme-daemon@bugzilla.kernel.org
 on all replies.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6853
+http://bugzilla.kernel.org/show_bug.cgi?id=6852
 
-            Summary: NFS-stress triggers Kernel BUG at mm/truncate.c:76
+            Summary: Kernel BUG at mm/truncate.c:76
      Kernel Version: 2.6.17.6, x86_64
              Status: NEW
            Severity: normal

@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWGQQqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWGQQnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWGQQqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:46:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWGQQpB
+	id S1751054AbWGQQnw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWGQQcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:45:01 -0400
-Received: from mail.kroah.org ([69.55.234.183]:52666 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750936AbWGQQcV (ORCPT
+	Mon, 17 Jul 2006 12:32:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26042 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750935AbWGQQbt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:32:21 -0400
-Date: Mon, 17 Jul 2006 09:26:35 -0700
+	Mon, 17 Jul 2006 12:31:49 -0400
+Date: Mon, 17 Jul 2006 09:29:29 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, len.brown@intel.com,
-       robert.moore@intel.com, Daniel Drake <dsd@gentoo.org>,
-       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 10/45] Reduce ACPI verbosity on null handle condition
-Message-ID: <20060717162635.GK4829@kroah.com>
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, dev@openvz.org, trond.myklebust@fys.uio.no,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 43/45] struct file leakage
+Message-ID: <20060717162929.GR4829@kroah.com>
 References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="reduce-acpi-verbosity-on-null-handle-condition.patch"
+Content-Disposition: inline; filename="struct-file-leakage.patch"
 In-Reply-To: <20060717162452.GA4829@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,38 +34,54 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Bob Moore <robert.moore@intel.com>
+From: Kirill Korotaev <dev@sw.ru>
 
-As detailed at http://bugs.gentoo.org/131534 :
+2.6.16 leaks like hell. While testing, I found massive leakage
+(reproduced in openvz) in:
 
-2.6.16 converted many ACPI debug messages into error or warning 
-messages. One extraneous message was incorrectly converted, resulting in 
-logs being flooded by "Handle is NULL and Pathname is relative" messages 
-on some systems.
+*filp
+*size-4096
 
-This patch (part of a larger ACPICA commit) converts the message back to 
-debug level.
+And 1 object leaks in
+*size-32
+*size-64
+*size-128
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+It is the fix for the first one.  filp leaks in the bowels of namei.c.
+
+Seems, size-4096 is file table leaking in expand_fdtables.
+
+I have no idea what are the rest and why they show only accompanying
+another leaks.  Some debugging structs?
+
+[akpm@osdl.org, Trond: remove the IS_ERR() check]
+Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Kirill Korotaev <dev@openvz.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/acpi/namespace/nsxfeval.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- linux-2.6.17.3.orig/drivers/acpi/namespace/nsxfeval.c
-+++ linux-2.6.17.3/drivers/acpi/namespace/nsxfeval.c
-@@ -238,8 +238,9 @@ acpi_evaluate_object(acpi_handle handle,
- 			ACPI_ERROR((AE_INFO,
- 				    "Both Handle and Pathname are NULL"));
- 		} else {
--			ACPI_ERROR((AE_INFO,
--				    "Handle is NULL and Pathname is relative"));
-+			ACPI_DEBUG_PRINT((ACPI_DB_INFO,
-+					  "Null Handle with relative pathname [%s]",
-+					  pathname));
- 		}
- 
- 		status = AE_BAD_PARAMETER;
+---
+ fs/namei.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- linux-2.6.17.6.orig/fs/namei.c
++++ linux-2.6.17.6/fs/namei.c
+@@ -1712,8 +1712,14 @@ do_link:
+ 	if (error)
+ 		goto exit_dput;
+ 	error = __do_follow_link(&path, nd);
+-	if (error)
++	if (error) {
++		/* Does someone understand code flow here? Or it is only
++		 * me so stupid? Anathema to whoever designed this non-sense
++		 * with "intent.open".
++		 */
++		release_open_intent(nd);
+ 		return error;
++	}
+ 	nd->flags &= ~LOOKUP_PARENT;
+ 	if (nd->last_type == LAST_BIND)
+ 		goto ok;
 
 --

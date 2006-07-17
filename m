@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWGQRDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWGQRCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbWGQRDt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 13:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWGQRDt
+	id S1751015AbWGQRCn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 13:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWGQRCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 13:03:49 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:53129 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751014AbWGQRDs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 13:03:48 -0400
-Date: Mon, 17 Jul 2006 19:03:46 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: gmu 2k6 <gmu2006@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-In-Reply-To: <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0607171902310.6762@scrub.home>
-References: <20060714150418.120680@gmx.net>  <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-  <20060717133809.150390@gmx.net>  <Pine.LNX.4.64.0607171605500.6761@scrub.home>
-  <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com> 
- <Pine.LNX.4.64.0607171718140.6762@scrub.home> 
- <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
- <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+	Mon, 17 Jul 2006 13:02:43 -0400
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:11189 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751014AbWGQRCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 13:02:42 -0400
+X-Sasl-enc: OlR5x0K+8NV49QIx2pxLAGl1tF5N6Iu4YkxJoj7bZuO+ 1153155755
+Message-ID: <44BBC2A9.1050507@imap.cc>
+Date: Mon, 17 Jul 2006 19:02:33 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.18-rc1: printk delays
+References: <6vtF8-99-7@gated-at.bofh.it>  <44AD9605.6000601@imap.cc>	 <1152229599.24656.175.camel@cog.beaverton.ibm.com>	 <44ADA84A.9000603@imap.cc> <1152233897.24656.179.camel@cog.beaverton.ibm.com> <44AE7861.8090103@imap.cc>
+In-Reply-To: <44AE7861.8090103@imap.cc>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig75AF1D73C05FA362AF9820AD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig75AF1D73C05FA362AF9820AD
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 17 Jul 2006, gmu 2k6 wrote:
+On 07.07.2006 17:06, Tilman Schmidt wrote:
+> john stultz wrote:
+>=20
+>>Hmmm. Just to make sure I understand the situation: If you log in via
+>>ssh, and run dmesg, you do see your driver's output, but that output
+>>just doesn't get to syslog until you press a key on your keyboard?
+>=20
+> Exactly.
 
-> either I'm too dumb or there is an undocumented way to enable SysRq on
-> bootup or the machine is really hanging hard. I'm not able use
-> Alt+Print as nothing happens besides console showing the typed in
-> characters ^[t.
+FYI, the issue is still present in 2.6.18-rc2.
 
-It might be a keyboard problem, try releasing Print, but keeping Alt 
-pressed and then try another key.
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
-bye, Roman
+
+--------------enig75AF1D73C05FA362AF9820AD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEu8KwMdB4Whm86/kRAlTDAJ9pFgVNch4wp9/4c9Jfbv/EU+3zwwCfdGP/
+MMyUe5xHRjl4AoGFw74mwgY=
+=aONm
+-----END PGP SIGNATURE-----
+
+--------------enig75AF1D73C05FA362AF9820AD--

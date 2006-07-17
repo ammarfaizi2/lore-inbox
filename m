@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWGQDPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWGQDha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWGQDPk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 23:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWGQDPk
+	id S932282AbWGQDha (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 23:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWGQDha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 23:15:40 -0400
-Received: from ns2.suse.de ([195.135.220.15]:204 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932260AbWGQDPk (ORCPT
+	Sun, 16 Jul 2006 23:37:30 -0400
+Received: from fc-cn.com ([218.25.172.144]:34833 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932282AbWGQDha (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 23:15:40 -0400
-Message-ID: <44BB0146.7080702@suse.com>
-Date: Sun, 16 Jul 2006 23:17:26 -0400
-From: Jeffrey Mahoney <jeffm@suse.com>
-User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060516)
+	Sun, 16 Jul 2006 23:37:30 -0400
+Date: Mon, 17 Jul 2006 11:38:50 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] gitignore quilt's files
+Message-ID: <20060717033850.GA18438@localhost.localdomain>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com>
-In-Reply-To: <44BAFDC3.7020301@namesys.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hans Reiser wrote:
-> Jeffrey Mahoney wrote:
->> This is not
->> the desired interpretation, which is why we need to replace the pathname
->> separator in the name. ReiserFS is the component that is choosing to use
->> the block device name as a pathname component and is responsible for
->> making any translation to that usage.
-> 
-> This makes no sense.  I have the feeling you see trees and I see forest.
+gitignore: ignore quilt's files.
+ 
+Signed-off-by: Qi Yong <qiyong@fc-cn.com>
+---
 
-No, Hans. I see a problem that has been fixed elsewhere in an identical
-manner. The real solution is to eliminate / from block devices in the
-long run, not to start introducing mount points with different pathname
-interpretation rules. Those may have a place elsewhere, after a tough
-uphill battle, and are most certainly overkill for this problem.
+diff --git a/.gitignore b/.gitignore
+index 27fd376..21e346a 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -33,3 +33,7 @@ include/linux/version.h
+ 
+ # stgit generated dirs
+ patches-*
++
++# quilt's files
++patches
++series
 
-- -Jeff
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (Darwin)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEuwFFLPWxlyuTD7IRAsiiAJ9cwTuov+2OM7GI44L1wQ/XDBMy9ACeIIYQ
-5xEIRCQXHAZFG7oOFEkWJS4=
-=onBb
------END PGP SIGNATURE-----
+-- 
+Qi Yong

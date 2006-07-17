@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWGQSQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWGQSSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWGQSQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWGQSQ3
+	id S1751120AbWGQSSD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWGQSSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:16:29 -0400
-Received: from zotz.mtu.ru ([195.34.34.227]:2321 "EHLO zotz.mtu.ru")
-	by vger.kernel.org with ESMTP id S1751125AbWGQSQ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:16:28 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: kernel panic at load average of 24 is it acceptable ?
-To: Vikas Kedia <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
-Date: Mon, 17 Jul 2006 22:16:21 +0400
-References: <fbe022af0607170008w5efb489fjd3df63f1795805c2@mail.gmail.com> <20060717072457.GA12215@rhlx01.fht-esslingen.de> <fbe022af0607170055x7fefdf9bg63ea77768480935a@mail.gmail.com>
-User-Agent: KNode/0.10.2
+	Mon, 17 Jul 2006 14:18:03 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:29578 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751120AbWGQSSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:18:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AzyswMTlx3FjrJfeNei4VxJ7mPjqEj5FtrLPrORwYGaQ+oBH28w+8lYFq81Y3+BojLy8oL+Im89qph3LeFDoRxtsOZ/MGINtpLHKeRwLrRNtUogMldigEBzh8cVThfZuZnUfKOjZhiDB+5xulTLp+idzR9kmfcKOXfR9OEIEgCc=
+Message-ID: <f96157c40607171117v439cef52m9750e6b985bcb098@mail.gmail.com>
+Date: Mon, 17 Jul 2006 20:17:59 +0200
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+In-Reply-To: <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20060717181624.5BF9355D9CB@zotz.mtu.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060714150418.120680@gmx.net>
+	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
+	 <20060717133809.150390@gmx.net>
+	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
+	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
+	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+	 <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vikas Kedia wrote:
-
->> Read up on MCE debugging methods on Linux or so, that should hopefully
->> help.
-> 
-> Here is the output of mcelog:
-> root@srv1:~# less /var/log/mcelog
-> MCE 0
-> CPU 0 0 data cache TSC 6988ae18046
-> ADDR f87f5ec0
->   Data cache ECC error (syndrome ce)
->        bit46 = corrected ecc error
->   bus error 'local node origin, request didn't time out
->       data read mem transaction
->       memory access, level generic'
-> STATUS 9467400000000833 MCGSTATUS 0
-> MCE 0
-> CPU 0 0 data cache TSC 723b38a3633
-> ADDR 3d9fc0
->   Data cache ECC error (syndrome ce)
->        bit46 = corrected ecc error
->        bit62 = error overflow (multiple errors)
->   bus error 'local node origin, request didn't time out
->       data read mem transaction
->       memory access, level generic'
-> STATUS d467400000000833 MCGSTATUS 0
-> 
-> Since it shows ECC error is the hypothesis correct that its the RAM
-> problem and replacing it should solve the problem.
-> 
-
-I am not sure if this is a question, but it shows _data cache_ multibit
-error which makes it rather CPU not memory.
-
--andrey
-
+enabling HIGHMEM_64 to get NX bit enabled on a Xeon supporting the bit
+does not make the overall system slower with only 4GiB RAM installed,
+does it?

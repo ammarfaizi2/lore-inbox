@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWGQQz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWGQRDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWGQQz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWGQQz7
+	id S1751014AbWGQRDt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 13:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWGQRDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:55:59 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54914 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751041AbWGQQz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:55:58 -0400
-Subject: Re: [patch 27/45] tpm: interrupt clear fix
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20060717162806.GB4829@kroah.com>
-References: <20060717160652.408007000@blue.kroah.org>
-	 <20060717162806.GB4829@kroah.com>
-Content-Type: text/plain
-Date: Mon, 17 Jul 2006 09:56:03 -0700
-Message-Id: <1153155363.4808.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jul 2006 13:03:49 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:53129 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751014AbWGQRDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 13:03:48 -0400
+Date: Mon, 17 Jul 2006 19:03:46 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: gmu 2k6 <gmu2006@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+In-Reply-To: <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+References: <20060714150418.120680@gmx.net>  <Pine.LNX.4.64.0607171242440.6761@scrub.home>
+  <20060717133809.150390@gmx.net>  <Pine.LNX.4.64.0607171605500.6761@scrub.home>
+  <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com> 
+ <Pine.LNX.4.64.0607171718140.6762@scrub.home> 
+ <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+ <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was a different patch proposed and accepted already for this fix
-based on comments on the list.
+Hi,
 
-Thanks,
-Kylie
+On Mon, 17 Jul 2006, gmu 2k6 wrote:
 
+> either I'm too dumb or there is an undocumented way to enable SysRq on
+> bootup or the machine is really hanging hard. I'm not able use
+> Alt+Print as nothing happens besides console showing the typed in
+> characters ^[t.
 
-On Mon, 2006-07-17 at 09:28 -0700, Greg KH wrote:
-> plain text document attachment (tpm-interrupt-clear-fix.patch)
-> -stable review patch.  If anyone has any objections, please let us know.
-> 
-> ------------------
-> From: Kylene Jo Hall <kjhall@us.ibm.com>
-> 
-> Under stress testing I found that the interrupt is not always cleared.
-> This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
-> 
-> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> ---
->  drivers/char/tpm/tpm_tis.c |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> --- linux-2.6.17.6.orig/drivers/char/tpm/tpm_tis.c
-> +++ linux-2.6.17.6/drivers/char/tpm/tpm_tis.c
-> @@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
->  	iowrite32(interrupt,
->  		  chip->vendor.iobase +
->  		  TPM_INT_STATUS(chip->vendor.locality));
-> +	mb();
->  	return IRQ_HANDLED;
->  }
->  
-> 
-> --
+It might be a keyboard problem, try releasing Print, but keeping Alt 
+pressed and then try another key.
 
+bye, Roman

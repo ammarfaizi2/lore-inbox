@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWGQVgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWGQVwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWGQVgK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 17:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWGQVgK
+	id S1750768AbWGQVwn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWGQVwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 17:36:10 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:23709 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750764AbWGQVgI
+	Mon, 17 Jul 2006 17:52:42 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42131 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750768AbWGQVwm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 17:36:08 -0400
-Subject: Re: [Fwd: Re: [PATCH] tpm: interrupt clear fix]
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: stable@kernel.org, Greg KH <gregkh@suse.de>, torvalds@osdl.org,
-       akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>,
-       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
-       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20060717210425.GA16076@kroah.com>
-References: <1153161320.4808.11.camel@localhost.localdomain>
-	 <20060717210425.GA16076@kroah.com>
+	Mon, 17 Jul 2006 17:52:42 -0400
+Subject: [Patch 1/3] make taskstats sending completely independent of delay
+	accounting on/off status
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Balbir Singh <balbir@in.ibm.com>, Chris Sturtivant <csturtiv@sgi.com>
+In-Reply-To: <1153173063.4551.10.camel@dyn9002218086.watson.ibm.com>
+References: <1153173063.4551.10.camel@dyn9002218086.watson.ibm.com>
 Content-Type: text/plain
-Date: Mon, 17 Jul 2006 14:36:16 -0700
-Message-Id: <1153172176.4808.35.camel@localhost.localdomain>
+Organization: IBM
+Message-Id: <1153173158.4551.13.camel@dyn9002218086.watson.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 17 Jul 2006 17:52:38 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This replaces the previous patch.
-Thanks,
-Kylie
+Complete the separation of delay accounting and taskstats by ignoring the
+return value of delay accounting functions that fill in parts of taskstats
+before it is sent out (either in response to a command or as part of a task
+exit).
 
-On Mon, 2006-07-17 at 14:04 -0700, Greg KH wrote:
-> On Mon, Jul 17, 2006 at 11:35:20AM -0700, Kylene Jo Hall wrote:
-> > -------- Forwarded Message --------
-> > From: Kylene Jo Hall <kjhall@us.ibm.com>
-> > To: linux-os (Dick Johnson) <linux-os@analogic.com>
-> > Cc: linux-kernel <linux-kernel@vger.kernel.org>, TPM Device Driver List
-> > <tpmdd-devel@lists.sourceforge.net>, akpm@osdl.org
-> > Subject: Re: [PATCH] tpm: interrupt clear fix
-> > Date: Thu, 13 Jul 2006 12:24:36 -0700
-> > Under stress testing I found that the interrupt is not always cleared.
-> > This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
-> > 
-> > On Thu, 2006-07-13 at 07:45 -0400, linux-os (Dick Johnson) wrote:
-> > 
-> > > PCI devices need a final read to flush all pending writes. Whatever
-> > > mb() does, just hides the problem.
-> > 
-> > 
-> > Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> > ---
-> > 
-> > --- linux-2.6.18-rc1/drivers/char/tpm/tpm_tis.c	2006-07-13 14:46:39.727500500 -0500
-> > +++ linux-2.6.18-rc1-tpm/drivers/char/tpm/tpm_tis.c	2006-07-13 14:47:33.878884750 -0500
-> > @@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
-> >  	iowrite32(interrupt,
-> >  		  chip->vendor.iobase +
-> >  		  TPM_INT_STATUS(chip->vendor.locality));
-> > +	ioread32(chip->vendor.iobase + TPM_INT_STATUS(chip->vendor.locality));
-> >  	return IRQ_HANDLED;
-> >  }
-> 
-> So does this replace the other tpm patch?  Or should we apply both of
-> them?
-> 
-> thanks,
-> 
-> greg k-h
+Also make delayacct_add_tsk return silently when delay accounting is turned
+off rather than treat it as an error.
+
+Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
+
+ include/linux/delayacct.h |    4 +---
+ kernel/taskstats.c        |    8 +++-----
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+Index: linux-2.6.18-rc2/kernel/taskstats.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/taskstats.c	2006-07-17 17:01:51.000000000 -0400
++++ linux-2.6.18-rc2/kernel/taskstats.c	2006-07-17 17:03:41.000000000 -0400
+@@ -177,7 +177,7 @@ static int send_cpu_listeners(struct sk_
+ static int fill_pid(pid_t pid, struct task_struct *pidtsk,
+ 		struct taskstats *stats)
+ {
+-	int rc;
++	int rc = 0;
+ 	struct task_struct *tsk = pidtsk;
+ 
+ 	if (!pidtsk) {
+@@ -196,12 +196,10 @@ static int fill_pid(pid_t pid, struct ta
+ 	 * Each accounting subsystem adds calls to its functions to
+ 	 * fill in relevant parts of struct taskstsats as follows
+ 	 *
+-	 *	rc = per-task-foo(stats, tsk);
+-	 *	if (rc)
+-	 *		goto err;
++	 *	per-task-foo(stats, tsk);
+ 	 */
+ 
+-	rc = delayacct_add_tsk(stats, tsk);
++	delayacct_add_tsk(stats, tsk);
+ 	stats->version = TASKSTATS_VERSION;
+ 
+ 	/* Define err: label here if needed */
+Index: linux-2.6.18-rc2/include/linux/delayacct.h
+===================================================================
+--- linux-2.6.18-rc2.orig/include/linux/delayacct.h	2006-07-17 17:01:51.000000000 -0400
++++ linux-2.6.18-rc2/include/linux/delayacct.h	2006-07-17 17:03:41.000000000 -0400
+@@ -80,9 +80,7 @@ static inline void delayacct_blkio_end(v
+ static inline int delayacct_add_tsk(struct taskstats *d,
+ 					struct task_struct *tsk)
+ {
+-	if (likely(!delayacct_on))
+-		return -EINVAL;
+-	if (!tsk->delays)
++	if (likely(!delayacct_on) || !tsk->delays)
+ 		return 0;
+ 	return __delayacct_add_tsk(d, tsk);
+ }
+
 

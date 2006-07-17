@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWGQW1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWGQWeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWGQW1R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 18:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWGQW1R
+	id S1751216AbWGQWeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 18:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGQWeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 18:27:17 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:53198 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751047AbWGQW1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 18:27:16 -0400
-From: Andi Kleen <ak@suse.de>
-To: Horms <horms@verge.net.au>
-Subject: Re: [PATCH] panic_on_oops: remove ssleep()
-Date: Tue, 18 Jul 2006 00:27:51 +0200
-User-Agent: KMail/1.9.1
-Cc: Russell King <rmk@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Chris Zankel <chris@zankel.net>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linuxppc-dev@ozlabs.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-References: <31687.FP.7244@verge.net.au>
-In-Reply-To: <31687.FP.7244@verge.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607180027.51986.ak@suse.de>
+	Mon, 17 Jul 2006 18:34:25 -0400
+Received: from science.horizon.com ([192.35.100.1]:33582 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1751096AbWGQWeY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 18:34:24 -0400
+Date: 17 Jul 2006 18:34:23 -0400
+Message-ID: <20060717223423.24205.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
+Subject: Re: Reiser4 Inclusion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 July 2006 18:17, Horms wrote:
-> This patch is part of an effort to unify the panic_on_oops behaviour
-> across all architectures that implement it.
+>> I have deployed two nearly identical servers in Florida (I live in
+>> Washington state) but one difference: one uses ext3 and the other
+>> reiser4. The ping time of the reiser4 server is (on average) 20ms faster
+>> than the ext3 server.
 >
-> It was pointed out to me by Andi Kleen that if an oops has occured
-> in interrupt context, then calling sleep() in the oops path will only cause
-> a panic, and that it would be really better for it not to be in the path at
-> all.
->
-> This patch removes the ssleep() call and reworks the console message
-> accordinly.  I have a slght concern that the resulting console message is
-> too long, feedback welcome.
+> OK, I'll bite.  What *POSSIBLE* reason is there for the choice of filesystem
+> to matter to an ICMP Echo Request/Reply?  I'm suspecting something else,
+> like the ext3 server needs to re-ARP before sending the Echo Reply, or some
+> such.
 
-Keeping the delay might be actually useful so that you can see the panic
-before system reboots when reboot on panic is enabled. I would just use a loop
-of mdelays(1) with touch_nmi_watchdog/touch_softirq_watchdog()s
-inbetween.
+Er... I was assuming that was an application-level ping, e.g. "fetch
+database-generated web page", and not an ICMP-level ping.
 
--Andi
+If this *is* talking about ICMP-level ping, I agree completely;
+that makes no sense.  Either there is a dire bug in Linux networking,
+or the networks aren't the same.  Assuming the two machines are
+located together (if they're not, there's your problem right there),
+is the same 20 ms visible when you ping them from each other?

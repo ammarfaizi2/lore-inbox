@@ -1,81 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWGRAAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWGRAEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWGRAAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 20:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWGRAAh
+	id S1751249AbWGRAEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 20:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWGRAEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 20:00:37 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:6609 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751245AbWGRAAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 20:00:36 -0400
-Message-Id: <200607171901.k6HJ1Zxa003239@laptop11.inf.utfsm.cl>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
-       caleb@calebgray.com, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 Inclusion 
-In-Reply-To: Your message of "Mon, 17 Jul 2006 16:31:06 +0200."
-             <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 17 Jul 2006 15:01:35 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 17 Jul 2006 19:59:15 -0400 (CLT)
+	Mon, 17 Jul 2006 20:04:16 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:60563 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751249AbWGRAEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 20:04:15 -0400
+Date: Mon, 17 Jul 2006 19:58:41 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386: fix recursive faults during oops when current
+  is invalid
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200607172001_MC3-1-C544-DDA1@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski <kangur@polcom.net> wrote:
+Fix recursive faults during oops caused by invalid value in current
+by using __get_user()/__put_user() when dereferencing it.
 
-[...]
+Reported by Krzysztof Halasa <khc@pm.waw.pl>
 
-> Why do some people think that users are not already depending on it? 
-> They are.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Foolishly, perhaps...
+---
 
->           I don't know how much but I am willing to bet that at least
-> 100 people. I think that there are some drivers in the kernel that
-> have smaller user base.
+ If this is OK I'll do x86_64 next.
 
-Feel free to suggest deleting said drivers.
+ arch/i386/kernel/traps.c |   17 +++++++++++++----
+ arch/i386/mm/fault.c     |    7 ++++---
+ 2 files changed, 17 insertions(+), 7 deletions(-)
 
-> Keeping Reiser4 out of kernel is even worse (for those users, other
-> users that could test this filesystem, for Reiser4 developers and
-> whole comunity) than accepting it for a try period with a big fat
-> warning that it my be removed if Namesys abandons futher fixing of it
-> (after some time to let user migrate).
-
-I just won't work that way. Using that logic, Reiser 3 should be gone long
-ago...
-
-> And any arguments like "if Reiser4 is not in the kernel then people
-> will not use and depend on it" are fundamentally flawed
-> IMHO. Everything bad that could happen with Reiser4 in the kernel can
-> happen with Reiser4 out of it.
-
-Right. But this way it is /not/ the kernel crowd's job to look after it.
-
-> It may look like some kernel developers are trying hard not to take
-> responsibility for Reiser4
-
-Why should they? They don't feel confortable with the code, believe it has
-fatal design (and other) problems. Its maintainers have shown a tendency to
-disregard data safety, and just dump the code when something new fancies
-them. The kernel hackers can't just take over any random piece of complex
-code, the only scalable way of integrating new stuff that will stay for a
-/long/ time is to have reasonable expectations that whoever proposes the
-code will stay around maintaining it.
-
->                            saying that there is very huge difference
-> between selecting highly experimental kernel feature that is marked so
-> and patching the kernel with it. Sorry but I think there is very
-> little difference. And that little difference is only hurting users
-> that want to try and test something new.
-
-If it is in the kernel, the expectation is that it will stay in the kernel
-for the foreseeable future. For a filesystem, something like the next 10
-years. Thus letting in a new filesystem is a /huge/ commitment.
+--- 2.6.18-rc1-32.orig/arch/i386/mm/fault.c
++++ 2.6.18-rc1-32/arch/i386/mm/fault.c
+@@ -585,9 +585,10 @@ no_context:
+ 		printk(KERN_ALERT "*pte = %08lx\n", page);
+ 	}
+ #endif
+-	tsk->thread.cr2 = address;
+-	tsk->thread.trap_no = 14;
+-	tsk->thread.error_code = error_code;
++	/* avoid possible fault here if tsk is garbage */
++	__put_user(address, &tsk->thread.cr2);
++	__put_user(14, &tsk->thread.trap_no);
++	__put_user(error_code, &tsk->thread.error_code);
+ 	die("Oops", regs, error_code);
+ 	bust_spinlocks(0);
+ 	do_exit(SIGKILL);
+--- 2.6.18-rc1-32.orig/arch/i386/kernel/traps.c
++++ 2.6.18-rc1-32/arch/i386/kernel/traps.c
+@@ -267,8 +267,16 @@ void show_registers(struct pt_regs *regs
+ 	int i;
+ 	int in_kernel = 1;
+ 	unsigned long esp;
++	char *comm = "<bad task>";
++	pid_t pid = 0;
++	void *thread_info = 0;
+ 	unsigned short ss;
+ 
++	__get_user(thread_info, &current->thread_info);
++	__get_user(pid, &current->pid);
++	if (!__get_user(comm, (char **)current->comm))
++		comm = current->comm;
++
+ 	esp = (unsigned long) (&regs->esp);
+ 	savesegment(ss, ss);
+ 	if (user_mode_vm(regs)) {
+@@ -291,8 +299,8 @@ void show_registers(struct pt_regs *regs
+ 	printk(KERN_EMERG "ds: %04x   es: %04x   ss: %04x\n",
+ 		regs->xds & 0xffff, regs->xes & 0xffff, ss);
+ 	printk(KERN_EMERG "Process %.*s (pid: %d, ti=%p task=%p task.ti=%p)",
+-		TASK_COMM_LEN, current->comm, current->pid,
+-		current_thread_info(), current, current->thread_info);
++		TASK_COMM_LEN, comm, pid,
++		current_thread_info(), current, thread_info);
+ 	/*
+ 	 * When in-kernel, we also print out the stack and code at the
+ 	 * time of the fault..
+@@ -371,6 +379,7 @@ void die(const char * str, struct pt_reg
+ 	};
+ 	static int die_counter;
+ 	unsigned long flags;
++	unsigned long trap_no = 0; /* default if task pointer is corrupt */
+ 
+ 	oops_enter();
+ 
+@@ -409,8 +418,8 @@ void die(const char * str, struct pt_reg
+ #endif
+ 		if (nl)
+ 			printk("\n");
+-		if (notify_die(DIE_OOPS, str, regs, err,
+-					current->thread.trap_no, SIGSEGV) !=
++		__get_user(trap_no, &current->thread.trap_no);
++		if (notify_die(DIE_OOPS, str, regs, err, trap_no, SIGSEGV) !=
+ 				NOTIFY_STOP) {
+ 			show_registers(regs);
+ 			/* Executive summary in case the oops scrolled away */
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Chuck

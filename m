@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWGQOyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWGQO4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWGQOyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 10:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWGQOyP
+	id S1750815AbWGQO4A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 10:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWGQO4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 10:54:15 -0400
-Received: from mx1.suse.de ([195.135.220.2]:21690 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750816AbWGQOyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 10:54:15 -0400
-Message-ID: <44BBA4CF.8020901@suse.com>
-Date: Mon, 17 Jul 2006 10:55:11 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-Organization: SUSE Labs, Novell, Inc
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com> <44BB0146.7080702@suse.com> <44BB3C42.1060309@namesys.com>
-In-Reply-To: <44BB3C42.1060309@namesys.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jul 2006 10:56:00 -0400
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:61707 "EHLO
+	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1750815AbWGQOz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 10:55:59 -0400
+Date: Mon, 17 Jul 2006 16:55:53 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: linux-kernel@vger.kernel.org
+Subject: adaptive read ahead patch?
+Message-ID: <20060717145552.GZ27918@vanheusden.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Sun Jul 16 22:13:47 CEST 2006
+X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
+	with PGP!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Hans Reiser wrote:
-> I don't understand your patch and cannot support it as it is written.  
-> Perhaps you can call me and explain it on the phone.
+Could someone please mail me the latest version of the adaptive read
+ahead patch? It seems Wu fell off the planet or something.
 
-I seriously can't tell if you're deliberately trying to be difficult or
-not. It's a simple "replace / with ! before sending the name to procfs."
 
-Reiserfs requests that a procfs directory called
-/proc/fs/reiserfs/<blockdev> be created. Some block devices contain
-slashes, so with cciss/c123 it attempts to create a directory called
-/proc/fs/reiserfs/cciss/c123, but cciss/ doesn't exist, shouldn't, and
-never will. In order to create a single path component, "cciss/c123"
-becomes "cciss!c123." This is consistent with how sysfs does it now. For
-a real example, change the "-" in device mapper block names to "/" and
-see what happens.
+Folkert van Heusden
 
-Regardless, it's already been checked into mainline as change
-6fbe82a952790c634ea6035c223a01a81377daf1.
-
-- -Jeff
-
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
-
-iD8DBQFEu6TPLPWxlyuTD7IRAvFTAJ9MYmmhSljmJTYFFlQvwS1G5AWdWQCglN0u
-FCxA4sTIi/O5KRsZ38vzT1c=
-=M7gO
------END PGP SIGNATURE-----
+-- 
+--------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

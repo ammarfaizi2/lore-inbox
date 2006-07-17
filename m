@@ -1,70 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWGQQLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWGQQNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWGQQLR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWGQQLR
+	id S1750919AbWGQQNE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWGQQNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:11:17 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:51495 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750904AbWGQQLR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:11:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JmgH2/qEDy75yA1UhJM36XXVa88YmBXil8Rr7DCZQd+HQqGbZdH+kZB/k7xYJUMbNs5nhJOqQMBAbFBeC1ndU6sQP2W13HviwZ0pnbd3OIePlUu5AsIvm9rx4BpOs+shCTyfyMbMzv0IE4bmYoJ+k/ZQozVgAvPFO11F5wPvV9c=
-Message-ID: <f96157c40607170911w5289729t41e1c7d4af07e347@mail.gmail.com>
-Date: Mon, 17 Jul 2006 16:11:14 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Roman Zippel" <zippel@linux-m68k.org>
-Subject: Re: Re: i686 hang on boot in userspace
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+	Mon, 17 Jul 2006 12:13:04 -0400
+Received: from shiva.jussieu.fr ([134.157.0.129]:49123 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id S1750919AbWGQQNC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 12:13:02 -0400
+X-Ids: 168
+Date: Mon, 17 Jul 2006 18:13:34 +0200
+From: Julien Cristau <julien.cristau@ens-lyon.org>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: Linux v2.6.17 - PCI Bus hidden behind transparent bridge
+Message-ID: <20060717161333.GA5204@bryan.is-a-geek.org>
+References: <Pine.LNX.4.64.0606171856190.5498@g5.osdl.org> <20060716193452.GA5299@bryan.is-a-geek.org> <20060717141315.GB2771@colo.lackof.org> <20060717142917.GJ5299@bryan.is-a-geek.org> <20060717153128.GA16679@colo.lackof.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
 Content-Disposition: inline
-References: <20060714150418.120680@gmx.net>
-	 <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-	 <20060717133809.150390@gmx.net>
-	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
-	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
-	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
-	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+In-Reply-To: <20060717153128.GA16679@colo.lackof.org>
+X-Operating-System: Linux 2.6.17-1-686 i686
+User-Agent: Mutt/1.5.11+cvs20060403
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (shiva.jussieu.fr [134.157.0.168]); Mon, 17 Jul 2006 18:13:00 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/17/06, gmu 2k6 <gmu2006@gmail.com> wrote:
-> On 7/17/06, Roman Zippel <zippel@linux-m68k.org> wrote:
-> > Hi,
-> >
-> > On Mon, 17 Jul 2006, gmu 2k6 wrote:
-> >
-> > > I was preparing a post to lkml about a similar hang which happens
-> > > during init. I also saw an error while ntpdate tried to set the
-> > > time/get the time. this only happens after I've enabled the NX bit on
-> > > the dual 32bit Xeons installed in the HP Proliant Server. it works
-> > > flawlessly with 2.6.17.6 (CONFIG_X86_PAE and CONFIG_HIGHMEM_64) but
-> > > since 2.6.18-rc2-git4 (including 2.6.18-rc2) it hangs late in the init
-> > > process.
-> > >
-> > > could this be related?
-> >
-> > Well, it could, but without further information it's impossible to say.
-> > What error did you see with ntpdate? Could you post the kernel messages
-> > and also insert a few stack traces as mentioned earlier?
-> > Thanks.
->
-> ok, the error printed from ntpdate has to do with networking:
-> Running ntpdate to synchronize clockError : Temporary failure in name resolution
->
-> it then stops after printing the following tg3 initialization line:
-> tg3: eth0 Flow control is on for TX and on for RX.
->
-> right now I'm trying to get SysRq working (my first try with it) so
-> that I see where it's hanging.
 
-ignore the ntpdate message, it also appears when normally booting as
-the tg3 interfaces are not up yet when ntpdate is run, but this is ok
-as I've been doing ntpdate @hourly anyway.
-therefore, there must be a different issue which I'm not able to debug yet.
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jul 17, 2006 at 09:31:28 -0600, Grant Grundler wrote:
+
+> On Mon, Jul 17, 2006 at 04:29:17PM +0200, Julien Cristau wrote:
+> > Loading the driver with modprobe doesn't change anything (it just
+> > outputs the 'Loaded prism54 driver' line), the device still doesn't
+> > appear in lspci or ifconfig -a.
+>=20
+> Uhm, that's a different symptom than "doesn't work" :)
+> thanks for clarifying.
+>=20
+Sorry for being unclear in my first mail :/
+
+> Sounds more like a problem with the Cardbus controller not providing
+> access to PCI config space, not telling PCI generic code there is a
+> PCI bus below it, or something like that.
+>=20
+> Can you post "lspci -vvv -s 02:09" output for 2.6.17 as well?
+> I'd like to compare the CardBus bridge config info for both (2:09.0
+> and 02:09.1) controllers on both kernel releases.
+>=20
+Here it is:
+
+02:09.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controlle=
+r (rev 01)
+	Subsystem: Acer Incorporated [ALI] Unknown device 1027
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 168, Cache Line Size: 32 bytes
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at 80101000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D02, secondary=3D03, subordinate=3D06, sec-latency=3D176
+	Memory window 0: 20000000-21fff000 (prefetchable)
+	Memory window 1: 26000000-27fff000
+	I/O window 0: 00007400-000074ff
+	I/O window 1: 00007800-000078ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+	16-bit legacy interface ports at 0001
+
+02:09.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controlle=
+r (rev 01)
+	Subsystem: Acer Incorporated [ALI] Unknown device 1027
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 168, Cache Line Size: 32 bytes
+	Interrupt: pin B routed to IRQ 11
+	Region 0: Memory at 80102000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D02, secondary=3D07, subordinate=3D0a, sec-latency=3D176
+	Memory window 0: 22000000-23fff000 (prefetchable)
+	Memory window 1: 28000000-29fff000
+	I/O window 0: 00007c00-00007cff
+	I/O window 1: 00001000-000010ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+Thanks for your help!
+Julien
+
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEu7ctmEvTgKxfcAwRAs+lAJ4yOwUczPGISw0SdyOUhOTbPccpNQCcDeIB
+GHZFUG/ejxUMvw+h7wg19x8=
+=e0Iq
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--

@@ -1,73 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWGQSCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWGQSE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWGQSCg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 14:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWGQSCg
+	id S1751100AbWGQSE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 14:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWGQSE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 14:02:36 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:11363 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751070AbWGQSCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 14:02:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JVPJ1S+iqbDzrkTHztzpd29j7/iEWp9obx7inoTdFRyJn8Q8DGQjvzQ9kOWpgYisjouEV0mAqGRhjPIsndrt0tq658vQ4zBxtxP/TtANKUIJIq8H1eqxOPpQ6yWhnmMnb7Mniy1aZ074jkLn3zswnEjACsTO7TBp/cBVuh20tMI=
-Message-ID: <d120d5000607171102g5703d546q6768ccdbd8acc97e@mail.gmail.com>
-Date: Mon, 17 Jul 2006 14:02:34 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: [patch 03/45] x86_64: Fix modular pc speaker
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       "Justin Forbes" <jmforbes@linuxtx.org>,
-       "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       "Dave Jones" <davej@redhat.com>,
-       "Chuck Wolber" <chuckw@quantumlinux.com>,
-       "Chris Wedgwood" <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, "Andi Kleen" <ak@suse.de>,
-       "Chris Wright" <chrisw@sous-sol.org>
-In-Reply-To: <20060717162539.GD4829@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jul 2006 14:04:59 -0400
+Received: from smtp20.kymp.net ([80.248.96.137]:30390 "EHLO smtp20.kymp.net")
+	by vger.kernel.org with ESMTP id S1751100AbWGQSE6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 14:04:58 -0400
+Date: Mon, 17 Jul 2006 21:04:56 +0300
+From: Mika Bostrom <bostik+lkml@bostik.iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Odd build warning with 2.6.17.6
+Message-ID: <20060717180456.GA27612@bostik.iki.fi>
+Reply-To: Mika Bostrom <bostik+lkml@bostik.iki.fi>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
 Content-Disposition: inline
-References: <20060717160652.408007000@blue.kroah.org>
-	 <20060717162452.GA4829@kroah.com> <20060717162539.GD4829@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/17/06, Greg KH <gregkh@suse.de> wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
->
-> ------------------
-> It turned out that the following change is needed when the speaker is
-> compiled as a module.
->
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> ---
->  arch/x86_64/kernel/setup.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- linux-2.6.17.2.orig/arch/x86_64/kernel/setup.c
-> +++ linux-2.6.17.2/arch/x86_64/kernel/setup.c
-> @@ -1440,7 +1440,7 @@ struct seq_operations cpuinfo_op = {
->        .show = show_cpuinfo,
->  };
->
-> -#ifdef CONFIG_INPUT_PCSPKR
-> +#if defined(CONFIG_INPUT_PCSPKR) || defined(CONFIG_INPUT_PCSPKR_MODULE)
->  #include <linux/platform_device.h>
->  static __init int add_pcspkr(void)
->  {
 
-Why have this #ifdefed at all? The device is there regardless of
-whether PCSPKR driver is selected and teoretically one could use an
-alternative driver to speak to the hardware or decide to add pcspkr
-driver later.
+--xXmbgvnjoT4axfJE
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
 
--- 
-Dmitry
+
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+  Good day.
+
+  I got the following, rather odd warning when building 2.6.17.6:
+
+  MODPOST
+WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+=2Einit.data: from .text between 'acpi_processor_power_init' (at offset
+0xe80) and 'acpi_safe_halt'
+
+  No idea whether it affects anything for real, just thought it worth a
+mention. My .config is attached.
+
+--=20
+ Mika Bostr=F6m      +358-40-525-7347  \-/  The flogging will
+ Bostik%iki.fi    www.iki.fi/bostik   X   continue until
+ Security freak, and proud of it.    /-\  morale improves
+
+--cWoXeonUoKmBZSoM
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="config-2.6.17.6.gz"
+Content-Transfer-Encoding: base64
+
+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
+/2rVI6R5ewAA
+
+--cWoXeonUoKmBZSoM--
+
+--xXmbgvnjoT4axfJE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEu9FHv829VwOfGI4RAh70AJ0fercXiPgM+36C1fnzfQgWop11kQCdG2U8
+j49TKUvSy6Xj8pRmvNR6MWY=
+=tk6N
+-----END PGP SIGNATURE-----
+
+--xXmbgvnjoT4axfJE--

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWGQQcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWGQQpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWGQQcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWGQQc0
+	id S1751053AbWGQQpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWGQQpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:32:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:46010 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750939AbWGQQcP (ORCPT
+	Mon, 17 Jul 2006 12:45:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49082 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750937AbWGQQcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:32:15 -0400
-Date: Mon, 17 Jul 2006 09:28:31 -0700
+	Mon, 17 Jul 2006 12:32:18 -0400
+Date: Mon, 17 Jul 2006 09:27:06 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,14 +17,15 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
-       Jaroslav Kysela <perex@suse.cz>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 32/45] ALSA: Suppress irq handler mismatch messages in ALSA ISA drivers
-Message-ID: <20060717162831.GG4829@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Thomas Graf <tgraf@suug.ch>,
+       "David S. Miller" <davem@davemloft.net>,
+       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 16/45] PKT_SCHED: Fix error handling while dumping actions
+Message-ID: <20060717162706.GQ4829@kroah.com>
 References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="alsa-suppress-irq-handler-mismatch-messages-in-alsa-isa-drivers.patch"
+Content-Disposition: inline; filename="pkt_sched-fix-error-handling-while-dumping-actions.patch"
 In-Reply-To: <20060717162452.GA4829@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,32 +34,43 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Takashi Iwai <tiwai@suse.de>
+From: Thomas Graf <tgraf@suug.ch>
 
-[PATCH] Suppress irq handler mismatch messages in ALSA ISA drivers
+"return -err" and blindly inheriting the error code in the netlink
+failure exception handler causes errors codes to be returned as
+positive value therefore making them being ignored by the caller.
 
-Suppress 'irq handler mismatch' messages at auto-probing of irqs
-in ALSA ISA drivers.
+May lead to sending out incomplete netlink messages.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Jaroslav Kysela <perex@suse.cz>
+Signed-off-by: Thomas Graf <tgraf@suug.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- include/sound/initval.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sched/act_api.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- linux-2.6.17.6.orig/include/sound/initval.h
-+++ linux-2.6.17.6/include/sound/initval.h
-@@ -62,7 +62,8 @@ static int snd_legacy_find_free_irq(int 
- {
- 	while (*irq_table != -1) {
- 		if (!request_irq(*irq_table, snd_legacy_empty_irq_handler,
--				 SA_INTERRUPT, "ALSA Test IRQ", (void *) irq_table)) {
-+				 SA_INTERRUPT | SA_PROBEIRQ, "ALSA Test IRQ",
-+				 (void *) irq_table)) {
- 			free_irq(*irq_table, (void *) irq_table);
- 			return *irq_table;
- 		}
+--- linux-2.6.17.3.orig/net/sched/act_api.c
++++ linux-2.6.17.3/net/sched/act_api.c
+@@ -251,15 +251,17 @@ tcf_action_dump(struct sk_buff *skb, str
+ 		RTA_PUT(skb, a->order, 0, NULL);
+ 		err = tcf_action_dump_1(skb, a, bind, ref);
+ 		if (err < 0)
+-			goto rtattr_failure;
++			goto errout;
+ 		r->rta_len = skb->tail - (u8*)r;
+ 	}
+ 
+ 	return 0;
+ 
+ rtattr_failure:
++	err = -EINVAL;
++errout:
+ 	skb_trim(skb, b - skb->data);
+-	return -err;
++	return err;
+ }
+ 
+ struct tc_action *tcf_action_init_1(struct rtattr *rta, struct rtattr *est,
 
 --

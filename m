@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWGQH33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWGQHlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWGQH33 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 03:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWGQH33
+	id S932321AbWGQHlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 03:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWGQHlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 03:29:29 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:24039 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932376AbWGQH31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 03:29:27 -0400
-Message-ID: <44BB3C42.1060309@namesys.com>
-Date: Mon, 17 Jul 2006 00:29:06 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 17 Jul 2006 03:41:09 -0400
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:17280 "EHLO
+	outbound1-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932321AbWGQHlI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 03:41:08 -0400
+X-BigFish: V
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+Subject: Re: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+From: "Joachim Deguara" <joachim.deguara@amd.com>
+To: "Pavel Machek" <pavel@suse.cz>
+cc: "shin, jacob" <jacob.shin@amd.com>, "Andi Kleen" <ak@suse.de>,
+       "Langsdorf, Mark" <mark.langsdorf@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+In-Reply-To: <20060716015636.GC21162@atrey.karlin.mff.cuni.cz>
+References: <B3870AD84389624BAF87A3C7B831499302935A76@SAUSEXMB2.amd.com>
+ <20060713130604.GC8230@ucw.cz> <1152801132.4519.10.camel@lapdog.site>
+ <20060716015636.GC21162@atrey.karlin.mff.cuni.cz>
+Date: Mon, 17 Jul 2006 09:37:10 +0200
+Message-ID: <1153121830.3917.2.camel@lapdog.site>
 MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@suse.com>
-CC: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
-References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com> <44BB0146.7080702@suse.com>
-In-Reply-To: <44BB0146.7080702@suse.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.6.0
+X-OriginalArrivalTime: 17 Jul 2006 07:37:45.0221 (UTC)
+ FILETIME=[E4D62350:01C6A973]
+X-WSS-ID: 68A5E1C6380267448-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey Mahoney wrote:
+On Sun, 2006-07-16 at 03:56 +0200, Pavel Machek wrote:
+> > On Thu, 2006-07-13 at 13:06 +0000, Pavel Machek wrote:
+> > > Can you run two such tests *in parallel*? That seemed to break it
+> > > really quickly.
+> > parallel sounds fun, but I don't get it.  Two machine or trying to
+> go
+> > online and offline at the same time?  Firestorming two busy parallel
+> 
+> Trying to online and offline at the same time.
+> 
+> > while loops, one turning the core offline and the other online, did
+> not
+> > bring an oops so I guess this kernel is in the clear in that regard.
+> 
+> Better run two tight loops, each doing online; offline. I got reports
+> it crashed machines before, but maybe it is solved. 
 
-> Hans Reiser wrote:
->
-> >Jeffrey Mahoney wrote:
->
-> >>This is not
-> >>the desired interpretation, which is why we need to replace the pathname
-> >>separator in the name. ReiserFS is the component that is choosing to use
-> >>the block device name as a pathname component and is responsible for
-> >>making any translation to that usage.
->
-> >This makes no sense.  I have the feeling you see trees and I see forest.
->
->
-> No, Hans. I see a problem that has been fixed elsewhere in an identical
-> manner. The real solution is to eliminate / from block devices in the
-> long run, not to start introducing mount points with different pathname
-> interpretation rules. Those may have a place elsewhere, after a tough
-> uphill battle, and are most certainly overkill for this problem.
->
-> -Jeff
+yeah, that's what I did. Somethings are easier described in bash than in
+english.  Nothing crashed or oopsed so the green light is there for
+online and offline in 2.6.18-rc1 (with my setup).
+
+-joachim
 
 
-I don't understand your patch and cannot support it as it is written.  
-Perhaps you can call me and explain it on the phone.
 
-Hans

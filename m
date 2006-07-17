@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWGQWeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWGQWgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWGQWeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 18:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGQWeZ
+	id S1751038AbWGQWgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 18:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWGQWgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 18:34:25 -0400
-Received: from science.horizon.com ([192.35.100.1]:33582 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751096AbWGQWeY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 18:34:24 -0400
-Date: 17 Jul 2006 18:34:23 -0400
-Message-ID: <20060717223423.24205.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
-Subject: Re: Reiser4 Inclusion
+	Mon, 17 Jul 2006 18:36:08 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:24315 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751038AbWGQWgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 18:36:07 -0400
+Date: Tue, 18 Jul 2006 00:36:08 +0200
+From: Voluspa <lista1@comhem.se>
+To: nagar@watson.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch 3/3] delay accounting: temporarily enable by default
+Message-Id: <20060718003608.89867837.lista1@comhem.se>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.4.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have deployed two nearly identical servers in Florida (I live in
->> Washington state) but one difference: one uses ext3 and the other
->> reiser4. The ping time of the reiser4 server is (on average) 20ms faster
->> than the ext3 server.
->
-> OK, I'll bite.  What *POSSIBLE* reason is there for the choice of filesystem
-> to matter to an ICMP Echo Request/Reply?  I'm suspecting something else,
-> like the ext3 server needs to re-ARP before sending the Echo Reply, or some
-> such.
+On 2006-07-17 21:56:03 Shailabh Nagar wrote:
+> Enable delay accounting by default so that feature gets coverage testing
+> without requiring special measures/
 
-Er... I was assuming that was an application-level ping, e.g. "fetch
-database-generated web page", and not an ICMP-level ping.
+It's bloody hot in Sweden right now, and this is no Cool Aid.
 
-If this *is* talking about ICMP-level ping, I agree completely;
-that makes no sense.  Either there is a dire bug in Linux networking,
-or the networks aren't the same.  Assuming the two machines are
-located together (if they're not, there's your problem right there),
-is the same 20 ms visible when you ping them from each other?
+> Earlier, it was off by default and had to be enabled via a boot time
+> param. This patch reverses the default behaviour to improve coverage
+> testing.
+
+If it hasn't already received enough testing, what's it doing here?
+
+> It can be removed late in the kernel development cycle if its
+> believed users shouldn't have to incur any cost if they don't want
+> delay accounting.
+
+We bloody well shouldn't have.
+
+> Or it can be retained forever if the utility of the
+> stats is deemed common enough to warrant keeping the feature on.
+
+It bloody well shouldn't be.
+
+Corporate bloat should be hidden and buried below 45 metres of
+disgusting cow dung so that innocent users don't get smelled up.
+
+Mvh
+Mats Johannesson

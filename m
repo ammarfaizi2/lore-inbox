@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWGQUDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWGQUXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWGQUDj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 16:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWGQUDj
+	id S1751162AbWGQUXI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 16:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGQUXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 16:03:39 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:5598 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751174AbWGQUDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 16:03:38 -0400
-Date: Mon, 17 Jul 2006 15:59:32 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: fix recursive fault in page-fault handler
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Krzysztof Halasa <khc@pm.waw.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607171601_MC3-1-C544-CD36@compuserve.com>
+	Mon, 17 Jul 2006 16:23:08 -0400
+Received: from mail.suse.de ([195.135.220.2]:4589 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751162AbWGQUXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 16:23:07 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
+       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
+References: <20060717185330.GA32264@rhlx01.fht-esslingen.de>
+X-Yow: Did I do an INCORRECT THING??
+Date: Mon, 17 Jul 2006 22:22:53 +0200
+In-Reply-To: <20060717185330.GA32264@rhlx01.fht-esslingen.de> (Andreas Mohr's
+	message of "Mon, 17 Jul 2006 20:53:30 +0200")
+Message-ID: <jehd1g6kwy.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <Pine.LNX.4.64.0607171107390.15611@evo.osdl.org>
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
 
-On Mon, 17 Jul 2006 11:08:26 -0700 (PDT), Linus Torvalds wrote:
-> 
-> On Mon, 17 Jul 2006, Chuck Ebbert wrote:
-> >
-> > Krzysztof Halasa reported recursive faults in do_page_fault()
-> > causing a stream of partial oops messages on the console. Fix
-> > by adding a fixup for that code.
-> 
-> This patch is really too ugly to live.
+> (a "continue" simply continue:s the loop without checking the loop condition
+> at the bottom, right?)
 
-I was afraid to use __put_user, but I guess it's OK?
+No.  A continue jumps to the end of the loop body.
 
---- 2.6.18-rc1-32.orig/arch/i386/mm/fault.c
-+++ 2.6.18-rc1-32/arch/i386/mm/fault.c
-@@ -585,9 +585,10 @@ no_context:
- 		printk(KERN_ALERT "*pte = %08lx\n", page);
- 	}
- #endif
--	tsk->thread.cr2 = address;
--	tsk->thread.trap_no = 14;
--	tsk->thread.error_code = error_code;
-+	/* avoid possible fault here if tsk is garbage */
-+	__put_user(address, &tsk->thread.cr2);
-+	__put_user(14, &tsk->thread.trap_no);
-+	__put_user(error_code, &tsk->thread.error_code);
- 	die("Oops", regs, error_code);
- 	bust_spinlocks(0);
- 	do_exit(SIGKILL);
-
-> Does it even work? If 'tsk' is 
-> broken, I'd expect the die() to oops anyway - it does
-> 
->       if (notify_die(DIE_OOPS, str, regs, err,
->                        current->thread.trap_no, SIGSEG...
-> 
-> anyway (where that "current->thread.trap_no" gets dereferenced).
-
-This should at least stop the endless faults because recursive faulting
-in die() is handled properly.  Right now the original error message
-(incomplete but still possibly useful) scrolls away.
-
-I was going to fix handling of bad task pointer in die() and
-show_registers() after I got feedback from the first patch.
+Andreas.
 
 -- 
-Chuck
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

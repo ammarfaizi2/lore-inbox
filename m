@@ -1,119 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWGQU61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWGQVDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWGQU61 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 16:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWGQU61
+	id S1751193AbWGQVDL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWGQVDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 16:58:27 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:58557 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750808AbWGQU61
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 16:58:27 -0400
-Date: Mon, 17 Jul 2006 22:53:26 +0200
-To: linux-kernel@vger.kernel.org
-Subject: io-scheduler test with bonnie on compactflash (2.6.17)
-Message-ID: <20060717205325.GA6803@aitel.hist.no>
+	Mon, 17 Jul 2006 17:03:11 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.192.81]:28408 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751193AbWGQVDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 17:03:10 -0400
+Message-ID: <44BBFB0D.6040105@namesys.com>
+Date: Mon, 17 Jul 2006 14:03:09 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+To: Jeff Mahoney <jeffm@suse.com>
+CC: 7eggert@gmx.de, Eric Dumazet <dada1@cosmosbay.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them
+References: <6xQ4C-6NB-43@gated-at.bofh.it> <6xQea-6ZX-13@gated-at.bofh.it> <E1G1QFx-0001IO-K6@be1.lrz> <44B7D97B.20708@suse.com> <44B9E6D5.2040704@namesys.com> <44BA61A2.5090404@suse.com> <44BA8214.7040005@namesys.com> <44BABB14.6070906@suse.com> <44BAE619.9010307@namesys.com> <44BAECE2.8070301@suse.com> <44BAFDC3.7020301@namesys.com> <44BB0146.7080702@suse.com> <44BB3C42.1060309@namesys.com> <44BBA4CF.8020901@suse.com> <44BBD4B6.5020801@namesys.com> <44BBD942.3080908@suse.com> <44BBDFFC.70601@namesys.com> <44BBEC17.8020507@suse.com>
+In-Reply-To: <44BBEC17.8020507@suse.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a small pc which boots from a compactflash card.  I tested to
-see if there were any significant differences between io scedulers
-in this case.  Disk seeks are supposed to be a no-op in this case.
+Jeff Mahoney wrote:
 
-I post the results here in case someone is interested.
+> Hans Reiser wrote:
+>
+> >Jeff Mahoney wrote:
+>
+> >>1) Because then the behavior of /proc/fs/reiserfs/ would be
+> >>inconsistent. Devices that contain slashes end up being one level deeper
+> >>than other devices, which is silly and a userspace visible change.
+>
+> >And you think translating / to ! is less work for user space?
+>
+>
+> A one line s#/#!# to access devices they couldn't before versus now
+> having to deal with going deeper into a tree for no real reason? Yes,
+> I do.
 
-bonnie -s 1024
-==============
-cfq:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9439  98  8251   7  5369   4  8207  82 21348  12  1367   9
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16  6771  30 +++++ +++   198   0  2312  10 +++++ +++    80   0
+I am willing to bet that perl can tree iterate with one line of code....
 
-deadline:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9049  93  8872   7  4989   4  9758  98 21459  12 468.2   2
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16  6968  32 +++++ +++   148   0  5888  26 +++++ +++    67   0
+Please read the Hideous Name by Rob Pike.  You are making it more hideous.
 
-noop:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9294  97 10829   9  4655   3  9042  90 21529  12 261.0   1
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16  7426  34 +++++ +++   139   0  2215   9 +++++ +++    65   0
+>
+> >Jeff, you are a programmer, not an architect, and when you disregard
+> >architects we end up with things like the performance disaster that is
+> >V3 acls.
+>
+>
+> This again? The original reiser3 implementation was, and still is,
+> incomplete in comparison to the design document. The design touted the
+> extensibility of the tree and item types. 
 
-compact format:
-cfq1:    mini,1G,9439,98,8251,7,5369,4,8207,82,21348,12,1367.4,9,16,6771,30,+++++,+++,198,0,2312,10,+++++,+++,80,0
-cfq2:    mini,1G,9410,97,8370,7,5347,4,8177,82,21295,12,1319.4,9,16,6041,27,+++++,+++,175,0,2846,12,+++++,+++,74,0
-deadline:mini,1G,9049,93,8872,7,4989,4,9758,98,21459,12,468.2,2,16,6968,32,+++++,+++,148,0,5888,26,+++++,+++,67,0
-noop:    mini,1G,9294,97,10829,9,4655,3,9042,90,21529,12,261.0,1,16,7426,34,+++++,+++,139,0,2215,9,+++++,+++,65,0
+Try v4.
 
-bonnie++ -s 1024
-================
-cfq:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9437  98  8100   7  5296   4  8129  81 21330  12  1376   9
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16  6306  29 +++++ +++   173   0  2614  11 +++++ +++    73   0
+> My original xattr
+> implementation added another item type, but oh -- wait -- it turns out
+> that the file system isn't quite as extensible as claimed.. or, well, AT
+> ALL. Adding another item results in an incompatible file system change
+> that when mounted on another system, will panic the node. That's
+> friendly! There's not even any way to identify which items are in use on
+> a particular file system to issue a warning/error on mount. Outstanding
+> job "architecting" there.
 
-deadline:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9063  94 11267   9  5548   4  9536  95 21530  12 782.9   4
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16 10126  46 +++++ +++   156   0  2115   9 +++++ +++    71   0
+Well, if you had an obsessive desire to not use V4, you could fix this
+in V3 instead.
 
-noop:
-Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-mini             1G  9288  97 10493   9  4615   3  9582  96 21524  12 258.1   1
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-                 16  7179  32 +++++ +++   138   0  3706  16 +++++ +++    67   0
+>
+> If I could go back and do it again, I would have forked a reiserfs v3.7
+> that actually incorporated a compatibility block to identify which items
+> are in use on a particular file systems, so that the mount can succeed
+> or fail based on that. 
 
-compact:
-cfq:     mini,1G,9437,98,8100,7,5296,4,8129,81,21330,12,1375.8,9,16,6306,29,+++++,+++,173,0,2614,11,+++++,+++,73,0
-deadline:mini,1G,9063,94,11267,9,5548,4,9536,95,21530,12,782.9,4,16,10126,46,+++++,+++,156,0,2115,9,+++++,+++,71,0
-noop:    mini,1G,9288,97,10493,9,4615,3,9582,96,21524,12,258.1,1,16,7179,32,+++++,+++,138,0,3706,16,+++++,+++,67,0
+Might be easier to use V4...  so many bugs got added to an otherwise
+stable V3.....
 
+> Xattrs would have been another item type as
+> expected, and the performance problems wouldn't be nearly as harsh as
+> they are. 
 
-The machine has a via C3 nehemiah processor, and uses a 4GB 100x kingston 
-compactflash card.  This card does 21MB/s when reading according to
-hdparm (and 20MB/s according to the spec.) The card uses a
-ide-compactflash converter, which supports udma2.
+Hmm, maybe it was all perfectly predictable to an architect....
 
-A nice little machine that I mostly use for car navigation
-and mp3/ogg/cd-player.  The kernel is loaded 12s after power-on,
-X shows itself after 35s, and my navigation software after 45s. :-)
+> Not that you wouldn't have been just as resistant to that
+> change as well.
+>
+> The thing is, you have a history of ignoring what users want.
 
-Helge Hafting
+What quality architect does not?  Users are to be listened to with great
+care.  Users are to be listened to with great discretion.
 
+> Users
+> wanted ACLs and xattrs on reiser3, but you said, "wait for v4, it'll be
+> out soon, and it'll have them." That was 4 years ago. Reiser4 still
+> isn't completely stable 
 
+It is more stable than V3 was when it went in, and surely it is more
+stable than ext4....
 
+It is getting there.  Recent get ready for mainline changes added bugs. 
+We need to get some patches out the door tomorrow, and then we should be
+back to being stable again.
+
+> (or in mainline),
+
+not my doing;-)  we wasted a lot of time shuffling code from one side of
+the room to the other for no measurable benefit.  If only that time
+could have been spent on the things I know deserve work.
+
+> and ACLs and xattrs still
+> aren't implemented. Users that demanded ACLs certainly aren't waiting
+> around for reiser4 to be released and have ACLs added. They've long
+> since switched to a file system that actually does what they need. They
+> wanted ACLs and xattrs added to the stable file system they were using
+> and you refused in an attempt to get more support for your latest
+> project. Further, reiser3 users remember what a long painful road it was
+> to reiser3 stability
+
+so why did you take their stable branch away from them by working on
+more than bugfixes for V3?
+
+Jeff, working on v3 at this point is nuts.  V4 blows it away....
 

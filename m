@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWGQCJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWGQCpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWGQCJD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jul 2006 22:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWGQCJD
+	id S932243AbWGQCpd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jul 2006 22:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWGQCpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jul 2006 22:09:03 -0400
-Received: from wx-out-0102.google.com ([66.249.82.195]:2026 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932214AbWGQCJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jul 2006 22:09:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
-        b=ZH0ZOEgPdnXC4eeaKMo4fb0WpC1apfuSc8yPrMM+HEhawQ9NesIM+igopn9qg5ijp43m7gCw7M+Y6fZfWgQIBtXHL0R1CWX0YTRfMA2M/C15W3akfEUsVSTNZp7cEb3+BfZfaP7ykSQ24yzI4RYRgdMgXPPa9jEQzd5+zoanxrw=
-Date: Sun, 16 Jul 2006 22:08:58 -0400
-From: Thomas Tuttle <thinkinginbinary@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: lm90 no longer working
-Message-ID: <20060717020858.GA20290@phoenix>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 16 Jul 2006 22:45:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10468 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932243AbWGQCpc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jul 2006 22:45:32 -0400
+Date: Mon, 17 Jul 2006 03:45:19 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>,
+       dm-devel@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       Milan Broz <mbroz@redhat.com>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: lockdep warning when nesting dm devices
+Message-ID: <20060717024519.GA26318@agk.surrey.redhat.com>
+Mail-Followup-To: Peter Osterlund <petero2@telia.com>,
+	linux-kernel@vger.kernel.org,
+	Arjan van de Ven <arjan@linux.intel.com>, dm-devel@redhat.com,
+	Ingo Molnar <mingo@elte.hu>, Milan Broz <mbroz@redhat.com>,
+	Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+References: <m34pxj6rsm.fsf@telia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <m34pxj6rsm.fsf@telia.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 15, 2006 at 01:17:29PM +0200, Peter Osterlund wrote:
+> # echo "0 10000 linear /dev/loop0 0" | /sbin/dmsetup create test
+> # echo "0 10000 linear /dev/mapper/test 0" | /sbin/dmsetup create test2
+ 
+> I get the following warning from the lockdep validator.
+> =============================================
+> [ INFO: possible recursive locking detected ]
+> ---------------------------------------------
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well at first sight the message is simply pointing out something expected - it
+only say "INFO" after all - viz. recursive use of
+	down_read(&md->io_lock);
+something tied up with the split_bio horridness which needs to go away some
+day.  The lock prevents any attempt to suspend the device from happening
+while a bio is in the process of being split into other bios.
 
-I have a hardware monitoring chip in my laptop that uses the lm90
-driver, and somewhere between 2.6.16 and 2.6.17, it stopped working.  I
-don't know why.  I'm going to try installing a bunch of different
-versions to track down which version precisely stopped working, but I'm
-curious if anyone has any ideas about what might have caused this.
+Of course it's always helpful to review code from different perspectives
+like this to look out for any gotchas and we ought to re-check the use
+of this lock.
 
--- Thomas Tuttle
+> Btw, is there a limit on how many dm devices can be chained? I guess
+> there will be a kernel stack overflow if you try to chain together too
+> many devices.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFEuvE6/UG6u69REsYRAjPMAJ9wZ7YvDZgJVGUR5Dn95ST9k+D4sgCfSKe4
-lhldfEQ44xTb5pkjkd1tD8k=
-=8vEC
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+There's a patch in -mm which tackles that, but it needs some changes to dm
+(which Milan Broz has begun working on) before it will behave correctly in all
+cases.
+ 
+Alasdair
+-- 
+agk@redhat.com

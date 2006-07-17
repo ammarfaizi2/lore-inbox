@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWGQQrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWGQQxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWGQQrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWGQQcL
+	id S1751066AbWGQQxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWGQQxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:32:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:35514 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750944AbWGQQcD (ORCPT
+	Mon, 17 Jul 2006 12:53:17 -0400
+Received: from port-83-236-173-99.static.qsc.de ([83.236.173.99]:63941 "EHLO
+	isl.de") by vger.kernel.org with ESMTP id S1751066AbWGQQxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:32:03 -0400
-Date: Mon, 17 Jul 2006 09:29:01 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Takashi Iwai <tiwai@suse.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 38/45] ALSA: Fix mute switch on VAIO laptops with STAC7661
-Message-ID: <20060717162901.GM4829@kroah.com>
-References: <20060717160652.408007000@blue.kroah.org>
-Mime-Version: 1.0
+	Mon, 17 Jul 2006 12:53:16 -0400
+Message-ID: <44BBC09D.5060409@isl.de>
+Date: Mon, 17 Jul 2006 18:53:49 +0200
+From: Andreas Rieke <andreas.rieke@isl.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.11) Gecko/20050728
+X-Accept-Language: de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel memory leak?
+X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="alsa-fix-mute-switch-on-vaio-laptops-with-stac7661.patch"
-In-Reply-To: <20060717162452.GA4829@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+Hi,
 
-------------------
-From: Takashi Iwai <tiwai@suse.de>
+after booting a machine, it runs well using about 300 M of 1 G physical
+RAM. However, the remaining RAM decreases day by day, and after 2 or 3
+weeks, the machine crashes because swapping takes too much time.
+However, all processes together take about 250 MBytes according to ps,
+thus I assume that the kernel takes the rest. free tells me in fact that
+much swap space is used an nearly no physical RAM is left.
 
-[PATCH] ALSA: Fix mute switch on VAIO laptops with STAC7661
+This behaviour has been seen on Red Hat Enterprise Linux 3 with a 2.4
+kernel and on SuSE Linux 10 with a 2.6.13-15-default kernel. There are
+no unusual things running on the machine, the main application is an
+apache web server with a PostgreSQL database.
 
-Fixed the master mute switch on VAIO laptops with STAC7661
-codec chip.
+Is there any kernel support to detect where the memory has gone?
+Is any kind of memory eating virus or worm known?
+Is it possible that processes request memory which is NOT considered in
+/proc or in the procps tools?
+Is it possible that processes are invisible in /proc or in the procps tools?
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Thanks in advance,
 
----
- sound/pci/hda/patch_sigmatel.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
---- linux-2.6.17.6.orig/sound/pci/hda/patch_sigmatel.c
-+++ linux-2.6.17.6/sound/pci/hda/patch_sigmatel.c
-@@ -1262,13 +1262,13 @@ static int vaio_master_sw_put(struct snd
- 	int change;
- 
- 	change = snd_hda_codec_amp_update(codec, 0x02, 0, HDA_OUTPUT, 0,
--					  0x80, valp[0] & 0x80);
-+					  0x80, (valp[0] ? 0 : 0x80));
- 	change |= snd_hda_codec_amp_update(codec, 0x02, 1, HDA_OUTPUT, 0,
--					   0x80, valp[1] & 0x80);
-+					   0x80, (valp[1] ? 0 : 0x80));
- 	snd_hda_codec_amp_update(codec, 0x05, 0, HDA_OUTPUT, 0,
--				 0x80, valp[0] & 0x80);
-+				 0x80, (valp[0] ? 0 : 0x80));
- 	snd_hda_codec_amp_update(codec, 0x05, 1, HDA_OUTPUT, 0,
--				 0x80, valp[1] & 0x80);
-+				 0x80, (valp[1] ? 0 : 0x80));
- 	return change;
- }
- 
-
---
+Andreas

@@ -1,84 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWGQNiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWGQN7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWGQNiL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 09:38:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWGQNiL
+	id S1750780AbWGQN7v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 09:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWGQN7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 09:38:11 -0400
-Received: from mail.gmx.de ([213.165.64.21]:2737 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750775AbWGQNiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 09:38:10 -0400
-Cc: johnstul@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Valdis.Kletnieks@vt.edu
-Content-Type: text/plain; charset="utf-8"
-Date: Mon, 17 Jul 2006 15:38:09 +0200
-From: "Uwe Bugla" <uwe.bugla@gmx.de>
-In-Reply-To: <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-Message-ID: <20060717133809.150390@gmx.net>
-MIME-Version: 1.0
-References: <20060714150418.120680@gmx.net>
- <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-Subject: Re: Re: i686 hang on boot in userspace
-To: Roman Zippel <zippel@linux-m68k.org>
-X-Authenticated: #8359428
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
-Content-Transfer-Encoding: 8bit
+	Mon, 17 Jul 2006 09:59:51 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:31187 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750780AbWGQN7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 09:59:50 -0400
+Subject: Re: Where is RLIMIT_RT_CPU?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1153137181.24228.16.camel@idefix.homelinux.org>
+References: <1152663825.27958.5.camel@localhost>
+	 <1152809039.8237.48.camel@mindpipe>
+	 <1152869952.6374.8.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
+	 <1152919240.6374.38.camel@idefix.homelinux.org>
+	 <1152971896.16617.4.camel@mindpipe>
+	 <1152973159.6374.59.camel@idefix.homelinux.org>
+	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
+	 <1152975857.6374.65.camel@idefix.homelinux.org>
+	 <1152978284.16617.7.camel@mindpipe>
+	 <1153009392.6374.77.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607161137080.9870@localhost.localdomain>
+	 <1153044864.6374.135.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
+	 <1153137181.24228.16.camel@idefix.homelinux.org>
+Content-Type: text/plain
+Date: Mon, 17 Jul 2006 09:59:13 -0400
+Message-Id: <1153144753.652.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-07-17 at 21:53 +1000, Jean-Marc Valin wrote:
 
--------- Original-Nachricht --------
-Datum: Mon, 17 Jul 2006 12:52:28 +0200 (CEST)
-Von: Roman Zippel <zippel@linux-m68k.org>
-An: Uwe Bugla <uwe.bugla@gmx.de>
-Betreff: Re: i686 hang on boot in userspace
-
-> Hi,
 > 
-> On Fri, 14 Jul 2006, Uwe Bugla wrote:
+> Why not? It could be nice as well if someone wants to implement that.
+> I'd already be quite happy to just have basic control on the CPU time.
 > 
-> > Hi everybody,
-> > first of all thanks to the explanatory hints how a magic Sysrq key works
-> – I've learned a lot.
-> > 
-> > I first pressed ALT + PrintScreen + P, then ALT + PrintScreen + T.
-> > To avoid wordwrapping or other unwanted effects please see the resulting
-> kern.log as outline attachment.
-> > 
-> > Could someone please explain to me what's behind that cryptic code?
-> 
-> It shows what the kernel is currently is doing and where it's spending the
-> time.
-> First, your kernel buffer log buffer seems a little small, so not 
-> everything is captured. Could you increase the number in the "Kernel log 
-> buffer size" option (it's in the "Kernel debugging" part of the "Kernel 
-> hacking" menu).
-> Second, could you press ALT+PrintScreen+P a few more times (maybe around 
-> 10 at least) while the kernel hangs? This would should where the cpu is 
-> spending its time and whether it's at a single place or at different 
-> places.
-> Thanks.
-> 
-> bye, Roman
 
-Hi Roman, Hi everybody else,
-my boot problem is solved within kernel 2.6.18-rc1-mm2!!!
+Have you thought about using something like Xen?  Have a virtual machine
+that you can even give root access to users, and still have control of
+the actual physical machine.
 
-A thousands of thanks for all your efforts!
+> As I mentioned earlier, it's not about total lock-up, but having things
+> run relatively smoothly and (if possible?) even fairly.
 
-I have compared 18-rc1-mm1 and 18-rc1-mm2.
-mm2 contains a patch for timer.c owning almost twice as many hunks than mm1.
-In so far I was sure it was a timer.c issue.
+One issue I think you might have is what exactly is a CPU limit?  If the
+system is idle, and you have an app that goes into a busy loop, do you
+kill it after it hits the limit, even if it isn't RT?  Or do you just
+force it to schedule?  Or do you consider idle a special case?  Do you
+want just the apps to be limited, or all the apps that belong to a
+specific user.
 
-Regards
+>From this thread, it seems your goal is to have a single console that
+users can log into and run a RT thread for audio but still not be able
+to lock up the entire system. Right?  So having an RT limit for this use
+might actually be beneficial.  But this is a very rare case, and if you
+are the only one needing this type of feature, then it will likely not
+make it into the kernel.  But it if turns out that lots of people like
+this feature, and want it, then it might have a chance, if there is no
+other way to accomplish it.
 
-Uwe
+Currently, it looks like you can use either Xen or just stick to one of
+the patches you mentioned earlier.
 
--- 
+-- Steve
 
-
-Echte DSL-Flatrate dauerhaft für 0,- Euro*!
-"Feel free" mit GMX DSL! http://www.gmx.net/de/go/dsl

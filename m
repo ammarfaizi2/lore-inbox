@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWGQQnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWGQQqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWGQQnw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWGQQcY
+	id S1751067AbWGQQqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWGQQcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:32:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26042 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750935AbWGQQbt (ORCPT
+	Mon, 17 Jul 2006 12:32:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:30138 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750937AbWGQQbz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:31:49 -0400
-Date: Mon, 17 Jul 2006 09:29:29 -0700
+	Mon, 17 Jul 2006 12:31:55 -0400
+Date: Mon, 17 Jul 2006 09:25:18 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, dev@openvz.org, trond.myklebust@fys.uio.no,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 43/45] struct file leakage
-Message-ID: <20060717162929.GR4829@kroah.com>
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Mandy Kirkconnell <alkirkco@sgi.com>, Nathan Scott <nathans@sgi.com>,
+       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 01/45] XFS: corruption fix
+Message-ID: <20060717162518.GB4829@kroah.com>
 References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="struct-file-leakage.patch"
+Content-Disposition: inline; filename="xfs-corruption-fix-for-next-stable-release.patch"
 In-Reply-To: <20060717162452.GA4829@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,54 +34,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Kirill Korotaev <dev@sw.ru>
 
-2.6.16 leaks like hell. While testing, I found massive leakage
-(reproduced in openvz) in:
+From: Mandy Kirkconnell <alkirkco@sgi.com>
 
-*filp
-*size-4096
+Fix nused counter.  It's currently getting set to -1 rather than getting
+decremented by 1.  Since nused never reaches 0, the "if (!free->hdr.nused)"
+check in xfs_dir2_leafn_remove() fails every time and xfs_dir2_shrink_inode()
+doesn't get called when it should.  This causes extra blocks to be left on
+an empty directory and the directory in unable to be converted back to
+inline extent mode.
 
-And 1 object leaks in
-*size-32
-*size-64
-*size-128
-
-It is the fix for the first one.  filp leaks in the bowels of namei.c.
-
-Seems, size-4096 is file table leaking in expand_fdtables.
-
-I have no idea what are the rest and why they show only accompanying
-another leaks.  Some debugging structs?
-
-[akpm@osdl.org, Trond: remove the IS_ERR() check]
-Signed-off-by: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Kirill Korotaev <dev@openvz.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mandy Kirkconnell <alkirkco@sgi.com>
+Signed-off-by: Nathan Scott <nathans@sgi.com>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- fs/namei.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_dir2_node.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.17.6.orig/fs/namei.c
-+++ linux-2.6.17.6/fs/namei.c
-@@ -1712,8 +1712,14 @@ do_link:
- 	if (error)
- 		goto exit_dput;
- 	error = __do_follow_link(&path, nd);
--	if (error)
-+	if (error) {
-+		/* Does someone understand code flow here? Or it is only
-+		 * me so stupid? Anathema to whoever designed this non-sense
-+		 * with "intent.open".
-+		 */
-+		release_open_intent(nd);
- 		return error;
-+	}
- 	nd->flags &= ~LOOKUP_PARENT;
- 	if (nd->last_type == LAST_BIND)
- 		goto ok;
+--- linux-2.6.17.2.orig/fs/xfs/xfs_dir2_node.c
++++ linux-2.6.17.2/fs/xfs/xfs_dir2_node.c
+@@ -970,7 +970,7 @@ xfs_dir2_leafn_remove(
+ 			/*
+ 			 * One less used entry in the free table.
+ 			 */
+-			free->hdr.nused = cpu_to_be32(-1);
++			be32_add(&free->hdr.nused, -1);
+ 			xfs_dir2_free_log_header(tp, fbp);
+ 			/*
+ 			 * If this was the last entry in the table, we can
 
 --

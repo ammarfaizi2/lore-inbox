@@ -1,135 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWGQO3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWGQOa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWGQO3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 10:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWGQO3N
+	id S1750801AbWGQOa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 10:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWGQOa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 10:29:13 -0400
-Received: from mail.suse.de ([195.135.220.2]:47541 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750797AbWGQO3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 10:29:12 -0400
-Message-ID: <44BB9EB3.9020101@suse.de>
-Date: Mon, 17 Jul 2006 16:29:07 +0200
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: Kalev Lember <kalev@smartlink.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kexec and framebuffer
-References: <44BB9A7A.4060100@smartlink.ee>
-In-Reply-To: <44BB9A7A.4060100@smartlink.ee>
-Content-Type: multipart/mixed;
- boundary="------------060001080505080003070002"
+	Mon, 17 Jul 2006 10:30:28 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:40894 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750801AbWGQOa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 10:30:27 -0400
+Subject: Re: BUG: soft lockup detected on CPU#1!
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jochen Heuer <jogi-kernel@planetzork.ping.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, nathans@sgi.com,
+       xfs@oss.sgi.com
+In-Reply-To: <20060717125216.GA15481@planetzork.ping.de>
+References: <20060717125216.GA15481@planetzork.ping.de>
+Content-Type: text/plain
+Date: Mon, 17 Jul 2006 10:30:08 -0400
+Message-Id: <1153146608.1218.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060001080505080003070002
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, 2006-07-17 at 14:52 +0200, Jochen Heuer wrote:
+> Hi,
+> 
+> I have been running 2.6.17 on my desktop system (Asus A8V + Athlon64 X2 3800)
+> and I am having severe problems with lookups. These only show up when surfing
+> the net. During compiling or mprime runs --> absolutly no problem.
+> 
+> At first I thought this was related to the S-ATA driver since I got error
+> messages like these on the console once before it locked up hard (no sysrq!):
+> 
+> ata1: command 0xca timeout, stat 0x50 host_stat 0x4
+> ata1: status=0x50 { DriveReady SeekComplete }
+> ata1: command 0xea timeout, stat 0x50 host_stat 0x0
+> ata1: status=0x50 { DriveReady SeekComplete }
+> 
+> But switching to an IDE drive did not fix the lockups. So I switched to
+> 2.6.18-rc2 and today I got the following reported via dmesg:
+> 
+> Jul 17 09:23:03 [kernel] BUG: soft lockup detected on CPU#1!
+> Jul 17 09:23:03 [kernel]  [<c0103cd2>] show_trace+0x12/0x20
+> Jul 17 09:23:03 [kernel]  [<c0103de9>] dump_stack+0x19/0x20
+> Jul 17 09:23:03 [kernel]  [<c0143e77>] softlockup_tick+0xa7/0xd0
+> Jul 17 09:23:03 [kernel]  [<c0129422>] run_local_timers+0x12/0x20
+> Jul 17 09:23:03 [kernel]  [<c012923e>] update_process_times+0x6e/0xa0
+> Jul 17 09:23:03 [kernel]  [<c011127d>] smp_apic_timer_interrupt+0x6d/0x80
+> Jul 17 09:23:03 [kernel]  [<c0103942>] apic_timer_interrupt+0x2a/0x30
+> Jul 17 09:23:03 [kernel]  [<c022df93>] cbc_process_decrypt+0x93/0xf0
 
-  Hi,
+I wonder if we are stuck in a loop here:
 
-> I am wondering what would be the preferred method to extract screen_info
-> from running kernel. Should this be made available from sysfs or maybe a
-> new system call be created?
+	do {
+		u8 *tmp_dst = *dst_p;
 
-Simply ask /dev/fb0?
-Patch for kexec tools attached.
+		fn(tfm, tmp_dst, src);
+		xor(tmp_dst, iv);
+		memcpy(iv, src, bsize);
+		if (tmp_dst != dst)
+			memcpy(dst, tmp_dst, bsize);
 
-cheers,
+		src += bsize;
+		dst += bsize;
+	} while ((done += bsize) <= nbytes);
 
-  Gerd
+But unfortunately, this is a worker thread so we don't know exactly what fn is.
 
--- 
-Gerd Hoffmann <kraxel@suse.de>
-http://www.suse.de/~kraxel/julika-dora.jpeg
+> Jul 17 09:23:03 [kernel]  [<c022dcbe>] crypt+0xee/0x1e0
+> Jul 17 09:23:03 [kernel]  [<c022ddef>] crypt_iv_unaligned+0x3f/0xc0
+> Jul 17 09:23:03 [kernel]  [<c022e23d>] cbc_decrypt_iv+0x3d/0x50
+> Jul 17 09:23:03 [kernel]  [<c032f6b7>] crypt_convert_scatterlist+0x117/0x170
+> Jul 17 09:23:03 [kernel]  [<c032f8b2>] crypt_convert+0x142/0x190
+> Jul 17 09:23:03 [kernel]  [<c032fb82>] kcryptd_do_work+0x42/0x60
+> Jul 17 09:23:03 [kernel]  [<c012fcff>] run_workqueue+0x6f/0xe0
+> Jul 17 09:23:03 [kernel]  [<c012fe98>] worker_thread+0x128/0x150
+> Jul 17 09:23:03 [kernel]  [<c0133364>] kthread+0xa4/0xe0
+> Jul 17 09:23:03 [kernel]  [<c01010e5>] kernel_thread_helper+0x5/0x10
+> Jul 17 09:24:17 [kernel] =============================================
+> Jul 17 09:24:17 [kernel] [ INFO: possible recursive locking detected ]
+> Jul 17 09:24:17 [kernel] ---------------------------------------------
 
---------------060001080505080003070002
-Content-Type: text/x-patch;
- name="kexec-vesafb.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kexec-vesafb.diff"
+This looks like a separate issue, and something more about fixing
+lockdep not to report it instead of an actual bug (and why I CC'd the
+xfs folks and Ingo).
 
-Index: kexec-tools-1.101/kexec/arch/i386/x86-linux-setup.c
-===================================================================
---- kexec-tools-1.101.orig/kexec/arch/i386/x86-linux-setup.c	2006-03-03 10:51:31.000000000 +0100
-+++ kexec-tools-1.101/kexec/arch/i386/x86-linux-setup.c	2006-03-10 14:02:20.000000000 +0100
-@@ -24,6 +24,8 @@
- #include <sys/stat.h>
- #include <sys/mman.h>
- #include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <linux/fb.h>
- #include <unistd.h>
- #include <x86/x86-linux.h>
- #include "../../kexec.h"
-@@ -94,6 +96,56 @@ void setup_linux_bootloader_parameters(
- 	cmdline_ptr[cmdline_len - 1] = '\0';
- }
- 
-+int setup_linux_vesafb(struct x86_linux_param_header *real_mode)
-+{
-+	struct fb_fix_screeninfo fix;
-+	struct fb_var_screeninfo var;
-+	int fd;
-+
-+	fd = open("/dev/fb0", O_RDONLY);
-+	if (-1 == fd)
-+		return -1;
-+
-+	if (-1 == ioctl(fd, FBIOGET_FSCREENINFO, &fix))
-+		goto out;
-+	if (-1 == ioctl(fd, FBIOGET_VSCREENINFO, &var))
-+		goto out;
-+	if (0 != strcmp(fix.id, "vesafb"))
-+		goto out;
-+	close(fd);
-+
-+	real_mode->orig_video_isVGA = 0x23 /* VIDEO_TYPE_VLFB */;
-+	real_mode->lfb_width      = var.xres;
-+	real_mode->lfb_height     = var.yres;
-+	real_mode->lfb_depth      = var.bits_per_pixel;
-+	real_mode->lfb_base       = fix.smem_start;
-+	real_mode->lfb_linelength = fix.line_length;
-+	real_mode->vesapm_seg     = 0;
-+
-+	/* fixme: better get size from /proc/iomem */
-+	real_mode->lfb_size       = (fix.smem_len + 65535) / 65536;
-+	real_mode->pages          = (fix.smem_len + 4095) / 4096;
-+
-+	if (var.bits_per_pixel > 8) {
-+		real_mode->red_pos    = var.red.offset;
-+		real_mode->red_size   = var.red.length;
-+		real_mode->green_pos  = var.green.offset;
-+		real_mode->green_size = var.green.length;
-+		real_mode->blue_pos   = var.blue.offset;
-+		real_mode->blue_size  = var.blue.length;
-+		real_mode->rsvd_pos   = var.transp.offset;
-+		real_mode->rsvd_size  = var.transp.length;
-+	}
-+	fprintf(stderr, "%s: %dx%dx%d @ %lx +%lx\n", __FUNCTION__,
-+		var.xres, var.yres, var.bits_per_pixel,
-+		fix.smem_start, fix.smem_len);
-+	return 0;
-+
-+ out:
-+	close(fd);
-+	return -1;
-+}
-+
- void setup_linux_system_parameters(struct x86_linux_param_header *real_mode,
- 					unsigned long kexec_flags)
- {
-@@ -111,6 +163,7 @@ void setup_linux_system_parameters(struc
- 	real_mode->orig_video_ega_bx = 0;
- 	real_mode->orig_video_isVGA = 1;
- 	real_mode->orig_video_points = 16;
-+	setup_linux_vesafb(real_mode);
- 
- 	/* Fill in the memsize later */
- 	real_mode->ext_mem_k = 0;
+Probably XFS needs to tell lockdep about it's nesting. But maybe there
+is a bug that is lying in there somewhere.
 
---------------060001080505080003070002--
+> Jul 17 09:24:17 [kernel] mv/12680 is trying to acquire lock:
+> Jul 17 09:24:17 [kernel]  (&(&ip->i_lock)->mr_lock){----}, at: [<c01f63b0>]
+> xfs_ilock+0x60/0xb0
+> Jul 17 09:24:17 [kernel] but task is already holding lock:
+> Jul 17 09:24:17 [kernel]  (&(&ip->i_lock)->mr_lock){----}, at: [<c01f63b0>]
+> xfs_ilock+0x60/0xb0
+> Jul 17 09:24:17 [kernel] other info that might help us debug this:
+> Jul 17 09:24:17 [kernel] 4 locks held by mv/12680:
+> Jul 17 09:24:17 [kernel]  #0:  (&s->s_vfs_rename_mutex){--..}, at: [<c03c2931>]
+> mutex_lock+0x21/0x30
+> Jul 17 09:24:17 [kernel]  #1:  (&inode->i_mutex/1){--..}, at: [<c017506b>]
+> lock_rename+0xbb/0xd0
+> Jul 17 09:24:17 [kernel]  #2:  (&inode->i_mutex/2){--..}, at: [<c0175052>]
+> lock_rename+0xa2/0xd0
+> Jul 17 09:24:17 [kernel]  #3:  (&(&ip->i_lock)->mr_lock){----}, at:
+> [<c01f63b0>] xfs_ilock+0x60/0xb0
+> Jul 17 09:24:17 [kernel] stack backtrace:
+> Jul 17 09:24:17 [kernel]  [<c0103cd2>] show_trace+0x12/0x20
+> Jul 17 09:24:17 [kernel]  [<c0103de9>] dump_stack+0x19/0x20
+> Jul 17 09:24:17 [kernel]  [<c01385a9>] print_deadlock_bug+0xb9/0xd0
+> Jul 17 09:24:17 [kernel]  [<c013862b>] check_deadlock+0x6b/0x80
+> Jul 17 09:24:17 [kernel]  [<c0139ed4>] __lock_acquire+0x354/0x990
+> Jul 17 09:24:17 [kernel]  [<c013ac35>] lock_acquire+0x75/0xa0
+> Jul 17 09:24:17 [kernel]  [<c0136aaf>] down_write+0x3f/0x60
+> Jul 17 09:24:17 [kernel]  [<c01f63b0>] xfs_ilock+0x60/0xb0
+> Jul 17 09:24:17 [kernel]  [<c0217981>] xfs_lock_inodes+0xb1/0x120
+> Jul 17 09:24:17 [kernel]  [<c020ca7b>] xfs_rename+0x20b/0x8e0
+> Jul 17 09:24:17 [kernel]  [<c022351a>] xfs_vn_rename+0x3a/0x90
+> Jul 17 09:24:17 [kernel]  [<c017687d>] vfs_rename_dir+0xbd/0xd0
+> Jul 17 09:24:17 [kernel]  [<c0176a4c>] vfs_rename+0xdc/0x230
+> Jul 17 09:24:17 [kernel]  [<c0176d02>] do_rename+0x162/0x190
+> Jul 17 09:24:17 [kernel]  [<c0176d9c>] sys_renameat+0x6c/0x80
+> Jul 17 09:24:17 [kernel]  [<c0176dd8>] sys_rename+0x28/0x30
+> Jul 17 09:24:17 [kernel]  [<c0102e15>] sysenter_past_esp+0x56/0x8d
+> 
+> I am not sure if these infos are enough to isolate the problem. If you need any
+> further infos just let me know.
+
+Hmm, Ingo, do you have a lockdep set of patches for straight 2.6.17.
+Perhaps Jochen can run it there and see if it picks up the lockup that
+he is experiencing.
+
+Jochen, you didn't say whether or not the 2.6.18-rc2 locked up. I'm
+assuming it did. But did it?
+
+-- Steve
+

@@ -1,136 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWGQLsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGQLxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWGQLsN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 07:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWGQLsN
+	id S1750759AbWGQLxG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 07:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWGQLxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 07:48:13 -0400
-Received: from alpha.polcom.net ([83.143.162.52]:13541 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1750758AbWGQLsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 07:48:12 -0400
-Date: Mon, 17 Jul 2006 13:48:02 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Caleb Gray <caleb@calebgray.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 Inclusion
-In-Reply-To: <1153128374.3062.10.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 17 Jul 2006 07:53:06 -0400
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:43451 "EHLO
+	idefix.homelinux.org") by vger.kernel.org with ESMTP
+	id S1750759AbWGQLxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 07:53:05 -0400
+Subject: Re: Where is RLIMIT_RT_CPU?
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
+References: <1152663825.27958.5.camel@localhost>
+	 <1152809039.8237.48.camel@mindpipe>
+	 <1152869952.6374.8.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607142037110.13100@localhost.localdomain>
+	 <1152919240.6374.38.camel@idefix.homelinux.org>
+	 <1152971896.16617.4.camel@mindpipe>
+	 <1152973159.6374.59.camel@idefix.homelinux.org>
+	 <1152974578.3114.24.camel@laptopd505.fenrus.org>
+	 <1152975857.6374.65.camel@idefix.homelinux.org>
+	 <1152978284.16617.7.camel@mindpipe>
+	 <1153009392.6374.77.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607161137080.9870@localhost.localdomain>
+	 <1153044864.6374.135.camel@idefix.homelinux.org>
+	 <Pine.LNX.4.64.0607161254260.9870@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Mon, 17 Jul 2006 21:53:00 +1000
+Message-Id: <1153137181.24228.16.camel@idefix.homelinux.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Arjan,
+> Who said suid root? What about suid realtime or suid audio?
 
-On Mon, 17 Jul 2006, Arjan van de Ven wrote:
-> On Sun, 2006-07-16 at 20:02 -0700, Caleb Gray wrote:
->> Dear Linux Kernel Developers,
->>
->> I would like to express my experiences with the reiser4 filesystem and
->> my reasons for its readiness to be officially included in the Linux kernel.
->
-> Hi,
->
-> may I ask why you are sending this? Have you done code audits to the
-> code? Have you done anything that was on the "these need fixing before
-> it can go in" list?
+Still, I don't see what you gain by making them setuid $group vs
+allowing member(s) of $group to use rt scheduling.
 
-Well, as I understand he is end user (an advanced one). He does his job as 
-a end user: he does testing and reports back the results. This is not that 
-common, as many users do not report problems / requests they have.
+> My point is not that they can lock up the machine. My point is that you 
+> just can't add a rt task to a rt system! A rt-system consists of a fixed 
+> set of threads, which in worst case can meet it's deadlines. If you add 
+> just one task you might break the whole system. Only someone with overview 
+> of the whole system can add those tasks.
 
-He even did more: he tested (very hard and extensively) experimental, not 
-even in the tree part of the kernel. And he reported problems / ideas he 
-found in a very kind and gentle way. This is not so common and makes him a 
-valuable person in the users comunity in my opinion.
+This issue can also happen if you start 10 suid rt apps. It's the
+responsibility of the user to make sure there's no bad interaction. The
+reason we want a limit is to make sure the system remains relatively
+responsive (not just up). In the ideal case (not sure it's possible),
+the scheduler would make sure that non-root rt apps wouldn't get (on
+average) more CPU than they would get running at normal priority. i.e.
+if there are 3 tasks competing and you start a rt task, then that task
+couldn't get more than 25% CPU. Of course, it may not be possible to do
+that perfectly, but anything remotely close would be pretty good. 
 
-As I understand you, as a developer, should say "thank you" to him and 
-make everything you can to solve the problems he has and help implement 
-the parts of the software he needs. No?
+In any case, most audio (and probably other) applications tend to only
+require a very small amount (<10%) of CPU to run properly. I'd be quite
+happy is my system was configured to allow me to run rt tasks as long as
+the total doesn't exceed 30% CPU.
 
-That way you build comunity of users that not only are using the software 
-but also are giving back in form of bug reports, feature requests, 
-continuous testing on variety of setups (that no developer ever can have 
-all), reviews, ideas, telling others about what a great software with 
-friendly comunity they found and so on.
+> It is very simple if you have only a audio application or only a driver 
+> needing low latencies. What if you have both? You have to make sure that 
+> the higher priority one leaves enough cpu for the lower priority one. And 
+> it is not a question of using a low percentage of cpu. It is a question of 
+> how long the cpu is used in one go and how often it can happen within the 
+> critical timeframe of the lower priority application.
 
-For me (I am active end user of most open source projects and developer 
-on others) the comunity and good contacs between developers and end users 
-is the most important part of the software. It gives me security. Even if 
-the software is not yet stable it can be fixed by cooperation between 
-users and developers. While people are really way harder to fix than 
-software.
+I understand that, but adding artificial restrictions (to setuid audio
+apps) isn't going to help. 
 
-And he as a end user does not have to (and probably does not even have 
-enough knowledge about the kernel internals) make code audits and 
-review of new filesystem. So why are you demanding that he does one?
+> You can make a system which checks that but it is much harder to do than 
+> a moving average. The only thing which makes sense is (a) square filter(s)
+> with a width equal to the required latency of the lower priority task(s).
 
+Why not? It could be nice as well if someone wants to implement that.
+I'd already be quite happy to just have basic control on the CPU time.
 
-> If not, aren't you just doing campaigning on
-> non-technical grounds? And isn't that a bad idea?
+> So the sys-admin should somehow be able to give the right either to 
+> specific (audio) applications with specific priorities or a developer whom 
+> he trusts (and it does not make sense to give it to both as they would 
+> then mess it up for each other!)
 
-Well, his kind message was not very technical. But wasn't completly non 
-technical or flamewar either. He tested software, compared and reported 
-what he saw. He also expressed wish (that many users have) that Reiser4,
-as a usefull and even useable in some production evironments, should be 
-integrated into the kernel. Because there are users for it.
+How about simply giving rt rights to whomever is logged on the console?
+That's the user that really counts since he's (usually) next to the
+audio device. 
 
+> We have discussed that total lock-up can be prevented with a simple 
+> watchdog. That solution doesn't need anything added into the scheduler.
 
-> Arjan van de Ven -- who is starting to smell a directed PR campaign
-> leading to allergic reactions
+As I mentioned earlier, it's not about total lock-up, but having things
+run relatively smoothly and (if possible?) even fairly.
 
-Come on. Another conspiracy theory? Why some people just can't understand 
-that Reiser4 is not that bad (from end user's point of view)? Some people 
-tested it and found it good and want to have it integrated ASAP. Some even 
-can't live without it after they used it for a while and saw how good it 
-is in something...
-
-I can assure you that it really is not some directed centrally controlled 
-campaign. This is just what many users want.
-
-I too tested Reiser4 some time ago. It didn't have any big problems for 
-me. But I am not using (or testing) it now. Why? Mainly because of 
-security: if Reiser4 is not merged (even as a experminental, subject to 
-change, unstable, whatever) it will work with new kernels as long as 
-Namesys will release patches. And if something happens to Namesys I will 
-have to port it to new kernels (and that is usually trivial for kernel 
-developers introducing incompatible internal kernel API changes but not 
-for me) myself or will have to use old kernels. And _that_ is a problem 
-for me.
-
-(Not to mention that I am regulary applying 4-7 patches, some big ones, 
-for every kernel I am building and resolving merge problems in not your 
-code is not easy thing to do and takes time. While I can live without 
-staircase scheduler or vesafb-tng if my manual merge attempt fails I can 
-not do so without my main filesystem. And -mm is a little too unstable for 
-me recently.)
-
-It is unfortunate that Hans Reiser pushed Reiser4 the way he did and that 
-he got the reaction from some kernel developers he did got. But he and his 
-developers did (and are still doing) very hard job to fix problems and 
-make Reiser4 better and more suitable into the kernel. And having Reiser4 
-out of the kernel is hurting mainly end users. Really.
-
-Arjan, is this really technically impossible to have Reiser4 merged into 
-the kernel after fixing some worst problems that touch mm and VFS (in say 
-2 months), flagged unofficial-try-merge-for-testing, super-experimental 
-and subject-to-change? I would make live of many end users easier and does 
-not sound that bad for me especially in the 2.6 forever era...
-
-If someone thinks that Reiser4 is too unstable or evil he can set it to N 
-and be happy. And if Reiser4 will be abandoned by Namesys and not fixed 
-further it could be maintained by kernel developers at a minimal level 
-(porting to new kernel internal APIs as they change) for say 6-12 months 
-while flagged for removal and then removed because of 
-unofficial-try-merge-for-testing flag. This at least does give some time 
-to migrate from it for end users (and maybe even time to fix it for some 
-other developers?).
-
-
-Thanks and sorry for such long post,
-wrong as usual,
-
-Grzegorz Kulewski
-
+	Jean-Marc

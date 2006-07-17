@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWGQKwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWGQLBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWGQKwo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 06:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWGQKwo
+	id S1750727AbWGQLBo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 07:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWGQLBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 06:52:44 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:45447 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750723AbWGQKwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 06:52:44 -0400
-Date: Mon, 17 Jul 2006 12:52:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Uwe Bugla <uwe.bugla@gmx.de>
-cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       johnstul@us.ibm.com
-Subject: Re: i686 hang on boot in userspace
-In-Reply-To: <20060714150418.120680@gmx.net>
-Message-ID: <Pine.LNX.4.64.0607171242440.6761@scrub.home>
-References: <20060714150418.120680@gmx.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-1857953486-1153133548=:6761"
+	Mon, 17 Jul 2006 07:01:44 -0400
+Received: from neualius.turmzimmer.net ([217.160.169.58]:20669 "EHLO
+	neualius.turmzimmer.net") by vger.kernel.org with ESMTP
+	id S1750727AbWGQLBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 07:01:44 -0400
+Date: Mon, 17 Jul 2006 13:00:56 +0200
+From: Andreas Barth <aba@not.so.argh.org>
+To: linux-kernel@vger.kernel.org
+Subject: gdth SCSI driver(?) fails with more than 4GB of memory
+Message-ID: <20060717110056.GG2818@mails.so.argh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Editor: Vim http://www.vim.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
----1463811837-1857953486-1153133548=:6761
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+[please Cc me, I'm currently not subscribed.]
 
 Hi,
 
-On Fri, 14 Jul 2006, Uwe Bugla wrote:
+I have noticed that one of my boxes stopped to boot correctly after
+adding more memory (in total 6 GB) and loading an adjusted kernel for
+that.  After some testing around, we noticed that it is enough for the
+kernel to boot correctly if we limit the kernel to use 4GB of memory.
 
-> Hi everybody,
-> first of all thanks to the explanatory hints how a magic Sysrq key works =
-=E2=80=93 I've learned a lot.
->=20
-> I first pressed ALT + PrintScreen + P, then ALT + PrintScreen + T.
-> To avoid wordwrapping or other unwanted effects please see the resulting =
-kern.log as outline attachment.
->=20
-> Could someone please explain to me what's behind that cryptic code?
+If the kernel has 6GB, I directly get error messages like:
+SCSI device sda: 143299800 512-byte hdwr sectors (73369 MB)
+sda: Write Protect is off
+sda: got wrong page
+sda: assuming drive cache: write through
+SCSI device sda: 143299800 512-byte hdwr sectors (73369 MB)
+sda: Write Protect is off
+sda: got wrong page
 
-It shows what the kernel is currently is doing and where it's spending the=
-=20
-time.
-First, your kernel buffer log buffer seems a little small, so not=20
-everything is captured. Could you increase the number in the "Kernel log=20
-buffer size" option (it's in the "Kernel debugging" part of the "Kernel=20
-hacking" menu).
-Second, could you press ALT+PrintScreen+P a few more times (maybe around=20
-10 at least) while the kernel hangs? This would should where the cpu is=20
-spending its time and whether it's at a single place or at different=20
-places.
-Thanks.
+The disk array controller is of type GDT8114RZ and has the most current
+firmware version. The box has 4 Xeon CPUs, and physical 6 GB of memory.
+The /-device is on the controller in question.
 
-bye, Roman
----1463811837-1857953486-1153133548=:6761--
+The full log (for 4 and for 6 GB) is put up on
+http://neualius.turmzimmer.net/~aba/6GB
+
+
+Any hints for me how I can use the full 6 GB of memory (and/or what I
+should try out to find the bug)?
+
+
+Cheers,
+Andi
+-- 
+  http://home.arcor.de/andreas-barth/

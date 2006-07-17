@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWGQVMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWGQVL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWGQVMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 17:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGQVMP
+	id S1751195AbWGQVL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 17:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWGQVL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 17:12:15 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:60093 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751198AbWGQVML
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 17:12:11 -0400
-Date: Mon, 17 Jul 2006 23:07:11 +0200
-To: Christian Trefzer <ctrefzer@gmx.de>
-Cc: Xavier Roche <roche+kml2@exalead.com>, linux-kernel@vger.kernel.org
-Subject: Re: reiserFS?
-Message-ID: <20060717210710.GB6803@aitel.hist.no>
-References: <20060716161631.GA29437@httrack.com> <20060716162831.GB22562@zeus.uziel.local>
-MIME-Version: 1.0
+	Mon, 17 Jul 2006 17:11:58 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53461 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751195AbWGQVL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 17:11:57 -0400
+Date: Mon, 17 Jul 2006 14:04:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: stable@kernel.org, Greg KH <gregkh@suse.de>, torvalds@osdl.org,
+       akpm@osdl.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>,
+       Randy Dunlap <rdunlap@xenotime.net>, Dave Jones <davej@redhat.com>,
+       Chuck Wolber <chuckw@quantumlinux.com>, alan@lxorguk.ukuu.org.uk
+Subject: Re: [Fwd: Re: [PATCH] tpm: interrupt clear fix]
+Message-ID: <20060717210425.GA16076@kroah.com>
+References: <1153161320.4808.11.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060716162831.GB22562@zeus.uziel.local>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <1153161320.4808.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 16, 2006 at 06:28:31PM +0200, Christian Trefzer wrote:
-> On Sun, Jul 16, 2006 at 06:16:31PM +0200, Xavier Roche wrote:
-> > > It simply the best filesystem for many kinds of usage patterns.
-> > 
-> > The most frightening too. Reiserfs might be suitable for very specific
-> > appliactions, but to use it in production machine, you need to have
-> > some guts.
-> > 
-> > My last reiserfs partition was blown up two days ago, because of a bad
-> > sector, plus a fatal oops, looping endlessly. This was the second
-> > time, and the last one, as none of my ext3 filesystems *ever* had
-> > similar problems, despite numerous other bad sector issues. Not
-> > mentionning the funny "recovery" tool, which generally finishes to
-> > trash your data.
+On Mon, Jul 17, 2006 at 11:35:20AM -0700, Kylene Jo Hall wrote:
+> -------- Forwarded Message --------
+> From: Kylene Jo Hall <kjhall@us.ibm.com>
+> To: linux-os (Dick Johnson) <linux-os@analogic.com>
+> Cc: linux-kernel <linux-kernel@vger.kernel.org>, TPM Device Driver List
+> <tpmdd-devel@lists.sourceforge.net>, akpm@osdl.org
+> Subject: Re: [PATCH] tpm: interrupt clear fix
+> Date: Thu, 13 Jul 2006 12:24:36 -0700
+> Under stress testing I found that the interrupt is not always cleared.
+> This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
 > 
-> I don't quite understand. You are supposed to dd_rescue the whole block
-> device to a working drive and use fsck on the copy.  Whatever is lost in
-> the process must of course be restored from a recent backup. But, as a
-> friend of mine put it recently, people don't need backup, they only need
-> restore ; )
->
-Well, many a home user simply doesn't have a a spare block device of 
-the same size.  The hassle of reinstalling instead of just waiting
-out a fsck is something still.  
+> On Thu, 2006-07-13 at 07:45 -0400, linux-os (Dick Johnson) wrote:
+> 
+> > PCI devices need a final read to flush all pending writes. Whatever
+> > mb() does, just hides the problem.
+> 
+> 
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> ---
+> 
+> --- linux-2.6.18-rc1/drivers/char/tpm/tpm_tis.c	2006-07-13 14:46:39.727500500 -0500
+> +++ linux-2.6.18-rc1-tpm/drivers/char/tpm/tpm_tis.c	2006-07-13 14:47:33.878884750 -0500
+> @@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
+>  	iowrite32(interrupt,
+>  		  chip->vendor.iobase +
+>  		  TPM_INT_STATUS(chip->vendor.locality));
+> +	ioread32(chip->vendor.iobase + TPM_INT_STATUS(chip->vendor.locality));
+>  	return IRQ_HANDLED;
+>  }
 
-The ext filesystems are nice in that they have spare superblocks,
-if the main one dies from a bad sector, the spares still work
-so you don't loose the entire fs to only a few damaged sectors.
+So does this replace the other tpm patch?  Or should we apply both of
+them?
 
-> fsck on a faulty drive might cause even more damage - how do you know
-> that other areas of the device are OK? 
->
-Somehow, that has saved my day quite a few times with ext2.
-I only lost a few files, then went shopping for a new disk. :-)
+thanks,
 
-Helge Hafting
+greg k-h

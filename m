@@ -1,32 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWGQQiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWGQQjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751030AbWGQQiS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWGQQdm
+	id S1751003AbWGQQjA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWGQQdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:33:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64443 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750974AbWGQQdL (ORCPT
+	Mon, 17 Jul 2006 12:33:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:12476 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750976AbWGQQdT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:33:11 -0400
-Date: Mon, 17 Jul 2006 09:26:45 -0700
+	Mon, 17 Jul 2006 12:33:19 -0400
+Date: Mon, 17 Jul 2006 09:28:21 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, marcelo@kvack.org,
-       davem@davemloft.net
+To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, matthew@wil.cx,
-       Willy Tarreau <w@1wt.eu>, Jeff Garzik <jeff@garzik.org>,
-       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 12/45] 2 oopses in ethtool
-Message-ID: <20060717162645.GM4829@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Patrick McHardy <kaber@trash.net>,
+       "David S. Miller" <davem@davemloft.net>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 30/45] : Fix IPv4/DECnet routing rule dumping
+Message-ID: <20060717162821.GE4829@kroah.com>
 References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="2-oopses-in-ethtool.patch"
+Content-Disposition: inline; filename="fix-ipv4-decnet-routing-rule-dumping.patch"
 In-Reply-To: <20060717162452.GA4829@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -35,30 +35,53 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Willy Tarreau <willy@wtap.(none)>
 
-The function pointers which were checked were for their get_* counterparts.
-Typically a copy-paste typo.
+From: Patrick McHardy <kaber@trash.net>
 
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Acked-by: Jeff Garzik <jeff@garzik.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+
+When more rules are present than fit in a single skb, the remaining
+rules are incorrectly skipped.
+
+Signed-off-by: Patrick McHardy <kaber@trash.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
 ---
+ net/decnet/dn_rules.c |    3 ++-
+ net/ipv4/fib_rules.c  |    4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
- net/core/ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.17.3.orig/net/core/ethtool.c
-+++ linux-2.6.17.3/net/core/ethtool.c
-@@ -437,7 +437,7 @@ static int ethtool_set_pauseparam(struct
- {
- 	struct ethtool_pauseparam pauseparam;
+--- linux-2.6.17.6.orig/net/decnet/dn_rules.c
++++ linux-2.6.17.6/net/decnet/dn_rules.c
+@@ -400,9 +400,10 @@ int dn_fib_dump_rules(struct sk_buff *sk
+ 	rcu_read_lock();
+ 	hlist_for_each_entry(r, node, &dn_fib_rules, r_hlist) {
+ 		if (idx < s_idx)
+-			continue;
++			goto next;
+ 		if (dn_fib_fill_rule(skb, r, cb, NLM_F_MULTI) < 0)
+ 			break;
++next:
+ 		idx++;
+ 	}
+ 	rcu_read_unlock();
+--- linux-2.6.17.6.orig/net/ipv4/fib_rules.c
++++ linux-2.6.17.6/net/ipv4/fib_rules.c
+@@ -458,13 +458,13 @@ int inet_dump_rules(struct sk_buff *skb,
  
--	if (!dev->ethtool_ops->get_pauseparam)
-+	if (!dev->ethtool_ops->set_pauseparam)
- 		return -EOPNOTSUPP;
- 
- 	if (copy_from_user(&pauseparam, useraddr, sizeof(pauseparam)))
+ 	rcu_read_lock();
+ 	hlist_for_each_entry(r, node, &fib_rules, hlist) {
+-
+ 		if (idx < s_idx)
+-			continue;
++			goto next;
+ 		if (inet_fill_rule(skb, r, NETLINK_CB(cb->skb).pid,
+ 				   cb->nlh->nlmsg_seq,
+ 				   RTM_NEWRULE, NLM_F_MULTI) < 0)
+ 			break;
++next:
+ 		idx++;
+ 	}
+ 	rcu_read_unlock();
 
 --

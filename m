@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWGQQjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGQQjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWGQQjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWGQQj3
+	id S1751034AbWGQQjA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWGQQiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:39:29 -0400
-Received: from main.gmane.org ([80.91.229.2]:31386 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750999AbWGQQjN (ORCPT
+	Mon, 17 Jul 2006 12:38:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44476 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750990AbWGQQdl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:39:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Lexington Luthor <Lexington.Luthor@gmail.com>
-Subject: Re: "Why Reuser 4 still is not in" doc
-Date: Mon, 17 Jul 2006 17:38:11 +0100
-Message-ID: <e9gedp$m22$1@sea.gmane.org>
-References: <20060716161631.GA29437@httrack.com>  <20060716162831.GB22562@zeus.uziel.local>  <20060716165648.GB6643@thunk.org> <e9dsrg$jr1$1@sea.gmane.org>  <20060716174804.GA23114@thunk.org>  <20060716220115.a1891231.diegocg@gmail.com>  <e9ea1v$nc4$1@sea.gmane.org> <bda6d13a0607161428j187b737ft6f3925d9a3b2cc72@mail.gmail.com> <e9eg1v$5sf$1@sea.gmane.org> <Pine.LNX.4.61.0607171132430.11447@yvahk01.tjqt.qr>
+	Mon, 17 Jul 2006 12:33:41 -0400
+Date: Mon, 17 Jul 2006 09:26:29 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Santiago Garcia Mantinan <manty@manty.net>,
+       Chris Wright <chrisw@sous-sol.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 09/45] pnp: suppress request_irq() warning
+Message-ID: <20060717162629.GJ4829@kroah.com>
+References: <20060717160652.408007000@blue.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-In-Reply-To: <Pine.LNX.4.61.0607171132430.11447@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="pnp-suppress-request_irq-warning.patch"
+In-Reply-To: <20060717162452.GA4829@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> Yes, it changes the semantics. Suddenly you can "cd linux-2.6.17.tar.bz2". 
-> But what will stat() return? S_IFDIR? S_IFREG? S_IFANY? A .tar parser in 
-> kernelspace is almost never the right thing. And then a cpio parser, 
-> because that's what initramfs'es are made of. Not to forget .zip, because 
-> that's omnipresent. Oh of course we'd also need bzip2 and gzip decoder. 
-> BASE64 and UU anyone?
+-stable review patch.  If anyone has any objections, please let us know.
 
-Is there any particular reason that the parsers need to be in 
-kernel-space. The reiser4 plugins seem like an ideal counterpart to 
-FUSE. Imagine being able to automatically FUSE-mount a tar file as a 
-filesystem when you cd into it. stat() need not return S_IFDIR since 
-everything is a directory anyway (only normal directories need S_IFDIR, 
-just like currently). When you cd into a tar file, a FUSE-fs kicks in 
-and provides access to the tar file as a normal filesystem inside it - 
-from userspace.
+------------------
+Suppress the "setup_irq: irq handler mismatch" coming out of pnp_check_irq():
+failures are expected here.
 
-> I wish you a lot of fun with users in LDAP or other exotic storage methods.
-> By making Everything possible through echo, you are violating the unix 
-> philosophy that one tool should do one thing (though echo does just that). 
-> And in this case, echo would be chown, chmod, tar, bzip2 all at once. This 
-> sounds familiar, I think I have seen this with explorer.exe (and its 
-> uncountable DLLs), which lets you change everything within the same 
-> window.
+Cc: Santiago Garcia Mantinan <manty@manty.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/pnp/resource.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-And why can meta-data not be accessed as files? To me, a lowly userspace 
-developer, it seems even more inline with the UNIX way of things. bzip2 
-can be in userspace while still providing data to kernel space via a 
-FUSE-like interface.
+--- linux-2.6.17.3.orig/drivers/pnp/resource.c
++++ linux-2.6.17.3/drivers/pnp/resource.c
+@@ -396,7 +396,8 @@ int pnp_check_irq(struct pnp_dev * dev, 
+ 	/* check if the resource is already in use, skip if the
+ 	 * device is active because it itself may be in use */
+ 	if(!dev->active) {
+-		if (request_irq(*irq, pnp_test_handler, SA_INTERRUPT, "pnp", NULL))
++		if (request_irq(*irq, pnp_test_handler,
++				SA_INTERRUPT|SA_PROBEIRQ, "pnp", NULL))
+ 			return 0;
+ 		free_irq(*irq, NULL);
+ 	}
 
-Regards,
-LL
-
+--

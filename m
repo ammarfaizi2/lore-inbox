@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWGQP4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWGQP5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWGQP4O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 11:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWGQP4N
+	id S1750889AbWGQP5a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 11:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWGQP5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 11:56:13 -0400
-Received: from mail.gmx.net ([213.165.64.21]:33441 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750826AbWGQP4M (ORCPT
+	Mon, 17 Jul 2006 11:57:30 -0400
+Received: from hs-grafik.net ([80.237.205.72]:30226 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S1750884AbWGQP52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 11:56:12 -0400
-X-Authenticated: #428038
-Date: Mon, 17 Jul 2006 17:56:10 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>
-Cc: "'fsdevel'" <linux-fsdevel@vger.kernel.org>, linux-kernel@vger.kernel.org
+	Mon, 17 Jul 2006 11:57:28 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: "gmu 2k6" <gmu2006@gmail.com>
 Subject: Re: Reiser4 Inclusion
-Message-ID: <20060717155610.GE8276@merlin.emma.line.org>
-Mail-Followup-To: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>,
-	'fsdevel' <linux-fsdevel@vger.kernel.org>,
-	linux-kernel@vger.kernel.org
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
+Date: Mon, 17 Jul 2006 17:57:20 +0200
+User-Agent: KMail/1.9.3
+Cc: "Grzegorz Kulewski" <kangur@polcom.net>, linux-kernel@vger.kernel.org
+References: <44BAFDB7.9050203@calebgray.com> <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net> <f96157c40607170852w48249f0eu9729180b6fe6effb@mail.gmail.com>
+In-Reply-To: <f96157c40607170852w48249f0eu9729180b6fe6effb@mail.gmail.com>
+X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
+ =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
+ =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12-2006-07-14
-X-Y-GMX-Trusted: 0
+Content-Type: multipart/signed;
+  boundary="nextPart2950083.NpAZUNtlSs";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607171757.23850@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jul 2006, Jeff Anderson-Lee wrote:
+--nextPart2950083.NpAZUNtlSs
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I saw a log-structured file system being developed as a Google summer
-> project recently.  It's likely doomed to obscurity by the fs-related
-> code-churning in the Linux kernel.  Since it is "experimental" it won't be
-> included in the kernel distribution and hence won't get the benefit of
-> kernel developers making sweeping changes that touch all the file system
-> dependent code.  You practically need it to be your full-time job in order
-> to do any research or development work under Linux with this kind of
-> environment.
+Am Montag, 17. Juli 2006 17:52 schrieb gmu 2k6:
+> thought let's see what Reiser4 does and the moment I ran sync it
+> oopsed. Yes this could be a problem with that particular -mm version.
 
-> 2) A lessening (moratorium?) on sweeping changes for a while, so that FS
-> developers would have a chance to try new ideas without being flooded with
-> changes needed just to keep up with the latest kernel, or
+Yep.
 
-Other suggestions:
+> I'd be interested to hear whether this still happens.
 
-- try it on 2.6.16.X which is supposed to be longer-lived, and forward
-  port as that system is discontinued.
+No, We had quite some trouble for some mms (I had to recreate my root-fs=20
+*grr*). Current versions are running fine (older version too)
 
-- see if you can implement your concepts in user space (FUSE). If there
-  are sufficient advantages, port it to the kernel.
+> no, I'm not making any statements about code quality just curious to
+> hear as you seem to be using Reiser4 successfully.
 
-> Of these: (1) is likely impractical, as it imposes an additional burden on
-> kernel developers to support obscure or experimental f/s.  (2) is only a
-> stop-gap, as at some point sweeping changes might again be made that would
-> out-date most experimental f/s.  (3) seems the most logical course: work
-> towards a better interface between the FS dependent and independent layers
-> (e.g. VFS, mm) that does a better job of isolating the layers from each
-> other.
+Yes. Runs on my main machine on all partiions. Except the releases mentione=
+d=20
+above no problems so far (for 1-2 years IIRC).
 
-Linux developers have often uttered their unwillingness for stable
-interfaces.
+regards
+Alex
 
-> Without that, *BSD (and now possibly OpenSolaris) will be preferred over
-> Linux for FS research, which typically means that few if any people benefit
-> from the results: a loss for both Linux and the community at large.
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-If the file system is so crucial for the intended application, would not
-its choice alone dominate over all other criteria and demote the weight
-of the OS rather "convenience" or "it's just a name"?
+--nextPart2950083.NpAZUNtlSs
+Content-Type: application/pgp-signature
 
--- 
-Matthias Andree
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEu7Nj/aHb+2190pERArFhAKCqJmd79sfUiisu8Vxrxh8SbCzSpQCghAIM
+QypIQzgsd+xFffNYx6XGLj0=
+=whTo
+-----END PGP SIGNATURE-----
+
+--nextPart2950083.NpAZUNtlSs--

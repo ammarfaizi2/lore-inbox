@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWGQQxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWGQQz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWGQQxR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 12:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWGQQxR
+	id S1751044AbWGQQz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 12:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWGQQz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 12:53:17 -0400
-Received: from port-83-236-173-99.static.qsc.de ([83.236.173.99]:63941 "EHLO
-	isl.de") by vger.kernel.org with ESMTP id S1751066AbWGQQxQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 12:53:16 -0400
-Message-ID: <44BBC09D.5060409@isl.de>
-Date: Mon, 17 Jul 2006 18:53:49 +0200
-From: Andreas Rieke <andreas.rieke@isl.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.11) Gecko/20050728
-X-Accept-Language: de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel memory leak?
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Jul 2006 12:55:59 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:54914 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751041AbWGQQz6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 12:55:58 -0400
+Subject: Re: [patch 27/45] tpm: interrupt clear fix
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20060717162806.GB4829@kroah.com>
+References: <20060717160652.408007000@blue.kroah.org>
+	 <20060717162806.GB4829@kroah.com>
+Content-Type: text/plain
+Date: Mon, 17 Jul 2006 09:56:03 -0700
+Message-Id: <1153155363.4808.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+There was a different patch proposed and accepted already for this fix
+based on comments on the list.
 
-after booting a machine, it runs well using about 300 M of 1 G physical
-RAM. However, the remaining RAM decreases day by day, and after 2 or 3
-weeks, the machine crashes because swapping takes too much time.
-However, all processes together take about 250 MBytes according to ps,
-thus I assume that the kernel takes the rest. free tells me in fact that
-much swap space is used an nearly no physical RAM is left.
+Thanks,
+Kylie
 
-This behaviour has been seen on Red Hat Enterprise Linux 3 with a 2.4
-kernel and on SuSE Linux 10 with a 2.6.13-15-default kernel. There are
-no unusual things running on the machine, the main application is an
-apache web server with a PostgreSQL database.
 
-Is there any kernel support to detect where the memory has gone?
-Is any kind of memory eating virus or worm known?
-Is it possible that processes request memory which is NOT considered in
-/proc or in the procps tools?
-Is it possible that processes are invisible in /proc or in the procps tools?
+On Mon, 2006-07-17 at 09:28 -0700, Greg KH wrote:
+> plain text document attachment (tpm-interrupt-clear-fix.patch)
+> -stable review patch.  If anyone has any objections, please let us know.
+> 
+> ------------------
+> From: Kylene Jo Hall <kjhall@us.ibm.com>
+> 
+> Under stress testing I found that the interrupt is not always cleared.
+> This is a bug and this patch should go into 2.6.18 and 2.6.17.x.
+> 
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+>  drivers/char/tpm/tpm_tis.c |    1 +
+>  1 file changed, 1 insertion(+)
+> 
+> --- linux-2.6.17.6.orig/drivers/char/tpm/tpm_tis.c
+> +++ linux-2.6.17.6/drivers/char/tpm/tpm_tis.c
+> @@ -424,6 +424,7 @@ static irqreturn_t tis_int_handler(int i
+>  	iowrite32(interrupt,
+>  		  chip->vendor.iobase +
+>  		  TPM_INT_STATUS(chip->vendor.locality));
+> +	mb();
+>  	return IRQ_HANDLED;
+>  }
+>  
+> 
+> --
 
-Thanks in advance,
-
-Andreas

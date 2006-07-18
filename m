@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWGRMrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWGRMvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWGRMrS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 08:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWGRMrS
+	id S932186AbWGRMvv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 08:51:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWGRMvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 08:47:18 -0400
-Received: from news.cistron.nl ([62.216.30.38]:43717 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S932181AbWGRMrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 08:47:17 -0400
-From: Paul Slootman <paul+nospam@wurtel.net>
-Subject: Re: [PATCH] SCSI disk won't spinup, so boot hangs
-Date: Tue, 18 Jul 2006 12:47:16 +0000 (UTC)
-Organization: Wurtelization
-Message-ID: <e9il8k$n71$1@news.cistron.nl>
-References: <20060712141441.GA16473@wurtel.net> <20060712144848.GD7328@harddisk-recovery.com>
-X-Trace: ncc1701.cistron.net 1153226836 23777 83.68.3.130 (18 Jul 2006 12:47:16 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-To: linux-kernel@vger.kernel.org
+	Tue, 18 Jul 2006 08:51:51 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:33592 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932186AbWGRMvu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 08:51:50 -0400
+Subject: Re: [patch 5/6] s390: .align 4096 statements in head.S
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com
+In-Reply-To: <Pine.LNX.4.61.0607180825240.11870@chaos.analogic.com>
+References: <20060718115622.GE20884@skybase>
+	 <Pine.LNX.4.61.0607180825240.11870@chaos.analogic.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Tue, 18 Jul 2006 14:51:44 +0200
+Message-Id: <1153227104.9681.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw  <erik@harddisk-recovery.com> wrote:
->On Wed, Jul 12, 2006 at 04:14:41PM +0200, Paul Slootman wrote:
->> I was recently confronted by a SCSI disk that had crashed somehow
->> ("mechanical positioning error" during the first signs of trouble). The
->> kernel hung after that, despite the fact that everything was on RAID-1
->> and the first disk still was working...
->
->Sounds like a worn bearing or a head crash.
+On Tue, 2006-07-18 at 08:43 -0400, linux-os (Dick Johnson) wrote:
+> Hardcoading like that can cause hard to find errors. It looks like
+> you wrote something in 'C' and tried to use its assembly code. You
+> should know that you don't need ".fill" if you have correctly
+> allocated
+> data.
 
-Probably a head crash, this was a 5 month old 15krpm 73GB scsi disk.
+Huh ?!? We are talking about head.S here. That is pure assembler, no C
+anywhere. It is the startup code of the kernel, and we do want to
+control where things end up.
 
->> I reasoned that if the spinup fails, it doesn't make much sense to try
->> and read the capacity, the partition tables, etc..  Hence I came up with
->> the patch below that sets media_present to 0 when the spinup doesn't
->> respond. It works for me (TM); there may be a better way, however the
->> current behaviour sucks big time.
->
->I've seen disks where the 100s timeout is not enough and which only
->came into a useful state after 10 minutes or even longer. Your patch
+-- 
+blue skies,
+  Martin.
 
-I'd consider disks that take 10 minutes or more to become ready
-extremely obsolete :-)
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
->would make those disks useless, even though they can be used. Also I'm
+"Reality continues to ruin my life." - Calvin.
 
-Not really, wait your 10 minutes, echo "scsi remove-single-device a b c
-d" > /proc/scsi/scsi; echo "scsi add-single-device a b c d" >
-/proc/scsi/scsi; and there it is.
-
->not sure your patch is the right approach: a disk doesn't have
->removable media and yet it reports that there's no media present.
-
-For all intents and purposes, the media isn't there...
-Do you really think that the current behaviour (wait until eternity for
-the drive to become ready on read capacity) to be the correct behaviour?
-If so, why bother with the delay (of max. 100s) until spinup? Simply
-issue the spinup command, and start trying to read the capacity would be
-enough then.
-
-
-Paul Slootman
 

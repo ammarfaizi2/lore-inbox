@@ -1,42 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWGRPNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWGRPOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWGRPNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 11:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWGRPNi
+	id S932276AbWGRPOP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWGRPOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:13:38 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:64206 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932272AbWGRPNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:13:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=h3jVBVg9Yr4vz4321NqRIHdEsBCZaPKqotvbsow0bfZc+3t9R43d0+evRMHnEByXcGf3m8v4AJsxiLWxtMnQClbcGbdNHhEuvkPecB6MaPOl1Q8DABrTfX6GnKPRX950YVPX8Eh2fC6F3UjqrpAWaccuJJ/hkSHyOm/6yegpM5k=
-Message-ID: <b6c5339f0607180813r93abaf7l627de4da45d5d151@mail.gmail.com>
-Date: Tue, 18 Jul 2006 11:13:36 -0400
-From: "Bob Copeland" <me@bobcopeland.com>
-To: "Gary Funck" <gary@intrepid.com>
-Subject: Re: Generic B-tree implementation
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Vishal Patil" <vishpat@gmail.com>
-In-Reply-To: <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
+	Tue, 18 Jul 2006 11:14:15 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:38042 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932276AbWGRPON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 11:14:13 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
+Date: Tue, 18 Jul 2006 17:14:06 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
+       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+References: <20060717185330.GA32264@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060717185330.GA32264@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1369703.b75ARQU8JA";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
-	 <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
-X-Google-Sender-Auth: b8302272522fc0d3
+Message-Id: <200607181714.10386.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/18/06, Gary Funck <gary@intrepid.com> wrote:
-> I liked your B-tree implementation, and have saved a copy.  Too bad there
-> isn't the C/C++ equivalent of CPAN (comp.unix.sources is so passe`).  Your
-> B-tree implementation would make a nice addition to an archive of
-> handy C algorithm implementations.
+--nextPart1369703.b75ARQU8JA
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-FWIW C++ has http://boost.org/... and C has /usr/lib/ :)
+Am Montag Juli 17 2006 20:53 schrieb Andreas Mohr:
+>         for (i =3D 0; i < 4; i++) {
+>                 j =3D INDEX(i);
+>                 do {
+>                         if (list_empty(varray[i]->vec + j)) {
+>                                 j =3D (j + 1) & TVN_MASK;
+>                                 continue;
+>                         }
+>                         list_for_each_entry(nte, varray[i]->vec + j, entr=
+y)
+>                                 if (time_before(nte->expires, expires))
+>                                         expires =3D nte->expires;
+>                         if (j < (INDEX(i)) && i < 3)
+>                                 list =3D varray[i + 1]->vec + (INDEX(i + =
+1));
+>                         goto found;
+>                 } while (j !=3D (INDEX(i)));
+>         }
+> found:
 
--Bob
+is equivalent to
+
+  for (i =3D 0; i < 4; i++) {
+      j =3D INDEX(i);
+      do {
+          if (!list_empty(varray[i]->vec + j)) {
+              list_for_each_entry(nte, varray[i]->vec + j, entry)
+                  if (time_before(nte->expires, expires))
+                      expires =3D nte->expires;
+              if (j < (INDEX(i)) && i < 3)
+                  list =3D varray[i + 1]->vec + (INDEX(i + 1));
+              goto found;
+          }
+          j =3D (j + 1) & TVN_MASK;
+      } while (j !=3D (INDEX(i)));
+  }
+  found:
+
+
+But probably the code in timer.c takes account of probabilities, thus it is=
+ a=20
+bit more obscure.
+
+HTH,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart1369703.b75ARQU8JA
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+
+iD8DBQBEvPrCxU2n/+9+t5gRAnMSAJ4rvjuIyfYiuS0pVYbrYPj9k5ksiwCg2EZo
+9/CV6iEZCJgunDKnrSLZSuY=
+=f/dy
+-----END PGP SIGNATURE-----
+
+--nextPart1369703.b75ARQU8JA--

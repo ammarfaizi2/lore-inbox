@@ -1,98 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWGRN3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWGRNan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWGRN3t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 09:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWGRN3s
+	id S932199AbWGRNan (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 09:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWGRNan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 09:29:48 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:50879 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932193AbWGRN3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 09:29:47 -0400
-Date: Tue, 18 Jul 2006 06:29:32 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: inactive-clean list
-In-Reply-To: <1153224998.2041.15.camel@lappy>
-Message-ID: <Pine.LNX.4.64.0607180557440.30245@schroedinger.engr.sgi.com>
-References: <1153167857.31891.78.camel@lappy> 
- <Pine.LNX.4.64.0607172035140.28956@schroedinger.engr.sgi.com>
- <1153224998.2041.15.camel@lappy>
+	Tue, 18 Jul 2006 09:30:43 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:63426 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932196AbWGRNam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 09:30:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=X5ycNJrCF+vq3w0oSz3zIDBCHzCiLmnDHz9LhVBY+5rEAB96u95IBxXXxOz6Kdm6nEeH2yI1qY6IAYofBtKsBySvHH7Yw2cUaeHz0muiWBYDycFUhttkeMz+opwEiQemq1ZIu3vSoXj+SORWMKjRPCDNFmI/0Z8NEIgiiowHtnE=
+Message-ID: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
+Date: Tue, 18 Jul 2006 09:30:40 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: "Gary Funck" <gary@intrepid.com>
+Subject: Re: Generic B-tree implementation
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <JCEPIPKHCJGDMPOHDOIGIELCDFAA.gary@intrepid.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4745278c0607171902pc218a9dn9c63dd6670ac7249@mail.gmail.com>
+	 <JCEPIPKHCJGDMPOHDOIGIELCDFAA.gary@intrepid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006, Peter Zijlstra wrote:
+Gary
 
-> > I thought we wanted to just track the number of unmapped clean pages and 
-> > insure that they do not go under a certain limit? That would not require
-> > any locking changes but just a new zoned counter and a check in the dirty
-> > handling path.
-> 
-> The problem I see with that is that we cannot create new unmapped clean
-> pages. Where will we get new pages to satisfy our demand when there is
-> nothing mmap'ed.
+I said B-Tree and not binary tree, please read the explaination about
+B-tree at http://en.wikipedia.org/wiki/B-tree. Also I am aware of AVL
+trees.
 
-Hmmm... I am not sure that we both have this straight yet.
+I never claimed that my implementation is better or anything like
+that. I posted the code so that someone in need of the data structure
+might use it. Also I would be willing them to help with their project.
 
-Adding logic to determine the number of clean pages is not necessary. The 
-number of clean pages in the pagecache can be determined by:
+- Vishal
 
-global_page_state(NR_FILE_PAGES) - global_page_state(NR_FILE_DIRTY) 
-
-That number can be increased by writeout and so I think we want this to
-be checked in the throttling path. Swapout is only useful for 
-anonymous pages. Dirty anonymous pages are not tracked and do not 
-contribute to the NR_FILE_DIRTY (formerly nr_dirty). We only track
-the number of anonymous pages in NR_ANON_PAGES. Swapout could be used 
-to reduce NR_ANON_PAGES if memory becomes tight.
-
-The intend of insuring that a certain number of clean pages exist seems to
-be to guarantee that a certain amount of memory is freeable without
-having to go through a filesystem.
-
-Pages that are available without file system activity are:
-
-1. The already free pages.
-
-2. The clean pagecache pages.
-
-For a zone this is
-
-zone->free_pages + zone_page_state(zone, NR_FILE_PAGES) - 
-zone_page_state(zone, NR_FILE_DIRTY)
-
-If this goes below a certain limit then we either have to:
-
-1. If NR_FILE_DIRTY is significant then we can increase the number
-   of reclaimable pages by writing them out.
-
-2. If NR_FILE_DIRTY and NR_FILE_PAGES are low then writeout does 
-   not help us. NR_ANON_PAGES is likely big. So we could swap some
-   anonymous pages out to increase zone->free_pages instead. Performance
-   wise this is a bad move. So we should prefer writeout.
-
-However, the above scheme assumes that all pagecache pages can ne
-unmapped if necessary. This may not be desirable since we may then
-have no executable pages available anymore and create a significant
-amount of disk traffic. If we would track the number of dirty unmapped
-pages (by addding NR_UNMAPPED_DIRTY) then we could guarantee available
-memory that would leave the pages in use by processes alone.
-
-If we impose a limit on the number of free pages + the number of unmapped
-clean pagecache pages then we have a reserve memory pool that can be
-accessed without too much impact on performance. Its basically another
-trigger for writeout.
+On 7/18/06, Gary Funck <gary@intrepid.com> wrote:
+>
+> Vishal Patil wrote:
+> >
+> > I am attaching source files containing a very generic implementation
+> > of B-trees in C. The implementation corresponds to in memory B-Tree
+> > data structure. The B-tree library consists of two files, btree.h and
+> > btree.c. I am also attaching a sample program main.c which should
+> > hopefully make the use of the library clear.
+>
+> Couple of thoughts:
+>
+> 1. red/black b-trees have superior worst case performance as it
+> relates to rebalancing, and the implementation doesn't add a
+> lot of complexity:
+> http://www.nist.gov/dads/HTML/redblack.html
+>
+> 2. Paul Vixie's b-tree implementation has been around since the mid-80's
+> or so, and simply from an historical perspective is worth a look
+> (comp.sources.unix anyone?):
+> http://www.isc.org/index.pl?/sources/devel/func/avl-subs-2.php
+>
+> 3. GCC uses 'splay trees' to good advantage:
+> http://www.nist.gov/dads/HTML/splaytree.html
+> which have the property that most-recently referenced nodes
+> tend to be higher up in the tree.
+>
+>
 
 
-
-
-
-
-
-
-
+-- 
+Motivation will almost always beat mere talent.

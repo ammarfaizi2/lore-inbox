@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGRPXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWGRP0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWGRPXk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 11:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGRPXk
+	id S932239AbWGRP0g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWGRP0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:23:40 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:7439 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932264AbWGRPXj
+	Tue, 18 Jul 2006 11:26:36 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:36284 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S932239AbWGRP0f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:23:39 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: jhaller@lucent.com (John Haller)
-Subject: Re: [RFC PATCH 32/33] Add the Xen virtual network device driver.
-Cc: herbert@gondor.apana.org.au, hadi@cyberus.ca, arjan@infradead.org,
-       chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       jeremy@goop.org, ak@suse.de, akpm@osdl.org, rusty@rustcorp.com.au,
-       zach@vmware.com, ian.pratt@xensource.com,
-       Christian.Limpach@cl.cam.ac.uk, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <44BCE15D.2090501@lucent.com>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev,apana.lists.os.xen.devel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1G2rP0-0003bc-00@gondolin.me.apana.org.au>
-Date: Wed, 19 Jul 2006 01:22:26 +1000
+	Tue, 18 Jul 2006 11:26:35 -0400
+Message-ID: <44BCFDA6.3030909@cmu.edu>
+Date: Tue, 18 Jul 2006 11:26:30 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060604)
+MIME-Version: 1.0
+To: Jeff Chua <jchua@fedex.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com>
+In-Reply-To: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Haller <jhaller@lucent.com> wrote:
->
-> But sending ARPs is not the right thing if the guest is expecting
-> to use IPv6 networking, in which case unsolicited neighbor
-> advertisements are the right thing to do.  The driver just
-> doesn't seem to be the right place to do this, as it doesn't/
-> shouldn't need to know the difference between IPv4/IPv6.
+acpid has been started, however there is no /sys/power/disk
 
-In this case it doesn't really matter because AFAIK they're
-trying to get switches to notice that the MAC has moved.  So
-all you need is some packet that the switches can grok.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Jeff Chua wrote:
+> Do you see a file /sys/power/disk ?
+> 
+> Did you start "acpid"?
+> 
+> Also, can you "cat /sys/power/disk" ? May be your X60 does not support this.
+> 
+> Let me know.
+> 
+> Thanks,
+> Jeff 
+> [ jchua@fedex.com ]  
+> 
+>> -----Original Message-----
+>> From: George Nychis [mailto:gnychis@cmu.edu] 
+>> Sent: Tuesday, July 18, 2006 10:27 AM
+>> To: Jeff Chua
+>> Subject: Re: suspend/hibernate to work on thinkpad x60s?
+>>
+>> linux-2.6.18-rc1-git7
+>>
+>> Do i need special support for this somewhere in the kernel?
+>>
+>> Jeff Chua wrote:
+>>>
+>>> On Mon, 17 Jul 2006, George Nychis wrote:
+>>>
+>>>> Am i missing some kind of support?
+>>>> x60s gnychis # echo platform > /sys/power/disk; echo disk > 
+>>>> /sys/power/state
+>>>> bash: /sys/power/disk: Permission denied
+>>>> bash: echo: write error: Invalid argument
+>>>
+>>> I'm using linux-2.6.18-rc2. What version is yours?
+>>>
+>>>
+>>> Jeff.
+>>>
+> 

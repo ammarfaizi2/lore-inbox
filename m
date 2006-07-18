@@ -1,108 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWGRTR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWGRTTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWGRTR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 15:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWGRTR2
+	id S932324AbWGRTTg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 15:19:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWGRTTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 15:17:28 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:54762 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932328AbWGRTR1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 15:17:27 -0400
-Subject: Re: [RFC PATCH 16/33] Add support for Xen to entry.S.
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-In-Reply-To: <20060718091952.505770000@sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091952.505770000@sous-sol.org>
-Content-Type: text/plain
-Date: Wed, 19 Jul 2006 05:17:00 +1000
-Message-Id: <1153250220.5467.38.camel@localhost.localdomain>
+	Tue, 18 Jul 2006 15:19:36 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:19337 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932324AbWGRTTg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 15:19:36 -0400
+Message-Id: <200607181919.k6IJJYfm032474@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Allison <fireflyblue@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: snapshot of physical memory
+In-Reply-To: Your message of "Tue, 18 Jul 2006 12:16:16 EDT."
+             <17d79880607180916h6c6d63ddo2f5a6d090fa53c7f@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <17d79880607180916h6c6d63ddo2f5a6d090fa53c7f@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1153250373_3104P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 18 Jul 2006 15:19:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> plain text document attachment (i386-entry.S)
-> - change cli/sti
-> - change test for user mode return to work for kernel mode in ring1
-> - check hypervisor saved event mask on return from exception
-> - add entry points for the hypervisor upcall handlers
-> - avoid math emulation check when running on Xen
-> - add nmi handler for running on Xen
-> 
-> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> 
-> ---
->  arch/i386/kernel/asm-offsets.c |   26 +++++++
->  arch/i386/kernel/entry.S       |  141 ++++++++++++++++++++++++++++++++++++-----
->  arch/i386/mach-xen/setup-xen.c |   19 +++++
->  drivers/xen/core/features.c    |    2
->  4 files changed, 169 insertions(+), 19 deletions(-)
-> 
-> diff -r 5cca1805b8a7 arch/i386/kernel/entry.S
-> --- a/arch/i386/kernel/entry.S	Tue Jul 18 02:20:39 2006 -0400
-> +++ b/arch/i386/kernel/entry.S	Tue Jul 18 02:22:56 2006 -0400
-> @@ -76,8 +76,39 @@ NT_MASK		= 0x00004000
->  NT_MASK		= 0x00004000
->  VM_MASK		= 0x00020000
->  
-> +#ifndef CONFIG_XEN
-> +#define DISABLE_INTERRUPTS	cli
-> +#define ENABLE_INTERRUPTS	sti
-> +#else
-> +#include <xen/interface/xen.h>
-> +
-> +EVENT_MASK	= 0x2E
-> +
-> +/* Offsets into shared_info_t. */
-> +#define evtchn_upcall_pending		/* 0 */
-> +#define evtchn_upcall_mask		1
+--==_Exmh_1153250373_3104P
+Content-Type: text/plain; charset=us-ascii
 
-Erk... Can we get these into asm-offsets?
+On Tue, 18 Jul 2006 12:16:16 EDT, Allison said:
 
-> +
-> +#ifdef CONFIG_SMP
-> +/* Set %esi to point to the appropriate vcpu structure */
-> +#define GET_VCPU_INFO		movl TI_cpu(%ebp),%esi			; \
-> +				shl  $SIZEOF_VCPU_INFO_SHIFT,%esi	; \
-> +				addl HYPERVISOR_shared_info,%esi
-> +#else
-> +#define GET_VCPU_INFO		movl HYPERVISOR_shared_info,%esi
-> +#endif
-> +
-> +/* The following end up using/clobbering %esi, because of GET_VCPU_INFO */
-> +#define __DISABLE_INTERRUPTS	movb $1,evtchn_upcall_mask(%esi)
-> +#define DISABLE_INTERRUPTS	GET_VCPU_INFO				; \
-> +				__DISABLE_INTERRUPTS
-> +#define ENABLE_INTERRUPTS	GET_VCPU_INFO				; \
-> +				movb $0,evtchn_upcall_mask(%esi)
-> +#define __TEST_PENDING		testb $0xFF,evtchn_upcall_pending(%esi)
-> +#endif
-> +
-> +
+> 2. How do I make sure that no updates take place in memory from the
+> time I initiate the snapshot till it is done.
 
-Actually, is it possible to move these to a header somewhere?  In the
-paravirt_ops patches I used the names CLI and STI (copied from the VMI
-patches), but didn't allow them to clobber any regs.  They're defined in
-asm-i386/paravirt.h.
+Hint: If you're running a program to dump memory, it's going to be calling
+I/O drivers and so on - and all this activity has to modify at least *some*
+memory (unless you're on an architecture with a *really* deep register stack ;)
+You can't ensure that *no* updates take place.  At best, you can minimize
+the number of pages touched.
 
-If we want to allow them to clobber %esi, then your names are probably
-better, but we should clobber %esi in the !CONFIG_XEN case too if
-CONFIG_DEBUG_KERNEL.
+For an example of the kind of hoops you need to jump through, I suggest a
+careful reading of the 'suspend' and/or 'suspend2' source code - a large part
+of that code is basically taking a snapshot of memory.
 
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+Also, you'll need to make sure that whatever software is running that
+you're trying to snapshot is fairly tolerant of pauses - if you have a
+disk that manages 20MBytes/second and you have 256M of memory, you're going
+to be sitting there for 10 seconds. This can come as a surprise to programs
+that were sleeping on a timer interrupt.. :)
 
+
+
+
+--==_Exmh_1153250373_3104P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEvTRFcC3lWbTT17ARApeDAJ0Yb2xkdF0hwNzlO/el5Ze+sw7RuACgg1f+
+pjd8ShSl2yuHTdVhAsc+GLs=
+=miKm
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153250373_3104P--

@@ -1,109 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWGRAEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWGRARQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWGRAEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 20:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWGRAEQ
+	id S1751251AbWGRARQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 20:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWGRARP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 20:04:16 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:60563 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751249AbWGRAEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 20:04:15 -0400
-Date: Mon, 17 Jul 2006 19:58:41 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: fix recursive faults during oops when current
-  is invalid
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200607172001_MC3-1-C544-DDA1@compuserve.com>
+	Mon, 17 Jul 2006 20:17:15 -0400
+Received: from mail.suse.de ([195.135.220.2]:39583 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751237AbWGRARO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 20:17:14 -0400
+From: Neil Brown <neilb@suse.de>
+To: Petr Vyskocil <petr@anime.cz>
+Date: Tue, 18 Jul 2006 10:16:27 +1000
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Message-ID: <17596.10331.396365.132469@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.17 and RAID5 Grow Problem (critical section backup)
+In-Reply-To: message from Petr Vyskocil on Tuesday July 11
+References: <Pine.LNX.4.64.0607070830450.2648@p34.internal.lan>
+	<Pine.LNX.4.64.0607070845280.2648@p34.internal.lan>
+	<Pine.LNX.4.64.0607070849140.3010@p34.internal.lan>
+	<Pine.LNX.4.64.0607071037190.5153@p34.internal.lan>
+	<17582.55703.209583.446356@cse.unsw.edu.au>
+	<Pine.LNX.4.64.0607101747160.2603@p34.internal.lan>
+	<Pine.LNX.4.61.0607110026030.5420@yvahk01.tjqt.qr>
+	<Pine.LNX.4.64.0607101830130.2603@p34.internal.lan>
+	<Pine.LNX.4.61.0607110950450.30961@yvahk01.tjqt.qr>
+	<e8vplt$fgv$1@sea.gmane.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix recursive faults during oops caused by invalid value in current
-by using __get_user()/__put_user() when dereferencing it.
+On Tuesday July 11, petr@anime.cz wrote:
+> >>> Hm, what's superblock 0.91? It is not mentioned in mdadm.8.
+> >>>
+> >> Not sure, the block version perhaps?
+> >>
+> > Well yes of course, but what characteristics? The manual only lists
+> >  0, 0.90, default
+> >  1, 1.0, 1.1, 1.2
+> > No 0.91 :(
+> 
+> 
+> AFAICR superblock version gets raised by 0.01 for the duration of 
+> reshape, so that non-reshape aware kernels do not try to assemble it 
+> (and cause data corruption).
 
-Reported by Krzysztof Halasa <khc@pm.waw.pl>
+Exactly.  The following will be in the next mdadm - unless someone
+wants to re-write it for me using shorter sentences :-)
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+NeilBrown
 
----
 
- If this is OK I'll do x86_64 next.
 
- arch/i386/kernel/traps.c |   17 +++++++++++++----
- arch/i386/mm/fault.c     |    7 ++++---
- 2 files changed, 17 insertions(+), 7 deletions(-)
-
---- 2.6.18-rc1-32.orig/arch/i386/mm/fault.c
-+++ 2.6.18-rc1-32/arch/i386/mm/fault.c
-@@ -585,9 +585,10 @@ no_context:
- 		printk(KERN_ALERT "*pte = %08lx\n", page);
- 	}
- #endif
--	tsk->thread.cr2 = address;
--	tsk->thread.trap_no = 14;
--	tsk->thread.error_code = error_code;
-+	/* avoid possible fault here if tsk is garbage */
-+	__put_user(address, &tsk->thread.cr2);
-+	__put_user(14, &tsk->thread.trap_no);
-+	__put_user(error_code, &tsk->thread.error_code);
- 	die("Oops", regs, error_code);
- 	bust_spinlocks(0);
- 	do_exit(SIGKILL);
---- 2.6.18-rc1-32.orig/arch/i386/kernel/traps.c
-+++ 2.6.18-rc1-32/arch/i386/kernel/traps.c
-@@ -267,8 +267,16 @@ void show_registers(struct pt_regs *regs
- 	int i;
- 	int in_kernel = 1;
- 	unsigned long esp;
-+	char *comm = "<bad task>";
-+	pid_t pid = 0;
-+	void *thread_info = 0;
- 	unsigned short ss;
+diff .prev/md.4 ./md.4
+--- .prev/md.4	2006-06-20 10:01:17.000000000 +1000
++++ ./md.4	2006-07-18 10:14:47.000000000 +1000
+@@ -74,6 +74,14 @@ UUID
+ a 128 bit Universally Unique Identifier that identifies the array that
+ this device is part of.
  
-+	__get_user(thread_info, &current->thread_info);
-+	__get_user(pid, &current->pid);
-+	if (!__get_user(comm, (char **)current->comm))
-+		comm = current->comm;
++When a version 0.90 array is being reshaped (e.g. adding extra devices
++to a RAID5), the version number is temporarily set to 0.91.  This
++ensures that if the reshape process is stopped in the middle (e.g. by
++a system crash) and the machine boots into an older kernel that does
++not support reshaping, then the array will not be assembled (which
++would cause data corruption) but will be left untouched until a kernel
++that can complete the reshape processes is used.
 +
- 	esp = (unsigned long) (&regs->esp);
- 	savesegment(ss, ss);
- 	if (user_mode_vm(regs)) {
-@@ -291,8 +299,8 @@ void show_registers(struct pt_regs *regs
- 	printk(KERN_EMERG "ds: %04x   es: %04x   ss: %04x\n",
- 		regs->xds & 0xffff, regs->xes & 0xffff, ss);
- 	printk(KERN_EMERG "Process %.*s (pid: %d, ti=%p task=%p task.ti=%p)",
--		TASK_COMM_LEN, current->comm, current->pid,
--		current_thread_info(), current, current->thread_info);
-+		TASK_COMM_LEN, comm, pid,
-+		current_thread_info(), current, thread_info);
- 	/*
- 	 * When in-kernel, we also print out the stack and code at the
- 	 * time of the fault..
-@@ -371,6 +379,7 @@ void die(const char * str, struct pt_reg
- 	};
- 	static int die_counter;
- 	unsigned long flags;
-+	unsigned long trap_no = 0; /* default if task pointer is corrupt */
- 
- 	oops_enter();
- 
-@@ -409,8 +418,8 @@ void die(const char * str, struct pt_reg
- #endif
- 		if (nl)
- 			printk("\n");
--		if (notify_die(DIE_OOPS, str, regs, err,
--					current->thread.trap_no, SIGSEGV) !=
-+		__get_user(trap_no, &current->thread.trap_no);
-+		if (notify_die(DIE_OOPS, str, regs, err, trap_no, SIGSEGV) !=
- 				NOTIFY_STOP) {
- 			show_registers(regs);
- 			/* Executive summary in case the oops scrolled away */
--- 
-Chuck
+ .SS ARRAYS WITHOUT SUPERBLOCKS
+ While it is usually best to create arrays with superblocks so that
+ they can be assembled reliably, there are some circumstances where an

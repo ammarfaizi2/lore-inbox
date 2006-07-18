@@ -1,111 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWGRUnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWGRUqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWGRUnF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 16:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWGRUnF
+	id S932393AbWGRUqF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 16:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWGRUqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 16:43:05 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:61568 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932391AbWGRUnD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 16:43:03 -0400
-Date: Tue, 18 Jul 2006 13:43:33 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	Tue, 18 Jul 2006 16:46:05 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:35812
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932393AbWGRUqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 16:46:04 -0400
+Date: Tue, 18 Jul 2006 13:46:25 -0700 (PDT)
+Message-Id: <20060718.134625.123974562.davem@davemloft.net>
+To: zach@vmware.com
+Cc: arjan@infradead.org, chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
        virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: [RFC PATCH 16/33] Add support for Xen to entry.S.
-Message-ID: <20060718204333.GD2654@sequoia.sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org> <20060718091952.505770000@sous-sol.org> <1153250220.5467.38.camel@localhost.localdomain>
+       jeremy@goop.org, ak@suse.de, akpm@osdl.org, rusty@rustcorp.com.au,
+       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [RFC PATCH 18/33] Subarch support for CPUID instruction
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44BCC720.7050601@vmware.com>
+References: <20060718091953.003336000@sous-sol.org>
+	<1153217686.3038.37.camel@laptopd505.fenrus.org>
+	<44BCC720.7050601@vmware.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153250220.5467.38.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rusty Russell (rusty@rustcorp.com.au) wrote:
-> On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> > plain text document attachment (i386-entry.S)
-> > - change cli/sti
-> > - change test for user mode return to work for kernel mode in ring1
-> > - check hypervisor saved event mask on return from exception
-> > - add entry points for the hypervisor upcall handlers
-> > - avoid math emulation check when running on Xen
-> > - add nmi handler for running on Xen
-> > 
-> > Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
-> > Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-> > Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
-> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> > 
-> > ---
-> >  arch/i386/kernel/asm-offsets.c |   26 +++++++
-> >  arch/i386/kernel/entry.S       |  141 ++++++++++++++++++++++++++++++++++++-----
-> >  arch/i386/mach-xen/setup-xen.c |   19 +++++
-> >  drivers/xen/core/features.c    |    2
-> >  4 files changed, 169 insertions(+), 19 deletions(-)
-> > 
-> > diff -r 5cca1805b8a7 arch/i386/kernel/entry.S
-> > --- a/arch/i386/kernel/entry.S	Tue Jul 18 02:20:39 2006 -0400
-> > +++ b/arch/i386/kernel/entry.S	Tue Jul 18 02:22:56 2006 -0400
-> > @@ -76,8 +76,39 @@ NT_MASK		= 0x00004000
-> >  NT_MASK		= 0x00004000
-> >  VM_MASK		= 0x00020000
-> >  
-> > +#ifndef CONFIG_XEN
-> > +#define DISABLE_INTERRUPTS	cli
-> > +#define ENABLE_INTERRUPTS	sti
-> > +#else
-> > +#include <xen/interface/xen.h>
-> > +
-> > +EVENT_MASK	= 0x2E
-> > +
-> > +/* Offsets into shared_info_t. */
-> > +#define evtchn_upcall_pending		/* 0 */
-> > +#define evtchn_upcall_mask		1
-> 
-> Erk... Can we get these into asm-offsets?
+From: Zachary Amsden <zach@vmware.com>
+Date: Tue, 18 Jul 2006 04:33:52 -0700
 
-Hmm, we put the vcpu shift in, guess we missed that.  Thanks for noticing.
+> You really need a CPUID hook.  The instruction is non-virtualizable, and 
+> anything claiming to be a hypervisor really has to support masking and 
+> flattening the cpuid namespace for the instruction itself.  It is used 
+> in assembler code and very early in boot.  The alternative is injecting 
+> a bunch of Xen-specific code to filter feature bits into the i386 layer, 
+> which is both bad for Linux and bad for Xen - and was quite ugly in the 
+> last set of Xen patches.
 
-> > +
-> > +#ifdef CONFIG_SMP
-> > +/* Set %esi to point to the appropriate vcpu structure */
-> > +#define GET_VCPU_INFO		movl TI_cpu(%ebp),%esi			; \
-> > +				shl  $SIZEOF_VCPU_INFO_SHIFT,%esi	; \
-> > +				addl HYPERVISOR_shared_info,%esi
-> > +#else
-> > +#define GET_VCPU_INFO		movl HYPERVISOR_shared_info,%esi
-> > +#endif
-> > +
-> > +/* The following end up using/clobbering %esi, because of GET_VCPU_INFO */
-> > +#define __DISABLE_INTERRUPTS	movb $1,evtchn_upcall_mask(%esi)
-> > +#define DISABLE_INTERRUPTS	GET_VCPU_INFO				; \
-> > +				__DISABLE_INTERRUPTS
-> > +#define ENABLE_INTERRUPTS	GET_VCPU_INFO				; \
-> > +				movb $0,evtchn_upcall_mask(%esi)
-> > +#define __TEST_PENDING		testb $0xFF,evtchn_upcall_pending(%esi)
-> > +#endif
-> 
-> Actually, is it possible to move these to a header somewhere?  In the
-> paravirt_ops patches I used the names CLI and STI (copied from the VMI
-> patches), but didn't allow them to clobber any regs.  They're defined in
-> asm-i386/paravirt.h.
-
-Sure, although it's only used here.  Got a preference?
-
-> If we want to allow them to clobber %esi, then your names are probably
-> better, but we should clobber %esi in the !CONFIG_XEN case too if
-> CONFIG_DEBUG_KERNEL.
-
-That makes sense to me, just to catch those bugs.
-
-thanks,
--chris
+Userspace will still see the full set of cpuid bits, since
+it can still execute cpuid unimpeded, is this ok?

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWGRRLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWGRRa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWGRRLf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 13:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGRRLf
+	id S932325AbWGRRa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 13:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWGRRa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 13:11:35 -0400
-Received: from compunauta.com ([69.36.170.169]:48336 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S932309AbWGRRLe convert rfc822-to-8bit
+	Tue, 18 Jul 2006 13:30:28 -0400
+Received: from 125.14.cm.sunflower.com ([24.124.14.125]:32979 "EHLO
+	mail.atipa.com") by vger.kernel.org with ESMTP id S932325AbWGRRa2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 13:11:34 -0400
-From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
-	<gustavo@compunauta.com>
-Organization: www.compunauta.com
-To: linux-kernel@vger.kernel.org
-Subject: [OT] devfs is obsolete, but dbus/hald/ivman does not spend more resources at boot time?
-Date: Tue, 18 Jul 2006 12:11:31 -0500
-User-Agent: KMail/1.8.2
+	Tue, 18 Jul 2006 13:30:28 -0400
+Message-ID: <44BD1AB6.10009@atipa.com>
+Date: Tue, 18 Jul 2006 12:30:30 -0500
+From: Roger Heflin <rheflin@atipa.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607181211.32092.gustavo@compunauta.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>, mpt_linux_developer@lsil.com
+Subject: newer MPT speed issue on Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jul 2006 17:30:31.0674 (UTC) FILETIME=[DE81EDA0:01C6AA8F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was used to mount devfs in a separate folder, to search for a ZISO file on 
-hard drives or DVD/CD units in my boot ram rescue disks, and Gentoo live DVD, 
-in last kernel versions devfs still there but not anymore in config, we still 
-able to use it, touching some files.
+Hello,
 
-Just to know ¿How many releases will still there?
+I am have tested with Sles9.1sp1, Sp3, and kernel.org 2.6.17.6 and
+here are some results:
+		
+SLES9.1sp1 (kernel only)	100-120MB/second writes  75-80MB/second reads
+SLES9.0sp3			20-30MB/second writes
+2.6.17.6			20-30MB/second writes   140-150MB/second reads
 
-How do you a search for drives with hald/dbus at boot time on a ramdisk it is 
-not more complex?!?!?!.
+This is with  the LSI Logic / Symbios Logic FC929X Fibre Channel Adapter 
+(rev 81)
 
-Well, I still wanting for a while devfs, untill I use to use hald/dbus :(
+All 3 are with a SLES9sp3 distribution and are on the same machine with 
+only the kernel
+being changed.   The test is a simple "dd if=/dev/zero of=/dev/dk001/two 
+bs=65536 &"
+with vmstat being used to determine io speed.   Bonnie++ is getting 
+similar results
+to what dd is generating when writing to a filesystem.
 
+The fiber channel card is hooked to a external raid5 chassis, and it 
+being accessed
+though LVM.
 
--- 
-Gustavo Guillermo Pérez
-Compunauta uLinux
-www.compunauta.com
+Are there some parameters that I am missing that could speed the writes up?
+
+The reads on the newer driver are a nice improvement, but the writes on
+the newer driver are horrible in my testing.
+
+                               Roger

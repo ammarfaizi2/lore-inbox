@@ -1,237 +1,359 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWGRJ3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWGRJ2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWGRJ3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGRJUx
+	id S932123AbWGRJ2A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 05:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWGRJ1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:20:53 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38786 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932115AbWGRJUn
+	Tue, 18 Jul 2006 05:27:38 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:34689 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932123AbWGRJU5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:20:43 -0400
-Message-Id: <20060718091953.793160000@sous-sol.org>
+	Tue, 18 Jul 2006 05:20:57 -0400
+Message-Id: <20060718091950.750213000@sous-sol.org>
 References: <20060718091807.467468000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 18 Jul 2006 00:00:21 -0700
+Date: Tue, 18 Jul 2006 00:00:09 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>,
        Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 21/33] subarch support for control register accesses
-Content-Disposition: inline; filename=i386-processor
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: [RFC PATCH 09/33] Add start-of-day setup hooks to subarch
+Content-Disposition: inline; filename=i386-setup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abstract the code that accesses control register, and
-add a separate subarch implementation for Xen.
+Implement the start-of-day subarchitecture setup hooks for booting on
+Xen. Add subarch macros for determining loader type and initrd
+location.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
 
 ---
- include/asm-i386/mach-default/mach_system.h |   57 +++++++++++++++++++++++++++
- include/asm-i386/mach-xen/mach_system.h     |   54 +++++++++++++++++++++++++
- include/asm-i386/system.h                   |   57 ---------------------------
- 3 files changed, 111 insertions(+), 57 deletions(-)
+ arch/i386/kernel/setup.c                   |    2 +
+ arch/i386/mach-default/Makefile            |    2 -
+ arch/i386/mach-default/setup-memory.c      |   43 ++++++++++++++++++++++
+ arch/i386/mach-default/setup.c             |   43 ----------------------
+ arch/i386/mach-xen/Makefile                |    2 -
+ arch/i386/mach-xen/setup-xen.c             |   54 ++++++++++++++++++++++++++++
+ include/asm-i386/hypervisor.h              |    4 ++
+ include/asm-i386/mach-default/mach_setup.h |   12 ++++++
+ include/asm-i386/mach-xen/mach_setup.h     |   15 +++++++
+ include/asm-i386/mach-xen/setup_arch.h     |    9 ++++
+ include/asm-i386/setup.h                   |   20 ++++++----
+ 11 files changed, 153 insertions(+), 53 deletions(-)
 
-
-diff -r 6b500a8da576 include/asm-i386/mach-default/mach_system.h
---- a/include/asm-i386/mach-default/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
-+++ b/include/asm-i386/mach-default/mach_system.h	Thu Jul 13 15:01:15 2006 -0700
-@@ -3,4 +3,61 @@
+diff -r a5848bce3730 arch/i386/kernel/setup.c
+--- a/arch/i386/kernel/setup.c	Thu Jun 22 16:02:54 2006 -0400
++++ b/arch/i386/kernel/setup.c	Thu Jun 22 20:20:31 2006 -0400
+@@ -458,6 +458,7 @@ static void __init print_memory_map(char
+ 	}
+ }
  
- #define clearsegment(seg)
++#ifndef HAVE_ARCH_E820_SANITIZE
+ /*
+  * Sanitize the BIOS e820 map.
+  *
+@@ -677,6 +678,7 @@ int __init copy_e820_map(struct e820entr
+ 	} while (biosmap++,--nr_map);
+ 	return 0;
+ }
++#endif
  
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
-+
-+#define read_cr2() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr2,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr2(x) \
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
-+
-+#define read_cr3() ({ \
-+	unsigned int __dummy; \
-+	__asm__ ( \
-+		"movl %%cr3,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr3(x) \
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define read_cr4_safe() ({			      \
-+	unsigned int __dummy;			      \
-+	/* This could fault if %cr4 does not exist */ \
-+	__asm__("1: movl %%cr4, %0		\n"   \
-+		"2:				\n"   \
-+		".section __ex_table,\"a\"	\n"   \
-+		".long 1b,2b			\n"   \
-+		".previous			\n"   \
-+		: "=r" (__dummy): "0" (0));	      \
-+	__dummy;				      \
-+})
-+#define write_cr4(x) \
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
-+
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define stts() write_cr0(8 | read_cr0())
-+
- #endif /* __ASM_MACH_SYSTEM_H */
-diff -r 6b500a8da576 include/asm-i386/mach-xen/mach_system.h
---- a/include/asm-i386/mach-xen/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
-+++ b/include/asm-i386/mach-xen/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
-@@ -5,4 +5,58 @@
+ #if defined(CONFIG_EDD) || defined(CONFIG_EDD_MODULE)
+ struct edd edd;
+diff -r a5848bce3730 arch/i386/mach-default/Makefile
+--- a/arch/i386/mach-default/Makefile	Thu Jun 22 16:02:54 2006 -0400
++++ b/arch/i386/mach-default/Makefile	Thu Jun 22 20:20:31 2006 -0400
+@@ -2,4 +2,4 @@
+ # Makefile for the linux kernel.
+ #
  
- #define clearsegment(seg) loadsegment(seg, 0)
+-obj-y				:= setup.o
++obj-y				:= setup.o setup-memory.o
+diff -r a5848bce3730 arch/i386/mach-default/setup.c
+--- a/arch/i386/mach-default/setup.c	Thu Jun 22 16:02:54 2006 -0400
++++ b/arch/i386/mach-default/setup.c	Thu Jun 22 20:20:31 2006 -0400
+@@ -8,8 +8,6 @@
+ #include <linux/interrupt.h>
+ #include <asm/acpi.h>
+ #include <asm/arch_hooks.h>
+-#include <asm/e820.h>
+-#include <asm/setup.h>
  
+ #ifdef CONFIG_HOTPLUG_CPU
+ #define DEFAULT_SEND_IPI	(1)
+@@ -132,44 +130,3 @@ static int __init print_ipi_mode(void)
+ }
+ 
+ late_initcall(print_ipi_mode);
+-
+-/**
+- * machine_specific_memory_setup - Hook for machine specific memory setup.
+- *
+- * Description:
+- *	This is included late in kernel/setup.c so that it can make
+- *	use of all of the static functions.
+- **/
+-
+-char * __init machine_specific_memory_setup(void)
+-{
+-	char *who;
+-
+-
+-	who = "BIOS-e820";
+-
+-	/*
+-	 * Try to copy the BIOS-supplied E820-map.
+-	 *
+-	 * Otherwise fake a memory map; one section from 0k->640k,
+-	 * the next section from 1mb->appropriate_mem_k
+-	 */
+-	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
+-	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
+-		unsigned long mem_size;
+-
+-		/* compare results from other methods and take the greater */
+-		if (ALT_MEM_K < EXT_MEM_K) {
+-			mem_size = EXT_MEM_K;
+-			who = "BIOS-88";
+-		} else {
+-			mem_size = ALT_MEM_K;
+-			who = "BIOS-e801";
+-		}
+-
+-		e820.nr_map = 0;
+-		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
+-  	}
+-	return who;
+-}
+diff -r a5848bce3730 arch/i386/mach-xen/Makefile
+--- a/arch/i386/mach-xen/Makefile	Thu Jun 22 16:02:54 2006 -0400
++++ b/arch/i386/mach-xen/Makefile	Thu Jun 22 20:20:31 2006 -0400
+@@ -2,6 +2,6 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-obj-y				:= setup.o
++obj-y				:= setup.o setup-xen.o
+ 
+ setup-y				:= ../mach-default/setup.o
+diff -r a5848bce3730 include/asm-i386/hypervisor.h
+--- a/include/asm-i386/hypervisor.h	Thu Jun 22 16:02:54 2006 -0400
++++ b/include/asm-i386/hypervisor.h	Thu Jun 22 20:20:31 2006 -0400
+@@ -55,6 +55,10 @@ extern struct shared_info *HYPERVISOR_sh
+ extern struct shared_info *HYPERVISOR_shared_info;
+ extern struct start_info *xen_start_info;
+ 
++/* arch/i386/mach-xen/entry.S */
++extern void hypervisor_callback(void);
++extern void failsafe_callback(void);
 +
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__ __volatile__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
-+
-+#define read_cr2() \
-+	(HYPERVISOR_shared_info->vcpu_info[smp_processor_id()].arch.cr2)
-+#define write_cr2(x) \
-+	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
-+
-+#define read_cr3() ({ \
-+	unsigned int __dummy; \
-+	__asm__ ( \
-+		"movl %%cr3,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr3(x) \
-+	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+
-+#define read_cr4_safe() ({			      \
-+	unsigned int __dummy;			      \
-+	/* This could fault if %cr4 does not exist */ \
-+	__asm__("1: movl %%cr4, %0		\n"   \
-+		"2:				\n"   \
-+		".section __ex_table,\"a\"	\n"   \
-+		".long 1b,2b			\n"   \
-+		".previous			\n"   \
-+		: "=r" (__dummy): "0" (0));	      \
-+	__dummy;				      \
-+})
-+
-+#define write_cr4(x) \
-+	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
-+#define stts() write_cr0(8 | read_cr0())
-+
- #endif /* __ASM_MACH_SYSTEM_H */
-diff -r 6b500a8da576 include/asm-i386/system.h
---- a/include/asm-i386/system.h	Thu Jul 13 14:42:43 2006 -0700
-+++ b/include/asm-i386/system.h	Thu Jul 13 15:00:54 2006 -0700
-@@ -81,63 +81,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ /* arch/i386/mach-xen/evtchn.c */
+ /* Force a proper event-channel callback from Xen. */
+ extern void force_evtchn_callback(void);
+diff -r a5848bce3730 include/asm-i386/setup.h
+--- a/include/asm-i386/setup.h	Thu Jun 22 16:02:54 2006 -0400
++++ b/include/asm-i386/setup.h	Thu Jun 22 20:20:31 2006 -0400
+@@ -49,10 +49,10 @@ extern unsigned char boot_params[PARAM_S
+ #define VIDEO_MODE (*(unsigned short *) (PARAM+0x1FA))
+ #define ORIG_ROOT_DEV (*(unsigned short *) (PARAM+0x1FC))
+ #define AUX_DEVICE_INFO (*(unsigned char *) (PARAM+0x1FF))
+-#define LOADER_TYPE (*(unsigned char *) (PARAM+0x210))
++#define LOADER_TYPE MACH_LOADER_TYPE
+ #define KERNEL_START (*(unsigned long *) (PARAM+0x214))
+-#define INITRD_START (*(unsigned long *) (PARAM+0x218))
+-#define INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
++#define INITRD_START MACH_INITRD_START
++#define INITRD_SIZE MACH_INITRD_SIZE
+ #define EDID_INFO   (*(struct edid_info *) (PARAM+0x140))
+ #define EDD_NR     (*(unsigned char *) (PARAM+EDDNR))
+ #define EDD_MBR_SIG_NR (*(unsigned char *) (PARAM+EDD_MBR_SIG_NR_BUF))
+@@ -65,15 +65,19 @@ extern unsigned char boot_params[PARAM_S
   */
- #define savesegment(seg, value) \
- 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
--
--#define read_cr0() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr0,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr0(x) \
--	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
--
--#define read_cr2() ({ \
--	unsigned int __dummy; \
--	__asm__ __volatile__( \
--		"movl %%cr2,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr2(x) \
--	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
--
--#define read_cr3() ({ \
--	unsigned int __dummy; \
--	__asm__ ( \
--		"movl %%cr3,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define write_cr3(x) \
--	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
--
--#define read_cr4() ({ \
--	unsigned int __dummy; \
--	__asm__( \
--		"movl %%cr4,%0\n\t" \
--		:"=r" (__dummy)); \
--	__dummy; \
--})
--#define read_cr4_safe() ({			      \
--	unsigned int __dummy;			      \
--	/* This could fault if %cr4 does not exist */ \
--	__asm__("1: movl %%cr4, %0		\n"   \
--		"2:				\n"   \
--		".section __ex_table,\"a\"	\n"   \
--		".long 1b,2b			\n"   \
--		".previous			\n"   \
--		: "=r" (__dummy): "0" (0));	      \
--	__dummy;				      \
--})
--#define write_cr4(x) \
--	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
--
--/*
-- * Clear and set 'TS' bit respectively
-- */
--#define clts() __asm__ __volatile__ ("clts")
--#define stts() write_cr0(8 | read_cr0())
+ #define LOWMEMSIZE()	(0x9f000)
  
- #endif	/* __KERNEL__ */
++extern unsigned long init_pg_tables_end;
++
+ struct e820entry;
  
+-char * __init machine_specific_memory_setup(void);
++char * machine_specific_memory_setup(void);
+ 
+-int __init copy_e820_map(struct e820entry * biosmap, int nr_map);
+-int __init sanitize_e820_map(struct e820entry * biosmap, char * pnr_map);
+-void __init add_memory_region(unsigned long long start,
+-			      unsigned long long size, int type);
++int copy_e820_map(struct e820entry * biosmap, int nr_map);
++int sanitize_e820_map(struct e820entry * biosmap, char * pnr_map);
++void add_memory_region(unsigned long long start,
++		       unsigned long long size, int type);
+ 
+ #endif /* __ASSEMBLY__ */
+ 
++#include <mach_setup.h>
++
+ #endif /* _i386_SETUP_H */
+diff -r a5848bce3730 arch/i386/mach-default/setup-memory.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/arch/i386/mach-default/setup-memory.c	Thu Jun 22 20:20:31 2006 -0400
+@@ -0,0 +1,44 @@
++#include <linux/init.h>
++#include <asm/e820.h>
++#include <asm/setup.h>
++
++/**
++ * machine_specific_memory_setup - Hook for machine specific memory setup.
++ *
++ * Description:
++ *	This is included late in kernel/setup.c so that it can make
++ *	use of all of the static functions.
++ **/
++
++char * __init machine_specific_memory_setup(void)
++{
++	char *who;
++
++
++	who = "BIOS-e820";
++
++	/*
++	 * Try to copy the BIOS-supplied E820-map.
++	 *
++	 * Otherwise fake a memory map; one section from 0k->640k,
++	 * the next section from 1mb->appropriate_mem_k
++	 */
++	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
++	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
++		unsigned long mem_size;
++
++		/* compare results from other methods and take the greater */
++		if (ALT_MEM_K < EXT_MEM_K) {
++			mem_size = EXT_MEM_K;
++			who = "BIOS-88";
++		} else {
++			mem_size = ALT_MEM_K;
++			who = "BIOS-e801";
++		}
++
++		e820.nr_map = 0;
++		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
++		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++  	}
++	return who;
++}
+diff -r a5848bce3730 arch/i386/mach-xen/setup-xen.c
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/arch/i386/mach-xen/setup-xen.c	Thu Jun 22 20:20:31 2006 -0400
+@@ -0,0 +1,54 @@
++/*
++ *	Machine specific setup for xen
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/mm.h>
++
++#include <asm/e820.h>
++#include <asm/setup.h>
++#include <asm/hypervisor.h>
++#include <asm/hypercall.h>
++
++#include <xen/interface/physdev.h>
++
++
++struct start_info *xen_start_info;
++EXPORT_SYMBOL(xen_start_info);
++
++/*
++ * Point at the empty zero page to start with. We map the real shared_info
++ * page as soon as fixmap is up and running.
++ */
++struct shared_info *HYPERVISOR_shared_info = (struct shared_info *)empty_zero_page;
++EXPORT_SYMBOL(HYPERVISOR_shared_info);
++
++/**
++ * machine_specific_memory_setup - Hook for machine specific memory setup.
++ **/
++
++char * __init machine_specific_memory_setup(void)
++{
++	unsigned long max_pfn = xen_start_info->nr_pages;
++
++	e820.nr_map = 0;
++	add_memory_region(0, PFN_PHYS(max_pfn), E820_RAM);
++
++	return "Xen";
++}
++
++void __init machine_specific_arch_setup(void)
++{
++#ifdef CONFIG_ACPI
++	if (!(xen_start_info->flags & SIF_INITDOMAIN)) {
++		printk(KERN_INFO "ACPI in unprivileged domain disabled\n");
++		acpi_disabled = 1;
++		acpi_ht = 0;
++	}
++#endif
++
++	memcpy(saved_command_line, xen_start_info->cmd_line,
++	       MAX_GUEST_CMDLINE > COMMAND_LINE_SIZE ?
++	       COMMAND_LINE_SIZE : MAX_GUEST_CMDLINE);
++}
+diff -r a5848bce3730 include/asm-i386/mach-default/mach_setup.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/include/asm-i386/mach-default/mach_setup.h	Thu Jun 22 20:20:31 2006 -0400
+@@ -0,0 +1,12 @@
++#ifndef __ASM_MACH_SETUP_H
++#define __ASM_MACH_SETUP_H
++
++#ifndef __ASSEMBLY__
++
++#define MACH_LOADER_TYPE (*(unsigned char *) (PARAM+0x210))
++#define MACH_INITRD_START (*(unsigned long *) (PARAM+0x218))
++#define MACH_INITRD_SIZE (*(unsigned long *) (PARAM+0x21c))
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* __ASM_MACH_SETUP_H */
+diff -r a5848bce3730 include/asm-i386/mach-xen/mach_setup.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/include/asm-i386/mach-xen/mach_setup.h	Thu Jun 22 20:20:31 2006 -0400
+@@ -0,0 +1,15 @@
++#ifndef __ASM_MACH_SETUP_H
++#define __ASM_MACH_SETUP_H
++
++#ifndef __ASSEMBLY__
++
++#include <xen/interface/xen.h>
++
++#define MACH_LOADER_TYPE 0x6e6558	/* "Xen" */
++#define MACH_INITRD_START \
++	(xen_start_info->mod_start ? __pa(xen_start_info->mod_start) : 0)
++#define MACH_INITRD_SIZE (xen_start_info->mod_len)
++
++#endif /* __ASSEMBLY__ */
++
++#endif /* __ASM_MACH_SETUP_H */
+diff -r a5848bce3730 include/asm-i386/mach-xen/setup_arch.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/include/asm-i386/mach-xen/setup_arch.h	Thu Jun 22 20:20:31 2006 -0400
+@@ -0,0 +1,9 @@
++
++#define ARCH_SETUP machine_specific_arch_setup();
++
++extern struct start_info *xen_start_info;
++extern struct shared_info *HYPERVISOR_shared_info;
++
++void __init machine_specific_arch_setup(void);
++
++#define HAVE_ARCH_E820_SANITIZE
 
 --

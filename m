@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWGRVzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWGRV44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWGRVzd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 17:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWGRVzd
+	id S932195AbWGRV44 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 17:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWGRV44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 17:55:33 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58010
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932148AbWGRVzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 17:55:32 -0400
-Date: Tue, 18 Jul 2006 14:55:55 -0700 (PDT)
-Message-Id: <20060718.145555.32724710.davem@davemloft.net>
-To: jesper.juhl@gmail.com
+	Tue, 18 Jul 2006 17:56:56 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:16472 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932195AbWGRV4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 17:56:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fMH8kS83jwwmyAEXO365UAN/nsrqcFhX7UGk1CNlGSk4vpS3opVj+zeBKnb80ooAwonBnprGJvSj6P5/e5/XRB1iKWDZKheY/fYuh3Vn21aEHT+Y0ZPDohIlQtECrq5NsrezccJcX8+XrFxdx/SALJ8ZeKafWEJhrkdkpD7aQec=
+Message-ID: <9a8748490607181456v508f40a8qa06a1259d0b8e17@mail.gmail.com>
+Date: Tue, 18 Jul 2006 23:56:54 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "David Miller" <davem@davemloft.net>
+Subject: Re: 2.6.18-rc2 allyesconfig doesn't build - undefined references to hdlc_set_carrier
 Cc: linux-kernel@vger.kernel.org, paulkf@microgate.com
-Subject: Re: 2.6.18-rc2 allyesconfig doesn't build - undefined references
- to hdlc_set_carrier
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200607182352.40222.jesper.juhl@gmail.com>
-References: <200607182352.40222.jesper.juhl@gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <20060718.145555.32724710.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200607182352.40222.jesper.juhl@gmail.com>
+	 <20060718.145555.32724710.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Tue, 18 Jul 2006 23:52:39 +0200
+On 18/07/06, David Miller <davem@davemloft.net> wrote:
+> From: Jesper Juhl <jesper.juhl@gmail.com>
+> Date: Tue, 18 Jul 2006 23:52:39 +0200
+>
+> > Just tried an allyesconfig build of 2.6.18-rc2 and it fails with this error :
+>
+> There is a fix for this already sitting in the net-2.6 GIT
+> tree, which will be pushed to Linus when he returns.
+>
+Ok, thanks.
 
-> Just tried an allyesconfig build of 2.6.18-rc2 and it fails with this error : 
-
-There is a fix for this already sitting in the net-2.6 GIT
-tree, which will be pushed to Linus when he returns.
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

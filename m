@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWGRVNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGRVPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWGRVNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 17:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWGRVNi
+	id S932085AbWGRVPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 17:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGRVPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 17:13:38 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:22490 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750719AbWGRVNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 17:13:38 -0400
+	Tue, 18 Jul 2006 17:15:07 -0400
+Received: from smtprelay05.ispgateway.de ([80.67.18.43]:5530 "EHLO
+	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932085AbWGRVPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 17:15:06 -0400
 From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: FYI: strange libata EH lines in dmesg once after every bootup
-Date: Tue, 18 Jul 2006 23:13:28 +0200
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Kernel headers git tree
+Date: Tue, 18 Jul 2006 23:15:02 +0200
 User-Agent: KMail/1.9.3
-Cc: Christian Trefzer <ctrefzer@gmx.de>, lkml <linux-kernel@vger.kernel.org>
-References: <20060714230801.GA6645@zeus.uziel.local> <20060715004845.GA26446@zeus.uziel.local> <44B8E19E.2060904@rtr.ca>
-In-Reply-To: <44B8E19E.2060904@rtr.ca>
+Cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
+References: <1152835150.31372.23.camel@shinybook.infradead.org> <200607142005.36998.ioe-lkml@rameria.de> <1152900971.3191.76.camel@pmac.infradead.org>
+In-Reply-To: <1152900971.3191.76.camel@pmac.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607182313.30152.ioe-lkml@rameria.de>
+Message-Id: <200607182315.03874.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+Hi David,
 
-On Saturday, 15. July 2006 14:37, Mark Lord wrote:
-> Okay.  Most likely your drive doesn't support the autosave features.
-> 
-> Just do "smartctl -d ata -a /dev/sdb" to see what it does support,
-> and then change the system startup scripts to not issue any unsupported
-> commands -- that'll get rid of those harmless boot time error messages.
+On Friday, 14. July 2006 20:16, David Woodhouse wrote:
+> Well, they're all derived from commits in Linus' tree. I could set up
+> another mailing list feed script which tracks it, but I'd like to give
+> it a while (until I'm happy with the export scripts) first.
 
-Would it be very difficult to tell the user 
-"you issued unsupported command FOOBAR"
-and ignore it after a while?
+Sounds good :-)
 
-That way people can swap drives without reconfiguring smartscripts :-)
 
-Support either in smartctl or kernel would be ok. Whereever you see fit.
-
-Regards
+Thanks & Regards
 
 Ingo Oeser

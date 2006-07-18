@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWGRSSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWGRSSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWGRSSi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 14:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWGRSSh
+	id S932341AbWGRSSG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 14:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWGRSSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 14:18:37 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:33220 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932338AbWGRSSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 14:18:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NGqjzKQB49aMuAXznO00z0bXjPgbIOS73N/SPGd4YSEpt2ks07soB7Pqj/yqR0b0Jv2ZGa57QVmffFSb0JBzXZpatD3medzUHcFko2wG7VS91ZnCRtqVaBETxpCTWHfYRqCPFBzshyY9y8cL/ldXJyt1yZw8WVsDKjcOO4S7Bms=
-Message-ID: <7f45d9390607181118t5d4a0d35heca85fe6e03fc30e@mail.gmail.com>
-Date: Tue, 18 Jul 2006 12:18:35 -0600
-From: "Shaun Jackman" <sjackman@gmail.com>
-Reply-To: "Shaun Jackman" <sjackman@gmail.com>
-To: "uClinux development list" <uClinux-dev@uclinux.org>,
-       LKML <linux-kernel@vger.kernel.org>, "Nicolas Pitre" <nico@cam.org>
-Subject: IP-Config: No network devices available.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jul 2006 14:18:05 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3994 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932341AbWGRSSE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 14:18:04 -0400
+Date: Tue, 18 Jul 2006 10:59:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Gustavo Guillermo P?rez <gustavo@compunauta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] devfs is obsolete, but dbus/hald/ivman does not spend more resources at boot time?
+Message-ID: <20060718175959.GA9311@kroah.com>
+References: <200607181211.32092.gustavo@compunauta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200607181211.32092.gustavo@compunauta.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've compiled the smc91x driver into my kernel (CONFIG_SMC91X=y), but
-the boot process complains `IP-Config: No network devices available.'
-I tried using the netdev kernel parameter to start the smc91x driver
-(netdev=1,0x300,eth0 and ether=1,0x300,eth0), but I don't see any
-output on the console from the smc91x driver. The driver doesn't
-appear to be starting. How do I start the smc91x driver? I'm compiling
-linux.2.6.14.7-hsc0 for ARM nommu (Atmel AT91).
+On Tue, Jul 18, 2006 at 12:11:31PM -0500, Gustavo Guillermo P?rez wrote:
+> I was used to mount devfs in a separate folder, to search for a ZISO file on 
+> hard drives or DVD/CD units in my boot ram rescue disks, and Gentoo live DVD, 
+> in last kernel versions devfs still there but not anymore in config, we still 
+> able to use it, touching some files.
+> 
+> Just to know ?How many releases will still there?
 
-Thanks,
-Shaun
+devfs has been fully removed from the kernel for 2.6.18, but had been
+disabled and really not working at all since 2.6.13, which has been for
+a year now.
 
-Linux version 2.6.14.7-hsc0-sdj0 (sjackman@jinx.pathway.internal) (gcc
-version 4.2.0 20060629 (experimental)) #28 Tue Jul 18 12:07:39 MDT
-2006
-CPU: Atmel-AT91M40xxx [14080044]
-Machine: ATMEL EB01
-Memory management: Non-Paged(unused/noMMU)
-CPU0: D no cache
-Built 1 zonelists
-Kernel command line: root=/dev/ram initrd=0x15a0000,64K keepinitrd
-ether=1,0x300,eth0 ip=dhcp
-PID hash table entries: 16 (order: 4, 256 bytes)
-Dentry cache hash table entries: 256 (order: -2, 1024 bytes)
-Inode-cache hash table entries: 128 (order: -3, 512 bytes)
-Memory: 1MB = 1MB total
-Memory: 912KB available (858K code, 79K data, 4K init)
-Mount-cache hash table entries: 512
-NET: Registered protocol family 16
-DCC: JTAG1 Serial emulation driver driver $Revision: 1.1 $
-ttyJ0 at MMIO 0x12345678 (irq = 0) is a DCC
-io scheduler noop registered
-NET: Registered protocol family 2
-IP route cache hash table entries: 16 (order: -6, 64 bytes)
-TCP established hash table entries: 64 (order: -4, 256 bytes)
-TCP bind hash table entries: 64 (order: -4, 256 bytes)
-TCP: Hash tables configured (established 64 bind 64)
-TCP reno registered
-TCP bic registered
-NET: Registered protocol family 17
-IP-Config: No network devices available.
-Freeing init memory: 4K
-BINFMT_FLAT: Loading file: /init
-Mapping is 1038000, Entry point is 44, data_start is 80
-Load /init: TEXT=1038040-1038080 DATA=1038084-10380c4 BSS=10380c4-10380d4
-Hello, world!
-Kernel panic - not syncing: Attempted to kill init!
+> How do you a search for drives with hald/dbus at boot time on a ramdisk it is 
+> not more complex?!?!?!.
+
+What exactly are you trying to do?  Look at /sys/block/ for all block
+devices in the system.  If you want to do it in a more portable and
+cross-OS way, use HAL, and ask those developers on how to do it.
+
+thanks,
+
+greg k-h

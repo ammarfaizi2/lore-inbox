@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWGRKBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWGRKDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWGRKBR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 06:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWGRKBR
+	id S932154AbWGRKDz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 06:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWGRKDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 06:01:17 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:24704 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S932110AbWGRKBQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 06:01:16 -0400
-Subject: Re: [RFC PATCH 02/33] Add sync bitops
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <20060718091948.747619000@sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091948.747619000@sous-sol.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 18 Jul 2006 11:56:41 +0200
-Message-Id: <1153216601.3038.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 18 Jul 2006 06:03:55 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:22493 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932154AbWGRKDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 06:03:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ocq0sqLJ5hgNPtLrZ+34z8/QtS3HbQuyTn90tjRgW8WmjYaOPQTgj3xhlt8fVixy09f5qpywSPQm7Ycc84Zwf0fVkpvS7+QdbQCIuThiqRyBnpwEO3bbtrcy9ThUmzt89x5Hi4d2zsOy6mZMLdMyl1ksheFZvE1z7AaJ1na9oKk=
+Message-ID: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
+Date: Tue, 18 Jul 2006 18:03:54 +0800
+From: "yunfeng zhang" <zyf.zeroos@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Improvement on memory subsystem
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> plain text document attachment (synch-ops)
-> Add "always lock'd" implementations of set_bit, clear_bit and
-> change_bit and the corresponding test_and_ functions.  Also add
-> "always lock'd" implementation of cmpxchg.  These give guaranteed
-> strong synchronisation and are required for non-SMP kernels running on
-> an SMP hypervisor.
+Dear Linux core memory developers:
 
-Hi,
+It's my pleasure to show some ideas in my OS named Zero to you, the features
+listed below, I think, can be introduced into Linux 2.6.16.1 and later. The
+following section is divided into two parts by the implmentation difficulty.
 
-this sounds really like the wrong approach; you know you're compiling
-for xen, so why not just make set_bit() and the others use the lock'd
-instructions at compile time? 
+Minor improvement.
+1. Apply dlmalloc arithmetic (http://g.oswego.edu/dl/html/malloc.html) on memory
+page allocation instead of buddy arithmetic. As the result, we can get more
+consecutive memory pages easily.
+2. Read-ahead process during page-in/out (page fault or swap out) should be
+based on its VMA to enhance IO efficiency instead of the relative physical pages
+in swap space.
+3. All slabs are all off-slab type. Store slab instance in page structure.
+4. Introduce PrivateVMA class and discard anonymous VMA to simplify the
+relationship between VMA and its pages. When a VMA is split/combined, update the
+member mapping of all relating pages. In fact, those methods should be rare to
+use.
+5. Add a lock bit in pte. Note, the feature want CPU preserves a programer
+available bit in pte. So we can avoid to allocate page before locking the pte
+during do_anonymous_page, in other words, relief memory page allocation
+pressure.
+6. Swap out pages by scaning all vmas linking to Zone instead of scaning pages.
 
-Greetings,
-    Arjan van de Ven 
+Major improvement.
+1. No COW on anonymous vma.
+2. Dynamic page mapping on core space. It's the further discussion about former
+item 1 in minor improvment section, other features on it is applying DLPTE
+arithmetic on core PTE array, introducing RemapDaemon.
 
+You can download http://www.cublog.cn/u/21764/upfile/060718173355.zip to find
+more about those features and it's convenient to illustrate my idea for there is
+a lots of diagrams in it. Summary of the file is MemoryArchitecture.pdf is the
+documentation of my Zero OS memory subsystem. Code in Implementation/memory/
+shows some sample implementation about my memory subsystem. Note, not like other
+OS, I do like to write documentation and my OS is far from completion, even its
+memory subsystem.
+
+My blog (Chinese site): http://zeroos.cublog.cn/
+
+Regarding
+                                                            Yunfeng Zhang

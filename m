@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWGRNtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWGRNxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWGRNtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 09:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWGRNtm
+	id S932209AbWGRNxR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 09:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWGRNxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 09:49:42 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:27058 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932206AbWGRNtl (ORCPT
+	Tue, 18 Jul 2006 09:53:17 -0400
+Received: from main.gmane.org ([80.91.229.2]:27548 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932209AbWGRNxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 09:49:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] [PATCH 1/2] x86_64: Calgary IOMMU - Multi-Node NULL pointer dereference fix
-Date: Tue, 18 Jul 2006 15:50:57 +0200
-User-Agent: KMail/1.9.1
-Cc: Jon Mason <jdmason@us.ibm.com>, muli@il.ibm.com,
-       linux-kernel@vger.kernel.org, konradr@redhat.com
-References: <20060717231836.GD5363@us.ibm.com>
-In-Reply-To: <20060717231836.GD5363@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 18 Jul 2006 09:53:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jarek Poplawski <jarkap@poczta.onet.pl>
+Subject: Re: Odd build warning with 2.6.17.6
+Date: Tue, 18 Jul 2006 13:52:48 +0000 (UTC)
+Message-ID: <loom.20060718T154304-784@post.gmane.org>
+References: <20060717180456.GA27612@bostik.iki.fi> <loom.20060718T145326-832@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607181550.57382.ak@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 80.53.205.170 (Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 July 2006 01:18, Jon Mason wrote:
-> Hey Andi,
->
-> Calgary hits a NULL pointer dereference when booting in a multi-chassis
-> NUMA system.  See Redhat bugzilla number 198498, found by Konrad
-> Rzeszutek (konradr@redhat.com).
+Jarek Poplawski <jarkap <at> poczta.onet.pl> writes:
+...
+> them. I'm very surprised nobody answered you, as if it was something uncommon.
+...
 
-The patch doesn't apply at all to rc2.
+Only just I see many of them in google, so it's all right - they are common and
+probably not dangerous - if nobody hurry to remove them!
 
-patching file arch/x86_64/kernel/pci-calgary.c
-Hunk #5 FAILED at 814.
-Hunk #9 FAILED at 892.
-Hunk #10 succeeded at 941 (offset 1 line).
-Hunk #11 FAILED at 1014.
-3 out of 11 hunks FAILED -- rejects in file arch/x86_64/kernel/pci-calgary.c
+Jarek P.
 
-Also where is 2/2 ? I only see 1/2 
 
--Andi
+
+

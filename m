@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWGRCYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWGRCwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWGRCYz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 22:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWGRCYz
+	id S1751110AbWGRCwS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 22:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWGRCwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 22:24:55 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:3218 "EHLO
+	Mon, 17 Jul 2006 22:52:18 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:55743 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751090AbWGRCYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 22:24:55 -0400
+	id S1751110AbWGRCwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 22:52:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HFiRnsa22A4ouIRHvXuo5ZvQXKEXYVHLi4u92WghWDNX/LnyQLPqCCuaIqTm3TfZ+Tj7ABeaLHSD7MYVGKcWmtEY4SULUXf+nDt4mIizyAKl1pCgJ2Cn7zScpYxEwgVz+BMcUDGPymdHDJ4jv5ROIxTjFaUSPLvHUMyUGayzIMY=
-Message-ID: <bda6d13a0607171924v5cd15811v7c9749ad481b232d@mail.gmail.com>
-Date: Mon, 17 Jul 2006 19:24:53 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to explain to lock validator: locking inodes in inode order
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=dtq1PCfBNCqUE/6O/ypyOuwiCFMmSdIzjJsWXhJKcbnp5DxB8S0osDfRH+JP2M/ir/M4OjqAnvGoFGzP8D7WSZiS1pezVjcYJmV/5pJgIgGAKjJELfkrbrM9R5UF0KoPAuPFZRZ/e9nT5FHLXMPC23KRfKKYmq+4sD1MOCSbPsE=
+Message-ID: <a63d67fe0607171952o539a6a29te75ef332bcdbba22@mail.gmail.com>
+Date: Mon, 17 Jul 2006 19:52:16 -0700
+From: "Dan Carpenter" <error27@gmail.com>
+To: ebiederm@xmission.com
+Subject: shut down from CPU 0 [regression]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -25,18 +26,12 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Code does this:
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=6660316cb7a1a2c59a73a52870490c0f782f45c1
 
-/* Lock two items. See locking.txt */
-static inline void kb0_lock2m(struct kb0_idata *m1, struct kb0_idata *m2)
-{
-        if (m1->vi.i_ino > m2->vi.i_ino)
-                mutex_lock(&m2->k_mutex);
-        mutex_lock(&m1->k_mutex);
-        if (m1->vi.i_ino < m2->vi.i_ino)
-                mutex_lock(&m2->k_mutex);
-}
+Even though you should be able to call ACPI power down from either
+CPU, I've seen some BIOSes that implement it wrong.  That's why the
+code was there.
+For example: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=189052
 
-Not sure how to explain to the lock validator that this code can never deadlock.
-
-Note struct kb0_idata has an element of struct inode called vi.
+regards,
+dan carpenter

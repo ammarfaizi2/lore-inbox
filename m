@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWGRJOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWGRJRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWGRJOT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWGRJOT
+	id S932097AbWGRJRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 05:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWGRJRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:14:19 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:62837 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932095AbWGRJOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:14:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OtiSLRst67Pl1gik7b/6166X/WNQiv1ythsA1H/6O4Jof3SJ5kw0+wnvMrjoLhFWgqqXi2kjqNkWcz4ZOxMA5CmicInhTkDlgP8cje1f4CCklQ7z5RbmSF6m0DcRVnhTbhFeu0/U3JuGgsf5+RpEbZoTnKTdN0RPxeK7m3+cbmo=
-Message-ID: <8dd980de0607180214y8262ba6t7d8ad8933bca6c4d@mail.gmail.com>
-Date: Tue, 18 Jul 2006 17:14:16 +0800
-From: "Kevin Hao" <haokexin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]net: Add netconsole support to dm9000 driver
-Cc: akpm@osdl.org
+	Tue, 18 Jul 2006 05:17:52 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:65256 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932097AbWGRJRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 05:17:51 -0400
+Message-ID: <44BCA8CD.5070508@gentoo.org>
+Date: Tue, 18 Jul 2006 10:24:29 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Thomas Dillig <tdillig@stanford.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Null dereference errors in the kernel
+References: <44BC5A3F.2080005@stanford.edu>
+In-Reply-To: <44BC5A3F.2080005@stanford.edu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Thomas Dillig wrote:
+> Hello,
+> 
+> We are PhD students at Stanford University working on a static analysis 
+> project called SATURN (http://glide.stanford.edu/saturn). We have 
+> implemented a checker that finds potential null dereference errors and 
+> ran our tool on the kernel version 2.6.17.1. We have identified around 
+> 300 potential issues related to null errors, and we've included 20 
+> sample reports below. If you would be interested, we can post all the 
+> issues we found. Also, we apologize in advance if we aren't supposed to 
+> post these error reports here, and we are happy to submit bug reports 
+> elsewhere if you tell us where to post these.
 
-    Add netconsole support to dm9000 driver ,against 2.6.18-rc2
+Interesting idea. I just looked at one of them out of curiosity, but I'm 
+not sure it is valid. Either that or I have misunderstood the problem it 
+is identifying?
 
-diff --git a/drivers/net/dm9000.c b/drivers/net/dm9000.c
-index 1b758b7..3d76fa1 100644
---- a/drivers/net/dm9000.c
-+++ b/drivers/net/dm9000.c
-@@ -339,6 +339,17 @@ static void dm9000_timeout(struct net_de
- 	spin_unlock_irqrestore(&db->lock,flags);
- }
+> [13]
+> 1176, 1180 drivers/char/isicom.c
+> Possible null dereference of variable "tty" checked for NULL at 
+> (1183:drivers/char/isicom.c).
 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+/*
-+ *Used by netconsole
-+ */
-+static void dm9000_poll_controller(struct net_device *dev)
-+{
-+	disable_irq(dev->irq);
-+	dm9000_interrupt(dev->irq,dev,NULL);
-+	enable_irq(dev->irq);
-+}
-+#endif
+This function is part of the tty_operations API, that would be a pretty 
+broken interface if it provided the possibility of a NULL tty to work 
+on. Additionally, all of the callers seem to do this:
 
- /* dm9000_release_board
-  *
-@@ -538,6 +549,9 @@ dm9000_probe(struct platform_device *pde
- 	ndev->stop		 = &dm9000_stop;
- 	ndev->get_stats		 = &dm9000_get_stats;
- 	ndev->set_multicast_list = &dm9000_hash_table;
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	ndev->poll_controller	 = &dm9000_poll_controller;
-+#endif
+	tty->driver->put_char(tty, c);
 
- #ifdef DM9000_PROGRAM_EEPROM
- 	program_eeprom(db);
+If tty is NULL here, we have larger problems at hand :)
+
+I'm also unsure how this null dereference is related to line 1183.
+
+Daniel

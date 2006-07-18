@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWGRJVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWGRJYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWGRJVe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWGRJVF
+	id S932142AbWGRJYB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 05:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWGRJVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:21:05 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57729 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932104AbWGRJUX
+	Tue, 18 Jul 2006 05:21:37 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:29058 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932139AbWGRJVR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:20:23 -0400
-Message-Id: <20060718091956.905130000@sous-sol.org>
+	Tue, 18 Jul 2006 05:21:17 -0400
+Message-Id: <20060718091953.294193000@sous-sol.org>
 References: <20060718091807.467468000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 18 Jul 2006 00:00:28 -0700
+Date: Tue, 18 Jul 2006 00:00:19 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
@@ -20,578 +20,273 @@ Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 28/33] Add Xen grant table support
-Content-Disposition: inline; filename=grant-table
+Subject: [RFC PATCH 19/33] Support gdt/idt/ldt handling on Xen.
+Content-Disposition: inline; filename=i386-desc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add Xen 'grant table' driver which allows granting of access to
-selected local memory pages by other virtual machines and,
-symmetrically, the mapping of remote memory pages which other virtual
-machines have granted access to.
-
-This driver is a prerequisite for many of the Xen virtual device
-drivers, which grant the 'device driver domain' restricted and
-temporary access to only those memory pages that are currently
-involved in I/O operations.
+Move the macros which handle gdt/idt/ldt's into a subarch include
+file and add implementations for running on Xen.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
- drivers/xen/core/Makefile |    2
- drivers/xen/core/gnttab.c |  422 ++++++++++++++++++++++++++++++++++++++++++++++
- include/xen/gnttab.h      |  105 +++++++++++
- 3 files changed, 528 insertions(+), 1 deletion(-)
+ arch/i386/mach-xen/memory.c               |   17 +++++++
+ include/asm-i386/desc.h                   |   65 ++---------------------------
+ include/asm-i386/mach-default/mach_desc.h |   67 ++++++++++++++++++++++++++++++
+ include/asm-i386/mach-xen/mach_desc.h     |   62 +++++++++++++++++++++++++++
+ 4 files changed, 151 insertions(+), 60 deletions(-)
 
-diff -r ac01ce08887e drivers/xen/core/Makefile
---- a/drivers/xen/core/Makefile	Tue Jul 18 03:45:39 2006 -0400
-+++ b/drivers/xen/core/Makefile	Tue Jul 18 03:46:32 2006 -0400
-@@ -1,3 +1,3 @@
+diff -r 3e5209fcdb56 arch/i386/mach-xen/memory.c
+--- a/arch/i386/mach-xen/memory.c	Tue May  9 18:51:32 2006 +0100
++++ b/arch/i386/mach-xen/memory.c	Tue May  9 21:47:37 2006 +0100
+@@ -29,3 +29,20 @@ void make_lowmem_page_readonly(unsigned 
+ 	rc = HYPERVISOR_update_va_mapping(address, pte_wrprotect(*pte), 0);
+ 	BUG_ON(rc);
+ }
++
++void load_gdt(struct Xgt_desc_struct *gdt_descr)
++{
++	unsigned long frames[16];
++	unsigned long va;
++	int f;
++
++	for (va = gdt_descr->address, f = 0;
++	     va < gdt_descr->address + gdt_descr->size;
++	     va += PAGE_SIZE, f++) {
++		frames[f] = virt_to_mfn(va);
++		make_lowmem_page_readonly(va,
++					  XENFEAT_writable_descriptor_tables);
++	}
++	if (HYPERVISOR_set_gdt(frames, gdt_descr->size / 8))
++		BUG();
++}
+diff -r 3e5209fcdb56 include/asm-i386/desc.h
+--- a/include/asm-i386/desc.h	Tue May  9 18:51:32 2006 +0100
++++ b/include/asm-i386/desc.h	Tue May  9 21:47:37 2006 +0100
+@@ -33,18 +33,7 @@ static inline struct desc_struct *get_cp
+ 	return (struct desc_struct *)per_cpu(cpu_gdt_descr, cpu).address;
+ }
  
--obj-y	:= features.o time.o
-+obj-y	:= features.o time.o gnttab.o
+-#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
+-#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
+-
+-#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
+-#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
+-#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
+-#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
+-
+-#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
+-#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
+-#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
+-#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
++#include <mach_desc.h>
  
-diff -r ac01ce08887e drivers/xen/core/gnttab.c
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/xen/core/gnttab.c	Tue Jul 18 03:46:32 2006 -0400
-@@ -0,0 +1,426 @@
-+/******************************************************************************
-+ * gnttab.c
-+ *
-+ * Granting foreign access to our memory reservation.
-+ *
-+ * Copyright (c) 2005, Christopher Clark
-+ * Copyright (c) 2004-2005, K A Fraser
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
+ /*
+  * This is the ldt that every process will get unless we need
+@@ -52,30 +41,6 @@ static inline struct desc_struct *get_cp
+  */
+ extern struct desc_struct default_ldt[];
+ extern void set_intr_gate(unsigned int irq, void * addr);
+-
+-#define _set_tssldt_desc(n,addr,limit,type) \
+-__asm__ __volatile__ ("movw %w3,0(%2)\n\t" \
+-	"movw %w1,2(%2)\n\t" \
+-	"rorl $16,%1\n\t" \
+-	"movb %b1,4(%2)\n\t" \
+-	"movb %4,5(%2)\n\t" \
+-	"movb $0,6(%2)\n\t" \
+-	"movb %h1,7(%2)\n\t" \
+-	"rorl $16,%1" \
+-	: "=m"(*(n)) : "q" (addr), "r"(n), "ir"(limit), "i"(type))
+-
+-static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
+-{
+-	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[entry], (int)addr,
+-		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
+-}
+-
+-#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
+-
+-static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
+-{
+-	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[GDT_ENTRY_LDT], (int)addr, ((size << 3)-1), 0x82);
+-}
+ 
+ #define LDT_entry_a(info) \
+ 	((((info)->base_addr & 0x0000ffff) << 16) | ((info)->limit & 0x0ffff))
+@@ -102,30 +67,22 @@ static inline void set_ldt_desc(unsigned
+ 	(info)->seg_not_present	== 1	&& \
+ 	(info)->useable		== 0	)
+ 
+-static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b)
+-{
+-	__u32 *lp = (__u32 *)((char *)ldt + entry*8);
+-	*lp = entry_a;
+-	*(lp+1) = entry_b;
+-}
+-
+ #if TLS_SIZE != 24
+ # error update this code.
+ #endif
+ 
+ static inline void load_TLS(struct thread_struct *t, unsigned int cpu)
+ {
+-#define C(i) get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i]
+-	C(0); C(1); C(2);
+-#undef C
++	load_TLS_descriptor(t, cpu, 0);
++	load_TLS_descriptor(t, cpu, 1);
++	load_TLS_descriptor(t, cpu, 2);
+ }
+ 
+ static inline void clear_LDT(void)
+ {
+ 	int cpu = get_cpu();
+ 
+-	set_ldt_desc(cpu, &default_ldt[0], 5);
+-	load_LDT_desc();
++	__set_ldt(cpu, DEFAULT_LDT, DEFAULT_LDT_SIZE);
+ 	put_cpu();
+ }
+ 
+@@ -138,12 +95,11 @@ static inline void load_LDT_nolock(mm_co
+ 	int count = pc->size;
+ 
+ 	if (likely(!count)) {
+-		segments = &default_ldt[0];
+-		count = 5;
++		segments = DEFAULT_LDT;
++		count = DEFAULT_LDT_SIZE;
+ 	}
+ 		
+-	set_ldt_desc(cpu, segments, count);
+-	load_LDT_desc();
++	__set_ldt(cpu, segments, count);
+ }
+ 
+ static inline void load_LDT(mm_context_t *pc)
+diff -r 3e5209fcdb56 include/asm-i386/mach-default/mach_desc.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/include/asm-i386/mach-default/mach_desc.h	Tue May  9 21:47:37 2006 +0100
+@@ -0,0 +1,62 @@
++#ifndef __ASM_MACH_DESC_H
++#define __ASM_MACH_DESC_H
 +
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <xen/interface/xen.h>
-+#include <xen/gnttab.h>
-+#include <asm/pgtable.h>
-+#include <asm/uaccess.h>
-+#include <asm/synch_bitops.h>
++#define load_TR_desc() __asm__ __volatile__("ltr %w0"::"q" (GDT_ENTRY_TSS*8))
++#define load_LDT_desc() __asm__ __volatile__("lldt %w0"::"q" (GDT_ENTRY_LDT*8))
 +
-+/* External tools reserve first few grant table entries. */
-+#define NR_RESERVED_ENTRIES 8
++#define load_gdt(dtr) __asm__ __volatile("lgdt %0"::"m" (*dtr))
++#define load_idt(dtr) __asm__ __volatile("lidt %0"::"m" (*dtr))
++#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
++#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
 +
-+#define NR_GRANT_ENTRIES \
-+	(NR_GRANT_FRAMES * PAGE_SIZE / sizeof(struct grant_entry))
-+#define GNTTAB_LIST_END (NR_GRANT_ENTRIES + 1)
++#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
++#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
++#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
++#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
 +
-+static grant_ref_t gnttab_list[NR_GRANT_ENTRIES];
-+static int gnttab_free_count;
-+static grant_ref_t gnttab_free_head;
-+static DEFINE_SPINLOCK(gnttab_list_lock);
++#define _set_tssldt_desc(n,addr,limit,type) \
++__asm__ __volatile__ ("movw %w3,0(%2)\n\t" \
++	"movw %w1,2(%2)\n\t" \
++	"rorl $16,%1\n\t" \
++	"movb %b1,4(%2)\n\t" \
++	"movb %4,5(%2)\n\t" \
++	"movb $0,6(%2)\n\t" \
++	"movb %h1,7(%2)\n\t" \
++	"rorl $16,%1" \
++	: "=m"(*(n)) : "q" (addr), "r"(n), "ir"(limit), "i"(type))
 +
-+static struct grant_entry *shared;
-+
-+static struct gnttab_free_callback *gnttab_free_callback_list;
-+
-+static int get_free_entries(int count)
++static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
 +{
-+	unsigned long flags;
-+	int ref;
-+	grant_ref_t head;
-+	spin_lock_irqsave(&gnttab_list_lock, flags);
-+	if (gnttab_free_count < count) {
-+		spin_unlock_irqrestore(&gnttab_list_lock, flags);
-+		return -1;
-+	}
-+	ref = head = gnttab_free_head;
-+	gnttab_free_count -= count;
-+	while (count-- > 1)
-+		head = gnttab_list[head];
-+	gnttab_free_head = gnttab_list[head];
-+	gnttab_list[head] = GNTTAB_LIST_END;
-+	spin_unlock_irqrestore(&gnttab_list_lock, flags);
-+	return ref;
++	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[entry], (int)addr,
++		offsetof(struct tss_struct, __cacheline_filler) - 1, 0x89);
 +}
 +
-+#define get_free_entry() get_free_entries(1)
++#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
 +
-+static void do_free_callbacks(void)
++static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
 +{
-+	struct gnttab_free_callback *callback, *next;
-+
-+	callback = gnttab_free_callback_list;
-+	gnttab_free_callback_list = NULL;
-+
-+	while (callback != NULL) {
-+		next = callback->next;
-+		if (gnttab_free_count >= callback->count) {
-+			callback->next = NULL;
-+			callback->fn(callback->arg);
-+		} else {
-+			callback->next = gnttab_free_callback_list;
-+			gnttab_free_callback_list = callback;
-+		}
-+		callback = next;
-+	}
++	_set_tssldt_desc(&get_cpu_gdt_table(cpu)[GDT_ENTRY_LDT], (int)addr, ((size << 3)-1), 0x82);
 +}
 +
-+static inline void check_free_callbacks(void)
++#define DEFAULT_LDT &default_ldt[0]
++#define DEFAULT_LDT_SIZE 5
++static inline void __set_ldt(unsigned int cpu, void *addr, unsigned int size)
 +{
-+	if (unlikely(gnttab_free_callback_list))
-+		do_free_callbacks();
++	set_ldt_desc(cpu, addr, size);
++	load_LDT_desc();
 +}
 +
-+static void put_free_entry(grant_ref_t ref)
++static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b)
 +{
-+	unsigned long flags;
-+	spin_lock_irqsave(&gnttab_list_lock, flags);
-+	gnttab_list[ref] = gnttab_free_head;
-+	gnttab_free_head = ref;
-+	gnttab_free_count++;
-+	check_free_callbacks();
-+	spin_unlock_irqrestore(&gnttab_list_lock, flags);
++	__u32 *lp = (__u32 *)((char *)ldt + entry*8);
++	*lp = entry_a;
++	*(lp+1) = entry_b;
 +}
 +
-+/*
-+ * Public grant-issuing interface functions
-+ */
-+
-+int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
-+				int readonly)
++static inline void load_TLS_descriptor(struct thread_struct *t,
++				       unsigned int cpu, unsigned int i)
 +{
-+	int ref;
-+
-+	if (unlikely((ref = get_free_entry()) == -1))
-+		return -ENOSPC;
-+
-+	shared[ref].frame = frame;
-+	shared[ref].domid = domid;
-+	wmb();
-+	shared[ref].flags = GTF_permit_access | (readonly ? GTF_readonly : 0);
-+
-+	return ref;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access);
-+
-+void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
-+				     unsigned long frame, int readonly)
-+{
-+	shared[ref].frame = frame;
-+	shared[ref].domid = domid;
-+	wmb();
-+	shared[ref].flags = GTF_permit_access | (readonly ? GTF_readonly : 0);
-+}
-+EXPORT_SYMBOL_GPL(gnttab_grant_foreign_access_ref);
-+
-+
-+int gnttab_query_foreign_access(grant_ref_t ref)
-+{
-+	u16 nflags;
-+
-+	nflags = shared[ref].flags;
-+
-+	return (nflags & (GTF_reading|GTF_writing));
-+}
-+EXPORT_SYMBOL_GPL(gnttab_query_foreign_access);
-+
-+int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
-+{
-+	u16 flags, nflags;
-+
-+	nflags = shared[ref].flags;
-+	do {
-+		if ((flags = nflags) & (GTF_reading|GTF_writing)) {
-+			printk(KERN_ALERT "WARNING: g.e. still in use!\n");
-+			return 0;
-+		}
-+	} while ((nflags = synch_cmpxchg(&shared[ref].flags, flags, 0)) !=
-+		 flags);
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_end_foreign_access_ref);
-+
-+void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
-+			       unsigned long page)
-+{
-+	if (gnttab_end_foreign_access_ref(ref, readonly)) {
-+		put_free_entry(ref);
-+		if (page != 0)
-+			free_page(page);
-+	} else {
-+		/* XXX This needs to be fixed so that the ref and page are
-+		   placed on a list to be freed up later. */
-+		printk(KERN_WARNING
-+		       "WARNING: leaking g.e. and page still in use!\n");
-+	}
-+}
-+EXPORT_SYMBOL_GPL(gnttab_end_foreign_access);
-+
-+int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn)
-+{
-+	int ref;
-+
-+	if (unlikely((ref = get_free_entry()) == -1))
-+		return -ENOSPC;
-+	gnttab_grant_foreign_transfer_ref(ref, domid, pfn);
-+
-+	return ref;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer);
-+
-+void gnttab_grant_foreign_transfer_ref(grant_ref_t ref, domid_t domid,
-+				       unsigned long pfn)
-+{
-+	shared[ref].frame = pfn;
-+	shared[ref].domid = domid;
-+	wmb();
-+	shared[ref].flags = GTF_accept_transfer;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_grant_foreign_transfer_ref);
-+
-+unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref)
-+{
-+	unsigned long frame;
-+	u16           flags;
-+
-+	/*
-+         * If a transfer is not even yet started, try to reclaim the grant
-+         * reference and return failure (== 0).
-+         */
-+	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
-+		if (synch_cmpxchg(&shared[ref].flags, flags, 0) == flags)
-+			return 0;
-+		cpu_relax();
-+	}
-+
-+	/* If a transfer is in progress then wait until it is completed. */
-+	while (!(flags & GTF_transfer_completed)) {
-+		flags = shared[ref].flags;
-+		cpu_relax();
-+	}
-+
-+	/* Read the frame number /after/ reading completion status. */
-+	rmb();
-+	frame = shared[ref].frame;
-+	BUG_ON(frame == 0);
-+
-+	return frame;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer_ref);
-+
-+unsigned long gnttab_end_foreign_transfer(grant_ref_t ref)
-+{
-+	unsigned long frame = gnttab_end_foreign_transfer_ref(ref);
-+	put_free_entry(ref);
-+	return frame;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_end_foreign_transfer);
-+
-+void gnttab_free_grant_reference(grant_ref_t ref)
-+{
-+	put_free_entry(ref);
-+}
-+EXPORT_SYMBOL_GPL(gnttab_free_grant_reference);
-+
-+void gnttab_free_grant_references(grant_ref_t head)
-+{
-+	grant_ref_t ref;
-+	unsigned long flags;
-+	int count = 1;
-+	if (head == GNTTAB_LIST_END)
-+		return;
-+	spin_lock_irqsave(&gnttab_list_lock, flags);
-+	ref = head;
-+	while (gnttab_list[ref] != GNTTAB_LIST_END) {
-+		ref = gnttab_list[ref];
-+		count++;
-+	}
-+	gnttab_list[ref] = gnttab_free_head;
-+	gnttab_free_head = head;
-+	gnttab_free_count += count;
-+	check_free_callbacks();
-+	spin_unlock_irqrestore(&gnttab_list_lock, flags);
-+}
-+EXPORT_SYMBOL_GPL(gnttab_free_grant_references);
-+
-+int gnttab_alloc_grant_references(u16 count, grant_ref_t *head)
-+{
-+	int h = get_free_entries(count);
-+
-+	if (h == -1)
-+		return -ENOSPC;
-+
-+	*head = h;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_alloc_grant_references);
-+
-+int gnttab_empty_grant_references(const grant_ref_t *private_head)
-+{
-+	return (*private_head == GNTTAB_LIST_END);
-+}
-+EXPORT_SYMBOL_GPL(gnttab_empty_grant_references);
-+
-+int gnttab_claim_grant_reference(grant_ref_t *private_head)
-+{
-+	grant_ref_t g = *private_head;
-+	if (unlikely(g == GNTTAB_LIST_END))
-+		return -ENOSPC;
-+	*private_head = gnttab_list[g];
-+	return g;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_claim_grant_reference);
-+
-+void gnttab_release_grant_reference(grant_ref_t *private_head,
-+				    grant_ref_t release)
-+{
-+	gnttab_list[release] = *private_head;
-+	*private_head = release;
-+}
-+EXPORT_SYMBOL_GPL(gnttab_release_grant_reference);
-+
-+void gnttab_request_free_callback(struct gnttab_free_callback *callback,
-+				  void (*fn)(void *), void *arg, u16 count)
-+{
-+	unsigned long flags;
-+	spin_lock_irqsave(&gnttab_list_lock, flags);
-+	if (callback->next)
-+		goto out;
-+	callback->fn = fn;
-+	callback->arg = arg;
-+	callback->count = count;
-+	callback->next = gnttab_free_callback_list;
-+	gnttab_free_callback_list = callback;
-+	check_free_callbacks();
-+out:
-+	spin_unlock_irqrestore(&gnttab_list_lock, flags);
-+}
-+EXPORT_SYMBOL_GPL(gnttab_request_free_callback);
-+
-+#ifndef __ia64__
-+static int map_pte_fn(pte_t *pte, struct page *pmd_page,
-+		      unsigned long addr, void *data)
-+{
-+	unsigned long **frames = (unsigned long **)data;
-+
-+	set_pte_at(&init_mm, addr, pte, pfn_pte((*frames)[0], PAGE_KERNEL));
-+	(*frames)++;
-+	return 0;
++	get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN + i] = t->tls_array[i];
 +}
 +
-+static int unmap_pte_fn(pte_t *pte, struct page *pmd_page,
-+			unsigned long addr, void *data)
++#endif /* __ASM_MACH_DESC_H */
+diff -r 3e5209fcdb56 include/asm-i386/mach-xen/mach_desc.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/include/asm-i386/mach-xen/mach_desc.h	Tue May  9 21:47:37 2006 +0100
+@@ -0,0 +1,51 @@
++#ifndef __ASM_MACH_DESC_H
++#define __ASM_MACH_DESC_H
++
++extern struct trap_info xen_trap_table[];
++
++#define load_TR_desc()
++
++void load_gdt(struct Xgt_desc_struct *gdt_descr);
++
++#define load_idt(dtr) HYPERVISOR_set_trap_table(xen_trap_table)
++#define load_tr(tr) __asm__ __volatile("ltr %0"::"mr" (tr))
++#define load_ldt(ldt) __asm__ __volatile("lldt %0"::"mr" (ldt))
++
++#define store_gdt(dtr) __asm__ ("sgdt %0":"=m" (*dtr))
++#define store_idt(dtr) __asm__ ("sidt %0":"=m" (*dtr))
++#define store_tr(tr) __asm__ ("str %0":"=mr" (tr))
++#define store_ldt(ldt) __asm__ ("sldt %0":"=mr" (ldt))
++
++#define set_tss_desc(cpu,addr)
++
++static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
 +{
-+
-+	set_pte_at(&init_mm, addr, pte, __pte(0));
-+	return 0;
-+}
-+#endif
-+
-+int gnttab_resume(void)
-+{
-+	struct gnttab_setup_table setup;
-+	unsigned long frames[NR_GRANT_FRAMES];
-+	int rc;
-+#ifndef __ia64__
-+	void *pframes = frames;
-+	struct vm_struct *area;
-+#endif
-+
-+	setup.dom        = DOMID_SELF;
-+	setup.nr_frames  = NR_GRANT_FRAMES;
-+	setup.frame_list = frames;
-+
-+	rc = HYPERVISOR_grant_table_op(GNTTABOP_setup_table, &setup, 1);
-+	if (rc == -ENOSYS)
-+		return -ENOSYS;
-+
-+	BUG_ON(rc || setup.status);
-+
-+#ifndef __ia64__
-+	if (shared == NULL) {
-+		area = get_vm_area(PAGE_SIZE * NR_GRANT_FRAMES, VM_IOREMAP);
-+		BUG_ON(area == NULL);
-+		shared = area->addr;
-+	}
-+	rc = apply_to_page_range(&init_mm, (unsigned long)shared,
-+				 PAGE_SIZE * NR_GRANT_FRAMES,
-+				 map_pte_fn, &pframes);
-+	BUG_ON(rc);
-+#else
-+	shared = __va(frames[0] << PAGE_SHIFT);
-+	printk("grant table at %p\n", shared);
-+#endif
-+
-+	return 0;
 +}
 +
-+int gnttab_suspend(void)
++#define DEFAULT_LDT NULL
++#define DEFAULT_LDT_SIZE 0
++static inline void __set_ldt(unsigned int cpu, void *addr, unsigned int size)
 +{
-+
-+#ifndef __ia64__
-+	apply_to_page_range(&init_mm, (unsigned long)shared,
-+			    PAGE_SIZE * NR_GRANT_FRAMES,
-+			    unmap_pte_fn, NULL);
-+#endif
-+
-+	return 0;
++	struct mmuext_op op;
++	op.cmd = MMUEXT_SET_LDT;
++	op.arg1.linear_addr = (unsigned long)addr;
++	op.arg2.nr_ents = size;
++	BUG_ON(HYPERVISOR_mmuext_op(&op, 1, NULL, DOMID_SELF) < 0);
 +}
 +
-+static int __init gnttab_init(void)
-+{
-+	int i;
-+
-+	if (xen_init() < 0)
-+		return -ENODEV;
-+
-+	if (gnttab_resume() < 0)
-+		return -ENODEV;
-+
-+	for (i = NR_RESERVED_ENTRIES; i < NR_GRANT_ENTRIES; i++)
-+		gnttab_list[i] = i + 1;
-+	gnttab_free_count = NR_GRANT_ENTRIES - NR_RESERVED_ENTRIES;
-+	gnttab_free_head  = NR_RESERVED_ENTRIES;
-+
-+	printk("Grant table initialized\n");
-+	return 0;
++static inline void write_ldt_entry(void *ldt, int entry, __u32 entry_a, __u32 entry_b) {
++        unsigned long lp = (unsigned long)ldt + entry * 8;
++        maddr_t mach_lp = arbitrary_virt_to_machine(lp);
++        HYPERVISOR_update_descriptor(mach_lp, (u64)entry_a |
++				     ((u64)entry_b<<32));
 +}
 +
-+core_initcall(gnttab_init);
-diff -r ac01ce08887e include/xen/gnttab.h
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/include/xen/gnttab.h	Tue Jul 18 03:46:32 2006 -0400
-@@ -0,0 +1,107 @@
-+/******************************************************************************
-+ * gnttab.h
-+ * 
-+ * Two sets of functionality:
-+ * 1. Granting foreign access to our memory reservation.
-+ * 2. Accessing others' memory reservations via grant references.
-+ * (i.e., mechanisms for both sender and recipient of grant references)
-+ * 
-+ * Copyright (c) 2004-2005, K A Fraser
-+ * Copyright (c) 2005, Christopher Clark
-+ * 
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation; or, when distributed
-+ * separately from the Linux kernel or incorporated into other
-+ * software packages, subject to the following license:
-+ * 
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this source file (the "Software"), to deal in the Software without
-+ * restriction, including without limitation the rights to use, copy, modify,
-+ * merge, publish, distribute, sublicense, and/or sell copies of the Software,
-+ * and to permit persons to whom the Software is furnished to do so, subject to
-+ * the following conditions:
-+ * 
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ * 
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-+ * IN THE SOFTWARE.
-+ */
++static inline void load_TLS_descriptor(struct thread_struct *t,
++				       unsigned int cpu, unsigned int i)
++{
++	HYPERVISOR_update_descriptor(
++		virt_to_machine(&get_cpu_gdt_table(cpu)[GDT_ENTRY_TLS_MIN+i]),
++		*(u64 *)&t->tls_array[i]);
++}
 +
-+#ifndef __ASM_GNTTAB_H__
-+#define __ASM_GNTTAB_H__
-+
-+#include <linux/config.h>
-+#include <asm/hypervisor.h>
-+#include <xen/interface/grant_table.h>
-+
-+/* NR_GRANT_FRAMES must be less than or equal to that configured in Xen */
-+#define NR_GRANT_FRAMES 4
-+
-+struct gnttab_free_callback {
-+	struct gnttab_free_callback *next;
-+	void (*fn)(void *);
-+	void *arg;
-+	u16 count;
-+};
-+
-+int gnttab_grant_foreign_access(domid_t domid, unsigned long frame,
-+				int readonly);
-+
-+/*
-+ * End access through the given grant reference, iff the grant entry is no
-+ * longer in use.  Return 1 if the grant entry was freed, 0 if it is still in
-+ * use.
-+ */
-+int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly);
-+
-+/*
-+ * Eventually end access through the given grant reference, and once that
-+ * access has been ended, free the given page too.  Access will be ended
-+ * immediately iff the grant entry is not in use, otherwise it will happen
-+ * some time later.  page may be 0, in which case no freeing will occur.
-+ */
-+void gnttab_end_foreign_access(grant_ref_t ref, int readonly,
-+			       unsigned long page);
-+
-+int gnttab_grant_foreign_transfer(domid_t domid, unsigned long pfn);
-+
-+unsigned long gnttab_end_foreign_transfer_ref(grant_ref_t ref);
-+unsigned long gnttab_end_foreign_transfer(grant_ref_t ref);
-+
-+int gnttab_query_foreign_access(grant_ref_t ref);
-+
-+/*
-+ * operations on reserved batches of grant references
-+ */
-+int gnttab_alloc_grant_references(u16 count, grant_ref_t *pprivate_head);
-+
-+void gnttab_free_grant_reference(grant_ref_t ref);
-+
-+void gnttab_free_grant_references(grant_ref_t head);
-+
-+int gnttab_empty_grant_references(const grant_ref_t *pprivate_head);
-+
-+int gnttab_claim_grant_reference(grant_ref_t *pprivate_head);
-+
-+void gnttab_release_grant_reference(grant_ref_t *private_head,
-+				    grant_ref_t release);
-+
-+void gnttab_request_free_callback(struct gnttab_free_callback *callback,
-+				  void (*fn)(void *), void *arg, u16 count);
-+
-+void gnttab_grant_foreign_access_ref(grant_ref_t ref, domid_t domid,
-+				     unsigned long frame, int readonly);
-+
-+void gnttab_grant_foreign_transfer_ref(grant_ref_t, domid_t domid,
-+				       unsigned long pfn);
-+
-+#define gnttab_map_vaddr(map) ((void *)(map.host_virt_addr))
-+
-+#endif /* __ASM_GNTTAB_H__ */
++#endif /* __ASM_MACH_DESC_H */
 
 --

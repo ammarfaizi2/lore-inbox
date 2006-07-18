@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWGRRFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWGRRHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWGRRFD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 13:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWGRRFD
+	id S932307AbWGRRHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 13:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGRRHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 13:05:03 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:20863 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932305AbWGRRFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 13:05:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:references:in-reply-to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=gU/SMNx94kY6XXQMKIx1MmTXqmreekBFkFoqvoEET53wiGC6unJRlDS9vXekICuxmm3tSLIpJdo6NWxic+TsdnyXwmwln1/Mt4QqB4S4LoMeuKI1e6ic+cU2aop0e+JNsOcFj2titfQophxQmipeK7cki+AE5DrYXxtmispsbyQ=
-From: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Date: Tue, 18 Jul 2006 10:04:54 -0700
-User-Agent: KMail/1.8.1
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200607171435.22128.benjamin.cherian.kernel@gmail.com> <20060717151940.5cd79087.zaitcev@redhat.com>
-In-Reply-To: <20060717151940.5cd79087.zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devl@lists.sourceforge.net
+	Tue, 18 Jul 2006 13:07:42 -0400
+Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:180 "EHLO
+	pne-smtpout3-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932307AbWGRRHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 13:07:41 -0400
+Message-ID: <44BD1558.8070208@gmail.com>
+Date: Tue, 18 Jul 2006 20:07:36 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: input/eventX permissions, force feedback
+References: <44BCAD19.8070004@gmail.com> <d120d5000607180520m2a7ec74at452539186cd7814@mail.gmail.com> <20060718165039.04D50214B6B@muan.mtu.ru>
+In-Reply-To: <20060718165039.04D50214B6B@muan.mtu.ru>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607181004.55191.benjamin.cherian.kernel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete,
+Andrey Borzenkov wrote:
+> Dmitry Torokhov wrote:
+> 
+> 
+>>Hi Anssi,
+>>
+>>On 7/18/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>>
+>>>Currently most distributions have /dev/input/event* strictly as 0600
+>>>root:root or 0640 root:root. The user logged in will not have rights to
+>>>the device, unlike /dev/input/js*, as he could read all passwords from
+>>>the keyboard device.
+>>>
+>>>This is a problem, because /dev/input/event* is used for force feedback
+>>>and should therefore be user-accessible.
+>>>
+>>>I can think of the following solutions to this problem:
+>>>
+>>>1. Some creative udev rule to chmod /dev/input/event* less strictly when
+>>>it has a /dev/input/js* and is thus a gaming device.
+>>>
+>>>2. Some creative udev rule to chmod /dev/input/event* more strictly when
+>>>it is a keyboard.
+>>>
+>>>3. Have another force feedback interface also in /dev/input/js*.
+>>>
+>>
+>>You can do it in udev looking either at MODALIAS or at EV and ABS
+>>environment variables. I think it is pretty safe to say that a device
+>>with EV_ABS, EV_FF, ABS_X and ABS_Y is a force-feedback joystick-type
+>>device and not a keyboard.
+>>
+> 
+> 
+> You could also have udev create specific symlink for such devices,
+> say /dev/input/ff* and make a rule for pam_console to change their
+> permissions. That is finally what is done e.g. for CD-ROMs (cdrom ->
+> hdc/sr0)
 
-> It's the same kind of question as, "who even uses 2.4 anymore".
-We asked to same question to the user who told us about this bug :-). It 
-happened after the user built his own kernel (2.4.32) for Fedora Core 1, 
-which uses a much older version.
-> By the way, did you consider an in-kernel driver? For me, it seems much
-> safer to reimplement the whole thing that way than to monkey with devio
-> again and risk more regressions.
-We're currently using libusb. We don't have to time to patch and maintain a 
-driver that's actually in the tree. And our customers are definitely not 
-going to patch and build their own kernel either.
+Yes, I proposed this kind of solution too in a later post :)
 
-> Another option would be to change USBDEVFS_BULK to USBDEVFS_SUBMITURB.
-> Did you look at doing that?
-We did that as well. But when you try to reap an URB there is no timeout. So 
-if something goes wrong you're stuck waiting for the operation to finish or 
-for the user to physically unplug the device.
+> 
+> 
+>>Another solution would be to relax permissions if user is also console
+>>owner (home box installation).
+>>
+>>One thing is for sure - I do not like #3 at all ;)
+>>
+> 
+> 
 
->Of course it's very tempting for me to off-load both
->the work and the responsibility on you.
 
-All right then. I'll send you a patch that backports the string caching 
-mechanism from 2.6 in a few days. Would you be able to test it with the 
-210PU?
+-- 
+Anssi Hannula
 
-Thanks,
-
-Ben

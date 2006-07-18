@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWGRO4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWGRPAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWGRO4V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 10:56:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWGRO4V
+	id S932257AbWGRPAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWGRPAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 10:56:21 -0400
-Received: from daleth.esc.cam.ac.uk ([131.111.64.59]:9992 "EHLO
-	aleph.esc.cam.ac.uk") by vger.kernel.org with ESMTP id S932256AbWGRO4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 10:56:20 -0400
-Date: Tue, 18 Jul 2006 15:56:14 +0100
-From: James <20@madingley.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: James <20@madingley.org>, linux-kernel@vger.kernel.org
-Subject: Re: Bad ext3/nfs DoS bug
-Message-ID: <20060718145614.GA27788@circe.esc.cam.ac.uk>
-References: <20060717130128.GA12832@circe.esc.cam.ac.uk> <1153209318.26690.1.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Jul 2006 11:00:21 -0400
+Received: from intrepid.intrepid.com ([192.195.190.1]:152 "EHLO
+	intrepid.intrepid.com") by vger.kernel.org with ESMTP
+	id S932257AbWGRPAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 11:00:20 -0400
+From: "Gary Funck" <gary@intrepid.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Vishal Patil" <vishpat@gmail.com>
+Subject: RE: Generic B-tree implementation
+Date: Tue, 18 Jul 2006 08:00:25 -0700
+Message-ID: <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+In-Reply-To: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
+X-Spam-Score: -1.44 () ALL_TRUSTED
 Content-Disposition: inline
-In-Reply-To: <1153209318.26690.1.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-Mail-Author: fish
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> so I used your exploit and I could reproduce it on every 2.6 kernel, I
-> tried so far. 
 
-That must have been a lot of fscks.
+Vishal Patil wrote:
+> I said B-Tree and not binary tree, please read the explaination about
+> B-tree at http://en.wikipedia.org/wiki/B-tree. Also I am aware of AVL
+> trees.
+> 
+> I never claimed that my implementation is better or anything like
+> that. I posted the code so that someone in need of the data structure
+> might use it. Also I would be willing them to help with their project.
 
-> However with a 2.4 kernel I see the error messages, but it
-> doesn't get remounted read-only. Did you run tests with 2.4 kernels?
+My reason for pointing out the other data strucutres is to note that there
+might be search tree representations that are more appropriate for
+implementation inside the kernel, and to perhaps encourage you to have
+a look at implementing them as well.  Red-black trees in particular have
+the property that they're reasonably well-balanced, and that the balancing
+algorithm makes use of local information.  That means that the kernel might
+be able to limit the level of locking required to update the tree.
 
-no, I don't have any to hand, but someone is preparing one
-now. Is NFS subtree checking on by default in 2.4?
-
-James.
+I liked your B-tree implementation, and have saved a copy.  Too bad there
+isn't the C/C++ equivalent of CPAN (comp.unix.sources is so passe`).  Your
+B-tree implementation would make a nice addition to an archive of
+handy C algorithm implementations.

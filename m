@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWGRAtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWGRAsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWGRAtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 20:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWGRAtn
+	id S1751285AbWGRAsp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 20:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWGRAsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 20:49:43 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:63960 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751271AbWGRAtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 20:49:42 -0400
-Date: Mon, 17 Jul 2006 20:49:31 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>,
-       "'fsdevel'" <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reiser4 Inclusion
-Message-ID: <20060718004931.GB8092@ccure.user-mode-linux.org>
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu> <20060717204804.GA18516@harddisk-recovery.com>
-Mime-Version: 1.0
+	Mon, 17 Jul 2006 20:48:45 -0400
+Received: from ns2.suse.de ([195.135.220.15]:28378 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751262AbWGRAso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 20:48:44 -0400
+From: Neil Brown <neilb@suse.de>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Date: Tue, 18 Jul 2006 10:48:07 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060717204804.GA18516@harddisk-recovery.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17596.12231.468729.199881@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: Raid5 Reshape Status + xfs_growfs = Success! (2.6.17.3)
+In-Reply-To: message from Justin Piszcz on Tuesday July 11
+References: <Pine.LNX.4.64.0607111159470.12230@p34.internal.lan>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 17, 2006 at 10:48:04PM +0200, Erik Mouw wrote:
-> On Mon, Jul 17, 2006 at 08:13:04AM -0700, Jeff Anderson-Lee wrote:
-> > In the past I've wondered why so many experimental FS projects die this
-> > death of obscurity in that they only work under FreeBSD or some ancient
-> > version of Linux.? I'm beginning to see why that is so:? the Linux core
-> > simply changes too fast for it to be a decent FS R&D environment!
+On Tuesday July 11, jpiszcz@lucidpixels.com wrote:
+> Neil,
 > 
-> That hasn't been a problem for OCFS2 and FUSE (recently merged), and
-> also doesn't seem to be a problem for GFS.
+> It worked, echo'ing the 600 > to the stripe width in /sys, however, how 
+> come /dev/md3 says it is 0 MB when I type fdisk -l?
+> 
+> Is this normal?
 
-I'm been maintaining a couple (for now) out-of-tree filesystems for
-UML, and have seen only minor updates needed over the course of 2.6.
+Yes.  The 'cylinders' number is limited to 16bits.  For you 2.2TB
+array, the number of 'cylinders' (given 2 heads and 4 sectors) would
+be about 500,000 which doesn't fit into 16 bits.
+> 
+> Furthermore, the xfs_growfs worked beautifully!
+> 
 
-Complaints about interface churn for filesystems (or anything else,
-actually, since an architecture, such as UML, is exposed to nearly the
-entire kernel) are imcomprehensible to me.
+Excellent!
 
-				Jeff
+NeilBrown

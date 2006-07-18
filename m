@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWGRCwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWGRC6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWGRCwS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 22:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWGRCwS
+	id S1751134AbWGRC6U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 22:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWGRC6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 22:52:18 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:55743 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751110AbWGRCwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 22:52:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dtq1PCfBNCqUE/6O/ypyOuwiCFMmSdIzjJsWXhJKcbnp5DxB8S0osDfRH+JP2M/ir/M4OjqAnvGoFGzP8D7WSZiS1pezVjcYJmV/5pJgIgGAKjJELfkrbrM9R5UF0KoPAuPFZRZ/e9nT5FHLXMPC23KRfKKYmq+4sD1MOCSbPsE=
-Message-ID: <a63d67fe0607171952o539a6a29te75ef332bcdbba22@mail.gmail.com>
-Date: Mon, 17 Jul 2006 19:52:16 -0700
-From: "Dan Carpenter" <error27@gmail.com>
-To: ebiederm@xmission.com
-Subject: shut down from CPU 0 [regression]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Mon, 17 Jul 2006 22:58:20 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:22493 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751134AbWGRC6T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 22:58:19 -0400
+Message-Id: <200607180258.k6I2wEFm012293@laptop11.inf.utfsm.cl>
+To: "Vishal Patil" <vishpat@gmail.com>
+cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Generic B-tree implementation 
+In-Reply-To: Message from "Vishal Patil" <vishpat@gmail.com> 
+   of "Mon, 17 Jul 2006 22:02:43 -0400." <4745278c0607171902pc218a9dn9c63dd6670ac7249@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 17 Jul 2006 22:58:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 17 Jul 2006 22:58:16 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=6660316cb7a1a2c59a73a52870490c0f782f45c1
+Vishal Patil <vishpat@gmail.com> wrote:
+> I am attaching source files containing a very generic implementation
+> of B-trees in C. The implementation corresponds to in memory B-Tree
+> data structure. The B-tree library consists of two files, btree.h and
+> btree.c. I am also attaching a sample program main.c which should
+> hopefully make the use of the library clear.
 
-Even though you should be able to call ACPI power down from either
-CPU, I've seen some BIOSes that implement it wrong.  That's why the
-code was there.
-For example: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=189052
+B-trees are useful mainly when you can get a bunch of pointers in one
+swoop, i.e., by reading nodes from disk.
 
-regards,
-dan carpenter
+> I would be happy to receive inputs from the community for changes
+> (enchancements) to the library. All the more I would like to help
+> someone with a project which would take advantage of the B-Tree
+> implementation.
+
+Build infrastructure (== library) without clear users won't go very far on
+LKML.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

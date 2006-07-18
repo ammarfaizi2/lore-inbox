@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWGRKNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWGRKPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWGRKNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 06:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWGRKNJ
+	id S932164AbWGRKPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 06:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWGRKPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 06:13:09 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:46208 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S932128AbWGRKNI
+	Tue, 18 Jul 2006 06:15:46 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:50304 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S932160AbWGRKPq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 06:13:08 -0400
-Subject: Re: [RFC PATCH 16/33] Add support for Xen to entry.S.
+	Tue, 18 Jul 2006 06:15:46 -0400
+Subject: Re: [RFC PATCH 18/33] Subarch support for CPUID instruction
 From: Arjan van de Ven <arjan@infradead.org>
 To: Chris Wright <chrisw@sous-sol.org>
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
@@ -17,15 +17,14 @@ Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
        Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
        Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
        Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-In-Reply-To: <20060718091952.505770000@sous-sol.org>
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+In-Reply-To: <20060718091953.003336000@sous-sol.org>
 References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091952.505770000@sous-sol.org>
+	 <20060718091953.003336000@sous-sol.org>
 Content-Type: text/plain
 Organization: Intel International BV
-Date: Tue, 18 Jul 2006 12:11:56 +0200
-Message-Id: <1153217516.3038.34.camel@laptopd505.fenrus.org>
+Date: Tue, 18 Jul 2006 12:14:46 +0200
+Message-Id: <1153217686.3038.37.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -33,30 +32,22 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> +#ifndef CONFIG_XEN
->  	movl %cr0, %eax
->  	testl $0x4, %eax		# EM (math emulation bit)
-> -	jne device_not_available_emulate
-> -	preempt_stop
-> -	call math_state_restore
-> -	jmp ret_from_exception
-> -device_not_available_emulate:
-> +	je device_available_emulate
->  	pushl $0			# temporary storage for ORIG_EIP
->  	CFI_ADJUST_CFA_OFFSET 4
->  	call math_emulate
->  	addl $4, %esp
->  	CFI_ADJUST_CFA_OFFSET -4
-> +	jmp ret_from_exception
-> +device_available_emulate:
-> +#endif
-
+> plain text document attachment (i386-cpuid)
+> Allow subarchitectures to modify the CPUID instruction.  This allows
+> the subarch to provide a limited set of CPUID feature flags during CPU
+> identification.  Add a subarch implementation for Xen that traps to the
+> hypervisor where unsupported feature flags can be hidden from guests.
 
 Hi,
 
-can you explain what this chunk is for? It appears to be for the non-xen
-case due to the ifndef, yet it seems to visibly change the code for
-that... that deserves an explanation for sure ...
+I'm wondering if this is entirely the wrong level of abstraction; to me
+it feels the subarch shouldn't override the actual cpuid, but the cpu
+feature flags that linux uses. That's a lot less messy: cpuid has many
+many pieces of information which are near impossible to filter in
+practice, however filtering the USAGE of it is trivial; linux basically
+flattens the cpuid namespace into a simple bitmap of "what the kernel
+can use". That is really what the subarch should filter/fixup, just like
+we do for cpu quirks etc etc.
 
 Greetings,
    Arjan van de Ven

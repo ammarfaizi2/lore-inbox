@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWGRPOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWGRPWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbWGRPOP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 11:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWGRPOP
+	id S932262AbWGRPWK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGRPWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:14:15 -0400
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:38042 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932276AbWGRPON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:14:13 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
-Date: Tue, 18 Jul 2006 17:14:06 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
-       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-References: <20060717185330.GA32264@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060717185330.GA32264@rhlx01.fht-esslingen.de>
+	Tue, 18 Jul 2006 11:22:10 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:44688 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932262AbWGRPWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 11:22:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AtaLacGb3mOsX9BJWcubEoMrLB5S2eYIwgmAAxrT2CmEnTT0riUu8xbHDnPVAfx5TqvNFHBkZBwAi2TEAn0jNcRcUt2jwRmURdCJUaAunZlSmyZp7iHGJ8hR6AIQRtMsFTs4V7UFLkyrZz6oNJXh0sBALbs/6ij9So7w00/x358=
+Message-ID: <4745278c0607180822u55ffe5b4g333e2e6457b37d02@mail.gmail.com>
+Date: Tue, 18 Jul 2006 11:22:05 -0400
+From: "Vishal Patil" <vishpat@gmail.com>
+To: "Gary Funck" <gary@intrepid.com>
+Subject: Re: Generic B-tree implementation
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1369703.b75ARQU8JA";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607181714.10386.prakash@punnoor.de>
+Content-Disposition: inline
+References: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
+	 <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1369703.b75ARQU8JA
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+B-trees are good for parellel updates as well. Anyway it would be
+great to have inputs from other folks about how B-trees could help
+inside the kernel (if at all)
 
-Am Montag Juli 17 2006 20:53 schrieb Andreas Mohr:
->         for (i =3D 0; i < 4; i++) {
->                 j =3D INDEX(i);
->                 do {
->                         if (list_empty(varray[i]->vec + j)) {
->                                 j =3D (j + 1) & TVN_MASK;
->                                 continue;
->                         }
->                         list_for_each_entry(nte, varray[i]->vec + j, entr=
-y)
->                                 if (time_before(nte->expires, expires))
->                                         expires =3D nte->expires;
->                         if (j < (INDEX(i)) && i < 3)
->                                 list =3D varray[i + 1]->vec + (INDEX(i + =
-1));
->                         goto found;
->                 } while (j !=3D (INDEX(i)));
->         }
-> found:
+- Vishal
 
-is equivalent to
-
-  for (i =3D 0; i < 4; i++) {
-      j =3D INDEX(i);
-      do {
-          if (!list_empty(varray[i]->vec + j)) {
-              list_for_each_entry(nte, varray[i]->vec + j, entry)
-                  if (time_before(nte->expires, expires))
-                      expires =3D nte->expires;
-              if (j < (INDEX(i)) && i < 3)
-                  list =3D varray[i + 1]->vec + (INDEX(i + 1));
-              goto found;
-          }
-          j =3D (j + 1) & TVN_MASK;
-      } while (j !=3D (INDEX(i)));
-  }
-  found:
+On 7/18/06, Gary Funck <gary@intrepid.com> wrote:
+>
+> Vishal Patil wrote:
+> > I said B-Tree and not binary tree, please read the explaination about
+> > B-tree at http://en.wikipedia.org/wiki/B-tree. Also I am aware of AVL
+> > trees.
+> >
+> > I never claimed that my implementation is better or anything like
+> > that. I posted the code so that someone in need of the data structure
+> > might use it. Also I would be willing them to help with their project.
+>
+> My reason for pointing out the other data strucutres is to note that there
+> might be search tree representations that are more appropriate for
+> implementation inside the kernel, and to perhaps encourage you to have
+> a look at implementing them as well.  Red-black trees in particular have
+> the property that they're reasonably well-balanced, and that the balancing
+> algorithm makes use of local information.  That means that the kernel might
+> be able to limit the level of locking required to update the tree.
+>
+> I liked your B-tree implementation, and have saved a copy.  Too bad there
+> isn't the C/C++ equivalent of CPAN (comp.unix.sources is so passe`).  Your
+> B-tree implementation would make a nice addition to an archive of
+> handy C algorithm implementations.
+>
 
 
-But probably the code in timer.c takes account of probabilities, thus it is=
- a=20
-bit more obscure.
-
-HTH,
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart1369703.b75ARQU8JA
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-
-iD8DBQBEvPrCxU2n/+9+t5gRAnMSAJ4rvjuIyfYiuS0pVYbrYPj9k5ksiwCg2EZo
-9/CV6iEZCJgunDKnrSLZSuY=
-=f/dy
------END PGP SIGNATURE-----
-
---nextPart1369703.b75ARQU8JA--
+-- 
+Motivation will almost always beat mere talent.

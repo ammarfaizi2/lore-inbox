@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWGRJ2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWGRJ3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWGRJ2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWGRJU5
+	id S932136AbWGRJ3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 05:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWGRJUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:20:57 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:37250 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932114AbWGRJUj
+	Tue, 18 Jul 2006 05:20:53 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:38786 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932115AbWGRJUn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:20:39 -0400
-Message-Id: <20060718091950.999859000@sous-sol.org>
+	Tue, 18 Jul 2006 05:20:43 -0400
+Message-Id: <20060718091953.793160000@sous-sol.org>
 References: <20060718091807.467468000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 18 Jul 2006 00:00:10 -0700
+Date: Tue, 18 Jul 2006 00:00:21 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
@@ -20,139 +20,218 @@ Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 10/33] add support for Xen feature queries
-Content-Disposition: inline; filename=xen-features
+Subject: [RFC PATCH 21/33] subarch support for control register accesses
+Content-Disposition: inline; filename=i386-processor
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for parsing and interpreting hypervisor feature
-flags. These allow the kernel to determine what features are provided
-by the underlying hypervisor. For example, whether page tables need to
-be write protected explicitly by the kernel, and whether the kernel
-(appears to) run in ring 0 rather than ring 1. This information allows
-the kernel to improve performance by avoiding unnecessary actions.
+Abstract the code that accesses control register, and
+add a separate subarch implementation for Xen.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- arch/i386/mach-xen/setup-xen.c |    2 ++
- drivers/Makefile               |    1 +
- drivers/xen/Makefile           |    3 +++
- drivers/xen/core/Makefile      |    3 +++
- drivers/xen/core/features.c    |   31 +++++++++++++++++++++++++++++++
- include/asm-i386/hypervisor.h  |    1 +
- include/xen/features.h         |   20 ++++++++++++++++++++
- 7 files changed, 61 insertions(+)
+ include/asm-i386/mach-default/mach_system.h |   57 +++++++++++++++++++++++++++
+ include/asm-i386/mach-xen/mach_system.h     |   54 +++++++++++++++++++++++++
+ include/asm-i386/system.h                   |   57 ---------------------------
+ 3 files changed, 111 insertions(+), 57 deletions(-)
 
 
-diff -r 1f0f17cb7700 arch/i386/mach-xen/setup-xen.c
---- a/arch/i386/mach-xen/setup-xen.c	Fri Jun 16 17:57:31 2006 -0700
-+++ b/arch/i386/mach-xen/setup-xen.c	Fri Jun 16 18:00:23 2006 -0700
-@@ -40,6 +40,8 @@ char * __init machine_specific_memory_se
+diff -r 6b500a8da576 include/asm-i386/mach-default/mach_system.h
+--- a/include/asm-i386/mach-default/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
++++ b/include/asm-i386/mach-default/mach_system.h	Thu Jul 13 15:01:15 2006 -0700
+@@ -3,4 +3,61 @@
  
- void __init machine_specific_arch_setup(void)
- {
-+	setup_xen_features();
-+
- #ifdef CONFIG_ACPI
- 	if (!(xen_start_info->flags & SIF_INITDOMAIN)) {
- 		printk(KERN_INFO "ACPI in unprivileged domain disabled\n");
-diff -r 1f0f17cb7700 drivers/Makefile
---- a/drivers/Makefile	Fri Jun 16 17:57:31 2006 -0700
-+++ b/drivers/Makefile	Fri Jun 16 18:00:23 2006 -0700
-@@ -31,6 +31,7 @@ obj-$(CONFIG_NUBUS)		+= nubus/
- obj-$(CONFIG_NUBUS)		+= nubus/
- obj-$(CONFIG_ATM)		+= atm/
- obj-$(CONFIG_PPC_PMAC)		+= macintosh/
-+obj-$(CONFIG_XEN)		+= xen/
- obj-$(CONFIG_IDE)		+= ide/
- obj-$(CONFIG_FC4)		+= fc4/
- obj-$(CONFIG_SCSI)		+= scsi/
-diff -r 1f0f17cb7700 include/asm-i386/hypervisor.h
---- a/include/asm-i386/hypervisor.h	Fri Jun 16 17:57:31 2006 -0700
-+++ b/include/asm-i386/hypervisor.h	Fri Jun 16 18:00:23 2006 -0700
-@@ -40,6 +40,7 @@
+ #define clearsegment(seg)
  
- #include <xen/interface/xen.h>
- #include <xen/interface/version.h>
-+#include <xen/features.h>
- 
- #include <asm/ptrace.h>
- #include <asm/page.h>
-diff -r 1f0f17cb7700 drivers/xen/Makefile
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/xen/Makefile	Fri Jun 16 18:00:23 2006 -0700
-@@ -0,0 +1,3 @@
++#define read_cr0() ({ \
++	unsigned int __dummy; \
++	__asm__ __volatile__( \
++		"movl %%cr0,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr0(x) \
++	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
 +
-+obj-y	+= core/
++#define read_cr2() ({ \
++	unsigned int __dummy; \
++	__asm__ __volatile__( \
++		"movl %%cr2,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr2(x) \
++	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
 +
-diff -r 1f0f17cb7700 drivers/xen/core/Makefile
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/xen/core/Makefile	Fri Jun 16 18:00:23 2006 -0700
-@@ -0,0 +1,3 @@
++#define read_cr3() ({ \
++	unsigned int __dummy; \
++	__asm__ ( \
++		"movl %%cr3,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr3(x) \
++	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
 +
-+obj-y	:= features.o
++#define read_cr4() ({ \
++	unsigned int __dummy; \
++	__asm__( \
++		"movl %%cr4,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define read_cr4_safe() ({			      \
++	unsigned int __dummy;			      \
++	/* This could fault if %cr4 does not exist */ \
++	__asm__("1: movl %%cr4, %0		\n"   \
++		"2:				\n"   \
++		".section __ex_table,\"a\"	\n"   \
++		".long 1b,2b			\n"   \
++		".previous			\n"   \
++		: "=r" (__dummy): "0" (0));	      \
++	__dummy;				      \
++})
++#define write_cr4(x) \
++	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
 +
-diff -r 1f0f17cb7700 drivers/xen/core/features.c
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/drivers/xen/core/features.c	Fri Jun 16 18:00:23 2006 -0700
-@@ -0,0 +1,31 @@
-+/******************************************************************************
-+ * features.c
-+ *
-+ * Xen feature flags.
-+ *
-+ * Copyright (c) 2006, Ian Campbell, XenSource Inc.
++/*
++ * Clear and set 'TS' bit respectively
 + */
-+#include <linux/types.h>
-+#include <linux/cache.h>
-+#include <linux/module.h>
-+#include <asm/hypervisor.h>
-+#include <xen/features.h>
++#define clts() __asm__ __volatile__ ("clts")
++#define stts() write_cr0(8 | read_cr0())
 +
-+u8 xen_features[XENFEAT_NR_SUBMAPS * 32] __read_mostly;
-+EXPORT_SYMBOL_GPL(xen_features);
+ #endif /* __ASM_MACH_SYSTEM_H */
+diff -r 6b500a8da576 include/asm-i386/mach-xen/mach_system.h
+--- a/include/asm-i386/mach-xen/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
++++ b/include/asm-i386/mach-xen/mach_system.h	Thu Jul 13 14:42:43 2006 -0700
+@@ -5,4 +5,58 @@
+ 
+ #define clearsegment(seg) loadsegment(seg, 0)
+ 
 +
-+void setup_xen_features(void)
-+{
-+#if 0	/* hypercalls come later in the series */
-+	struct xen_feature_info fi;
-+	int i, j;
-+
-+	for (i = 0; i < XENFEAT_NR_SUBMAPS; i++) {
-+		fi.submap_idx = i;
-+		if (HYPERVISOR_xen_version(XENVER_get_features, &fi) < 0)
-+			break;
-+		for (j=0; j<32; j++)
-+			xen_features[i*32+j] = !!(fi.submap & 1<<j);
-+	}
-+#endif
-+}
-diff -r 1f0f17cb7700 include/xen/features.h
---- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/include/xen/features.h	Fri Jun 16 18:00:23 2006 -0700
-@@ -0,0 +1,20 @@
-+/******************************************************************************
-+ * features.h
-+ *
-+ * Query the features reported by Xen.
-+ *
-+ * Copyright (c) 2006, Ian Campbell
++/*
++ * Clear and set 'TS' bit respectively
 + */
++#define clts() __asm__ __volatile__ ("clts")
++#define read_cr0() ({ \
++	unsigned int __dummy; \
++	__asm__ __volatile__( \
++		"movl %%cr0,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr0(x) \
++	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
 +
-+#ifndef __ASM_XEN_FEATURES_H__
-+#define __ASM_XEN_FEATURES_H__
++#define read_cr2() \
++	(HYPERVISOR_shared_info->vcpu_info[smp_processor_id()].arch.cr2)
++#define write_cr2(x) \
++	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
 +
-+#include <xen/interface/version.h>
++#define read_cr3() ({ \
++	unsigned int __dummy; \
++	__asm__ ( \
++		"movl %%cr3,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
++#define write_cr3(x) \
++	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
 +
-+extern void setup_xen_features(void);
++#define read_cr4() ({ \
++	unsigned int __dummy; \
++	__asm__( \
++		"movl %%cr4,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
 +
-+extern u8 xen_features[XENFEAT_NR_SUBMAPS * 32];
++#define read_cr4_safe() ({			      \
++	unsigned int __dummy;			      \
++	/* This could fault if %cr4 does not exist */ \
++	__asm__("1: movl %%cr4, %0		\n"   \
++		"2:				\n"   \
++		".section __ex_table,\"a\"	\n"   \
++		".long 1b,2b			\n"   \
++		".previous			\n"   \
++		: "=r" (__dummy): "0" (0));	      \
++	__dummy;				      \
++})
 +
-+#define xen_feature(flag)	(xen_features[flag])
++#define write_cr4(x) \
++	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
++#define stts() write_cr0(8 | read_cr0())
 +
-+#endif /* __ASM_XEN_FEATURES_H__ */
+ #endif /* __ASM_MACH_SYSTEM_H */
+diff -r 6b500a8da576 include/asm-i386/system.h
+--- a/include/asm-i386/system.h	Thu Jul 13 14:42:43 2006 -0700
++++ b/include/asm-i386/system.h	Thu Jul 13 15:00:54 2006 -0700
+@@ -81,63 +81,6 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+  */
+ #define savesegment(seg, value) \
+ 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
+-
+-#define read_cr0() ({ \
+-	unsigned int __dummy; \
+-	__asm__ __volatile__( \
+-		"movl %%cr0,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr0(x) \
+-	__asm__ __volatile__("movl %0,%%cr0": :"r" (x))
+-
+-#define read_cr2() ({ \
+-	unsigned int __dummy; \
+-	__asm__ __volatile__( \
+-		"movl %%cr2,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr2(x) \
+-	__asm__ __volatile__("movl %0,%%cr2": :"r" (x))
+-
+-#define read_cr3() ({ \
+-	unsigned int __dummy; \
+-	__asm__ ( \
+-		"movl %%cr3,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr3(x) \
+-	__asm__ __volatile__("movl %0,%%cr3": :"r" (x))
+-
+-#define read_cr4() ({ \
+-	unsigned int __dummy; \
+-	__asm__( \
+-		"movl %%cr4,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define read_cr4_safe() ({			      \
+-	unsigned int __dummy;			      \
+-	/* This could fault if %cr4 does not exist */ \
+-	__asm__("1: movl %%cr4, %0		\n"   \
+-		"2:				\n"   \
+-		".section __ex_table,\"a\"	\n"   \
+-		".long 1b,2b			\n"   \
+-		".previous			\n"   \
+-		: "=r" (__dummy): "0" (0));	      \
+-	__dummy;				      \
+-})
+-#define write_cr4(x) \
+-	__asm__ __volatile__("movl %0,%%cr4": :"r" (x))
+-
+-/*
+- * Clear and set 'TS' bit respectively
+- */
+-#define clts() __asm__ __volatile__ ("clts")
+-#define stts() write_cr0(8 | read_cr0())
+ 
+ #endif	/* __KERNEL__ */
+ 
 
 --

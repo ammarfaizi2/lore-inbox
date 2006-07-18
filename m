@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWGRNdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWGRNfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWGRNdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 09:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWGRNdW
+	id S932196AbWGRNfF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 09:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWGRNfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 09:33:22 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:51717 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932200AbWGRNdV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 09:33:21 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 18 Jul 2006 13:33:19.0520 (UTC) FILETIME=[BB7B9200:01C6AA6E]
-Content-class: urn:content-classes:message
-Subject: Re: [patch 5/6] s390: .align 4096 statements in head.S
-Date: Tue, 18 Jul 2006 09:33:19 -0400
-Message-ID: <Pine.LNX.4.61.0607180929340.12146@chaos.analogic.com>
-In-Reply-To: <1153227104.9681.2.camel@localhost>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 5/6] s390: .align 4096 statements in head.S
-Thread-Index: AcaqbruhTKp87p3+T/mQJpqha9ERew==
-References: <20060718115622.GE20884@skybase> <Pine.LNX.4.61.0607180825240.11870@chaos.analogic.com> <1153227104.9681.2.camel@localhost>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, <heiko.carstens@de.ibm.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Tue, 18 Jul 2006 09:35:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:59550 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932196AbWGRNfE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 09:35:04 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jarek Poplawski <jarkap@poczta.onet.pl>
+Subject: Re: Odd build warning with 2.6.17.6
+Date: Tue, 18 Jul 2006 13:10:21 +0000 (UTC)
+Message-ID: <loom.20060718T145326-832@post.gmane.org>
+References: <20060717180456.GA27612@bostik.iki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 80.53.205.170 (Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mika Bostrom <bostik+lkml <at> bostik.iki.fi> writes:
 
-On Tue, 18 Jul 2006, Martin Schwidefsky wrote:
+> 
+>   Good day.
+> 
+>   I got the following, rather odd warning when building 2.6.17.6:
+> 
+>   MODPOST
+> WARNING: drivers/acpi/processor.o - Section mismatch: reference to
+> .init.data: from .text between 'acpi_processor_power_init' (at offset
+> 0xe80) and 'acpi_safe_halt'
+> 
+>   No idea whether it affects anything for real, just thought it worth a
+> mention. My .config is attached.
+> 
 
-> On Tue, 2006-07-18 at 08:43 -0400, linux-os (Dick Johnson) wrote:
->> Hardcoading like that can cause hard to find errors. It looks like
->> you wrote something in 'C' and tried to use its assembly code. You
->> should know that you don't need ".fill" if you have correctly
->> allocated
->> data.
->
-> Huh ?!? We are talking about head.S here. That is pure assembler, no C
-> anywhere. It is the startup code of the kernel, and we do want to
-> control where things end up.
->
-> --
-> blue skies,
->  Martin.
->
-> Martin Schwidefsky
-> Linux for zSeries Development & Services
-> IBM Deutschland Entwicklung GmbH
+Hi,
 
-Yes, I know exactly what I am saying and I mentioned the reference
-to 'C' because the ".Labels" start with ".L" as 'C' does it. Humans
-generally use human-readable names.
+I think they had to begin sometime earlier in 2.6.17 - I've plenty of them with
+every (re)make on ver. 2.6.17.4, but because it is workink I stopped to look at
+them. I'm very surprised nobody answered you, as if it was something uncommon.
+If I could remember well, they are not present when full kernel is built - only
+when some drivers are changed and rebuild. I'll try to look at it again later.
 
-If you BOTHERED to read the rest of the email, I instructed one
-how to use the assembler 'gas' so I certainly know that it is not
-'C'. Thank you.
+Jarek P.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.63 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

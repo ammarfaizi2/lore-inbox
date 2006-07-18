@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWGRUyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWGRU7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWGRUyY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 16:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWGRUyY
+	id S932396AbWGRU7I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 16:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWGRU7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 16:54:24 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:63393 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932399AbWGRUyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 16:54:23 -0400
-Date: Tue, 18 Jul 2006 16:46:51 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: CPU numbering & hyperthreading
-To: Andrew Athan <aathan_linux_kernel_1542@cloakmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607181649_MC3-1-C55F-72EE@compuserve.com>
+	Tue, 18 Jul 2006 16:59:08 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:28645 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S932396AbWGRU7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 16:59:07 -0400
+Message-ID: <44BD4ADC.7040901@s5r6.in-berlin.de>
+Date: Tue, 18 Jul 2006 22:55:56 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: Thomas Dillig <tdillig@stanford.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Null dereference errors in the kernel
+References: <44BC5A3F.2080005@stanford.edu>
+In-Reply-To: <44BC5A3F.2080005@stanford.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <44BC4200.90308@cloakmail.com>
+Thomas Dillig wrote:
+...
+> We have identified around 300 potential issues related to null errors,
+...
 
-On Mon, 17 Jul 2006 22:05:52 -0400, Andrew Athan wrote:
->
-> I have two highly CPU/memory/network intensive processes with 3-5 
-> threads each.  I am using sched_setaffinity calls to make sure these two 
-> processes never compete for the same physical CPU.  Am I right to assume 
-> that CPU #0 and #1 vs CPU #2 and #3 are separate physical CPUs on a 
-> 2-CPU w/ hyperthreading box?
-> 
-> I've spent some time looking, but I did not find documentation on 
-> exactly how CPUs are numbered in a hyperthreaded box.
-
-There's no fixed numbering.
-
-If you want to know the die/core/thread layout, check out
-Documentation/cputopology.txt.
-
+It would be nice if you split the reports according to subsystems and
+send them to addresses (especially mailinglists) given in the
+MAINTAINERS file in the base directory of the kernel sources.
 -- 
-Chuck
-And did we tell you the name of the game, boy, we call it Riding the Gravy Train.
+Stefan Richter
+-=====-=-==- -=== -====
+http://arcgraph.de/sr/

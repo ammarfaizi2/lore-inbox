@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGRVPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGRVQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWGRVPI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 17:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWGRVPH
+	id S932091AbWGRVQh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 17:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWGRVQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 17:15:07 -0400
-Received: from smtprelay05.ispgateway.de ([80.67.18.43]:5530 "EHLO
-	smtprelay05.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932085AbWGRVPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 17:15:06 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Kernel headers git tree
-Date: Tue, 18 Jul 2006 23:15:02 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
-References: <1152835150.31372.23.camel@shinybook.infradead.org> <200607142005.36998.ioe-lkml@rameria.de> <1152900971.3191.76.camel@pmac.infradead.org>
-In-Reply-To: <1152900971.3191.76.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 18 Jul 2006 17:16:37 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:6310 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932091AbWGRVQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 17:16:36 -0400
+Date: Tue, 18 Jul 2006 18:16:31 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Thomas Dillig <tdillig@stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Null dereference errors in the kernel
+Message-ID: <20060718181631.13f6f052@doriath.conectiva>
+In-Reply-To: <44BC5A3F.2080005@stanford.edu>
+References: <44BC5A3F.2080005@stanford.edu>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.4.0-rc3 (GTK+ 2.10.0; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607182315.03874.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On Mon, 17 Jul 2006 20:49:19 -0700
+Thomas Dillig <tdillig@stanford.edu> wrote:
 
-On Friday, 14. July 2006 20:16, David Woodhouse wrote:
-> Well, they're all derived from commits in Linus' tree. I could set up
-> another mailing list feed script which tracks it, but I'd like to give
-> it a while (until I'm happy with the export scripts) first.
+| [4]
+| 239 drivers/usb/misc/usblcd.c
+| NULL dereference of variable "urb".
 
-Sounds good :-)
+ This is a false positive.
 
+ The tool is not taking the return statement into consideration
+(and usb_free_urb() checks if the urb variable is NULL before deferencing
+it).
 
-Thanks & Regards
-
-Ingo Oeser
+-- 
+Luiz Fernando N. Capitulino

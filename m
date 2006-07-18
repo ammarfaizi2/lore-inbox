@@ -1,44 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWGRO0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWGROat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWGRO0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 10:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWGRO0P
+	id S932226AbWGROat (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 10:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGROat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 10:26:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24538 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932231AbWGRO0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 10:26:15 -0400
-Date: Tue, 18 Jul 2006 07:25:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: mbligh@mbligh.org, a.p.zijlstra@chello.nl, linux-mm@kvack.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: inactive-clean list
-Message-Id: <20060718072545.7cfed5b2.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607180659310.30887@schroedinger.engr.sgi.com>
-References: <1153167857.31891.78.camel@lappy>
-	<Pine.LNX.4.64.0607172035140.28956@schroedinger.engr.sgi.com>
-	<1153224998.2041.15.camel@lappy>
-	<Pine.LNX.4.64.0607180557440.30245@schroedinger.engr.sgi.com>
-	<44BCE86A.4030602@mbligh.org>
-	<Pine.LNX.4.64.0607180659310.30887@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 Jul 2006 10:30:49 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:57535
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932226AbWGROat
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 10:30:49 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
+Date: Tue, 18 Jul 2006 16:29:27 +0200
+User-Agent: KMail/1.9.1
+References: <20060717185330.GA32264@rhlx01.fht-esslingen.de> <200607171957.k6HJvPHT022236@turing-police.cc.vt.edu>
+In-Reply-To: <200607171957.k6HJvPHT022236@turing-police.cc.vt.edu>
+Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
+       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200607181629.27933.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 07:03:12 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+On Monday 17 July 2006 21:57, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 17 Jul 2006 20:53:30 +0200, Andreas Mohr said:
+> > Hi all,
+> > 
+> 
+> >         for (i = 0; i < 4; i++) {
+> >                 j = INDEX(i);
+> >                 do {
+> 
+> >                         if (j < (INDEX(i)) && i < 3)
+> >                                 list = varray[i + 1]->vec + (INDEX(i + 1));
+> >                         goto found;
+> >                 } while (j != (INDEX(i)));
+> >         }
+> > found:
+> 
+> > Excuse me, but why do we have a while loop here if the last instruction in
+> > the while loop is a straight "goto found"?
+> 
+> Consider if we take the 'goto found' when i==1.  We leave not only the do/while
+> but also the for loop.  A 'continue' instead would leave the do/while and then
+> drive the i==2 and subsequent 'for' iterations....
 
-> What other types of non freeable pages could exist?
+No, it would not. A 'continue' instead of the 'goto found' would
+compile to nothing.
+Try the following example with and without the 'continue'.
 
-PageWriteback() pages (potentially all of memory)
+#include <stdio.h>
+int main(void)
+{
+        int i, j;
+        for (i = 0; i < 2; i++) {
+                j = 0;
+                do {
+                        printf("i==%d, j==%d\n", i, j);
+                        j++;
+                        /* goto found; */
+                        continue;
+                } while (j < 2);
+        }
+}
 
-Pinned pages (various transient conditions, mainly get_user_pages())
 
-Some pages whose buffers are attached to an ext3 journal.
+Continue is equal to:
 
-Possibly NFS unstable pages.
+LOOP {
+	/* foo */
+	goto continue; /* == continue */
+	/* foo */
+continue:
+} LOOP
+
+-- 
+Greetings Michael.

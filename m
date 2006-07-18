@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWGRWz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWGRW4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWGRWz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 18:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWGRWz6
+	id S932408AbWGRW4j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 18:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWGRW4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 18:55:58 -0400
-Received: from gw.goop.org ([64.81.55.164]:54711 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932397AbWGRWz5 (ORCPT
+	Tue, 18 Jul 2006 18:56:24 -0400
+Received: from gw.goop.org ([64.81.55.164]:58039 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932402AbWGRW4G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 18:55:57 -0400
-Message-ID: <44BD478C.9040509@goop.org>
-Date: Tue, 18 Jul 2006 13:41:48 -0700
+	Tue, 18 Jul 2006 18:56:06 -0400
+Message-ID: <44BD4956.5020706@goop.org>
+Date: Tue, 18 Jul 2006 13:49:26 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Arjan van de Ven <arjan@infradead.org>, chrisw@sous-sol.org,
-       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, ak@suse.de, rusty@rustcorp.com.au,
-       zach@vmware.com, ian.pratt@xensource.com,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [RFC PATCH 05/33] Makefile support to build Xen subarch
-References: <20060718091807.467468000@sous-sol.org>	<20060718091949.842251000@sous-sol.org>	<1153216813.3038.22.camel@laptopd505.fenrus.org> <20060718044007.74324d93.akpm@osdl.org>
-In-Reply-To: <20060718044007.74324d93.akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>
+Subject: Re: [RFC PATCH 09/33] Add start-of-day setup hooks to subarch
+References: <20060718091807.467468000@sous-sol.org>	 <20060718091950.750213000@sous-sol.org> <1153217033.3038.25.camel@laptopd505.fenrus.org>
+In-Reply-To: <1153217033.3038.25.camel@laptopd505.fenrus.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> @@ -99,6 +103,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
->  
->  CFLAGS += $(mflags-y)
->  AFLAGS += $(mflags-y)
-> +CPPFLAGS += $(mflags-y)
->
-> This change affects _all_ subarchitectures (by potentially altering their
-> CPPFLAGS) and it's rather a mystery why one subarch needs the -Ifoo in its
-> CPPFLAGS whereas all the others do not.
+Arjan van de Ven wrote:
+> what is this for? Isn't this 1) undocumented and 2) unclear and 3)
+> ugly ? (I'm pretty sure the HAVE_ARCH_* stuff is highly deprecated for
+> new things nowadays)
 >   
 
-The reason is that arch-i386/kernel/vmlinux.lds.S is run through CPP, 
-and it includes asm/thread_info.h and asm/page.h, which end up including 
-"mach_page.h" (which this patch series introduces).  There is a version 
-in both mach-default/mach_page.h and mach-xen/mach_page.h, so the -I is 
-necessary for non-Xen sub-arches as well. 
+It appears to be completely unnecessary.  Xen doesn't use 
+sanitize_e820_map(), but there's no obvious harm in leaving it there 
+(and it's init code, so there's no long-term cost).
 
-I guess the conservative approach would be to only add this -I for the 
-vmlinux.lds target, assuming there are no later compile problems.  On 
-the flip-side, would you want C and Asm code getting a different set of 
-includes from "manually" preprocessed-files?  I would think you'd want 
-either defines/includes at all, or to have them identical.
-
-The CPPFLAGS assignment also appears to make the previous two lines 
-redundant, since a_flags and c_flags (which is what actually gets used 
-for compilation) end up having CPPFLAGS incorporated into them.
 
     J
 

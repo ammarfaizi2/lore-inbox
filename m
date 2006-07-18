@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWGRUBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWGRUEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWGRUBS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 16:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWGRUBS
+	id S932370AbWGRUEX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 16:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWGRUEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 16:01:18 -0400
-Received: from ozlabs.org ([203.10.76.45]:50561 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932378AbWGRUBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 16:01:17 -0400
-Subject: Re: [Xen-devel] Re: [RFC PATCH 15/33] move segment checks to
-	subarch
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, virtualization@lists.osdl.org,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-In-Reply-To: <20060718192533.GA2654@sequoia.sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091952.263186000@sous-sol.org>
-	 <1153249601.5467.31.camel@localhost.localdomain>
-	 <20060718192533.GA2654@sequoia.sous-sol.org>
-Content-Type: text/plain
-Date: Wed, 19 Jul 2006 06:00:50 +1000
-Message-Id: <1153252850.5467.69.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 18 Jul 2006 16:04:23 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:28116 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932370AbWGRUEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 16:04:23 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: [OT] Vacation message heckling (Was: Re: Richard Dent - Annual Leave)
+Date: Tue, 18 Jul 2006 22:04:12 +0200
+User-Agent: KMail/1.9.3
+Cc: Thomas Tuttle <thinkinginbinary@gmail.com>, linux-kernel@vger.kernel.org,
+       richard.dent@nhs.net
+References: <20060718090604.BLR19599@ms03.swi.contact.secure-ops.net> <20060718132704.GA12930@phoenix> <200607181443.k6IEhoTT022223@turing-police.cc.vt.edu>
+In-Reply-To: <200607181443.k6IEhoTT022223@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607182204.13216.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-18 at 12:25 -0700, Chris Wright wrote:
-> * Rusty Russell (rusty@rustcorp.com.au) wrote:
-> > On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> > > plain text document attachment (i386-segments)
-> > > We allow for the fact that the guest kernel may not run in ring 0.
-> > > This requires some abstraction in a few places when setting %cs or
-> > > checking privilege level (user vs kernel).
-> > 
-> > Zach had an alternate patch for this, which didn't assume the kernel ran
-> > in a compile-time known ring, but is otherwise very similar.  I've put
-> > it below for discussion (but Zach now tells me the asm parts are not
-> > required: Zach, can you mod this patch and comment?).
-> 
-> This patch also doesn't have a compile time known ring, it's using
-> get_kernel_cs() because the Xen method for booting native is dynamic and
-> would resolve to ring 0 in that case (XENFEAT_supervisor_mode_kernel).
+Hi Valdis,
 
-I was referring to the different ways the two patches figure out whether
-we're in user mode:
+Am Dienstag, 18. Juli 2006 16:43 schrieb Valdis.Kletnieks@vt.edu:
+> On Tue, 18 Jul 2006 09:27:04 EDT, Thomas Tuttle said:
+> > > This e-mail is confidential and privileged.
+> >
+> > Funny.  Has anyone figured out if license agreements on email
+> > messages work?
+>
+> The little case law that exists tends towards the view that if your
+> site is claiming that an out-of-clue message sent to 30K people is
+> confidential, you don't have a f**king *clue* what's actually
+> confidential.  This has a number of interesting potential outcomes:
 
-Yours:
- static inline int user_mode(struct pt_regs *regs)
- {
-       return (regs->xcs & USER_MODE_MASK) != 0;
- }
+Thanks for listing the serious outcomes of such a brain damaged 
+procedure. Let me add one:
 
-Where you have for native:
-	#define USER_MODE_MASK 3
-vs Xen:
-	#define USER_MODE_MASK 2
+Disclaimer: reading following site can seriously damage your health, 
+especially make sure to keep sitting on your chair, and your ability to 
+control machines or driving vehicles with tears filled eyes is strongly 
+reduced..
 
-Zach's patch does this:
-
- static inline int user_mode(struct pt_regs *regs)
- {
-	return (regs->xcs & SEGMENT_RPL_MASK) == 3;
- }
-
-I'm no x86pert, but the latter seems more generic to me (user mode is
-ring 3, vs. usermode is anything >= 2).  Perhaps they are in fact
-equivalent?
-
-Thanks!
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
-
+4) http://www.goldmark.org/jeff/stupid-disclaimers/

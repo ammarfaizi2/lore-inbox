@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWGRW4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWGRWz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWGRW4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 18:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWGRW4W
+	id S932397AbWGRWz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 18:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWGRWz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 18:56:22 -0400
-Received: from gw.goop.org ([64.81.55.164]:61623 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932407AbWGRW4P (ORCPT
+	Tue, 18 Jul 2006 18:55:58 -0400
+Received: from gw.goop.org ([64.81.55.164]:54711 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932397AbWGRWz5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 18:56:15 -0400
-Message-ID: <44BD4B2E.2010805@goop.org>
-Date: Tue, 18 Jul 2006 13:57:18 -0700
+	Tue, 18 Jul 2006 18:55:57 -0400
+Message-ID: <44BD478C.9040509@goop.org>
+Date: Tue, 18 Jul 2006 13:41:48 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 33/33] Add Xen virtual block device driver.
-References: <20060718091807.467468000@sous-sol.org>	 <20060718091958.657332000@sous-sol.org> <1153218847.3038.52.camel@laptopd505.fenrus.org>
-In-Reply-To: <1153218847.3038.52.camel@laptopd505.fenrus.org>
+To: Andrew Morton <akpm@osdl.org>
+CC: Arjan van de Ven <arjan@infradead.org>, chrisw@sous-sol.org,
+       linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, ak@suse.de, rusty@rustcorp.com.au,
+       zach@vmware.com, ian.pratt@xensource.com,
+       Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [RFC PATCH 05/33] Makefile support to build Xen subarch
+References: <20060718091807.467468000@sous-sol.org>	<20060718091949.842251000@sous-sol.org>	<1153216813.3038.22.camel@laptopd505.fenrus.org> <20060718044007.74324d93.akpm@osdl.org>
+In-Reply-To: <20060718044007.74324d93.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> as first general comment, I think that some of the memory allocation
-> GFP_ flags are possibly incorrect; I would expect several places to use
-> GFP_NOIO rather than GFP_KERNEL, to avoid recursion/deadlocks
+Andrew Morton wrote:
+> @@ -99,6 +103,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
+>  
+>  CFLAGS += $(mflags-y)
+>  AFLAGS += $(mflags-y)
+> +CPPFLAGS += $(mflags-y)
 >
->   
->> +static void blkif_recover(struct blkfront_info *info)
->>
->> +	/* Stage 1: Make a safe copy of the shadow state. */
->> +	copy = kmalloc(sizeof(info->shadow), GFP_KERNEL | __GFP_NOFAIL);
->>     
->
-> like here..
->
->   
-> and __GFP_NOFAIL is usually horrid; is this because error recovery was
-> an afterthought, or because it's physically impossible? In addition
-> __GFP_NOFAIL in a block device driver is... an interesting way to add
-> OOM deadlocks... have the VM guys looked into this yet?
+> This change affects _all_ subarchitectures (by potentially altering their
+> CPPFLAGS) and it's rather a mystery why one subarch needs the -Ifoo in its
+> CPPFLAGS whereas all the others do not.
 >   
 
-In this particular case, it's only used on the resume path, which I'm 
-guessing would not lead to IO recursion.  There doesn't seem to be any 
-particular reason for this to be NOFAIL though (but I haven't really 
-analyzed it).
+The reason is that arch-i386/kernel/vmlinux.lds.S is run through CPP, 
+and it includes asm/thread_info.h and asm/page.h, which end up including 
+"mach_page.h" (which this patch series introduces).  There is a version 
+in both mach-default/mach_page.h and mach-xen/mach_page.h, so the -I is 
+necessary for non-Xen sub-arches as well. 
 
-There don't appear to be any memory allocations on the IO path; they're 
-all in setup code.
+I guess the conservative approach would be to only add this -I for the 
+vmlinux.lds target, assuming there are no later compile problems.  On 
+the flip-side, would you want C and Asm code getting a different set of 
+includes from "manually" preprocessed-files?  I would think you'd want 
+either defines/includes at all, or to have them identical.
+
+The CPPFLAGS assignment also appears to make the previous two lines 
+redundant, since a_flags and c_flags (which is what actually gets used 
+for compilation) end up having CPPFLAGS incorporated into them.
 
     J
 

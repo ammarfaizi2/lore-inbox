@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWGRT3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWGRT3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWGRT3e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 15:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWGRT3e
+	id S932371AbWGRT3d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 15:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWGRT3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 15:29:34 -0400
-Received: from betty.vergenet.net ([64.85.198.114]:48768 "EHLO
-	betty.vergenet.net") by vger.kernel.org with ESMTP id S932367AbWGRT3c
+	Tue, 18 Jul 2006 15:29:33 -0400
+Received: from betty.vergenet.net ([64.85.198.114]:46464 "EHLO
+	betty.vergenet.net") by vger.kernel.org with ESMTP id S932365AbWGRT3c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 18 Jul 2006 15:29:32 -0400
-Date: Tue, 18 Jul 2006 15:15:00 -0400
+Date: Tue, 18 Jul 2006 15:13:48 -0400
 From: Horms <horms@verge.net.au>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linuxppc-dev <linuxppc-dev@ozlabs.org>, Chris Zankel <chris@zankel.net>,
-       Russell King <rmk@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>, discuss@x86-64.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, rmk@arm.linux.org.uk, tony.luck@intel.com, paulus@samba.org,
+       anton@samba.org, chris@zankel.net, linux-ia64@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] panic_on_oops: remove ssleep()
-Message-ID: <20060718191456.GF20141@verge.net.au>
-References: <200607172126_MC3-1-C544-E35A@compuserve.com>
+Message-ID: <20060718191345.GE20141@verge.net.au>
+References: <31687.FP.7244@verge.net.au> <200607180027.51986.ak@suse.de> <20060717231056.GC12463@verge.net.au> <20060717172341.6d49f109.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200607172126_MC3-1-C544-E35A@compuserve.com>
+In-Reply-To: <20060717172341.6d49f109.akpm@osdl.org>
 X-Cluestick: seven
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 17, 2006 at 09:22:17PM -0400, Chuck Ebbert wrote:
-> In-Reply-To: <31687.FP.7244@verge.net.au>
+On Mon, Jul 17, 2006 at 05:23:41PM -0700, Andrew Morton wrote:
+> On Mon, 17 Jul 2006 19:10:59 -0400
+> Horms <horms@verge.net.au> wrote:
 > 
-> On Mon, 17 Jul 2006 12:17:20 -0400, Horms wrote:
-> 
-> > This patch is part of an effort to unify the panic_on_oops behaviour
-> > across all architectures that implement it.
+> > On Tue, Jul 18, 2006 at 12:27:51AM +0200, Andi Kleen wrote:
+> > > On Monday 17 July 2006 18:17, Horms wrote:
+> > > ...
+> > > Keeping the delay might be actually useful so that you can see the panic
+> > > before system reboots when reboot on panic is enabled. I would just use a loop
+> > > of mdelays(1) with touch_nmi_watchdog/touch_softirq_watchdog()s
+> > > inbetween.
 > > 
-> > It was pointed out to me by Andi Kleen that if an oops has occured
-> > in interrupt context, then calling sleep() in the oops path will only cause
-> > a panic, and that it would be really better for it not to be in the path at
-> > all. 
+> > Ok, I will look into making that happen. I agree that the pause is
+> > quite useful.
 > 
-> i386 already checks in_interrupt() and panics immediately:
+> It's kind-of already implemented, via pause_on_oops.  Perhaps doing
+> something like 
+> 
+> 	if (panic_on_oops)
+> 		pause_on_oops = max(pause_on_oops, 5*HZ);
+> 
+> would be sufficient.
 
-Very good point. I guess that needs to be moved to after
-panic_on_oops() if the change that Andi suggests works out.
+Thanks, that may well be sufficient. And I assume that it is nicely out
+of the arch-dependant code in die(). I will poke around a bit more.
 
 -- 
 Horms                                           

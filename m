@@ -1,96 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWGRN2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWGRN3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWGRN2p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 09:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWGRN2p
+	id S932193AbWGRN3t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 09:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWGRN3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 09:28:45 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:20199
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S932197AbWGRN2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 09:28:41 -0400
-Date: Tue, 18 Jul 2006 15:29:41 +0200
-From: andrea@cpushare.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: "bruce@andrew.cmu.edu" <bruce@andrew.cmu.edu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] TIF_NOTSC and SECCOMP prctl
-Message-ID: <20060718132941.GG5726@opteron.random>
-References: <200607180623_MC3-1-C54F-3802@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607180623_MC3-1-C54F-3802@compuserve.com>
+	Tue, 18 Jul 2006 09:29:48 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50879 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932193AbWGRN3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 09:29:47 -0400
+Date: Tue, 18 Jul 2006 06:29:32 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: inactive-clean list
+In-Reply-To: <1153224998.2041.15.camel@lappy>
+Message-ID: <Pine.LNX.4.64.0607180557440.30245@schroedinger.engr.sgi.com>
+References: <1153167857.31891.78.camel@lappy> 
+ <Pine.LNX.4.64.0607172035140.28956@schroedinger.engr.sgi.com>
+ <1153224998.2041.15.camel@lappy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 18, 2006 at 06:20:20AM -0400, Chuck Ebbert wrote:
-> AFAIC the /proc method of controlling seccomp is so ugly it should
-> just go, but what about backwards compatibility?
+On Tue, 18 Jul 2006, Peter Zijlstra wrote:
 
-Given that so far CPUShare seems the only user there should be no
-problem, I already uploaded a new CPUShare package that handles both
-the old and new interfaces transparently, no matter what kernel runs
-under it.
-
-> I have a couple of questions:
+> > I thought we wanted to just track the number of unmapped clean pages and 
+> > insure that they do not go under a certain limit? That would not require
+> > any locking changes but just a new zoned counter and a check in the dirty
+> > handling path.
 > 
-> 
-> +void disable_TSC(void)
-> +{
-> +       if (!test_and_set_thread_flag(TIF_NOTSC))
-> +               /*
-> +                * Must flip the CPU state synchronously with
-> +                * TIF_NOTSC in the current running context.
-> +                */
-> +               hard_disable_TSC();
-> +}
-> 
-> This gets called from sys_prctl().  Do you need to worry about preemption
-> between the test_and_set and TSC disable?
+> The problem I see with that is that we cannot create new unmapped clean
+> pages. Where will we get new pages to satisfy our demand when there is
+> nothing mmap'ed.
 
-I tend to completely forget about preempt.
+Hmmm... I am not sure that we both have this straight yet.
 
-> Maybe these should be inline?  They're really small and that way you
-> don't need #ifdef around the code for them.
+Adding logic to determine the number of clean pages is not necessary. The 
+number of clean pages in the pagecache can be determined by:
 
-I wanted to reduce the bytecode overhead to the minimum when seccomp
-is set to y, for that I tried to avoided inlines.
+global_page_state(NR_FILE_PAGES) - global_page_state(NR_FILE_DIRTY) 
 
-> For x86_64 you need this:
-> 
-> ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/tif-flags-for-debug-regs-and-io-bitmap-in-ctxsw
-> 
-> But I don't think Andi plans on pushing it for 2.6.18.
+That number can be increased by writeout and so I think we want this to
+be checked in the throttling path. Swapout is only useful for 
+anonymous pages. Dirty anonymous pages are not tracked and do not 
+contribute to the NR_FILE_DIRTY (formerly nr_dirty). We only track
+the number of anonymous pages in NR_ANON_PAGES. Swapout could be used 
+to reduce NR_ANON_PAGES if memory becomes tight.
 
-Thanks for the pointer.
+The intend of insuring that a certain number of clean pages exist seems to
+be to guarantee that a certain amount of memory is freeable without
+having to go through a filesystem.
 
-For now the patch I posted already works on x86-64 and on all other
-archs (x86_64 misses the notsc feature for now, but that's not a
-problem, the patch is self contained and we can take care of the notsc
-for x86-64 later on).
+Pages that are available without file system activity are:
 
-This is the incremental patch to address the preempt=y kernel builds.
+1. The already free pages.
 
-diff -r 373f0be00c40 arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Sun Jul 16 15:51:54 2006 +0200
-+++ b/arch/i386/kernel/process.c	Tue Jul 18 14:59:23 2006 +0200
-@@ -542,12 +542,14 @@ void hard_disable_TSC(void)
- }
- void disable_TSC(void)
- {
-+	preempt_disable();
- 	if (!test_and_set_thread_flag(TIF_NOTSC))
- 		/*
- 		 * Must flip the CPU state synchronously with
- 		 * TIF_NOTSC in the current running context.
- 		 */
- 		hard_disable_TSC();
-+	preempt_enable();
- }
- void hard_enable_TSC(void)
- {
+2. The clean pagecache pages.
+
+For a zone this is
+
+zone->free_pages + zone_page_state(zone, NR_FILE_PAGES) - 
+zone_page_state(zone, NR_FILE_DIRTY)
+
+If this goes below a certain limit then we either have to:
+
+1. If NR_FILE_DIRTY is significant then we can increase the number
+   of reclaimable pages by writing them out.
+
+2. If NR_FILE_DIRTY and NR_FILE_PAGES are low then writeout does 
+   not help us. NR_ANON_PAGES is likely big. So we could swap some
+   anonymous pages out to increase zone->free_pages instead. Performance
+   wise this is a bad move. So we should prefer writeout.
+
+However, the above scheme assumes that all pagecache pages can ne
+unmapped if necessary. This may not be desirable since we may then
+have no executable pages available anymore and create a significant
+amount of disk traffic. If we would track the number of dirty unmapped
+pages (by addding NR_UNMAPPED_DIRTY) then we could guarantee available
+memory that would leave the pages in use by processes alone.
+
+If we impose a limit on the number of free pages + the number of unmapped
+clean pagecache pages then we have a reserve memory pool that can be
+accessed without too much impact on performance. Its basically another
+trigger for writeout.
+
+
+
+
+
+
+
+
+

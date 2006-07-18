@@ -1,114 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWGRXDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWGRXGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbWGRXDN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 19:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGRXDN
+	id S932410AbWGRXGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 19:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGRXGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 19:03:13 -0400
-Received: from gw.goop.org ([64.81.55.164]:32181 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932414AbWGRXDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 19:03:12 -0400
-Message-ID: <44BD68B1.2060508@goop.org>
-Date: Tue, 18 Jul 2006 16:03:13 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Tue, 18 Jul 2006 19:06:09 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:22360 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932410AbWGRXGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 19:06:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GudBxVnlZZpxH+/s7BTSOEI7ppha2/DA8KkLHeDAzyaMaPA89G5JYLufmzi5aCIcjPdWil91X4PMLDoHKLPqMReyZxwTnQl/pqwVcHJqux6w933ryofiYP+mCqv+beJZ21y9dI6MlrUPPua4qQ6q2G5kTZaSoVzVmjvIi5Xh+/s=
+Message-ID: <3b0ffc1f0607181606x1e6b1744j52a77a68cbaf2917@mail.gmail.com>
+Date: Tue, 18 Jul 2006 19:06:06 -0400
+From: "Kevin Radloff" <radsaq@gmail.com>
+To: "Torsten Landschoff" <torsten@debian.org>
+Subject: Re: XFS breakage in 2.6.18-rc1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060718222941.GA3801@stargate.galaxy>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: [RFC PATCH 16/33] Add support for Xen to entry.S.
-References: <20060718091807.467468000@sous-sol.org> <20060718091952.505770000@sous-sol.org> <1153250220.5467.38.camel@localhost.localdomain> <20060718204333.GD2654@sequoia.sous-sol.org>
-In-Reply-To: <20060718204333.GD2654@sequoia.sous-sol.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060718222941.GA3801@stargate.galaxy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Rusty Russell (rusty@rustcorp.com.au) wrote:
->   
->> On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
->>     
->>> plain text document attachment (i386-entry.S)
->>> - change cli/sti
->>> - change test for user mode return to work for kernel mode in ring1
->>> - check hypervisor saved event mask on return from exception
->>> - add entry points for the hypervisor upcall handlers
->>> - avoid math emulation check when running on Xen
->>> - add nmi handler for running on Xen
->>>
->>> Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
->>> Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
->>> Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
->>> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
->>>
->>> ---
->>>  arch/i386/kernel/asm-offsets.c |   26 +++++++
->>>  arch/i386/kernel/entry.S       |  141 ++++++++++++++++++++++++++++++++++++-----
->>>  arch/i386/mach-xen/setup-xen.c |   19 +++++
->>>  drivers/xen/core/features.c    |    2
->>>  4 files changed, 169 insertions(+), 19 deletions(-)
->>>
->>> diff -r 5cca1805b8a7 arch/i386/kernel/entry.S
->>> --- a/arch/i386/kernel/entry.S	Tue Jul 18 02:20:39 2006 -0400
->>> +++ b/arch/i386/kernel/entry.S	Tue Jul 18 02:22:56 2006 -0400
->>> @@ -76,8 +76,39 @@ NT_MASK		= 0x00004000
->>>  NT_MASK		= 0x00004000
->>>  VM_MASK		= 0x00020000
->>>  
->>> +#ifndef CONFIG_XEN
->>> +#define DISABLE_INTERRUPTS	cli
->>> +#define ENABLE_INTERRUPTS	sti
->>> +#else
->>> +#include <xen/interface/xen.h>
->>> +
->>> +EVENT_MASK	= 0x2E
->>> +
->>> +/* Offsets into shared_info_t. */
->>> +#define evtchn_upcall_pending		/* 0 */
->>> +#define evtchn_upcall_mask		1
->>>       
->> Erk... Can we get these into asm-offsets?
->>     
+On 7/18/06, Torsten Landschoff <torsten@debian.org> wrote:
+> Hi friends,
 >
-> Hmm, we put the vcpu shift in, guess we missed that.  Thanks for noticing.
+> I upgraded to 2.6.18-rc1 on sunday, with the following results (taken
+> from my /var/log/kern.log), which ultimately led me to reinstall my
+> system:
+[snip]
+> That problem occured during a dist-upgrade, dm-6 is my /usr partition. Funny
+> enough this happened a few months after finally replaced my ancient disk
+> with a RAID1 array to make sure I do not lose data ;)
 >
->   
->>> +
->>> +#ifdef CONFIG_SMP
->>> +/* Set %esi to point to the appropriate vcpu structure */
->>> +#define GET_VCPU_INFO		movl TI_cpu(%ebp),%esi			; \
->>> +				shl  $SIZEOF_VCPU_INFO_SHIFT,%esi	; \
->>> +				addl HYPERVISOR_shared_info,%esi
->>> +#else
->>> +#define GET_VCPU_INFO		movl HYPERVISOR_shared_info,%esi
->>> +#endif
->>> +
->>> +/* The following end up using/clobbering %esi, because of GET_VCPU_INFO */
->>> +#define __DISABLE_INTERRUPTS	movb $1,evtchn_upcall_mask(%esi)
->>> +#define DISABLE_INTERRUPTS	GET_VCPU_INFO				; \
->>> +				__DISABLE_INTERRUPTS
->>> +#define ENABLE_INTERRUPTS	GET_VCPU_INFO				; \
->>> +				movb $0,evtchn_upcall_mask(%esi)
->>> +#define __TEST_PENDING		testb $0xFF,evtchn_upcall_pending(%esi)
->>> +#endif
->>>       
->> Actually, is it possible to move these to a header somewhere?  In the
->> paravirt_ops patches I used the names CLI and STI (copied from the VMI
->> patches), but didn't allow them to clobber any regs.  They're defined in
->> asm-i386/paravirt.h.
->>     
 >
-> Sure, although it's only used here.  Got a preference?
->   
+> In any case it seems like the XFS driver in 2.6.18-rc1 is decently broken.
+> After booting into 2.6.17 again, I could use /usr again but random files
+> contain null bytes, firefox segfaults instead of starting up and a number
+> of programs fail in mysterious ways. I tried to recover using xfs_repair
+> but I feel that my partition is thorougly borked. Of course no data was
+> lost due to backups but still I'd like this bug to be fixed ;-)
+>
+> If more information from my logs is required, I can make it available (and any
+> part of the partition if required).
 
-It might be an idea to use something other than STI, CLI and CPUID, 
-since the assembler is case-insensitive.  We've already had one bug 
-where CPUID didn't get replaced and the assembler quietly accepted it as-is.
+That looks like the death knell of my /, which succumbed on Friday as
+a result (I believe) of the corruption bug that was in 2.6.16/17.
+Ironically enough, I also saw the problem during an aptitude upgrade.
 
-    J
+Also see this thread:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115070320401919&w=2
+
+-- 
+Kevin 'radsaq' Radloff
+radsaq@gmail.com
+http://thesaq.com/

@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWGRSgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWGRSg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWGRSgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 14:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWGRSgD
+	id S932347AbWGRSg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 14:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWGRSg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 14:36:03 -0400
-Received: from lx1.dinonet.it ([213.145.29.133]:61826 "EHLO mail.dinonet.it")
-	by vger.kernel.org with ESMTP id S932345AbWGRSgB (ORCPT
+	Tue, 18 Jul 2006 14:36:28 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:55436 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S932347AbWGRSg1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 14:36:01 -0400
-From: <febo@delenda.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 'vintage' via dma bug
-Date: Tue, 18 Jul 2006 20:36:00 +0200
-Message-ID: <001001c6aa99$0476a380$fc01a8c0@EFFEPUNTO>
+	Tue, 18 Jul 2006 14:36:27 -0400
+Message-ID: <44BD2A29.8060405@dgreaves.com>
+Date: Tue, 18 Jul 2006 19:36:25 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcaqmQPl3ahpw3zsQlu9utLcEnSalw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+To: Neil Brown <neilb@suse.de>
+Cc: Martin Filip <bugtraq@smoula.net>, linux-kernel@vger.kernel.org
+Subject: Re: NFS and partitioned md
+References: <1151355145.4460.16.camel@archon.smoula-in.net>	<17568.31894.207153.563590@cse.unsw.edu.au>	<1151432312.11996.32.camel@reaver.netbox-in.cz> <17571.19699.980491.970386@cse.unsw.edu.au>
+In-Reply-To: <17571.19699.980491.970386@cse.unsw.edu.au>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the misfortune to run a rather old PIII machine with a VIA chipset, 
-a Fedora Core 1 distro with 2.4.22 kernel and two PATA hard mirrored hard 
-disk, on two separate channels, both set to primary. I've experienced some 
-data corruption lately and after much googling I've found that 4-5 years 
-ago some via chipset experienced a similar problem with dma transfers, 
-especially with hard disk configured the very same way as my setup. The bug 
-was fixed, I gather, in 2.4.4. I've upgrade the kernel to 2.6.10 (the 
-latest Fedora legacy core *TWO* kernel, with fingers crossed) but the 
-corruption problems usually start to pop up only after a few weeks of 
-uptime, especially under relatively heavy load.
-I couldn't find more precise pointers after all these years so I'd like to 
-know if that bug really affected my chipset, and if 2.6.10 is a valid 
-solution.. 
+Neil Brown wrote:
+> On Tuesday June 27, bugtraq@smoula.net wrote:
+>> Hi,
+>>
+>> thx for your interrest,
+>>
+>> Neil Brown pí¹e v Út 27. 06. 2006 v 10:32 +1000:
+>>> So I suspect there is something else going on that has nothing to do
+>>> with the usage of partitioned md.... then again, maybe there is some
+>>> weird sign extension happening to '254' somewhere, though that would
+>>> be terribly strange.
+>> (as I look on that it comes on my mind, that problem could be minor
+>> longer than 1 byte)
+>>
+> 
+> Exactly.  4105 > 256.  Such devices need a different format filehandle
+> which didn't work until very recently due to a bug (obviously no-one
+> tried it until recently).
+> 
+> The patch below fixes the kernel so that this will work.
+> Alternately use md_d0 md_d1, md_d2, or md_d3.  Then it will work with
+> no patches.
 
-the kernel identifies the chipset at boot:
+FWIW (and google) I have just encountered this problem on 2.6.16.9 server.
 
+My error message with the NFS mount failing was:
+mount teak:/media /mnt/test
+mount: teak:/media: can't read superblock
 
-# dmesg | fgrep -i via
-ACPI: DSDT (v001    VIA APOLLO-P 0x00001000 MSFT 0x0100000b) @ 0x00000000
-PCI: Via IRQ fixup
-agpgart: Detected VIA Apollo Pro 133 chipset
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:07.1
-parport_pc: VIA 686A/8231 detected
-parport_pc: VIA parallel port: io=0x378, irq=7
+teak:~# ll /dev/media*
+brw-rw---- 1 root disk 254, 8128 2006-07-18 18:39 /dev/media
+brw-rw---- 1 root disk 254, 8129 2006-07-18 18:39 /dev/media1
+brw-rw---- 1 root disk 254, 8130 2006-07-18 18:39 /dev/media2
+brw-rw---- 1 root disk 254, 8131 2006-07-18 18:39 /dev/media3
+brw-rw---- 1 root disk 254, 8132 2006-07-18 18:39 /dev/media4
 
-# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] 
-(rev
- c4)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
-MVP3/Pro133x AG
-P]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] 
-(rev 22
-)
-00:07.1 IDE interface: VIA Technologies, Inc. 
-VT82C586A/B/VT82C686/A/B/VT823x/A/
-C/VT8235 PIPC Bus Master IDE (rev 10)
-00:07.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
-(rev
-10)
-00:07.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] 
-(rev
-10)
-00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:0e.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 
-08)
-00:0f.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 
-08)
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage XL AGP 2X (rev 
-27)
+I rebooted to use /dev/md_d0 and /dev/md_d0p1 and it's fine.
 
+David

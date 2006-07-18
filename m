@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWGRLlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWGRLnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWGRLlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 07:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWGRLlQ
+	id S1751298AbWGRLnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 07:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWGRLnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 07:41:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40871 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751248AbWGRLlQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 07:41:16 -0400
-Date: Tue, 18 Jul 2006 04:40:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
-       jeremy@goop.org, ak@suse.de, rusty@rustcorp.com.au, zach@vmware.com,
-       ian.pratt@xensource.com, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [RFC PATCH 05/33] Makefile support to build Xen subarch
-Message-Id: <20060718044007.74324d93.akpm@osdl.org>
-In-Reply-To: <1153216813.3038.22.camel@laptopd505.fenrus.org>
-References: <20060718091807.467468000@sous-sol.org>
-	<20060718091949.842251000@sous-sol.org>
-	<1153216813.3038.22.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+	Tue, 18 Jul 2006 07:43:24 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44520 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751298AbWGRLnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 07:43:23 -0400
+Date: Tue, 18 Jul 2006 12:43:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Erik Mouw <erik@harddisk-recovery.com>,
+       Jeff Anderson-Lee <jonah@eecs.berkeley.edu>,
+       "'fsdevel'" <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 Inclusion
+Message-ID: <20060718114317.GA724@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Dike <jdike@addtoit.com>,
+	Erik Mouw <erik@harddisk-recovery.com>,
+	Jeff Anderson-Lee <jonah@eecs.berkeley.edu>,
+	'fsdevel' <linux-fsdevel@vger.kernel.org>,
+	linux-kernel@vger.kernel.org
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu> <20060717204804.GA18516@harddisk-recovery.com> <20060718004931.GB8092@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060718004931.GB8092@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 12:00:13 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
-
-> On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
-> > plain text document attachment (i386-mach-xen)
-> > Use arch/i386/mach-xen when building Xen subarch. The separate
-> > subarchitecture allows us to hide details of interfacing with the
-> > hypervisor from i386 common code.
+On Mon, Jul 17, 2006 at 08:49:31PM -0400, Jeff Dike wrote:
+> On Mon, Jul 17, 2006 at 10:48:04PM +0200, Erik Mouw wrote:
+> > On Mon, Jul 17, 2006 at 08:13:04AM -0700, Jeff Anderson-Lee wrote:
+> > > In the past I've wondered why so many experimental FS projects die this
+> > > death of obscurity in that they only work under FreeBSD or some ancient
+> > > version of Linux.? I'm beginning to see why that is so:? the Linux core
+> > > simply changes too fast for it to be a decent FS R&D environment!
+> > 
+> > That hasn't been a problem for OCFS2 and FUSE (recently merged), and
+> > also doesn't seem to be a problem for GFS.
 > 
+> I'm been maintaining a couple (for now) out-of-tree filesystems for
+> UML, and have seen only minor updates needed over the course of 2.6.
 > 
-> Hi,
-> 
-> please change the order of your patches next time, by sending the
-> makefile and config options first you'll break git bisect...
-> 
+> Complaints about interface churn for filesystems (or anything else,
+> actually, since an architecture, such as UML, is exposed to nearly the
+> entire kernel) are imcomprehensible to me.
 
-No, this patch is OK (in that respect).  As long as the git-bisect user
-sets CONFIG_XEN=n (and surely he will), things will compile.
-
-That being said,
-
-+mflags-$(CONFIG_X86_XEN)	:= -Iinclude/asm-i386/mach-xen
-+mcore-$(CONFIG_X86_XEN)		:= mach-xen
-+
- # generic subarchitecture
- mflags-$(CONFIG_X86_GENERICARCH) := -Iinclude/asm-i386/mach-generic
- mcore-$(CONFIG_X86_GENERICARCH) := mach-default
-@@ -99,6 +103,7 @@ drivers-$(CONFIG_PM)			+= arch/i386/powe
- 
- CFLAGS += $(mflags-y)
- AFLAGS += $(mflags-y)
-+CPPFLAGS += $(mflags-y)
-
-This change affects _all_ subarchitectures (by potentially altering their
-CPPFLAGS) and it's rather a mystery why one subarch needs the -Ifoo in its
-CPPFLAGS whereas all the others do not.
+Yes, in 2.6 there were very little changes to the filesystem interface.
+I count that as a good sign, it means our VFS and common fs helper code
+has become pretty mature.

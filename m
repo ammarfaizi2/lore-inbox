@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWGRK0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWGRK26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWGRK0d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 06:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWGRK0c
+	id S932169AbWGRK26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 06:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWGRK26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 06:26:32 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:8886 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S932167AbWGRK0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 06:26:31 -0400
-In-Reply-To: <1153217686.3038.37.camel@laptopd505.fenrus.org>
-References: <20060718091807.467468000@sous-sol.org> <20060718091953.003336000@sous-sol.org> <1153217686.3038.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <214b20545df13e36c91fd1369d57b18a@cl.cam.ac.uk>
+	Tue, 18 Jul 2006 06:28:58 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:60800 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S932121AbWGRK25
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 06:28:57 -0400
+Subject: Re: [RFC PATCH 32/33] Add the Xen virtual network device driver.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       netdev@vger.kernel.org
+In-Reply-To: <20060718091958.414414000@sous-sol.org>
+References: <20060718091807.467468000@sous-sol.org>
+	 <20060718091958.414414000@sous-sol.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 18 Jul 2006 12:27:57 +0200
+Message-Id: <1153218477.3038.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Cc: virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Andrew Morton <akpm@osdl.org>
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 18/33] Subarch support for CPUID instruction
-Date: Tue, 18 Jul 2006 11:26:19 +0100
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.624)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
+> +
+> +/** Send a packet on a net device to encourage switches to learn the
+> + * MAC. We send a fake ARP request.
+> + *
+> + * @param dev device
+> + * @return 0 on success, error code otherwise
+> + */
+> +static int send_fake_arp(struct net_device *dev)
+> +{
+> +	struct sk_buff *skb;
+> +	u32             src_ip, dst_ip;
+> +
+> +	dst_ip = INADDR_BROADCAST;
+> +	src_ip = inet_select_addr(dev, dst_ip, RT_SCOPE_LINK);
+> +
+> +	/* No IP? Then nothing to do. */
+> +	if (src_ip == 0)
+> +		return 0;
+> +
+> +	skb = arp_create(ARPOP_REPLY, ETH_P_ARP,
+> +			 dst_ip, dev, src_ip,
+> +			 /*dst_hw*/ NULL, /*src_hw*/ NULL,
+> +			 /*target_hw*/ dev->dev_addr);
+> +	if (skb == NULL)
+> +		return -ENOMEM;
+> +
+> +	return dev_queue_xmit(skb);
+> +}
 
-On 18 Jul 2006, at 11:14, Arjan van de Ven wrote:
+Hi,
 
->> Allow subarchitectures to modify the CPUID instruction.  This allows
->> the subarch to provide a limited set of CPUID feature flags during CPU
->> identification.  Add a subarch implementation for Xen that traps to 
->> the
->> hypervisor where unsupported feature flags can be hidden from guests.
->
-> I'm wondering if this is entirely the wrong level of abstraction; to me
-> it feels the subarch shouldn't override the actual cpuid, but the cpu
-> feature flags that linux uses. That's a lot less messy: cpuid has many
-> many pieces of information which are near impossible to filter in
-> practice, however filtering the USAGE of it is trivial; linux basically
-> flattens the cpuid namespace into a simple bitmap of "what the kernel
-> can use". That is really what the subarch should filter/fixup, just 
-> like
-> we do for cpu quirks etc etc.
+Hmmm maybe it's me, but something bugs me if a NIC driver is going to
+send IP level ARP packets... that just feels very very wrong and is a
+blatant layering violation.... shouldn't the ifup/ifconfig scripts just
+be fixed instead if this is critical behavior?
 
-Maybe we should have that *as well*, but it makes sense to allow the 
-hypervisor to apply a filter too. For example, whether it supports PSE, 
-FXSAVE/FXRSTOR, etc. These are things the 'platform' is telling the OS 
--- not something the OS can filter for itself. To trap on CPUID 
-invocations requires the guest to use a special code sequence for 
-CPUID, since the instruction will never normally fault. Hence moving to 
-mach-* to hide this detail.
+Greetings,
+   Arjan van de Ven
 
-  -- Keir
+
 

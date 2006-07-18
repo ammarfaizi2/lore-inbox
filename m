@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGRUSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWGRUaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWGRUSD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 16:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGRUSD
+	id S932386AbWGRUaG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 16:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWGRUaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 16:18:03 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:47328 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932365AbWGRUSC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 16:18:02 -0400
-Subject: Re: Bad ext3/nfs DoS bug
-From: Marcel Holtmann <marcel@holtmann.org>
-To: James <20@madingley.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060718152341.GB27788@circe.esc.cam.ac.uk>
-References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
-	 <1153209318.26690.1.camel@localhost>
-	 <20060718145614.GA27788@circe.esc.cam.ac.uk>
-	 <1153236136.10006.5.camel@localhost>
-	 <20060718152341.GB27788@circe.esc.cam.ac.uk>
-Content-Type: text/plain
-Date: Tue, 18 Jul 2006 22:18:26 +0200
-Message-Id: <1153253907.21024.25.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.7.4 
+	Tue, 18 Jul 2006 16:30:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:8226 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932386AbWGRUaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 16:30:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M71C4vH9H42HSgJIhu+TMjxvxTUoBA45+/bSZMBiYKKuwFW5NHxR0VZcH0ZPfUjLAbXOoIdmaUtpnY67AO9zro7h1CvOcgu5WXgrLbeqz2u0IyvOS4Khrxt8caDqKCBwxV0CdOqcnsFielQBcdNlLMO4Qpzpy4SJuD7Go0yNh+c=
+Message-ID: <9a8748490607181330q7b7be84i3ac324d9053a5fa4@mail.gmail.com>
+Date: Tue, 18 Jul 2006 22:30:04 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Thomas Tuttle" <thinkinginbinary@gmail.com>
+Subject: Re: [OT] Vacation message heckling (Was: Re: Richard Dent - Annual Leave)
+Cc: richard.dent@nhs.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20060718132704.GA12930@phoenix>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060718090604.BLR19599@ms03.swi.contact.secure-ops.net>
+	 <20060718132704.GA12930@phoenix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+On 18/07/06, Thomas Tuttle <thinkinginbinary@gmail.com> wrote:
+> On July 18 at 04:06 EDT, Dent Richard hastily scribbled:
+> > I am now out of the office until Monday 24th July.  If your email is of an urgent nature then please contact Jackie Thompson (my PA) on QEII 4930 otherwise I will respond to you upon my return.
+>
+> LKML wishes you a happy vacation.
+>
+> > ***************************************************************************
+> > This e-mail is confidential and privileged. If you are not the intended
+> > recipient please accept our apologies; please do not disclose, copy or
+> > distribute information in this e-mail or take any action in reliance on its
+> > contents: to do so is strictly prohibited and may be unlawful. Please
+> > inform us that this message has gone astray before deleting it. Thank you
+> > for your co-operation.
+> > ***************************************************************************
+>
+> Funny.  Has anyone figured out if license agreements on email messages work?
+>
 
-> > What is the reason behind your question? Does disabling subtree checking
-> > changes something?
-> 
-> just that the iget() call which causes the problem in 2.6
-> is happening in the subtree checking code, not based on
-> analysis of the flow.
+Claiming anything send by email is confidential seems completely
+rediculous to me.
 
-just did a quick test with the RHEL4 kernel (2.6.9 based) and
-subtree_check and no_subtree_check export option. No difference and in
-both cases it gets remounted read-only.
+Perhaps if the email was encrypted I could attach some weight to a
+disclaimer like that, but sending unencrypted email is like writing on
+the back of a postcard - it can be read by a huge number of people in
+transit - admins managing the mail servers where it is stored along
+the way, people sniffing traffic on the lines it passes through,
+people sticking their noses in your computers mbox file while you are
+on the toilet etc etc etc...
+And when you on top of that send the mail to a public mailing list,
+well, it's hardly confidential any more by anyones standards...
 
-Regards
-
-Marcel
+Complete and utter nonsense if you ask me.
 
 
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

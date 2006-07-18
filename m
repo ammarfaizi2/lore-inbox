@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWGRPYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGRPXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWGRPYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 11:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWGRPYG
+	id S932278AbWGRPXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGRPXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:24:06 -0400
-Received: from relay3.uol.com.br ([200.221.4.110]:1003 "EHLO relay3.uol.com.br")
-	by vger.kernel.org with ESMTP id S932277AbWGRPXx convert rfc822-to-8bit
+	Tue, 18 Jul 2006 11:23:40 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:7439 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932264AbWGRPXj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:23:53 -0400
-Date: Tue, 18 Jul 2006 12:23:51 -0300
-Message-Id: <J2LURR$5AAF184870D28A0309D5140BC87E495D@uol.com.br>
-Subject: ACPI on ASUS A7S333 - Kernel 2.6.13 and higher
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "icoslau" <icoslau@uol.com.br>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 4.3(R1) (B5)
-X-SenderIP: 200.250.215.233
-X-SIG5: 58ac99a81e6bbceefaa413af3d994789
+	Tue, 18 Jul 2006 11:23:39 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: jhaller@lucent.com (John Haller)
+Subject: Re: [RFC PATCH 32/33] Add the Xen virtual network device driver.
+Cc: herbert@gondor.apana.org.au, hadi@cyberus.ca, arjan@infradead.org,
+       chrisw@sous-sol.org, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       jeremy@goop.org, ak@suse.de, akpm@osdl.org, rusty@rustcorp.com.au,
+       zach@vmware.com, ian.pratt@xensource.com,
+       Christian.Limpach@cl.cam.ac.uk, netdev@vger.kernel.org
+Organization: Core
+In-Reply-To: <44BCE15D.2090501@lucent.com>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev,apana.lists.os.xen.devel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1G2rP0-0003bc-00@gondolin.me.apana.org.au>
+Date: Wed, 19 Jul 2006 01:22:26 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, my name is Adalberto and i live in Brazil.
+John Haller <jhaller@lucent.com> wrote:
+>
+> But sending ARPs is not the right thing if the guest is expecting
+> to use IPv6 networking, in which case unsolicited neighbor
+> advertisements are the right thing to do.  The driver just
+> doesn't seem to be the right place to do this, as it doesn't/
+> shouldn't need to know the difference between IPv4/IPv6.
 
-I have a problem which must be simpler so that yours they can help me.
+In this case it doesn't really matter because AFAIK they're
+trying to get switches to notice that the MAC has moved.  So
+all you need is some packet that the switches can grok.
 
-Until version 2.6.12 of kernel, in any distribution my MOBO ASUS A7S333 works very well, mainly for the fact to use ACPI and disconnect total (power off) when commanded.    
-
-However of version 2.6.13 in ahead I do not obtain the same result.
-
-Already I tried to modify DSDT, to qualify and to incapacitate ACPI or APM in kernel, to pass options to boot as pci=noacpi amongst as much others, but in these finish versions of kernel, the APM only obtains disconnect (power off) schemes it.
-The problem is that with qualified APM this schemes tends to stop in all the times in others words, the system hangs.
-
-My question, if somebody will be able to help me, is if it is possible, already I tried but without success, to place in kernel 2.6.13 or higher the instructions of ACPI of kernel 2.6.12. I try copy the acpi from source of 2.6.12 and paste in 2.6.13 but in kernel compilation are many errors in .c files of acpi.
-
-I thank any very I assist that they will be able to give to me in this direction. 
-
-Sorry for my english, its not good.
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

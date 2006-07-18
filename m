@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWGRA1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWGRAtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWGRA1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 20:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWGRA1p
+	id S1751277AbWGRAtn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 20:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWGRAtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 20:27:45 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:4819 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751256AbWGRA1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 20:27:44 -0400
-Message-Id: <200607180026.k6I0Qo1m010430@laptop11.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Jeff Mahoney <jeffm@suse.com>, 7eggert@gmx.de,
-       Eric Dumazet <dada1@cosmosbay.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reiserfs: fix handling of device names with /'s in them 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Mon, 17 Jul 2006 14:03:09 MST." <44BBFB0D.6040105@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 17 Jul 2006 20:26:49 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 17 Jul 2006 20:26:59 -0400 (CLT)
+	Mon, 17 Jul 2006 20:49:43 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:63960 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751271AbWGRAtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 20:49:42 -0400
+Date: Mon, 17 Jul 2006 20:49:31 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Jeff Anderson-Lee <jonah@eecs.berkeley.edu>,
+       "'fsdevel'" <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reiser4 Inclusion
+Message-ID: <20060718004931.GB8092@ccure.user-mode-linux.org>
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <000001c6a9b3$81186ea0$ce2a2080@eecs.berkeley.edu> <20060717204804.GA18516@harddisk-recovery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060717204804.GA18516@harddisk-recovery.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Jeff Mahoney wrote:
-> > Hans Reiser wrote:
-> > >Jeff Mahoney wrote:
-> > >>1) Because then the behavior of /proc/fs/reiserfs/ would be
-> > >>inconsistent. Devices that contain slashes end up being one level deeper
-> > >>than other devices, which is silly and a userspace visible change.
-> >
-> > >And you think translating / to ! is less work for user space?
-> >
-> >
-> > A one line s#/#!# to access devices they couldn't before versus now
-> > having to deal with going deeper into a tree for no real reason? Yes,
-> > I do.
+On Mon, Jul 17, 2006 at 10:48:04PM +0200, Erik Mouw wrote:
+> On Mon, Jul 17, 2006 at 08:13:04AM -0700, Jeff Anderson-Lee wrote:
+> > In the past I've wondered why so many experimental FS projects die this
+> > death of obscurity in that they only work under FreeBSD or some ancient
+> > version of Linux.? I'm beginning to see why that is so:? the Linux core
+> > simply changes too fast for it to be a decent FS R&D environment!
+> 
+> That hasn't been a problem for OCFS2 and FUSE (recently merged), and
+> also doesn't seem to be a problem for GFS.
 
-> I am willing to bet that perl can tree iterate with one line of code....
+I'm been maintaining a couple (for now) out-of-tree filesystems for
+UML, and have seen only minor updates needed over the course of 2.6.
 
-;-)
+Complaints about interface churn for filesystems (or anything else,
+actually, since an architecture, such as UML, is exposed to nearly the
+entire kernel) are imcomprehensible to me.
 
-> Please read the Hideous Name by Rob Pike.
-
-Interesting read.
-
->                                           You are making it more hideous.
-
-By insisting that something that is /not/ a directory /is/ written as such?
-Sorry, they are asking for exactly the opposite.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+				Jeff

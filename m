@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWGRWhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWGRWmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWGRWhz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 18:37:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWGRWhz
+	id S932304AbWGRWmR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 18:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWGRWmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 18:37:55 -0400
-Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:29387 "EHLO
-	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932279AbWGRWhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 18:37:55 -0400
-To: Dave Jones <davej@redhat.com>
+	Tue, 18 Jul 2006 18:42:17 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:11932 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932304AbWGRWmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 18:42:17 -0400
+Date: Tue, 18 Jul 2006 19:46:21 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Andreas Schwab <schwab@suse.de>
 Cc: Thomas Dillig <tdillig@stanford.edu>, linux-kernel@vger.kernel.org
 Subject: Re: Null dereference errors in the kernel
+Message-ID: <20060718194621.3079b217@home.brethil>
+In-Reply-To: <jeu05e4n3w.fsf@sykes.suse.de>
 References: <44BC5A3F.2080005@stanford.edu>
-	<20060718164023.GA29417@redhat.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 19 Jul 2006 00:37:33 +0200
-In-Reply-To: <20060718164023.GA29417@redhat.com>
-Message-ID: <m3lkqqv8sy.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	<20060718181631.13f6f052@doriath.conectiva>
+	<jeu05e4n3w.fsf@sykes.suse.de>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
+On Tue, 18 Jul 2006 23:30:43 +0200
+Andreas Schwab <schwab@suse.de> wrote:
 
-> On Mon, Jul 17, 2006 at 08:49:19PM -0700, Thomas Dillig wrote:
-> 
->  > 144 drivers/char/agp/ati-agp.c
->  > NULL dereference of variable "ati_generic_private.gatt_pages" in 
->  > function call (drivers/char/agp/ati-agp.c:ati_free_gatt_pages).
->  
-> I think this is a false positive.
+| "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br> writes:
+| 
+| > On Mon, 17 Jul 2006 20:49:19 -0700
+| > Thomas Dillig <tdillig@stanford.edu> wrote:
+| >
+| > | [4]
+| > | 239 drivers/usb/misc/usblcd.c
+| > | NULL dereference of variable "urb".
+| >
+| >  This is a false positive.
+| 
+| It is not, for 2.6.17. But the bug has already been fixed some time ago.
 
-I don't think so. If the 'entry = kzalloc(...)' fails at line 125, the
-code will set tables to NULL and retval to != 0. ati_free_gatt_pages()
-will then be called with .gatt_pages == NULL and .num_tables > 0. This
-will trigger a NULL pointer dereference in ati_free_gatt_pages().
+ Wooops. Very true. Looked in current Linus' tree. Sorry for that.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+Luiz Fernando N. Capitulino

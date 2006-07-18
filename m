@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWGRJmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWGRKCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbWGRJmz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWGRJmz
+	id S932145AbWGRKCG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 06:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWGRKCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:42:55 -0400
-Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:50816 "EHLO
-	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932149AbWGRJmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:42:54 -0400
-Message-ID: <44BCAD19.8070004@gmail.com>
-Date: Tue, 18 Jul 2006 12:42:49 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor@insightbb.com>
-CC: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: input/eventX permissions, force feedback
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 18 Jul 2006 06:02:06 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:29056 "EHLO
+	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S932145AbWGRKCF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 06:02:05 -0400
+Subject: Re: [RFC PATCH 04/33] Add XEN config options and disable
+	unsupported config options.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
+       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+In-Reply-To: <20060718091949.565211000@sous-sol.org>
+References: <20060718091807.467468000@sous-sol.org>
+	 <20060718091949.565211000@sous-sol.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 18 Jul 2006 11:59:12 +0200
+Message-Id: <1153216752.3038.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently most distributions have /dev/input/event* strictly as 0600
-root:root or 0640 root:root. The user logged in will not have rights to
-the device, unlike /dev/input/js*, as he could read all passwords from
-the keyboard device.
 
-This is a problem, because /dev/input/event* is used for force feedback
-and should therefore be user-accessible.
+> The disabled config options are:
+> - DOUBLEFAULT: are trapped by Xen and not virtualized
+> - HZ: defaults to 100 in Xen VMs
 
-I can think of the following solutions to this problem:
+Hi,
 
-1. Some creative udev rule to chmod /dev/input/event* less strictly when
-it has a /dev/input/js* and is thus a gaming device.
+this makes no real sense with dynamic ticks coming up... HZ=1000 should
+be perfectly fine then...
 
-2. Some creative udev rule to chmod /dev/input/event* more strictly when
-it is a keyboard.
+>  config KEXEC
+>  	bool "kexec system call (EXPERIMENTAL)"
+> -	depends on EXPERIMENTAL
+> +	depends on EXPERIMENTAL && !X86_XEN
+>  	help
+>  	  kexec is a system call that implements the ability to shutdown your
+>  	  current kernel, and to start another kernel.  It is like a reboot
 
-3. Have another force feedback interface also in /dev/input/js*.
+hmmm why is kexec incompatible with xen? Don't you want to support crash
+dumps from guests?
 
-I prefer the first one, do you think it is a good solution or do you
-have a better one?
+> +config XEN_SHADOW_MODE
+> +	bool
+> +	default y
+> +	help
+> +	  Fakes out a shadow mode kernel
+> +
 
-If I go with the first one, what is the preferred way of finding out a
-gaming device in udev rule?
+this probably wants a better description...
 
-
--- 
-Anssi Hannula
 

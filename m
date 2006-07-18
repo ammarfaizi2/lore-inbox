@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWGRPWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWGRPVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWGRPWK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 11:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWGRPWK
+	id S932242AbWGRPVy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 11:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWGRPVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:22:10 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:44688 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932262AbWGRPWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:22:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AtaLacGb3mOsX9BJWcubEoMrLB5S2eYIwgmAAxrT2CmEnTT0riUu8xbHDnPVAfx5TqvNFHBkZBwAi2TEAn0jNcRcUt2jwRmURdCJUaAunZlSmyZp7iHGJ8hR6AIQRtMsFTs4V7UFLkyrZz6oNJXh0sBALbs/6ij9So7w00/x358=
-Message-ID: <4745278c0607180822u55ffe5b4g333e2e6457b37d02@mail.gmail.com>
-Date: Tue, 18 Jul 2006 11:22:05 -0400
-From: "Vishal Patil" <vishpat@gmail.com>
-To: "Gary Funck" <gary@intrepid.com>
-Subject: Re: Generic B-tree implementation
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 18 Jul 2006 11:21:54 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:45279 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932242AbWGRPVy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 11:21:54 -0400
+Subject: Re: Bad ext3/nfs DoS bug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: James <20@madingley.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060718145614.GA27788@circe.esc.cam.ac.uk>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
+	 <1153209318.26690.1.camel@localhost>
+	 <20060718145614.GA27788@circe.esc.cam.ac.uk>
+Content-Type: text/plain
+Date: Tue, 18 Jul 2006 17:22:16 +0200
+Message-Id: <1153236136.10006.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
-	 <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-B-trees are good for parellel updates as well. Anyway it would be
-great to have inputs from other folks about how B-trees could help
-inside the kernel (if at all)
+Hi James,
 
-- Vishal
+> > so I used your exploit and I could reproduce it on every 2.6 kernel, I
+> > tried so far. 
+> 
+> That must have been a lot of fscks.
 
-On 7/18/06, Gary Funck <gary@intrepid.com> wrote:
->
-> Vishal Patil wrote:
-> > I said B-Tree and not binary tree, please read the explaination about
-> > B-tree at http://en.wikipedia.org/wiki/B-tree. Also I am aware of AVL
-> > trees.
-> >
-> > I never claimed that my implementation is better or anything like
-> > that. I posted the code so that someone in need of the data structure
-> > might use it. Also I would be willing them to help with their project.
->
-> My reason for pointing out the other data strucutres is to note that there
-> might be search tree representations that are more appropriate for
-> implementation inside the kernel, and to perhaps encourage you to have
-> a look at implementing them as well.  Red-black trees in particular have
-> the property that they're reasonably well-balanced, and that the balancing
-> algorithm makes use of local information.  That means that the kernel might
-> be able to limit the level of locking required to update the tree.
->
-> I liked your B-tree implementation, and have saved a copy.  Too bad there
-> isn't the C/C++ equivalent of CPAN (comp.unix.sources is so passe`).  Your
-> B-tree implementation would make a nice addition to an archive of
-> handy C algorithm implementations.
->
+it wasn't that many. For some obvious reasons I only tested the RHEL and
+Fedora kernels and vanilla plus stable series.
+
+> > However with a 2.4 kernel I see the error messages, but it
+> > doesn't get remounted read-only. Did you run tests with 2.4 kernels?
+> 
+> no, I don't have any to hand, but someone is preparing one
+> now. Is NFS subtree checking on by default in 2.4?
+
+I haven't checked within the code, but the manual page exports(5) states
+subtree checking as being on by default. And it doesn't mention any
+difference to 2.4 kernels.
+
+What is the reason behind your question? Does disabling subtree checking
+changes something?
+
+Regards
+
+Marcel
 
 
--- 
-Motivation will almost always beat mere talent.

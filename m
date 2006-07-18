@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWGRJTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWGRJUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWGRJTr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 05:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWGRJTr
+	id S932122AbWGRJUw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 05:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGRJUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 05:19:47 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:33920 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932101AbWGRJTq
+	Tue, 18 Jul 2006 05:20:51 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:10114 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932120AbWGRJUr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 05:19:46 -0400
-Message-Id: <20060718091957.210675000@sous-sol.org>
+	Tue, 18 Jul 2006 05:20:47 -0400
+Message-Id: <20060718091948.747619000@sous-sol.org>
 References: <20060718091807.467468000@sous-sol.org>
 User-Agent: quilt/0.45-1
-Date: Tue, 18 Jul 2006 00:00:29 -0700
+Date: Tue, 18 Jul 2006 00:00:02 -0700
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org
 Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
@@ -20,137 +20,246 @@ Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
        Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
        Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
-       "Jan Beulich" <JBeulich@novell.com>
-Subject: [RFC PATCH 29/33] Add Xen driver utility functions.
-Content-Disposition: inline; filename=driver-util
+       Christoph Lameter <clameter@sgi.com>
+Subject: [RFC PATCH 02/33] Add sync bitops
+Content-Disposition: inline; filename=synch-ops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate/destroy a 'vmalloc' VM area: alloc_vm_area and free_vm_area
-The alloc function ensures that page tables are constructed for the
-region of kernel virtual address space and mapped into init_mm.
-
-Lock an area so that PTEs are accessible in the current address space:
-lock_vm_area and unlock_vm_area
-The lock function prevents context switches to a lazy mm that doesn't
-have the area mapped into its page tables.  It also ensures that the
-page tables are mapped into the current mm by causing the page fault
-handler to copy the page directory pointers from init_mm into the
-current mm.
+Add "always lock'd" implementations of set_bit, clear_bit and
+change_bit and the corresponding test_and_ functions.  Also add
+"always lock'd" implementation of cmpxchg.  These give guaranteed
+strong synchronisation and are required for non-SMP kernels running on
+an SMP hypervisor.
 
 Signed-off-by: Ian Pratt <ian.pratt@xensource.com>
 Signed-off-by: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>
+Cc: Christoph Lameter <clameter@sgi.com>
 ---
+ include/asm-i386/synch_bitops.h |  166 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/system.h       |   33 +++++++
+ 2 files changed, 199 insertions(+)
 
- drivers/xen/Makefile      |    2 +
- drivers/xen/util.c        |   70 ++++++++++++++++++++++++++++++++++++++++++++++
- include/xen/driver_util.h |   16 ++++++++++
- 3 files changed, 88 insertions(+)
-
-diff -r 797b2283b1d5 drivers/xen/Makefile
---- a/drivers/xen/Makefile	Thu Apr 13 19:57:11 2006 +0100
-+++ b/drivers/xen/Makefile	Thu Apr 13 19:57:38 2006 +0100
-@@ -1,3 +1,5 @@
-+
-+obj-y	+= util.o
+diff -r 935903fb1136 include/asm-i386/system.h
+--- a/include/asm-i386/system.h	Mon May 08 19:20:42 2006 -0400
++++ b/include/asm-i386/system.h	Mon May 08 19:27:04 2006 -0400
+@@ -263,6 +263,9 @@ static inline unsigned long __xchg(unsig
+ #define cmpxchg(ptr,o,n)\
+ 	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
+ 					(unsigned long)(n),sizeof(*(ptr))))
++#define synch_cmpxchg(ptr,o,n)\
++	((__typeof__(*(ptr)))__synch_cmpxchg((ptr),(unsigned long)(o),\
++					(unsigned long)(n),sizeof(*(ptr))))
+ #endif
  
- obj-y	+= core/
- obj-y	+= console/
-diff -r 797b2283b1d5 drivers/xen/util.c
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/xen/util.c	Thu Apr 13 19:57:38 2006 +0100
-@@ -0,0 +1,70 @@
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/vmalloc.h>
-+#include <asm/uaccess.h>
-+#include <xen/driver_util.h>
+ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+@@ -291,6 +294,36 @@ static inline unsigned long __cmpxchg(vo
+ 	}
+ 	return old;
+ }
 +
-+static int f(pte_t *pte, struct page *pmd_page, unsigned long addr, void *data)
++#define __LOCK_PREFIX "lock ; "
++static inline unsigned long __synch_cmpxchg(volatile void *ptr,
++					    unsigned long old,
++					    unsigned long new, int size)
 +{
-+	/* apply_to_page_range() does all the hard work. */
-+	return 0;
-+}
-+
-+struct vm_struct *alloc_vm_area(unsigned long size)
-+{
-+	struct vm_struct *area;
-+
-+	area = get_vm_area(size, VM_IOREMAP);
-+	if (area == NULL)
-+		return NULL;
-+
-+	/*
-+	 * This ensures that page tables are constructed for this region
-+	 * of kernel virtual address space and mapped into init_mm.
-+	 */
-+	if (apply_to_page_range(&init_mm, (unsigned long)area->addr,
-+				area->size, f, NULL)) {
-+		free_vm_area(area);
-+		return NULL;
++	unsigned long prev;
++	switch (size) {
++	case 1:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgb %b1,%2"
++				     : "=a"(prev)
++				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 2:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgw %w1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
++	case 4:
++		__asm__ __volatile__(__LOCK_PREFIX "cmpxchgl %1,%2"
++				     : "=a"(prev)
++				     : "r"(new), "m"(*__xg(ptr)), "0"(old)
++				     : "memory");
++		return prev;
 +	}
-+
-+	return area;
++	return old;
 +}
-+EXPORT_SYMBOL_GPL(alloc_vm_area);
++#undef __LOCK_PREFIX
+ 
+ #ifndef CONFIG_X86_CMPXCHG
+ /*
+diff -r 935903fb1136 include/asm-i386/synch_bitops.h
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/include/asm-i386/synch_bitops.h	Mon May 08 19:27:04 2006 -0400
+@@ -0,0 +1,166 @@
++#ifndef _I386_SYNCH_BITOPS_H
++#define _I386_SYNCH_BITOPS_H
 +
-+void free_vm_area(struct vm_struct *area)
++/*
++ * Copyright 1992, Linus Torvalds.
++ */
++
++/* make sure these are always locked */
++#define __LOCK_PREFIX "lock ; "
++
++/*
++ * These have to be done with inline assembly: that way the bit-setting
++ * is guaranteed to be atomic. All bit operations return 0 if the bit
++ * was cleared before the operation and != 0 if it was not.
++ *
++ * bit 0 is the LSB of addr; bit 32 is the LSB of (addr+1).
++ */
++
++#define ADDR (*(volatile long *) addr)
++
++/**
++ * synch_set_bit - Atomically set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * This function is atomic and may not be reordered.  See __set_bit()
++ * if you do not require the atomic guarantees.
++ *
++ * Note: there are no guarantees that this function will not be reordered
++ * on non x86 architectures, so if you are writting portable code,
++ * make sure not to rely on its reordering guarantees.
++ *
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void synch_set_bit(int nr, volatile unsigned long * addr)
 +{
-+	struct vm_struct *ret;
-+	ret = remove_vm_area(area->addr);
-+	BUG_ON(ret != area);
-+	kfree(area);
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btsl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
 +}
-+EXPORT_SYMBOL_GPL(free_vm_area);
 +
-+void lock_vm_area(struct vm_struct *area)
++/**
++ * synch_clear_bit - Clears a bit in memory
++ * @nr: Bit to clear
++ * @addr: Address to start counting from
++ *
++ * synch_clear_bit() is atomic and may not be reordered.  However, it does
++ * not contain a memory barrier, so if it is used for locking purposes,
++ * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
++ * in order to ensure changes are visible on other processors.
++ */
++static inline void synch_clear_bit(int nr, volatile unsigned long * addr)
 +{
-+	unsigned long i;
-+	char c;
-+
-+	/*
-+	 * Prevent context switch to a lazy mm that doesn't have this area
-+	 * mapped into its page tables.
-+	 */
-+	preempt_disable();
-+
-+	/*
-+	 * Ensure that the page tables are mapped into the current mm. The
-+	 * page-fault path will copy the page directory pointers from init_mm.
-+	 */
-+	for (i = 0; i < area->size; i += PAGE_SIZE)
-+		(void)__get_user(c, (char __user *)area->addr + i);
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btrl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
 +}
-+EXPORT_SYMBOL_GPL(lock_vm_area);
 +
-+void unlock_vm_area(struct vm_struct *area)
++/**
++ * synch_change_bit - Toggle a bit in memory
++ * @nr: Bit to change
++ * @addr: Address to start counting from
++ *
++ * change_bit() is atomic and may not be reordered. It may be
++ * reordered on other architectures than x86.
++ * Note that @nr may be almost arbitrarily large; this function is not
++ * restricted to acting on a single-word quantity.
++ */
++static inline void synch_change_bit(int nr, volatile unsigned long * addr)
 +{
-+	preempt_enable();
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btcl %1,%0"
++		:"+m" (ADDR)
++		:"Ir" (nr)
++		: "memory");
 +}
-+EXPORT_SYMBOL_GPL(unlock_vm_area);
-diff -r 797b2283b1d5 include/xen/driver_util.h
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/include/xen/driver_util.h	Thu Apr 13 19:57:38 2006 +0100
-@@ -0,0 +1,16 @@
 +
-+#ifndef __ASM_XEN_DRIVER_UTIL_H__
-+#define __ASM_XEN_DRIVER_UTIL_H__
++/**
++ * synch_test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.  
++ * It may be reordered on other architectures than x86.
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_set_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
 +
-+#include <linux/config.h>
-+#include <linux/vmalloc.h>
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btsl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
 +
-+/* Allocate/destroy a 'vmalloc' VM area. */
-+extern struct vm_struct *alloc_vm_area(unsigned long size);
-+extern void free_vm_area(struct vm_struct *area);
++/**
++ * synch_test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.
++ * It can be reorderdered on other architectures other than x86.
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_clear_bit(int nr, volatile unsigned long * addr)
++{
++	int oldbit;
 +
-+/* Lock an area so that PTEs are accessible in the current address space. */
-+extern void lock_vm_area(struct vm_struct *area);
-+extern void unlock_vm_area(struct vm_struct *area);
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btrl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
 +
-+#endif /* __ASM_XEN_DRIVER_UTIL_H__ */
++/**
++ * synch_test_and_change_bit - Change a bit and return its old value
++ * @nr: Bit to change
++ * @addr: Address to count from
++ *
++ * This operation is atomic and cannot be reordered.  
++ * It also implies a memory barrier.
++ */
++static inline int synch_test_and_change_bit(int nr, volatile unsigned long* addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__( __LOCK_PREFIX
++		"btcl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit),"+m" (ADDR)
++		:"Ir" (nr) : "memory");
++	return oldbit;
++}
++
++static __always_inline int synch_const_test_bit(int nr, const volatile unsigned long *addr)
++{
++	return ((1UL << (nr & 31)) &
++		(((const volatile unsigned int *)addr)[nr >> 5])) != 0;
++}
++
++static inline int synch_var_test_bit(int nr, const volatile unsigned long * addr)
++{
++	int oldbit;
++
++	__asm__ __volatile__(
++		"btl %2,%1\n\tsbbl %0,%0"
++		:"=r" (oldbit)
++		:"m" (ADDR),"Ir" (nr));
++	return oldbit;
++}
++
++#define synch_test_bit(nr,addr) \
++(__builtin_constant_p(nr) ? \
++ synch_constant_test_bit((nr),(addr)) : \
++ synch_var_test_bit((nr),(addr)))
++
++#undef ADDR
++
++#endif /* _I386_SYNCH_BITOPS_H */
 
 --

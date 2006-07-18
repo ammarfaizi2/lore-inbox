@@ -1,85 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWGRVtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWGRVvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWGRVtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 17:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWGRVtZ
+	id S932190AbWGRVvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 17:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWGRVvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 17:49:25 -0400
-Received: from wx-out-0102.google.com ([66.249.82.202]:50742 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932171AbWGRVtZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 17:49:25 -0400
+	Tue, 18 Jul 2006 17:51:32 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:61766 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932190AbWGRVvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 17:51:31 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l3SSYHm01NlYdWUD9IgHBIrsHAGDhwi5WB8gGXmR4qheePcg2iouxM04YwUjqNhS7HsLST+4OEinWIsoTJ0rzKwOofY/10LL3nFIJLDHU11L963/eeSXVt4nlZHpYJrngYOsyPlY6CXVtiIMcQ/UTCng8b75hDyCJiHnIlRjGUM=
-Message-ID: <1defaf580607181449p138c2cfayc3df3657430624f8@mail.gmail.com>
-Date: Tue, 18 Jul 2006 23:49:24 +0200
-From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>
-Subject: Re: 2.6.18-rc1-mm2
-Cc: "Haavard Skinnemoen" <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>, "Andy Whitcroft" <apw@shadowen.org>
-In-Reply-To: <1152892123.24925.67.camel@localhost.localdomain>
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Euwv2zGcfzPNfKYdC4+sSH5rOxccZ0ygWynqEeTtiLFrbzR1pO8d0TUPK/oW6H04AzPCk+Mm6m0KnrVgGTNOuxR++NEjYMeLvsOs0LbDDgF5eFb9XNkwYzdRBcj2gnOG0EpGoA0XrjEz3xiXIZbjhNeOm8+uIRBnrfGFXB8hpUs=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc2 allyesconfig doesn't build - undefined references to hdlc_set_carrier
+Date: Tue, 18 Jul 2006 23:52:39 +0200
+User-Agent: KMail/1.9.3
+Cc: Paul Fulghum <paulkf@microgate.com>, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060713224800.6cbdbf5d.akpm@osdl.org>
-	 <1152892123.24925.67.camel@localhost.localdomain>
+Message-Id: <200607182352.40222.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/14/06, Dave Hansen <haveblue@us.ibm.com> wrote:
-> > +#define PFN_UP(x)    (((x) + PAGE_SIZE - 1) >> PAGE_SHIFT)
-> > +#define PFN_DOWN(x)  ((x) >> PAGE_SHIFT)
-> > +#define PFN_PHYS(x)  ((x) << PAGE_SHIFT)
->
-> Please use include/linux/pfn.h instead of defining these
+Hi,
 
-Ah, of course.
+For your information;
 
-> > Since there's only a single board available, and that board has no use for
-> > discontigmem or sparsemem anyway, I figured it's better to just turn it off
-> > until a need for it arises.
->
-> How about we help you get sparsemem working properly, and you can kill
-> all of the discontigmem support from your arch?  You can be the first
-> non-legacy-impeded architecture. ;)
+Just tried an allyesconfig build of 2.6.18-rc2 and it fails with this error : 
 
-That would be great. I think maybe I should start by ripping out the
-discontigmem stuff altogether, since there are no boards available
-that requires it. But I can perhaps test sparsemem on a prototype
-board.
+...
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0x122457): In function `mgsl_isr_io_pin':
+drivers/char/synclink.c:1348: undefined reference to `hdlc_set_carrier'
+drivers/built-in.o(.text+0x1296ee): In function `hdlcdev_open':
+drivers/char/synclink.c:7847: undefined reference to `hdlc_set_carrier'
+drivers/built-in.o(.text+0x12b4aa): In function `hdlcdev_open':
+drivers/char/synclinkmp.c:1755: undefined reference to `hdlc_set_carrier'
+drivers/built-in.o(.text+0x12c610): In function `isr_io_pin':
+drivers/char/synclinkmp.c:2526: undefined reference to `hdlc_set_carrier'
+drivers/built-in.o(.text+0x131eca): In function `hdlcdev_open':
+drivers/char/synclink_gt.c:1500: undefined reference to `hdlc_set_carrier'
+drivers/built-in.o(.text+0x1329b0):drivers/char/synclink_gt.c:2001: more undefined references to `hdlc_set_carrier' follow
+make: *** [.tmp_vmlinux1] Error 1
 
-> Feel free to mail Andy or myself with your compile errors, and I'm sure
-> we can iron it out.  I'd try myself, but I don't have a cross-compiler
-> for your arch yet.  Do you have one handy?
 
-Thanks. There are patches for binutils and gcc available from avr32linux.org:
+Some info about my environment : 
 
-http://avr32linux.org/twiki/pub/Main/GccPatches/gcc-4.0.2-avr32.patch
-http://avr32linux.org/twiki/bin/view/Main/BinutilsPatches
+juhl@dragon:~/download/kernel/linux-2.6.18-rc2$ scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
-For binutils you should probably grab the pre-patched source tarball
-unless you want to mess around with autoconf. I tried to make a patch
-after regenerating all the makefiles, but the patch ended up being 5x
-the size of the original one...
+Linux dragon 2.6.18-rc1 #2 SMP PREEMPT Thu Jul 6 23:23:45 CEST 2006 i686 athlon-4 i386 GNU/Linux
 
-> It would also be nice to see a _couple_ of patches that perhaps abstract
-> a thing or two into generic code.  I know that new architectures usually
-> begin with a 'cp -r', but it would be nice to see a wee bit of code
-> refactoring as a small price of admission.  Some of the ioremap and
-> other pagetable code looked pretty generic to me.
+Gnu C                  3.4.6
+Gnu make               3.81
+binutils               2.15.92.0.2
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.2
+e2fsprogs              1.39
+reiserfsprogs          3.6.19
+quota-tools            3.13.
+PPP                    2.4.4b1
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Linux C++ Library      6.0.3
+Procps                 3.2.7
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.97
+udev                   071
+Modules Loaded         snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss uhci_hcd usbcore snd_emu10k1 snd_rawmidi snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_timer snd_page_alloc snd_util_mem snd_hwdep snd agpgart
 
-The pagetable code in ioremap.c is indeed copied verbatim from another
-architecture (I think it was MIPS.) I'll look at all the
-implementations of remap_area_pages() and see if it's possible to
-consolidate them when I get back to work in a bit less than two weeks.
 
-I won't be submitting any patches until then, but your mail will wait
-for me in my inbox so I won't forget about it. Thanks for taking the
-time to review this.
 
-Håvard
+ Kind regards,
+
+   Jesper Juhl <jesper.juhl@gmail.com>
+
+

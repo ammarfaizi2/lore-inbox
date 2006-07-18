@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWGRMSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWGRMUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWGRMSq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 08:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWGRMSq
+	id S1751333AbWGRMUH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 08:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGRMUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 08:18:46 -0400
-Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:60613
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751331AbWGRMSq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 08:18:46 -0400
-Message-Id: <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: yunfeng zhang <zyf.zeroos@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Improvement on memory subsystem
-In-Reply-To: Your message of "Tue, 18 Jul 2006 18:03:54 +0800."
-             <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153225122_3154P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 18 Jul 2006 08:20:06 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:18167 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751333AbWGRMUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 08:20:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ozA070+56+YQR5W1zJECJ5l1D2KT60Exg4O+LtDp3peVu5V6hn6xmtgXjrUxd/gjasI5X7Jz8Q4M6mrlRuy80pF/2MMes7trcrk1FESaFzAf02/FKnFEnI8f9q+P6shH65uKfIFZ6L+3T9THDxcAqUadrBGUoQNADtg7AjjX2pU=
+Message-ID: <d120d5000607180520m2a7ec74at452539186cd7814@mail.gmail.com>
+Date: Tue, 18 Jul 2006 08:20:04 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Anssi Hannula" <anssi.hannula@gmail.com>
+Subject: Re: input/eventX permissions, force feedback
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <44BCAD19.8070004@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 18 Jul 2006 08:18:42 -0400
+Content-Disposition: inline
+References: <44BCAD19.8070004@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153225122_3154P
-Content-Type: text/plain; charset=us-ascii
+Hi Anssi,
 
-On Tue, 18 Jul 2006 18:03:54 +0800, yunfeng zhang said:
+On 7/18/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> Currently most distributions have /dev/input/event* strictly as 0600
+> root:root or 0640 root:root. The user logged in will not have rights to
+> the device, unlike /dev/input/js*, as he could read all passwords from
+> the keyboard device.
+>
+> This is a problem, because /dev/input/event* is used for force feedback
+> and should therefore be user-accessible.
+>
+> I can think of the following solutions to this problem:
+>
+> 1. Some creative udev rule to chmod /dev/input/event* less strictly when
+> it has a /dev/input/js* and is thus a gaming device.
+>
+> 2. Some creative udev rule to chmod /dev/input/event* more strictly when
+> it is a keyboard.
+>
+> 3. Have another force feedback interface also in /dev/input/js*.
+>
 
-> 2. Read-ahead process during page-in/out (page fault or swap out) should be
-> based on its VMA to enhance IO efficiency instead of the relative physical pages
-> in swap space.
+You can do it in udev looking either at MODALIAS or at EV and ABS
+environment variables. I think it is pretty safe to say that a device
+with EV_ABS, EV_FF, ABS_X and ABS_Y is a force-feedback joystick-type
+device and not a keyboard.
 
-But wouldn't that end up causing a seek storm, rather than handling the pages
-in the order that minimizes the total seek distance, no matter where they are
-in memory? Remember - if you have a 2Ghz processor, and a disk that seeks in 1
-millisecond, every seek is (*very* roughly) about 2 million instructions.  So
-if we can burn 20 thousand instructions finding a read order that eliminates
-*one* seek, we're 1.98M instructions ahead.
+Another solution would be to relax permissions if user is also console
+owner (home box installation).
 
-Now, if you have an improved read-ahead that spews out page requests that
-are both elevator-friendly and temporal-friendly, *then* you might be onto
-something.  For instance, if you can identify 80 pages that will likely be
-needed in the next 50 milliseconds, of which 50 pages will be likely needed
-in the next 30ms, you want to issue those 50 first, in an elevator-friendly
-manner (uncaffienated handwave here) - and then issue the other 30 page
-requests in a second burst the next time the elevator goes by.  Note this
-requires the read-ahead to get a *lot* more chummy with the elevator than
-it seems to currently.  In particular, readahead would need to need to be
-able to hold off submitting the "later" 30 pages until it could be sure
-that the elevator wouldn't merge them into the queue in a way that would
-slow down the first 50 requests.
+One thing is for sure - I do not like #3 at all ;)
 
-If it does that already, somebody just smack me.  And if there's a good
-reason not to do that, hand me some caffeine and a clue. :)
-
-
-
---==_Exmh_1153225122_3154P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEvNGicC3lWbTT17ARAlj3AJ9R4nbln7gdXhV4QFvl7JE5B3x6mACgjY89
-W9m9jYVFp1omGum1gp/Ygqk=
-=ziRy
------END PGP SIGNATURE-----
-
---==_Exmh_1153225122_3154P--
+-- 
+Dmitry

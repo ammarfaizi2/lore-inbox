@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWGRODX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWGROJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWGRODX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 10:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWGRODX
+	id S932229AbWGROJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 10:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWGROJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 10:03:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34263 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932220AbWGRODW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 10:03:22 -0400
-Date: Tue, 18 Jul 2006 07:03:12 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm <linux-mm@kvack.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: inactive-clean list
-In-Reply-To: <44BCE86A.4030602@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0607180659310.30887@schroedinger.engr.sgi.com>
-References: <1153167857.31891.78.camel@lappy> 
- <Pine.LNX.4.64.0607172035140.28956@schroedinger.engr.sgi.com>
- <1153224998.2041.15.camel@lappy> <Pine.LNX.4.64.0607180557440.30245@schroedinger.engr.sgi.com>
- <44BCE86A.4030602@mbligh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Jul 2006 10:09:11 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:65259 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932229AbWGROJK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 10:09:10 -0400
+Date: Tue, 18 Jul 2006 17:09:06 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, Jon Mason <jdmason@us.ibm.com>,
+       linux-kernel@vger.kernel.org, konradr@redhat.com
+Subject: Re: [discuss] [PATCH 1/2] x86_64: Calgary IOMMU - Multi-Node NULL pointer dereference fix
+Message-ID: <20060718140906.GA10011@rhun.ibm.com>
+References: <20060717231836.GD5363@us.ibm.com> <200607181550.57382.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607181550.57382.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006, Martin J. Bligh wrote:
-
-> > Adding logic to determine the number of clean pages is not necessary. The
-> > number of clean pages in the pagecache can be determined by:
-> > 
-> > global_page_state(NR_FILE_PAGES) - global_page_state(NR_FILE_DIRTY) 
+On Tue, Jul 18, 2006 at 03:50:57PM +0200, Andi Kleen wrote:
+> On Tuesday 18 July 2006 01:18, Jon Mason wrote:
+> > Hey Andi,
+> >
+> > Calgary hits a NULL pointer dereference when booting in a multi-chassis
+> > NUMA system.  See Redhat bugzilla number 198498, found by Konrad
+> > Rzeszutek (konradr@redhat.com).
 > 
-> It's not that simple. We also need to deal with other types of non-freeable
-> pages, such as memlocked.
+> The patch doesn't apply at all to rc2.
+>
+> Also where is 2/2 ? I only see 1/2 
 
-mlocked is an exceptional case. The problem is that the information if a 
-page is mlocked is only available via the vma. One has to
-scan the reverse list and check all the vmas for the flag.
+Hmpf, there were two Calgary patches, both mistakenly labeled
+1/2. This is actually the second one. When applied in order, both
+apply to today's head.
 
-Is mlock that important?
+Sorry about the confusion, please let us know if you want a resend. I
+guess Jon got a smidgen too excited about OLS :-)
 
-What other types of non freeable pages could exist?
-
-Maybe slab allocations and direct kernel allocations? We have only
-limited means to reclaim those pages.
-
+Cheers,
+Muli

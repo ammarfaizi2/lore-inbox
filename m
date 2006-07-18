@@ -1,58 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWGRSJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWGRSIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWGRSJG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 14:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWGRSJG
+	id S932334AbWGRSIP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 14:08:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWGRSIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 14:09:06 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.155]:5318 "EHLO
-	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S932335AbWGRSJF
+	Tue, 18 Jul 2006 14:08:14 -0400
+Received: from calculon.skynet.ie ([193.1.99.88]:28353 "EHLO
+	calculon.skynet.ie") by vger.kernel.org with ESMTP id S932334AbWGRSIO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 14:09:05 -0400
-Message-ID: <44BD2370.8090506@ru.mvista.com>
-Date: Tue, 18 Jul 2006 22:07:44 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Tue, 18 Jul 2006 14:08:14 -0400
+Date: Tue, 18 Jul 2006 19:08:12 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: linux-kernel@vger.kernel.org
+Cc: davej@codemonkey.org.uk, linux-mm@kvack.org
+Subject: [PATCH] vm/agp: remove private page protection map
+Message-ID: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: albertcc@tw.ibm.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: libata pata_pdc2027x success on sparc64
-References: <200607172358.k6HNwYhF002052@harpo.it.uu.se>
-In-Reply-To: <200607172358.k6HNwYhF002052@harpo.it.uu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Mikael Pettersson wrote:
+AGP keeps its own copy of the protection_map, upcoming DRM changes
+will also require access to this map from modules.
 
-> In contrast, the old IDE pdc202xx_new driver had lots
-> of problems with CRC errors causing it to disable DMA.
+Signed-off-by: Dave Airlie <airlied@linux.ie>
+---
+  drivers/char/agp/frontend.c |    8 +-------
+  include/linux/mm.h          |    1 +
+  mm/mmap.c                   |    6 ++++++
+  3 files changed, 8 insertions(+), 7 deletions(-)
 
-    Hm, from my experience it usually falls back to UltraDMA/44 and then the 
-thing startrt working...
+diff --git a/drivers/char/agp/frontend.c b/drivers/char/agp/frontend.c
+index d9c5a91..1842427 100644
+--- a/drivers/char/agp/frontend.c
++++ b/drivers/char/agp/frontend.c
+@@ -157,12 +157,6 @@ static void agp_add_seg_to_client(struct
+   * some routine which does the conversion for you
+   */
 
-> I wasn't able to manually tune it above udma3 without
-> getting more errors. This isn't sparc64-specific: I've
-> had similar negative experience with the old IDE Promise
-> drivers in a PowerMac.
+-static const pgprot_t my_protect_map[16] =
+-{
+-	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
+-	__S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+-};
+-
+  static pgprot_t agp_convert_mmap_flags(int prot)
+  {
+  #define _trans(x,bit1,bit2) \
+@@ -177,7 +171,7 @@ ((bit1==bit2)?(x&bit1):(x&bit1)?bit2:0)
 
-    This happens because the "old" driver misses the PLL calibration code.
-    You may want to try these Albert's patches:
+  	prot_bits |= VM_SHARED;
 
-http://marc.theaimsgroup.com/?t=110992452800002&r=1&w=2
-http://marc.theaimsgroup.com/?t=110992471500002&r=1&w=2
-http://marc.theaimsgroup.com/?t=110992490100002&r=1&w=2
-http://marc.theaimsgroup.com/?t=111019238400003&r=1&w=2
+-	temp = my_protect_map[prot_bits & 0x0000000f];
++	temp = vm_get_page_prot(prot_bits & 0x0000000f);
 
-    It looks like they were never considered for accepting into the kernel
-while they succesfully solve this issue. Maybe Albert could try pushing them 
-into -mm tree once more?
+  	return temp;
+  }
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 990957e..52d6193 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1012,6 +1012,7 @@ static inline unsigned long vma_pages(st
+  	return (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+  }
 
-WBR, Sergei
++pgprot_t vm_get_page_prot(u8 vm_flags);
+  struct vm_area_struct *find_extend_vma(struct mm_struct *, unsigned long addr);
+  struct page *vmalloc_to_page(void *addr);
+  unsigned long vmalloc_to_pfn(void *addr);
+diff --git a/mm/mmap.c b/mm/mmap.c
+index c1868ec..d4c9b2a 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -60,6 +60,12 @@ pgprot_t protection_map[16] = {
+  	__S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+  };
+
++pgprot_t vm_get_page_prot(u8 vm_flags)
++{
++	return protection_map[vm_flags];
++}
++EXPORT_SYMBOL(vm_get_page_prot);
++
+  int sysctl_overcommit_memory = OVERCOMMIT_GUESS;  /* heuristic overcommit */
+  int sysctl_overcommit_ratio = 50;	/* default is 50% */
+  int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;
+-- 
+1.4.1.ga3e6
 

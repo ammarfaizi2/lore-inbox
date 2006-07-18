@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWGRT3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWGRTbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWGRT3d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 15:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWGRT3d
+	id S932373AbWGRTbD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 15:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWGRTbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 15:29:33 -0400
-Received: from betty.vergenet.net ([64.85.198.114]:46464 "EHLO
-	betty.vergenet.net") by vger.kernel.org with ESMTP id S932365AbWGRT3c
+	Tue, 18 Jul 2006 15:31:01 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:21888 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S932368AbWGRTbA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 15:29:32 -0400
-Date: Tue, 18 Jul 2006 15:13:48 -0400
-From: Horms <horms@verge.net.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, rmk@arm.linux.org.uk, tony.luck@intel.com, paulus@samba.org,
-       anton@samba.org, chris@zankel.net, linux-ia64@vger.kernel.org,
-       linuxppc-dev@ozlabs.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] panic_on_oops: remove ssleep()
-Message-ID: <20060718191345.GE20141@verge.net.au>
-References: <31687.FP.7244@verge.net.au> <200607180027.51986.ak@suse.de> <20060717231056.GC12463@verge.net.au> <20060717172341.6d49f109.akpm@osdl.org>
-MIME-Version: 1.0
+	Tue, 18 Jul 2006 15:31:00 -0400
+Date: Tue, 18 Jul 2006 12:29:25 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, xen-devel@lists.xensource.com,
+       Jeremy Fitzhardinge <jeremy@goop.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Zachary Amsden <zach@vmware.com>, Ian Pratt <ian.pratt@xensource.com>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 01/33] Add apply_to_page_range() function
+Message-ID: <20060718192925.GC2654@sequoia.sous-sol.org>
+References: <20060718091807.467468000@sous-sol.org> <20060718091945.432845000@sous-sol.org> <20060718103850.GD3748@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060717172341.6d49f109.akpm@osdl.org>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <20060718103850.GD3748@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 17, 2006 at 05:23:41PM -0700, Andrew Morton wrote:
-> On Mon, 17 Jul 2006 19:10:59 -0400
-> Horms <horms@verge.net.au> wrote:
+* Adrian Bunk (bunk@stusta.de) wrote:
+> On Tue, Jul 18, 2006 at 12:00:01AM -0700, Chris Wright wrote:
+> >...
+> > --- a/mm/memory.c	Fri Mar 24 04:29:46 2006 +0000
+> > +++ b/mm/memory.c	Fri Mar 24 04:30:48 2006 +0000
+> > @@ -1358,6 +1358,100 @@ int remap_pfn_range(struct vm_area_struc
+> >  }
+> >  EXPORT_SYMBOL(remap_pfn_range);
+> >  
+> > +static inline int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
+> > +				     unsigned long addr, unsigned long end,
+> > +				     pte_fn_t fn, void *data)
+> >...
+> > +static inline int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
+> > +				     unsigned long addr, unsigned long end,
+> > +				     pte_fn_t fn, void *data)
+> >...
+> > +static inline int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
+> > +				     unsigned long addr, unsigned long end,
+> > +				     pte_fn_t fn, void *data)
+> >...
 > 
-> > On Tue, Jul 18, 2006 at 12:27:51AM +0200, Andi Kleen wrote:
-> > > On Monday 17 July 2006 18:17, Horms wrote:
-> > > ...
-> > > Keeping the delay might be actually useful so that you can see the panic
-> > > before system reboots when reboot on panic is enabled. I would just use a loop
-> > > of mdelays(1) with touch_nmi_watchdog/touch_softirq_watchdog()s
-> > > inbetween.
-> > 
-> > Ok, I will look into making that happen. I agree that the pause is
-> > quite useful.
+> Please avoid "inline" in C files.
 > 
-> It's kind-of already implemented, via pause_on_oops.  Perhaps doing
-> something like 
-> 
-> 	if (panic_on_oops)
-> 		pause_on_oops = max(pause_on_oops, 5*HZ);
-> 
-> would be sufficient.
+> (gcc already automatically inlines static functions with only one caller.)
 
-Thanks, that may well be sufficient. And I assume that it is nicely out
-of the arch-dependant code in die(). I will poke around a bit more.
-
--- 
-Horms                                           
-  H: http://www.vergenet.net/~horms/
-  W: http://www.valinux.co.jp/en/
-
+Sure, that's fair.  The surrounding similar code follows the same format 
+as above, perhaps you plan to patch?

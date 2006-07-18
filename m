@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWGRCGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWGRCUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWGRCGD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 22:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWGRCGB
+	id S1750916AbWGRCUb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 22:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWGRCUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 22:06:01 -0400
-Received: from mail.thinktradellc.com ([66.54.171.98]:33796 "EHLO
-	thinktradellc.com") by vger.kernel.org with ESMTP id S1750765AbWGRCGB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 22:06:01 -0400
-Message-ID: <44BC4200.90308@cloakmail.com>
-Date: Mon, 17 Jul 2006 22:05:52 -0400
-From: Andrew Athan <aathan_linux_kernel_1542@cloakmail.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Mon, 17 Jul 2006 22:20:31 -0400
+Received: from fc-cn.com ([218.25.172.144]:64267 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1750916AbWGRCUa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 22:20:30 -0400
+Date: Tue, 18 Jul 2006 10:21:55 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       sam@ravnborg.org
+Subject: Re: [patch] gitignore quilt's files
+Message-ID: <20060718022154.GA2171@localhost.localdomain>
+References: <20060717033850.GA18438@localhost.localdomain> <44BC1551.7040104@ens-lyon.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: CPU numbering & hyperthreading
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44BC1551.7040104@ens-lyon.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 17, 2006 at 06:55:13PM -0400, Brice Goglin wrote:
+> Qi Yong wrote:
+> > gitignore: ignore quilt's files.
+> >  
+> > Signed-off-by: Qi Yong <qiyong@fc-cn.com>
+> > ---
+> >
+> > diff --git a/.gitignore b/.gitignore
+> > index 27fd376..21e346a 100644
+> > --- a/.gitignore
+> > +++ b/.gitignore
+> > @@ -33,3 +33,7 @@ include/linux/version.h
+> >  
+> >  # stgit generated dirs
+> >  patches-*
+> > +
+> > +# quilt's files
+> > +patches
+> > +series
+> >
+> >   
+> 
+> 
+> Isn't "series" in the "patches/" subdirectory ? With quilt 0.45, the
+> only quilt files I see in my linux-tree root are patches/ and .pc/
 
-On an Intel Xeon dual CPU machine running 2.6.16 and up...
+>From the manpage:
+-- 8< --
+The series file is looked up in the root of the  source  tree, in  the
+patches  directory,  and  in  the .pc directory.  The first series file
+that is found is used. This may also be a symbolic link, or a file with
+multiple  hard  links.  Usually, only one series file is used for a set
+of patches, so the patches sub-directory is a convenient location.
+-- >8 --
 
-I have two highly CPU/memory/network intensive processes with 3-5 
-threads each.  I am using sched_setaffinity calls to make sure these two 
-processes never compete for the same physical CPU.  Am I right to assume 
-that CPU #0 and #1 vs CPU #2 and #3 are separate physical CPUs on a 
-2-CPU w/ hyperthreading box?
-
-I've spent some time looking, but I did not find documentation on 
-exactly how CPUs are numbered in a hyperthreaded box.
-
-For a process with N threads where N is generally <=5, where each thread 
-shares access to the same large (300Mb) data structure across several 
-threads, and which pumps the data from memory to a TCP socket, making 
-many futex, select, write(), send() network calls (but no disk I/O), I 
-assume it is best to keep said process on the same physical CPU but 
-allow use both logical processors on that CPU (vs. keeping it to a 
-single logical CPU)?
-
-Thanks,
-A.
-
-
-
+Also it's convienient to put "series" in the root of the source tree if
+"patches/" is shared among several source trees.
+-- 
+Qi Yong

@@ -1,85 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWGROat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWGRObs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWGROat (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 10:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGROat
+	id S932234AbWGRObs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 10:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGRObs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 10:30:49 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:57535
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932226AbWGROat
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 10:30:49 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
-Date: Tue, 18 Jul 2006 16:29:27 +0200
-User-Agent: KMail/1.9.1
-References: <20060717185330.GA32264@rhlx01.fht-esslingen.de> <200607171957.k6HJvPHT022236@turing-police.cc.vt.edu>
-In-Reply-To: <200607171957.k6HJvPHT022236@turing-police.cc.vt.edu>
-Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
-       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+	Tue, 18 Jul 2006 10:31:48 -0400
+Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:27793 "EHLO
+	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932234AbWGRObr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 10:31:47 -0400
+Message-ID: <44BCF0B8.6070102@gmail.com>
+Date: Tue, 18 Jul 2006 17:31:20 +0300
+From: Anssi Hannula <anssi.hannula@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607181629.27933.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: input/eventX permissions, force feedback
+References: <44BCAD19.8070004@gmail.com>	 <d120d5000607180520m2a7ec74at452539186cd7814@mail.gmail.com>	 <44BCE9E0.1030108@gmail.com> <d120d5000607180714s2810d013t8e22544b52da6bf1@mail.gmail.com>
+In-Reply-To: <d120d5000607180714s2810d013t8e22544b52da6bf1@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 July 2006 21:57, Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 17 Jul 2006 20:53:30 +0200, Andreas Mohr said:
-> > Hi all,
-> > 
+Dmitry Torokhov wrote:
+> On 7/18/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
 > 
-> >         for (i = 0; i < 4; i++) {
-> >                 j = INDEX(i);
-> >                 do {
+>> Dmitry Torokhov wrote:
+>> > Hi Anssi,
+>> >
+>> > On 7/18/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>> >
+>> >> Currently most distributions have /dev/input/event* strictly as 0600
+>> >> root:root or 0640 root:root. The user logged in will not have
+>> rights to
+>> >> the device, unlike /dev/input/js*, as he could read all passwords from
+>> >> the keyboard device.
+>> >>
+>> >> This is a problem, because /dev/input/event* is used for force
+>> feedback
+>> >> and should therefore be user-accessible.
+>> >>
+>> >> I can think of the following solutions to this problem:
+>> >>
+>> >> 1. Some creative udev rule to chmod /dev/input/event* less strictly
+>> when
+>> >> it has a /dev/input/js* and is thus a gaming device.
+>> >>
+>> >> 2. Some creative udev rule to chmod /dev/input/event* more strictly
+>> when
+>> >> it is a keyboard.
+>> >>
+>> >> 3. Have another force feedback interface also in /dev/input/js*.
+>> >>
+>> >
+>> > You can do it in udev looking either at MODALIAS or at EV and ABS
+>> > environment variables. I think it is pretty safe to say that a device
+>> > with EV_ABS, EV_FF, ABS_X and ABS_Y is a force-feedback joystick-type
+>> > device and not a keyboard.
+>>
+>> Okay, thanks. But I think it'd be more consistant if all devices that
+>> have js* entries would have the relaxed perms in event*. Looking at
+>> joydev.c, that seems to be devices where EV_ABS && (ABS_X || ABS_WHEEL
+>> || ABS_THROTTLE) && !(EV_KEY && BTN_TOUCH).
+>>
 > 
-> >                         if (j < (INDEX(i)) && i < 3)
-> >                                 list = varray[i + 1]->vec + (INDEX(i + 1));
-> >                         goto found;
-> >                 } while (j != (INDEX(i)));
-> >         }
-> > found:
+> OK, you can do that too.
 > 
-> > Excuse me, but why do we have a while loop here if the last instruction in
-> > the while loop is a straight "goto found"?
+>> There's another problem, too:
+>> Some distros (Fedora, Mandriva...) don't use groups with /dev/input/jsX,
+>> they use pam_console to chmod the device to the console owner.
+>> Unfortunately, it allows to specify the permissions based on device file
+>> names only.
+>>
+>> To solve this problem, I see two solutions:
+>>
+>> 1. Have the pam_console_apply program extended so that it can perform
+>> more complex matches (but what kind of matches would those be?).
+>>
+>> 2. Have udev create symlinks like the following case:
+>> /dev/input/event3
+>> /dev/input/js0
+>> /dev/input/jsevent0 => event3
+>> Then pam_console_apply could match jsevent[0-9]* and it would follow the
+>> symlink, thus chowning event3 to the wanted user.
+>>
+>> Unfortunately neither look too good to me. Do you have any other ideas?
+>>
 > 
-> Consider if we take the 'goto found' when i==1.  We leave not only the do/while
-> but also the for loop.  A 'continue' instead would leave the do/while and then
-> drive the i==2 and subsequent 'for' iterations....
+> I think this is really up to particular destribution to decide how
+> they want to handle security/granting access. One could even imagine
+> writing SELinux policies...
 
-No, it would not. A 'continue' instead of the 'goto found' would
-compile to nothing.
-Try the following example with and without the 'continue'.
+Yes, it is. I just asked if you had any better idea or if you were
+strongly opposed to the solutions I proposed, as I want to make a
+working solution for my distribution (Mandriva).
 
-#include <stdio.h>
-int main(void)
-{
-        int i, j;
-        for (i = 0; i < 2; i++) {
-                j = 0;
-                do {
-                        printf("i==%d, j==%d\n", i, j);
-                        j++;
-                        /* goto found; */
-                        continue;
-                } while (j < 2);
-        }
-}
+>> > Another solution would be to relax permissions if user is also console
+>> > owner (home box installation).
+>>
+>> I thought of that too, but I thought it's too big a security risk, as
+>> it's not guaranteed that somebody else won't temporarily login on
+>> another terminal.
+>>
+> That is what you are doing with pam_console_apply, don't you?
+> 
 
-
-Continue is equal to:
-
-LOOP {
-	/* foo */
-	goto continue; /* == continue */
-	/* foo */
-continue:
-} LOOP
+Yes, but afaics there are currently no device privileges given to the
+console user which would compromise password security. Providing eventX
+would do that.
 
 -- 
-Greetings Michael.
+Anssi Hannula
+

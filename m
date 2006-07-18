@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWGRUFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGRUSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWGRUFK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 16:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWGRUFK
+	id S932365AbWGRUSD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 16:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGRUSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 16:05:10 -0400
-Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:42678 "EHLO
-	scarab.smoula.net") by vger.kernel.org with ESMTP id S932377AbWGRUFI
+	Tue, 18 Jul 2006 16:18:03 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:47328 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932365AbWGRUSC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 16:05:08 -0400
-Subject: Re: NFS and partitioned md
-From: Martin Filip <bugtraq@smoula.net>
-To: David Greaves <david@dgreaves.com>
-Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <44BD2A29.8060405@dgreaves.com>
-References: <1151355145.4460.16.camel@archon.smoula-in.net>
-	 <17568.31894.207153.563590@cse.unsw.edu.au>
-	 <1151432312.11996.32.camel@reaver.netbox-in.cz>
-	 <17571.19699.980491.970386@cse.unsw.edu.au> <44BD2A29.8060405@dgreaves.com>
-Content-Type: text/plain; charset=ISO-8859-2
-Date: Tue, 18 Jul 2006 22:04:59 +0200
-Message-Id: <1153253099.26360.3.camel@archon.smoula-in.net>
+	Tue, 18 Jul 2006 16:18:02 -0400
+Subject: Re: Bad ext3/nfs DoS bug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: James <20@madingley.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060718152341.GB27788@circe.esc.cam.ac.uk>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
+	 <1153209318.26690.1.camel@localhost>
+	 <20060718145614.GA27788@circe.esc.cam.ac.uk>
+	 <1153236136.10006.5.camel@localhost>
+	 <20060718152341.GB27788@circe.esc.cam.ac.uk>
+Content-Type: text/plain
+Date: Tue, 18 Jul 2006 22:18:26 +0200
+Message-Id: <1153253907.21024.25.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.7.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi James,
 
-my solution was to use fsid parameter for exports... maybe some other
-mechanism for selecting fsids could be created instead of fsid = device
-minor
+> > What is the reason behind your question? Does disabling subtree checking
+> > changes something?
+> 
+> just that the iget() call which causes the problem in 2.6
+> is happening in the subtree checking code, not based on
+> analysis of the flow.
 
-nx
+just did a quick test with the RHEL4 kernel (2.6.9 based) and
+subtree_check and no_subtree_check export option. No difference and in
+both cases it gets remounted read-only.
 
-David Greaves pí¹e v Út 18. 07. 2006 v 19:36 +0100:
-> Neil Brown wrote:
-> > On Tuesday June 27, bugtraq@smoula.net wrote:
-> >> Hi,
-> >>
-> >> thx for your interrest,
-> >>
-> >> Neil Brown pí¹e v Út 27. 06. 2006 v 10:32 +1000:
-> >>> So I suspect there is something else going on that has nothing to do
-> >>> with the usage of partitioned md.... then again, maybe there is some
-> >>> weird sign extension happening to '254' somewhere, though that would
-> >>> be terribly strange.
-> >> (as I look on that it comes on my mind, that problem could be minor
-> >> longer than 1 byte)
-> >>
-> > 
-> > Exactly.  4105 > 256.  Such devices need a different format filehandle
-> > which didn't work until very recently due to a bug (obviously no-one
-> > tried it until recently).
-> > 
-> > The patch below fixes the kernel so that this will work.
-> > Alternately use md_d0 md_d1, md_d2, or md_d3.  Then it will work with
-> > no patches.
-> 
-> FWIW (and google) I have just encountered this problem on 2.6.16.9 server.
-> 
-> My error message with the NFS mount failing was:
-> mount teak:/media /mnt/test
-> mount: teak:/media: can't read superblock
-> 
-> teak:~# ll /dev/media*
-> brw-rw---- 1 root disk 254, 8128 2006-07-18 18:39 /dev/media
-> brw-rw---- 1 root disk 254, 8129 2006-07-18 18:39 /dev/media1
-> brw-rw---- 1 root disk 254, 8130 2006-07-18 18:39 /dev/media2
-> brw-rw---- 1 root disk 254, 8131 2006-07-18 18:39 /dev/media3
-> brw-rw---- 1 root disk 254, 8132 2006-07-18 18:39 /dev/media4
-> 
-> I rebooted to use /dev/md_d0 and /dev/md_d0p1 and it's fine.
-> 
-> David
+Regards
+
+Marcel
+
 

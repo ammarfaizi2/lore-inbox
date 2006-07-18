@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWGRDIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWGRDUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWGRDIy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 23:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWGRDIy
+	id S1750721AbWGRDUT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 23:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWGRDUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 23:08:54 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:62302 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932068AbWGRDIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 23:08:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=q1yb+gUNsnLGn8/o4Wt+h4SO/n6s01uCYqPC1hJdqJcSliaQiLhJn+lMdwCrLK6c/a+MfYnms1DzG8QKFruBaU9Ce8aDrJLb8ctd9ZN3EJTby5SYmcsqNh6K0vtdgoKLLG+F1c18NFxKCPh2gAL2MgLCoUWD4d02hkORQWKoGjc=
-Message-ID: <4745278c0607172008x3343f397l22e4bec1b297fd0f@mail.gmail.com>
-Date: Mon, 17 Jul 2006 23:08:53 -0400
-From: "Vishal Patil" <vishpat@gmail.com>
-To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+	Mon, 17 Jul 2006 23:20:19 -0400
+Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:22723
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750721AbWGRDUS (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 23:20:18 -0400
+Message-Id: <200607180320.k6I3K5dv007696@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Vishal Patil <vishpat@gmail.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Generic B-tree implementation
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200607180258.k6I2wEFm012293@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: Your message of "Mon, 17 Jul 2006 23:08:53 EDT."
+             <4745278c0607172008x3343f397l22e4bec1b297fd0f@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <vishpat@gmail.com> <4745278c0607171902pc218a9dn9c63dd6670ac7249@mail.gmail.com> <200607180258.k6I2wEFm012293@laptop11.inf.utfsm.cl>
+            <4745278c0607172008x3343f397l22e4bec1b297fd0f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1153192805_3154P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <vishpat@gmail.com>
-	 <4745278c0607171902pc218a9dn9c63dd6670ac7249@mail.gmail.com>
-	 <200607180258.k6I2wEFm012293@laptop11.inf.utfsm.cl>
+Date: Mon, 17 Jul 2006 23:20:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Agreed, however if I am not mistaken B-trees are useful even for
-virtual memory implementation, for example HP-UX uses B-trees for
-managing virtual memory pages.
+--==_Exmh_1153192805_3154P
+Content-Type: text/plain; charset=us-ascii
 
-Also I did not get the statement
-"Build infrastructure (== library) without clear users won't go very
-far on LKML"
+On Mon, 17 Jul 2006 23:08:53 EDT, Vishal Patil said:
+> Agreed, however if I am not mistaken B-trees are useful even for
+> virtual memory implementation, for example HP-UX uses B-trees for
+> managing virtual memory pages.
 
-- Vishal
+OK, sounds at least somewhat plausible..
 
+> Also I did not get the statement
+> "Build infrastructure (== library) without clear users won't go very
+> far on LKML"
 
-On 7/17/06, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Vishal Patil <vishpat@gmail.com> wrote:
-> > I am attaching source files containing a very generic implementation
-> > of B-trees in C. The implementation corresponds to in memory B-Tree
-> > data structure. The B-tree library consists of two files, btree.h and
-> > btree.c. I am also attaching a sample program main.c which should
-> > hopefully make the use of the library clear.
->
-> B-trees are useful mainly when you can get a bunch of pointers in one
-> swoop, i.e., by reading nodes from disk.
->
-> > I would be happy to receive inputs from the community for changes
-> > (enchancements) to the library. All the more I would like to help
-> > someone with a project which would take advantage of the B-Tree
-> > implementation.
->
-> Build infrastructure (== library) without clear users won't go very far on
-> LKML.
-> --
-> Dr. Horst H. von Brand                   User #22616 counter.li.org
-> Departamento de Informatica                     Fono: +56 32 654431
-> Universidad Tecnica Federico Santa Maria              +56 32 654239
-> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
->
+Your patch would go a lot further if it came as 2 parts:
 
+PATCH 1/2: Add Generic B-tree implementation
+PATCH 2/2: Convert mm/foobar.c to track VM pages using B-trees.
 
--- 
-Motivation will almost always beat mere talent.
+Barring an actual patch 2/2, a *clear* explanation of why it would benefit
+a *specific* piece of code so somebody else can do it...
+
+--==_Exmh_1153192805_3154P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEvFNlcC3lWbTT17ARAncvAJ0apxzUdQmodIf4Q9VFr4YPgX3howCeMV7J
+5SbpgFu1WxNSv7zYqtgAYfQ=
+=9NC5
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153192805_3154P--

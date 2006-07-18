@@ -1,140 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWGRHjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWGRHy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWGRHjx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 03:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWGRHjx
+	id S1751180AbWGRHy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 03:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWGRHy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 03:39:53 -0400
-Received: from wr-out-0506.google.com ([64.233.184.235]:61838 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751201AbWGRHjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 03:39:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=p5kWBFAzBl9wlU82SDhT8oS/YpvtbaNQCMbHDobAMr63cQ6tS1ENKiKBMa7ke7iVHVvgRXbVo+ufaHu/9MvoVxvT7zHlvkxIhO4rGwoVxVrEA9aFbm5miwo1XpjrU2nEqdplvqtHBjYDFKJBoFrMCw8p4FcInF4YyToqnuj5tes=
-Subject: kernel panic related to ReiserFS (v3)
-From: Chris Largret <largret@gmail.com>
-Reply-To: largret@gmail.com
-To: linux-kernel@vger.kernel.org
+	Tue, 18 Jul 2006 03:54:57 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:57309 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751180AbWGRHy4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 03:54:56 -0400
+Subject: Re: Bad ext3/nfs DoS bug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: James <20@madingley.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060717130128.GA12832@circe.esc.cam.ac.uk>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
 Content-Type: text/plain
-Date: Tue, 18 Jul 2006 00:39:48 -0700
-Message-Id: <1153208388.8074.18.camel@localhost>
+Date: Tue, 18 Jul 2006 09:55:18 +0200
+Message-Id: <1153209318.26690.1.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 Dropline GNOME 
+X-Mailer: Evolution 2.7.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi James,
 
-First, the disclaimer: I've been watching the arguments and accusations
-about reiser4, and am not trying to add fuel to either side ;)
+> I've tried contacting the relevant maintainers directly,
+> and it's even in the kernel bugzilla, but nothing's happened
+> and it's been over a month now. No-one seems to be doing anyting 
+> about this. Is one meant to post this to bugtraq or what?
+> 
+> Here's the bug: http://bugzilla.kernel.org/show_bug.cgi?id=6828
+> (exploit code follows)
+> 
+> > We found this rather surprising behaviour when debugging a
+> > network card for one of our embedded systems. There was a
+> > bus problem that occasionally caused the network card to
+> > place random data in the outgoing packets. We were using
+> > NFS root, as we hadn't written drivers for the block
+> > devices yet, and discovered our Linux NFS servers getting
+> > ext3 errors. It turned out that the 3com cards we have in
+> > the servers lie about checking UDP checksums, and passed
+> > the rubbish to knfsd where it was causing the problem. 
+> > 
+> > Here's an example one of our widgets (dcm503) is talking
+> > to an NFS server (dufftown)
+> > 
+> > 17:28:38.535011 dcm503.guralp.local.984095109 > dufftown.guralp.local.nfs: 116 
+> > lookup fh Unknown/1 "" (DF) (ttl 64, id 0, len 144)
+> >                          4500 0090 0000 4000 4011 3d45 0a52 01fa
+> >                          c0a8 3024 03ff 0801 007c 8e9c 3aa8 1985
+> >                          0000 0000 0000 0002 0001 86a3 0000 0002
+> >                          0000 0004 0000 0001 0000 001c 028f 5b0c
+> >                          0000 0006 6463 6d35 3033 0000 0000 0000
+> >                          0000 0000 0000 0000 0000 0000 0000 0000
+> >                          0100 0001 0021 0003 3d26 3d00 4a2f ffff
+> >                          3d00 2c08 c923 0000 0000 0000 0000 0000
+> >                          0000 0000 000a 6d6f 756e 7470 6f69 6e74
+> > 
+> > so what's happened here is 4a2f ffff should have been 4a2f
+> > xxxx but the network card has missed the clock on the bus
+> > and gotten ffff instead
+> > 
+> > nfsd_dispatch: vers 2 proc 4
+> > nfsd: LOOKUP   32: 01000001 03002100 003d263d ffff2f4a 082c003d 000023c9
+> > nfsd: nfsd_lookup(fh 32: 01000001 03002100 003d263d ffff2f4a 082c003d 
+> > 000023c9, )
+> > nfsd: fh_verify(32: 01000001 03002100 003d263d ffff2f4a 082c003d 000023c9)
+> > 
+> > so here the client does a V2 lookup with a DH which has
+> > gotten screwed up by my clients network card, this is
+> > received by my server, gets past the UDP checksum code
+> > (thank you 3com) and ends up at knfsd.
+> > 
+> > knfsd passes this to fh_verify which decodes it to be hde3
+> > and inode 4294913866 (0xffff2f4a)
+> > 
+> > that then gets passed to ext3 which then panics.
+> > 
+> > EXT3-fs error (device hde3): ext3_get_inode_block: bad inode number: 
+> > 4294913866
+> > 
+> > marks the file system as containing an error, and remounts
+> > the system read only.
+> > 
+> > Obviously this is sub optimal, and a fairly horrid DoS
+> > since anyone can craft a UDP packet, with a bogus FH in
+> > it. Whilst this is for V2_LOOKUP it works for all of the
+> > V2 procedures we tried.
+> > 
+> 
+> exploit code is available at
+> 
+> http://www.madingley.org/uploaded/crash-nfs.tar.gz
 
-This kernel panic happened a few minutes ago, and it is probably related
-to a firefox bug, but it shouldn't cause the kernel to panic. I'm
-running the 2.6.16.16 kernel with the latest squashfs (CVS) patch which
-supported this kernel series. The distro is Slamd64, and is on a 64-bit
-AMD X2 system. As you can probably guess, my main filesystem is
-ReiserFS. It is on an SATA drive. If more information is needed, let me
-know.
+so I used your exploit and I could reproduce it on every 2.6 kernel, I
+tried so far. However with a 2.4 kernel I see the error messages, but it
+doesn't get remounted read-only. Did you run tests with 2.4 kernels?
 
-Before sending this in I did a search on the release announcements. It
-looks to me like the last reiserfs change was well before the .16
-series. If I'm wrong, feel free to tell me.
+Regards
 
-Here is the relevant section from /var/log/syslog:
+Marcel
 
-Jul 17 23:42:49 localhost kernel: Unable to handle kernel paging request
-at ffff81023dfaf8b0 RIP: 
-Jul 17 23:42:49 localhost kernel: <ffffffff8016285b>{cache_alloc_refill
-+250}
-Jul 17 23:42:49 localhost kernel: PGD 8063 PUD 0 
-Jul 17 23:42:49 localhost kernel: Oops: 0000 [1] SMP 
-Jul 17 23:42:49 localhost kernel: CPU 1 
-Jul 17 23:42:49 localhost kernel: Modules linked in: usb_storage vmnet
-parport_pc parport vmmon snd_pcm_oss snd_mixer_oss md5 ipv6 ipt_recent
-ipt_REJECT xt_state iptable_filter nfs lockd nfs_acl sunrpc r8169
-ohci1394 ieee1394 emu10k1_gp gameport snd_emu10k1 snd_rawmidi
-snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_timer
-snd_page_alloc snd_util_mem snd_hwdep snd 8250_pci 8250 serial_core
-tda9887 tuner cx8800 cx88xx video_buf ir_common tveeprom compat_ioctl32
-v4l1_compat v4l2_common btcx_risc videodev nvidia forcedeth i2c_nforce2
-pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core
-Jul 17 23:42:49 localhost kernel: Pid: 7770, comm: firefox-bin Tainted:
-P      2.6.16.16 #1
-Jul 17 23:42:49 localhost kernel: RIP: 0010:[<ffffffff8016285b>]
-<ffffffff8016285b>{cache_alloc_refill+250}
-Jul 17 23:42:49 localhost kernel: RSP: 0018:ffff8100b9f7fa78  EFLAGS:
-00010082
-Jul 17 23:42:49 localhost kernel: RAX: 0000000080000e00 RBX:
-ffff810004174940 RCX: 0000000000000016
-Jul 17 23:42:49 localhost kernel: RDX: ffff81003e2450c8 RSI:
-ffff81003dfac080 RDI: ffff81000417498c
-Jul 17 23:42:49 localhost kernel: RBP: 0000000000000004 R08:
-0000000000000001 R09: 000000000000000a
-Jul 17 23:42:49 localhost kernel: R10: 0000000000000002 R11:
-ffff8100b9f7fbc8 R12: ffff810004173800
-Jul 17 23:42:49 localhost kernel: R13: ffff8100bfe4abc0 R14:
-ffff8100b9f7fb50 R15: ffffffff801adb4c
-Jul 17 23:42:49 localhost kernel: FS:  00002af9c9c25ec0(0000)
-GS:ffff810004079440(0000) knlGS:00000000f44afbb0
-Jul 17 23:42:49 localhost kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-0000000080050033
-Jul 17 23:42:49 localhost kernel: CR2: ffff81023dfaf8b0 CR3:
-000000004b950000 CR4: 00000000000006e0
-Jul 17 23:42:49 localhost kernel: Process firefox-bin (pid: 7770,
-threadinfo ffff8100b9f7e000, task ffff81007d4282c0)
-Jul 17 23:42:49 localhost kernel: Stack: 0000000000203246
-0000000000203296 000000d0911857c0 00000000000000d0 
-Jul 17 23:42:49 localhost kernel:        ffff8100bfe4abc0
-ffff8100bf87d800 ffff810003e6cd38 ffff8100b9f7fb50 
-Jul 17 23:42:49 localhost kernel:        ffffffff801adb4c
-ffffffff80162756 
-Jul 17 23:42:49 localhost kernel: Call Trace:
-<ffffffff801adb4c>{reiserfs_init_locked_inode+0}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff80162756>{kmem_cache_alloc+75}
-<ffffffff801ae02b>{reiserfs_find_actor+0}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff801b7131>{reiserfs_alloc_inode+18}
-<ffffffff8017b526>{alloc_inode+18}
-Jul 17 23:42:49 localhost kernel:        <ffffffff8017c3d3>{iget5_locked
-+120} <ffffffff801ae07a>{reiserfs_iget+52}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff801aae31>{reiserfs_lookup+204} <ffffffff80171cb0>{do_lookup
-+194}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff8017281f>{__link_path_walk+2386}
-<ffffffff80172cf2>{link_path_walk+80}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff80165357>{get_unused_fd+108} <ffffffff80172fc8>{do_path_lookup
-+604}
-Jul 17 23:42:49 localhost kernel:
-<ffffffff8017311d>{__path_lookup_intent_open+78}
-<ffffffff80173988>{open_namei+127}
-Jul 17 23:42:49 localhost kernel:        <ffffffff801651f6>{do_filp_open
-+25} <ffffffff80165357>{get_unused_fd+108}
-Jul 17 23:42:49 localhost kernel:        <ffffffff801654e8>{do_sys_open
-+68} <ffffffff8010a93e>{system_call+126}
-Jul 17 23:42:49 localhost kernel: 
-Jul 17 23:42:49 localhost kernel: Code: 8b 44 86 30 89 46 24 49 89 54 cc
-18 41 8b 45 5c 39 46 20 72 
-Jul 17 23:42:49 localhost kernel: RIP
-<ffffffff8016285b>{cache_alloc_refill+250} RSP <ffff8100b9f7fa78>
-Jul 17 23:42:49 localhost kernel: CR2: ffff81023dfaf8b0
-Jul 17 23:42:49 localhost kernel:  BUG: firefox-bin/7770, lock held at
-task exit time!
-Jul 17 23:42:49 localhost kernel:  [ffff8100a97edd60] {inode_init_once}
-Jul 17 23:42:49 localhost kernel: .. held by:       firefox-bin: 7770
-[ffff81007d4282c0, 116]
-Jul 17 23:42:49 localhost kernel: ... acquired at:
-do_lookup+0x81/0x179
-
-
-(sorry for the line-wrap, it looks bad even as I click "Send." :)
-
-Thanks
-
---
-Chris Largret <http://www.largret.com>
 

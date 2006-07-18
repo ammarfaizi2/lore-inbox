@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWGRAsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWGRBah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWGRAsp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jul 2006 20:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWGRAsp
+	id S1751306AbWGRBah (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jul 2006 21:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWGRBah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jul 2006 20:48:45 -0400
-Received: from ns2.suse.de ([195.135.220.15]:28378 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751262AbWGRAso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jul 2006 20:48:44 -0400
-From: Neil Brown <neilb@suse.de>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Date: Tue, 18 Jul 2006 10:48:07 +1000
+	Mon, 17 Jul 2006 21:30:37 -0400
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:16609 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751292AbWGRBag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jul 2006 21:30:36 -0400
+Date: Mon, 17 Jul 2006 21:22:17 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] panic_on_oops: remove ssleep()
+To: Horms <horms@verge.net.au>
+Cc: linuxppc-dev <linuxppc-dev@ozlabs.org>, Chris Zankel <chris@zankel.net>,
+       Russell King <rmk@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>, discuss@x86-64.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607172126_MC3-1-C544-E35A@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17596.12231.468729.199881@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: Raid5 Reshape Status + xfs_growfs = Success! (2.6.17.3)
-In-Reply-To: message from Justin Piszcz on Tuesday July 11
-References: <Pine.LNX.4.64.0607111159470.12230@p34.internal.lan>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday July 11, jpiszcz@lucidpixels.com wrote:
-> Neil,
-> 
-> It worked, echo'ing the 600 > to the stripe width in /sys, however, how 
-> come /dev/md3 says it is 0 MB when I type fdisk -l?
-> 
-> Is this normal?
+In-Reply-To: <31687.FP.7244@verge.net.au>
 
-Yes.  The 'cylinders' number is limited to 16bits.  For you 2.2TB
-array, the number of 'cylinders' (given 2 heads and 4 sectors) would
-be about 500,000 which doesn't fit into 16 bits.
-> 
-> Furthermore, the xfs_growfs worked beautifully!
-> 
+On Mon, 17 Jul 2006 12:17:20 -0400, Horms wrote:
 
-Excellent!
+> This patch is part of an effort to unify the panic_on_oops behaviour
+> across all architectures that implement it.
+> 
+> It was pointed out to me by Andi Kleen that if an oops has occured
+> in interrupt context, then calling sleep() in the oops path will only cause
+> a panic, and that it would be really better for it not to be in the path at
+> all. 
 
-NeilBrown
+i386 already checks in_interrupt() and panics immediately:
+
+--- a/arch/i386/kernel/traps.c
++++ b/arch/i386/kernel/traps.c
+@@ -442,11 +442,9 @@ #endif
+===>    if (in_interrupt())
+===>            panic("Fatal exception in interrupt");
+ 
+-       if (panic_on_oops) {
+-               printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-               ssleep(5);
+-               panic("Fatal exception");
+-       }
++       if (panic_on_oops)
++               panic("Fatal exception: panic_on_oops");
++
+        oops_exit();
+        do_exit(SIGSEGV);
+ }
+
+-- 
+Chuck
+And did we tell you the name of the game, boy, we call it Riding the Gravy Train.

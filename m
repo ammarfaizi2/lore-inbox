@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWGROpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWGROu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWGROpf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 10:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWGROpf
+	id S932254AbWGROu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 10:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWGROu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 10:45:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45518 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932251AbWGROpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 10:45:35 -0400
-Date: Tue, 18 Jul 2006 07:45:21 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: mbligh@mbligh.org, a.p.zijlstra@chello.nl, linux-mm@kvack.org,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: inactive-clean list
-In-Reply-To: <20060718072545.7cfed5b2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607180742580.31065@schroedinger.engr.sgi.com>
-References: <1153167857.31891.78.camel@lappy>
- <Pine.LNX.4.64.0607172035140.28956@schroedinger.engr.sgi.com>
- <1153224998.2041.15.camel@lappy> <Pine.LNX.4.64.0607180557440.30245@schroedinger.engr.sgi.com>
- <44BCE86A.4030602@mbligh.org> <Pine.LNX.4.64.0607180659310.30887@schroedinger.engr.sgi.com>
- <20060718072545.7cfed5b2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Jul 2006 10:50:29 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9678 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932254AbWGROu2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 10:50:28 -0400
+Message-Id: <200607181450.k6IEo4Rs022388@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Michael Buesch <mb@bu3sch.de>
+Cc: linux-kernel@vger.kernel.org, keir@xensource.com,
+       Tony Lindgren <tony@atomide.com>, zach@vmware.com,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Subject: Re: kernel/timer.c: next_timer_interrupt() strange/buggy(?) code (2.6.18-rc1-mm2)
+In-Reply-To: Your message of "Tue, 18 Jul 2006 16:29:27 +0200."
+             <200607181629.27933.mb@bu3sch.de>
+From: Valdis.Kletnieks@vt.edu
+References: <20060717185330.GA32264@rhlx01.fht-esslingen.de> <200607171957.k6HJvPHT022236@turing-police.cc.vt.edu>
+            <200607181629.27933.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1153234204_3104P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 18 Jul 2006 10:50:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006, Andrew Morton wrote:
+--==_Exmh_1153234204_3104P
+Content-Type: text/plain; charset=us-ascii
 
-> Christoph Lameter <clameter@sgi.com> wrote:
-> > What other types of non freeable pages could exist?
+On Tue, 18 Jul 2006 16:29:27 +0200, Michael Buesch said:
+
+> Continue is equal to:
 > 
-> PageWriteback() pages (potentially all of memory)
+> LOOP {
+> 	/* foo */
+> 	goto continue; /* == continue */
+	/* What the code actually had: */
+        goto found; /* Note placement of the label *AFTER* end of loop */
+> 	/* foo */
+> continue:
+> } LOOP
 
-Doesnt write throttling take care of that?
+found: /* out of the loop entirely */
 
-> Pinned pages (various transient conditions, mainly get_user_pages())
+A 'continue' drops you *at* the end of the loop. The 'goto found:' in the
+original code drops you *after* the end of the loop.  One will potentially go
+around for another pass, the other you're *done*.
 
-Hmm....
- 
-> Some pages whose buffers are attached to an ext3 journal.
 
-These are just pinned by an increased refcount right?
- 
-> Possibly NFS unstable pages.
+--==_Exmh_1153234204_3104P
+Content-Type: application/pgp-signature
 
-These are tracked by NR_NFS_UNSTABLE.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Maybe we need a NR_UNSTABLE that includes pinned pages?
+iD8DBQFEvPUccC3lWbTT17ARAnupAKCwRDCvY7M1515aR10qligOV5MY9ACeMe4t
+1qD+CAmzW/thGofZjNOdtSM=
+=eVtg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153234204_3104P--

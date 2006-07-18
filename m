@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWGRSTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWGRSX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWGRSTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 14:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWGRSTc
+	id S932241AbWGRSX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 14:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWGRSX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 14:19:32 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:27278 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S932342AbWGRSTb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 14:19:31 -0400
-Message-ID: <44BD26E2.9080106@nachtwindheim.de>
-Date: Tue, 18 Jul 2006 20:22:26 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-MIME-Version: 1.0
-To: davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: [PATCH] Remove pci_module_init() from Intel I/OAT DMA engine
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jul 2006 14:23:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4835 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932241AbWGRSX6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 14:23:58 -0400
+Date: Tue, 18 Jul 2006 14:23:28 -0400
+From: Dave Jones <davej@redhat.com>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk, linux-mm@kvack.org
+Subject: Re: [PATCH] vm/agp: remove private page protection map
+Message-ID: <20060718182328.GA7567@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+	davej@codemonkey.org.uk, linux-mm@kvack.org
+References: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Tue, Jul 18, 2006 at 07:08:12PM +0100, Dave Airlie wrote:
+ > 
+ > AGP keeps its own copy of the protection_map, upcoming DRM changes
+ > will also require access to this map from modules.
 
-Changes pci_module_init() to pci_register_driver().
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
----
+Nice. I've always disliked having this knowledge in the agp driver.
+I'll queue this up.
 
-diff -ruN linux-2.6.18-rc2/drivers/dma/ioatdma.c linux/drivers/dma/ioatdma.c
---- linux-2.6.18-rc2/drivers/dma/ioatdma.c      2006-07-18 13:36:57.000000000 +0200
-+++ linux/drivers/dma/ioatdma.c 2006-07-18 19:56:51.000000000 +0200
-@@ -828,7 +828,7 @@
-        /* if forced, worst case is that rmmod hangs */
-        __unsafe(THIS_MODULE);
+		Dave
 
--       return pci_module_init(&ioat_pci_drv);
-+       return pci_register_driver(&ioat_pci_drv);
- }
-
- module_init(ioat_init_module);
+-- 
+http://www.codemonkey.org.uk

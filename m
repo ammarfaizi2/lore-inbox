@@ -1,130 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWGRNPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWGRN2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWGRNPN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 09:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWGRNPM
+	id S932192AbWGRN2l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 09:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWGRN2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 09:15:12 -0400
-Received: from mail.cs.umn.edu ([128.101.34.202]:34198 "EHLO mail.cs.umn.edu")
-	by vger.kernel.org with ESMTP id S932105AbWGRNPK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 09:15:10 -0400
+	Tue, 18 Jul 2006 09:28:41 -0400
+Received: from mxsf15.cluster1.charter.net ([209.225.28.215]:43666 "EHLO
+	mxsf15.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932192AbWGRN2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 09:28:40 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17596.56260.541661.919437@hound.rchland.ibm.com>
-Date: Tue, 18 Jul 2006 08:01:56 -0500
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: [RFC PATCH 33/33] Add Xen virtual block device driver.
-In-Reply-To: <20060718091958.657332000@sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	<20060718091958.657332000@sous-sol.org>
+Message-ID: <17596.57854.569394.880757@stoffel.org>
+Date: Tue, 18 Jul 2006 09:28:30 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: largret@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic related to ReiserFS (v3)
+In-Reply-To: <1153208388.8074.18.camel@localhost>
+References: <1153208388.8074.18.camel@localhost>
 X-Mailer: VM 7.19 under Emacs 21.4.1
-From: boutcher@cs.umn.edu (Dave Boutcher)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 00:00:33 -0700, Chris Wright <chrisw@sous-sol.org> said:
-> 
-> The block device frontend driver allows the kernel to access block
-> devices exported exported by a virtual machine containing a physical
-> block device driver.
 
-First, I think this belongs in drivers/block (and the network driver
-belongs in drivers/net).  If we're going to bring xen to the party,
-lets not leave it hiding out in a corner.
+Chris> This kernel panic happened a few minutes ago, and it is
+Chris> probably related to a firefox bug, but it shouldn't cause the
+Chris> kernel to panic. I'm running the 2.6.16.16 kernel with the
+Chris> latest squashfs (CVS) patch which supported this kernel
+Chris> series. The distro is Slamd64, and is on a 64-bit AMD X2
+Chris> system. As you can probably guess, my main filesystem is
+Chris> ReiserFS. It is on an SATA drive. If more information is
+Chris> needed, let me know.
 
-> +static void connect(struct blkfront_info *);
-> +static void blkfront_closing(struct xenbus_device *);
-> +static int blkfront_remove(struct xenbus_device *);
-> +static int talk_to_backend(struct xenbus_device *, struct blkfront_info *);
-> +static int setup_blkring(struct xenbus_device *, struct blkfront_info *);
-> +
-> +static void kick_pending_request_queues(struct blkfront_info *);
-> +
-> +static irqreturn_t blkif_int(int irq, void *dev_id, struct pt_regs *ptregs);
-> +static void blkif_restart_queue(void *arg);
-> +static void blkif_recover(struct blkfront_info *);
-> +static void blkif_completion(struct blk_shadow *);
-> +static void blkif_free(struct blkfront_info *, int);
-
-I'm pretty sure you can rearrange the code to get rid of the forward
-references. 
-
-> +/**
-> + * We are reconnecting to the backend, due to a suspend/resume, or a backend
-> + * driver restart.  We tear down our blkif structure and recreate it, but
-> + * leave the device-layer structures intact so that this is transparent to the
-> + * rest of the kernel.
-> + */
-> +static int blkfront_resume(struct xenbus_device *dev)
-> +{
-> +	struct blkfront_info *info = dev->dev.driver_data;
-> +	int err;
-> +
-> +	DPRINTK("blkfront_resume: %s\n", dev->nodename);
-> +
-> +	blkif_free(info, 1);
-> +
-> +	err = talk_to_backend(dev, info);
-> +	if (!err)
-> +		blkif_recover(info);
-> +
-> +	return err;
-> +}
-Should blkfront_resume grab blkif_io_lock?
-
-> +	switch (backend_state) {
-> +	case XenbusStateUnknown:
-> +	case XenbusStateInitialising:
-> +	case XenbusStateInitWait:
-> +	case XenbusStateInitialised:
-> +	case XenbusStateClosed:
-
-This actually should get fixed elsewhere, but SillyCaps???
-
-> +static inline int GET_ID_FROM_FREELIST(
-> +	struct blkfront_info *info)
-> +{
-> +	unsigned long free = info->shadow_free;
-> +	BUG_ON(free > BLK_RING_SIZE);
-> +	info->shadow_free = info->shadow[free].req.id;
-> +	info->shadow[free].req.id = 0x0fffffee; /* debug */
-> +	return free;
-> +}
-> +
-> +static inline void ADD_ID_TO_FREELIST(
-> +	struct blkfront_info *info, unsigned long id)
-> +{
-> +	info->shadow[id].req.id  = info->shadow_free;
-> +	info->shadow[id].request = 0;
-> +	info->shadow_free = id;
-> +}
-
-A real nit..but why are these routines SHOUTING?
-
-> +int blkif_release(struct inode *inode, struct file *filep)
-> +{
-> +	struct blkfront_info *info = inode->i_bdev->bd_disk->private_data;
-> +	info->users--;
-> +	if (info->users == 0) {
-
-Hrm...this strikes me as racey.  Don't you need at least a memory
-barrier here to handle SMP?
+Chris> Jul 17 23:42:49 localhost kernel: Modules linked in: usb_storage vmnet
+Chris> parport_pc parport vmmon snd_pcm_oss snd_mixer_oss md5 ipv6 ipt_recent
+Chris> ipt_REJECT xt_state iptable_filter nfs lockd nfs_acl sunrpc r8169
+Chris> ohci1394 ieee1394 emu10k1_gp gameport snd_emu10k1 snd_rawmidi
+Chris> snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_timer
+Chris> snd_page_alloc snd_util_mem snd_hwdep snd 8250_pci 8250 serial_core
+Chris> tda9887 tuner cx8800 cx88xx video_buf ir_common tveeprom compat_ioctl32
+Chris> v4l1_compat v4l2_common btcx_risc videodev nvidia forcedeth i2c_nforce2
+Chris> pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core
+Chris> Jul 17 23:42:49 localhost kernel: Pid: 7770, comm: firefox-bin Tainted:
+Chris> P      2.6.16.16 #1
 
 
-> +static struct xlbd_major_info xvd_major_info = {
-> +	.major = 201,
-> +	.type = &xvd_type_info
-> +};
+You've got a binary kernel module loaded here, please try to re-create
+this crash without the nvidia module loaded.  We (hah!  Not me
+actually... :-) can't debug this with such a module.
 
-I've forgotten what the current policy is around new major numbers. 
+The key is the 'Tainted' flag.  
 
-
-Dave B
+John

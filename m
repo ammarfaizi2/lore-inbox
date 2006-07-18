@@ -1,82 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWGRRHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWGRRLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWGRRHm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 13:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGRRHm
+	id S932309AbWGRRLf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 13:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGRRLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 13:07:42 -0400
-Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:180 "EHLO
-	pne-smtpout3-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932307AbWGRRHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 13:07:41 -0400
-Message-ID: <44BD1558.8070208@gmail.com>
-Date: Tue, 18 Jul 2006 20:07:36 +0300
-From: Anssi Hannula <anssi.hannula@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6-7.6.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
+	Tue, 18 Jul 2006 13:11:35 -0400
+Received: from compunauta.com ([69.36.170.169]:48336 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S932309AbWGRRLe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 13:11:34 -0400
+From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
+	<gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: [OT] devfs is obsolete, but dbus/hald/ivman does not spend more resources at boot time?
+Date: Tue, 18 Jul 2006 12:11:31 -0500
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: input/eventX permissions, force feedback
-References: <44BCAD19.8070004@gmail.com> <d120d5000607180520m2a7ec74at452539186cd7814@mail.gmail.com> <20060718165039.04D50214B6B@muan.mtu.ru>
-In-Reply-To: <20060718165039.04D50214B6B@muan.mtu.ru>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607181211.32092.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-> Dmitry Torokhov wrote:
-> 
-> 
->>Hi Anssi,
->>
->>On 7/18/06, Anssi Hannula <anssi.hannula@gmail.com> wrote:
->>
->>>Currently most distributions have /dev/input/event* strictly as 0600
->>>root:root or 0640 root:root. The user logged in will not have rights to
->>>the device, unlike /dev/input/js*, as he could read all passwords from
->>>the keyboard device.
->>>
->>>This is a problem, because /dev/input/event* is used for force feedback
->>>and should therefore be user-accessible.
->>>
->>>I can think of the following solutions to this problem:
->>>
->>>1. Some creative udev rule to chmod /dev/input/event* less strictly when
->>>it has a /dev/input/js* and is thus a gaming device.
->>>
->>>2. Some creative udev rule to chmod /dev/input/event* more strictly when
->>>it is a keyboard.
->>>
->>>3. Have another force feedback interface also in /dev/input/js*.
->>>
->>
->>You can do it in udev looking either at MODALIAS or at EV and ABS
->>environment variables. I think it is pretty safe to say that a device
->>with EV_ABS, EV_FF, ABS_X and ABS_Y is a force-feedback joystick-type
->>device and not a keyboard.
->>
-> 
-> 
-> You could also have udev create specific symlink for such devices,
-> say /dev/input/ff* and make a rule for pam_console to change their
-> permissions. That is finally what is done e.g. for CD-ROMs (cdrom ->
-> hdc/sr0)
+I was used to mount devfs in a separate folder, to search for a ZISO file on 
+hard drives or DVD/CD units in my boot ram rescue disks, and Gentoo live DVD, 
+in last kernel versions devfs still there but not anymore in config, we still 
+able to use it, touching some files.
 
-Yes, I proposed this kind of solution too in a later post :)
+Just to know ¿How many releases will still there?
 
-> 
-> 
->>Another solution would be to relax permissions if user is also console
->>owner (home box installation).
->>
->>One thing is for sure - I do not like #3 at all ;)
->>
-> 
-> 
+How do you a search for drives with hald/dbus at boot time on a ramdisk it is 
+not more complex?!?!?!.
+
+Well, I still wanting for a while devfs, untill I use to use hald/dbus :(
 
 
 -- 
-Anssi Hannula
-
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

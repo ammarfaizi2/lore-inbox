@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWGRFVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWGRFpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWGRFVS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 01:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWGRFVS
+	id S1751259AbWGRFpG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 01:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWGRFpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 01:21:18 -0400
-Received: from [213.184.169.121] ([213.184.169.121]:58122 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751254AbWGRFVR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 01:21:17 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Subject: Re: [PATCH] x86: Don't randomize stack unless current->personality permits it
-Date: Tue, 18 Jul 2006 08:21:45 +0300
-User-Agent: KMail/1.5
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Frank van Maarseveen <frankvm@frankvm.com>,
-       linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-References: <200607112257.22069.a1426z@gawab.com> <200607151709.45870.a1426z@gawab.com> <44BBB1AA.3050703@grupopie.com>
-In-Reply-To: <44BBB1AA.3050703@grupopie.com>
+	Tue, 18 Jul 2006 01:45:05 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:36792 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S1751259AbWGRFpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 01:45:04 -0400
+Message-ID: <44BC7556.4000509@stanford.edu>
+Date: Mon, 17 Jul 2006 22:44:54 -0700
+From: Thomas Dillig <tdillig@stanford.edu>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
+To: kernel_org@digitalpeer.com, linux-kernel@vger.kernel.org, eteo@redhat.com
+Subject: Re: Null dereference errors in the kernel
+References: <44BC5A3F.2080005@stanford.edu> <44BC6B6B.8020509@digitalpeer.com>
+In-Reply-To: <44BC6B6B.8020509@digitalpeer.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607180821.45346.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques wrote:
-> Al Boldi wrote:
-> >[...] > void fn() {
-> >
-> > 	long i = 9999999;
-> > 	double x,y;
-> >
-> > 	elapsed(1);
-> > 	while (i--) fn2(&x,&y);
-> > 	printf("%4lu ",elapsed(0));
-> > }
->
-> You are not initializing x and y and with -Os at least my gcc really
-> uses floating point load/store operations to handle that code.
 
-Thanks for pointing that out.
+Joshua Henderson wrote:
+> Looked at the first 4.  These are valid errors.  Seems like a rather 
+> intelligent tool.  When will this tool be publicly available?
 
-I was really waiting for someone to critique this, but keep in mind this code 
-tries to surface a performance problem, and any modification changes the 
-semantics of the compiled code, which then may yield different results.
+We are currently aiming for a public release of the SATURN tool some 
+time in fall this year. Other students are also working on different 
+types of analyses/verification modules, which will slowly become ready 
+if everything goes as planned.
 
-> Maybe the coprocessor has a hard time normalizing certain garbage on the
-> stack, but without/with randomization the data comes from other
-> addresses and you're just lucky with the contents.
 
-Good point, but this random garbage makes the test even more realistic, as 
-this code would thus cover more variations without actually coding for it.
 
-> Does this also happens if you add a "x=0, y=0;" line to that function?
+Eugene Teo wrote:
+> I would be interested. Can you email bug reports so that bugs can be 
+> fixed?
+> Also, please email security@kernel.org so that they can verify the reports
+> should there be any false negatives.
+Also, we will ready (e.g. double-check and pretty-print) more reports 
+and mail them (CC'ed to security@kernel.org) in chunks as soon as they 
+are ready. Please let us know if there is anything else you want us to do.
 
-with arch_stack_align using 0xf
-gcc -Os tstExec.c
-randomization on
-causes 2x blips/hits
-randomization off
-causes no blips/hits
-mv a.out tstExec
-causes continuous 2x slowdown
-sh -c ./tstExec
-causes slowdown to disappear (can somebody explain this weirdness?)
-
-with arch_stack_align using 0x7f
-all weirdness is gone
-gcc -O3 tstExec.c
-randomization on
-causes some minor blips/hits
-randomization off
-causes even less blips/hits
-
-Going one step further,
-with #define arch_stack_align(x) (x)
-all blips/hits/weirdness are gone
-
-Which means that either arch_stack_align isn't necessary at all, or 
-randomization isn't working as intended.
-
-Can somebody prove me wrong here?
-
-Thanks!
-
---
-Al
-
+Thanks a lot, it's exciting to hear back from developers after working 
+on this for a long time :)
+-Isil & Tom
 

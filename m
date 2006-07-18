@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWGRS1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGRSdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWGRS1j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 14:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWGRS1i
+	id S932344AbWGRSdu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 14:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWGRSdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 14:27:38 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:63913 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932198AbWGRS1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 14:27:38 -0400
-Date: Tue, 18 Jul 2006 14:22:36 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: show_registers(): try harder to print failing
-  code
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>
-Message-ID: <200607181425_MC3-1-C556-424A@compuserve.com>
+	Tue, 18 Jul 2006 14:33:50 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:44266 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932344AbWGRSdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 14:33:49 -0400
+Message-ID: <44BD2A07.7080200@oracle.com>
+Date: Tue, 18 Jul 2006 11:35:51 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: akpm <akpm@osdl.org>
+Subject: [PATCH] fix kernel-api doc for kernel/resource.c
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-show_registers() tries to dump failing code starting 43 bytes
-before the offending instruction, but this address can be bad,
-for example in a device driver where the failing instruction is
-less than 43 bytes from the start of the driver's code.  When that
-happens, try to dump code starting at the failing instruction
-instead of printing no code at all.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+insert_resource() was unexported, so kernel-doc needs to be told
+to search kernel/resource.c for internal functions instead of
+exported functions so that it won't report an error.
 
---- 2.6.18-rc1-32.orig/arch/i386/kernel/traps.c
-+++ 2.6.18-rc1-32/arch/i386/kernel/traps.c
-@@ -307,6 +307,8 @@ void show_registers(struct pt_regs *regs
- 	 */
- 	if (in_kernel) {
- 		u8 __user *eip;
-+		int code_bytes = 64;
-+		unsigned char c;
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/DocBook/kernel-api.tmpl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2618-rc2.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2618-rc2/Documentation/DocBook/kernel-api.tmpl
+@@ -300,7 +300,7 @@ X!Ekernel/module.c
+      </sect1>
  
- 		printk("\n" KERN_EMERG "Stack: ");
- 		show_stack_log_lvl(NULL, regs, (unsigned long *)esp, KERN_EMERG);
-@@ -314,9 +316,12 @@ void show_registers(struct pt_regs *regs
- 		printk(KERN_EMERG "Code: ");
+      <sect1><title>Resources Management</title>
+-!Ekernel/resource.c
++!Ikernel/resource.c
+      </sect1>
  
- 		eip = (u8 __user *)regs->eip - 43;
--		for (i = 0; i < 64; i++, eip++) {
--			unsigned char c;
--
-+		if (eip < (u8 __user *)PAGE_OFFSET || __get_user(c, eip)) {
-+			/* try starting at EIP */
-+			eip = (u8 __user *)regs->eip;
-+			code_bytes = 32;
-+		}
-+		for (i = 0; i < code_bytes; i++, eip++) {
- 			if (eip < (u8 __user *)PAGE_OFFSET || __get_user(c, eip)) {
- 				printk(" Bad EIP value.");
- 				break;
--- 
-Chuck
+      <sect1><title>MTRR Handling</title>
+

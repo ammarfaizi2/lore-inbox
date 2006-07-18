@@ -1,88 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWGRVbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWGRVtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWGRVbn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 17:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWGRVbm
+	id S932171AbWGRVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 17:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWGRVtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 17:31:42 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:26553 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932138AbWGRVbX (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 17:31:23 -0400
-Message-Id: <200607182131.k6ILVGxt004888@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Thomas Tuttle <thinkinginbinary@gmail.com>, richard.dent@nhs.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Vacation message heckling (Was: Re: Richard Dent - Annual Leave)
-In-Reply-To: Your message of "Tue, 18 Jul 2006 22:30:04 +0200."
-             <9a8748490607181330q7b7be84i3ac324d9053a5fa4@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060718090604.BLR19599@ms03.swi.contact.secure-ops.net> <20060718132704.GA12930@phoenix>
-            <9a8748490607181330q7b7be84i3ac324d9053a5fa4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153258276_3104P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 18 Jul 2006 17:31:16 -0400
+	Tue, 18 Jul 2006 17:49:25 -0400
+Received: from wx-out-0102.google.com ([66.249.82.202]:50742 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932171AbWGRVtZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 17:49:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l3SSYHm01NlYdWUD9IgHBIrsHAGDhwi5WB8gGXmR4qheePcg2iouxM04YwUjqNhS7HsLST+4OEinWIsoTJ0rzKwOofY/10LL3nFIJLDHU11L963/eeSXVt4nlZHpYJrngYOsyPlY6CXVtiIMcQ/UTCng8b75hDyCJiHnIlRjGUM=
+Message-ID: <1defaf580607181449p138c2cfayc3df3657430624f8@mail.gmail.com>
+Date: Tue, 18 Jul 2006 23:49:24 +0200
+From: "Haavard Skinnemoen" <hskinnemoen@gmail.com>
+To: "Dave Hansen" <haveblue@us.ibm.com>
+Subject: Re: 2.6.18-rc1-mm2
+Cc: "Haavard Skinnemoen" <hskinnemoen@atmel.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>, "Andy Whitcroft" <apw@shadowen.org>
+In-Reply-To: <1152892123.24925.67.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	 <1152892123.24925.67.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153258276_3104P
-Content-Type: text/plain; charset=us-ascii
+On 7/14/06, Dave Hansen <haveblue@us.ibm.com> wrote:
+> > +#define PFN_UP(x)    (((x) + PAGE_SIZE - 1) >> PAGE_SHIFT)
+> > +#define PFN_DOWN(x)  ((x) >> PAGE_SHIFT)
+> > +#define PFN_PHYS(x)  ((x) << PAGE_SHIFT)
+>
+> Please use include/linux/pfn.h instead of defining these
 
-On Tue, 18 Jul 2006 22:30:04 +0200, Jesper Juhl said:
+Ah, of course.
 
-> Claiming anything send by email is confidential seems completely
-> rediculous to me.
+> > Since there's only a single board available, and that board has no use for
+> > discontigmem or sparsemem anyway, I figured it's better to just turn it off
+> > until a need for it arises.
+>
+> How about we help you get sparsemem working properly, and you can kill
+> all of the discontigmem support from your arch?  You can be the first
+> non-legacy-impeded architecture. ;)
 
-There actually *is* a valid usage case for these disclaimers in *some* cases.
+That would be great. I think maybe I should start by ripping out the
+discontigmem stuff altogether, since there are no boards available
+that requires it. But I can perhaps test sparsemem on a prototype
+board.
 
-If there *is* in fact material covered by lawyer-client or similar privilege,
-having the disclaimer on *those items alone* can do some good when the other
-side's legal eagles subpoena all e-mails with the phrase 'Project Wombat'
-in them - it puts the other side on notice that they shouldn't be looking
-at that item and it should be returned.
+> Feel free to mail Andy or myself with your compile errors, and I'm sure
+> we can iron it out.  I'd try myself, but I don't have a cross-compiler
+> for your arch yet.  Do you have one handy?
 
-It's the same legal theory as subpoenaing all the paper documents, and finding
-in the 53 boxes, a sheet stamped 'Privileged and Confidential' that
-accidentally got into box 27 - there's strict rules about what happens then.
+Thanks. There are patches for binutils and gcc available from avr32linux.org:
 
-Of course, paper documents are stamped on the TOP so you stop reading, and
-not all of them are stamped... :)
+http://avr32linux.org/twiki/pub/Main/GccPatches/gcc-4.0.2-avr32.patch
+http://avr32linux.org/twiki/bin/view/Main/BinutilsPatches
 
-(And I actually did at one time have dealings with a lawyer who Actually Got
-It. E-mails re: scheduling and other administrivia didn't have a disclaimer,
-stuff that was actually sensitive had a very short one at the *top*...)
+For binutils you should probably grab the pre-patched source tarball
+unless you want to mess around with autoconf. I tried to make a patch
+after regenerating all the makefiles, but the patch ended up being 5x
+the size of the original one...
 
-> Perhaps if the email was encrypted I could attach some weight to a
-> disclaimer like thatt, but sending unencrypted email is like writing on
-> the back of a postcard - it can be read by a huge number of people in
-> transit - admins managing the mail servers where it is stored along
-> the way, people sniffing traffic on the lines it passes through,
+> It would also be nice to see a _couple_ of patches that perhaps abstract
+> a thing or two into generic code.  I know that new architectures usually
+> begin with a 'cp -r', but it would be nice to see a wee bit of code
+> refactoring as a small price of admission.  Some of the ioremap and
+> other pagetable code looked pretty generic to me.
 
-At least in the US, the law says otherwise.  18 USC 2511 basically says
-that the admins aren't allowed to blab, and the traffic sniffers are
-committing a crime already.
+The pagetable code in ioremap.c is indeed copied verbatim from another
+architecture (I think it was MIPS.) I'll look at all the
+implementations of remap_area_pages() and see if it's possible to
+consolidate them when I get back to work in a bit less than two weeks.
 
-http://www.law.cornell.edu/uscode/html/uscode18/usc_sec_18_00002511----000-.html
+I won't be submitting any patches until then, but your mail will wait
+for me in my inbox so I won't forget about it. Thanks for taking the
+time to review this.
 
-And if you catch them at it, 18 USC 2520 says you can sue them for damages:
-
-http://www.law.cornell.edu/uscode/html/uscode18/usc_sec_18_00002520----000-.html
-
-
-
---==_Exmh_1153258276_3104P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEvVMkcC3lWbTT17ARAkfAAJwLEiImG7oaZ8TyjrL3jwG66PZhqgCdEZJS
-eJ4unQaQbO9Aaf0SInVK+Jw=
-=7U8n
------END PGP SIGNATURE-----
-
---==_Exmh_1153258276_3104P--
+Håvard

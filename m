@@ -1,39 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWGSTyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWGST4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbWGSTyH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 15:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWGSTyH
+	id S1030261AbWGST4A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 15:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWGST4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 15:54:07 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63662
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030260AbWGSTyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 15:54:05 -0400
-Date: Wed, 19 Jul 2006 12:54:05 -0700 (PDT)
-Message-Id: <20060719.125405.48804152.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: ruben@puettmann.net, sergio@sergiomb.no-ip.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc2 tg3 Dead loop on netdevice eth0 fix it urgently!
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <E1G3E0V-0006e2-00@gondolin.me.apana.org.au>
-References: <20060719110439.GJ23431@puettmann.net>
-	<E1G3E0V-0006e2-00@gondolin.me.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 19 Jul 2006 15:56:00 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:31422 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1030261AbWGST4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 15:56:00 -0400
+Message-ID: <44BE8D7C.8070107@cmu.edu>
+Date: Wed, 19 Jul 2006 15:52:28 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Jeff Chua <jchua@fedex.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607191742.32609.rjw@sisk.pl> <44BE5589.4070403@cmu.edu> <200607192102.17438.rjw@sisk.pl>
+In-Reply-To: <200607192102.17438.rjw@sisk.pl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Thu, 20 Jul 2006 01:30:39 +1000
+I see, so I guess I still have a disk problem after any type of suspend,
+has anyone gotten it to fully work with AHCI? any more suggestions?
 
-> [NET]: Fix reversed error test in netif_tx_trylock
-> 
-> A non-zero return value indicates success from spin_trylock,
-> not error.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+I greatly appreciate all the help.
 
-Applied, thanks Herbert.
+- George
+
+
+Rafael J. Wysocki wrote:
+> On Wednesday 19 July 2006 17:53, George Nychis wrote:
+>> Ok, well on my second try suspending to disk and resuming, i'm getting a
+>> much different outcome... ls returns me resuls, however things are
+>> slightly off:
+>>
+>> x60s gnychis # ls
+>> ls: downloads: Permission denied
+>> ls: host_analysis: Permission denied
+>> ls: SouthPark: Permission denied
+>> ls: library: Permission denied
+>> ls: cmu_dump: Permission denied
+>> ls: emulator: Permission denied
+>> ls: paper-KanKat.pdf: Permission denied
+>> ls: quotes: Permission denied
+>> ls: school: Permission denied
+>> ls: cmu_dump2: Permission denied
+>> host_graphs  host_level  key  mp3  odigw_k_pinw.wma  out-5M  pops  song
+>>  test.save  thesis_rwork  todo
+>> x60s gnychis # /etc/init.d/net.wlan0 restart
+>> mkdir: cannot create directory `/var/lib/init.d/snapshot/9985':
+>> Input/output error
+>> cp: target `/var/lib/init.d/snapshot/9985/' is not a directory: No such
+>> file or directory
+>>  * Stopping wlan0
+>>  *   Bringing down wlan0
+>> /lib/rcscripts/net.modules.d/ifconfig: line 139: /usr/bin/tac: cannot
+>> execute binary file
+>>  *     Stopping dhcpcd on wlan0 ...
+>>                                    [ ok ]
+>>  *     Shutting down wlan0 ...
+>>                                    [ ok ]
+>>  * Starting wlan0
+>>  *   Configuring wireless network for wlan0
+>>  *     wlan0 connected to "SMC" at 00:04:E2:7D:D3:E3
+>>  *     in managed mode (WEP enabled - open)
+>>  *   Bringing up wlan0
+>>  *     dhcp
+>>  *       Running dhcpcd ...
+>>                                    [ ok ]
+>>  *       wlan0 received address 192.168.2.101
+>> x60s gnychis # ping google.com
+>> bash: ping: command not found
+>>
+>> No clue :\
+> 
+> I guess your disk doesn't wake up.
+> 
+> ls can give you some results from the cache.
+> 
+> Rafael
+> 

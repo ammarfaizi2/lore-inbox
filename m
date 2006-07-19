@@ -1,46 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWGSMDX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWGSMRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWGSMDX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 08:03:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWGSMDX
+	id S964801AbWGSMRc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 08:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGSMRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 08:03:23 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:62177 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S964798AbWGSMDX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 08:03:23 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: [PATCH] Support DOS line endings
-Date: Wed, 19 Jul 2006 13:02:43 +0100
-User-Agent: KMail/1.9.3
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20060707173458.GB1605@parisc-linux.org> <20060713210725.GA1923@mars.ravnborg.org> <1152826904.3084.1.camel@gimli.at.home>
-In-Reply-To: <1152826904.3084.1.camel@gimli.at.home>
+	Wed, 19 Jul 2006 08:17:32 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:49167 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964801AbWGSMRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 08:17:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=SJ90m+BfM8D1DU8QrJrLTOD8M39R3q+IHsPalQb7aUUn9VlmWRhE1ytT/gaiMPL/0MPol6rmK68lZRB+mGI76+nD9E8Dc95eZgXYBiCoZR5S73sgeSpSU0fE4UcT3SXloR9KI9kv1TnYchEy7SpKkYxkTOE0oNMEUcbjDF1htvs=
+Message-ID: <44BE22C8.3010204@gmail.com>
+Date: Wed, 19 Jul 2006 20:17:12 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+CC: linux-kernel@vger.kernel.org, len.brown@intel.com, chas@cmf.nrl.navy.mil,
+       miquel@df.uba.ar, kkeil@suse.de, benh@kernel.crashing.org,
+       video4linux-list@redhat.com, rmk+mmc@arm.linux.org.uk,
+       Neela.Kolli@engenio.com, jgarzik@pobox.com, vandrove@vc.cvut.cz,
+       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
+       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
+       paulus@samba.org
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060719004659.GA30823@lumumba.uhasselt.be>
+In-Reply-To: <20060719004659.GA30823@lumumba.uhasselt.be>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607191302.43452.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 July 2006 22:41, Bernd Petrovitsch wrote:
-> On Thu, 2006-07-13 at 23:07 +0200, Sam Ravnborg wrote:
-> [...]
->
-> > Thanks. Maybe I should just stop trying to code anything today ;-)
->
-> Or take it as a sign to not support DOS line endings.
+Panagiotis Issaris wrote:
+> From: Panagiotis Issaris <takis@issaris.org>
+> 
+> drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+> 
+> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+> ---
+  
+> diff --git a/drivers/video/au1100fb.c b/drivers/video/au1100fb.c
+> index a92a91f..11f8372 100644
+> --- a/drivers/video/au1100fb.c
+> +++ b/drivers/video/au1100fb.c
+> @@ -453,11 +453,10 @@ int au1100fb_drv_probe(struct device *de
+>  			return -EINVAL;
+>  
+>  	/* Allocate new device private */
+> -	if (!(fbdev = kmalloc(sizeof(struct au1100fb_device), GFP_KERNEL))) {
+> +	if (!(fbdev = kzalloc(sizeof(struct au1100fb_device), GFP_KERNEL))) {
+>  		print_err("fail to allocate device private record");
+>  		return -ENOMEM;
+>  	}
+> -	memset((void*)fbdev, 0, sizeof(struct au1100fb_device));
+>  
+>  	fbdev->panel = &known_lcd_panels[drv_info.panel_idx];
+>  
+> @@ -534,10 +533,9 @@ #endif
+>  	fbdev->info.fbops = &au1100fb_ops;
+>  	fbdev->info.fix = au1100fb_fix;
+>  
+> -	if (!(fbdev->info.pseudo_palette = kmalloc(sizeof(u32) * 16, GFP_KERNEL))) {
+> +	if (!(fbdev->info.pseudo_palette = kzalloc(16, sizeof(u32), GFP_KERNEL))) {
 
-It certainly would be better to warn if a file with DOS line endings is being 
-used, even if supported, so that such files never enter the kernel 
-undetected.
+typo? kcalloc?
 
--- 
-Cheers,
-Alistair.
+>  		return -ENOMEM;
+>  	}
+> -	memset(fbdev->info.pseudo_palette, 0, sizeof(u32) * 16);
+>  
+>  	if (fb_alloc_cmap(&fbdev->info.cmap, AU1100_LCD_NBR_PALETTE_ENTRIES, 0) < 0) {
+>  		print_err("Fail to allocate colormap (%d entries)",
+> diff --git a/drivers/video/au1200fb.c b/drivers/video/au1200fb.c
+> index c6a5f0c..7d0375a 100644
+> --- a/drivers/video/au1200fb.c
+> +++ b/drivers/video/au1200fb.c
+> @@ -1589,11 +1589,10 @@ static int au1200fb_init_fbinfo(struct a
+>  		return -EFAULT;
+>  	}
+>  
+> -	fbi->pseudo_palette = kmalloc(sizeof(u32) * 16, GFP_KERNEL);
+> +	fbi->pseudo_palette = kzalloc(16, sizeof(u32), GFP_KERNEL);
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+here also
+
+The rest of drivers/video looks fine.
+
+Tony

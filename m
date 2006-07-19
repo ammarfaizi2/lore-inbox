@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWGSMRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWGSMjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWGSMRc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 08:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGSMRc
+	id S964803AbWGSMjn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 08:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWGSMjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 08:17:32 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:49167 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964801AbWGSMRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 08:17:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=SJ90m+BfM8D1DU8QrJrLTOD8M39R3q+IHsPalQb7aUUn9VlmWRhE1ytT/gaiMPL/0MPol6rmK68lZRB+mGI76+nD9E8Dc95eZgXYBiCoZR5S73sgeSpSU0fE4UcT3SXloR9KI9kv1TnYchEy7SpKkYxkTOE0oNMEUcbjDF1htvs=
-Message-ID: <44BE22C8.3010204@gmail.com>
-Date: Wed, 19 Jul 2006 20:17:12 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Wed, 19 Jul 2006 08:39:43 -0400
+Received: from xenotime.net ([66.160.160.81]:61639 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964803AbWGSMjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 08:39:42 -0400
+Date: Wed, 19 Jul 2006 05:39:40 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Martin Waitz <tali@admingilde.org>
+cc: Randy Dunlap <randy.dunlap@oracle.com>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH 1/3] kernel-doc: ignore __devinit
+In-Reply-To: <20060719070019.GB30212@admingilde.org>
+Message-ID: <Pine.LNX.4.58.0607190536230.26709@shark.he.net>
+References: <44BD5373.20104@oracle.com> <20060719070019.GB30212@admingilde.org>
 MIME-Version: 1.0
-To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
-CC: linux-kernel@vger.kernel.org, len.brown@intel.com, chas@cmf.nrl.navy.mil,
-       miquel@df.uba.ar, kkeil@suse.de, benh@kernel.crashing.org,
-       video4linux-list@redhat.com, rmk+mmc@arm.linux.org.uk,
-       Neela.Kolli@engenio.com, jgarzik@pobox.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-References: <20060719004659.GA30823@lumumba.uhasselt.be>
-In-Reply-To: <20060719004659.GA30823@lumumba.uhasselt.be>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Panagiotis Issaris wrote:
-> From: Panagiotis Issaris <takis@issaris.org>
-> 
-> drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-> 
-> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
-> ---
-  
-> diff --git a/drivers/video/au1100fb.c b/drivers/video/au1100fb.c
-> index a92a91f..11f8372 100644
-> --- a/drivers/video/au1100fb.c
-> +++ b/drivers/video/au1100fb.c
-> @@ -453,11 +453,10 @@ int au1100fb_drv_probe(struct device *de
->  			return -EINVAL;
->  
->  	/* Allocate new device private */
-> -	if (!(fbdev = kmalloc(sizeof(struct au1100fb_device), GFP_KERNEL))) {
-> +	if (!(fbdev = kzalloc(sizeof(struct au1100fb_device), GFP_KERNEL))) {
->  		print_err("fail to allocate device private record");
->  		return -ENOMEM;
->  	}
-> -	memset((void*)fbdev, 0, sizeof(struct au1100fb_device));
->  
->  	fbdev->panel = &known_lcd_panels[drv_info.panel_idx];
->  
-> @@ -534,10 +533,9 @@ #endif
->  	fbdev->info.fbops = &au1100fb_ops;
->  	fbdev->info.fix = au1100fb_fix;
->  
-> -	if (!(fbdev->info.pseudo_palette = kmalloc(sizeof(u32) * 16, GFP_KERNEL))) {
-> +	if (!(fbdev->info.pseudo_palette = kzalloc(16, sizeof(u32), GFP_KERNEL))) {
+On Wed, 19 Jul 2006, Martin Waitz wrote:
 
-typo? kcalloc?
+> hoi :)
+>
+> On Tue, Jul 18, 2006 at 02:32:35PM -0700, Randy Dunlap wrote:
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> >
+> > Ignore __devinit in function definitions so that kernel-doc won't
+> > fail on them.
+>
+> why would it fall over __devinit?
 
->  		return -ENOMEM;
->  	}
-> -	memset(fbdev->info.pseudo_palette, 0, sizeof(u32) * 16);
->  
->  	if (fb_alloc_cmap(&fbdev->info.cmap, AU1100_LCD_NBR_PALETTE_ENTRIES, 0) < 0) {
->  		print_err("Fail to allocate colormap (%d entries)",
-> diff --git a/drivers/video/au1200fb.c b/drivers/video/au1200fb.c
-> index c6a5f0c..7d0375a 100644
-> --- a/drivers/video/au1200fb.c
-> +++ b/drivers/video/au1200fb.c
-> @@ -1589,11 +1589,10 @@ static int au1200fb_init_fbinfo(struct a
->  		return -EFAULT;
->  	}
->  
-> -	fbi->pseudo_palette = kmalloc(sizeof(u32) * 16, GFP_KERNEL);
-> +	fbi->pseudo_palette = kzalloc(16, sizeof(u32), GFP_KERNEL);
+It doesn't match any of those awful regex strings when
+looking for function prototypes, so kernel-doc (the script)
+coughs and dies, as noted in DocBook/kernel-api.tmpl
+for drivers/pci/search.c.
 
-here also
+> And shouldn't we add __{dev}?init{data}? while we are at it?
 
-The rest of drivers/video looks fine.
+Yes, in theory at least (for __init and __exit, not __initdata,
+since this is in function definitios).
+I just haven't run into the need for those yet.
 
-Tony
+-- 
+~Randy

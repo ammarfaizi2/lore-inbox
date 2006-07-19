@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWGSMuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWGSMxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWGSMuG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 08:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWGSMuG
+	id S964805AbWGSMxX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 08:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWGSMxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 08:50:06 -0400
-Received: from mx.dt.lt ([84.32.38.8]:9409 "EHLO mx.dtiltas.lt")
-	by vger.kernel.org with ESMTP id S964809AbWGSMuE (ORCPT
+	Wed, 19 Jul 2006 08:53:23 -0400
+Received: from ozlabs.org ([203.10.76.45]:19656 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S964805AbWGSMxW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 08:50:04 -0400
-Date: Wed, 19 Jul 2006 15:45:27 +0300
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: [PATCH] SATA: Add PCI-ID
-To: Adam Helms <helms.adam@gmail.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
+	Wed, 19 Jul 2006 08:53:22 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: INLINE
-References: <c6e8b8d90607071019o22433ffch9ccc986c27c11ffa@mail.gmail.com>
-In-Reply-To: <c6e8b8d90607071019o22433ffch9ccc986c27c11ffa@mail.gmail.com>
-X-Mailer: Mahogany 0.66.0 'Clio', compiled for Linux 2.6.16-1.2080_3.rhfc5.cubbi_suspend2 i686
-Message-Id: <20060719125001.24ED7BB06@mx.dtiltas.lt>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17598.10992.445446.148411@cargo.ozlabs.ibm.com>
+Date: Wed, 19 Jul 2006 22:52:00 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: takis@lumumba.uhasselt.be (Panagiotis Issaris)
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, chas@cmf.nrl.navy.mil,
+       miquel@df.uba.ar, kkeil@suse.de, benh@kernel.crashing.org,
+       video4linux-list@redhat.com, rmk+mmc@arm.linux.org.uk,
+       Neela.Kolli@engenio.com, jgarzik@pobox.com, vandrove@vc.cvut.cz,
+       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
+       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+In-Reply-To: <20060719004659.GA30823@lumumba.uhasselt.be>
+References: <20060719004659.GA30823@lumumba.uhasselt.be>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jul 2006 19:19:23 +0200 Adam Helms <helms.adam@gmail.com> wrote:
+Panagiotis Issaris writes:
 
-> Makes the AHCI driver detect the PCI ID 8086:27c0 (IDE interface:
-> Intel Corporation 82801GB/GR/GH (ICH7 Family) Serial ATA Storage
-> Controller IDE (rev 01)) as an AHCI chipset.
-> 
-> 8086:27c0 also works with ata_piix but it's much slower. 8086:27c0 is
-> shipped with  - among others - new HP Proliant servers.
+> diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
+> index 1507d19..48c6f83 100644
+> --- a/drivers/video/aty/atyfb_base.c
+> +++ b/drivers/video/aty/atyfb_base.c
+> @@ -2995,12 +2995,11 @@ static int __devinit atyfb_setup_sparc(s
+>  		/* nothing */ ;
+>  	j = i + 4;
+>  
+> -	par->mmap_map = kmalloc(j * sizeof(*par->mmap_map), GFP_ATOMIC);
+> +	par->mmap_map = kcalloc(j, sizeof(*par->mmap_map), GFP_ATOMIC);
+>  	if (!par->mmap_map) {
+>  		PRINTKE("atyfb_setup_sparc() can't alloc mmap_map\n");
+>  		return -ENOMEM;
+>  	}
+> -	memset(par->mmap_map, 0, j * sizeof(*par->mmap_map));
 
-I have Intel d945psn motherboard with this controller. I patched
-Fedora 2.6.17-1.2145 kernel with this patch, but I get when booting:
+What exactly do we gain by using kcalloc rather than kzalloc here?
+There is no potential overflow issue to worry about.
 
-ahci 0000:00:1f.2: version 1.2
-ACPI: PCI Interrupt 0000:00:1f:2[B] -> GSI 19 (level, low) -> IRQ 193
-ahci: probe of 0000:00:1f.2 failed with error -12
+> @@ -464,7 +463,7 @@ #ifdef __sparc__
+>  	 * one additional region with size == 0. 
+>  	 */
+>  
+> -	par->mmap_map = kmalloc(4 * sizeof(*par->mmap_map), GFP_ATOMIC);
+> +	par->mmap_map = kcalloc(4, sizeof(*par->mmap_map), GFP_ATOMIC);
 
-Is it because it has IDE controller too?
-dmesg:
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH7: IDE controller at PCI slot 0000:00:1f.1
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 185
-ICH7: chipset revision 1
-ICH7: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x40b0-0x40b7, BIOS settings: hda:DMA, hdb:pio
-Probing IDE interface ide0...
-hda: ST3120026A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hda: max request size: 512KiB
+Likewise.
 
-Regards,
-Nerijus
-
-> Signed-off-by: Adam Helms <helms.adam@gmail.com>
-> ---------
-> 
-> --- /usr/src/linux-source-2.6.15/drivers/scsi/ahci.c.orig
-> 2006-07-07 19:07:14.000000000 +0200
-> +++ /usr/src/linux-source-2.6.15/drivers/scsi/ahci.c    2006-07-07
-> 19:07:31.000000000 +0200
-> @@ -261,6 +261,8 @@ static const struct pci_device_id ahci_p
->           board_ahci }, /* ICH6 */
->         { PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
->           board_ahci }, /* ICH6M */
-> +       { PCI_VENDOR_ID_INTEL, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-> +         board_ahci }, /* ICH7 */
->         { PCI_VENDOR_ID_INTEL, 0x27c1, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
->           board_ahci }, /* ICH7 */
->         { PCI_VENDOR_ID_INTEL, 0x27c5, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-
+Paul.

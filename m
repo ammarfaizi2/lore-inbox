@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWGSBbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWGSBdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWGSBbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 21:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWGSBbQ
+	id S932451AbWGSBdp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 21:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGSBdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 21:31:16 -0400
-Received: from student.uhasselt.be ([193.190.2.1]:30213 "EHLO
-	student.uhasselt.be") by vger.kernel.org with ESMTP id S932449AbWGSBbP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 21:31:15 -0400
-Date: Wed, 19 Jul 2006 03:31:13 +0200
-To: linux-kernel@vger.kernel.org
-Cc: linux-eata@i-connect.net
-Subject: [PATCH 1/2] Conversions from kmalloc+memset to k(z|c)alloc
-Message-ID: <20060719013113.GF30823@lumumba.uhasselt.be>
+	Tue, 18 Jul 2006 21:33:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5609 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932451AbWGSBdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 21:33:45 -0400
+Date: Tue, 18 Jul 2006 18:33:13 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devl@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: Re: Bug with USB proc_bulk in 2.4 kernel
+Message-Id: <20060718183313.e8e5a5b2.zaitcev@redhat.com>
+In-Reply-To: <200607181004.55191.benjamin.cherian.kernel@gmail.com>
+References: <mailman.1152332281.24203.linux-kernel2news@redhat.com>
+	<200607171435.22128.benjamin.cherian.kernel@gmail.com>
+	<20060717151940.5cd79087.zaitcev@redhat.com>
+	<200607181004.55191.benjamin.cherian.kernel@gmail.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: takis@lumumba.uhasselt.be (Panagiotis Issaris)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Panagiotis Issaris <takis@issaris.org>
+On Tue, 18 Jul 2006 10:04:54 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
 
-Conversions from kmalloc+memset to kzalloc.
+> > Another option would be to change USBDEVFS_BULK to USBDEVFS_SUBMITURB.
+> > Did you look at doing that?
 
-Signed-off-by: Panagiotis Issaris <takis@issaris.org>
----
-Applies to current GIT or 2.6.18-rc2. Compile-tested with 
-make allyesconfig.
+> We did that as well. But when you try to reap an URB there is no timeout. So 
+> if something goes wrong you're stuck waiting for the operation to finish or 
+> for the user to physically unplug the device.
 
- drivers/scsi/ide-scsi.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+This can't be right. Surely alarm(2) should work?
 
-diff --git a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
-index f9e913f..57f460e 100644
---- a/drivers/scsi/ide-scsi.c
-+++ b/drivers/scsi/ide-scsi.c
-@@ -326,17 +326,15 @@ static int idescsi_check_condition(ide_d
- 	u8             *buf;
- 
- 	/* stuff a sense request in front of our current request */
--	pc = kmalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
-+	pc = kzalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
- 	rq = kmalloc (sizeof (struct request), GFP_ATOMIC);
--	buf = kmalloc(SCSI_SENSE_BUFFERSIZE, GFP_ATOMIC);
-+	buf = kzalloc(SCSI_SENSE_BUFFERSIZE, GFP_ATOMIC);
- 	if (pc == NULL || rq == NULL || buf == NULL) {
- 		kfree(buf);
- 		kfree(rq);
- 		kfree(pc);
- 		return -ENOMEM;
- 	}
--	memset (pc, 0, sizeof (idescsi_pc_t));
--	memset (buf, 0, SCSI_SENSE_BUFFERSIZE);
- 	ide_init_drive_cmd(rq);
- 	rq->special = (char *) pc;
- 	pc->rq = rq;
--- 
-1.4.1.gd3ba6
+> >Of course it's very tempting for me to off-load both
+> >the work and the responsibility on you.
+> 
+> All right then. I'll send you a patch that backports the string caching 
+> mechanism from 2.6 in a few days. Would you be able to test it with the 
+> 210PU?
 
+Yes, that would be fine.
+
+Although I am starting to think about creating a custom locking
+scheme in devio.c after all. It seems like less work.
+
+-- Pete

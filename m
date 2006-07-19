@@ -1,110 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWGSWrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWGSW5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbWGSWrF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 18:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWGSWrF
+	id S932560AbWGSW5d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 18:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWGSW5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 18:47:05 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:49286 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932559AbWGSWrE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 18:47:04 -0400
-Message-ID: <1153349221.44beb6653e039@portal.student.luth.se>
-Date: Thu, 20 Jul 2006 00:47:01 +0200
-From: ricknu-0@student.ltu.se
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se> <20060719212049.GA6828@martell.zuzino.mipt.ru>
-In-Reply-To: <20060719212049.GA6828@martell.zuzino.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+	Wed, 19 Jul 2006 18:57:33 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38340 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932560AbWGSW5d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 18:57:33 -0400
+Date: Thu, 20 Jul 2006 08:56:36 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+Subject: Re: XFS breakage in 2.6.18-rc1
+Message-ID: <20060720085636.D1947140@wobbly.melbourne.sgi.com>
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <200607190908.30727.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200607190908.30727.s0348365@sms.ed.ac.uk>; from s0348365@sms.ed.ac.uk on Wed, Jul 19, 2006 at 09:08:30AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Citerar Alexey Dobriyan <adobriyan@gmail.com>:
-
-> On Wed, Jul 19, 2006 at 10:38:20PM +0200, ricknu-0@student.ltu.se wrote:
-> > A first step to a generic boolean-type. The patch just introduce the bool
-> (in
-> > arch. i386 only (for the moment)),
-> 
-> What's do special about i386?
-Oh, nothing. Meant the patch is only for i386. Because I do not have any other
-setup there were little reason to change for any more arches
-
-> > -Why would we want it?
-> > -There is already some how are depending on a "boolean"-type (like NTFS).
-> Also,
-> > it will clearify functions who returns a boolean from one returning a
-> value, ex:
-> > bool it_is_ok();
-> > char it_is_ok();
-> > The first one is obvious what it is doing, the secound might return some
-> sort of
-> > status.
-> 
-> It should be obvious from name whether function returns int which is a
-> boolean or int which is a number.
-Yes idealy, but sometimes a "obvious" name for someone is a uncertain for others
-+ if it is suppose to be an boolean, why not decleare it as one. Have seen quite
-a few: int a; /* boolean */
-
-> > -Why false and not FALSE, why not "enum {...} bool"
-> > -They are not #define(d) and shouldn't because it is a value, like 'a'.
-> But
-> > because it is just a value, then bool is just a variable and should be able
-> to
-> > handle 0 and 1 equally well.
-> 
->   -Why we wouldn't want it
->   -C++ and Java fans will treat bool as a green light to the following
-> 
-> 	if (!(flags == true))
->   and
-> 	if (!(flags == false))
-Thank god (or someone) for all the C fans who codereview ;)
-
-Have you actually seen code like that (please point me to the place in that case :)
-
-
-> Please, show compiler flag[s] to enable warning[s] from gcc about
-> 
-> 	_Bool foo = 42;
-> 
-> Until you do that the whole activity is moot.
-On it...
-
-
-> > --- a/include/asm-i386/types.h
-> > +++ b/include/asm-i386/types.h
-> > @@ -10,6 +10,15 @@ typedef unsigned short umode_t;
-> >   * header files exported to user space
-> >   */
+On Wed, Jul 19, 2006 at 09:08:30AM +0100, Alistair John Strachan wrote:
+> On Tuesday 18 July 2006 23:57, Nathan Scott wrote:
+> [snip]
+> > > of programs fail in mysterious ways. I tried to recover using xfs_repair
+> > > but I feel that my partition is thorougly borked. Of course no data was
+> > > lost due to backups but still I'd like this bug to be fixed ;-)
 > >
-> > +#if defined(__GNUC__) && __GNUC__ >= 3
-> > +typedef _Bool bool;
-> > +#else
-> > +#warning You compiler doesn't seem to support boolean types, will set
-> 'bool' as
-> > an 'unsigned char'
-> > +typedef unsigned char bool;
+> > 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
+> > mkfs and restore?  Or at least get a full repair run?  If you did,
+> > and you still see issues in .18-rc1, please let me know asap.
 > 
-> Why unsigned char? Why not unsigned int? What would this do wrt
-> bitfields?
-I just took the smallest alternetive to a bit. Many uses an unsigned char as
-boolean, others who uses integer should not suffer either (none of whom I have
-checked).
-
-
-> > +#endif
-> > +
-> > +typedef bool u2;
+> Just out of interest, I've got a few XFS volumes that were created 24 months 
+> ago on a machine that I upgraded to 2.6.17 about a month ago. I haven't seen 
+> any crashes so far.
 > 
-> What is it?
+> Assuming I get the newest XFS repair tools on there, what's the disadvantage 
+> of repairing versus creating a new filesystem? What special circumstances are 
+> required to cause a crash?
 
-Oww, it should be u1 (unsigned 1-bit). Thanks!
+There should be no disadvantage to repairing.  I will update the FAQ
+shortly to describe all the details of the problem, recommendations
+on how to address it, which kernel version is affected, etc.
 
+cheers.
+
+-- 
+Nathan

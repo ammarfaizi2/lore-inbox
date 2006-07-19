@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWGSPdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWGSPhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWGSPdP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 11:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWGSPdP
+	id S1030186AbWGSPhX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 11:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWGSPhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 11:33:15 -0400
-Received: from posthamster.phnxsoft.com ([195.227.45.4]:57872 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S1030184AbWGSPdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 11:33:14 -0400
-Message-ID: <44BE50A0.9070107@imap.cc>
-Date: Wed, 19 Jul 2006 17:32:48 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
-X-Accept-Language: de, en, fr
+	Wed, 19 Jul 2006 11:37:23 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:61358 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030186AbWGSPhX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 11:37:23 -0400
+Message-ID: <44BE5162.40701@linuxtv.org>
+Date: Wed, 19 Jul 2006 11:36:02 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Grzegorz Kulewski <kangur@polcom.net>,
-       Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
-       caleb@calebgray.com
-Subject: Re: Reiser4 Inclusion
-References: <44BAFDB7.9050203@calebgray.com>	 <1153128374.3062.10.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>	 <20060717160618.013ea282.diegocg@gmail.com>	 <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net>	 <20060717155151.GD8276@merlin.emma.line.org>	 <Pine.LNX.4.61.0607180951480.16615@yvahk01.tjqt.qr>	 <20060718204718.GD18909@merlin.emma.line.org>	 <fake-message-id-1@fake-server.fake-domain> <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com>
-In-Reply-To: <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+CC: Trent Piepho <xyzzy@speakeasy.org>, Robert Fitzsimons <robfitz@273k.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       76306.1226@compuserve.com, fork0@t-online.de, greg@kroah.com,
+       linux-kernel@vger.kernel.org, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       shemminger@osdl.org
+Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device	corruption
+References: <200607130047_MC3-1-C4D3-43D6@compuserve.com>	 <20060713050541.GA31257@kroah.com>	 <20060712222407.d737129c.rdunlap@xenotime.net>	 <20060712224453.5faeea4a.akpm@osdl.org> <20060715230849.GA3385@localhost>	 <1153013464.4755.35.camel@praia>	 <Pine.LNX.4.58.0607171650510.18488@shell3.speakeasy.net> <1153310092.27276.9.camel@praia>
+In-Reply-To: <1153310092.27276.9.camel@praia>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-
-> On 7/19/06, Tilman Schmidt <tilman@imap.cc> wrote:
->> You can't have it both ways. Either you want everything in the main
->> kernel tree or you don't. Of course there will always be a limbo of
->> code waiting for inclusion. But if it has to linger there for too
->> long (again: no matter for what reason) then it invalidates the
->> whole concept of not having a stable API. And that would be a pity.
+Mauro Carvalho Chehab wrote:
+> Em Seg, 2006-07-17 às 17:25 -0700, Trent Piepho escreveu:
+>> On Sat, 15 Jul 2006, Mauro Carvalho Chehab wrote:
+>>> Em Sb, 2006-07-15 s 23:08 +0000, Robert Fitzsimons escreveu:
+>>>> The layout of struct video_device would change depending on whether
+>>>> videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
+>>>> the structure to get corrupted.
+>>> Hmm... good point! However, I the proper solution would be to trust on
+>>> CONFIG_VIDEO_V4L1_COMPAT or CONFIG_VIDEO_V4L1 instead. it makes no sense
+>>> to keep a pointer to an unsupported callback, when V4L1 is not selected.
+>> It's not so clear that the problem is with v4l2-dev.h, because if you look
+>> that file:
+>>
+>> #ifdef CONFIG_VIDEO_V4L1
+>> #include <linux/videodev.h>
+>> #else
+>> #include <linux/videodev2.h>
+>> #endif
+> That's true. I think the OOPS is related to this -git patch:
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=6ab3d5624e172c553004ecc862bfeac16d9d68b7
 > 
-> You seem to have this idea of everyone having some sacred right of
-> having their code either in the kernel or supported by the kernel
-> developers.
+> It removed config.h from bttv-cards (and other places), but we need
+> CONFIG_* symbols before including v4l2-dev.h. Maybe the right solution
+> would be to include autoconf.h or config.h at the top of v4l2-dev.h.
 
-No, and seriously I cannot see how you could possibly get that
-impression from what I wrote.
+No, that is a red herring.
 
-> It is up to the maintainers to decide what's included and what's not.
+The #include <linux/config.h> has been removed in favor of command-line
+-iMACRO inclusion...
 
-Ok. But then it's also up to them to stand by their decision and
-take the heat for it. Don't jump from your left foot to your right
-foot, saying "submit your code to the kernel" if someone wants to
-maintain something off-tree and "maintain it separately" if they
-try to submit it. State clearly: "We do not want Reiser4 in Linux"
-and defend it, instead of creating a string of ifs and then
-complaining that people go on about it.
+In other words, config.h is still being included, but the explicit
+#include language is no longer needed.
+-- 
+Michael Krufky
 
-> We obviously don't want _everything_ in the kernel anyway and don't
-> want to stagnate the kernel development because of out-of-tree code
-> either.
-
-Well, that doesn't make sense. You can't have your cake and eat it
-too. Either you have out-of-tree code or you haven't. Documents
-like stable_api_nonsense.txt explicitly discourage out-of-tree code,
-which is formally equivalent to saying that all kernel code should
-be in-tree. Therefore an attitude which says "go on developing that
-code out-of-tree, it's not ready for inclusion yet" is in direct
-contradiction with the foundations of the no-stable-API policy.
-
-> If you're unhappy about maintainer decisions, feel free to
-> complain to them
-
-Well, isn't that what the present thread is all about?
-
-> or better yet, step up to do the necessary legwork to
-> get the code included.
-
-That's completely beside the point. There are enough people already
-who are willing to do the legwork. The question is whether they and
-the kernel maintainers will be able to bridge their differences
-about how it should be done, and that would not be made easier by
-another party entering the arena.
-
-Seriously, what do you think would happen if I actually took the
-Reiser4 code, modified it according to what I think the kernel
-people would like to see, and submitted the result to lkml? I'll
-tell you what'd happen: I would get heat from both sides, I would
-be blamed both for perceived flaws in the original design and for
-any deviation from it, my motives would be questioned, I would be
-asked whether I'd commit to maintaining that code for the
-foreseeable future, and there would be no right answer to that
-question. No matter what I did, it would only make things worse.
-
-(Please note that the scenario above is completely fictitious. I am
-neither capable of, nor interested in, taking over the development
-of Reiser4 or promoting its admission into the kernel tree.)
-
-> After all, that's how Linux development works.
-
-Obviously there's more to it than that. There are people involved.
-
-HTH
-Tilman

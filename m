@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWGSIIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWGSIaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWGSIIE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 04:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWGSIIE
+	id S932521AbWGSIaU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 04:30:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWGSIaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 04:08:04 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:6152 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932471AbWGSIID
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 04:08:03 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: XFS breakage in 2.6.18-rc1
-Date: Wed, 19 Jul 2006 09:08:30 +0100
-User-Agent: KMail/1.9.3
-Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060719085731.C1935136@wobbly.melbourne.sgi.com>
+	Wed, 19 Jul 2006 04:30:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:31733 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932521AbWGSIaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 04:30:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=raffRbSbzohUWUMZ+WEyBf4yXxhZ7/2OFgm3Q9xSuJl+9MOwnVCe6vVkn/GEu/RPJsGtdIsEug2j3FFOph1/ZcSfvAPHoe/4Ei3VYiD6H8GffheCH1BeYHtPXbGM3oj6YxZW8NmQG3P6JfrgQAVWKxPqqtVChS3AkwZmumMdXZE=
+Message-ID: <84144f020607190130q94b5563i436e16028eb9fb94@mail.gmail.com>
+Date: Wed, 19 Jul 2006 11:30:17 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "yunfeng zhang" <zyf.zeroos@gmail.com>
+Subject: Re: Improvement on memory subsystem
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4df04b840607182021hecef3b6v24c4794444a8e53c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607190908.30727.s0348365@sms.ed.ac.uk>
+References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
+	 <84144f020607180925s62e6a7abvbaf66c672849170b@mail.gmail.com>
+	 <4df04b840607182021hecef3b6v24c4794444a8e53c@mail.gmail.com>
+X-Google-Sender-Auth: b7e31ab16085208a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 July 2006 23:57, Nathan Scott wrote:
+On 7/18/06, yunfeng zhang <zyf.zeroos@gmail.com> wrote:
+> > > 3. All slabs are all off-slab type. Store slab instance in page structure.
+
+2006/7/19, Pekka Enberg <penberg@cs.helsinki.fi>:
+> > Not sure what you mean. We need much more than sizeof(struct page) for
+> > slab management. Hmm?
+
+On 7/19/06, yunfeng zhang <zyf.zeroos@gmail.com> wrote:
+> Current page struct is just like this
+
 [snip]
-> > of programs fail in mysterious ways. I tried to recover using xfs_repair
-> > but I feel that my partition is thorougly borked. Of course no data was
-> > lost due to backups but still I'd like this bug to be fixed ;-)
->
-> 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
-> mkfs and restore?  Or at least get a full repair run?  If you did,
-> and you still see issues in .18-rc1, please let me know asap.
 
-Just out of interest, I've got a few XFS volumes that were created 24 months 
-ago on a machine that I upgraded to 2.6.17 about a month ago. I haven't seen 
-any crashes so far.
-
-Assuming I get the newest XFS repair tools on there, what's the disadvantage 
-of repairing versus creating a new filesystem? What special circumstances are 
-required to cause a crash?
-
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Which, like I said, is not enough to hold slab management structures
+(we need an array of bufctl_t in addition to struct slab).

@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWGSInc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWGSI41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbWGSInc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 04:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWGSInc
+	id S932532AbWGSI41 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 04:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWGSI41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 04:43:32 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:4633 "EHLO
+	Wed, 19 Jul 2006 04:56:27 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:29489 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932530AbWGSInc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 04:43:32 -0400
+	id S932532AbWGSI41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 04:56:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:organization:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
-        b=HuKQrWrFsdGMF6ob7QwnxkW2xjzd2s65npJs/0PHvnSkxMZTGEdJs2fL8rTAr3FN7kDFEyt4ujyssI/gJcOL3zhhQH386NFmIUV3O1Fwb6R0Yr84B8fe/YB5b5xgzUY+OhKepu/3u8Ar8glv4cwMeygHdJZ4fj4hqFyYHsdBDhI=
-Message-ID: <44BDF21B.60207@innomedia.soft.net>
-Date: Wed, 19 Jul 2006 14:19:31 +0530
-Reply-To: chinmaya@innomedia.soft.net
-Organization: Innomedia Technologies Pvt. Ltd.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=IFI7z5FKVcyVxxnlhWA1iUpje8v5KgXH3pUfNgrFUsEC+ugFnO26fCLaNzbog7P1H84TwRE8Xl9MDSh7DVGNeYg/40wdxYcdK7ywUoxX0M0H28cLFASgeBL4Hm+OHxQwQOm73cbW1qlRQ62F4bDRctwlnNwUIO8BJa8t9q5Gsmw=
+Message-ID: <84144f020607190156q1de9893ek3e5b800ee181e1a@mail.gmail.com>
+Date: Wed, 19 Jul 2006 11:56:25 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: chinmaya@innomedia.soft.net
+Subject: Re: How to mount own file system in linux
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44BDF21B.60207@innomedia.soft.net>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: How to mount own file system in linux
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Chinmaya Mishra <chinmaya4@gmail.com>
+Content-Disposition: inline
+References: <44BDF21B.60207@innomedia.soft.net>
+X-Google-Sender-Auth: c7ff547aff25b416
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-        I want to create new file system in linux 2.6.10 kernel just to 
-print the super block information.
-Can you suggest me where I can get some good documents to proceed or any 
-dummy code if any.
+Hi,
 
-I have tried this with the following code but it gives some warning 
-messages during compilation. The file system is registered but during 
-the mount command segmentation fault occurs.
+On 7/19/06, Chinmaya Mishra <chinmaya4@gmail.com> wrote:
+> Can you suggest me where I can get some good documents to proceed or any
+> dummy code if any.
 
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/version.h>
-#include <linux/fs.h>
-#include <linux/sched.h>
+See fs/ramfs/ for an example. There's also Documentation/filesystems/vfs.txt.
 
-static struct super_block *rfs_read_super( struct super_block *sb, void 
-*buf, int size);
-static struct file_system_type rfs = {"rfs", 0, rfs_read_super, NULL};
-/*--------------------------------------------------------------------------------------------*/ 
+On 7/19/06, Chinmaya Mishra <chinmaya4@gmail.com> wrote:
+> I have tried this with the following code but it gives some warning
+> messages during compilation. The file system is registered but during
+> the mount command segmentation fault occurs.
 
-static struct super_block *rfs_read_super( struct super_block *sb, void 
-*buf, int size) {
-       printk("rkfs: read_super returning a valid super_block\n" );
-       sb->s_blocksize = 1024;
-       sb->s_blocksize_bits = 10;
-       return sb;
-}
-/*--------------------------------------------------------------------------------------------*/ 
+So maybe pay attention to the warnings?
 
-int init_module(void) {
-       int err;
-       err = register_filesystem(&rfs);
-       printk("rkfs: file system registered\n" );
-       return err;
-}
-/*--------------------------------------------------------------------------------------------*/ 
+> static struct super_block *rfs_read_super( struct super_block *sb, void
+> *buf, int size);
+> static struct file_system_type rfs = {"rfs", 0, rfs_read_super, NULL};
 
-void cleanup_module(void) {
-       unregister_filesystem(&rfs);
-       printk("rkfs: file system unregistered\n" );
-}
-/*--------------------------------------------------------------------------------------------*/ 
+There's no read_super in struct file_system_type. See
+include/linux/fs.h for details.
 
-MODULE_LICENSE("GPL");
+> int init_module(void) {
 
-regards,
-chinmaya
+[snip]
 
+> void cleanup_module(void) {
+
+[snip]
+
+This is the old way. You really want to be using module_init and
+module_exit macros.

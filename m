@@ -1,59 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGSM7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWGSNAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWGSM7D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 08:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGSM7D
+	id S964807AbWGSNAH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 09:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGSNAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 08:59:03 -0400
-Received: from thunk.org ([69.25.196.29]:8348 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S964811AbWGSM7B (ORCPT
+	Wed, 19 Jul 2006 09:00:07 -0400
+Received: from mailgate.terastack.com ([195.173.195.66]:33291 "EHLO
+	uk-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S964807AbWGSNAF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 08:59:01 -0400
-Date: Wed, 19 Jul 2006 08:58:53 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: joel <joel@mainphrame.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: filesystem tuning hints?
-Message-ID: <20060719125853.GA7093@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>, joel <joel@mainphrame.com>,
-	linux-kernel@vger.kernel.org
-References: <44BDAD5C.5020209@mainphrame.com>
+	Wed, 19 Jul 2006 09:00:05 -0400
+Subject: RE: [linux-usb-devel] 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Wed, 19 Jul 2006 14:00:03 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44BDAD5C.5020209@mainphrame.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <89E85E0168AD994693B574C80EDB9C270464C9D2@uk-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-MS-TNEF-Correlator: 
+Thread-Topic: [linux-usb-devel] 2.6.17 hangs during boot on ASUS M2NPV-VM motherboard
+Thread-Index: Acand9OMaf/E5WpaSF2WJYOxlxI5jgCBejZwAG1a/tA=
+From: "Andy Chittenden" <AChittenden@bluearc.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Alan Stern" <stern@rowland.harvard.edu>
+Cc: <david-b@pacbell.net>, <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to answer your question about tuning a filesystem, it's a
-requirement to know something about the workload, and you haven't
-provided that.  In general if you haven't been using the latest
-e2fsprogs creating ext3 with a larger journal size will help ---
-unless you don't have the requisite memory to support having extra
-pinned buffers, since your application may end up getting pushed out
-to swap.  Many journalling filesystems can get much better performance
-by putting the journal on a separate external device, especially if
-that device is a battery-backed non-volitile ramdisk.  With ext3,
-depending on your workload (if it is fsync-intensive, for example),
-using data journalling with can help a lot, especially with an
-external journal device.
+> > On Fri, 14 Jul 2006 14:50:16 -0400 (EDT)
+> > Alan Stern <stern@rowland.harvard.edu> wrote:
+> > 
+> > > On Fri, 14 Jul 2006, Andrew Morton wrote:
+> > > 
+> > > > On Fri, 14 Jul 2006 16:54:25 +0100
+> > > > "Andy Chittenden" <AChittenden@bluearc.com> wrote:
+> > > 
+> > > > > > So I guess there's something awry with the USB 
+> > controller driver?
+> > > > > > 
+> > > > > 
+> > > > > Is there any other info that someone wants to track 
+> > this down? Or has
+> > > > > someone got a fix?
+> > > 
+> > > It's hard to come up with a fix without knowing what's 
+> > wrong.  The current 
+> > > development version of that subroutine is essentially the 
+> > same as the 
+> > > version in 2.6.17.
+> > > 
+> > > If you want to pin down the problem more precisely, try 
+> > adding a whole 
+> > > bunch of printk() statements to the 
+> > quirk_usb_handoff_ohci() function in
+> > > drivers/usb/host/pci-quirks.c.
+> > > 
+> > 
+> > Andy, please add the below, work out what line it gets stuck 
+> > at and then
+> > let us know?  Thanks.
+> 
+> Well I did that and the kernel got a lot further! It ran 
+> through the pci_init stuff without a hitch and then hung just 
+> after this line was output:
+> 
+> ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) 
+> Driver (PCI)
+> 
+> So I littered drivers/usb/host/ohci-pci.c with similar 
+> debugging and the last line it printed was from (marked with --->):
+> 
+> static int __init ohci_hcd_pci_init (void)
+> {
+>     int ret;
+>         printk (KERN_DEBUG "%s: " DRIVER_INFO " (PCI)\n", hcd_name);
+>         if (usb_disabled())
+>                 return -ENODEV;
+> 
+>         D();
+> 
+>         pr_debug ("%s: block sizes: ed %Zd td %Zd\n", hcd_name,
+>                 sizeof (struct ed), sizeof (struct td));
+> --->         D();
+> 
+>         ret = pci_register_driver (&ohci_pci_driver);
+>         D();
+>         return ret;
+> 
+> }
+> 
+> IE it never returned from pci_register_driver.
+> 
+> A bit more sprinkling of debugging showed it got to 
+> drivers/base/bus.c (bus_add_driver()):
+> 
+>         D();
+> 
+>                 driver_attach(drv);
+>         D();
+> 
+> It never returned from driver_attach().
+> 
+> More debugging in drivers/base/dd.c showed the last output to 
+> be (marked with --->):
+> 
+> static int __driver_attach(struct device * dev, void * data)
+> {
+>         struct device_driver * drv = data;
+> 
+>         /*
+>          * Lock device and try to bind to it. We drop the error
+>          * here and always return 0, because we need to keep trying
+>          * to bind to devices and some drivers will return an error
+>          * simply if it didn't support the device.
+>          *
+>          * driver_probe_device() will spit a warning if there
+>          * is an error.
+>          */
+> 
+> --->        D();
+> 
+>         if (dev->parent)        /* Needed for USB */
+>                 down(&dev->parent->sem);
+>         D();
+> 
+> IE it never returned from down.
+> 
+> So why did putting in the initial lot of debug alter where 
+> the kernel hung? And what's next?
+> 
+> NB a reminder: 2.6.16 boots up fine on this machine.
 
-Finally, be warned that many filesystem benchmarks may be quite
-misleading, especially dbench, which doesn't match very many real-life
-workloads at all.  It's designed to be half (the disk part) of an
-artificial web-based benchmark that was in itself a pretty bad
-benchmark that was easily subject to gaming and not very reflective of
-real-world workloads.  Its main virtue is that it is easy to run and
-can be useful to developers as a good stress/smoke test to detect that
-new kernels haven't done something stupid, as long as you ignore its
-numbers.  :-)
+Any progress?
 
-In many cases, using your actual workload will be the best benchmark.
-
-Regards, 
-
-						- Ted
+-- 
+Andy, BlueArc Engineering

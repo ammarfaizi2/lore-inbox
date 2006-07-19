@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWGSOFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWGSOJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWGSOFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 10:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGSOFn
+	id S964828AbWGSOJq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 10:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWGSOJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 10:05:43 -0400
-Received: from mailgate.terastack.com ([195.173.195.66]:64526 "EHLO
-	uk-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S964841AbWGSOFn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 10:05:43 -0400
-Subject: Re: skge error; hangs w/ hardware memory hole
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 19 Jul 2006 15:05:41 +0100
-Message-ID: <89E85E0168AD994693B574C80EDB9C270464C9FA@uk-email.terastack.bluearc.com>
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: skge error; hangs w/ hardware memory hole
-Thread-Index: AcarPGtJbcysCoDkRlm+/TvyTertag==
-From: "Andy Chittenden" <AChittenden@bluearc.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 19 Jul 2006 10:09:45 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:58518 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964828AbWGSOJp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 10:09:45 -0400
+Date: Wed, 19 Jul 2006 17:09:21 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] libfs: remove page up-to-date check from simple_readpage
+Message-ID: <Pine.LNX.4.58.0607191708250.22875@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm still waiting for a positive test result. Ideally from multiple
-people 
-> because it's a pretty radical step to blacklist all VIA chipsets like
-this
-> (and it's s still possible that only some BIOS are broken, not all VIA
-boards)
-> In fact I've been trying to get confirmation from VIA on this, but
-they
-> never answered my queries.
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-With iommu=force, my A8V deluxe system crashes during boot.
+This patch removes the unnecessary PageUptodate check from simple_readpage.
+The only two callers for ->readpage that don't have explicit PageUptodate
+check are read_cache_pages and page_cache_read which operate on newly
+allocated pages which don't have the flag set.
 
-With iommu=soft swiotlb=force, the skge driver still has problems:
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+ fs/libfs.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-skge 0000:00:0a.0: PCI error cmd=0x157 status=0x22b0
-skge unable to clear error (so ignoring them).
-
-Also seen:
-
-skge 0000:00:0a.0: PCI error cmd=0x117 status=0x22b0
-
-The sk98lin driver prints out loads of garbage too fast for me to read
-and I can't stop it either (scroll lock doesn't stop it). It's saying
-something like "unexpected IRQ status error" - there's also a number
-printed which looks like 0x264.
-
-FWIW the e100 driver works fine without either of these options
-
+diff --git a/fs/libfs.c b/fs/libfs.c
+index ac02ea6..b8e5cec 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -319,15 +319,10 @@ int simple_readpage(struct file *file, s
+ {
+ 	void *kaddr;
+ 
+-	if (PageUptodate(page))
+-		goto out;
+-
+ 	kaddr = kmap_atomic(page, KM_USER0);
+ 	memset(kaddr, 0, PAGE_CACHE_SIZE);
+ 	kunmap_atomic(kaddr, KM_USER0);
+ 	flush_dcache_page(page);
+-	SetPageUptodate(page);
+-out:
+ 	unlock_page(page);
+ 	return 0;
+ }
 -- 
-Andy, BlueArc Engineering
+1.4.1
+

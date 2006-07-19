@@ -1,199 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWGSV31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWGSVeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbWGSV31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 17:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWGSV31
+	id S932503AbWGSVeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 17:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWGSVeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 17:29:27 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:17326 "EHLO
+	Wed, 19 Jul 2006 17:34:24 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:58039 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932542AbWGSV30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 17:29:26 -0400
+	id S932503AbWGSVeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 17:34:23 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=FkcQsrFDy2yqbAoFsqHTutSDOOcY0h9yLh3jV5pXx/NlFPOdFWBOyr9D07GvKFSCuy9zCJChuI3sAvAURm4q1aU8kTb3V/X2NRPi39zb3lragmOx6f76O5iJ976EidHksc+hME6B1dElPF0pZSWdBAw3FJ8rFPX+UxdbrYMfKeI=
-Message-ID: <7f45d9390607191429y403e5bc8s69e1056e0a27d711@mail.gmail.com>
-Date: Wed, 19 Jul 2006 15:29:25 -0600
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=BJoxXKuSpGTsE4FIHFkxtCYO/YWXzjsfcciF1X3I8qaaLxq+e/1QJLcrFm6r8I4uRp9UOy51Dud+qSgPY+I5Q2oJALhoOX4zQMMEJpI9K1P8PHwY6ZgvPNb+Dn5TN0oPAuGYfR4ordZv2Ap5m4haaLQl7dJSkHV8HQpljiTwKog=
+Message-ID: <7f45d9390607191434g6261b6f8pf1c9a9688770d95f@mail.gmail.com>
+Date: Wed, 19 Jul 2006 15:34:21 -0600
 From: "Shaun Jackman" <sjackman@gmail.com>
 Reply-To: "Shaun Jackman" <sjackman@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>,
-       "uClinux development list" <uClinux-dev@uclinux.org>
-Subject: [PATCH] smc91x: Add support for an external PHY
-Cc: "Russell King" <rmk@arm.linux.org.uk>, "Nicolas Pitre" <nico@cam.org>
+To: "Dmitry Torokhov" <dtor_core@ameritech.net>
+Subject: Re: [PATCH] elo: Support non-pressure-sensitive ELO touchscreens
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <7f45d9390603280709u5eea134ejb0aaacdd49984a92@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_14107_22225334.1153344565070"
+	boundary="----=_Part_14211_19442412.1153344861265"
+References: <7f45d9390602241045p45aec8auaf881a4dab00c17a@mail.gmail.com>
+	 <d120d5000603270828w4aef947cy7202da6076dd1268@mail.gmail.com>
+	 <7f45d9390603271515m17a5ee1due5bc3f9f2285ca62@mail.gmail.com>
+	 <200603280110.47199.dtor_core@ameritech.net>
+	 <7f45d9390603280709u5eea134ejb0aaacdd49984a92@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_14107_22225334.1153344565070
+------=_Part_14211_19442412.1153344861265
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-[PATCH] smc91x: Add support for an external PHY
+On 3/28/06, Shaun Jackman <sjackman@gmail.com> wrote:
+> On 3/27/06, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> ...
+> > No, we should not change basic input device's capabilities "on-fly" -
+> > userspace should be able to rely on what was reported to it in the first
+> > place.
+>
+> Makes sense.
+>
+> > From looking over the documentation (thank you for the link)
+> > it looks like you would need to issue 'i' command to query controller
+> > type and whether the controller supports Z-axis in elo_connect().
+>
+> This sounds like extra (not strictly necessary) functionality to me
+> though. My USB mouse, for example, reports five buttons and three
+> wheels, even though it only has three buttons and one wheel. Support
+> for the 'i' packet could be added later, if someone has a need. Can
+> this patch be applied as is?
 
-Add an `extphy' module parameter to the smc91x Ethernet driver. This
-parameter enables use of the external MII port and disables the
-internal PHY.
+Can this patch adding support for non-pressure-sensitive ELO
+touchscreens be applied? Any comments?
+
+Thanks,
+Shaun
+
+[PATCH] elo: Support non-pressure-sensitive ELO touchscreens
+
+* Use the touch status bit rather than the pressure bits to
+  distinguish a BTN_TOUCH event. Non-pressure-sensitive touchscreens
+  always report full pressure.
+* Report ABS_PRESSURE information only if the touchscreen supports it.
+* Implement the checksum calculation correctly, and verify that the
+  transmitted checksum is correct.
+* Use dev_dbg to log errors in the protocol.
 
 Signed-off-by: Shaun Jackman <sjackman@gmail.com>
 
-diff --git a/drivers/net/smc91x.c b/drivers/net/smc91x.c
-index 3d8dcb6..d784565 100644
---- a/drivers/net/smc91x.c
-+++ b/drivers/net/smc91x.c
-@@ -26,6 +26,7 @@
-  * 	io	= for the base address
-  *	irq	= for the IRQ
-  *	nowait	= 0 for normal wait states, 1 eliminates additional wait states
-+ *	extphy	= use an external PHY
-  *
-  * original author:
-  * 	Erik Stahlman <erik@vt.edu>
-@@ -37,6 +38,7 @@
-  * 	Daris A Nevil <dnevil@snmc.com>
-  *      Nicolas Pitre <nico@cam.org>
-  *	Russell King <rmk@arm.linux.org.uk>
-+ *	Shaun Jackman <sjackman@gmail.com>
-  *
-  * History:
-  *   08/20/00  Arnaldo Melo       fix kfree(skb) in smc_hardware_send_packet
-@@ -56,6 +58,7 @@
-  *                                - clean up (and fix stack overrun) in PHY
-  *                                  MII read/write functions
-  *   22/09/04  Nicolas Pitre      big update (see commit log for details)
-+ *   18/07/06  Shaun Jackman      add extphy parameter
+diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
+index c86a2eb..b972184 100644
+--- a/drivers/input/touchscreen/elo.c
++++ b/drivers/input/touchscreen/elo.c
+@@ -35,6 +35,8 @@ MODULE_LICENSE("GPL");
   */
- static const char version[] =
- 	"smc91x.c: v1.1, sep 22 2004 by Nicolas Pitre <nico@cam.org>\n";
-@@ -124,6 +127,13 @@ static int nowait = SMC_NOWAIT;
- module_param(nowait, int, 0400);
- MODULE_PARM_DESC(nowait, "set to 1 for no wait state");
 
-+#ifndef SMC_EXTPHY
-+# define SMC_EXTPHY		0
-+#endif
-+static int extphy = SMC_EXTPHY;
-+module_param(extphy, int, 0400);
-+MODULE_PARM_DESC(extphy, "set to 1 to use an external PHY");
-+
+ #define	ELO_MAX_LENGTH	10
++#define ELO10_TOUCH 0x03
++#define ELO10_PRESSURE 0x80
+
  /*
-  * Transmit timeout, default 5 seconds.
-  */
-@@ -359,6 +369,10 @@ static void smc_reset(struct net_device
- 	if (nowait)
- 		cfg |= CONFIG_NO_WAIT;
+  * Per-touchscreen data.
+@@ -53,38 +55,40 @@ struct elo {
+ static void elo_process_data_10(struct elo* elo, unsigned char data,
+struct pt_regs *regs)
+ {
+ 	struct input_dev *dev = elo->dev;
++	struct device *dbg = &elo->serio->dev;
 
-+	/* Use an external PHY if requested. */
-+	if (extphy)
-+		cfg |= CONFIG_EXT_PHY;
-+
- 	/*
- 	 * Release from possible power-down state
- 	 * Configuration register is not affected by Soft Reset
-@@ -949,6 +963,9 @@ static void smc_phy_detect(struct net_de
-
- 	lp->phy_type = 0;
-
-+	if (extphy)
-+		return;
-+
- 	/*
- 	 * Scan all 32 PHY addresses if necessary, starting at
- 	 * PHY#1 to PHY#31, and then PHY#0 last.
-@@ -1583,7 +1600,7 @@ smc_open(struct net_device *dev)
- 	 * If we are not using a MII interface, we need to
- 	 * monitor our own carrier signal to detect faults.
- 	 */
--	if (lp->phy_type == 0)
-+	if (lp->phy_type == 0 && !extphy)
- 		lp->tcr_cur_mode |= TCR_MON_CSN;
-
- 	/* reset the hardware */
-@@ -2025,8 +2042,9 @@ #endif
- 		if (dev->dma != (unsigned char)-1)
- 			printk(" DMA %d", dev->dma);
-
--		printk("%s%s\n", nowait ? " [nowait]" : "",
--			THROTTLE_TX_PKTS ? " [throttle_tx]" : "");
-+		printk("%s%s%s\n", nowait ? " [nowait]" : "",
-+			THROTTLE_TX_PKTS ? " [throttle_tx]" : "",
-+			extphy ? " [extphy]" : "");
-
- 		if (!is_valid_ether_addr(dev->dev_addr)) {
- 			printk("%s: Invalid ethernet MAC address.  Please "
-@@ -2046,6 +2064,8 @@ #endif
- 		} else if ((lp->phy_type & 0xfffffff0) == 0x02821c50) {
- 			PRINTK("%s: PHY LAN83C180\n", dev->name);
- 		}
-+		if (extphy)
-+			PRINTK("%s: Using external PHY\n", dev->name);
+-	elo->csum += elo->data[elo->idx] = data;
+-
++	elo->data[elo->idx] = data;
+ 	switch (elo->idx++) {
+-
+ 		case 0:
++			elo->csum = 0xaa;
+ 			if (data != 'U') {
++				dev_dbg(dbg, "unsynchronized data: 0x%02x\n", data);
+ 				elo->idx = 0;
+-				elo->csum = 0;
+ 			}
+ 			break;
+-
+-		case 1:
+-			if (data != 'T') {
+-				elo->idx = 0;
+-				elo->csum = 0;
+-			}
+-			break;
+-
+ 		case 9:
+-			if (elo->csum) {
+-				input_regs(dev, regs);
+-				input_report_abs(dev, ABS_X, (elo->data[4] << 8) | elo->data[3]);
+-				input_report_abs(dev, ABS_Y, (elo->data[6] << 8) | elo->data[5]);
+-				input_report_abs(dev, ABS_PRESSURE, (elo->data[8] << 8) | elo->data[7]);
+-				input_report_key(dev, BTN_TOUCH, elo->data[8] || elo->data[7]);
+-				input_sync(dev);
+-			}
+ 			elo->idx = 0;
+-			elo->csum = 0;
++			if (elo->csum != elo->data[9]) {
++				dev_dbg(dbg, "bad checksum: 0x%02x, expected 0x%02x\n",
++						elo->data[9], elo->csum);
++				break;
++			}
++			if (elo->data[1] != 'T') {
++				dev_dbg(dbg, "unexpected packet: 0x%02x\n",
++						elo->data[1]);
++				break;
++			}
++			input_regs(dev, regs);
++			input_report_abs(dev, ABS_X, (elo->data[4] << 8) | elo->data[3]);
++			input_report_abs(dev, ABS_Y, (elo->data[6] << 8) | elo->data[5]);
++			if (elo->data[2] & ELO10_PRESSURE)
++				input_report_abs(dev, ABS_PRESSURE,
++						(elo->data[8] << 8) | elo->data[7]);
++			input_report_key(dev, BTN_TOUCH, elo->data[2] & ELO10_TOUCH);
++			input_sync(dev);
+ 			break;
  	}
++	elo->csum += data;
+ }
 
- err_out:
+ static void elo_process_data_6(struct elo* elo, unsigned char data,
+struct pt_regs *regs)
 
-------=_Part_14107_22225334.1153344565070
-Content-Type: text/plain; name=linux-smc91x-extphy.diff; 
-	charset=ANSI_X3.4-1968
+------=_Part_14211_19442412.1153344861265
+Content-Type: text/plain; name=linux-elo.diff; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: base64
-X-Attachment-Id: f_epu7i6uu
-Content-Disposition: attachment; filename="linux-smc91x-extphy.diff"
+X-Attachment-Id: f_epu7qd3n
+Content-Disposition: attachment; filename="linux-elo.diff"
 
-W1BBVENIXSBzbWM5MXg6IEFkZCBzdXBwb3J0IGZvciBhbiBleHRlcm5hbCBQSFkKCkFkZCBhbiBg
-ZXh0cGh5JyBtb2R1bGUgcGFyYW1ldGVyIHRvIHRoZSBzbWM5MXggRXRoZXJuZXQgZHJpdmVyLiBU
-aGlzCnBhcmFtZXRlciBlbmFibGVzIHVzZSBvZiB0aGUgZXh0ZXJuYWwgTUlJIHBvcnQgYW5kIGRp
-c2FibGVzIHRoZQppbnRlcm5hbCBQSFkuCgpTaWduZWQtb2ZmLWJ5OiBTaGF1biBKYWNrbWFuIDxz
-amFja21hbkBnbWFpbC5jb20+CgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvc21jOTF4LmMgYi9k
-cml2ZXJzL25ldC9zbWM5MXguYwppbmRleCAzZDhkY2I2Li5kNzg0NTY1IDEwMDY0NAotLS0gYS9k
-cml2ZXJzL25ldC9zbWM5MXguYworKysgYi9kcml2ZXJzL25ldC9zbWM5MXguYwpAQCAtMjYsNiAr
-MjYsNyBAQAogICogCWlvCT0gZm9yIHRoZSBiYXNlIGFkZHJlc3MKICAqCWlycQk9IGZvciB0aGUg
-SVJRCiAgKglub3dhaXQJPSAwIGZvciBub3JtYWwgd2FpdCBzdGF0ZXMsIDEgZWxpbWluYXRlcyBh
-ZGRpdGlvbmFsIHdhaXQgc3RhdGVzCisgKglleHRwaHkJPSB1c2UgYW4gZXh0ZXJuYWwgUEhZCiAg
-KgogICogb3JpZ2luYWwgYXV0aG9yOgogICogCUVyaWsgU3RhaGxtYW4gPGVyaWtAdnQuZWR1PgpA
-QCAtMzcsNiArMzgsNyBAQAogICogCURhcmlzIEEgTmV2aWwgPGRuZXZpbEBzbm1jLmNvbT4KICAq
-ICAgICAgTmljb2xhcyBQaXRyZSA8bmljb0BjYW0ub3JnPgogICoJUnVzc2VsbCBLaW5nIDxybWtA
-YXJtLmxpbnV4Lm9yZy51az4KKyAqCVNoYXVuIEphY2ttYW4gPHNqYWNrbWFuQGdtYWlsLmNvbT4K
-ICAqCiAgKiBIaXN0b3J5OgogICogICAwOC8yMC8wMCAgQXJuYWxkbyBNZWxvICAgICAgIGZpeCBr
-ZnJlZShza2IpIGluIHNtY19oYXJkd2FyZV9zZW5kX3BhY2tldApAQCAtNTYsNiArNTgsNyBAQAog
-ICogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC0gY2xlYW4gdXAgKGFuZCBmaXggc3Rh
-Y2sgb3ZlcnJ1bikgaW4gUEhZCiAgKiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBN
-SUkgcmVhZC93cml0ZSBmdW5jdGlvbnMKICAqICAgMjIvMDkvMDQgIE5pY29sYXMgUGl0cmUgICAg
-ICBiaWcgdXBkYXRlIChzZWUgY29tbWl0IGxvZyBmb3IgZGV0YWlscykKKyAqICAgMTgvMDcvMDYg
-IFNoYXVuIEphY2ttYW4gICAgICBhZGQgZXh0cGh5IHBhcmFtZXRlcgogICovCiBzdGF0aWMgY29u
-c3QgY2hhciB2ZXJzaW9uW10gPQogCSJzbWM5MXguYzogdjEuMSwgc2VwIDIyIDIwMDQgYnkgTmlj
-b2xhcyBQaXRyZSA8bmljb0BjYW0ub3JnPlxuIjsKQEAgLTEyNCw2ICsxMjcsMTMgQEAgc3RhdGlj
-IGludCBub3dhaXQgPSBTTUNfTk9XQUlUOwogbW9kdWxlX3BhcmFtKG5vd2FpdCwgaW50LCAwNDAw
-KTsKIE1PRFVMRV9QQVJNX0RFU0Mobm93YWl0LCAic2V0IHRvIDEgZm9yIG5vIHdhaXQgc3RhdGUi
-KTsKIAorI2lmbmRlZiBTTUNfRVhUUEhZCisjIGRlZmluZSBTTUNfRVhUUEhZCQkwCisjZW5kaWYK
-K3N0YXRpYyBpbnQgZXh0cGh5ID0gU01DX0VYVFBIWTsKK21vZHVsZV9wYXJhbShleHRwaHksIGlu
-dCwgMDQwMCk7CitNT0RVTEVfUEFSTV9ERVNDKGV4dHBoeSwgInNldCB0byAxIHRvIHVzZSBhbiBl
-eHRlcm5hbCBQSFkiKTsKKwogLyoKICAqIFRyYW5zbWl0IHRpbWVvdXQsIGRlZmF1bHQgNSBzZWNv
-bmRzLgogICovCkBAIC0zNTksNiArMzY5LDEwIEBAIHN0YXRpYyB2b2lkIHNtY19yZXNldChzdHJ1
-Y3QgbmV0X2RldmljZSAKIAlpZiAobm93YWl0KQogCQljZmcgfD0gQ09ORklHX05PX1dBSVQ7CiAK
-KwkvKiBVc2UgYW4gZXh0ZXJuYWwgUEhZIGlmIHJlcXVlc3RlZC4gKi8KKwlpZiAoZXh0cGh5KQor
-CQljZmcgfD0gQ09ORklHX0VYVF9QSFk7CisKIAkvKgogCSAqIFJlbGVhc2UgZnJvbSBwb3NzaWJs
-ZSBwb3dlci1kb3duIHN0YXRlCiAJICogQ29uZmlndXJhdGlvbiByZWdpc3RlciBpcyBub3QgYWZm
-ZWN0ZWQgYnkgU29mdCBSZXNldApAQCAtOTQ5LDYgKzk2Myw5IEBAIHN0YXRpYyB2b2lkIHNtY19w
-aHlfZGV0ZWN0KHN0cnVjdCBuZXRfZGUKIAogCWxwLT5waHlfdHlwZSA9IDA7CiAKKwlpZiAoZXh0
-cGh5KQorCQlyZXR1cm47CisKIAkvKgogCSAqIFNjYW4gYWxsIDMyIFBIWSBhZGRyZXNzZXMgaWYg
-bmVjZXNzYXJ5LCBzdGFydGluZyBhdAogCSAqIFBIWSMxIHRvIFBIWSMzMSwgYW5kIHRoZW4gUEhZ
-IzAgbGFzdC4KQEAgLTE1ODMsNyArMTYwMCw3IEBAIHNtY19vcGVuKHN0cnVjdCBuZXRfZGV2aWNl
-ICpkZXYpCiAJICogSWYgd2UgYXJlIG5vdCB1c2luZyBhIE1JSSBpbnRlcmZhY2UsIHdlIG5lZWQg
-dG8KIAkgKiBtb25pdG9yIG91ciBvd24gY2FycmllciBzaWduYWwgdG8gZGV0ZWN0IGZhdWx0cy4K
-IAkgKi8KLQlpZiAobHAtPnBoeV90eXBlID09IDApCisJaWYgKGxwLT5waHlfdHlwZSA9PSAwICYm
-ICFleHRwaHkpCiAJCWxwLT50Y3JfY3VyX21vZGUgfD0gVENSX01PTl9DU047CiAKIAkvKiByZXNl
-dCB0aGUgaGFyZHdhcmUgKi8KQEAgLTIwMjUsOCArMjA0Miw5IEBAICNlbmRpZgogCQlpZiAoZGV2
-LT5kbWEgIT0gKHVuc2lnbmVkIGNoYXIpLTEpCiAJCQlwcmludGsoIiBETUEgJWQiLCBkZXYtPmRt
-YSk7CiAKLQkJcHJpbnRrKCIlcyVzXG4iLCBub3dhaXQgPyAiIFtub3dhaXRdIiA6ICIiLAotCQkJ
-VEhST1RUTEVfVFhfUEtUUyA/ICIgW3Rocm90dGxlX3R4XSIgOiAiIik7CisJCXByaW50aygiJXMl
-cyVzXG4iLCBub3dhaXQgPyAiIFtub3dhaXRdIiA6ICIiLAorCQkJVEhST1RUTEVfVFhfUEtUUyA/
-ICIgW3Rocm90dGxlX3R4XSIgOiAiIiwKKwkJCWV4dHBoeSA/ICIgW2V4dHBoeV0iIDogIiIpOwog
-CiAJCWlmICghaXNfdmFsaWRfZXRoZXJfYWRkcihkZXYtPmRldl9hZGRyKSkgewogCQkJcHJpbnRr
-KCIlczogSW52YWxpZCBldGhlcm5ldCBNQUMgYWRkcmVzcy4gIFBsZWFzZSAiCkBAIC0yMDQ2LDYg
-KzIwNjQsOCBAQCAjZW5kaWYKIAkJfSBlbHNlIGlmICgobHAtPnBoeV90eXBlICYgMHhmZmZmZmZm
-MCkgPT0gMHgwMjgyMWM1MCkgewogCQkJUFJJTlRLKCIlczogUEhZIExBTjgzQzE4MFxuIiwgZGV2
-LT5uYW1lKTsKIAkJfQorCQlpZiAoZXh0cGh5KQorCQkJUFJJTlRLKCIlczogVXNpbmcgZXh0ZXJu
-YWwgUEhZXG4iLCBkZXYtPm5hbWUpOwogCX0KIAogZXJyX291dDoK
-------=_Part_14107_22225334.1153344565070--
+W1BBVENIXSBlbG86IFN1cHBvcnQgbm9uLXByZXNzdXJlLXNlbnNpdGl2ZSBFTE8gdG91Y2hzY3Jl
+ZW5zCgoqIFVzZSB0aGUgdG91Y2ggc3RhdHVzIGJpdCByYXRoZXIgdGhhbiB0aGUgcHJlc3N1cmUg
+Yml0cyB0bwogIGRpc3Rpbmd1aXNoIGEgQlROX1RPVUNIIGV2ZW50LiBOb24tcHJlc3N1cmUtc2Vu
+c2l0aXZlIHRvdWNoc2NyZWVucwogIGFsd2F5cyByZXBvcnQgZnVsbCBwcmVzc3VyZS4KKiBSZXBv
+cnQgQUJTX1BSRVNTVVJFIGluZm9ybWF0aW9uIG9ubHkgaWYgdGhlIHRvdWNoc2NyZWVuIHN1cHBv
+cnRzIGl0LgoqIEltcGxlbWVudCB0aGUgY2hlY2tzdW0gY2FsY3VsYXRpb24gY29ycmVjdGx5LCBh
+bmQgdmVyaWZ5IHRoYXQgdGhlCiAgdHJhbnNtaXR0ZWQgY2hlY2tzdW0gaXMgY29ycmVjdC4KKiBV
+c2UgZGV2X2RiZyB0byBsb2cgZXJyb3JzIGluIHRoZSBwcm90b2NvbC4KClNpZ25lZC1vZmYtYnk6
+IFNoYXVuIEphY2ttYW4gPHNqYWNrbWFuQGdtYWlsLmNvbT4KCmRpZmYgLS1naXQgYS9kcml2ZXJz
+L2lucHV0L3RvdWNoc2NyZWVuL2Vsby5jIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9lbG8u
+YwppbmRleCBjODZhMmViLi5iOTcyMTg0IDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNo
+c2NyZWVuL2Vsby5jCisrKyBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZWxvLmMKQEAgLTM1
+LDYgKzM1LDggQEAgTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwogICovCiAKICNkZWZpbmUJRUxPX01B
+WF9MRU5HVEgJMTAKKyNkZWZpbmUgRUxPMTBfVE9VQ0ggMHgwMworI2RlZmluZSBFTE8xMF9QUkVT
+U1VSRSAweDgwCiAKIC8qCiAgKiBQZXItdG91Y2hzY3JlZW4gZGF0YS4KQEAgLTUzLDM4ICs1NSw0
+MCBAQCBzdHJ1Y3QgZWxvIHsKIHN0YXRpYyB2b2lkIGVsb19wcm9jZXNzX2RhdGFfMTAoc3RydWN0
+IGVsbyogZWxvLCB1bnNpZ25lZCBjaGFyIGRhdGEsIHN0cnVjdCBwdF9yZWdzICpyZWdzKQogewog
+CXN0cnVjdCBpbnB1dF9kZXYgKmRldiA9IGVsby0+ZGV2OworCXN0cnVjdCBkZXZpY2UgKmRiZyA9
+ICZlbG8tPnNlcmlvLT5kZXY7CiAKLQllbG8tPmNzdW0gKz0gZWxvLT5kYXRhW2Vsby0+aWR4XSA9
+IGRhdGE7Ci0KKwllbG8tPmRhdGFbZWxvLT5pZHhdID0gZGF0YTsKIAlzd2l0Y2ggKGVsby0+aWR4
+KyspIHsKLQogCQljYXNlIDA6CisJCQllbG8tPmNzdW0gPSAweGFhOwogCQkJaWYgKGRhdGEgIT0g
+J1UnKSB7CisJCQkJZGV2X2RiZyhkYmcsICJ1bnN5bmNocm9uaXplZCBkYXRhOiAweCUwMnhcbiIs
+IGRhdGEpOwogCQkJCWVsby0+aWR4ID0gMDsKLQkJCQllbG8tPmNzdW0gPSAwOwogCQkJfQogCQkJ
+YnJlYWs7Ci0KLQkJY2FzZSAxOgotCQkJaWYgKGRhdGEgIT0gJ1QnKSB7Ci0JCQkJZWxvLT5pZHgg
+PSAwOwotCQkJCWVsby0+Y3N1bSA9IDA7Ci0JCQl9Ci0JCQlicmVhazsKLQogCQljYXNlIDk6Ci0J
+CQlpZiAoZWxvLT5jc3VtKSB7Ci0JCQkJaW5wdXRfcmVncyhkZXYsIHJlZ3MpOwotCQkJCWlucHV0
+X3JlcG9ydF9hYnMoZGV2LCBBQlNfWCwgKGVsby0+ZGF0YVs0XSA8PCA4KSB8IGVsby0+ZGF0YVsz
+XSk7Ci0JCQkJaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19ZLCAoZWxvLT5kYXRhWzZdIDw8IDgp
+IHwgZWxvLT5kYXRhWzVdKTsKLQkJCQlpbnB1dF9yZXBvcnRfYWJzKGRldiwgQUJTX1BSRVNTVVJF
+LCAoZWxvLT5kYXRhWzhdIDw8IDgpIHwgZWxvLT5kYXRhWzddKTsKLQkJCQlpbnB1dF9yZXBvcnRf
+a2V5KGRldiwgQlROX1RPVUNILCBlbG8tPmRhdGFbOF0gfHwgZWxvLT5kYXRhWzddKTsKLQkJCQlp
+bnB1dF9zeW5jKGRldik7Ci0JCQl9CiAJCQllbG8tPmlkeCA9IDA7Ci0JCQllbG8tPmNzdW0gPSAw
+OworCQkJaWYgKGVsby0+Y3N1bSAhPSBlbG8tPmRhdGFbOV0pIHsKKwkJCQlkZXZfZGJnKGRiZywg
+ImJhZCBjaGVja3N1bTogMHglMDJ4LCBleHBlY3RlZCAweCUwMnhcbiIsCisJCQkJCQllbG8tPmRh
+dGFbOV0sIGVsby0+Y3N1bSk7CisJCQkJYnJlYWs7CisJCQl9CisJCQlpZiAoZWxvLT5kYXRhWzFd
+ICE9ICdUJykgeworCQkJCWRldl9kYmcoZGJnLCAidW5leHBlY3RlZCBwYWNrZXQ6IDB4JTAyeFxu
+IiwKKwkJCQkJCWVsby0+ZGF0YVsxXSk7CisJCQkJYnJlYWs7CisJCQl9CisJCQlpbnB1dF9yZWdz
+KGRldiwgcmVncyk7CisJCQlpbnB1dF9yZXBvcnRfYWJzKGRldiwgQUJTX1gsIChlbG8tPmRhdGFb
+NF0gPDwgOCkgfCBlbG8tPmRhdGFbM10pOworCQkJaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19Z
+LCAoZWxvLT5kYXRhWzZdIDw8IDgpIHwgZWxvLT5kYXRhWzVdKTsKKwkJCWlmIChlbG8tPmRhdGFb
+Ml0gJiBFTE8xMF9QUkVTU1VSRSkKKwkJCQlpbnB1dF9yZXBvcnRfYWJzKGRldiwgQUJTX1BSRVNT
+VVJFLAorCQkJCQkJKGVsby0+ZGF0YVs4XSA8PCA4KSB8IGVsby0+ZGF0YVs3XSk7CisJCQlpbnB1
+dF9yZXBvcnRfa2V5KGRldiwgQlROX1RPVUNILCBlbG8tPmRhdGFbMl0gJiBFTE8xMF9UT1VDSCk7
+CisJCQlpbnB1dF9zeW5jKGRldik7CiAJCQlicmVhazsKIAl9CisJZWxvLT5jc3VtICs9IGRhdGE7
+CiB9CiAKIHN0YXRpYyB2b2lkIGVsb19wcm9jZXNzX2RhdGFfNihzdHJ1Y3QgZWxvKiBlbG8sIHVu
+c2lnbmVkIGNoYXIgZGF0YSwgc3RydWN0IHB0X3JlZ3MgKnJlZ3MpCg==
+------=_Part_14211_19442412.1153344861265--

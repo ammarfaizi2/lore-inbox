@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWGSXxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGSX7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWGSXxB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 19:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWGSXxB
+	id S964876AbWGSX7P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 19:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWGSX7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 19:53:01 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:58497 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964878AbWGSXxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 19:53:00 -0400
-Message-ID: <44BEC5DA.4020807@bigpond.net.au>
-Date: Thu, 20 Jul 2006 09:52:58 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 19 Jul 2006 19:59:15 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:29924 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S964876AbWGSX7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 19:59:14 -0400
+Date: Wed, 19 Jul 2006 19:58:35 -0400
+From: Kyle McMartin <kyle@mcmartin.ca>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+Cc: linux-kernel@vger.kernel.org, kyle@parisc-linux.org,
+       twoller@crystal.cirrus.com, James@superbug.demon.co.uk, zab@zabbo.net,
+       sailer@ife.ee.ethz.ch, perex@suse.cz, zaitcev@yahoo.com
+Subject: Re: [PATCH] sound: Conversions from kmalloc+memset to k(z|c)alloc.
+Message-ID: <20060719235835.GA4235@athena.road.mcmartin.ca>
+References: <20060719005455.GB30823@lumumba.uhasselt.be>
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se> <20060719212049.GA6828@martell.zuzino.mipt.ru> <1153349221.44beb6653e039@portal.student.luth.se>
-In-Reply-To: <1153349221.44beb6653e039@portal.student.luth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 19 Jul 2006 23:52:58 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060719005455.GB30823@lumumba.uhasselt.be>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ricknu-0@student.ltu.se wrote:
-> Citerar Alexey Dobriyan <adobriyan@gmail.com>:
->> Please, show compiler flag[s] to enable warning[s] from gcc about
->>
->> 	_Bool foo = 42;
->>
->> Until you do that the whole activity is moot.
-> On it...
+On Wed, Jul 19, 2006 at 02:54:55AM +0200, Panagiotis Issaris wrote:
+>  sound/oss/ad1889.c              |    3 +--
+> 
 
-Would not the compiler treat 42 as a Boolean expression (as opposed to 
-an integer expression) that evaluates to true and set foo accordingly. 
-I.e. there's only a problem here if foo ends up with the value 42 
-instead of the value true.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Acked-By: Kyle McMartin <kyle@parisc-linux.org>

@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWGSKVJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWGSK00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWGSKVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 06:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWGSKVJ
+	id S964791AbWGSK00 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 06:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWGSK00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 06:21:09 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:45274 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S964789AbWGSKVH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 06:21:07 -0400
-Subject: Re: XFS breakage in 2.6.18-rc1
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-In-Reply-To: <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy>
-	 <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-Content-Type: text/plain
-Date: Wed, 19 Jul 2006 12:21:08 +0200
-Message-Id: <1153304468.3706.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Wed, 19 Jul 2006 06:26:26 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:63454 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964791AbWGSK0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 06:26:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mSLj2Z4kQBR9v1/9Kq+oabgUO3BSfAA3yufi4QkptKRGD2wLnWs+yaBZSlg1Eni3faKjhPvpMhAtHaKzcy05jm1s1AFGPvUv7F6zt32Ud+tvtI3rJ8STbGBIxyWdBb+t6hdKIeT3y/dV6bjQLVxkCxVMih2BBG5/1tAdUB3s/9w=
+Message-ID: <f96157c40607190326t1071377bvb426e00d6f427660@mail.gmail.com>
+Date: Wed, 19 Jul 2006 10:26:24 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+In-Reply-To: <f96157c40607180238s1bfe0ca2te1d4d72dbe8626fd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060714150418.120680@gmx.net> <20060717133809.150390@gmx.net>
+	 <Pine.LNX.4.64.0607171605500.6761@scrub.home>
+	 <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
+	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+	 <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
+	 <f96157c40607180238s1bfe0ca2te1d4d72dbe8626fd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-19 at 08:57 +1000, Nathan Scott wrote:
-> On Wed, Jul 19, 2006 at 12:29:41AM +0200, Torsten Landschoff wrote:
-> > Hi friends, 
-> 
-> Hi Torsten,
-> 
-> > I upgraded to 2.6.18-rc1 on sunday, with the following results (taken
-> > from my /var/log/kern.log), which ultimately led me to reinstall my 
-> > system:
-> > 
-> > Jul 17 07:33:53 pulsar kernel: xfs_da_do_buf: bno 16777216
-> > Jul 17 07:33:53 pulsar kernel: dir: inode 54526538
-> 
-> I suspect you had some residual directory corruption from using the
-> 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
-> fixed in the latest -stable point release).
-This has me very worried.
+On 7/18/06, gmu 2k6 <gmu2006@gmail.com> wrote:
+> On 7/17/06, gmu 2k6 <gmu2006@gmail.com> wrote:
+> > On 7/17/06, Roman Zippel <zippel@linux-m68k.org> wrote:
+> > > Hi,
+> > >
+> > > On Mon, 17 Jul 2006, gmu 2k6 wrote:
+> > >
+> > > > either I'm too dumb or there is an undocumented way to enable SysRq on
+> > > > bootup or the machine is really hanging hard. I'm not able use
+> > > > Alt+Print as nothing happens besides console showing the typed in
+> > > > characters ^[t.
+> > >
+> > > It might be a keyboard problem, try releasing Print, but keeping Alt
+> > > pressed and then try another key.
+> >
+> > maybe the problem is HP's Integrated Lights Out Java Applet. I will
+> > try tomorrow morning in the server room.
+>
+> yep that Java Applet was the problem. it worked when I was physically
+> connected by keyboard. I got the following by pressing Alt+SysRq+p but
+> I'm not sure it helps as being in cpu_idle looks normal to me:
+> Pid: 0, comm: swapper
+> EIP: 0060 [<c0101a57>] CPU: 0
+> EIP: isat mwait_idle+0x2a/0x34
+> EAX: 00000000 EBX: c0414008 ECX: 00000000 EDX: 00000000
+> ESI: c0414000 EDI: c33984e4 EPP: 00004864 DS: 007b ES: 007b
+> CR0: 8005003b CR2: b7f818cc CR3: 375e73c0 CR4: 000006f0
+> [<c0101a175>] cpu_idle+0x63/0x79
+> [<c041a6cf>] start_kernel+0x262/0x393
+> [<c041a1c3>] unknown_bootoption+0x0/0x25a
+>
+> Alt+SysRq+s seems to sync and write the logs to kern.log/messages but
+> the logs vanish after reboot. Therefore for the time being I had to
+> write it down by hand but I'm sure there's an elegant way like saving
+> the logfiles before booting up again via a second system or livecd.
+> Maybe there's a better way than that?
 
-i just upgraded to .18-rc1-git5 when it came out, i used .17-rc3 before.
-does this mean my .17-rc3 may have corrupted my filesystem?
-
-what action do you suggest i do now?
-
-> 
-> > of programs fail in mysterious ways. I tried to recover using xfs_repair
-> > but I feel that my partition is thorougly borked. Of course no data was 
-> > lost due to backups but still I'd like this bug to be fixed ;-)
-> 
-> 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
-> mkfs and restore?  Or at least get a full repair run?  If you did,
-> and you still see issues in .18-rc1, please let me know asap.
-> 
-> thanks.
-> 
-
+same boot problem with 2.6.18-rc1-mm2 btw, did not SysRq for that though.

@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWGSJO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWGSJQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbWGSJO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 05:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWGSJO1
+	id S964773AbWGSJQC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 05:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWGSJQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 05:14:27 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:28668 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S964772AbWGSJO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 05:14:26 -0400
-Date: Wed, 19 Jul 2006 11:14:24 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Thomas Tuttle <thinkinginbinary@gmail.com>, richard.dent@nhs.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Vacation message heckling (Was: Re: Richard Dent - Annual Leave)
-Message-ID: <20060719091424.GK2131@harddisk-recovery.com>
-References: <20060718090604.BLR19599@ms03.swi.contact.secure-ops.net> <20060718132704.GA12930@phoenix> <9a8748490607181330q7b7be84i3ac324d9053a5fa4@mail.gmail.com> <Pine.LNX.4.61.0607190001320.9666@yvahk01.tjqt.qr>
+	Wed, 19 Jul 2006 05:16:02 -0400
+Received: from 81-174-11-161.f5.ngi.it ([81.174.11.161]:41629 "EHLO
+	mail.enneenne.com") by vger.kernel.org with ESMTP id S964773AbWGSJQA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 05:16:00 -0400
+Date: Wed, 19 Jul 2006 11:16:00 +0200
+From: Rodolfo Giometti <giometti@linux.it>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org
+Message-ID: <20060719091559.GD25330@enneenne.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OaZoDhBhXzo6bW1J"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0607190001320.9666@yvahk01.tjqt.qr>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.11
+Organization: GNU/Linux Device Drivers, Embedded Systems and Courses
+X-PGP-Key: gpg --keyserver keyserver.linux.it --recv-keys D25A5633
+User-Agent: Mutt/1.5.11+cvs20060403
+X-SA-Exim-Connect-IP: 192.168.32.1
+X-SA-Exim-Mail-From: giometti@enneenne.com
+Subject: [PATCH] no console disabling during suspend stage
+X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
+X-SA-Exim-Scanned: Yes (on mail.enneenne.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 12:04:26AM +0200, Jan Engelhardt wrote:
-> The following note spans every "welcome" mail for some lists I run...
-> 
-> "Please make sure, should you be away, that *NO* auto-response messages
-> (like "I'm out of office until ...") appear on the list. Failure to do
-> so will get you removed from the mailing list."
 
-Same on the linux-arm-* mailing lists, see
-http://www.arm.linux.org.uk/mailinglists/etiquette.php#e11 .
-
-Silly disclaimers always claim that the email shouldn't be
-redistributed and that it is only for the "intended recipient". Because
-the lists are publically archived beyond our control, messages are
-redistributed. And with mailing lists, the "intended recipient" is very
-vague: it apparently is "linux-arm-kernel@lists.arm.linux.org.uk" cause
-that's what the "To:" header says, but OTOH it turns up in *my*
-mailbox.
-
-I usually protect people with such silly disclaimers against their own
-company policy by switching their list subscription to "moderated":
-they can still receive all messages from the list, but every message
-they send must be OK'ed by the list admins. That turns out to work very
-well: either they remove the disclaimer, or they use a webmail account
-instead.
-
-BTW: as an interesting side note: silly disclaimers are usually added
-by top posting people. How are they ever to notice the disclaimer with
-such a ridiculous reply style?
+--OaZoDhBhXzo6bW1J
+Content-Type: multipart/mixed; boundary="uXxzq0nDebZQVNAZ"
+Content-Disposition: inline
 
 
-Erik
-[linux-arm-*-owner #2]
+--uXxzq0nDebZQVNAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Hello,
+
+here a little patch to avoid disabling console during suspend stage
+while we are debugging kernel.
+
+Ciao,
+
+Rodolfo
+
+Signed-off-by: Rodolfo Giometti <giometti@linux.it>
+
+--=20
+
+GNU/Linux Solutions                  e-mail:    giometti@enneenne.com
+Linux Device Driver                             giometti@gnudd.com
+Embedded Systems                     		giometti@linux.it
+UNIX programming                     phone:     +39 349 2432127
+
+--uXxzq0nDebZQVNAZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-no-console-disabling-on-kernel-debugging
+Content-Transfer-Encoding: quoted-printable
+
+--- kernel/power/main.c	2006-07-19 10:54:11.000000000 +0200
++++ kernel/power/main.c.new	2006-07-18 19:38:41.000000000 +0200
+@@ -86,7 +86,9 @@
+ 			goto Thaw;
+ 	}
+=20
++#ifndef CONFIG_DEBUG_KERNEL
+ 	suspend_console();
++#endif
+ 	if ((error =3D device_suspend(PMSG_SUSPEND))) {
+ 		printk(KERN_ERR "Some devices failed to suspend\n");
+ 		goto Finish;
+
+--uXxzq0nDebZQVNAZ--
+
+--OaZoDhBhXzo6bW1J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFEvfhPQaTCYNJaVjMRArQ/AJ9kH8tD9+4Ns9dePH7itlofL9XqvACgk+ur
+ne26TtLGRWhHpAkSQBOmV64=
+=Wnji
+-----END PGP SIGNATURE-----
+
+--OaZoDhBhXzo6bW1J--

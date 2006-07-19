@@ -1,75 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWGSWbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWGSWgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWGSWbA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 18:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWGSWa7
+	id S932553AbWGSWgm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 18:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWGSWgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 18:30:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29930 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932551AbWGSWa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 18:30:58 -0400
-Date: Wed, 19 Jul 2006 17:30:53 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Jeremy Higdon <jeremy@sgi.com>, Jes Sorensen <jes@sgi.com>,
-       tony.luck@intel.com
-Subject: [PATCH] sgiioc4: Always share IRQ
-Message-ID: <20060719172618.N56117@pkunk.americas.sgi.com>
-Organization: Silicon Graphics, Inc.
+	Wed, 19 Jul 2006 18:36:41 -0400
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:7659 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932553AbWGSWgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 18:36:41 -0400
+X-Sasl-enc: dovJPe2fV5C1bmzoeV79XcaNy1hdBYI3SpYdc8v660Hu 1153348601
+Message-ID: <44BEB3EE.5020501@imap.cc>
+Date: Thu, 20 Jul 2006 00:36:30 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Valdis.Kletnieks@vt.edu
+CC: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Grzegorz Kulewski <kangur@polcom.net>,
+       Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
+       caleb@calebgray.com
+Subject: Re: Reiser4 Inclusion
+References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <20060717160618.013ea282.diegocg@gmail.com> <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net> <20060717155151.GD8276@merlin.emma.line.org> <Pine.LNX.4.61.0607180951480.16615@yvahk01.tjqt.qr> <20060718204718.GD18909@merlin.emma.line.org> <fake-message-id-1@fake-server.fake-domain> <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com> <44BE50A0.9070107@imap.cc> <200607191904.k6JJ4cf0002159@turing-police.cc.vt.edu>            <44BE8415.2040907@imap.cc> <200607192009.k6JK9des004285@turing-police.cc.vt.edu>
+In-Reply-To: <200607192009.k6JK9des004285@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig512081E263638D83768D28A5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SGI IOC4 IDE device always shares an interrupt with other devices
-which are part of IOC4.  As such, IDEPCI_SHARE_IRQ should always be
-enabled when BLK_DEV_SGIIOC4 is enabled.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig512081E263638D83768D28A5
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Brent Casavant <bcasavan@sgi.com>
----
- arch/ia64/configs/sn2_defconfig |    2 +-
- arch/ia64/defconfig             |    2 +-
- drivers/ide/Kconfig             |    1 +
- 3 files changed, 3 insertions(+), 2 deletions(-)
----
-diff --git a/arch/ia64/configs/sn2_defconfig b/arch/ia64/configs/sn2_defconfig
-index 9ea3539..0f14a82 100644
---- a/arch/ia64/configs/sn2_defconfig
-+++ b/arch/ia64/configs/sn2_defconfig
-@@ -363,7 +363,7 @@ # IDE chipset support/bugfixes
- #
- CONFIG_IDE_GENERIC=y
- CONFIG_BLK_DEV_IDEPCI=y
--# CONFIG_IDEPCI_SHARE_IRQ is not set
-+CONFIG_IDEPCI_SHARE_IRQ=y
- # CONFIG_BLK_DEV_OFFBOARD is not set
- # CONFIG_BLK_DEV_GENERIC is not set
- # CONFIG_BLK_DEV_OPTI621 is not set
-diff --git a/arch/ia64/defconfig b/arch/ia64/defconfig
-index 6cba55d..9001b3f 100644
---- a/arch/ia64/defconfig
-+++ b/arch/ia64/defconfig
-@@ -366,7 +366,7 @@ #
- # CONFIG_IDE_GENERIC is not set
- # CONFIG_BLK_DEV_IDEPNP is not set
- CONFIG_BLK_DEV_IDEPCI=y
--# CONFIG_IDEPCI_SHARE_IRQ is not set
-+CONFIG_IDEPCI_SHARE_IRQ=y
- # CONFIG_BLK_DEV_OFFBOARD is not set
- CONFIG_BLK_DEV_GENERIC=y
- # CONFIG_BLK_DEV_OPTI621 is not set
-diff --git a/drivers/ide/Kconfig b/drivers/ide/Kconfig
-index d1266fe..556958e 100644
---- a/drivers/ide/Kconfig
-+++ b/drivers/ide/Kconfig
-@@ -682,6 +682,7 @@ config BLK_DEV_SVWKS
- config BLK_DEV_SGIIOC4
- 	tristate "Silicon Graphics IOC4 chipset ATA/ATAPI support"
- 	depends on (IA64_SGI_SN2 || IA64_GENERIC) && SGI_IOC4
-+	select IDEPCI_SHARE_IRQ
- 	help
- 	  This driver adds PIO & MultiMode DMA-2 support for the SGI IOC4
- 	  chipset, which has one channel and can support two devices.
+On 19.07.2006 22:09, Valdis.Kletnieks@vt.edu wrote:
+
+> On Wed, 19 Jul 2006 21:12:21 +0200, Tilman Schmidt said:
+>=20
+>>On 19.07.2006 21:04, Valdis.Kletnieks@vt.edu wrote:
+>>
+>>>Which part of "read Documentation/SubmittingPatches.txt and do what it=
+ says,
+>>>or it doesn't get into the kernel" do you have trouble understanding?
+>>
+>>None. Why do you think I'd have? And what relevance does this have to
+>>the present discussion?
+>=20
+> So in other words, you're trying to tell us about what code should or
+> shouldn't allow into the kernel when you don't have even a clue what's
+> required on a purely technical level, or how the code gets into the ker=
+nel.
+
+That's entirely uncalled for. If you deem it necessary to resort to
+insults when you are out of arguments then please go looking for another
+victim. I consider the discussion closed.
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enig512081E263638D83768D28A5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEvrP1MdB4Whm86/kRApDDAJwNQ0bYaY37OUg/c6U46F+SktY+8ACfVuyk
+lsxAVq947CsG/LF/yIWYZxY=
+=I8S5
+-----END PGP SIGNATURE-----
+
+--------------enig512081E263638D83768D28A5--

@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWGSKEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWGSKNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWGSKEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 06:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWGSKEP
+	id S964784AbWGSKNj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 06:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWGSKNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 06:04:15 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:2759 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964782AbWGSKEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 06:04:14 -0400
-Subject: Re: [Xen-devel] [RFC PATCH 28/33] Add Xen grant table support
-From: Harry Butterworth <harry@hebutterworth.freeserve.co.uk>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Zachary Amsden <zach@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andi Kleen <ak@suse.de>,
-       virtualization@lists.osdl.org,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-In-Reply-To: <20060718091956.905130000@sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091956.905130000@sous-sol.org>
-Content-Type: text/plain
-Date: Wed, 19 Jul 2006 11:04:10 +0100
-Message-Id: <1153303451.7728.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 19 Jul 2006 06:13:39 -0400
+Received: from wr-out-0506.google.com ([64.233.184.234]:37778 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964784AbWGSKNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 06:13:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oB7a4zbMoKx41kPyncGOnCMwvCf7O8NUcdZGriatPa0gQ0iv4WPtvDWqsHWtBc4jcf4hKJ+wkek1BQhgdipg1EsdNjzqAgYVr6CwS6VMaRTer+vGPDOZsddv7h+XFTL9ghvuFUzNNxVZRDBMg+0kpdT4lW1J/mqK1GoYBTs8f20=
+Message-ID: <4df04b840607190313u75965101n9543ad3bd6716ace@mail.gmail.com>
+Date: Wed, 19 Jul 2006 18:13:37 +0800
+From: "yunfeng zhang" <zyf.zeroos@gmail.com>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: Improvement on memory subsystem
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <84144f020607190130q94b5563i436e16028eb9fb94@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
+	 <84144f020607180925s62e6a7abvbaf66c672849170b@mail.gmail.com>
+	 <4df04b840607182021hecef3b6v24c4794444a8e53c@mail.gmail.com>
+	 <84144f020607190130q94b5563i436e16028eb9fb94@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think that the current grant-table API/implementation quite
-meets the requirements for revocation.
+> Which, like I said, is not enough to hold slab management structures
+> (we need an array of bufctl_t in addition to struct slab).
+>
 
-Specifically I think the requirements are that:
+Here, the off-slab is the same as the off-slab concept of Linux,
+doesn't Linux stores bufctl_t array in its off-slab object?
 
-1) When a domain starts to reclaim a set of resources it allocated for
-inter-domain communication this process is guaranteed to complete
-without cooperation from any other domain.
-
-2) When a domain reclaims resources it allocated for inter-domain
-communication it can't cause a page fault or other exception in any
-other domain.
-
-The current API/implementation meets the second requirement but not the
-first.
-
-It's possible to make the current implementation meet the first
-requirement if you relax it a bit and allow the superuser to kill an
-offending domain via domain 0 but this expands the scope of the failure
-from a single inter-domain communication channel to a whole domain which
-is undesirable.
-
-Another potential issue with grant-tables is support for efficient N-way
-communication but I haven't investigated that personally.
-
-A final point is that quite a lot of fairly tricky code is required to
-combine grant-tables, event-channels and xenbus before you can create an
-inter-domain communication channel which can be correctly disconnected
-and reconnected across module load and unload.
-
-It's appropriate to have a low-level API at the hypervisor because it
-keeps the hypervisor as small as possible and therefore easier to audit.
-
-But, whatever the low-level API, whether grant-tables or something which
-has better support for revocation and n-way communication, I think there
-needs to be a small library to implement a higher level API that is more
-convenient for driver authors to use directly.
-
+I consider that we should try our best to explore the potential of
+page structure. In my OS, page structure is just like a union and is
+cast into different types according to its flag field.

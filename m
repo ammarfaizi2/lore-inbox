@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWGSO4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWGSO7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWGSO4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 10:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWGSO4h
+	id S964858AbWGSO7f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 10:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWGSO7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 10:56:37 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21199 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964857AbWGSO4h (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 10:56:37 -0400
-Message-Id: <200607191456.k6JEuW0x004945@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Ian Stirling <tandra@mauve.plus.com>
-Cc: yunfeng zhang <zyf.zeroos@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Improvement on memory subsystem
-In-Reply-To: Your message of "Wed, 19 Jul 2006 10:18:44 BST."
-             <44BDF8F4.30908@mauve.plus.com>
-From: Valdis.Kletnieks@vt.edu
-References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com> <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
-            <44BDF8F4.30908@mauve.plus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153320991_2943P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 19 Jul 2006 10:59:35 -0400
+Received: from smtp.hickorytech.net ([216.114.192.16]:40580 "EHLO
+	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
+	id S964858AbWGSO7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 10:59:34 -0400
+Message-ID: <44BE48D5.7020107@mnsu.edu>
+Date: Wed, 19 Jul 2006 09:59:33 -0500
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Mattias Hedenskog <ml@magog.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS breakage in 2.6.18-rc1
+References: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
+In-Reply-To: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Jul 2006 10:56:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153320991_2943P
-Content-Type: text/plain; charset=us-ascii
+I did try the xfs_repair 2.8.4 for a volume running on 2.6.17.4 and it 
+annihilated the volume.  This volume was not showing signs of crashing.  
+So... I guess I would certainly not run xfs_repair unless there is good 
+reason.
 
-On Wed, 19 Jul 2006 10:18:44 BST, Ian Stirling said:
+-- 
+Jeffrey Hundstad
+PS. ...yes, I had a recent backup ;-)
 
-> To paraphrase shakespear - all the world is not a P4 - and all the swap 
-> devices are not hard disks.
-
-Been there, done that.  I used to admin a net of Sun 3/50s where /dev/swap
-was a symlink to a file on an NFS server, because the "shoebox" local hard
-drives for those were so slow that throwing it across the ethernet to a
-3/280 with Fujitsu Super-Eagles was faster...
-
-> For example - I've got a 486/33 laptop with 12M RAM that I sometimes use 
-> , with swapping to a 128M PCMCIA RAM card that I got from somewhere.
-
-If we go to the effort of writing code that tries to be smart about grouping
-swap reads/writes by cost, it's easy enough to flag any sort of ram-disk device
-as a 'zero seek time' device.  Remember that I suggested making it dependent
-on "how long until the next pass of the elevator" - for a ramdisk that basically
-is zero, so the algorithm easily degenerates into "just queue the requests in
-expected order you'll need the results".
-
-> 20K instructions wasted on a device with no seek time is just annoying.
-
-On the other hand, how long does it take to move a 4K page across the
-PCMCIA interface?  If you're seeing deep queues on it, you may *still*
-want to optimize the order of requests...
-
-
---==_Exmh_1153320991_2943P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEvkgfcC3lWbTT17ARAlz5AJ0emFPMq8xgrD+fOPIWcwsRXzX4zgCeMlYO
-cWykv0GtMCKPEDWR4SEvwQ8=
-=wuGD
------END PGP SIGNATURE-----
-
---==_Exmh_1153320991_2943P--
+Mattias Hedenskog wrote:
+>> That looks like the death knell of my /, which succumbed on Friday as
+>> a result (I believe) of the corruption bug that was in 2.6.16/17.
+>> Ironically enough, I also saw the problem during an aptitude upgrade.
+>
+> Hi all,
+>
+> I just want to confirm this bug as well and unfortunately it was my
+> system disk too who had to take the hit. Im running 2.6.16 and its
+> reproducible in 2.6.17 and 2.6.18-rc1 as well. When I tried to repair
+> the fs I got the same error as in the previous post, running xfsprogs
+> 2.8.4. I haven't had the time to debug this issue further because the
+> box is quite critical but I'll keep an eye on the other disks on the
+> system still running xfs.
+>
+> Regards,
+> Mattias Hedenskog
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

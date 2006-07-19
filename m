@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWGSW5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWGSW7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932560AbWGSW5d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 18:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWGSW5d
+	id S1030210AbWGSW7s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 18:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWGSW7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 18:57:33 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38340 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932560AbWGSW5d (ORCPT
+	Wed, 19 Jul 2006 18:59:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62404 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932561AbWGSW7r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 18:57:33 -0400
-Date: Thu, 20 Jul 2006 08:56:36 +1000
+	Wed, 19 Jul 2006 18:59:47 -0400
+Date: Thu, 20 Jul 2006 08:59:04 +1000
 From: Nathan Scott <nathans@sgi.com>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Kasper Sandberg <lkml@metanurb.dk>
 Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
        xfs@oss.sgi.com
 Subject: Re: XFS breakage in 2.6.18-rc1
-Message-ID: <20060720085636.D1947140@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <200607190908.30727.s0348365@sms.ed.ac.uk>
+Message-ID: <20060720085904.E1947140@wobbly.melbourne.sgi.com>
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200607190908.30727.s0348365@sms.ed.ac.uk>; from s0348365@sms.ed.ac.uk on Wed, Jul 19, 2006 at 09:08:30AM +0100
+In-Reply-To: <1153304468.3706.4.camel@localhost>; from lkml@metanurb.dk on Wed, Jul 19, 2006 at 12:21:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 09:08:30AM +0100, Alistair John Strachan wrote:
-> On Tuesday 18 July 2006 23:57, Nathan Scott wrote:
-> [snip]
-> > > of programs fail in mysterious ways. I tried to recover using xfs_repair
-> > > but I feel that my partition is thorougly borked. Of course no data was
-> > > lost due to backups but still I'd like this bug to be fixed ;-)
-> >
-> > 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
-> > mkfs and restore?  Or at least get a full repair run?  If you did,
-> > and you still see issues in .18-rc1, please let me know asap.
+On Wed, Jul 19, 2006 at 12:21:08PM +0200, Kasper Sandberg wrote:
+> On Wed, 2006-07-19 at 08:57 +1000, Nathan Scott wrote:
+> > On Wed, Jul 19, 2006 at 12:29:41AM +0200, Torsten Landschoff wrote:
+> > > Hi friends, 
+> > 
+> > Hi Torsten,
+> > 
+> > > I upgraded to 2.6.18-rc1 on sunday, with the following results (taken
+> > > from my /var/log/kern.log), which ultimately led me to reinstall my 
+> > > system:
+> > > 
+> > > Jul 17 07:33:53 pulsar kernel: xfs_da_do_buf: bno 16777216
+> > > Jul 17 07:33:53 pulsar kernel: dir: inode 54526538
+> > 
+> > I suspect you had some residual directory corruption from using the
+> > 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
+> > fixed in the latest -stable point release).
+> This has me very worried.
 > 
-> Just out of interest, I've got a few XFS volumes that were created 24 months 
-> ago on a machine that I upgraded to 2.6.17 about a month ago. I haven't seen 
-> any crashes so far.
+> i just upgraded to .18-rc1-git5 when it came out, i used .17-rc3 before.
+> does this mean my .17-rc3 may have corrupted my filesystem?
 > 
-> Assuming I get the newest XFS repair tools on there, what's the disadvantage 
-> of repairing versus creating a new filesystem? What special circumstances are 
-> required to cause a crash?
+> what action do you suggest i do now?
 
-There should be no disadvantage to repairing.  I will update the FAQ
-shortly to describe all the details of the problem, recommendations
-on how to address it, which kernel version is affected, etc.
+The odds are decent that you're unaffected.  You can check your filesystem
+using xfs_check or xfs_repair -n and these will give you a good indication
+as to whether further action is required.
 
 cheers.
 

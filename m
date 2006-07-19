@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWGSMjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWGSMn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWGSMjn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 08:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWGSMjn
+	id S964808AbWGSMn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 08:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWGSMn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 08:39:43 -0400
-Received: from xenotime.net ([66.160.160.81]:61639 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964803AbWGSMjm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 08:39:42 -0400
-Date: Wed, 19 Jul 2006 05:39:40 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Martin Waitz <tali@admingilde.org>
-cc: Randy Dunlap <randy.dunlap@oracle.com>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH 1/3] kernel-doc: ignore __devinit
-In-Reply-To: <20060719070019.GB30212@admingilde.org>
-Message-ID: <Pine.LNX.4.58.0607190536230.26709@shark.he.net>
-References: <44BD5373.20104@oracle.com> <20060719070019.GB30212@admingilde.org>
+	Wed, 19 Jul 2006 08:43:26 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:8855 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S964808AbWGSMnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 08:43:25 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Subject: Re: XFS breakage in 2.6.18-rc1
+Date: Wed, 19 Jul 2006 13:43:33 +0100
+User-Agent: KMail/1.9.3
+Cc: Nathan Scott <nathans@sgi.com>, Torsten Landschoff <torsten@debian.org>,
+       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost>
+In-Reply-To: <1153304468.3706.4.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607191343.33502.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jul 2006, Martin Waitz wrote:
-
-> hoi :)
->
-> On Tue, Jul 18, 2006 at 02:32:35PM -0700, Randy Dunlap wrote:
-> > From: Randy Dunlap <rdunlap@xenotime.net>
+On Wednesday 19 July 2006 11:21, Kasper Sandberg wrote:
+> On Wed, 2006-07-19 at 08:57 +1000, Nathan Scott wrote:
+> > On Wed, Jul 19, 2006 at 12:29:41AM +0200, Torsten Landschoff wrote:
+> > > Hi friends,
 > >
-> > Ignore __devinit in function definitions so that kernel-doc won't
-> > fail on them.
+> > Hi Torsten,
+> >
+> > > I upgraded to 2.6.18-rc1 on sunday, with the following results (taken
+> > > from my /var/log/kern.log), which ultimately led me to reinstall my
+> > > system:
+> > >
+> > > Jul 17 07:33:53 pulsar kernel: xfs_da_do_buf: bno 16777216
+> > > Jul 17 07:33:53 pulsar kernel: dir: inode 54526538
+> >
+> > I suspect you had some residual directory corruption from using the
+> > 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
+> > fixed in the latest -stable point release).
 >
-> why would it fall over __devinit?
+> This has me very worried.
+>
+> i just upgraded to .18-rc1-git5 when it came out, i used .17-rc3 before.
+> does this mean my .17-rc3 may have corrupted my filesystem?
+>
+> what action do you suggest i do now?
+>
+> > > of programs fail in mysterious ways. I tried to recover using
+> > > xfs_repair but I feel that my partition is thorougly borked. Of course
+> > > no data was lost due to backups but still I'd like this bug to be fixed
+> > > ;-)
+> >
+> > 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
+> > mkfs and restore?  Or at least get a full repair run?  If you did,
+> > and you still see issues in .18-rc1, please let me know asap.
+> >
+> > thanks.
 
-It doesn't match any of those awful regex strings when
-looking for function prototypes, so kernel-doc (the script)
-coughs and dies, as noted in DocBook/kernel-api.tmpl
-for drivers/pci/search.c.
+According to another thread Nathan just responded to, it sounds like we need 
+to wait for a new version of the xfsprogs package, and then run xfs_repair on 
+the affected filesystems. I wouldn't worry about it too much if you've not 
+had any crashes. The damage can be repaired, just not right now.
 
-> And shouldn't we add __{dev}?init{data}? while we are at it?
-
-Yes, in theory at least (for __init and __exit, not __initdata,
-since this is in function definitios).
-I just haven't run into the need for those yet.
+I'm still waiting for a crash on a machine that has been under heavy load for 
+28 days, so it's obviously not _that_ easy to trigger.
 
 -- 
-~Randy
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

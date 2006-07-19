@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWGSHAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWGSHdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbWGSHAW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 03:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbWGSHAW
+	id S932518AbWGSHdU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 03:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWGSHdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 03:00:22 -0400
-Received: from admingilde.org ([213.95.32.146]:32722 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S932413AbWGSHAV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 03:00:21 -0400
-Date: Wed, 19 Jul 2006 09:00:19 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH 1/3] kernel-doc: ignore __devinit
-Message-ID: <20060719070019.GB30212@admingilde.org>
-Mail-Followup-To: Randy Dunlap <randy.dunlap@oracle.com>,
-	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-References: <44BD5373.20104@oracle.com>
+	Wed, 19 Jul 2006 03:33:20 -0400
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:11229 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932518AbWGSHdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 03:33:19 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: Generic B-tree implementation
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Vishal Patil <vishpat@gmail.com>
+Cc: Gary Funck <gary@intrepid.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4745278c0607180822u55ffe5b4g333e2e6457b37d02@mail.gmail.com>
+References: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
+	 <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
+	 <4745278c0607180822u55ffe5b4g333e2e6457b37d02@mail.gmail.com>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Wed, 19 Jul 2006 08:33:14 +0100
+Message-Id: <1153294394.13071.3.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NMuMz9nt05w80d4+"
-Content-Disposition: inline
-In-Reply-To: <44BD5373.20104@oracle.com>
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-07-18 at 11:22 -0400, Vishal Patil wrote:
+> B-trees are good for parellel updates as well. Anyway it would be
+> great to have inputs from other folks about how B-trees could help
+> inside the kernel (if at all)
 
---NMuMz9nt05w80d4+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+B-trees are mostly used in file systems in the kernel.  For example NTFS
+and HFS (and I think HPFS) use B-trees for various metadata like
+directory indexes for example.
 
-hoi :)
+But of course your implementation is purely userspace and cannot be used
+in the kernel (you use recursion for example...) so I am not sure how
+you envisage to help the kernel with your code...
 
-On Tue, Jul 18, 2006 at 02:32:35PM -0700, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->=20
-> Ignore __devinit in function definitions so that kernel-doc won't
-> fail on them.
+Best regards,
 
-why would it fall over __devinit?
-And shouldn't we add __{dev}?init{data}? while we are at it?
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
---=20
-Martin Waitz
-
---NMuMz9nt05w80d4+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEvdiDj/Eaxd/oD7IRAlqfAJ90LOp3eB3Gc+cN0Gp19Y2RDpaf/QCfYxLL
-8DCrh/bqvCmBx6c0eC1LQ8U=
-=vm24
------END PGP SIGNATURE-----
-
---NMuMz9nt05w80d4+--

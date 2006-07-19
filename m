@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWGSORO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGSORx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWGSORO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 10:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWGSORO
+	id S964848AbWGSORx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 10:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWGSORw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 10:17:14 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:17559 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964847AbWGSORO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 10:17:14 -0400
-Date: Wed, 19 Jul 2006 17:16:49 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libfs: remove page up-to-date check from simple_readpage
-In-Reply-To: <Pine.LNX.4.58.0607191708250.22875@sbz-30.cs.Helsinki.FI>
-Message-ID: <Pine.LNX.4.58.0607191713440.23042@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0607191708250.22875@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Jul 2006 10:17:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:19983 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964848AbWGSORw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 10:17:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
+        b=VuI8RjUH2oRUFBmnuSO0gWKMaKx2/0KNsGwWvG600kTOmdsfzMSevnEs9dV0Z4jLbAAaAeLvuZLPMR8ewhHdDJMWGY27WvyyJn2tk4anjM8RqE73fcw8qbTNQKIF7S0IgYedj3ExhXEdE6RGNPaLi6hjsANJzz5voFjP4UuonCY=
+Message-ID: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
+Date: Wed, 19 Jul 2006 16:17:50 +0200
+From: "Mattias Hedenskog" <ml@magog.se>
+To: linux-kernel@vger.kernel.org
+Subject: Re: XFS breakage in 2.6.18-rc1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Google-Sender-Auth: 809cfeefed20ab7c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uh, oh, removed too much. We obviously need to set the PG_uptodate flag 
-in simple_readpage(). Sorry about that. Updated patch follows.
+> That looks like the death knell of my /, which succumbed on Friday as
+> a result (I believe) of the corruption bug that was in 2.6.16/17.
+> Ironically enough, I also saw the problem during an aptitude upgrade.
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+Hi all,
 
-This patch removes the unnecessary PageUptodate check from simple_readpage.
-The only two callers for ->readpage that don't have explicit PageUptodate
-check are read_cache_pages and page_cache_read which operate on newly
-allocated pages which don't have the flag set.
+I just want to confirm this bug as well and unfortunately it was my
+system disk too who had to take the hit. Im running 2.6.16 and its
+reproducible in 2.6.17 and 2.6.18-rc1 as well. When I tried to repair
+the fs I got the same error as in the previous post, running xfsprogs
+2.8.4. I haven't had the time to debug this issue further because the
+box is quite critical but I'll keep an eye on the other disks on the
+system still running xfs.
 
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
- fs/libfs.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
-
-diff --git a/fs/libfs.c b/fs/libfs.c
-index ac02ea6..0d2cc61 100644
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -319,15 +319,11 @@ int simple_readpage(struct file *file, s
- {
- 	void *kaddr;
- 
--	if (PageUptodate(page))
--		goto out;
--
- 	kaddr = kmap_atomic(page, KM_USER0);
- 	memset(kaddr, 0, PAGE_CACHE_SIZE);
- 	kunmap_atomic(kaddr, KM_USER0);
- 	flush_dcache_page(page);
- 	SetPageUptodate(page);
--out:
- 	unlock_page(page);
- 	return 0;
- }
--- 
-1.4.1
-
+Regards,
+Mattias Hedenskog

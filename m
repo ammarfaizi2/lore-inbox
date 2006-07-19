@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWGSSYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWGSTCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWGSSYD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 14:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWGSSYD
+	id S1030218AbWGSTCf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 15:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGSTCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 14:24:03 -0400
-Received: from ptb-relay03.plus.net ([212.159.14.214]:2202 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S932545AbWGSSYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 14:24:02 -0400
-Message-ID: <44BE78C0.4020909@mauve.plus.com>
-Date: Wed, 19 Jul 2006 19:24:00 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 19 Jul 2006 15:02:35 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:42662 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030218AbWGSTCe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 15:02:34 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: George Nychis <gnychis@cmu.edu>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+Date: Wed, 19 Jul 2006 21:02:17 +0200
+User-Agent: KMail/1.9.3
+Cc: Jeff Chua <jchua@fedex.com>, lkml <linux-kernel@vger.kernel.org>
+References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607191742.32609.rjw@sisk.pl> <44BE5589.4070403@cmu.edu>
+In-Reply-To: <44BE5589.4070403@cmu.edu>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Per-user swap devices.
-References: <44BE015E.5080107@mauve.plus.com> <200607191500.k6JF09EQ005021@turing-police.cc.vt.edu>
-In-Reply-To: <200607191500.k6JF09EQ005021@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607192102.17438.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 19 Jul 2006 10:54:38 BST, Ian Stirling said:
+On Wednesday 19 July 2006 17:53, George Nychis wrote:
+> Ok, well on my second try suspending to disk and resuming, i'm getting a
+> much different outcome... ls returns me resuls, however things are
+> slightly off:
 > 
->>It would be really nice to be able to simply: chown crashalot.users 
->>/dev/swap0 ;swapon /dev/swap0
->>Then anything run by crashalot would swap to /dev/swap0 - and not locally.
-
-> This doesn't look like it will do as much good as you think.  The problem
-> is what to do when something run by some *other* UID needs a page - you need
-> to fix the code to preferentially steal a page from a 'crashalot' process.
+> x60s gnychis # ls
+> ls: downloads: Permission denied
+> ls: host_analysis: Permission denied
+> ls: SouthPark: Permission denied
+> ls: library: Permission denied
+> ls: cmu_dump: Permission denied
+> ls: emulator: Permission denied
+> ls: paper-KanKat.pdf: Permission denied
+> ls: quotes: Permission denied
+> ls: school: Permission denied
+> ls: cmu_dump2: Permission denied
+> host_graphs  host_level  key  mp3  odigw_k_pinw.wma  out-5M  pops  song
+>  test.save  thesis_rwork  todo
+> x60s gnychis # /etc/init.d/net.wlan0 restart
+> mkdir: cannot create directory `/var/lib/init.d/snapshot/9985':
+> Input/output error
+> cp: target `/var/lib/init.d/snapshot/9985/' is not a directory: No such
+> file or directory
+>  * Stopping wlan0
+>  *   Bringing down wlan0
+> /lib/rcscripts/net.modules.d/ifconfig: line 139: /usr/bin/tac: cannot
+> execute binary file
+>  *     Stopping dhcpcd on wlan0 ...
+>                                    [ ok ]
+>  *     Shutting down wlan0 ...
+>                                    [ ok ]
+>  * Starting wlan0
+>  *   Configuring wireless network for wlan0
+>  *     wlan0 connected to "SMC" at 00:04:E2:7D:D3:E3
+>  *     in managed mode (WEP enabled - open)
+>  *   Bringing up wlan0
+>  *     dhcp
+>  *       Running dhcpcd ...
+>                                    [ ok ]
+>  *       wlan0 received address 192.168.2.101
+> x60s gnychis # ping google.com
+> bash: ping: command not found
 > 
-> And at that point, what you probably want instead is a global per-UID RSS
-> limit.  This looks like a job for a CKRM resource class controller rather than
-> a hack to the swap code.
+> No clue :\
 
-Not quite.
-I've got one set of users that I care about their processes never dying
-root, ..., and another set that I don't.
+I guess your disk doesn't wake up.
 
-I want them to contend for real RAM as normal - it's quite acceptible to 
-me for users in the second group to push root/...s web-proxy, screen 
-session, processes far into slow local swap. Most of these processes 
-will be not very interactive - but I don't want them to die.
+ls can give you some results from the cache.
 
-If the fast (but unreliable) swap device dies - I'm quite happy for my 
-firefox and mplayer processes to die - but not my window manager or 
-whatever. RSS limits don't address this.
-
-The only way I can think of to address this is to somehow segregate swap 
-devices.
+Rafael

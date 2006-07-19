@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWGSGMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWGSGPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932510AbWGSGMK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 02:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWGSGMK
+	id S932512AbWGSGPr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 02:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWGSGPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 02:12:10 -0400
-Received: from outmx016.isp.belgacom.be ([195.238.4.115]:14317 "EHLO
-	outmx016.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S932510AbWGSGMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 02:12:08 -0400
-Date: Wed, 19 Jul 2006 08:11:54 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nils Faerber <nils@kernelconcepts.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] Watchdog: i8xx_tco remove pci_find_device
-Message-ID: <20060719061154.GA2438@infomag.infomag.iguana.be>
-References: <20060719002225.85BFC201A1@srebbe.iguana.be>
+	Wed, 19 Jul 2006 02:15:47 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:17744 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932512AbWGSGPq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 02:15:46 -0400
+Date: Wed, 19 Jul 2006 09:15:42 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+Cc: linux-kernel@vger.kernel.org, kyle@parisc-linux.org,
+       twoller@crystal.cirrus.com, James@superbug.demon.co.uk, zab@zabbo.net,
+       sailer@ife.ee.ethz.ch, perex@suse.cz, zaitcev@yahoo.com
+Subject: Re: [PATCH] sound: Conversions from kmalloc+memset to k(z|c)alloc.
+Message-ID: <20060719061542.GG5764@rhun.ibm.com>
+References: <20060719005455.GB30823@lumumba.uhasselt.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060719002225.85BFC201A1@srebbe.iguana.be>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060719005455.GB30823@lumumba.uhasselt.be>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jiri,
+On Wed, Jul 19, 2006 at 02:54:55AM +0200, Panagiotis Issaris wrote:
 
-Just back from a small holiday, but:
-
-> Watchdog: i8xx_tco remove pci_find_device.
+> From: Panagiotis Issaris <takis@issaris.org>
 > 
-> Use refcounting for pci device obtaining. Use PCI_DEVICE macro.
+> sound: Conversions from kmalloc+memset to k(c|z)alloc.
 > 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-Why the pci_dev_put's? We aren't registering the PCI devices. See
-the comment above the MODULE_DEVICE_TABLE:
-/*
- * Data for PCI driver interface
- *
- * This data only exists for exporting the supported
- * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
- * register a pci_driver, because someone else might one day
- * want to register another driver on the same PCI id.
- */
+> diff --git a/sound/oss/trident.c b/sound/oss/trident.c
+> index 2813e4c..e81ee7a 100644
+> --- a/sound/oss/trident.c
+> +++ b/sound/oss/trident.c
 
-Since the I/O controller Hub has several functions we explicitely
-do not register the PCI device...
+trident.c changes are ok and
 
-PS: In the -mm tree there is allready a replacement for this driver...
-Plan is to get this one into linus tree soon.
+Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
 
-Greetings,
-Wim.
-
+Cheers,
+Muli

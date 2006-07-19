@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWGSGPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWGSGWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWGSGPr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 02:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWGSGPr
+	id S932514AbWGSGWe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 02:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWGSGWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 02:15:47 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:17744 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932512AbWGSGPq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 02:15:46 -0400
-Date: Wed, 19 Jul 2006 09:15:42 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
-Cc: linux-kernel@vger.kernel.org, kyle@parisc-linux.org,
-       twoller@crystal.cirrus.com, James@superbug.demon.co.uk, zab@zabbo.net,
-       sailer@ife.ee.ethz.ch, perex@suse.cz, zaitcev@yahoo.com
-Subject: Re: [PATCH] sound: Conversions from kmalloc+memset to k(z|c)alloc.
-Message-ID: <20060719061542.GG5764@rhun.ibm.com>
-References: <20060719005455.GB30823@lumumba.uhasselt.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Jul 2006 02:22:34 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:9667 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S932514AbWGSGWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 02:22:33 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/2] Conversions from kmalloc+memset to k(z|c)alloc
+Date: Wed, 19 Jul 2006 08:23:39 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, linux-eata@i-connect.net
+References: <20060719013113.GF30823@lumumba.uhasselt.be>
+In-Reply-To: <20060719013113.GF30823@lumumba.uhasselt.be>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060719005455.GB30823@lumumba.uhasselt.be>
-User-Agent: Mutt/1.5.11
+Message-Id: <200607190823.39571.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 02:54:55AM +0200, Panagiotis Issaris wrote:
+Added linux-scsi to CC as it touches drivers/scsi/
 
-> From: Panagiotis Issaris <takis@issaris.org>
-> 
-> sound: Conversions from kmalloc+memset to k(c|z)alloc.
-> 
-> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+>  	/* stuff a sense request in front of our current request */
+> -	pc = kmalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
+> +	pc = kzalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
 
-> diff --git a/sound/oss/trident.c b/sound/oss/trident.c
-> index 2813e4c..e81ee7a 100644
-> --- a/sound/oss/trident.c
-> +++ b/sound/oss/trident.c
+Please remove the space before the arguments.
 
-trident.c changes are ok and
+>  	rq = kmalloc (sizeof (struct request), GFP_ATOMIC);
 
-Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
+This and the one before should be "rq = kzalloc(sizeof(*rq),...);" This way 
+you will always get the correct buffer size even if the type of rq changes.
 
-Cheers,
-Muli
+Eike

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWGSBdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWGSBeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWGSBdp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 21:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWGSBdp
+	id S932453AbWGSBeK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 21:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWGSBeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 21:33:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5609 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932451AbWGSBdp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 21:33:45 -0400
-Date: Tue, 18 Jul 2006 18:33:13 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devl@lists.sourceforge.net,
-       zaitcev@redhat.com
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Message-Id: <20060718183313.e8e5a5b2.zaitcev@redhat.com>
-In-Reply-To: <200607181004.55191.benjamin.cherian.kernel@gmail.com>
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com>
-	<200607171435.22128.benjamin.cherian.kernel@gmail.com>
-	<20060717151940.5cd79087.zaitcev@redhat.com>
-	<200607181004.55191.benjamin.cherian.kernel@gmail.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
+	Tue, 18 Jul 2006 21:34:10 -0400
+Received: from student.uhasselt.be ([193.190.2.1]:33285 "EHLO
+	student.uhasselt.be") by vger.kernel.org with ESMTP id S932453AbWGSBeJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 21:34:09 -0400
+Date: Wed, 19 Jul 2006 03:34:07 +0200
+To: linux-kernel@vger.kernel.org
+Cc: linux-eata@i-connect.net
+Subject: [PATCH 2/2] Forgotten memset
+Message-ID: <20060719013407.GG30823@lumumba.uhasselt.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+From: takis@lumumba.uhasselt.be (Panagiotis Issaris)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 10:04:54 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
+From: Panagiotis Issaris <takis@issaris.org>
 
-> > Another option would be to change USBDEVFS_BULK to USBDEVFS_SUBMITURB.
-> > Did you look at doing that?
+Was this forgotten and therefore, is it necessary or useful to zero this
+out?
 
-> We did that as well. But when you try to reap an URB there is no timeout. So 
-> if something goes wrong you're stuck waiting for the operation to finish or 
-> for the user to physically unplug the device.
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+---
+Applies to current GIT or 2.6.18-rc2. Compile-tested with 
+make allyesconfig.
 
-This can't be right. Surely alarm(2) should work?
+ drivers/scsi/ide-scsi.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> >Of course it's very tempting for me to off-load both
-> >the work and the responsibility on you.
-> 
-> All right then. I'll send you a patch that backports the string caching 
-> mechanism from 2.6 in a few days. Would you be able to test it with the 
-> 210PU?
+diff --git a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+index 57f460e..ee1662c 100644
+--- a/drivers/scsi/ide-scsi.c
++++ b/drivers/scsi/ide-scsi.c
+@@ -327,7 +327,7 @@ static int idescsi_check_condition(ide_d
+ 
+ 	/* stuff a sense request in front of our current request */
+ 	pc = kzalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
+-	rq = kmalloc (sizeof (struct request), GFP_ATOMIC);
++	rq = kzalloc (sizeof (struct request), GFP_ATOMIC);
+ 	buf = kzalloc(SCSI_SENSE_BUFFERSIZE, GFP_ATOMIC);
+ 	if (pc == NULL || rq == NULL || buf == NULL) {
+ 		kfree(buf);
+-- 
+1.4.1.gd3ba6
 
-Yes, that would be fine.
-
-Although I am starting to think about creating a custom locking
-scheme in devio.c after all. It seems like less work.
-
--- Pete

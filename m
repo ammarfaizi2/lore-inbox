@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWGSJTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWGSJ1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWGSJTu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 05:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWGSJTu
+	id S932524AbWGSJ1U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 05:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWGSJ1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 05:19:50 -0400
-Received: from pih-relay05.plus.net ([212.159.14.132]:12756 "EHLO
-	pih-relay05.plus.net") by vger.kernel.org with ESMTP
-	id S964774AbWGSJTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 05:19:49 -0400
-Message-ID: <44BDF8F4.30908@mauve.plus.com>
-Date: Wed, 19 Jul 2006 10:18:44 +0100
-From: Ian Stirling <tandra@mauve.plus.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 19 Jul 2006 05:27:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:63085 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932524AbWGSJ1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 05:27:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:organization:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
+        b=dSQkPgA5bi0gaEP3oD+JJAExOFRE7KFOeQZuiWgbjAMJZpJOM5/ScPE6m/y90qkNGAV2as0KRxXC+Ykagm96gsfb4WhnqaM7CoUlF2r9guvMPRbefDUZsffr99CNTLeZ1QeaYjsWPbfQ04c3BikP2C6AYUFWXkicyPIlx+83RFc=
+Message-ID: <44BDFC64.607@innomedia.soft.net>
+Date: Wed, 19 Jul 2006 15:03:24 +0530
+Reply-To: chinmaya@innomedia.soft.net
+Organization: Innomedia Technologies Pvt. Ltd.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: yunfeng zhang <zyf.zeroos@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Improvement on memory subsystem
-References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com> <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
-In-Reply-To: <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Gettin own IP address thorugh ioctl in kernel space.
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+From: Chinmaya Mishra <chinmaya4@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 18 Jul 2006 18:03:54 +0800, yunfeng zhang said:
-> 
-> 
->>2. Read-ahead process during page-in/out (page fault or swap out) should be
->>based on its VMA to enhance IO efficiency instead of the relative physical pages
->>in swap space.
-> 
-> 
-> But wouldn't that end up causing a seek storm, rather than handling the pages
-> in the order that minimizes the total seek distance, no matter where they are
-> in memory? Remember - if you have a 2Ghz processor, and a disk that seeks in 1
-> millisecond, every seek is (*very* roughly) about 2 million instructions.  So
-> if we can burn 20 thousand instructions finding a read order that eliminates
-> *one* seek, we're 1.98M instructions ahead.
+Hi,
 
-To paraphrase shakespear - all the world is not a P4 - and all the swap 
-devices are not hard disks.
+Can you provide an example how to invoke ioctl on
+device in kernel module.
 
-For example - I've got a 486/33 laptop with 12M RAM that I sometimes use 
-, with swapping to a 128M PCMCIA RAM card that I got from somewhere.
+For example. I want to find out the IP address of
+my eth0 and I want to make SIOCSIFADDR on it from 
+kernel module.
 
-20K instructions wasted on a device with no seek time is just annoying.
 
-And on my main laptop - I have experimented with swap-over-wifi to a 
-large ramdisk on my server - which works quite well. (until the wifi 
-connection falls over).
+At user space i am doing it like this.....
+
+ unsigned long *ip;
+ char *iface;
+ int sockfd;
+ struct ifreq ifr;
+ strcpy(ifr.ifr_name, iface);	// interface name 'eth0'
+ sockfd = socket(AF_INET,SOCK_DGRAM,0);
+ ioctl(sockfd, SIOCGIFADDR, (char*)&ifr);
+ memcpy(ip, &(ifr.ifr_addr.sa_data[2]),4); //Copy the ip addr
+ close(sockfd);
+
+How to port this in keernel space.
+
+Thank you.
+Chinmaya
+
+

@@ -1,106 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWGSTM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWGSTmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWGSTM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 15:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWGSTM2
+	id S1030245AbWGSTmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 15:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWGSTmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 15:12:28 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:64143 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1030223AbWGSTM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 15:12:27 -0400
-X-Sasl-enc: XemMoRi8ATBJI3APkJp1HtfyMTVXO3ANhET0yb2n0+M+ 1153336339
-Message-ID: <44BE8415.2040907@imap.cc>
-Date: Wed, 19 Jul 2006 21:12:21 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Wed, 19 Jul 2006 15:42:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:51083 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030245AbWGSTmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 15:42:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bTgiTyS5oA1l/bM1dp1GC9Ex8GKgLhVitcGODGxVqqQeeWOKBDwpJEqXtF6OPI/Cox4wowegXUeH9VnA+seQet2EEX+waqacaK9FllUNn7/U5iNjMoH7Fv/sioxtAKbbKyRq5NVJtShvPal3dixjVuYVPQoVfe1qpzx5ehV/SV4=
+Message-ID: <5bdc1c8b0607191242v6c94a346s65febc8a0a27fbe@mail.gmail.com>
+Date: Wed, 19 Jul 2006 12:42:13 -0700
+From: "Mark Knecht" <markknecht@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
+Subject: BUG: scheduling while atomic: events/0/0x00000001/10
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Grzegorz Kulewski <kangur@polcom.net>,
-       Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
-       caleb@calebgray.com
-Subject: Re: Reiser4 Inclusion
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <20060717160618.013ea282.diegocg@gmail.com> <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net> <20060717155151.GD8276@merlin.emma.line.org> <Pine.LNX.4.61.0607180951480.16615@yvahk01.tjqt.qr> <20060718204718.GD18909@merlin.emma.line.org> <fake-message-id-1@fake-server.fake-domain> <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com>            <44BE50A0.9070107@imap.cc> <200607191904.k6JJ4cf0002159@turing-police.cc.vt.edu>
-In-Reply-To: <200607191904.k6JJ4cf0002159@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4C229C2DB2E5B307048F1AE3"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4C229C2DB2E5B307048F1AE3
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi Ingo,
+   I brought up the -rt kernel on my son's SIS-based machine and got
+this bug report in dmesg this morning. I've not seen this on previous
+standard kernels so I thought I might be of interest to you. Let me
+know what other sort of info you might want to have (if any) and I'll
+post it along.
 
-On 19.07.2006 21:04, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 19 Jul 2006 17:32:48 +0200, Tilman Schmidt said:
-> =20
->>Well, that doesn't make sense. You can't have your cake and eat it
->>too. Either you have out-of-tree code or you haven't. Documents
->>like stable_api_nonsense.txt explicitly discourage out-of-tree code,
->>which is formally equivalent to saying that all kernel code should
->>be in-tree. Therefore an attitude which says "go on developing that
->>code out-of-tree, it's not ready for inclusion yet" is in direct
->>contradiction with the foundations of the no-stable-API policy.
->=20
-> Which part of "read Documentation/SubmittingPatches.txt and do what it =
-says,
-> or it doesn't get into the kernel" do you have trouble understanding?
+   He has run other MUCH older -rt kernels, circa 2.6.9 or so. I'm
+assuming this is new because of the rt_mutex stuff.
 
-None. Why do you think I'd have? And what relevance does this have to
-the present discussion?
+   Networking is working since I'm writing this email on the same machine.
 
-> It isn't a case of "out of tree code or you haven't". There's actually
-> *three* major categories:
->=20
-> 1) Code that's already in-tree and maintained.  These guys don't need t=
-o
-> worry about the API, as it will usually get handled free of charge.
->=20
-> 2) Code that's out-of-tree, but a potential (after possible rework) can=
-didate
-> for submission (for instance, the hi-res timers, CKRM, some drivers, et=
-c).
-> These guys need to forward-port their code for API changes as they work=
+Cheers,
+Mark
 
-> towards getting their code into the tree.
->=20
-> 3) Code that's out-of-tree, but is so far out in left field that there'=
-s
-> no way it will ever go in.  For instance, that guy with the MVS JCL emu=
-lator
-> better not be holding his breath waiting.  And quite frankly, nobody el=
-se
-> really cares whether they forward port their code or not.
-
-Correct. And you could easily subdivide it further. Your point being?
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+Bank 1: d400400000000152
+MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Bank 2: d40040000000017a
+MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Bank 1: d400400000000152
+MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Bank 2: d40040000000017a
+BUG: scheduling while atomic: events/0/0x00000001/10
+ [<c03a97b1>] __schedule+0x591/0x730 (8)
+ [<c0133651>] __rt_mutex_adjust_prio+0x21/0x30 (56)
+ [<c03a9980>] schedule+0x30/0x110 (36)
+ [<c03aa7d3>] rt_lock_slowlock+0x93/0x1b0 (28)
+ [<c03ab0fe>] rt_lock+0x1e/0x20 (84)
+ [<c0160c0e>] kfree+0x1e/0x70 (4)
+ [<c0111e24>] __wake_up+0x44/0x70 (8)
+ [<d792d198>] free_send_packet+0x28/0x70 [ndiswrapper] (16)
+ [<d792d629>] sendpacket_done+0x79/0x160 [ndiswrapper] (28)
+ [<d79220ae>] NdisMSendComplete+0x1e/0x40 [ndiswrapper] (40)
+ [<c03a9599>] __schedule+0x379/0x730 (108)
+ [<d79215d1>] ndis_irq_bh+0xb1/0xe0 [ndiswrapper] (56)
+ [<c01293cb>] run_workqueue+0x6b/0x100 (20)
+ [<d7921520>] ndis_irq_bh+0x0/0xe0 [ndiswrapper] (24)
+ [<c01295b8>] worker_thread+0x158/0x180 (20)
+ [<c0111d40>] default_wake_function+0x0/0x30 (32)
+ [<c0111d40>] default_wake_function+0x0/0x30 (32)
+ [<c03a9980>] schedule+0x30/0x110 (12)
+ [<c0129460>] worker_thread+0x0/0x180 (24)
+ [<c012c716>] kthread+0xb6/0xf0 (4)
+ [<c012c660>] kthread+0x0/0xf0 (32)
+ [<c0101165>] kernel_thread_helper+0x5/0x10 (16)
+MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Bank 1: d400400000000152
+MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+Bank 2: d40040000000017a
 
 
---------------enig4C229C2DB2E5B307048F1AE3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+matt@christmas ~ $ uname -a
+Linux christmas 2.6.17-rt5 #2 PREEMPT Fri Jul 14 11:38:07 PDT 2006
+i686 AMD Athlon(tm) XP 20 00+ GNU/Linux
+matt@christmas ~ $
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEvoQcMdB4Whm86/kRAlU0AJ4n/rCVJkTz2HLtaU1qwDkNUho9pwCfYBBm
-AQXfZ/p6LnzXwxmnk9ss1Tw=
-=KLxL
------END PGP SIGNATURE-----
-
---------------enig4C229C2DB2E5B307048F1AE3--
+christmas ~ # lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 741/741GX/M741
+Host (rev 03)
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SiS AGP Port
+(virtual PCI-to-PCI bridge)00:02.0 ISA bridge: Silicon Integrated
+Systems [SiS] SiS964 [MuTIOL Media IO] (rev 36)
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 01)
+00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS]
+AC'97 Sound Controller (rev a0)
+00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0
+Controller (rev 0f)
+00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 Controller
+00:04.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+PCI Fast Ethernet (rev 91)
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL8180L
+802.11b MAC (rev 20)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+661/741/760/761 PCI/AGP VGA Display Adapter
+christmas ~ #

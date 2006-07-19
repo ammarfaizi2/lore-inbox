@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWGSPyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWGSPy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWGSPyD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 11:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWGSPyC
+	id S1030195AbWGSPy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 11:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWGSPy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 11:54:02 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:24243 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1030193AbWGSPyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 11:54:00 -0400
-Message-ID: <44BE5589.4070403@cmu.edu>
-Date: Wed, 19 Jul 2006 11:53:45 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Jeff Chua <jchua@fedex.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607190005.02351.rjw@sisk.pl> <44BE4FB7.5050108@cmu.edu> <200607191742.32609.rjw@sisk.pl>
-In-Reply-To: <200607191742.32609.rjw@sisk.pl>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jul 2006 11:54:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:58838 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030195AbWGSPyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 11:54:55 -0400
+Date: Wed, 19 Jul 2006 17:55:02 +0200
+From: Jan Kara <jack@suse.cz>
+To: James <20@madingley.org>
+Cc: Marcel Holtmann <marcel@holtmann.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, sct@redhat.com
+Subject: Re: Bad ext3/nfs DoS bug
+Message-ID: <20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk> <1153209318.26690.1.camel@localhost> <20060718145614.GA27788@circe.esc.cam.ac.uk> <1153236136.10006.5.camel@localhost> <20060718152341.GB27788@circe.esc.cam.ac.uk> <1153253907.21024.25.camel@localhost> <20060719092810.GA4347@circe.esc.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060719092810.GA4347@circe.esc.cam.ac.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, well on my second try suspending to disk and resuming, i'm getting a
-much different outcome... ls returns me resuls, however things are
-slightly off:
+> So what happens next? Is the ext3 maintainer on sabatical,
+> or am I expected to submit a patch to fix this?
+  I guess people are mostly busy with OLS and such so maybe they missed
+the discussion.. Giving CC to relevant people to catch their attention
+:)
+  Andrew, Stephen: James has come across a nasty bug (potentially remote
+DoS). NFS extracts inode number from a filehandle and the inode number
+eventually ends in ext3_read_inode(). Now if the inode number is bogus,
+ext3_get_inode_block() calls ext3_error() and filesystem is remounted
+RO or whatever else is configured. That is quite undesirable in this
+case.
+  Now the easy "fix" is to change ext3_error() to ext3_warning() but an
+attacker flooding your logs with warnings is probably not good either
+and in case the inode number comes from ext3 itself we should really do
+ext3_error() as there is some corruption in the fs.
+  Better fix would be to add a flag to read_inode() saying that the inode
+number is from untrusted source (but that means changing a prototype of a
+function every fs uses) and change export_iget() to pass this flag. Yet
+another solution would be to make ext3 implement its own get_dentry() export
+function and pass the flag internally...
+  What do you think is the best solution?
 
-x60s gnychis # ls
-ls: downloads: Permission denied
-ls: host_analysis: Permission denied
-ls: SouthPark: Permission denied
-ls: library: Permission denied
-ls: cmu_dump: Permission denied
-ls: emulator: Permission denied
-ls: paper-KanKat.pdf: Permission denied
-ls: quotes: Permission denied
-ls: school: Permission denied
-ls: cmu_dump2: Permission denied
-host_graphs  host_level  key  mp3  odigw_k_pinw.wma  out-5M  pops  song
- test.save  thesis_rwork  todo
-x60s gnychis # /etc/init.d/net.wlan0 restart
-mkdir: cannot create directory `/var/lib/init.d/snapshot/9985':
-Input/output error
-cp: target `/var/lib/init.d/snapshot/9985/' is not a directory: No such
-file or directory
- * Stopping wlan0
- *   Bringing down wlan0
-/lib/rcscripts/net.modules.d/ifconfig: line 139: /usr/bin/tac: cannot
-execute binary file
- *     Stopping dhcpcd on wlan0 ...
-                                   [ ok ]
- *     Shutting down wlan0 ...
-                                   [ ok ]
- * Starting wlan0
- *   Configuring wireless network for wlan0
- *     wlan0 connected to "SMC" at 00:04:E2:7D:D3:E3
- *     in managed mode (WEP enabled - open)
- *   Bringing up wlan0
- *     dhcp
- *       Running dhcpcd ...
-                                   [ ok ]
- *       wlan0 received address 192.168.2.101
-x60s gnychis # ping google.com
-bash: ping: command not found
+								Honza
 
-No clue :\
-
-Thanks!
-George
-
-
-Rafael J. Wysocki wrote:
-> On Wednesday 19 July 2006 17:28, George Nychis wrote:
->> Oh, and what should the default resume partition be (for
->> CONFIG_SOFTWARE_SUSPEND)? my root partition?
-> 
-> No, your swap partition, but you don't need to set it.
-> 
-> It can also be passed to the kernel with the resume= command line argument.
-> 
-> 
->> Rafael J. Wysocki wrote:
->>> On Tuesday 18 July 2006 17:26, George Nychis wrote:
->>>> acpid has been started, however there is no /sys/power/disk
->>> Have you set CONFIG_SOFTWARE_SUSPEND in .config?
->>>
->>> Rafael
->>>
-> 
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

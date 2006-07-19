@@ -1,94 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWGSJQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWGSJTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWGSJQC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 05:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWGSJQC
+	id S964774AbWGSJTu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 05:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWGSJTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 05:16:02 -0400
-Received: from 81-174-11-161.f5.ngi.it ([81.174.11.161]:41629 "EHLO
-	mail.enneenne.com") by vger.kernel.org with ESMTP id S964773AbWGSJQA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 05:16:00 -0400
-Date: Wed, 19 Jul 2006 11:16:00 +0200
-From: Rodolfo Giometti <giometti@linux.it>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mips@linux-mips.org
-Message-ID: <20060719091559.GD25330@enneenne.com>
+	Wed, 19 Jul 2006 05:19:50 -0400
+Received: from pih-relay05.plus.net ([212.159.14.132]:12756 "EHLO
+	pih-relay05.plus.net") by vger.kernel.org with ESMTP
+	id S964774AbWGSJTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 05:19:49 -0400
+Message-ID: <44BDF8F4.30908@mauve.plus.com>
+Date: Wed, 19 Jul 2006 10:18:44 +0100
+From: Ian Stirling <tandra@mauve.plus.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OaZoDhBhXzo6bW1J"
-Content-Disposition: inline
-Organization: GNU/Linux Device Drivers, Embedded Systems and Courses
-X-PGP-Key: gpg --keyserver keyserver.linux.it --recv-keys D25A5633
-User-Agent: Mutt/1.5.11+cvs20060403
-X-SA-Exim-Connect-IP: 192.168.32.1
-X-SA-Exim-Mail-From: giometti@enneenne.com
-Subject: [PATCH] no console disabling during suspend stage
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on mail.enneenne.com)
+To: Valdis.Kletnieks@vt.edu
+CC: yunfeng zhang <zyf.zeroos@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Improvement on memory subsystem
+References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com> <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
+In-Reply-To: <200607181218.k6ICIgeS027067@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 18 Jul 2006 18:03:54 +0800, yunfeng zhang said:
+> 
+> 
+>>2. Read-ahead process during page-in/out (page fault or swap out) should be
+>>based on its VMA to enhance IO efficiency instead of the relative physical pages
+>>in swap space.
+> 
+> 
+> But wouldn't that end up causing a seek storm, rather than handling the pages
+> in the order that minimizes the total seek distance, no matter where they are
+> in memory? Remember - if you have a 2Ghz processor, and a disk that seeks in 1
+> millisecond, every seek is (*very* roughly) about 2 million instructions.  So
+> if we can burn 20 thousand instructions finding a read order that eliminates
+> *one* seek, we're 1.98M instructions ahead.
 
---OaZoDhBhXzo6bW1J
-Content-Type: multipart/mixed; boundary="uXxzq0nDebZQVNAZ"
-Content-Disposition: inline
+To paraphrase shakespear - all the world is not a P4 - and all the swap 
+devices are not hard disks.
 
+For example - I've got a 486/33 laptop with 12M RAM that I sometimes use 
+, with swapping to a 128M PCMCIA RAM card that I got from somewhere.
 
---uXxzq0nDebZQVNAZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+20K instructions wasted on a device with no seek time is just annoying.
 
-Hello,
-
-here a little patch to avoid disabling console during suspend stage
-while we are debugging kernel.
-
-Ciao,
-
-Rodolfo
-
-Signed-off-by: Rodolfo Giometti <giometti@linux.it>
-
---=20
-
-GNU/Linux Solutions                  e-mail:    giometti@enneenne.com
-Linux Device Driver                             giometti@gnudd.com
-Embedded Systems                     		giometti@linux.it
-UNIX programming                     phone:     +39 349 2432127
-
---uXxzq0nDebZQVNAZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-no-console-disabling-on-kernel-debugging
-Content-Transfer-Encoding: quoted-printable
-
---- kernel/power/main.c	2006-07-19 10:54:11.000000000 +0200
-+++ kernel/power/main.c.new	2006-07-18 19:38:41.000000000 +0200
-@@ -86,7 +86,9 @@
- 			goto Thaw;
- 	}
-=20
-+#ifndef CONFIG_DEBUG_KERNEL
- 	suspend_console();
-+#endif
- 	if ((error =3D device_suspend(PMSG_SUSPEND))) {
- 		printk(KERN_ERR "Some devices failed to suspend\n");
- 		goto Finish;
-
---uXxzq0nDebZQVNAZ--
-
---OaZoDhBhXzo6bW1J
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFEvfhPQaTCYNJaVjMRArQ/AJ9kH8tD9+4Ns9dePH7itlofL9XqvACgk+ur
-ne26TtLGRWhHpAkSQBOmV64=
-=Wnji
------END PGP SIGNATURE-----
-
---OaZoDhBhXzo6bW1J--
+And on my main laptop - I have experimented with swap-over-wifi to a 
+large ramdisk on my server - which works quite well. (until the wifi 
+connection falls over).

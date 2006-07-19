@@ -1,103 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWGSVFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbWGSVJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWGSVFB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 17:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWGSVFB
+	id S1030313AbWGSVJT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 17:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWGSVJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 17:05:01 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:26253 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030312AbWGSVFA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 17:05:00 -0400
-Message-ID: <44BE9E78.3010409@garzik.org>
-Date: Wed, 19 Jul 2006 17:04:56 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: ricknu-0@student.ltu.se
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-In-Reply-To: <1153341500.44be983ca1407@portal.student.luth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 19 Jul 2006 17:09:19 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:12795 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1030313AbWGSVJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 17:09:18 -0400
+Date: Wed, 19 Jul 2006 23:09:14 +0200
+From: Torsten Landschoff <torsten@debian.org>
+To: Mattias Hedenskog <ml@magog.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS breakage in 2.6.18-rc1
+Message-ID: <20060719210913.GA1072@stargate.galaxy>
+References: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:d638a0eb9c9fbc21c426336ab6dfa19b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ricknu-0@student.ltu.se wrote:
-> A first step to a generic boolean-type. The patch just introduce the bool (in
 
-Since gcc supports boolean types and can optimize for such, introducing 
-bool is IMO a good thing.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Jul 19, 2006 at 04:17:50PM +0200, Mattias Hedenskog wrote:
+=20
+> reproducible in 2.6.17 and 2.6.18-rc1 as well. When I tried to repair
+> the fs I got the same error as in the previous post, running xfsprogs
+> 2.8.4. I haven't had the time to debug this issue further because the
+> box is quite critical but I'll keep an eye on the other disks on the
+> system still running xfs.
+=20
+I would not try running xfs_repair without cause as well. My /home did
+survive the XFS problems but I ran xfs_repair "just to be sure". Now the=20
+same problem on that partition, mostly unreadable. :( So, do not run=20
+xfs_repair without a cause ;-)
 
-> -Why would we want it?
-> -There is already some how are depending on a "boolean"-type (like NTFS). Also,
-> it will clearify functions who returns a boolean from one returning a value, ex:
-> bool it_is_ok();
-> char it_is_ok();
-> The first one is obvious what it is doing, the secound might return some sort of
-> status.
+For reference, I think it was xfsprogs 2.7.14 that I was using, the=20
+latest in Debian.
 
-A better reason is that there is intrinsic compiler support for booleans.
+FYI: Nothing important on /home, I think - I can not be sure since I
+backup only selectively since I do not have proper backup mediums :(
 
+Greetings
 
-> -Why false and not FALSE, why not "enum {...} bool"
-> -They are not #define(d) and shouldn't because it is a value, like 'a'. But
-> because it is just a value, then bool is just a variable and should be able to
-> handle 0 and 1 equally well.
-> 
-> Well, this is _my_ opinion, it may be totally wrong. If so, please tell me ;)
+	Torsten
 
-> Yes, I know about Andrew's try to unify TRUE and FALSE, did read the thread with
-> interest (that's from where I got to know about _Bool). But mostly (then still
-> on the subject) was some people did not want FALSE and TRUE instead of 0 and 1.
-> I look at it as: 'a' = 97, if someone like to write 97 instead of 'a', please do
-> if you find it easier to read. I, on the other hand, think it is easier with
-> 'a', false/FALSE, NULL, etc.
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-We should follow what C99 directs.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQFEvp95dQgHtVUb5EcRAteuAJ97SFqV62V+ybDeeQUJdrtsRoUNGwCfWyCe
+1qVe/LqzJ5Oi9NuSrgfBE1s=
+=Fckd
+-----END PGP SIGNATURE-----
 
-> diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
-> index 4b4b295..e35709a 100644
-> --- a/include/asm-i386/types.h
-> +++ b/include/asm-i386/types.h
-> @@ -10,6 +10,15 @@ typedef unsigned short umode_t;
->   * header files exported to user space
->   */
->  
-> +#if defined(__GNUC__) && __GNUC__ >= 3
-> +typedef _Bool bool;
-> +#else
-> +#warning You compiler doesn't seem to support boolean types, will set 'bool' as
-> an 'unsigned char'
-> +typedef unsigned char bool;
-> +#endif
-> +
-> +typedef bool u2;
-
-NAK.  gcc >= 3 is required by now, AFAIK.
-
-Also, you don't want to force 'unsigned char' on code, because often 
-code prefers a machine integer to something smaller than a machine integer.
-
-
-> diff --git a/include/linux/stddef.h b/include/linux/stddef.h
-> index b3a2cad..5e5c611 100644
-> --- a/include/linux/stddef.h
-> +++ b/include/linux/stddef.h
-> @@ -10,6 +10,8 @@ #else
->  #define NULL ((void *)0)
->  #endif
->  
-> +enum { false = 0, true = 1 } __attribute__((packed));
-
-How is 'packed' attribute useful here?
-
-	Jeff
-
-
+--Dxnq1zWXvFF0Q93v--

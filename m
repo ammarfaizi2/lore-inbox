@@ -1,57 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWGSJ1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbWGSJ20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWGSJ1U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 05:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWGSJ1U
+	id S932539AbWGSJ20 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 05:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWGSJ20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 05:27:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:63085 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932524AbWGSJ1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 05:27:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:reply-to:organization:user-agent:mime-version:to:subject:content-type:content-transfer-encoding:from;
-        b=dSQkPgA5bi0gaEP3oD+JJAExOFRE7KFOeQZuiWgbjAMJZpJOM5/ScPE6m/y90qkNGAV2as0KRxXC+Ykagm96gsfb4WhnqaM7CoUlF2r9guvMPRbefDUZsffr99CNTLeZ1QeaYjsWPbfQ04c3BikP2C6AYUFWXkicyPIlx+83RFc=
-Message-ID: <44BDFC64.607@innomedia.soft.net>
-Date: Wed, 19 Jul 2006 15:03:24 +0530
-Reply-To: chinmaya@innomedia.soft.net
-Organization: Innomedia Technologies Pvt. Ltd.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Gettin own IP address thorugh ioctl in kernel space.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-From: Chinmaya Mishra <chinmaya4@gmail.com>
+	Wed, 19 Jul 2006 05:28:26 -0400
+Received: from daleth.esc.cam.ac.uk ([131.111.64.59]:24077 "EHLO
+	aleph.esc.cam.ac.uk") by vger.kernel.org with ESMTP id S932539AbWGSJ2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 05:28:25 -0400
+Date: Wed, 19 Jul 2006 10:28:10 +0100
+From: James <20@madingley.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: James <20@madingley.org>, linux-kernel@vger.kernel.org
+Subject: Re: Bad ext3/nfs DoS bug
+Message-ID: <20060719092810.GA4347@circe.esc.cam.ac.uk>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk> <1153209318.26690.1.camel@localhost> <20060718145614.GA27788@circe.esc.cam.ac.uk> <1153236136.10006.5.camel@localhost> <20060718152341.GB27788@circe.esc.cam.ac.uk> <1153253907.21024.25.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153253907.21024.25.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-Mail-Author: fish
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+So what happens next? Is the ext3 maintainer on sabatical,
+or am I expected to submit a patch to fix this?
 
-Can you provide an example how to invoke ioctl on
-device in kernel module.
-
-For example. I want to find out the IP address of
-my eth0 and I want to make SIOCSIFADDR on it from 
-kernel module.
-
-
-At user space i am doing it like this.....
-
- unsigned long *ip;
- char *iface;
- int sockfd;
- struct ifreq ifr;
- strcpy(ifr.ifr_name, iface);	// interface name 'eth0'
- sockfd = socket(AF_INET,SOCK_DGRAM,0);
- ioctl(sockfd, SIOCGIFADDR, (char*)&ifr);
- memcpy(ip, &(ifr.ifr_addr.sa_data[2]),4); //Copy the ip addr
- close(sockfd);
-
-How to port this in keernel space.
-
-Thank you.
-Chinmaya
-
+J.
 

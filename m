@@ -1,158 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWGSPb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWGSPdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWGSPb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 11:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWGSPb6
+	id S1030184AbWGSPdP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 11:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWGSPdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 11:31:58 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:9957 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030183AbWGSPb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 11:31:56 -0400
-From: John Keller <jpk@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org, John Keller <jpk@sgi.com>
-Date: Wed, 19 Jul 2006 10:31:55 -0500
-Message-Id: <20060719153155.30856.2479.sendpatchset@attica.americas.sgi.com>
-Subject: [PATCH 1/1] - sgiioc4: fixup use of mmio ops
+	Wed, 19 Jul 2006 11:33:15 -0400
+Received: from posthamster.phnxsoft.com ([195.227.45.4]:57872 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S1030184AbWGSPdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 11:33:14 -0400
+Message-ID: <44BE50A0.9070107@imap.cc>
+Date: Wed, 19 Jul 2006 17:32:48 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
+X-Accept-Language: de, en, fr
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Grzegorz Kulewski <kangur@polcom.net>,
+       Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
+       caleb@calebgray.com
+Subject: Re: Reiser4 Inclusion
+References: <44BAFDB7.9050203@calebgray.com>	 <1153128374.3062.10.camel@laptopd505.fenrus.org>	 <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net>	 <20060717160618.013ea282.diegocg@gmail.com>	 <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net>	 <20060717155151.GD8276@merlin.emma.line.org>	 <Pine.LNX.4.61.0607180951480.16615@yvahk01.tjqt.qr>	 <20060718204718.GD18909@merlin.emma.line.org>	 <fake-message-id-1@fake-server.fake-domain> <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com>
+In-Reply-To: <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resend #2 changes include:
+Pekka Enberg wrote:
 
-- use 'void __iomem *' for ioremap() return values,
-  and handle error cases.
+> On 7/19/06, Tilman Schmidt <tilman@imap.cc> wrote:
+>> You can't have it both ways. Either you want everything in the main
+>> kernel tree or you don't. Of course there will always be a limbo of
+>> code waiting for inclusion. But if it has to linger there for too
+>> long (again: no matter for what reason) then it invalidates the
+>> whole concept of not having a stable API. And that would be a pity.
+> 
+> You seem to have this idea of everyone having some sacred right of
+> having their code either in the kernel or supported by the kernel
+> developers.
 
-sgiioc4.c had been recently converted to using mmio ops.
-There are still a few issues to cleanup.
+No, and seriously I cannot see how you could possibly get that
+impression from what I wrote.
 
-Signed-off-by: jpk@sgi.com
+> It is up to the maintainers to decide what's included and what's not.
 
+Ok. But then it's also up to them to stand by their decision and
+take the heat for it. Don't jump from your left foot to your right
+foot, saying "submit your code to the kernel" if someone wants to
+maintain something off-tree and "maintain it separately" if they
+try to submit it. State clearly: "We do not want Reiser4 in Linux"
+and defend it, instead of creating a string of ifs and then
+complaining that people go on about it.
 
-Index: linux-2.6/drivers/ide/pci/sgiioc4.c
-===================================================================
---- linux-2.6.orig/drivers/ide/pci/sgiioc4.c	2006-07-17 08:53:58.107664466 -0500
-+++ linux-2.6/drivers/ide/pci/sgiioc4.c	2006-07-17 09:03:40.402118344 -0500
-@@ -367,12 +367,13 @@ sgiioc4_INB(unsigned long port)
- static void __devinit
- ide_dma_sgiioc4(ide_hwif_t * hwif, unsigned long dma_base)
- {
-+	void __iomem *virt_dma_base;
- 	int num_ports = sizeof (ioc4_dma_regs_t);
- 
- 	printk(KERN_INFO "%s: BM-DMA at 0x%04lx-0x%04lx\n", hwif->name,
- 	       dma_base, dma_base + num_ports - 1);
- 
--	if (!request_region(dma_base, num_ports, hwif->name)) {
-+	if (!request_mem_region(dma_base, num_ports, hwif->name)) {
- 		printk(KERN_ERR
- 		       "%s(%s) -- ERROR, Addresses 0x%p to 0x%p "
- 		       "ALREADY in use\n",
-@@ -381,13 +382,21 @@ ide_dma_sgiioc4(ide_hwif_t * hwif, unsig
- 		goto dma_alloc_failure;
- 	}
- 
--	hwif->dma_base = dma_base;
-+	virt_dma_base = ioremap(dma_base, num_ports);
-+	if (virt_dma_base == NULL) {
-+		printk(KERN_ERR
-+		       "%s(%s) -- ERROR, Unable to map addresses 0x%lx to 0x%lx\n",
-+		       __FUNCTION__, hwif->name, dma_base, dma_base + num_ports - 1);
-+		goto dma_remap_failure;
-+	}
-+	hwif->dma_base = (unsigned long) virt_dma_base;
-+
- 	hwif->dmatable_cpu = pci_alloc_consistent(hwif->pci_dev,
- 					  IOC4_PRD_ENTRIES * IOC4_PRD_BYTES,
- 					  &hwif->dmatable_dma);
- 
- 	if (!hwif->dmatable_cpu)
--		goto dma_alloc_failure;
-+		goto dma_remap_failure;
- 
- 	hwif->sg_max_nents = IOC4_PRD_ENTRIES;
- 
-@@ -411,6 +420,9 @@ dma_base2alloc_failure:
- 	printk(KERN_INFO
- 	       "Changing from DMA to PIO mode for Drive %s\n", hwif->name);
- 
-+dma_remap_failure:
-+	release_mem_region(dma_base, num_ports);
-+
- dma_alloc_failure:
- 	/* Disable DMA because we couldnot allocate any DMA maps */
- 	hwif->autodma = 0;
-@@ -607,18 +619,15 @@ ide_init_sgiioc4(ide_hwif_t * hwif)
- 	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
- 	hwif->ide_dma_timeout = &__ide_dma_timeout;
- 
--	/*
--	 * The IOC4 uses MMIO rather than Port IO.
--	 * It also needs special workarounds for INB.
--	 */
--	default_hwif_mmiops(hwif);
- 	hwif->INB = &sgiioc4_INB;
- }
- 
- static int __devinit
- sgiioc4_ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t * d)
- {
--	unsigned long base, ctl, dma_base, irqport;
-+	unsigned long cmd_base, dma_base, irqport;
-+	unsigned long bar0, cmd_phys_base, ctl;
-+	void __iomem *virt_base;
- 	ide_hwif_t *hwif;
- 	int h;
- 
-@@ -636,23 +645,32 @@ sgiioc4_ide_setup_pci_device(struct pci_
- 	}
- 
- 	/*  Get the CmdBlk and CtrlBlk Base Registers */
--	base = pci_resource_start(dev, 0) + IOC4_CMD_OFFSET;
--	ctl = pci_resource_start(dev, 0) + IOC4_CTRL_OFFSET;
--	irqport = pci_resource_start(dev, 0) + IOC4_INTR_OFFSET;
-+	bar0 = pci_resource_start(dev, 0);
-+	virt_base = ioremap(bar0, pci_resource_len(dev, 0));
-+	if (virt_base == NULL) {
-+		printk(KERN_ERR "%s: Unable to remap BAR 0 address: 0x%lx\n",
-+			d->name, bar0);
-+		return -ENOMEM;
-+	}
-+	cmd_base = (unsigned long) virt_base + IOC4_CMD_OFFSET;
-+	ctl = (unsigned long) virt_base + IOC4_CTRL_OFFSET;
-+	irqport = (unsigned long) virt_base + IOC4_INTR_OFFSET;
- 	dma_base = pci_resource_start(dev, 0) + IOC4_DMA_OFFSET;
- 
--	if (!request_region(base, IOC4_CMD_CTL_BLK_SIZE, hwif->name)) {
-+	cmd_phys_base = bar0 + IOC4_CMD_OFFSET;
-+	if (!request_mem_region(cmd_phys_base, IOC4_CMD_CTL_BLK_SIZE,
-+	    hwif->name)) {
- 		printk(KERN_ERR
--			"%s : %s -- ERROR, Port Addresses "
-+			"%s : %s -- ERROR, Addresses "
- 			"0x%p to 0x%p ALREADY in use\n",
--		       __FUNCTION__, hwif->name, (void *) base,
--		       (void *) base + IOC4_CMD_CTL_BLK_SIZE);
-+		       __FUNCTION__, hwif->name, (void *) cmd_phys_base,
-+		       (void *) cmd_phys_base + IOC4_CMD_CTL_BLK_SIZE);
- 		return -ENOMEM;
- 	}
- 
--	if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
-+	if (hwif->io_ports[IDE_DATA_OFFSET] != cmd_base) {
- 		/* Initialize the IO registers */
--		sgiioc4_init_hwif_ports(&hwif->hw, base, ctl, irqport);
-+		sgiioc4_init_hwif_ports(&hwif->hw, cmd_base, ctl, irqport);
- 		memcpy(hwif->io_ports, hwif->hw.io_ports,
- 		       sizeof (hwif->io_ports));
- 		hwif->noprobe = !hwif->io_ports[IDE_DATA_OFFSET];
-@@ -665,6 +683,9 @@ sgiioc4_ide_setup_pci_device(struct pci_
- 	hwif->cds = (struct ide_pci_device_s *) d;
- 	hwif->gendev.parent = &dev->dev;/* setup proper ancestral information */
- 
-+	/* The IOC4 uses MMIO rather than Port IO. */
-+	default_hwif_mmiops(hwif);
-+
- 	/* Initializing chipset IRQ Registers */
- 	hwif->OUTL(0x03, irqport + IOC4_INTR_SET * 4);
- 
+> We obviously don't want _everything_ in the kernel anyway and don't
+> want to stagnate the kernel development because of out-of-tree code
+> either.
+
+Well, that doesn't make sense. You can't have your cake and eat it
+too. Either you have out-of-tree code or you haven't. Documents
+like stable_api_nonsense.txt explicitly discourage out-of-tree code,
+which is formally equivalent to saying that all kernel code should
+be in-tree. Therefore an attitude which says "go on developing that
+code out-of-tree, it's not ready for inclusion yet" is in direct
+contradiction with the foundations of the no-stable-API policy.
+
+> If you're unhappy about maintainer decisions, feel free to
+> complain to them
+
+Well, isn't that what the present thread is all about?
+
+> or better yet, step up to do the necessary legwork to
+> get the code included.
+
+That's completely beside the point. There are enough people already
+who are willing to do the legwork. The question is whether they and
+the kernel maintainers will be able to bridge their differences
+about how it should be done, and that would not be made easier by
+another party entering the arena.
+
+Seriously, what do you think would happen if I actually took the
+Reiser4 code, modified it according to what I think the kernel
+people would like to see, and submitted the result to lkml? I'll
+tell you what'd happen: I would get heat from both sides, I would
+be blamed both for perceived flaws in the original design and for
+any deviation from it, my motives would be questioned, I would be
+asked whether I'd commit to maintaining that code for the
+foreseeable future, and there would be no right answer to that
+question. No matter what I did, it would only make things worse.
+
+(Please note that the scenario above is completely fictitious. I am
+neither capable of, nor interested in, taking over the development
+of Reiser4 or promoting its admission into the kernel tree.)
+
+> After all, that's how Linux development works.
+
+Obviously there's more to it than that. There are people involved.
+
+HTH
+Tilman

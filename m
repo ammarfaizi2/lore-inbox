@@ -1,31 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWGSBmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWGSBxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbWGSBmi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 21:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWGSBmi
+	id S932459AbWGSBxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 21:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWGSBxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 21:42:38 -0400
-Received: from student.uhasselt.be ([193.190.2.1]:36869 "EHLO
-	student.uhasselt.be") by vger.kernel.org with ESMTP id S932457AbWGSBmi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 21:42:38 -0400
-Date: Wed, 19 Jul 2006 03:42:36 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Non-existing maintainer e-mail addresses
-Message-ID: <20060719014236.GA659@lumumba.uhasselt.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: takis@lumumba.uhasselt.be (Panagiotis Issaris)
+	Tue, 18 Jul 2006 21:53:41 -0400
+Received: from in.cluded.net ([195.159.98.120]:18565 "EHLO in.cluded.net")
+	by vger.kernel.org with ESMTP id S932459AbWGSBxk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 21:53:40 -0400
+Message-ID: <44BD8FB7.9080307@cluded.net>
+Date: Wed, 19 Jul 2006 01:49:43 +0000
+From: "Daniel K." <daniel@cluded.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060307 SeaMonkey/1.5a
+MIME-Version: 1.0
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+CC: linux-kernel@vger.kernel.org, linux-eata@i-connect.net
+Subject: Re: [PATCH 2/2] Forgotten memset
+References: <20060719013407.GG30823@lumumba.uhasselt.be>
+In-Reply-To: <20060719013407.GG30823@lumumba.uhasselt.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Panagiotis Issaris wrote:
+> --- a/drivers/scsi/ide-scsi.c
+> +++ b/drivers/scsi/ide-scsi.c
+> @@ -327,7 +327,7 @@ static int idescsi_check_condition(ide_d
+>  
+>  	/* stuff a sense request in front of our current request */
+>  	pc = kzalloc (sizeof (idescsi_pc_t), GFP_ATOMIC);
+> -	rq = kmalloc (sizeof (struct request), GFP_ATOMIC);
+> +	rq = kzalloc (sizeof (struct request), GFP_ATOMIC);
+>  	buf = kzalloc(SCSI_SENSE_BUFFERSIZE, GFP_ATOMIC);
+>  	if (pc == NULL || rq == NULL || buf == NULL) {
+>  		kfree(buf);
+>
+> Was this forgotten and therefore, is it necessary or useful to zero this
+> out?
 
-The e-mailaddress listed for the maintainer for the LAPB module (eis@baty.hanse.de)
-seems not to exist. Same for the e-mailaddress listed for the maintainer
-of the Cirrus Logic CS4280/CS461x sounddriver (twoller@crystal.cirrus.com).
+No, this code snippet is followed by a call to
 
-With friendly regards,
-Takis
+	ide_init_drive_cmd(rq)
+
+which calls memset()
+
+
+Daniel K.
+

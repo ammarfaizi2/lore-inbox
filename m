@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWG0C5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWG0C5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWG0C5q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 22:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932065AbWG0C5p
+	id S932065AbWG0C5s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 22:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWG0C5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 22:57:45 -0400
-Received: from mail.jambit.com ([62.245.207.83]:38376 "EHLO mail.jambit.com")
-	by vger.kernel.org with ESMTP id S932378AbWG0C5p (ORCPT
+	Wed, 26 Jul 2006 22:57:48 -0400
+Received: from mail.jambit.com ([62.245.207.83]:44008 "EHLO mail.jambit.com")
+	by vger.kernel.org with ESMTP id S932065AbWG0C5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 22:57:45 -0400
-Message-ID: <44BE5A07.9050706@gmx.net>
-Date: Wed, 19 Jul 2006 18:12:55 +0200
+	Wed, 26 Jul 2006 22:57:47 -0400
+Message-ID: <44BE5A04.6080106@gmx.net>
+Date: Wed, 19 Jul 2006 18:12:52 +0200
 From: Michael Kerrisk <mtk-manpages@gmx.net>
 User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
 To: lkml <linux-kernel@vger.kernel.org>
-Subject: man-pages-2.36 is released
+Subject: man-pages-2.35 is released
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,7 +23,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Gidday,
 
-I recently released man-pages-2.36, which can be found at the
+I recently released man-pages-2.35, which can be found at the
 location in the .sig.
 
 Changes in this release that may be of interest to readers
@@ -32,28 +32,16 @@ of this list include the following:
 New pages
 ---------
 
-No new pages in this release, but a few new files with meta-information:
-
-MAINTAINING
-    mtk
-        How to maintain man-pages.
-
-TODO
-    mtk
-        Things that it would be nice to get done for man-pages one day.
-
-scripts/FIXME_list.sh
-    mtk
-        This script, intended for use by manual page maintainers,
-        displays the FIXMEs in the manual page source files.
+sync_file_range.2
+   Andrew Morton / mtk
+      New page for sync_file_range(2), new in kernel 2.6.17.
 
 Changes to individual pages
 ---------------------------
 
-sendfile.2
-    mtk / Jens Axboe
-        Fix description of 'offset' argument to explain the case
-        where 'offset' is NULL.
+epoll_ctl.2
+    mtk / Davide Libenzi
+        Added EPOLLRDHUP description.
 
 ==========
 
@@ -99,13 +87,11 @@ about and I can't find someone to assist.
 Cheers,
 
 Michael
-
 -- 
 Michael Kerrisk
 maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
-
-Want to help with man page maintenance?  Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/,
+Want to help with man page maintenance?
+Grab the latest tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/,
 read the HOWTOHELP file and grep the source files for 'FIXME'.
 
 

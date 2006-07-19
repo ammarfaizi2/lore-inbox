@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWGSJIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWGSJO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWGSJIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 05:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWGSJIR
+	id S964772AbWGSJO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 05:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWGSJO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 05:08:17 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:44761 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964771AbWGSJIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 05:08:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=jOHkKsfIKp37oTXB0sKUxbG8/7PLvoAS27inMISseW1X/MfVhVGC7PtheTshlgW/zen4MyRw5ZrOb1KgFyUf+6h8ciUqxZIzUDLv2DqFWJekASHmMcvI2naTQSw1EWLbSA+j8DNdiumJ+/LCn7UxLONUfha2ixqPiRB9dS51VVY=
-Message-ID: <44BDF68D.9040104@gmail.com>
-Date: Wed, 19 Jul 2006 11:08:06 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Wed, 19 Jul 2006 05:14:27 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:28668 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S964772AbWGSJO0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 05:14:26 -0400
+Date: Wed, 19 Jul 2006 11:14:24 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Thomas Tuttle <thinkinginbinary@gmail.com>, richard.dent@nhs.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Vacation message heckling (Was: Re: Richard Dent - Annual Leave)
+Message-ID: <20060719091424.GK2131@harddisk-recovery.com>
+References: <20060718090604.BLR19599@ms03.swi.contact.secure-ops.net> <20060718132704.GA12930@phoenix> <9a8748490607181330q7b7be84i3ac324d9053a5fa4@mail.gmail.com> <Pine.LNX.4.61.0607190001320.9666@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nils Faerber <nils@kernelconcepts.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH] Watchdog: i8xx_tco remove pci_find_device
-References: <20060719002225.85BFC201A1@srebbe.iguana.be> <20060719061154.GA2438@infomag.infomag.iguana.be>
-In-Reply-To: <20060719061154.GA2438@infomag.infomag.iguana.be>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0607190001320.9666@yvahk01.tjqt.qr>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wim Van Sebroeck napsal(a):
-> Hi Jiri,
-
-Hi Wim.
-
+On Wed, Jul 19, 2006 at 12:04:26AM +0200, Jan Engelhardt wrote:
+> The following note spans every "welcome" mail for some lists I run...
 > 
-> Just back from a small holiday, but:
-> 
->> Watchdog: i8xx_tco remove pci_find_device.
->>
->> Use refcounting for pci device obtaining. Use PCI_DEVICE macro.
->>
->> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> 
-> Why the pci_dev_put's? We aren't registering the PCI devices. See
-> the comment above the MODULE_DEVICE_TABLE:
-> /*
->  * Data for PCI driver interface
->  *
->  * This data only exists for exporting the supported
->  * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
->  * register a pci_driver, because someone else might one day
->  * want to register another driver on the same PCI id.
->  */
+> "Please make sure, should you be away, that *NO* auto-response messages
+> (like "I'm out of office until ...") appear on the list. Failure to do
+> so will get you removed from the mailing list."
 
-Sure, but it's not registering, but telling the subsystem, we use the device, so
-that user can't hotunplug it since some driver uses it and reads and writes its
-registers. It's purpose of refcounting in pci_dev_{put,get}() (pci_dev_get is
-called in pci_get_device()).
+Same on the linux-arm-* mailing lists, see
+http://www.arm.linux.org.uk/mailinglists/etiquette.php#e11 .
 
-> Since the I/O controller Hub has several functions we explicitely
-> do not register the PCI device...
-> 
-> PS: In the -mm tree there is allready a replacement for this driver...
-> Plan is to get this one into linus tree soon.
+Silly disclaimers always claim that the email shouldn't be
+redistributed and that it is only for the "intended recipient". Because
+the lists are publically archived beyond our control, messages are
+redistributed. And with mailing lists, the "intended recipient" is very
+vague: it apparently is "linux-arm-kernel@lists.arm.linux.org.uk" cause
+that's what the "To:" header says, but OTOH it turns up in *my*
+mailbox.
 
-This patch is against 2.6.18-rc1-mm2. (Maybe you mean there are some patches
-coming to -rc2-mm1?)
+I usually protect people with such silly disclaimers against their own
+company policy by switching their list subscription to "moderated":
+they can still receive all messages from the list, but every message
+they send must be OK'ed by the list admins. That turns out to work very
+well: either they remove the disclaimer, or they use a webmail account
+instead.
 
-thanks,
+BTW: as an interesting side note: silly disclaimers are usually added
+by top posting people. How are they ever to notice the disclaimer with
+such a ridiculous reply style?
+
+
+Erik
+[linux-arm-*-owner #2]
+
 -- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

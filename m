@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWGSAaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWGSAbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWGSAaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 20:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWGSAai
+	id S932433AbWGSAbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 20:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWGSAbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 20:30:38 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:21444 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932426AbWGSAai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 20:30:38 -0400
-Date: Wed, 19 Jul 2006 02:29:59 +0200 (MEST)
-Message-Id: <200607190029.k6J0TxrV021572@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: mikpe@it.uu.se, sshtylyov@ru.mvista.com
-Subject: Re: libata pata_pdc2027x success on sparc64
-Cc: alan@redhat.com, albertcc@tw.ibm.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Tue, 18 Jul 2006 20:31:08 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:4756 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932432AbWGSAbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 20:31:07 -0400
+Date: Tue, 18 Jul 2006 20:25:37 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: show_registers(): try harder to print
+  failing code
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Andi Kleen" <ak@suse.de>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607182027_MC3-1-C55F-B4E8@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 22:07:44 +0400, Sergei Shtylyov wrote:
->> In contrast, the old IDE pdc202xx_new driver had lots
->> of problems with CRC errors causing it to disable DMA.
->
->    Hm, from my experience it usually falls back to UltraDMA/44 and then the 
->thing startrt working...
->
->> I wasn't able to manually tune it above udma3 without
->> getting more errors. This isn't sparc64-specific: I've
->> had similar negative experience with the old IDE Promise
->> drivers in a PowerMac.
->
->    This happens because the "old" driver misses the PLL calibration code.
->    You may want to try these Albert's patches:
->
->http://marc.theaimsgroup.com/?t=110992452800002&r=1&w=2
->http://marc.theaimsgroup.com/?t=110992471500002&r=1&w=2
->http://marc.theaimsgroup.com/?t=110992490100002&r=1&w=2
->http://marc.theaimsgroup.com/?t=111019238400003&r=1&w=2
->
->    It looks like they were never considered for accepting into the kernel
->while they succesfully solve this issue. Maybe Albert could try pushing them 
->into -mm tree once more?
+In-Reply-To: <9a8748490607181512t11e9970eu1a7aa1ad1644ec54@mail.gmail.com>
 
-Thank you for these links. After fixing up whitespace damage in
-these four messages the patches applied OK and more importantly
-eliminated _all_ misbehaviour from pdc202xx_new on both my sparc64
-and my PowerMac.
+On Wed, 19 Jul 2006 00:12:32 +0200, Jesper Juhl wrote:
+> 
+> > show_registers() tries to dump failing code starting 43 bytes
+> > before the offending instruction, but this address can be bad,
+> > for example in a device driver where the failing instruction is
+> > less than 43 bytes from the start of the driver's code.  When that
+> > happens, try to dump code starting at the failing instruction
+> > instead of printing no code at all.
+> >
+> Shouldn't the kernel be printing some info noting that this fallback
+> is in use then? Or will that be completely obvious and I'm just not
+> able to see that?
 
-These fixes belong in Linus' kernel, not some semi-obscure
-mailing list archive.
+The code byte at EIP is marked with '<>', so it's obvious:
 
-/Mikael
+Code: <a1> 00 00 00 00 c7 04 24 05 30 b5 de 89 44 24 04 e8 f5 6f 5c e1 c9 31 c0 c3 00 00 00 00 00 00 00
+
+-- 
+Chuck

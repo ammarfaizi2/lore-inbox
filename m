@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWGSAco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWGSAlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWGSAco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jul 2006 20:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWGSAcn
+	id S932436AbWGSAlW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jul 2006 20:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWGSAlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 20:32:43 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:690
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932435AbWGSAcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 20:32:42 -0400
-Date: Tue, 18 Jul 2006 17:33:03 -0700 (PDT)
-Message-Id: <20060718.173303.76566134.davem@davemloft.net>
-To: takis@lumumba.uhasselt.be
+	Tue, 18 Jul 2006 20:41:22 -0400
+Received: from wr-out-0506.google.com ([64.233.184.230]:26985 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932436AbWGSAlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 20:41:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=nkYebltF1tMGlri+JBfE4jc9QhF1xlqpmquoGliEGJcM7EOcavKyVIEGLoB1xrJKEbF1qBaadk9BOgNpp+6diRfHH953jTpqJBLVGJ8Ea8vdUxu56fwgZGfTq9c1C5iGn5YJjL/6l0PCltMNag1p2FjIVIPi661HjamA4Ra1Tbo=
+Subject: Re: kernel panic related to ReiserFS (v3)
+From: Chris Largret <largret@gmail.com>
+Reply-To: largret@gmail.com
+To: John Stoffel <john@stoffel.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: allyesconfig building problem
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060718235554.GA30193@lumumba.uhasselt.be>
-References: <20060718235554.GA30193@lumumba.uhasselt.be>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+In-Reply-To: <17596.57854.569394.880757@stoffel.org>
+References: <1153208388.8074.18.camel@localhost>
+	 <17596.57854.569394.880757@stoffel.org>
+Content-Type: text/plain
+Date: Tue, 18 Jul 2006 17:41:15 -0700
+Message-Id: <1153269675.9726.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.2 Dropline GNOME 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: takis@lumumba.uhasselt.be (Panagiotis Issaris)
-Date: Wed, 19 Jul 2006 01:55:54 +0200
+On Tue, 2006-07-18 at 09:28 -0400, John Stoffel wrote:
 
-> Hi,
+> Chris> Jul 17 23:42:49 localhost kernel: Modules linked in: usb_storage vmnet
+> Chris> parport_pc parport vmmon snd_pcm_oss snd_mixer_oss md5 ipv6 ipt_recent
+> Chris> ipt_REJECT xt_state iptable_filter nfs lockd nfs_acl sunrpc r8169
+> Chris> ohci1394 ieee1394 emu10k1_gp gameport snd_emu10k1 snd_rawmidi
+> Chris> snd_ac97_codec snd_ac97_bus snd_pcm snd_seq_device snd_timer
+> Chris> snd_page_alloc snd_util_mem snd_hwdep snd 8250_pci 8250 serial_core
+> Chris> tda9887 tuner cx8800 cx88xx video_buf ir_common tveeprom compat_ioctl32
+> Chris> v4l1_compat v4l2_common btcx_risc videodev nvidia forcedeth i2c_nforce2
+> Chris> pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core
+> Chris> Jul 17 23:42:49 localhost kernel: Pid: 7770, comm: firefox-bin Tainted:
+> Chris> P      2.6.16.16 #1
 > 
-> Trying to build Linux 2.6.18-rc2 (82d6897fefca6206bca7153805b4c5359ce97fc4)
-> with the allyesconfig configuration gives me the following error
-> message:
+> 
+> You've got a binary kernel module loaded here, please try to re-create
+> this crash without the nvidia module loaded.  We (hah!  Not me
+> actually... :-) can't debug this with such a module.
+> 
+> The key is the 'Tainted' flag.  
 
-Well known build failure, even posted earlier today, and is
-fixed int he net-2.6 GIT tree.
+Even though the back-trace doesn't touch the video drivers? I wish I
+could reproduce this easily. I have been using this kernel and firefox
+for several weeks, and this is the first time it has panic'd on me.
+
+Thanks, I'll see what I can do.
+
+--
+Chris Largret <http://www.largret.com>
+

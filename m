@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWGST4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWGST6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWGST4A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 15:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWGST4A
+	id S1030236AbWGST6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 15:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWGST6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 15:56:00 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:31422 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1030261AbWGST4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 15:56:00 -0400
-Message-ID: <44BE8D7C.8070107@cmu.edu>
-Date: Wed, 19 Jul 2006 15:52:28 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Jeff Chua <jchua@fedex.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607191742.32609.rjw@sisk.pl> <44BE5589.4070403@cmu.edu> <200607192102.17438.rjw@sisk.pl>
-In-Reply-To: <200607192102.17438.rjw@sisk.pl>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Jul 2006 15:58:50 -0400
+Received: from outmx014.isp.belgacom.be ([195.238.4.69]:23007 "EHLO
+	outmx014.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1030236AbWGST6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 15:58:49 -0400
+Date: Wed, 19 Jul 2006 21:58:37 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nils Faerber <nils@kernelconcepts.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH] Watchdog: i8xx_tco remove pci_find_device
+Message-ID: <20060719195837.GA2317@infomag.infomag.iguana.be>
+References: <20060719002225.85BFC201A1@srebbe.iguana.be> <20060719061154.GA2438@infomag.infomag.iguana.be> <44BDF68D.9040104@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44BDF68D.9040104@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see, so I guess I still have a disk problem after any type of suspend,
-has anyone gotten it to fully work with AHCI? any more suggestions?
+Hi Jiri,
 
-I greatly appreciate all the help.
+> > Why the pci_dev_put's? We aren't registering the PCI devices. See
+> > the comment above the MODULE_DEVICE_TABLE:
+> > /*
+> >  * Data for PCI driver interface
+> >  *
+> >  * This data only exists for exporting the supported
+> >  * PCI ids via MODULE_DEVICE_TABLE.  We do not actually
+> >  * register a pci_driver, because someone else might one day
+> >  * want to register another driver on the same PCI id.
+> >  */
+> 
+> Sure, but it's not registering, but telling the subsystem, we use the device, so
+> that user can't hotunplug it since some driver uses it and reads and writes its
+> registers. It's purpose of refcounting in pci_dev_{put,get}() (pci_dev_get is
+> called in pci_get_device()).
 
-- George
+I see now; it's the: 
+#define for_each_pci_dev(d) while ((d = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, d)) != NULL)
+that does this. Need to fix that in iTCO_wdt...
 
+> > Since the I/O controller Hub has several functions we explicitely
+> > do not register the PCI device...
+> > 
+> > PS: In the -mm tree there is allready a replacement for this driver...
+> > Plan is to get this one into linus tree soon.
+> 
+> This patch is against 2.6.18-rc1-mm2. (Maybe you mean there are some patches
+> coming to -rc2-mm1?)
 
-Rafael J. Wysocki wrote:
-> On Wednesday 19 July 2006 17:53, George Nychis wrote:
->> Ok, well on my second try suspending to disk and resuming, i'm getting a
->> much different outcome... ls returns me resuls, however things are
->> slightly off:
->>
->> x60s gnychis # ls
->> ls: downloads: Permission denied
->> ls: host_analysis: Permission denied
->> ls: SouthPark: Permission denied
->> ls: library: Permission denied
->> ls: cmu_dump: Permission denied
->> ls: emulator: Permission denied
->> ls: paper-KanKat.pdf: Permission denied
->> ls: quotes: Permission denied
->> ls: school: Permission denied
->> ls: cmu_dump2: Permission denied
->> host_graphs  host_level  key  mp3  odigw_k_pinw.wma  out-5M  pops  song
->>  test.save  thesis_rwork  todo
->> x60s gnychis # /etc/init.d/net.wlan0 restart
->> mkdir: cannot create directory `/var/lib/init.d/snapshot/9985':
->> Input/output error
->> cp: target `/var/lib/init.d/snapshot/9985/' is not a directory: No such
->> file or directory
->>  * Stopping wlan0
->>  *   Bringing down wlan0
->> /lib/rcscripts/net.modules.d/ifconfig: line 139: /usr/bin/tac: cannot
->> execute binary file
->>  *     Stopping dhcpcd on wlan0 ...
->>                                    [ ok ]
->>  *     Shutting down wlan0 ...
->>                                    [ ok ]
->>  * Starting wlan0
->>  *   Configuring wireless network for wlan0
->>  *     wlan0 connected to "SMC" at 00:04:E2:7D:D3:E3
->>  *     in managed mode (WEP enabled - open)
->>  *   Bringing up wlan0
->>  *     dhcp
->>  *       Running dhcpcd ...
->>                                    [ ok ]
->>  *       wlan0 received address 192.168.2.101
->> x60s gnychis # ping google.com
->> bash: ping: command not found
->>
->> No clue :\
-> 
-> I guess your disk doesn't wake up.
-> 
-> ls can give you some results from the cache.
-> 
-> Rafael
-> 
+Nope. iTCO_wdt is going to replace i8xx_tco after testing.
+
+Greetings,
+Wim.
+

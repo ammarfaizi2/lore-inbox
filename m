@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWGSORx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWGSO3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbWGSORx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 10:17:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWGSORw
+	id S964850AbWGSO3t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 10:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWGSO3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 10:17:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:19983 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964848AbWGSORw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 10:17:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=VuI8RjUH2oRUFBmnuSO0gWKMaKx2/0KNsGwWvG600kTOmdsfzMSevnEs9dV0Z4jLbAAaAeLvuZLPMR8ewhHdDJMWGY27WvyyJn2tk4anjM8RqE73fcw8qbTNQKIF7S0IgYedj3ExhXEdE6RGNPaLi6hjsANJzz5voFjP4UuonCY=
-Message-ID: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com>
-Date: Wed, 19 Jul 2006 16:17:50 +0200
-From: "Mattias Hedenskog" <ml@magog.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFS breakage in 2.6.18-rc1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: 809cfeefed20ab7c
+	Wed, 19 Jul 2006 10:29:49 -0400
+Received: from ctb-mesg5.saix.net ([196.25.240.75]:38637 "EHLO
+	ctb-mesg5.saix.net") by vger.kernel.org with ESMTP id S964850AbWGSO3t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 10:29:49 -0400
+Subject: Re: Linux v2.6.18-rc2 - syslog(0x8,,) seems broken
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
+References: <Pine.LNX.4.64.0607151523180.5623@g5.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jv2VFDra03Bzfr6PD7Eu"
+Date: Wed, 19 Jul 2006 16:32:02 +0200
+Message-Id: <1153319522.9722.6.camel@lycan.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That looks like the death knell of my /, which succumbed on Friday as
-> a result (I believe) of the corruption bug that was in 2.6.16/17.
-> Ironically enough, I also saw the problem during an aptitude upgrade.
 
-Hi all,
+--=-Jv2VFDra03Bzfr6PD7Eu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I just want to confirm this bug as well and unfortunately it was my
-system disk too who had to take the hit. Im running 2.6.16 and its
-reproducible in 2.6.17 and 2.6.18-rc1 as well. When I tried to repair
-the fs I got the same error as in the previous post, running xfsprogs
-2.8.4. I haven't had the time to debug this issue further because the
-box is quite critical but I'll keep an eye on the other disks on the
-system still running xfs.
+On Sat, 2006-07-15 at 15:27 -0700, Linus Torvalds wrote:
+> Ok, there it is, in all the usual places.
+>=20
+
+Currently using the latest git version, and it seems like 'dmesg -n
+1' (ie 'syslog(0x8, 0, 0x1)') is broken.  IE, kernel messages after
+initscripts and 'dmesg -n1' is called goes to console (mostly when newer
+udev does its coldplug thing).
+
+If nobody have a hunch what it can be, I'll try to track it later on if
+I get time.  It still worked shortly with -git checkouts shortly before
+2.6.18-rc1 was release.  Unfortunately I did not have time to test newer
+kernels until now.
+
 
 Regards,
-Mattias Hedenskog
+
+--=20
+Martin Schlemmer
+
+
+--=-Jv2VFDra03Bzfr6PD7Eu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+
+iD8DBQBEvkJiqburzKaJYLYRAoChAKCC0ouptpL4AdMBf1INc9NsEad5MQCdG3of
+DBPukwidLECCKzomp2MdOxE=
+=vDog
+-----END PGP SIGNATURE-----
+
+--=-Jv2VFDra03Bzfr6PD7Eu--
+

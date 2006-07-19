@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbWGSW7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWGSXBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030210AbWGSW7s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 18:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWGSW7s
+	id S932561AbWGSXBs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 19:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWGSXBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 18:59:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62404 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932561AbWGSW7r (ORCPT
+	Wed, 19 Jul 2006 19:01:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37829 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932561AbWGSXBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 18:59:47 -0400
-Date: Thu, 20 Jul 2006 08:59:04 +1000
+	Wed, 19 Jul 2006 19:01:47 -0400
+Date: Thu, 20 Jul 2006 09:01:09 +1000
 From: Nathan Scott <nathans@sgi.com>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+To: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+Cc: Mattias Hedenskog <ml@magog.se>, linux-kernel@vger.kernel.org,
        xfs@oss.sgi.com
 Subject: Re: XFS breakage in 2.6.18-rc1
-Message-ID: <20060720085904.E1947140@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost>
+Message-ID: <20060720090109.F1947140@wobbly.melbourne.sgi.com>
+References: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com> <44BE48D5.7020107@mnsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1153304468.3706.4.camel@localhost>; from lkml@metanurb.dk on Wed, Jul 19, 2006 at 12:21:08PM +0200
+In-Reply-To: <44BE48D5.7020107@mnsu.edu>; from jeffrey.hundstad@mnsu.edu on Wed, Jul 19, 2006 at 09:59:33AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 12:21:08PM +0200, Kasper Sandberg wrote:
-> On Wed, 2006-07-19 at 08:57 +1000, Nathan Scott wrote:
-> > On Wed, Jul 19, 2006 at 12:29:41AM +0200, Torsten Landschoff wrote:
-> > > Hi friends, 
-> > 
-> > Hi Torsten,
-> > 
-> > > I upgraded to 2.6.18-rc1 on sunday, with the following results (taken
-> > > from my /var/log/kern.log), which ultimately led me to reinstall my 
-> > > system:
-> > > 
-> > > Jul 17 07:33:53 pulsar kernel: xfs_da_do_buf: bno 16777216
-> > > Jul 17 07:33:53 pulsar kernel: dir: inode 54526538
-> > 
-> > I suspect you had some residual directory corruption from using the
-> > 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
-> > fixed in the latest -stable point release).
-> This has me very worried.
-> 
-> i just upgraded to .18-rc1-git5 when it came out, i used .17-rc3 before.
-> does this mean my .17-rc3 may have corrupted my filesystem?
-> 
-> what action do you suggest i do now?
+On Wed, Jul 19, 2006 at 09:59:33AM -0500, Jeffrey E. Hundstad wrote:
+> I did try the xfs_repair 2.8.4 for a volume running on 2.6.17.4 and it 
+> annihilated the volume.  This volume was not showing signs of crashing.  
+> So... I guess I would certainly not run xfs_repair unless there is good 
+> reason.
 
-The odds are decent that you're unaffected.  You can check your filesystem
-using xfs_check or xfs_repair -n and these will give you a good indication
-as to whether further action is required.
+Erm, wha..?  Can you expand on "annihilated" a bit?  (please send
+me the full xfs_repair output if you still have it).
 
-cheers.
+thanks.
 
 -- 
 Nathan

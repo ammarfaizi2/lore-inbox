@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWGSRUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWGSSYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWGSRUr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 13:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWGSRUr
+	id S932545AbWGSSYD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 14:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWGSSYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 13:20:47 -0400
-Received: from kurby.webscope.com ([204.141.84.54]:22714 "EHLO
-	kirby.webscope.com") by vger.kernel.org with ESMTP id S1030208AbWGSRUq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 13:20:46 -0400
-Message-ID: <44BE699A.5000106@linuxtv.org>
-Date: Wed, 19 Jul 2006 13:19:22 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Wed, 19 Jul 2006 14:24:03 -0400
+Received: from ptb-relay03.plus.net ([212.159.14.214]:2202 "EHLO
+	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
+	id S932545AbWGSSYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 14:24:02 -0400
+Message-ID: <44BE78C0.4020909@mauve.plus.com>
+Date: Wed, 19 Jul 2006 19:24:00 +0100
+From: Ian Stirling <ian.stirling@mauve.plus.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-CC: Alex Riesen <raa.lkml@gmail.com>, video4linux-list@redhat.com,
-       Martin.vGagern@gmx.net, linux-kernel <linux-kernel@vger.kernel.org>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>,
-       v4l-dvb-maintainer@linuxtv.org,
-       Alex Riesen <fork0@users.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [v4l-dvb-maintainer] Re: oops in bttv
-References: <20060711204940.GA11497@steel.home>	<1152962993.26522.18.camel@praia>	<81b0412b0607170634p298ab59p3c52b8c9c0cc7661@mail.gmail.com> <29495f1d0607191009r736ed327y797e69ac4915e1e7@mail.gmail.com>
-In-Reply-To: <29495f1d0607191009r736ed327y797e69ac4915e1e7@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Valdis.Kletnieks@vt.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Per-user swap devices.
+References: <44BE015E.5080107@mauve.plus.com> <200607191500.k6JF09EQ005021@turing-police.cc.vt.edu>
+In-Reply-To: <200607191500.k6JF09EQ005021@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nish Aravamudan wrote:
-> On 7/17/06, Alex Riesen <raa.lkml@gmail.com> wrote:
->> On 7/15/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
->> > > What I did was to call settings of the flashplayer and press on the
->> > > webcam symbol there. The system didn't crash, just this oops:
->> > >
->> > > BUG: unable to handle kernel NULL pointer dereference at virtual
->> address 0000006
->> > > 5
->> > Hmm... Are you using it on what machine? It might be related to an
->> > improper handling at compat32 module.
->>
->> 32bit. PIV, 2Gb, highmem on.
+Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 19 Jul 2006 10:54:38 BST, Ian Stirling said:
 > 
-> Is this the same bug as http://bugzilla.kernel.org/show_bug.cgi?id=6869?
+>>It would be really nice to be able to simply: chown crashalot.users 
+>>/dev/swap0 ;swapon /dev/swap0
+>>Then anything run by crashalot would swap to /dev/swap0 - and not locally.
 
-It LOOKS the same to me...  I have tried to reproduce this OOPS
-unsuccessfully, but it seems to be happening for many other users.
+> This doesn't look like it will do as much good as you think.  The problem
+> is what to do when something run by some *other* UID needs a page - you need
+> to fix the code to preferentially steal a page from a 'crashalot' process.
+> 
+> And at that point, what you probably want instead is a global per-UID RSS
+> limit.  This looks like a job for a CKRM resource class controller rather than
+> a hack to the swap code.
 
-I can't imagine why I am unable to reproduce it.
+Not quite.
+I've got one set of users that I care about their processes never dying
+root, ..., and another set that I don't.
 
-Hopefully Andrew will pull from Mauro's v4l-dvb.git for the new
-changesets before he releases the next -mm...
+I want them to contend for real RAM as normal - it's quite acceptible to 
+me for users in the second group to push root/...s web-proxy, screen 
+session, processes far into slow local swap. Most of these processes 
+will be not very interactive - but I don't want them to die.
 
-The sanity checking cleanups have already been pushed up there:
+If the fast (but unreliable) swap device dies - I'm quite happy for my 
+firefox and mplayer processes to die - but not my window manager or 
+whatever. RSS limits don't address this.
 
-http://www.kernel.org/git/?p=linux/kernel/git/mchehab/v4l-dvb.git;a=commitdiff;h=9c2f8a385c0bc40bf1f96edac32cc648d3a052fc;hp=0c445baf0daee379295adea8478278c0719e9c35
-
-You might notice a tragic flaw in the previous code...
-bttv_register_video was checking the return value on a void ...  Maybe
-we'll get some better debug output after this patch gets out.
-
-Cheers,
-
-Michael Krufky
-
+The only way I can think of to address this is to somehow segregate swap 
+devices.

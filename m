@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWGSUKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWGSURl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWGSUKT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 16:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWGSUKT
+	id S1030268AbWGSURl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 16:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWGSURl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 16:10:19 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:43906 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030267AbWGSUKR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 16:10:17 -0400
-Message-Id: <200607192009.k6JK9des004285@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Grzegorz Kulewski <kangur@polcom.net>,
-       Diego Calleja <diegocg@gmail.com>, arjan@infradead.org,
-       caleb@calebgray.com
-Subject: Re: Reiser4 Inclusion
-In-Reply-To: Your message of "Wed, 19 Jul 2006 21:12:21 +0200."
-             <44BE8415.2040907@imap.cc>
-From: Valdis.Kletnieks@vt.edu
-References: <44BAFDB7.9050203@calebgray.com> <1153128374.3062.10.camel@laptopd505.fenrus.org> <Pine.LNX.4.63.0607171242350.10427@alpha.polcom.net> <20060717160618.013ea282.diegocg@gmail.com> <Pine.LNX.4.63.0607171611080.10427@alpha.polcom.net> <20060717155151.GD8276@merlin.emma.line.org> <Pine.LNX.4.61.0607180951480.16615@yvahk01.tjqt.qr> <20060718204718.GD18909@merlin.emma.line.org> <fake-message-id-1@fake-server.fake-domain> <84144f020607190403y1a659c99oc795ae244390c2ee@mail.gmail.com> <44BE50A0.9070107@imap.cc> <200607191904.k6JJ4cf0002159@turing-police.cc.vt.edu>
-            <44BE8415.2040907@imap.cc>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153339779_2943P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 19 Jul 2006 16:17:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:38148 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030268AbWGSURk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 16:17:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ArusfFp9c0B4y9WxkZunsUxIS0/cGVGqecudwehdqjlAqdyZqVnOtqwzBhyCFvlDzEN78l2IyDFl5ZVU6/hEseUfAgxyqybk4t6r5DVLf+dAr5A133yPvUpPGM8sJxtPT5sVtg3z/8UQigNg5PlwSZ3OFHDuRRXQ20WVbGbxZLE=
+Message-ID: <d120d5000607191317k2e773af3ta5034a37db5ad97d@mail.gmail.com>
+Date: Wed, 19 Jul 2006 16:17:38 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>
+Subject: Re: Fwd: Using select in boolean dependents of a tristate symbol
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0607141115010.12900@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Jul 2006 16:09:39 -0400
+Content-Disposition: inline
+References: <d120d5000607131232i74dfdb9t1a132dfc5dd32bc4@mail.gmail.com>
+	 <d120d5000607131235r5cc9b558xfd04a1f3118d8124@mail.gmail.com>
+	 <Pine.LNX.4.64.0607140033030.12900@scrub.home>
+	 <200607132231.46776.dtor@insightbb.com>
+	 <Pine.LNX.4.64.0607141115010.12900@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153339779_2943P
-Content-Type: text/plain; charset=us-ascii
+On 7/14/06, Roman Zippel <zippel@linux-m68k.org> wrote:
+>
+> What you could do is to use "select INPUT_FF_MEMLESS if HID" to make it
+> visible that this dependency is actually for select.
+> This point is a little subtle and I'm not completely happy with it, maybe
+> I'm going to split this into two select variations - one which includes
+> all the dependencies and one which only uses the config symbol to select.
+>
 
-On Wed, 19 Jul 2006 21:12:21 +0200, Tilman Schmidt said:
-> On 19.07.2006 21:04, Valdis.Kletnieks@vt.edu wrote:
-> > Which part of "read Documentation/SubmittingPatches.txt and do what it says,
-> > or it doesn't get into the kernel" do you have trouble understanding?
-> 
-> None. Why do you think I'd have? And what relevance does this have to
-> the present discussion?
+Roman,
 
-So in other words, you're trying to tell us about what code should or
-shouldn't allow into the kernel when you don't have even a clue what's
-required on a purely technical level, or how the code gets into the kernel.
+Another question for you  - what is the best way to describe
+dependancy of a sub-option on a subsystem so you won't end up with the
+subsystem as a module and user built in. Something like
 
-> > It isn't a case of "out of tree code or you haven't". There's actually
-> > *three* major categories:
+config IBM_ASM
+        tristate "Device driver for IBM RSA service processor"
+        depends on X86 && PCI && EXPERIMENTAL
+...
+config IBM_ASM_INPUT
+        bool "Support for remote keyboard/mouse"
+        depends on IBM_ASM && (INPUT=y || INPUT=IMB_ASM)
 
-> Correct. And you could easily subdivide it further. Your point being?
+But the above feels yucky. Could we have something like:
 
-You're the one who was trying to paint it as a binary "either you have out of
-tree code or you don't", even though the actual situation is much more
-complicated.  You want to subdivide it even further, go right ahead. But the
-more you subdivide, the less binary it is....
+         depends on matching(INPUT, IBM_ASM)
 
+Thank you.
 
---==_Exmh_1153339779_2943P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEvpGDcC3lWbTT17ARAqotAKDCNEyy9HzFnuZBqGoblNsZAh0qtwCgigiC
-S0Iht5dQmfIT2wTcwbrVIRo=
-=mywZ
------END PGP SIGNATURE-----
-
---==_Exmh_1153339779_2943P--
+-- 
+Dmitry

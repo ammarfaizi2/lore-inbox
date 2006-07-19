@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWGSP3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWGSPbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWGSP3S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 11:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGSP3S
+	id S1030185AbWGSPbO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 11:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWGSPbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 11:29:18 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:58277 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964872AbWGSP3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 11:29:17 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: George Nychis <gnychis@cmu.edu>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-Date: Wed, 19 Jul 2006 17:28:44 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Chua <jchua@fedex.com>, lkml <linux-kernel@vger.kernel.org>
-References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607190005.02351.rjw@sisk.pl> <44BE4B33.6090009@cmu.edu>
-In-Reply-To: <44BE4B33.6090009@cmu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607191728.44158.rjw@sisk.pl>
+	Wed, 19 Jul 2006 11:31:14 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:26635 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030182AbWGSPbN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 11:31:13 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: davem@davemloft.net, ruben@puettmann.net (Ruben Puettmann)
+Subject: Re: 2.6.18-rc2 tg3  Dead loop on netdevice eth0 fix it urgently!
+Cc: sergio@sergiomb.no-ip.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Organization: Core
+In-Reply-To: <20060719110439.GJ23431@puettmann.net>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1G3E0V-0006e2-00@gondolin.me.apana.org.au>
+Date: Thu, 20 Jul 2006 01:30:39 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 July 2006 17:09, George Nychis wrote:
-> Okay, I was missing that, thanks
-> 
-> So, i suspended to disk the first time and it seemed to suspend
-> properly, then I hit the power button on the thinkpad and it took me to
-> the thinkpad screen, back to grub, and booted the OS from the beginning.
->  Did I resume the wrong way?
+Ruben Puettmann <ruben@puettmann.net> wrote:
+>
+> Yes But in the moment I thing  I have not enough informations.
 
-After suspend you have to boot _exactly_ the same kernel the suspend image
-has been created for.  Otherwise it won't read the image.
+Oops, it was a thinko on my part.
 
-Greetings,
-Rafael
+[NET]: Fix reversed error test in netif_tx_trylock
+
+A non-zero return value indicates success from spin_trylock,
+not error.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 76cc099..75f02d8 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -924,10 +924,10 @@ static inline void netif_tx_lock_bh(stru
+ 
+ static inline int netif_tx_trylock(struct net_device *dev)
+ {
+-	int err = spin_trylock(&dev->_xmit_lock);
+-	if (!err)
++	int ok = spin_trylock(&dev->_xmit_lock);
++	if (likely(ok))
+ 		dev->xmit_lock_owner = smp_processor_id();
+-	return err;
++	return ok;
+ }
+ 
+ static inline void netif_tx_unlock(struct net_device *dev)

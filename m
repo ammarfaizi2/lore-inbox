@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWGSICP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWGSIIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWGSICP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 04:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWGSICP
+	id S932471AbWGSIIE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 04:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWGSIIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 04:02:15 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:60559 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S932525AbWGSICO
+	Wed, 19 Jul 2006 04:08:04 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:6152 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S932471AbWGSIID
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 04:02:14 -0400
-Date: Wed, 19 Jul 2006 10:02:13 +0200
-From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Bill Ryder <bryder@wetafx.co.nz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x kernels
-Message-ID: <20060719080213.GA22925@janus>
-References: <44B32888.6050406@wetafx.co.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Jul 2006 04:08:03 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: XFS breakage in 2.6.18-rc1
+Date: Wed, 19 Jul 2006 09:08:30 +0100
+User-Agent: KMail/1.9.3
+Cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060719085731.C1935136@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44B32888.6050406@wetafx.co.nz>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+Message-Id: <200607190908.30727.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2006 at 04:26:48PM +1200, Bill Ryder wrote:
-> Hello all,
-> 
-> Setting the kernel config option of UNSORTED_SUPPLEMENTAL_GROUPLIST
-> will allow the use of setgroups(2) to reorder a supplemental
-> group list to work around the NFS AUTH_UNIX 16 group limit. 
+On Tuesday 18 July 2006 23:57, Nathan Scott wrote:
+[snip]
+> > of programs fail in mysterious ways. I tried to recover using xfs_repair
+> > but I feel that my partition is thorougly borked. Of course no data was
+> > lost due to backups but still I'd like this bug to be fixed ;-)
+>
+> 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
+> mkfs and restore?  Or at least get a full repair run?  If you did,
+> and you still see issues in .18-rc1, please let me know asap.
 
-FYI,
+Just out of interest, I've got a few XFS volumes that were created 24 months 
+ago on a machine that I upgraded to 2.6.17 about a month ago. I haven't seen 
+any crashes so far.
 
-This problem has been worked around for several years now using
-these 2.4.x and 2.6.x patches:
-
-	http://www.frankvm.com/nfs-ngroups/
-
+Assuming I get the newest XFS repair tools on there, what's the disadvantage 
+of repairing versus creating a new filesystem? What special circumstances are 
+required to cause a crash?
 
 -- 
-Frank
+Cheers,
+Alistair.
+
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

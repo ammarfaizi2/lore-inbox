@@ -1,70 +1,67 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWGRP6T (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 18 Jul 2006 11:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWGRP6R
+	id S932420AbWGSA1W (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 18 Jul 2006 20:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWGSA1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jul 2006 11:58:17 -0400
-Received: from smtp7.libero.it ([193.70.192.90]:55469 "EHLO smtp7.libero.it")
-	by vger.kernel.org with ESMTP id S1750799AbWGRP6Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jul 2006 11:58:16 -0400
-Date: Tue, 18 Jul 2006 17:58:12 +0200
-Message-Id: <J2LWD0$10A6F4AE3E2FA352F59EEEABCBC97028@libero.it>
-Subject: =?iso-8859-1?b?IMAgVk9UUkUgQVRURU5USU9OIFNWUA==?=
+	Tue, 18 Jul 2006 20:27:22 -0400
+Received: from atacama.ehess.fr ([193.48.45.1]:37288 "EHLO atacama.ehess.fr")
+	by vger.kernel.org with ESMTP id S932420AbWGSA1V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jul 2006 20:27:21 -0400
+Message-Id: <200607190027.k6J0RFXh018393@atacama.ehess.fr>
+From: j-chkmail.atacama@ehess.fr
+To: anne@lscp.ehess.fr
+Subject: [NOTIFICATION DE NON REMISE DE MAIL]
+Date: Wed, 19 Jul 2006 09:27:17 +0900
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-From: "ah_tr19" <ah_tr19@libero.it>
-To: "ah_tr19" <ah_tr19@libero.it>
-X-XaM3-API-Version: 4.3 (R1) (B3pl17)
-X-SenderIP: 196.201.74.192
-X-Scanned: with antispam and antivirus automated system at libero.it
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-Miltered: at atacama with ID 44BD7C63.000 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750799AbWGRP6T@vger.kernel.org>
-
-AHMED TRAORE,
-COTE D=92IVOIRE.
-                     Objet : Demande d=92aide.
-=20
-Cher Ami,
-=20
-      Je suis Ahmed Traore le fils unique du d=E9funt Lt. Gen. Ibrahim =
-Traore de Cote d=92Ivoire. Je dois admettre mon agitation est vrai dans=
- cette demande. Je souhaite obtenir une r=E9ponse appr=E9ciable a cette=
- demande chers amis du monde entier, puisque cet =E9mail vient a vous s=
-ans votre consentement, Je parle a ma faveur mais avec peu de moyen de =
-communication, laissez-vous absorber par mon intention.
-=20
-     Au cas ou vous d=E9cideriez de m=92aider apr=E8s consid=E9ration, =
-Je vous donnerez des d=E9tailles. Notons que des conditions particulier=
-s seront exig=E9es de vous pour garantie votre confiance recherch=E9e. =
-Ceci est =E9value d=92un montant de 15 millions de dollars Am=E9ricain.=
- ( 15 Million US$ ).Des d=E9tails de cette transaction seront donnes qu=
-and vous serez convaincu que vous pouvez faire ces affaires avec moi.
-=20
-    J=92appr=E9cierai votre aide et un investissement profitable vous d=
-evez regardez et contr=F4ler pour moi mon h=E9ritage jusqu a ce que Je =
-soit age de 30 ans. Vous aurez 20% de commission sur cet argent vous se=
-rez d=E9signe vers mon mandataire au temps opportun. Je compte sur vous=
- pour comprendre et coop=E9rer avec moi.
-=20
-  Merci et que Dieu vous b=E9nissent, Je vous prie d=92agr=E9er l=92exp=
-ression de mes salutation distingu=E9es,
-=20
-Ahmed Traore.      =20
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932420AbWGSA1W@vger.kernel.org>
 
 
-___________________________________________________________________
-Dimagrire in 30 giorni con New Giorno & Notte! Garanzia 100% Soddisfatt=
-i o Rimborsati!=20
-http://click.libero.it/diete
+Ce message a été vérifié par le système de filtrage de notre
+serveur de messagerie.
+(This message was verified by the filtering system of our mail
+server.)
+
+Le message original a été remplacé par celui-ci pour la raison 
+suivante :
+(Original message was replaced by this one by the following
+reason )
+
+*** A suspicious file (executable code) was found in the message !
+
+Le message original est accompagné du fichier attaché
+suivant :
+(Original message had the following attached files )
+
+  **** (SUSPECT    ) : readme.scr
+        TYPE         : application/octet-stream
+
+Il a été envoyé par :
+(Original message was sent by )
+
+  **** From : <linux-kernel@vger.kernel.org>
+
+Si vous pensez que c'est une erreur et que le message ne
+devrait pas être rejeté, vous devez contacter votre administrateur
+système pour obtenir des instructions :
+(If you think this is an error and the message should not
+be rejected by the filtering system, you may contact you
+system administrator for instructions.)
+
+Pour toute question, vous pouvez nous contacter :
+(If you have any questions, you can contact us )
+
+  postmaster@ehess.fr
+
+Cordialement.
+(Sincerely,)
+
+  postmaster@ehess.fr
 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

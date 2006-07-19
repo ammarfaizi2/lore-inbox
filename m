@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWGSEFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWGSEL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWGSEFb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 00:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWGSEFb
+	id S932494AbWGSEL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 00:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWGSEL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 00:05:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10477 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932472AbWGSEFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 00:05:31 -0400
-Date: Tue, 18 Jul 2006 21:04:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Gary Funck" <gary@intrepid.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.17-1.2145_FC5 mmap-related soft lockup
-Message-Id: <20060718210458.45f9460e.akpm@osdl.org>
-In-Reply-To: <200607190225.k6J2PGAq004975@intrepid.intrepid.com>
-References: <20060715221942.9f1543ca.akpm@osdl.org>
-	<200607190225.k6J2PGAq004975@intrepid.intrepid.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+	Wed, 19 Jul 2006 00:11:26 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15328
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932489AbWGSELZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 00:11:25 -0400
+Date: Tue, 18 Jul 2006 21:11:49 -0700 (PDT)
+Message-Id: <20060718.211149.132925536.davem@davemloft.net>
+To: takis@lumumba.uhasselt.be
+Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br,
+       patrick@tykepenguin.com, per.liden@ericsson.com, mitch@sfgoth.com,
+       samuel@sortiz.org, eis@baty.hanse.de, ralf@linux-mips.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] net: Conversions from kmalloc+memset to k(z|c)alloc.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060719010343.GC30823@lumumba.uhasselt.be>
+References: <20060719010343.GC30823@lumumba.uhasselt.be>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jul 2006 19:25:16 -0700
-"Gary Funck" <gary@intrepid.com> wrote:
+From: takis@lumumba.uhasselt.be (Panagiotis Issaris)
+Date: Wed, 19 Jul 2006 03:03:43 +0200
 
+> From: Panagiotis Issaris <takis@issaris.org>
 > 
-> > 
-> > Are you able to confirm that setting CONFIG_DEBUG_SPINLOCK=n fixes it?
-> > 
-> > And are you able to get us a copy of that test app?
+> net: Conversions from kmalloc+memset to kzalloc.
 > 
-> Yes, I just ran the test with 2.6.17.6.  With CONFIG_DEBUG_SPINLOCK=y
-> the test fails and the soft lockup situation often results.
-> However, when built with CONFIG_DEBUG_SPINLOCK=n, the test passes,
-> and runs rather quickly in comparison to when it fails.
-> 
-> I've attached a slightly updated version of the test case.
-> It is a little more carefully crafted and prints some
-> output so that you have some idea that it is working.
-> 
+> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-That's great, thanks.  That pretty much confirms that this long-standing
-box-killing rwlock starvation bug is specific to Opterons.  Neither Ingo
-nor I have Opteron machines so a fix will take a little longer than one
-would expect.
+Applied, thanks a lot.
 
-Meanwhile, an appropriate workaround is to disable CONFIG_DEBUG_SPINLOCK.
+One of the ieee80211 cases is even a bug fix because it
+was memset()'ing without checking if kmalloc() returned
+NULL.

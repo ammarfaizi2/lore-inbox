@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWGSXKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWGSXMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbWGSXKY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 19:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWGSXKY
+	id S1030220AbWGSXMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 19:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWGSXMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 19:10:24 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20615 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932563AbWGSXKV (ORCPT
+	Wed, 19 Jul 2006 19:12:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27812 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932564AbWGSXMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 19:10:21 -0400
-Date: Thu, 20 Jul 2006 01:04:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: scheduling while atomic: events/0/0x00000001/10
-Message-ID: <20060719230437.GA16785@elte.hu>
-References: <5bdc1c8b0607191242v6c94a346s65febc8a0a27fbe@mail.gmail.com>
+	Wed, 19 Jul 2006 19:12:08 -0400
+Subject: Re: [RFC: -mm patch] fs/dlm/lock.c: unexport dlm_lvb_operations
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       cluster-devel@redhat.com
+In-Reply-To: <20060715003631.GM3633@stusta.de>
+References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	 <20060715003631.GM3633@stusta.de>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Thu, 20 Jul 2006 00:27:30 +0100
+Message-Id: <1153351651.3604.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5bdc1c8b0607191242v6c94a346s65febc8a0a27fbe@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Mark Knecht <markknecht@gmail.com> wrote:
+Thanks for the patch. Its now applied to the gfs2 git tree,
 
-> Hi Ingo,
->   I brought up the -rt kernel on my son's SIS-based machine and got 
-> this bug report in dmesg this morning. I've not seen this on previous 
-> standard kernels so I thought I might be of interest to you. Let me 
-> know what other sort of info you might want to have (if any) and I'll 
-> post it along.
+Steve.
 
-> [<d792d629>] sendpacket_done+0x79/0x160 [ndiswrapper] (28)
-> [<d79220ae>] NdisMSendComplete+0x1e/0x40 [ndiswrapper] (40)
+On Sat, 2006-07-15 at 02:36 +0200, Adrian Bunk wrote:
+> On Thu, Jul 13, 2006 at 10:48:00PM -0700, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.18-rc1-mm1:
+> >...
+> >  git-gfs2.patch
+> >...
+> >  git trees.
+> >...
+> 
+> This patch removes the unused EXPORT_SYMBOL_GPL(dlm_lvb_operations).
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.18-rc1-mm2-full/fs/dlm/lock.c.old	2006-07-15 00:39:11.000000000 +0200
+> +++ linux-2.6.18-rc1-mm2-full/fs/dlm/lock.c	2006-07-15 00:39:17.000000000 +0200
+> @@ -128,7 +128,6 @@
+>          {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
+>          {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
+>  };
+> -EXPORT_SYMBOL_GPL(dlm_lvb_operations);
+>  
+>  #define modes_compat(gr, rq) \
+>  	__dlm_compat_matrix[(gr)->lkb_grmode + 1][(rq)->lkb_rqmode + 1]
+> 
 
-ndiswrapper ... is it inevitable on that box? Has it been recompiled for 
--rt? Maybe it does things like disable_preempt() that are not rt-safe.
-
-	Ingo

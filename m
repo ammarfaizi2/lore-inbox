@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWGSXKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWGSXKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWGSXKA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 19:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWGSXKA
+	id S932563AbWGSXKY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 19:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWGSXKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 19:10:00 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5062 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932563AbWGSXJ7 (ORCPT
+	Wed, 19 Jul 2006 19:10:24 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20615 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932563AbWGSXKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 19:09:59 -0400
-Date: Thu, 20 Jul 2006 09:09:45 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Torsten Landschoff <torsten@debian.org>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS breakage in 2.6.18-rc1
-Message-ID: <20060720090945.G1947140@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <20060719211402.GA1133@stargate.galaxy>
+	Wed, 19 Jul 2006 19:10:21 -0400
+Date: Thu, 20 Jul 2006 01:04:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG: scheduling while atomic: events/0/0x00000001/10
+Message-ID: <20060719230437.GA16785@elte.hu>
+References: <5bdc1c8b0607191242v6c94a346s65febc8a0a27fbe@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060719211402.GA1133@stargate.galaxy>; from torsten@debian.org on Wed, Jul 19, 2006 at 11:14:02PM +0200
+In-Reply-To: <5bdc1c8b0607191242v6c94a346s65febc8a0a27fbe@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -3.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 11:14:02PM +0200, Torsten Landschoff wrote:
-> On Wed, Jul 19, 2006 at 08:57:31AM +1000, Nathan Scott wrote:
-> > I suspect you had some residual directory corruption from using the
-> > 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
-> > fixed in the latest -stable point release).
-> 
-> That probably the cause of my problem. Thanks for the info!
-> 
-> BTW: I think there was nothing important on the broken filesystems, but
-> I'd like to keep what's still there anyway just in case... How would you
-> suggest should I copy that data? I fear, just mounting and using cp 
-> might break and shutdown the FS again, would xfsdump be more
-> appropriate?
 
-Yeah, xfsdumps not a bad idea, the interfaces it uses may well
-be able to avoid the cases that trigger shutdown.  Otherwise it
-is a case of identifying the problem directory inode (the inum
-is reported in the shutdown trace) and avoiding that path when
-cp'ing - you can match inum to path via xfs_ncheck.
+* Mark Knecht <markknecht@gmail.com> wrote:
 
-> Thanks for XFS, I am using it for years in production servers!
+> Hi Ingo,
+>   I brought up the -rt kernel on my son's SIS-based machine and got 
+> this bug report in dmesg this morning. I've not seen this on previous 
+> standard kernels so I thought I might be of interest to you. Let me 
+> know what other sort of info you might want to have (if any) and I'll 
+> post it along.
 
-Thanks for the kind words, they're much appreciated at times
-like these. :-]
+> [<d792d629>] sendpacket_done+0x79/0x160 [ndiswrapper] (28)
+> [<d79220ae>] NdisMSendComplete+0x1e/0x40 [ndiswrapper] (40)
 
-cheers.
+ndiswrapper ... is it inevitable on that box? Has it been recompiled for 
+-rt? Maybe it does things like disable_preempt() that are not rt-safe.
 
--- 
-Nathan
+	Ingo

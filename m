@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWGSNep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWGSNsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWGSNep (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 09:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWGSNep
+	id S964816AbWGSNsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 09:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWGSNsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 09:34:45 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:20977 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964815AbWGSNeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 09:34:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lHr6LUZPM0RJQVVWjGrHherYnGZ1OM6ypbCr/zguL/5YiAQWZF3AInGApdiScMI7UpkEXpsUg4kHUoN9ITPLs6p9PUNlHs/QMbLHmodSUkKvucL5fRAtGNI543vVsI1AQhD/f1Es4psnudMMAG+sbMAFl4w/usRdykfMHHhvl9Q=
-Message-ID: <4745278c0607190634l3ab43bb7t3d2a7b80c22d44c4@mail.gmail.com>
-Date: Wed, 19 Jul 2006 09:34:43 -0400
-From: "Vishal Patil" <vishpat@gmail.com>
-To: "Anton Altaparmakov" <aia21@cam.ac.uk>
-Subject: Re: Generic B-tree implementation
-Cc: "Gary Funck" <gary@intrepid.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1153294394.13071.3.camel@imp.csi.cam.ac.uk>
+	Wed, 19 Jul 2006 09:48:15 -0400
+Received: from mail-ale01.alestra.net.mx ([207.248.224.149]:59126 "EHLO
+	mail-ale01.alestra.net.mx") by vger.kernel.org with ESMTP
+	id S964816AbWGSNsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 09:48:15 -0400
+Message-ID: <44BE37E8.2040706@att.net.mx>
+Date: Wed, 19 Jul 2006 08:47:20 -0500
+From: Hugo Vanwoerkom <rociobarroso@att.net.mx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: ocilent1 <ocilent1@gmail.com>, Lee Revell <rlrevell@joe-job.com>,
+       Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
+       linux list <linux-kernel@vger.kernel.org>, dsd@gentoo.org
+Subject: Re: sound skips on 2.6.16.17
+References: <200606181204.29626.ocilent1@gmail.com> <1152289985.4736.86.camel@mindpipe> <20060707170045.GA23243@tuatara.stupidest.org> <200607191403.26174.ocilent1@gmail.com> <20060719063344.GA1677@tuatara.stupidest.org>
+In-Reply-To: <20060719063344.GA1677@tuatara.stupidest.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4745278c0607180630m39040ad7neac25c1a64399aff@mail.gmail.com>
-	 <JCEPIPKHCJGDMPOHDOIGCELEDFAA.gary@intrepid.com>
-	 <4745278c0607180822u55ffe5b4g333e2e6457b37d02@mail.gmail.com>
-	 <1153294394.13071.3.camel@imp.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can get rid of recursions using loops, will need to work a little more on it.
+Chris Wedgwood wrote:
+> On Wed, Jul 19, 2006 at 02:03:25PM +0800, ocilent1 wrote:
+>
+>   
+>> Hows progress on this bug? Don't suppose we have got an official fix
+>> for this somewhere on the horizon?
+>>     
+>
+> Daniel Drake posted this recently, I've not had a chance to look over
+> it in detail but it's probably the best tested suggestion thus far.
+>
+> Does it work for you?
+>
+>
+>   
+<snip>
 
-Also I will be working on developing a patch for VM management using
-B-trees instead of RB-trees.
+I tried that on 2.6.17-ck1 with good results:
 
-- Vishal
+...
+patching file drivers/pci/quirks.c
+Hunk #1 succeeded at 638 (offset -10 lines).
+Hunk #2 succeeded at 678 (offset -10 lines).
+...
 
-On 7/19/06, Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> On Tue, 2006-07-18 at 11:22 -0400, Vishal Patil wrote:
-> > B-trees are good for parellel updates as well. Anyway it would be
-> > great to have inputs from other folks about how B-trees could help
-> > inside the kernel (if at all)
->
-> B-trees are mostly used in file systems in the kernel.  For example NTFS
-> and HFS (and I think HPFS) use B-trees for various metadata like
-> directory indexes for example.
->
-> But of course your implementation is purely userspace and cannot be used
-> in the kernel (you use recursion for example...) so I am not sure how
-> you envisage to help the kernel with your code...
->
-> Best regards,
->
->         Anton
-> --
-> Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-> Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-> Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-> WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
->
->
+Regards,
 
-
--- 
-Motivation will almost always beat mere talent.
+Hugo

@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWGTSc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWGTSkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbWGTSc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 14:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWGTSc0
+	id S1750890AbWGTSkO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 14:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWGTSkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 14:32:26 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56023 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750861AbWGTSc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 14:32:26 -0400
-Subject: Re: XFS Raid on Apple PowerMac G5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ludovic RESLINGER <lr@cuivres.net>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060720112923.GD21541@bach>
-References: <20060720100313.GC21541@bach>
-	 <Pine.LNX.4.61.0607201255520.2633@yvahk01.tjqt.qr>
-	 <20060720112923.GD21541@bach>
-Content-Type: text/plain
-Date: Thu, 20 Jul 2006 14:31:57 -0400
-Message-Id: <1153420317.16159.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 20 Jul 2006 14:40:14 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:5746 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750890AbWGTSkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 14:40:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
+        b=Kxd4DQMIwJEP3N8WdGfcvIkFbAJUD/Fdb1AYmKgbs8xX0m1FgTUa7ND6LkpHgU7SJ+1AiyHDYWzTUUHkcMCrGp1u0TrWgyke0Nvrz/D4+IVlXvTBSwvlzXtFnibkVzy+LaMeLBCeoN2xQbgIC9XH7sFgHYYU/OCgZYdliYyZk90=
+Message-ID: <fc94aae90607201140m6d50b8d0qa547a93e14babb66@mail.gmail.com>
+Date: Thu, 20 Jul 2006 19:40:12 +0100
+From: "Michael Lothian" <mike@fireburn.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Status of the T-Mobile 3G PCMCIA Card
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-Google-Sender-Auth: da8ebf40e9868494
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-> I don't know if it is a XFS-specific problem, I might test with another
-> files system.
-> In fact, I think this is a problem of RAID with Apple Partition Map.
+I've recently subscribed to T-Mobile's 3G service for my laptop. I
+found v little info on the card but heard a few success stories with
+the Vodafone card with Linux.
 
-I remember reading something about it a while ago... can't remember the
-details but I think it was possible. At worst, an option is to use a
-different partition map and boot the kernel from a USB stick :)
+Upon getting the card I've not realised my mistake and it appears that
+it isn't as simple as I'd hoped.
 
-Ben.
+Has anyone had any success with this card at all?
 
+The lspci out put is:
 
+04:00.2 Network controller: Option N.V. Qualcomm MSM6275 UMTS chip
+        Flags: medium devsel, IRQ 17
+        Memory at 52040000 (32-bit, non-prefetchable) [disabled] [size=2K]
+04:00.2 0280: 1931:000c
+
+pccard: CardBus card inserted into slot 0 is what dmesg says
+
+And nothing appears under lsusb
+
+I'd be grateful for any help anyone can offer because if I can't get
+it to work I'll need to return it within the "cooling down" period
+which is the next few days and be locked into an 18 month contract
+
+Thanks again
+
+Mike

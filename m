@@ -1,80 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbWGTT5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWGTUDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030369AbWGTT5X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 15:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030370AbWGTT5X
+	id S1030370AbWGTUDh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 16:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWGTUDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 15:57:23 -0400
-Received: from bach.cuivres.net ([82.225.0.213]:40873 "EHLO bach.cuivres.net")
-	by vger.kernel.org with ESMTP id S1030369AbWGTT5W (ORCPT
+	Thu, 20 Jul 2006 16:03:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:54980 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030370AbWGTUDg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 15:57:22 -0400
-Date: Thu, 20 Jul 2006 21:57:19 +0200
-From: Ludovic RESLINGER <lr@cuivres.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS Raid on Apple PowerMac G5
-Message-ID: <20060720195718.GF21541@bach>
-Reply-To: Ludovic RESLINGER <lr@cuivres.net>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org
-References: <20060720100313.GC21541@bach> <Pine.LNX.4.61.0607201255520.2633@yvahk01.tjqt.qr> <20060720112923.GD21541@bach> <1153420317.16159.4.camel@localhost.localdomain>
+	Thu, 20 Jul 2006 16:03:36 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kari Hurtta <hurtta+gmane@siilo.fmi.fi>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls
+Date: 20 Jul 2006 23:02:53 +0300
+Message-ID: <5dd5c0nixe.fsf@attruh.keh.iki.fi>
+References: <Pine.LNX.4.58.0607201504040.18901@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="E7i4zwmWs5DOuDSH"
-Content-Disposition: inline
-In-Reply-To: <1153420317.16159.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cs181108174.pp.htv.fi
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Cc: linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pekka J Enberg <penberg@cs.Helsinki.FI> writes in
+gmane.linux.file-systems,gmane.linux.kernel:
 
---E7i4zwmWs5DOuDSH
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
+> 
+> This patch implements the revoke(2) and frevoke(2) system calls for all
+> types of files. We revoke files in two passes: first we scan all open 
+> files that refer to the inode and substitute the struct file pointer in fd 
+> table with NULL causing all subsequent operations on that fd to fail. 
+> After we have done that to all file descriptors, we close the files and 
+> take down mmaps.
+> 
+> Note that now we need to unconditionally do fput/fget in sys_write and
+> sys_read because they race with do_revoke.
+> 
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-On Thu, Jul 20, 2006 at 02:31:57PM -0400, Benjamin Herrenschmidt wrote:
->=20
-> > I don't know if it is a XFS-specific problem, I might test with another
-> > files system.
-> > In fact, I think this is a problem of RAID with Apple Partition Map.
->=20
-> I remember reading something about it a while ago... can't remember the
-> details but I think it was possible. At worst, an option is to use a
-> different partition map and boot the kernel from a USB stick :)
->=20
-> Ben.
->=20
->
-Re,
+What permissions is needed revoke access of other users open
+files ?
 
-Thank you for your answer. I will make more tests to have more informations.
-I thought to the solution by USB stick too :).
+> +asmlinkage int sys_revoke(const char __user *filename)
+> +{
+> +	int err;
+> +	struct nameidata nd;
+> +
+> +	err = __user_walk(filename, 0, &nd);
+> +	if (!err) {
+> +		err = do_revoke(nd.dentry->d_inode, NULL);
+> +		path_release(&nd);
+> +	}
+> +	return err;
+> +}
+> +
+> +asmlinkage int sys_frevoke(unsigned int fd)
+> +{
+> +	struct file *file = fget(fd);
+> +	int err = -EBADF;
+> +
+> +	if (file) {
+> +		err = do_revoke(file->f_dentry->d_inode, file);
+> +		fput(file);
+> +	}
+> +	return err;
+> +}
 
-Cheers,
---=20
-    .---.      Ludovic RESLINGER
-   /     \
-   \.@-@./     Trumpet Student in CNR
-   /`\_/`\     Free Software Developer
-  // )X( \\
- | \  :  )|_                   _,'|   .''`.
-/`\_`>  <_/ \ @=3D=3D=3D=3D=3D=3DTTT=3D=3D=3D=3D=3D::_  |  : :'  :
-\__/'---'\__/   ((_<=3DHHH___))   `.|  `. `'`
-                 `---UUU---'=3D>         `-
+Is that requiring only that user is able to refer file ?
 
---E7i4zwmWs5DOuDSH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+BSD manual page for revoke(2) seems say:
 
-iD8DBQFEv+Ae/IDTo7Ygh6kRAvhKAJ0fSmecdYdmVurdL5YWBEJ4UuD+MgCfdCHv
-olJgMOIRy5dIade76YYfj54=
-=dzdI
------END PGP SIGNATURE-----
+    Access to a file may be revoked only by its owner or the super user.
 
---E7i4zwmWs5DOuDSH--
+/ Kari Hurtta
+

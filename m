@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWGTI1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWGTJHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbWGTI1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 04:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGTI1S
+	id S932574AbWGTJHi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 05:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWGTJHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 04:27:18 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:18308 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964906AbWGTI1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 04:27:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VV3oujKXMrs6x/Kk2Q0W2kX1R8OCXry1xMbmHGtsWLSgJzMvoEVdXO7G0YJ/FmOB4UPuKUmhvBJ//yJlEzAnVTzUAwroZUCel5+6+nIRS8g8VmgoWhPl1NyhRIkXNzQSoxbMYBZ2CyqikGgwq6TqVDovjZLKS0s0PTdSCrdDvKQ=
-Message-ID: <9a8748490607200127r40ad4e66iffa3a6efb6f9f06c@mail.gmail.com>
-Date: Thu, 20 Jul 2006 10:27:13 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: Subbu <subbu@sasken.com>
-Subject: Re: Memory allocation Failure problem with kmalloc.
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       subbu2k_av@yahoo.com
-In-Reply-To: <Pine.GSO.4.64.0607201340580.13879@sunm21.sasken.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Jul 2006 05:07:37 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:16272 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S932574AbWGTJHh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 05:07:37 -0400
+Date: Thu, 20 Jul 2006 11:07:36 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Martin Filip <bugtraq@smoula.net>, David Greaves <david@dgreaves.com>,
+       linux-kernel@vger.kernel.org,
+       Linux NFS mailing list <nfs@lists.sourceforge.net>
+Subject: Re: NFS and partitioned md
+Message-ID: <20060720090736.GB1408@janus>
+References: <1151355145.4460.16.camel@archon.smoula-in.net> <17568.31894.207153.563590@cse.unsw.edu.au> <1151432312.11996.32.camel@reaver.netbox-in.cz> <17571.19699.980491.970386@cse.unsw.edu.au> <44BD2A29.8060405@dgreaves.com> <1153253099.26360.3.camel@archon.smoula-in.net> <17598.52873.335796.13969@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com>
-	 <Pine.GSO.4.64.0607171557040.15797@sunm21.sasken.com>
-	 <Pine.GSO.4.64.0607201340580.13879@sunm21.sasken.com>
+In-Reply-To: <17598.52873.335796.13969@cse.unsw.edu.au>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20/07/06, Subbu <subbu@sasken.com> wrote:
->
->
-> Hi,
->
->    I am working on 2.4.20 kernel.
->
->    I need to allocate memory with kmalloc.
->
->    kmalloc fails because i want to allocate more than 128kb. How to handle
-> this issue.
->
->    Please help me in this regard.
->
->    How i can allocate memory of size equal to 1Mb with kmalloc or any other
-> function (2.4 kernel)
->
-kmalloc() allocates physically contiguous pages. 1M is a hell of a lot
-of contig pages to ask for. I doubt you can get that much except at
-early boot. But, if the pages don't actually need to be physically
-contiguous, then you can use vmalloc() - it'll give you a virtually
-contiguous range but the pages are not nessesarily physically
-contiguous.
+On Thu, Jul 20, 2006 at 10:30:01AM +1000, Neil Brown wrote:
+> On Tuesday July 18, bugtraq@smoula.net wrote:
+> > Hi,
+> > 
+> > my solution was to use fsid parameter for exports... maybe some other
+> > mechanism for selecting fsids could be created instead of fsid = device
+> > minor
+> 
+> Yes.  Better management of fsid is on my wishlist for nfs-utils.
+> Unfortunately I haven't had any really clever ideas yet.
 
-Why do you need this much btw?
+I'd like to "virtualize" exports such that it is possible to transplant
+disks/partitions from one machine into another without having to bother
+with device numbering. One step in that direction is to derive the fsid
+from an IP address. The server machine needs an additional IP address
+for every export entry. This IP address is determined by deriving
+a hostname from the last pathname component of the export entry and
+resolving it. E.g. something like:
+
+/etc/exports:
+	/exported/path/name	*(rw,sync,no_root_squash,no_subtree_check,fsid="nfs-%s")
+
+This would set the fsid to the IP address of host "nfs-name".
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Frank

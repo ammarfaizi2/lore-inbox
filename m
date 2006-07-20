@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWGTQs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWGTRHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWGTQs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 12:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWGTQs0
+	id S1750739AbWGTRHq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 13:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWGTRHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 12:48:26 -0400
-Received: from mga02.intel.com ([134.134.136.20]:10916 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750711AbWGTQsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 12:48:25 -0400
-X-IronPort-AV: i="4.07,163,1151910000"; 
-   d="scan'208"; a="68183290:sNHT581916580"
-Message-ID: <44BFB288.5000105@intel.com>
-Date: Thu, 20 Jul 2006 09:42:48 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.4 (X11/20060617)
-MIME-Version: 1.0
-To: Mark McLoughlin <markmc@redhat.com>
-CC: jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org,
-       xen-devel@lists.xensource.com, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: e1000: Problem with "disable CRC stripping workaround" patch
-References: <1153411868.2758.34.camel@localhost.localdomain>
-In-Reply-To: <1153411868.2758.34.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Jul 2006 16:43:45.0730 (UTC) FILETIME=[AADC5A20:01C6AC1B]
+	Thu, 20 Jul 2006 13:07:46 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51384 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750739AbWGTRHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 13:07:45 -0400
+Date: Thu, 20 Jul 2006 19:07:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: cramerj@intel.com, john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: e1000: "fix" it on thinkpad x60 / eeprom checksum read fails
+Message-ID: <20060720170758.GA9938@atrey.karlin.mff.cuni.cz>
+References: <20060721005832.GA1889@elf.ucw.cz> <44BFADA6.6090909@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44BFADA6.6090909@intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark McLoughlin wrote:
-> Hi Jesse,
-> 	I just came across this:
+Hi!
+
+> >e1000 in thinkpad x60 fails without this dirty hack. What to do with
+> >it?
+> >
+> >Signed-off-by: Pavel Machek <pavel@suse.cz>
 > 
->   http://www.mail-archive.com/netdev@vger.kernel.org/msg14547.html
+> NAK, certainly this should never be merged in any tree...
 > 
-> 	I'm seeing a problem with this currently under Xen's bridging
-> configuration.
+> this is a known issue that we're tracking here:
+> 
+> http://sourceforge.net/tracker/index.php?func=detail&aid=1474679&group_id=42302&atid=447449
+> 
+> Summary of the issue:
+> 
+> Lenovo has used certain BIOS versions where ASPD/DSPD was turned on which 
+> turns the PHY off when no cable is inserted to save power. The e1000 driver 
+> already turns off this feature but can't do this until the driver is 
+> loaded. It seems that turning this feature on causes the MAC to give read 
+> errors.
+> 
+> Lenovo seems to have the feature turned off in their latest BIOS versions, 
+> we encourage all people to upgrade their BIOS with the latest version from 
+> Lenovo (available from their website). It seems that for at least 2 people, 
+> this has fixed the problem.
+> 
+> Inserting a cable obviously might also work :)
 
+Hehe.
 
- > 	One option is to fix this specific problem is to subtract the CRC
- > length from skb->len in e1000, another is to raise the MTU on the
- > receive side of Xen's loopback interface. I've attached a patch for the
- > latter, but I've no real opinion on which is more correct.
+> We did reproduce the problem initially with the old BIOS (1.01-1.03) on a 
+> T60 system, but unfortunately the bug disappeared into nothingness.
+> 
+> Bypassing the checksum leaves the NIC in an uncertain state and is not 
+> recommended.
 
-We were sort of expecting this and sent the following patch upstream already - 
-it's already queued for 2.6.18-rc3:
+Okay, perhaps this should be inserted as a comment into the driver,
+and printk should be fixed to point at this explanation?
 
-http://kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff_plain;h=f235a2abb27b9396d2108dd2987fb8262cb508a3;hp=d3d9e484b2ca502c87156b69fa6b8f8fd5fa18a0
-
-Please give it a try and let us know if it fixes the issue for you, it should 
-be much better than patching xen's code.
-
-Cheers,
-
-Auke
+Can't we enable the driver with the bad checksum, then read the _real_
+data?
+								Pavel
+-- 
+Thanks, Sharp!

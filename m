@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWGTPMD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWGTPNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbWGTPMD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 11:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWGTPMD
+	id S1030330AbWGTPNi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 11:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWGTPNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 11:12:03 -0400
-Received: from straum.hexapodia.org ([64.81.70.185]:45340 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S932585AbWGTPMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 11:12:02 -0400
-Date: Thu, 20 Jul 2006 08:12:02 -0700
-From: Andy Isaacson <adi@hexapodia.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, tk@maintech.de
-Subject: Re: + revert-pcmcia-make-ide_cs-work-with-the-memory-space-of-cf-cards-if-io-space-is-not-available.patch added to -mm tree
-Message-ID: <20060720151202.GQ2038@hexapodia.org>
-References: <200607090207.k6927S4D007223@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607090207.k6927S4D007223@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Thu, 20 Jul 2006 11:13:38 -0400
+Received: from agminet01.oracle.com ([141.146.126.228]:57709 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932588AbWGTPNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 11:13:37 -0400
+Message-ID: <44BF9E20.1020807@oracle.com>
+Date: Thu, 20 Jul 2006 08:15:44 -0700
+From: Randy Dunlap <randy.dunlap@oracle.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: [PATCH] Doc/SubmittingPatches cleanups
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 08, 2006 at 07:07:28PM -0700, akpm@osdl.org wrote:
-> The patch titled
->      revert "pcmcia: Make ide_cs work with the memory space of CF-Cards if IO space is not available"
-> 
-> ------------------------------------------------------
-> Subject: revert "pcmcia: Make ide_cs work with the memory space of CF-Cards if IO space is not available"
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> Two reports (http://lkml.org/lkml/2006/6/15/155 and Pavel) of ide-cs breakage.
->  I'm suspecting it was this patch but have yet to have confirmation from Pavel
-> or Andy (hint).
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-I finally got a chance to test, and 2.6.18-rc1-mm2 does fix my PCMCIA.
-Thanks!
+A few cleanups to SubmittingPatches:
+- mention SubmitChecklist
+- remove mention of my simple patch script tools
+- remove last-updated line
 
--a ndy
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/SubmittingPatches |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+--- linux-2618-rc2.orig/Documentation/SubmittingPatches
++++ linux-2618-rc2/Documentation/SubmittingPatches
+@@ -10,7 +10,9 @@ kernel, the process can sometimes be dau
+ with "the system."  This text is a collection of suggestions which
+ can greatly increase the chances of your change being accepted.
+ 
+-If you are submitting a driver, also read Documentation/SubmittingDrivers.
++Read Documentation/SubmitChecklist for a list of items to check
++before submitting code.  If you are submitting a driver, also read
++Documentation/SubmittingDrivers.
+ 
+ 
+ 
+@@ -74,9 +76,6 @@ There are a number of scripts which can 
+ Quilt:
+ http://savannah.nongnu.org/projects/quilt
+ 
+-Randy Dunlap's patch scripts:
+-http://www.xenotime.net/linux/scripts/patching-scripts-002.tar.gz
+-
+ Andrew Morton's patch scripts:
+ http://www.zip.com.au/~akpm/linux/patches/
+ Instead of these scripts, quilt is the recommended patch management
+@@ -484,7 +483,7 @@ Greg Kroah-Hartman "How to piss off a ke
+   <http://www.kroah.com/log/2005/10/19/>
+   <http://www.kroah.com/log/2006/01/11/>
+ 
+-NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!.
++NO!!!! No more huge patch bombs to linux-kernel@vger.kernel.org people!
+   <http://marc.theaimsgroup.com/?l=linux-kernel&m=112112749912944&w=2>
+ 
+ Kernel Documentation/CodingStyle
+@@ -493,4 +492,3 @@ Kernel Documentation/CodingStyle
+ Linus Torvald's mail on the canonical patch format:
+   <http://lkml.org/lkml/2005/4/7/183>
+ --
+-Last updated on 17 Nov 2005.
+
+
+

@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWGTAN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWGTARb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWGTAN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 20:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWGTAN0
+	id S964879AbWGTARb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 20:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWGTARb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 20:13:26 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:58257 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964883AbWGTAN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 20:13:26 -0400
-Message-ID: <44BECAA2.6010402@garzik.org>
-Date: Wed, 19 Jul 2006 20:13:22 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 19 Jul 2006 20:17:31 -0400
+Received: from mailrelay3.sunrise.ch ([194.158.229.31]:39344 "EHLO
+	obelix.sunrise.ch") by vger.kernel.org with ESMTP id S964879AbWGTARa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 20:17:30 -0400
+Date: Wed, 19 Jul 2006 20:13:21 -0400
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: make CONFIG_EFI depend on EXPERIMENTAL
+Message-ID: <20060720001321.GC8584@krypton>
 MIME-Version: 1.0
-To: ricknu-0@student.ltu.se
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] A generic boolean
-References: <1153341500.44be983ca1407@portal.student.luth.se> <44BE9E78.3010409@garzik.org> <1153351042.44bebd82356a4@portal.student.luth.se>
-In-Reply-To: <1153351042.44bebd82356a4@portal.student.luth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
+From: apgo@patchbomb.org (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ricknu-0@student.ltu.se wrote:
-> Citerar Jeff Garzik <jeff@garzik.org>:
->> Also, you don't want to force 'unsigned char' on code, because often 
->> code prefers a machine integer to something smaller than a machine integer.
+It is labelled as such, but doesn't actually depend on EXPERIMENTAL.
 
-> But isn't a bit smaller than a byte? Sorry, do not understand what you mean.
+Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+---
+ arch/i386/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-For all processors, it is generally preferred to have integer operations 
-performed on a "machine integer."  A machine integer is the natural data 
-type of the processor.  If it's a 32-bit processor, the natural data 
-type for the ALU is a 32-bit int.  If it's a 64-bit processor, the 
-natural data type for the ALU is a 64-bit int.  [though, for some 64-bit 
-processors, a 32-bit int may be best for the situation anyway]
-
-As such, the compiler and/or CPU must do more work, if an operation such 
-as a bit test is performed on a data type other than a machine int.
-
-Consider for example ARM or Alpha architectures, which may not have 
-instructions 8-bit unsigned char integers.  The integers have to be 
-_converted_ to a machine integer, before the operation is performed.
-
-It is for this reason that you often see boolean implemented as 'int' 
-rather than 'unsigned char'.  'int' is much more "natural", when you 
-consider all the architectures Linux must support.
-
-The best solution is to typedef 'bool' to the compiler's internal 
-boolean data type, and then update code to use 'bool'.  Then all these 
-issues magically go away, because you never have to care what the 
-compiler's underlying boolean data type is.
-
-	Jeff
-
-
-
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index 84c1b29..8577043 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -673,7 +673,7 @@ config MTRR
+ 
+ config EFI
+ 	bool "Boot from EFI support (EXPERIMENTAL)"
+-	depends on ACPI
++	depends on ACPI && EXPERIMENTAL
+ 	default n
+ 	---help---
+ 	This enables the the kernel to boot on EFI platforms using
+-- 
+1.4.0
 

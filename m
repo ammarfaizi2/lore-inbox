@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWGTGRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWGTGwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030279AbWGTGRR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 02:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWGTGRR
+	id S1030275AbWGTGwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 02:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWGTGwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 02:17:17 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:63750 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030279AbWGTGRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 02:17:16 -0400
-Date: Thu, 20 Jul 2006 08:17:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org,
-       xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
-       Ian Pratt <ian.pratt@xensource.com>,
-       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
-Subject: Re: [RFC PATCH 01/33] Add apply_to_page_range() function
-Message-ID: <20060720061715.GC25367@stusta.de>
-References: <20060718091807.467468000@sous-sol.org> <20060718091945.432845000@sous-sol.org> <20060718103850.GD3748@stusta.de> <20060718192925.GC2654@sequoia.sous-sol.org>
+	Thu, 20 Jul 2006 02:52:20 -0400
+Received: from mail.phnxsoft.com ([195.227.45.4]:26383 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S1030275AbWGTGwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 02:52:19 -0400
+Date: Thu, 20 Jul 2006 08:52:07 +0200
+Message-Id: <200607200652.k6K6q771011722@posthamster.phnxsoft.com>
+From: Tilman Schmidt <tilman@imap.cc>
+Subject: Re: "Why Reuser 4 still is not in" doc
+To: Diego Calleja <diegocg@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060718192925.GC2654@sequoia.sous-sol.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: Theodore Tso <tytso@mit.edu>, Lexington.Luthor@gmail.com,
+       linux-kernel@vger.kernel.org
+References: <20060716161631.GA29437@httrack.com>
+	<20060716162831.GB22562@zeus.uziel.local>
+	<20060716165648.GB6643@thunk.org>
+	<e9dsrg$jr1$1@sea.gmane.org>
+	<20060716174804.GA23114@thunk.org>
+	<20060716220115.a1891231.diegocg@gmail.com>
+X-Spam-Score: 3.561 (***) AWL,BAYES_95
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 18, 2006 at 12:29:25PM -0700, Chris Wright wrote:
-> * Adrian Bunk (bunk@stusta.de) wrote:
-> > On Tue, Jul 18, 2006 at 12:00:01AM -0700, Chris Wright wrote:
-> > >...
-> > > --- a/mm/memory.c	Fri Mar 24 04:29:46 2006 +0000
-> > > +++ b/mm/memory.c	Fri Mar 24 04:30:48 2006 +0000
-> > > @@ -1358,6 +1358,100 @@ int remap_pfn_range(struct vm_area_struc
-> > >  }
-> > >  EXPORT_SYMBOL(remap_pfn_range);
-> > >  
-> > > +static inline int apply_to_pte_range(struct mm_struct *mm, pmd_t *pmd,
-> > > +				     unsigned long addr, unsigned long end,
-> > > +				     pte_fn_t fn, void *data)
-> > >...
-> > > +static inline int apply_to_pmd_range(struct mm_struct *mm, pud_t *pud,
-> > > +				     unsigned long addr, unsigned long end,
-> > > +				     pte_fn_t fn, void *data)
-> > >...
-> > > +static inline int apply_to_pud_range(struct mm_struct *mm, pgd_t *pgd,
-> > > +				     unsigned long addr, unsigned long end,
-> > > +				     pte_fn_t fn, void *data)
-> > >...
-> > 
-> > Please avoid "inline" in C files.
-> > 
-> > (gcc already automatically inlines static functions with only one caller.)
-> 
-> Sure, that's fair.  The surrounding similar code follows the same format 
-> as above, perhaps you plan to patch?
+On Sun, 16 Jul 2006 22:01:15 +0200, Diego Calleja wrote:
+> Maybe it's too late and reiser 4 will get in in the next release, but
+> I've written this doc into the kernelnewbies' wiki:
+> http://wiki.kernelnewbies.org/WhyReiser4IsNotIn . If you disagree with
+> something in that doc, edit it or just answer to this mail what you want
+> to see in it and I'll add it myself.
 
-Already part of a bigger item on my TODO list for some months.
+It could be improved in two ways in order to better convince people:
 
-Priority: low...
+Firstly, mention some (perhaps even all) of the actual technical
+issues preventing the inclusion of Reiser4. Right now, you are
+giving much space to the political issues (or their non-existence).
+This answers a different question ("Why we are fed up with the
+Reiser4 discussion") than the one in the title, and in the worst
+case might leave a reader with the impression that political
+reasons are more important after all.
 
-cu
-Adrian
+Secondly, the questions in the FAQ part should probably be put in a
+less loaded form. For example, Q1 could just read objectively:
+"Why can't Reiser4 be included as an experimental feature?"
+As it stands now, I fear too many people's reaction upon reading it
+will be: "That's not my question." At least leave off the plaintive
+initial "but" on Q1 and Q2. It puts off the readers you want to
+convince.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+HTH
+Tilman
 

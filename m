@@ -1,70 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWGSVOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWGSVUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbWGSVOF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 17:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWGSVOF
+	id S932230AbWGSVUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 17:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGSVUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 17:14:05 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:53485 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030315AbWGSVOE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 17:14:04 -0400
-Date: Wed, 19 Jul 2006 23:14:02 +0200
-From: Torsten Landschoff <torsten@debian.org>
-To: Nathan Scott <nathans@sgi.com>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS breakage in 2.6.18-rc1
-Message-ID: <20060719211402.GA1133@stargate.galaxy>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Content-Disposition: inline
-In-Reply-To: <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.9i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:d638a0eb9c9fbc21c426336ab6dfa19b
+	Wed, 19 Jul 2006 17:20:52 -0400
+Received: from gw.goop.org ([64.81.55.164]:48315 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932230AbWGSVUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 17:20:51 -0400
+Message-ID: <44BECC6A.7020608@goop.org>
+Date: Wed, 19 Jul 2006 17:20:58 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: George Nychis <gnychis@cmu.edu>
+CC: Brandon Philips <brandon@ifup.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: suspend/hibernate to work on thinkpad x60s?
+References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <200607191742.32609.rjw@sisk.pl> <44BE5589.4070403@cmu.edu> <200607192102.17438.rjw@sisk.pl> <44BE8D7C.8070107@cmu.edu> <20060719202333.GA8705@plankton.ifup.org> <44BE9C22.9060209@cmu.edu>
+In-Reply-To: <44BE9C22.9060209@cmu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+George Nychis wrote:
+> Is there only 1 patch file?  I only see the 1 patch file on the link you
+> sent me, i applied it cleanly to a 2.6.18-rc1-git7 kernel and i still
+> have the same problem
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are 6 patches in the series.
 
-Hi Nathan,=20
-
-On Wed, Jul 19, 2006 at 08:57:31AM +1000, Nathan Scott wrote:
-=20
-> I suspect you had some residual directory corruption from using the
-> 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
-> fixed in the latest -stable point release).
-
-That probably the cause of my problem. Thanks for the info!
-
-BTW: I think there was nothing important on the broken filesystems, but
-I'd like to keep what's still there anyway just in case... How would you
-suggest should I copy that data? I fear, just mounting and using cp=20
-might break and shutdown the FS again, would xfsdump be more
-appropriate?
-
-Thanks for XFS, I am using it for years in production servers!
-
-Greetings
-
-	Torsten
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEvqCadQgHtVUb5EcRAoJLAJ4jJaYRxbnNVCEZBJuki2kTz2VtQwCfd2Mq
-9BasGncq2cRLpRTp5wU9EMM=
-=NS5n
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+    J

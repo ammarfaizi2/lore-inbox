@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbWGTX3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWGTX3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbWGTX3a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 19:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030414AbWGTX3a
+	id S1030411AbWGTX3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 19:29:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWGTX3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 19:29:30 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:45866 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030413AbWGTX33 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 19:29:29 -0400
+	Thu, 20 Jul 2006 19:29:03 -0400
+Received: from py-out-1112.google.com ([64.233.166.177]:40557 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030411AbWGTX3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 19:29:02 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pi7OHwy7K/MSkbrPAXphSDuyGt2SSizMfJHJ1PtUI4Dj3ENEkOGAxKdUbsLzHWF9bilPlTG3V5hZSQLQ4Dh9xt3439h1Sq8gx5yuWRMIe36RXb2DSZndlneThN6k0+i07OoXBOv6DkOSMCC3gFwNFtu+Rpm7b6qo2z/LYJeCSvY=
-Message-ID: <195c7a900607201601m58d078pee808089b8e6b47d@mail.gmail.com>
-Date: Thu, 20 Jul 2006 23:01:34 +0000
-From: "roucaries bastien" <roucaries.bastien@gmail.com>
-To: 7eggert@gmx.de
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls
-Cc: "Pekka J Enberg" <penberg@cs.helsinki.fi>, alan@lxorguk.ukuu.org.uk,
-       tytso@mit.edu, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1G3g2H-0001W7-LB@be1.lrz>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VGTnDf1geU/bM1bLwklTSlCH982BElShvNhuRa+CNvYwZAcUmExtZz3BXG6b2lw9HVZ9ddwbFkX9OAcvZRs27LZIABOZ8WVwQ9CT8Ec19EVJ2tq47mB4Zperk4IcRlm9Xrsv3dD+XLNaiwRIDKfQF1LBR8yVff4lAGQO+hvSm4I=
+Message-ID: <44C011B3.3060900@gmail.com>
+Date: Fri, 21 Jul 2006 07:28:51 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Kalev Lember <kalev@smartlink.ee>
+CC: Gerd Hoffmann <kraxel@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: kexec and framebuffer
+References: <44BB9A7A.4060100@smartlink.ee> <44BB9EB3.9020101@suse.de> <44BFEAA5.5030703@smartlink.ee>
+In-Reply-To: <44BFEAA5.5030703@smartlink.ee>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6AFvY-7ZK-15@gated-at.bofh.it> <E1G3g2H-0001W7-LB@be1.lrz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/20/06, Bodo Eggert <7eggert@elstempel.de> wrote:
-> Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-> > From: Pekka Enberg <penberg@cs.helsinki.fi>
->
-> > This patch implements the revoke(2) and frevoke(2) system calls for all
-> > types of files. We revoke files in two passes: first we scan all open
-> > files that refer to the inode and substitute the struct file pointer in fd
-> > table with NULL causing all subsequent operations on that fd to fail.
-> > After we have done that to all file descriptors, we close the files and
-> > take down mmaps.
->
-> RFC2: Make umount -f work on local fs using this feature.
-RFC3: use preliminary work about umount -f in order to get revoke for free.
-See for instance
-http://developer.osdl.org/dev/fumount/kernel2/patches/2.6.12/1/forced-unmount-2.6.12-1.patch
+Kalev Lember wrote:
+> Gerd Hoffmann wrote:
+>>> I am wondering what would be the preferred method to extract screen_info
+>>> from running kernel. Should this be made available from sysfs or maybe a
+>>> new system call be created?
+>>>     
+>> Simply ask /dev/fb0?
+>> Patch for kexec tools attached.
+>>   
+> Thank you, this was really helpful.
+>> +	if (0 != strcmp(fix.id, "vesafb"))
+>> +		goto out;
+> I think this check should be removed so that other framebuffer drivers
+> besides vesafb would also work.
+
+I think having the check is correct, only vesafb relies totally on
+screen_info. If you remove the check, you can get the wrong information
+from other framebuffer drivers.
+
+> +	/* fixme: better get size from /proc/iomem */
+> +	real_mode->lfb_size       = (fix.smem_len + 65535) / 65536;
+> +	real_mode->pages          = (fix.smem_len + 4095) / 4096;
+
+Note that fix.smem_len is the size of the remapped memory which can be
+smaller than the actual framebuffer length. But there's a fixme comment
+there so you probably know about this.
+ 
+> Additionally the fix.id is "VESA VGA",
+> not "vesafb".
+
+Yes.
+
+Tony

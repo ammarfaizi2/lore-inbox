@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWGTPOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbWGTPPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030331AbWGTPOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 11:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWGTPOg
+	id S1030332AbWGTPPT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 11:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030333AbWGTPPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 11:14:36 -0400
-Received: from agminet01.oracle.com ([141.146.126.228]:65391 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932589AbWGTPOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 11:14:35 -0400
-Message-ID: <44BF9E5A.9010202@oracle.com>
-Date: Thu, 20 Jul 2006 08:16:42 -0700
+	Thu, 20 Jul 2006 11:15:19 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:13166 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1030332AbWGTPPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 11:15:17 -0400
+Message-ID: <44BF9E89.2040202@oracle.com>
+Date: Thu, 20 Jul 2006 08:17:29 -0700
 From: Randy Dunlap <randy.dunlap@oracle.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: gregkh@suse.de, akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/3] kernel-doc fixes for debugfs
+To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: [PATCH 3/3] kernel-doc: move filesystems together
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 X-Brightmail-Tracker: AAAAAQAAAAI=
@@ -27,223 +27,121 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Randy Dunlap <rdunlap@xenotime.net>
 
-Fix kernel-doc and typos/spellos in fs/debugfs/.
+Move all VFS + filesystem docs together.
 
 Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
- fs/debugfs/file.c  |   56 +++++++++++++++++++++++------------------------------
- fs/debugfs/inode.c |   15 +++++---------
- 2 files changed, 31 insertions(+), 40 deletions(-)
+ Documentation/DocBook/kernel-api.tmpl |   78 +++++++++++++++++-----------------
+ 1 file changed, 39 insertions(+), 39 deletions(-)
 
---- linux-2618-rc2.orig/fs/debugfs/file.c
-+++ linux-2618-rc2/fs/debugfs/file.c
-@@ -55,12 +55,11 @@ static u64 debugfs_u8_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u8, debugfs_u8_get, debugfs_u8_set, "%llu\n");
+--- linux-2618-rc2.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2618-rc2/Documentation/DocBook/kernel-api.tmpl
+@@ -178,6 +178,38 @@ X!Ilib/string.c
+      </sect1>
+   </chapter>
  
- /**
-- * debugfs_create_u8 - create a file in the debugfs filesystem that is used to read and write an unsigned 8 bit value.
-- *
-+ * debugfs_create_u8 - create a debugfs file that is used to read and write an unsigned 8-bit value
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-- *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory dentry if set.  If this parameter is %NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @value: a pointer to the variable that the file should read to and write
-  *         from.
-@@ -72,11 +71,11 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_u8, debugfs
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_u8(const char *name, mode_t mode,
-@@ -97,12 +96,11 @@ static u64 debugfs_u16_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u16, debugfs_u16_get, debugfs_u16_set, "%llu\n");
++  <chapter id="vfs">
++     <title>The Linux VFS</title>
++     <sect1><title>The Filesystem types</title>
++!Iinclude/linux/fs.h
++     </sect1>
++     <sect1><title>The Directory Cache</title>
++!Efs/dcache.c
++!Iinclude/linux/dcache.h
++     </sect1>
++     <sect1><title>Inode Handling</title>
++!Efs/inode.c
++!Efs/bad_inode.c
++     </sect1>
++     <sect1><title>Registration and Superblocks</title>
++!Efs/super.c
++     </sect1>
++     <sect1><title>File Locks</title>
++!Efs/locks.c
++!Ifs/locks.c
++     </sect1>
++     <sect1><title>Other Functions</title>
++!Efs/mpage.c
++!Efs/namei.c
++!Efs/buffer.c
++!Efs/bio.c
++!Efs/seq_file.c
++!Efs/filesystems.c
++!Efs/fs-writeback.c
++!Efs/block_dev.c
++     </sect1>
++  </chapter>
++
+   <chapter id="proc">
+      <title>The proc filesystem</title>
+  
+@@ -190,6 +222,13 @@ X!Ilib/string.c
+      </sect1>
+   </chapter>
  
- /**
-- * debugfs_create_u16 - create a file in the debugfs filesystem that is used to read and write an unsigned 16 bit value.
-- *
-+ * debugfs_create_u16 - create a debugfs file that is used to read and write an unsigned 16-bit value
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-- *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory dentry if set.  If this parameter is %NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @value: a pointer to the variable that the file should read to and write
-  *         from.
-@@ -114,11 +112,11 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_u16, debugf
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_u16(const char *name, mode_t mode,
-@@ -139,12 +137,11 @@ static u64 debugfs_u32_get(void *data)
- DEFINE_SIMPLE_ATTRIBUTE(fops_u32, debugfs_u32_get, debugfs_u32_set, "%llu\n");
++  <chapter id="sysfs">
++     <title>The Filesystem for Exporting Kernel Objects</title>
++!Efs/sysfs/file.c
++!Efs/sysfs/symlink.c
++!Efs/sysfs/bin.c
++  </chapter>
++
+   <chapter id="debugfs">
+      <title>The debugfs filesystem</title>
+  
+@@ -215,38 +254,6 @@ X!Ilib/string.c
+      </sect1>
+   </chapter>
  
- /**
-- * debugfs_create_u32 - create a file in the debugfs filesystem that is used to read and write an unsigned 32 bit value.
-- *
-+ * debugfs_create_u32 - create a debugfs file that is used to read and write an unsigned 32-bit value
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-- *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory dentry if set.  If this parameter is %NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @value: a pointer to the variable that the file should read to and write
-  *         from.
-@@ -156,11 +153,11 @@ DEFINE_SIMPLE_ATTRIBUTE(fops_u32, debugf
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_u32(const char *name, mode_t mode,
-@@ -219,12 +216,11 @@ static const struct file_operations fops
- };
+-  <chapter id="vfs">
+-     <title>The Linux VFS</title>
+-     <sect1><title>The Filesystem types</title>
+-!Iinclude/linux/fs.h
+-     </sect1>
+-     <sect1><title>The Directory Cache</title>
+-!Efs/dcache.c
+-!Iinclude/linux/dcache.h
+-     </sect1>
+-     <sect1><title>Inode Handling</title>
+-!Efs/inode.c
+-!Efs/bad_inode.c
+-     </sect1>
+-     <sect1><title>Registration and Superblocks</title>
+-!Efs/super.c
+-     </sect1>
+-     <sect1><title>File Locks</title>
+-!Efs/locks.c
+-!Ifs/locks.c
+-     </sect1>
+-     <sect1><title>Other Functions</title>
+-!Efs/mpage.c
+-!Efs/namei.c
+-!Efs/buffer.c
+-!Efs/bio.c
+-!Efs/seq_file.c
+-!Efs/filesystems.c
+-!Efs/fs-writeback.c
+-!Efs/block_dev.c
+-     </sect1>
+-  </chapter>
+-
+   <chapter id="netcore">
+      <title>Linux Networking</title>
+      <sect1><title>Networking Base Types</title>
+@@ -362,13 +369,6 @@ X!Earch/i386/kernel/mca.c
+      </sect1>
+   </chapter>
  
- /**
-- * debugfs_create_bool - create a file in the debugfs filesystem that is used to read and write a boolean value.
-- *
-+ * debugfs_create_bool - create a debugfs file that is used to read and write a boolean value
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-- *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory dentry if set.  If this parameter is %NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @value: a pointer to the variable that the file should read to and write
-  *         from.
-@@ -236,11 +232,11 @@ static const struct file_operations fops
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_bool(const char *name, mode_t mode,
-@@ -264,13 +260,11 @@ static struct file_operations fops_blob 
- };
- 
- /**
-- * debugfs_create_blob - create a file in the debugfs filesystem that is
-- * used to read and write a binary blob.
-- *
-+ * debugfs_create_blob - create a debugfs file that is used to read and write a binary blob
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-- *          directory dentry if set.  If this paramater is NULL, then the
-+ *          directory dentry if set.  If this parameter is %NULL, then the
-  *          file will be created in the root of the debugfs filesystem.
-  * @blob: a pointer to a struct debugfs_blob_wrapper which contains a pointer
-  *        to the blob data and the size of the data.
-@@ -282,11 +276,11 @@ static struct file_operations fops_blob 
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_blob(const char *name, mode_t mode,
---- linux-2618-rc2.orig/fs/debugfs/inode.c
-+++ linux-2618-rc2/fs/debugfs/inode.c
-@@ -162,7 +162,6 @@ static int debugfs_create_by_name(const 
- 
- /**
-  * debugfs_create_file - create a file in the debugfs filesystem
-- *
-  * @name: a pointer to a string containing the name of the file to create.
-  * @mode: the permission that the file should have
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-@@ -182,11 +181,11 @@ static int debugfs_create_by_name(const 
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_file(const char *name, mode_t mode,
-@@ -221,7 +220,6 @@ EXPORT_SYMBOL_GPL(debugfs_create_file);
- 
- /**
-  * debugfs_create_dir - create a directory in the debugfs filesystem
-- *
-  * @name: a pointer to a string containing the name of the directory to
-  *        create.
-  * @parent: a pointer to the parent dentry for this file.  This should be a
-@@ -233,11 +231,11 @@ EXPORT_SYMBOL_GPL(debugfs_create_file);
-  * This function will return a pointer to a dentry if it succeeds.  This
-  * pointer must be passed to the debugfs_remove() function when the file is
-  * to be removed (no automatic cleanup happens if your module is unloaded,
-- * you are responsible here.)  If an error occurs, NULL will be returned.
-+ * you are responsible here.)  If an error occurs, %NULL will be returned.
-  *
-- * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * If debugfs is not enabled in the kernel, the value -%ENODEV will be
-  * returned.  It is not wise to check for this value, but rather, check for
-- * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * %NULL or !%NULL instead as to eliminate the need for #ifdef in the calling
-  * code.
-  */
- struct dentry *debugfs_create_dir(const char *name, struct dentry *parent)
-@@ -250,7 +248,6 @@ EXPORT_SYMBOL_GPL(debugfs_create_dir);
- 
- /**
-  * debugfs_remove - removes a file or directory from the debugfs filesystem
-- *
-  * @dentry: a pointer to a the dentry of the file or directory to be
-  *          removed.
-  *
+-  <chapter id="sysfs">
+-     <title>The Filesystem for Exporting Kernel Objects</title>
+-!Efs/sysfs/file.c
+-!Efs/sysfs/symlink.c
+-!Efs/sysfs/bin.c
+-  </chapter>
+-
+   <chapter id="security">
+      <title>Security Framework</title>
+ !Esecurity/security.c
 
 
 

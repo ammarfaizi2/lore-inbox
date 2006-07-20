@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWGTKR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWGTK3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWGTKR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 06:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWGTKR3
+	id S1030253AbWGTK3G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 06:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWGTK3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 06:17:29 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26632 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030253AbWGTKR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 06:17:28 -0400
-Date: Thu, 20 Jul 2006 12:17:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-scsi@vger.kernel.org, Stefan Schmidt <zaphodb@zaphods.net>
-Subject: 2.6.18-rc1-mm2: drivers/fc4/fc.c compile error
-Message-ID: <20060720101727.GD25367@stusta.de>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org> <20060714190813.GC3633@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060714190813.GC3633@stusta.de>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 20 Jul 2006 06:29:06 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:51656 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1030253AbWGTK3F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 06:29:05 -0400
+Subject: Re: XFS breakage in 2.6.18-rc1
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+In-Reply-To: <20060720085636.D1947140@wobbly.melbourne.sgi.com>
+References: <20060718222941.GA3801@stargate.galaxy>
+	 <20060719085731.C1935136@wobbly.melbourne.sgi.com>
+	 <200607190908.30727.s0348365@sms.ed.ac.uk>
+	 <20060720085636.D1947140@wobbly.melbourne.sgi.com>
+Content-Type: text/plain
+Date: Thu, 20 Jul 2006 12:29:02 +0200
+Message-Id: <1153391342.31822.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 14, 2006 at 09:08:13PM +0200, Adrian Bunk wrote:
-> On Thu, Jul 13, 2006 at 10:48:00PM -0700, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.18-rc1-mm1:
-> >...
-> >  git-scsi-rc-fixes.patch
-> >...
-> >  git trees.
-> >...
+On Thu, 2006-07-20 at 08:56 +1000, Nathan Scott wrote:
+> On Wed, Jul 19, 2006 at 09:08:30AM +0100, Alistair John Strachan wrote:
+> > On Tuesday 18 July 2006 23:57, Nathan Scott wrote:
+> > [snip]
+> > > > of programs fail in mysterious ways. I tried to recover using xfs_repair
+> > > > but I feel that my partition is thorougly borked. Of course no data was
+> > > > lost due to backups but still I'd like this bug to be fixed ;-)
+> > >
+> > > 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
+> > > mkfs and restore?  Or at least get a full repair run?  If you did,
+> > > and you still see issues in .18-rc1, please let me know asap.
+> > 
+> > Just out of interest, I've got a few XFS volumes that were created 24 months 
+> > ago on a machine that I upgraded to 2.6.17 about a month ago. I haven't seen 
+> > any crashes so far.
+> > 
+> > Assuming I get the newest XFS repair tools on there, what's the disadvantage 
+> > of repairing versus creating a new filesystem? What special circumstances are 
+> > required to cause a crash?
 > 
-> Christoph, this is caused by your "hide EH backup data outside the scsi_cmnd" 
-> patch:
->...
+> There should be no disadvantage to repairing.  I will update the FAQ
+> shortly to describe all the details of the problem, recommendations
+> on how to address it, which kernel version is affected, etc.
+this FAQ, is it this: http://oss.sgi.com/projects/xfs/faq.html#dir2 ?
+(btw, it seems that while only in the TOC once, you have the same about
+2.6.17 twice..)..
 
-Another one (reported by Stefan Schmidt):
+which version of xfsprogs should i use while doing the xfs_check ?
 
-<--  snip  -->
-
-...
-  CC [M]  drivers/fc4/fc.o
-drivers/fc4/fc.c: In function 'fcp_scsi_receive':
-drivers/fc4/fc.c:432: error: 'Scsi_Cmnd' has no member named 'buffer'
-drivers/fc4/fc.c: In function 'fcp_scsi_queue_it':
-drivers/fc4/fc.c:813: error: 'Scsi_Cmnd' has no member named 'buffer'
-make[2]: *** [drivers/fc4/fc.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> 
+> cheers.
+> 
 

@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWGTP5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbWGTP66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030342AbWGTP5L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 11:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWGTP5K
+	id S1030344AbWGTP66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 11:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030346AbWGTP66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 11:57:10 -0400
-Received: from asia.telenet-ops.be ([195.130.137.74]:14780 "EHLO
-	asia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1030342AbWGTP5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 11:57:09 -0400
-From: Peter Korsgaard <jacmet@sunsite.dk>
-To: rpurdie@rpsys.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix ppc32 zImage inflate
-Date: Thu, 20 Jul 2006 05:56:03 +0200
-Message-ID: <87u05dhquk.fsf@slug.be.48ers.dk>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 20 Jul 2006 11:58:58 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3760 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1030344AbWGTP65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 11:58:57 -0400
+Date: Thu, 20 Jul 2006 17:59:09 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Joachim Deguara <joachim.deguara@amd.com>
+Cc: "shin, jacob" <jacob.shin@amd.com>, Andi Kleen <ak@suse.de>,
+       "Langsdorf, Mark" <mark.langsdorf@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+Subject: Re: [discuss] Re: [PATCH] Allow all Opteron processors to change pstate at same time
+Message-ID: <20060720155909.GA31504@atrey.karlin.mff.cuni.cz>
+References: <B3870AD84389624BAF87A3C7B831499302935A76@SAUSEXMB2.amd.com> <20060713130604.GC8230@ucw.cz> <1152801132.4519.10.camel@lapdog.site> <20060716015636.GC21162@atrey.karlin.mff.cuni.cz> <1153121830.3917.2.camel@lapdog.site>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153121830.3917.2.camel@lapdog.site>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> On Sun, 2006-07-16 at 03:56 +0200, Pavel Machek wrote:
+> > > On Thu, 2006-07-13 at 13:06 +0000, Pavel Machek wrote:
+> > > > Can you run two such tests *in parallel*? That seemed to break it
+> > > > really quickly.
+> > > parallel sounds fun, but I don't get it.  Two machine or trying to
+> > go
+> > > online and offline at the same time?  Firestorming two busy parallel
+> > 
+> > Trying to online and offline at the same time.
+> > 
+> > > while loops, one turning the core offline and the other online, did
+> > not
+> > > bring an oops so I guess this kernel is in the clear in that regard.
+> > 
+> > Better run two tight loops, each doing online; offline. I got reports
+> > it crashed machines before, but maybe it is solved. 
+> 
+> yeah, that's what I did. Somethings are easier described in bash than in
+> english.  Nothing crashed or oopsed so the green light is there for
+> online and offline in 2.6.18-rc1 (with my setup).
 
-The recent zlib update (commit
-4f3865fb57a04db7cca068fed1c15badc064a302) broke ppc32 zImage
-decompression as it tries to decompress to address zero and the
-updated zlib_inflate checks that strm->next_out isn't a null pointer.
+Okay, I tried hard here, and reproduced some fork failures (and swsusp
+panic :-), but not oops.
 
-This little patch fixes it.
-
-diff -Naur linux-2.6.18-rc2.orig/lib/zlib_inflate/inflate.c linux-2.6.18-rc2/lib/zlib_inflate/inflate.c
---- linux-2.6.18-rc2.orig/lib/zlib_inflate/inflate.c	2006-07-20 10:26:21.000000000 +0200
-+++ linux-2.6.18-rc2/lib/zlib_inflate/inflate.c	2006-07-20 17:02:27.000000000 +0200
-@@ -347,7 +347,7 @@
-     static const unsigned short order[19] = /* permutation of code lengths */
-         {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
- 
--    if (strm == NULL || strm->state == NULL || strm->next_out == NULL ||
-+    if (strm == NULL || strm->state == NULL ||
-         (strm->next_in == NULL && strm->avail_in != 0))
-         return Z_STREAM_ERROR;
-
+								Pavel
 -- 
-Bye, Peter Korsgaard
+Thanks, Sharp!

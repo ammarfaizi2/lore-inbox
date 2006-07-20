@@ -1,33 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWGSX7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWGTAId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWGSX7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 19:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWGSX7P
+	id S964877AbWGTAId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 20:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWGTAId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 19:59:15 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:29924 "EHLO
-	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
-	id S964876AbWGSX7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 19:59:14 -0400
-Date: Wed, 19 Jul 2006 19:58:35 -0400
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
-Cc: linux-kernel@vger.kernel.org, kyle@parisc-linux.org,
-       twoller@crystal.cirrus.com, James@superbug.demon.co.uk, zab@zabbo.net,
-       sailer@ife.ee.ethz.ch, perex@suse.cz, zaitcev@yahoo.com
-Subject: Re: [PATCH] sound: Conversions from kmalloc+memset to k(z|c)alloc.
-Message-ID: <20060719235835.GA4235@athena.road.mcmartin.ca>
-References: <20060719005455.GB30823@lumumba.uhasselt.be>
+	Wed, 19 Jul 2006 20:08:33 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:20105 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S964877AbWGTAIc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 20:08:32 -0400
+Message-ID: <1153354106.44bec97a1215b@portal.student.luth.se>
+Date: Thu, 20 Jul 2006 02:08:26 +0200
+From: ricknu-0@student.ltu.se
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se> <20060719212049.GA6828@martell.zuzino.mipt.ru> <1153349221.44beb6653e039@portal.student.luth.se> <44BEC5DA.4020807@bigpond.net.au>
+In-Reply-To: <44BEC5DA.4020807@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060719005455.GB30823@lumumba.uhasselt.be>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 02:54:55AM +0200, Panagiotis Issaris wrote:
->  sound/oss/ad1889.c              |    3 +--
-> 
+Citerar Peter Williams <pwil3058@bigpond.net.au>:
 
-Acked-By: Kyle McMartin <kyle@parisc-linux.org>
+> ricknu-0@student.ltu.se wrote:
+> > Citerar Alexey Dobriyan <adobriyan@gmail.com>:
+> >> Please, show compiler flag[s] to enable warning[s] from gcc about
+> >>
+> >> 	_Bool foo = 42;
+> >>
+> >> Until you do that the whole activity is moot.
+> > On it...
+> 
+> Would not the compiler treat 42 as a Boolean expression (as opposed to 
+> an integer expression) that evaluates to true and set foo accordingly. 
+> I.e. there's only a problem here if foo ends up with the value 42 
+> instead of the value true.
+Yeah, that is true. As I said, the only way (I seen) is to cast the pointer from
+the boolean variable to something else and change the value on that address. But
+it would be neat if the compiler said something when inserting somthing else
+then (or equal to) 0 and 1.
+Right now it is happy with:
+_Bool a = "Hello world";
+
+
+Well, better go to bed while I still remember where it is.
+
+Good night

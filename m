@@ -1,156 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWGTALQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWGTAN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWGTALQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 20:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWGTALQ
+	id S964880AbWGTAN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 20:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWGTAN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 20:11:16 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:18304 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964878AbWGTALP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 20:11:15 -0400
-Subject: [Patch] convert i386 Summint subarch to use SRAT info for
-	apicid_to_node calls
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: andrew <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-f3JH+9NH+r/eD3uC6QAc"
-Organization: Linux Technology Center IBM
-Date: Wed, 19 Jul 2006 17:11:13 -0700
-Message-Id: <1153354273.5775.41.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 19 Jul 2006 20:13:26 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:58257 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964883AbWGTAN0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 20:13:26 -0400
+Message-ID: <44BECAA2.6010402@garzik.org>
+Date: Wed, 19 Jul 2006 20:13:22 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: ricknu-0@student.ltu.se
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+References: <1153341500.44be983ca1407@portal.student.luth.se> <44BE9E78.3010409@garzik.org> <1153351042.44bebd82356a4@portal.student.luth.se>
+In-Reply-To: <1153351042.44bebd82356a4@portal.student.luth.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ricknu-0@student.ltu.se wrote:
+> Citerar Jeff Garzik <jeff@garzik.org>:
+>> Also, you don't want to force 'unsigned char' on code, because often 
+>> code prefers a machine integer to something smaller than a machine integer.
 
---=-f3JH+9NH+r/eD3uC6QAc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> But isn't a bit smaller than a byte? Sorry, do not understand what you mean.
 
-Hello Andrew,
-  This patch converts the i386 summit subarch apicid_to_node to use node
-information provided by the SRAT.  It was discussed a little on LKML a
-few weeks ago and was seen as an acceptable fix.  The current way of
-obtaining the nodeid 
+For all processors, it is generally preferred to have integer operations 
+performed on a "machine integer."  A machine integer is the natural data 
+type of the processor.  If it's a 32-bit processor, the natural data 
+type for the ALU is a 32-bit int.  If it's a 64-bit processor, the 
+natural data type for the ALU is a 64-bit int.  [though, for some 64-bit 
+processors, a 32-bit int may be best for the situation anyway]
 
- static inline int apicid_to_node(int logical_apicid)
- { 
-   return logical_apicid >> 5;
- }
+As such, the compiler and/or CPU must do more work, if an operation such 
+as a bit test is performed on a data type other than a machine int.
 
-is just not correct for all summit systems/bios.  Assuming the apicid
-matches the Linux node number require a leap of faith that the bios
-mapped out the apicids a set way.  Modern summit HW (IBM x460) does not
-layout its bios in the manner for various reasons and is unable to boot
-i386 numa.
+Consider for example ARM or Alpha architectures, which may not have 
+instructions 8-bit unsigned char integers.  The integers have to be 
+_converted_ to a machine integer, before the operation is performed.
 
-  The best way to get the correct apicid to node information is from the
-SRAT table during boot.  It lays out what apicid belongs to what node.
-I use this information to create a table for use at run time. 
+It is for this reason that you often see boolean implemented as 'int' 
+rather than 'unsigned char'.  'int' is much more "natural", when you 
+consider all the architectures Linux must support.
 
-  The attached patch was built against 2.6.18-rc1.  It only changes the
-summit subarch.  
+The best solution is to typedef 'bool' to the compiler's internal 
+boolean data type, and then update code to use 'bool'.  Then all these 
+issues magically go away, because you never have to care what the 
+compiler's underlying boolean data type is.
+
+	Jeff
 
 
-Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
 
---=-f3JH+9NH+r/eD3uC6QAc
-Content-Disposition: attachment; filename=patch-2.6.18-rc1-apicid_to_node_srat-v2
-Content-Type: text/x-patch; name=patch-2.6.18-rc1-apicid_to_node_srat-v2; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -urN linux-2.6.17/arch/i386/kernel/smpboot.c linux-2.6.17-works/arch/i386/kernel/smpboot.c
---- linux-2.6.17/arch/i386/kernel/smpboot.c	2006-07-19 04:25:40.000000000 -0700
-+++ linux-2.6.17-works/arch/i386/kernel/smpboot.c	2006-07-18 20:30:10.000000000 -0700
-@@ -102,6 +102,8 @@
- 			{ [0 ... NR_CPUS-1] = 0xff };
- EXPORT_SYMBOL(x86_cpu_to_apicid);
- 
-+u8 apicid_2_node[MAX_APICID] = { [0 ... MAX_APICID-1] = 0 };
-+
- /*
-  * Trampoline 80x86 program as an array.
-  */
-@@ -640,7 +642,7 @@
- 	int apicid = logical_smp_processor_id();
- 
- 	cpu_2_logical_apicid[cpu] = apicid;
--	map_cpu_to_node(cpu, apicid_to_node(apicid));
-+	map_cpu_to_node(cpu, apicid_to_node(hard_smp_processor_id()));
- }
- 
- static void unmap_cpu_to_logical_apicid(int cpu)
-@@ -943,6 +945,7 @@
- 
- 	irq_ctx_init(cpu);
- 
-+	x86_cpu_to_apicid[cpu] = apicid;
- 	/*
- 	 * This grunge runs the startup process for
- 	 * the targeted processor.
-diff -urN linux-2.6.17/arch/i386/kernel/srat.c linux-2.6.17-works/arch/i386/kernel/srat.c
---- linux-2.6.17/arch/i386/kernel/srat.c	2006-07-19 04:25:40.000000000 -0700
-+++ linux-2.6.17-works/arch/i386/kernel/srat.c	2006-07-19 04:36:18.000000000 -0700
-@@ -56,6 +56,7 @@
- static int num_memory_chunks;		/* total number of memory chunks */
- static int zholes_size_init;
- static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
-+static u8 apicid_to_pxm[MAX_APICID] = { [0 ... MAX_APICID-1] = 0 };
- 
- extern void * boot_ioremap(unsigned long, unsigned long);
- 
-@@ -71,6 +72,8 @@
- 	/* mark this node as "seen" in node bitmap */
- 	BMAP_SET(pxm_bitmap, cpu_affinity->proximity_domain);
- 
-+	apicid_to_pxm[cpu_affinity->apic_id] = cpu_affinity->proximity_domain;
-+
- 	printk("CPU 0x%02X in proximity domain 0x%02X\n",
- 		cpu_affinity->apic_id, cpu_affinity->proximity_domain);
- }
-@@ -282,6 +285,10 @@
- 	printk("Number of logical nodes in system = %d\n", num_online_nodes());
- 	printk("Number of memory chunks in system = %d\n", num_memory_chunks);
- 
-+	for (i = 0; i < MAX_APICID; i++) {
-+		apicid_2_node[i] = pxm_to_node(apicid_to_pxm[i]);
-+	}
-+	
- 	for (j = 0; j < num_memory_chunks; j++){
- 		struct node_memory_chunk_s * chunk = &node_memory_chunk[j];
- 		printk("chunk %d nid %d start_pfn %08lx end_pfn %08lx\n",
-diff -urN linux-2.6.17/include/asm-i386/mach-summit/mach_apic.h linux-2.6.17-works/include/asm-i386/mach-summit/mach_apic.h
---- linux-2.6.17/include/asm-i386/mach-summit/mach_apic.h	2006-07-19 04:25:51.000000000 -0700
-+++ linux-2.6.17-works/include/asm-i386/mach-summit/mach_apic.h	2006-07-18 20:45:23.000000000 -0700
-@@ -2,6 +2,7 @@
- #define __ASM_MACH_APIC_H
- 
- #include <asm/smp.h>
-+#include <asm/srat.h>
- 
- #define esr_disable (1)
- #define NO_BALANCE_IRQ (0)
-@@ -85,7 +86,7 @@
- 
- static inline int apicid_to_node(int logical_apicid)
- {
--	return logical_apicid >> 5;          /* 2 clusterids per CEC */
-+	return apicid_2_node[logical_apicid];
- }
- 
- /* Mapping from cpu number to logical apicid */
-diff -urN linux-2.6.17/include/asm-i386/srat.h linux-2.6.17-works/include/asm-i386/srat.h
---- linux-2.6.17/include/asm-i386/srat.h	2006-06-17 18:49:35.000000000 -0700
-+++ linux-2.6.17-works/include/asm-i386/srat.h	2006-07-18 21:26:38.000000000 -0700
-@@ -33,5 +33,6 @@
- 
- extern int get_memcfg_from_srat(void);
- extern unsigned long *get_zholes_size(int);
-+extern u8 apicid_2_node[];
- 
- #endif /* _ASM_SRAT_H_ */
-
---=-f3JH+9NH+r/eD3uC6QAc--
 

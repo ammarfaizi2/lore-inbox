@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWGTQCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWGTQEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030354AbWGTQCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 12:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWGTQCx
+	id S1030357AbWGTQEz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 12:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWGTQEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 12:02:53 -0400
-Received: from hoboe2bl1.telenet-ops.be ([195.130.137.73]:48549 "EHLO
-	hoboe2bl1.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S1030354AbWGTQCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 12:02:51 -0400
-From: Peter Korsgaard <jacmet@sunsite.dk>
-To: dustin@sensoria.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] smc911x: Re-release spinlock on spurious interrupt
-References: <87psg1hqp8.fsf@slug.be.48ers.dk>
-Date: Thu, 20 Jul 2006 06:01:47 +0200
-In-Reply-To: <87psg1hqp8.fsf@slug.be.48ers.dk> (Peter Korsgaard's message of
-	"Thu, 20 Jul 2006 05:59:15 +0200")
-Message-ID: <87hd1cj55g.fsf@slug.be.48ers.dk>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 20 Jul 2006 12:04:55 -0400
+Received: from ozlabs.tip.net.au ([203.10.76.45]:51909 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030355AbWGTQEy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 12:04:54 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17599.43337.775125.837876@cargo.ozlabs.ibm.com>
+Date: Fri, 21 Jul 2006 02:03:21 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Horms <horms@verge.net.au>
+Cc: Russell King <rmk@arm.linux.org.uk>, Tony Luck <tony.luck@intel.com>,
+       Anton Blanchard <anton@samba.org>, Andi Kleen <ak@suse.de>,
+       Chris Zankel <chris@zankel.net>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linuxppc-dev@ozlabs.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] panic_on_oops: remove ssleep()
+In-Reply-To: <31687.FP.7244@verge.net.au>
+References: <31687.FP.7244@verge.net.au>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Peter" == Peter Korsgaard <jacmet@sunsite.dk> writes:
+Horms writes:
 
- Peter> Hi,
- Peter> The smc911x driver forgets to release the spinlock on spurious
- Peter> interrupts. This little patch fixes it.
+> This patch is part of an effort to unify the panic_on_oops behaviour
+> across all architectures that implement it.
 
-Crap - forgot to sign off :/
-
-Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
-
-diff -Naur linux-2.6.18-rc2.orig/drivers/net/smc911x.c linux-2.6.18-rc2/drivers/net/smc911x.c
---- linux-2.6.18-rc2.orig/drivers/net/smc911x.c	2006-07-20 10:26:20.000000000 +0200
-+++ linux-2.6.18-rc2/drivers/net/smc911x.c	2006-07-20 17:44:26.000000000 +0200
-@@ -1092,6 +1092,7 @@
- 	/* Spurious interrupt check */
- 	if ((SMC_GET_IRQ_CFG() & (INT_CFG_IRQ_INT_ | INT_CFG_IRQ_EN_)) !=
- 		(INT_CFG_IRQ_INT_ | INT_CFG_IRQ_EN_)) {
-+		spin_unlock_irqrestore(&lp->lock, flags);
- 		return IRQ_NONE;
- 	}
-
--- 
-Bye, Peter Korsgaard
+Acked-by: Paul Mackerras <paulus@samba.org>

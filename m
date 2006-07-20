@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWGTQL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWGTQ0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbWGTQL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 12:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWGTQLZ
+	id S1030362AbWGTQ0d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 12:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbWGTQ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 12:11:25 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:25234 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030356AbWGTQLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 12:11:25 -0400
-Date: Thu, 20 Jul 2006 09:11:21 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: David Greaves <david@dgreaves.com>
-Cc: Nathan Scott <nathans@sgi.com>, Kasper Sandberg <lkml@metanurb.dk>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com, ml@magog.se, radsaq@gmail.com
-Subject: Re: FAQ updated (was Re: XFS breakage...)
-Message-ID: <20060720161121.GA26748@tuatara.stupidest.org>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost> <20060720171310.B1970528@wobbly.melbourne.sgi.com> <44BF8500.1010708@dgreaves.com>
+	Thu, 20 Jul 2006 12:26:32 -0400
+Received: from mga02.intel.com ([134.134.136.20]:45207 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030362AbWGTQ0c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 12:26:32 -0400
+X-IronPort-AV: i="4.07,163,1151910000"; 
+   d="scan'208"; a="68174216:sNHT3212314987"
+Message-ID: <44BFADA6.6090909@intel.com>
+Date: Thu, 20 Jul 2006 09:21:58 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.4 (X11/20060617)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44BF8500.1010708@dgreaves.com>
+To: Pavel Machek <pavel@ucw.cz>
+CC: cramerj@intel.com, john.ronciak@intel.com, jesse.brandeburg@intel.com,
+       jeffrey.t.kirsher@intel.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: e1000: "fix" it on thinkpad x60 / eeprom checksum read fails
+References: <20060721005832.GA1889@elf.ucw.cz>
+In-Reply-To: <20060721005832.GA1889@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Jul 2006 16:22:56.0730 (UTC) FILETIME=[C26613A0:01C6AC18]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 20, 2006 at 02:28:32PM +0100, David Greaves wrote:
+Pavel Machek wrote:
+> e1000 in thinkpad x60 fails without this dirty hack. What to do with
+> it?
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> Does this problem exist in 2.16.6.x??
+NAK, certainly this should never be merged in any tree...
 
-The change was merged after 2.6.16.x was branched, I was mistaken
-in how long I thought the bug has been about.
 
-> I hope so because I assumed there simply wasn't a patch for 2.6.16 and
-> applied this 'best guess' to my servers and rebooted/remounted successfully.
 
-Doing the correct change to 2.6.16.x won't hurt, but it's not
-necessary.
+this is a known issue that we're tracking here:
+
+http://sourceforge.net/tracker/index.php?func=detail&aid=1474679&group_id=42302&atid=447449
+
+Summary of the issue:
+
+Lenovo has used certain BIOS versions where ASPD/DSPD was turned on which 
+turns the PHY off when no cable is inserted to save power. The e1000 driver 
+already turns off this feature but can't do this until the driver is loaded. 
+It seems that turning this feature on causes the MAC to give read errors.
+
+Lenovo seems to have the feature turned off in their latest BIOS versions, we 
+encourage all people to upgrade their BIOS with the latest version from Lenovo 
+(available from their website). It seems that for at least 2 people, this has 
+fixed the problem.
+
+Inserting a cable obviously might also work :)
+
+We did reproduce the problem initially with the old BIOS (1.01-1.03) on a T60 
+system, but unfortunately the bug disappeared into nothingness.
+
+Bypassing the checksum leaves the NIC in an uncertain state and is not 
+recommended.
+
+Auke

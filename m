@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWGTAbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWGTAvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWGTAbI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 20:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWGTAbI
+	id S964887AbWGTAvY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 20:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWGTAvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 20:31:08 -0400
-Received: from ns1.suse.de ([195.135.220.2]:36274 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964885AbWGTAbH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 20:31:07 -0400
-From: Neil Brown <neilb@suse.de>
-To: Martin Filip <bugtraq@smoula.net>
-Date: Thu, 20 Jul 2006 10:30:01 +1000
+	Wed, 19 Jul 2006 20:51:23 -0400
+Received: from smtp.hickorytech.net ([216.114.192.16]:16870 "EHLO
+	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
+	id S964887AbWGTAvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 20:51:23 -0400
+Message-ID: <44BF19DA.9060403@mnsu.edu>
+Date: Thu, 20 Jul 2006 00:51:22 -0500
+From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nathan Scott <nathans@sgi.com>
+Cc: Mattias Hedenskog <ml@magog.se>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+Subject: Re: XFS breakage in 2.6.18-rc1
+References: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com> <44BE48D5.7020107@mnsu.edu> <20060720090109.F1947140@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060720090109.F1947140@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17598.52873.335796.13969@cse.unsw.edu.au>
-Cc: David Greaves <david@dgreaves.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS and partitioned md
-In-Reply-To: message from Martin Filip on Tuesday July 18
-References: <1151355145.4460.16.camel@archon.smoula-in.net>
-	<17568.31894.207153.563590@cse.unsw.edu.au>
-	<1151432312.11996.32.camel@reaver.netbox-in.cz>
-	<17571.19699.980491.970386@cse.unsw.edu.au>
-	<44BD2A29.8060405@dgreaves.com>
-	<1153253099.26360.3.camel@archon.smoula-in.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday July 18, bugtraq@smoula.net wrote:
-> Hi,
-> 
-> my solution was to use fsid parameter for exports... maybe some other
-> mechanism for selecting fsids could be created instead of fsid = device
-> minor
+Nathan Scott wrote:
+> On Wed, Jul 19, 2006 at 09:59:33AM -0500, Jeffrey E. Hundstad wrote:
+>   
+>> I did try the xfs_repair 2.8.4 for a volume running on 2.6.17.4 and it 
+>> annihilated the volume.  This volume was not showing signs of crashing.  
+>> So... I guess I would certainly not run xfs_repair unless there is good 
+>> reason.
+>>     
+>
+> Erm, wha..?  Can you expand on "annihilated" a bit?  (please send
+> me the full xfs_repair output if you still have it).
+>   
 
-Yes.  Better management of fsid is on my wishlist for nfs-utils.
-Unfortunately I haven't had any really clever ideas yet.
+Nathan Scott,
 
-NeilBrown
+I'm very sorry; I don't have the output anymore.  By annihilated I mean 
+that there were several directories trees that /didn't work/.  If you 
+tried to cd into the directory or take a directory listing... or used a 
+file that you knew was in these certain directories then you'd get pages 
+of debug message to the console; and no usable data.  I re-ran 
+xfs_repair and retried several times but the condition never seemed to 
+improve or get worse for that matter.
+
+I /incorrectly/ figured it was a known issue or I'd have saved the 
+output.  Sorry again.
+
+-- 
+Jeffrey Hundstad
+

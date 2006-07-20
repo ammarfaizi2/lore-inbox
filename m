@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWGTAvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWGTDEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbWGTAvY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jul 2006 20:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWGTAvX
+	id S964894AbWGTDEf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jul 2006 23:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWGTDEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jul 2006 20:51:23 -0400
-Received: from smtp.hickorytech.net ([216.114.192.16]:16870 "EHLO
-	avalanche.hickorytech.net") by vger.kernel.org with ESMTP
-	id S964887AbWGTAvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jul 2006 20:51:23 -0400
-Message-ID: <44BF19DA.9060403@mnsu.edu>
-Date: Thu, 20 Jul 2006 00:51:22 -0500
-From: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Wed, 19 Jul 2006 23:04:35 -0400
+Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:10212 "EHLO
+	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S964894AbWGTDEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jul 2006 23:04:35 -0400
+Date: Wed, 19 Jul 2006 20:04:34 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Jeff Garzik <jeff@garzik.org>
+cc: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] A generic boolean
+In-Reply-To: <44BECAA2.6010402@garzik.org>
+Message-ID: <Pine.LNX.4.58.0607192003030.20069@shell3.speakeasy.net>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+ <44BE9E78.3010409@garzik.org> <1153351042.44bebd82356a4@portal.student.luth.se>
+ <44BECAA2.6010402@garzik.org>
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-Cc: Mattias Hedenskog <ml@magog.se>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: XFS breakage in 2.6.18-rc1
-References: <67dc30140607190717r57ed2fe5w719dcca896110d8@mail.gmail.com> <44BE48D5.7020107@mnsu.edu> <20060720090109.F1947140@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060720090109.F1947140@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
-> On Wed, Jul 19, 2006 at 09:59:33AM -0500, Jeffrey E. Hundstad wrote:
->   
->> I did try the xfs_repair 2.8.4 for a volume running on 2.6.17.4 and it 
->> annihilated the volume.  This volume was not showing signs of crashing.  
->> So... I guess I would certainly not run xfs_repair unless there is good 
->> reason.
->>     
+On Wed, 19 Jul 2006, Jeff Garzik wrote:
+
+> ricknu-0@student.ltu.se wrote:
+> > Citerar Jeff Garzik <jeff@garzik.org>:
+> >> Also, you don't want to force 'unsigned char' on code, because often
+> >> code prefers a machine integer to something smaller than a machine integer.
 >
-> Erm, wha..?  Can you expand on "annihilated" a bit?  (please send
-> me the full xfs_repair output if you still have it).
->   
+> > But isn't a bit smaller than a byte? Sorry, do not understand what you mean.
+>
+> For all processors, it is generally preferred to have integer operations
+> performed on a "machine integer."  A machine integer is the natural data
+> type of the processor.  If it's a 32-bit processor, the natural data
+> type for the ALU is a 32-bit int.  If it's a 64-bit processor, the
+> natural data type for the ALU is a 64-bit int.
 
-Nathan Scott,
+If this is the case, then wouldn't "long" be preferable to "int"?
 
-I'm very sorry; I don't have the output anymore.  By annihilated I mean 
-that there were several directories trees that /didn't work/.  If you 
-tried to cd into the directory or take a directory listing... or used a 
-file that you knew was in these certain directories then you'd get pages 
-of debug message to the console; and no usable data.  I re-ran 
-xfs_repair and retried several times but the condition never seemed to 
-improve or get worse for that matter.
+> 	Jeff
 
-I /incorrectly/ figured it was a known issue or I'd have saved the 
-output.  Sorry again.
-
--- 
-Jeffrey Hundstad
-
+-- Vadim Lobanov

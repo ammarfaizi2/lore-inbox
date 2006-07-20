@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWGTJHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWGTJf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbWGTJHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 05:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWGTJHh
+	id S932583AbWGTJf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 05:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWGTJf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 05:07:37 -0400
-Received: from frankvm.xs4all.nl ([80.126.170.174]:16272 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S932574AbWGTJHh
+	Thu, 20 Jul 2006 05:35:59 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:17040 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S932583AbWGTJf7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 05:07:37 -0400
-Date: Thu, 20 Jul 2006 11:07:36 +0200
+	Thu, 20 Jul 2006 05:35:59 -0400
+Date: Thu, 20 Jul 2006 11:35:57 +0200
 From: Frank van Maarseveen <frankvm@frankvm.com>
-To: Neil Brown <neilb@suse.de>
-Cc: Martin Filip <bugtraq@smoula.net>, David Greaves <david@dgreaves.com>,
-       linux-kernel@vger.kernel.org,
-       Linux NFS mailing list <nfs@lists.sourceforge.net>
-Subject: Re: NFS and partitioned md
-Message-ID: <20060720090736.GB1408@janus>
-References: <1151355145.4460.16.camel@archon.smoula-in.net> <17568.31894.207153.563590@cse.unsw.edu.au> <1151432312.11996.32.camel@reaver.netbox-in.cz> <17571.19699.980491.970386@cse.unsw.edu.au> <44BD2A29.8060405@dgreaves.com> <1153253099.26360.3.camel@archon.smoula-in.net> <17598.52873.335796.13969@cse.unsw.edu.au>
+To: Bill Ryder <bryder@wetafx.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x kernels
+Message-ID: <20060720093557.GA1796@janus>
+References: <44B32888.6050406@wetafx.co.nz> <20060719080213.GA22925@janus> <44BE936B.3080107@wetafx.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17598.52873.335796.13969@cse.unsw.edu.au>
+In-Reply-To: <44BE936B.3080107@wetafx.co.nz>
 User-Agent: Mutt/1.4.1i
 X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 20, 2006 at 10:30:01AM +1000, Neil Brown wrote:
-> On Tuesday July 18, bugtraq@smoula.net wrote:
-> > Hi,
-> > 
-> > my solution was to use fsid parameter for exports... maybe some other
-> > mechanism for selecting fsids could be created instead of fsid = device
-> > minor
+On Thu, Jul 20, 2006 at 08:17:47AM +1200, Bill Ryder wrote:
+[...]
+> As an aside Frank - can you point at a paper which provides a
+> walkthrough of how your patch  works and what the caveats are?
+
+	http://www.frankvm.com/nfs-ngroups/README
+
+> For example
 > 
-> Yes.  Better management of fsid is on my wishlist for nfs-utils.
-> Unfortunately I haven't had any really clever ideas yet.
+> /top(0)/p1(2)/p3(2)/p4(2)/p5(6)/file1(6)
+> /top(0)/p1(2)/p3(2)/p4(2)/p6(7)/file2(7)
+> /top(0)/p1(2)/p3(2)/p4(2)/p7(8)/file3(6)
+> /top(0)/p1(2)/p3(2)/p4(2)/p7(8)/file4(8)
+> 
+> And so on - where the (n) indicated the (gid) for that directory/file.
+> So most of our directories are in the same group. But as you get further
+> down the tree the groups start to change.
+> 
+> The process will belong to > 16 groups.
 
-I'd like to "virtualize" exports such that it is possible to transplant
-disks/partitions from one machine into another without having to bother
-with device numbering. One step in that direction is to derive the fsid
-from an IP address. The server machine needs an additional IP address
-for every export entry. This IP address is determined by deriving
-a hostname from the last pathname component of the export entry and
-resolving it. E.g. something like:
-
-/etc/exports:
-	/exported/path/name	*(rw,sync,no_root_squash,no_subtree_check,fsid="nfs-%s")
-
-This would set the fsid to the IP address of host "nfs-name".
+setgroups() require privilege. I don't understand how the above is
+supposed to work for non-root users needing >16 groups. And when you're
+root it is silly to play these group games for getting access.
 
 -- 
 Frank

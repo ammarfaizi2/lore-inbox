@@ -1,51 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWGTXI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWGTXNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030321AbWGTXI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 19:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWGTXI2
+	id S1030336AbWGTXNA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 19:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWGTXNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 19:08:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62694 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030321AbWGTXI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 19:08:27 -0400
-Date: Fri, 21 Jul 2006 10:07:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: George Nychis <gnychis@cmu.edu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Jeff Chua <jchua@fedex.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/hibernate to work on thinkpad x60s?
-Message-ID: <20060721080735.GA1741@elf.ucw.cz>
-References: <30DF6C25102A6E4BBD30B26C4EA1DCCC0162E099@MEMEXCH10V.corp.ds.fedex.com> <44BCFDA6.3030909@cmu.edu> <200607190005.02351.rjw@sisk.pl> <44BE4B33.6090009@cmu.edu>
+	Thu, 20 Jul 2006 19:13:00 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:60592 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030336AbWGTXM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 19:12:59 -0400
+Date: Thu, 20 Jul 2006 16:12:46 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Nathan Scott <nathans@sgi.com>, David Greaves <david@dgreaves.com>,
+       Kasper Sandberg <lkml@metanurb.dk>,
+       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com, ml@magog.se, radsaq@gmail.com
+Subject: Re: FAQ updated (was Re: XFS breakage...)
+Message-ID: <20060720231245.GA32195@tuatara.stupidest.org>
+References: <44BF8500.1010708@dgreaves.com> <20060720161121.GA26748@tuatara.stupidest.org> <20060721081452.B1990742@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607201817450.23697@p34.internal.lan> <20060721082448.C1990742@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607201843020.2619@p34.internal.lan> <20060721085230.F1990742@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607201855270.2652@p34.internal.lan> <20060721090015.G1990742@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607201910010.20652@p34.internal.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44BE4B33.6090009@cmu.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <Pine.LNX.4.64.0607201910010.20652@p34.internal.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 2006-07-19 11:09:39, George Nychis wrote:
-> Okay, I was missing that, thanks
-> 
-> So, i suspended to disk the first time and it seemed to suspend
-> properly, then I hit the power button on the thinkpad and it took me to
-> the thinkpad screen, back to grub, and booted the OS from the beginning.
->  Did I resume the wrong way?
-> 
-> So, after it rebooted, i tried to suspend it to disk again:
-> x60s gnychis # echo platform > /sys/power/disk; echo disk > /sys/power/state
-> bash: echo: write error: No such device
-> 
-> So now it won't even suspend to disk.
+On Thu, Jul 20, 2006 at 07:10:46PM -0400, Justin Piszcz wrote:
 
-> Any ideas?
+> I can run this over and over, and the result is the same?
 
-Read the docs?
-
-Then you'll need AHCI suspend support, it went on lkml few hours ago.
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+lost+found is recreated every time, rename it and you'll get less
+output

@@ -1,189 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWGTNJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWGTN2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbWGTNJw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 09:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGTNJw
+	id S964883AbWGTN2f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 09:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWGTN2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 09:09:52 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:40328 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S964839AbWGTNJv (ORCPT
+	Thu, 20 Jul 2006 09:28:34 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:63894 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S964883AbWGTN2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 09:09:51 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Martin Waitz <tali@admingilde.org>
-Subject: [PATCH][kernel-doc] Add DocBook documentation for workqueue functions
-Date: Thu, 20 Jul 2006 15:11:06 +0200
-User-Agent: KMail/1.9.3
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-References: <200607201145.19147.eike-kernel@sf-tec.de>
-In-Reply-To: <200607201145.19147.eike-kernel@sf-tec.de>
+	Thu, 20 Jul 2006 09:28:34 -0400
+Message-ID: <44BF8500.1010708@dgreaves.com>
+Date: Thu, 20 Jul 2006 14:28:32 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nathan Scott <nathans@sgi.com>
+Cc: Kasper Sandberg <lkml@metanurb.dk>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com, cw@f00f.org, ml@magog.se, radsaq@gmail.com
+Subject: Re: FAQ updated (was Re: XFS breakage...)
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost> <20060720171310.B1970528@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060720171310.B1970528@wobbly.melbourne.sgi.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607201511.07079.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[kernel-doc] Add DocBook documentation for workqueue functions
+Nathan Scott wrote:
+> Correction there - no -stable exists with this yet, I guess that'll
+> be 2.6.17.7 once its out though.
+> 
+>> what action do you suggest i do now?
+> 
+> I've captured the state of this issue here, with options and ways
+> to correct the problem:
+> 	http://oss.sgi.com/projects/xfs/faq.html#dir2
+> 
+> Hope this helps.
 
-kernel/workqueue.c was omitted from generating kernel documentation. This
-adds a new section "Workqueues and Kevents" and adds documentation for
-some of the functions.
+It does, thanks :)
 
-Some functions in this file already had DocBook-style comments, now they
-finally become visible.
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Does this problem exist in 2.16.6.x??
 
----
-commit 4223d94a33bdb10bad3f2c0adebb7fea40ae185a
-tree 48f253544107cb9a5da1b438ff96c93a5f1b8964
-parent a050dbf5ec50ebb71ebb455fac68dfd0a9e21bb6
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Thu, 20 Jul 2006 15:06:54 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Thu, 20 Jul 2006 15:06:54 +0200
+>From various comments like:
+  Unless 2.6.16.x is a dead-end could we please also have this patch put
+  into there?
+and
+  a result (I believe) of the corruption bug that was in 2.6.16/17.
+and
+  I just want to confirm this bug as well and unfortunately it was my
+  system disk too who had to take the hit. Im running 2.6.16
+I assume it does.
 
- Documentation/DocBook/kernel-api.tmpl |    3 ++
- kernel/workqueue.c                    |   58 +++++++++++++++++++++++++++++++--
- 2 files changed, 57 insertions(+), 4 deletions(-)
+But the FAQ says:
+Q: What is the issue with directory corruption in Linux 2.6.17?
+In the Linux kernel 2.6.17 release a subtle bug...
 
-Version 2 of patch: fixed two copy&waste errors found by Stefan Richter. Also 
-added comment on CPU to description of schedule_delayed_work_on.
+which implies it's not...
 
-Version 3 of patch: removed newlines between short description and parameters 
-causing Description section to appear twice (thanks to Randy Dunlap).
+HELP
 
-diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
-index 1ae4dc0..2d0cc38 100644
---- a/Documentation/DocBook/kernel-api.tmpl
-+++ b/Documentation/DocBook/kernel-api.tmpl
-@@ -59,6 +59,9 @@
- !Iinclude/linux/hrtimer.h
- !Ekernel/hrtimer.c
-      </sect1>
-+     <sect1><title>Workqueues and Kevents</title>
-+!Ekernel/workqueue.c
-+     </sect1>
-      <sect1><title>Internal Functions</title>
- !Ikernel/exit.c
- !Ikernel/signal.c
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 7fada82..61f959d 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -93,9 +93,12 @@ static void __queue_work(struct cpu_work
- 	spin_unlock_irqrestore(&cwq->lock, flags);
- }
- 
--/*
-- * Queue work on a workqueue. Return non-zero if it was successfully
-- * added.
-+/**
-+ * queue_work - queue work on a workqueue
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ *
-+ * Returns non-zero if it was successfully added.
-  *
-  * We queue the work to the CPU it was submitted, but there is no
-  * guarantee that it will be processed by that CPU.
-@@ -128,6 +131,14 @@ static void delayed_work_timer_fn(unsign
- 	__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), work);
- }
- 
-+/**
-+ * queue_delayed_work - queue work on a workqueue after delay
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ * @delay: number of jiffies to wait before queueing
-+ *
-+ * Returns non-zero if it was successfully added.
-+ */
- int fastcall queue_delayed_work(struct workqueue_struct *wq,
- 			struct work_struct *work, unsigned long delay)
- {
-@@ -150,6 +161,15 @@ int fastcall queue_delayed_work(struct w
- }
- EXPORT_SYMBOL_GPL(queue_delayed_work);
- 
-+/**
-+ * queue_delayed_work_on - queue work on specific CPU after delay
-+ * @cpu: CPU number to execute work on
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ * @delay: number of jiffies to wait before queueing
-+ *
-+ * Returns non-zero if it was successfully added.
-+ */
- int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 			struct work_struct *work, unsigned long delay)
- {
-@@ -275,8 +295,9 @@ static void flush_cpu_workqueue(struct c
- 	}
- }
- 
--/*
-+/**
-  * flush_workqueue - ensure that any scheduled work has run to completion.
-+ * @wq: workqueue to flush
-  *
-  * Forces execution of the workqueue and blocks until its completion.
-  * This is typically used in driver shutdown handlers.
-@@ -400,6 +421,12 @@ static void cleanup_workqueue_thread(str
- 		kthread_stop(p);
- }
- 
-+/**
-+ * destroy_workqueue - safely terminate a workqueue
-+ * @wq: target workqueue
-+ *
-+ * Safely destroy a workqueue. All work currently pending will be done first.
-+ */
- void destroy_workqueue(struct workqueue_struct *wq)
- {
- 	int cpu;
-@@ -425,18 +452,41 @@ EXPORT_SYMBOL_GPL(destroy_workqueue);
- 
- static struct workqueue_struct *keventd_wq;
- 
-+/**
-+ * schedule_work - put work task in global workqueue
-+ * @work: job to be done
-+ *
-+ * This puts a job in the kernel-global workqueue.
-+ */
- int fastcall schedule_work(struct work_struct *work)
- {
- 	return queue_work(keventd_wq, work);
- }
- EXPORT_SYMBOL(schedule_work);
- 
-+/**
-+ * schedule_delayed_work - put work task in global workqueue after delay
-+ * @work: job to be done
-+ * @delay: number of jiffies to wait
-+ *
-+ * After waiting for a given time this puts a job in the kernel-global
-+ * workqueue.
-+ */
- int fastcall schedule_delayed_work(struct work_struct *work, unsigned long delay)
- {
- 	return queue_delayed_work(keventd_wq, work, delay);
- }
- EXPORT_SYMBOL(schedule_delayed_work);
- 
-+/**
-+ * schedule_delayed_work_on - queue work in global workqueue on CPU after delay
-+ * @cpu: cpu to use
-+ * @work: job to be done
-+ * @delay: number of jiffies to wait
-+ *
-+ * After waiting for a given time this puts a job in the kernel-global
-+ * workqueue on the specified CPU.
-+ */
- int schedule_delayed_work_on(int cpu,
- 			struct work_struct *work, unsigned long delay)
- {
+So given this is from 2.6.16.9:
+                        /*
+                         * One less used entry in the free table.
+                         */
+                        INT_MOD(free->hdr.nused, ARCH_CONVERT, -1);
+                        xfs_dir2_free_log_header(tp, fbp);
+
+and it looks awfully similar to the patch which says:
+
+--- linux-2.6.17.2.orig/fs/xfs/xfs_dir2_node.c
++++ linux-2.6.17.2/fs/xfs/xfs_dir2_node.c
+@@ -970,7 +970,7 @@ xfs_dir2_leafn_remove(
+ 			/*
+ 			 * One less used entry in the free table.
+ 			 */
+-			free->hdr.nused = cpu_to_be32(-1);
++			be32_add(&free->hdr.nused, -1);
+ 			xfs_dir2_free_log_header(tp, fbp);
+
+Should 2.6.16.x replace
+  INT_MOD(free->hdr.nused, ARCH_CONVERT, -1);
+with
+  be32_add(&free->hdr.nused, -1);
+
+I hope so because I assumed there simply wasn't a patch for 2.6.16 and
+applied this 'best guess' to my servers and rebooted/remounted successfully.
+
+David
+
+
+-- 

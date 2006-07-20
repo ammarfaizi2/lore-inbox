@@ -1,183 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWGTJoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGTJ6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbWGTJoH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 05:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWGTJoH
+	id S1030187AbWGTJ6f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 05:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGTJ6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 05:44:07 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:31959 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1030235AbWGTJoG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 05:44:06 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Martin Waitz <tali@admingilde.org>
-Subject: [PATCH][kernel-doc] Add DocBook documentation for workqueue functions
-Date: Thu, 20 Jul 2006 11:45:18 +0200
-User-Agent: KMail/1.9.3
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607201145.19147.eike-kernel@sf-tec.de>
+	Thu, 20 Jul 2006 05:58:35 -0400
+Received: from miranda.se.axis.com ([193.13.178.8]:1255 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP
+	id S1030187AbWGTJ6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 05:58:34 -0400
+Message-Id: <200607201000.k6KA0qY10526@saur.se.axis.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Allow make kernelrelease & make kernelversion without .config
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 20 Jul 2006 12:00:52 +0200
+From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/workqueue.c was omitted from generating kernel documentation. This
-adds a new section "Workqueues and Kevents" and adds documentation for
-some of the functions.
+The make targets kernelrelease and kernelversion do not need the .config 
+file to exist for them to be useable.  Add them to no-dot-config-targets.
 
-Some functions in this file already had DocBook-style comments, now they 
-finally become visible
+Signed-off-by: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Index: Makefile
+===================================================================
+RCS file: /usr/local/cvs/linux/os/linux-2.6/Makefile,v
+retrieving revision 1.1.1.31
+diff -p -u -r1.1.1.31 Makefile
+--- Makefile	25 Jun 2006 12:57:55 -0000	1.1.1.31
++++ Makefile	20 Jul 2006 09:42:20 -0000
+@@ -362,7 +362,8 @@ endif
+ # of make so .config is not included in this case either (for *config).
+ 
+ no-dot-config-targets := clean mrproper distclean \
+-			 cscope TAGS tags help %docs check%
++			 cscope TAGS tags help %docs check% \
++			 kernelrelease kernelversion
+ 
+ config-targets := 0
+ mixed-targets  := 0
 
----
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Thu, 20 Jul 2006 11:38:50 +0200
 
- Documentation/DocBook/kernel-api.tmpl |    3 ++
- kernel/workqueue.c                    |   66 +++++++++++++++++++++++++++++++--
- 2 files changed, 65 insertions(+), 4 deletions(-)
+------------------------------------------------------------
+Peter Kjellerstedt       E-Mail: Peter.Kjellerstedt@axis.com
+Axis Communications AB   Phone:  +46 46 272 18 69
+Emdalav. 14              Fax:    +46 46 13 61 30
+SE-223 69  LUND          URL:    http://www.axis.com/
 
-diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
-index 1ae4dc0..2d0cc38 100644
---- a/Documentation/DocBook/kernel-api.tmpl
-+++ b/Documentation/DocBook/kernel-api.tmpl
-@@ -59,6 +59,9 @@
- !Iinclude/linux/hrtimer.h
- !Ekernel/hrtimer.c
-      </sect1>
-+     <sect1><title>Workqueues and Kevents</title>
-+!Ekernel/workqueue.c
-+     </sect1>
-      <sect1><title>Internal Functions</title>
- !Ikernel/exit.c
- !Ikernel/signal.c
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 7fada82..8f1086e 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -93,9 +93,13 @@ static void __queue_work(struct cpu_work
- 	spin_unlock_irqrestore(&cwq->lock, flags);
- }
- 
--/*
-- * Queue work on a workqueue. Return non-zero if it was successfully
-- * added.
-+/**
-+ * queue_work - queue work on a workqueue
-+ *
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ *
-+ * Returns non-zero if it was successfully added.
-  *
-  * We queue the work to the CPU it was submitted, but there is no
-  * guarantee that it will be processed by that CPU.
-@@ -128,6 +132,15 @@ static void delayed_work_timer_fn(unsign
- 	__queue_work(per_cpu_ptr(wq->cpu_wq, cpu), work);
- }
- 
-+/**
-+ * queue_delayed_work - queue work on a workqueue after delay
-+ *
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ * @delay: number of jiffies to wait before queueing
-+ *
-+ * Returns non-zero if it was successfully added.
-+ */
- int fastcall queue_delayed_work(struct workqueue_struct *wq,
- 			struct work_struct *work, unsigned long delay)
- {
-@@ -150,6 +163,16 @@ int fastcall queue_delayed_work(struct w
- }
- EXPORT_SYMBOL_GPL(queue_delayed_work);
- 
-+/**
-+ * queue_delayed_work_on - queue work on specific CPU after delay
-+ *
-+ * @cpu: CPU number to execute work on
-+ * @wq: workqueue to use
-+ * @work: work to queue
-+ * @delay: number of jiffies to wait before queueing
-+ *
-+ * Returns non-zero if it was successfully added.
-+ */
- int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 			struct work_struct *work, unsigned long delay)
- {
-@@ -275,9 +298,11 @@ static void flush_cpu_workqueue(struct c
- 	}
- }
- 
--/*
-+/**
-  * flush_workqueue - ensure that any scheduled work has run to completion.
-  *
-+ * @wq: workqueue to flush
-+ *
-  * Forces execution of the workqueue and blocks until its completion.
-  * This is typically used in driver shutdown handlers.
-  *
-@@ -400,6 +425,13 @@ static void cleanup_workqueue_thread(str
- 		kthread_stop(p);
- }
- 
-+/**
-+ * destroy_workqueue - safely terminate a workqueue
-+ *
-+ * @wq: target workqueue
-+ *
-+ * Safely destroy a workqueue. All work currently pending will be done first.
-+ */
- void destroy_workqueue(struct workqueue_struct *wq)
- {
- 	int cpu;
-@@ -425,18 +457,44 @@ EXPORT_SYMBOL_GPL(destroy_workqueue);
- 
- static struct workqueue_struct *keventd_wq;
- 
-+/**
-+ * schedule_work - put work task in global workqueue
-+ *
-+ * @work: job to be done
-+ *
-+ * This puts a job in the kernel-global workqueue.
-+ */
- int fastcall schedule_work(struct work_struct *work)
- {
- 	return queue_work(keventd_wq, work);
- }
- EXPORT_SYMBOL(schedule_work);
- 
-+/**
-+ * schedule_work - put work task in global workqueue after delay
-+ *
-+ * @work: job to be done
-+ * @delay: number of jiffies to wait
-+ *
-+ * After waiting for a given time this puts a job in the kernel-global
-+ * workqueue.
-+ */
- int fastcall schedule_delayed_work(struct work_struct *work, unsigned long delay)
- {
- 	return queue_delayed_work(keventd_wq, work, delay);
- }
- EXPORT_SYMBOL(schedule_delayed_work);
- 
-+/**
-+ * schedule_work - queue work in global workqueue on specific CPU after delay
-+ *
-+ * @cpu: cpu to use
-+ * @work: job to be done
-+ * @delay: number of jiffies to wait
-+ *
-+ * After waiting for a given time this puts a job in the kernel-global
-+ * workqueue.
-+ */
- int schedule_delayed_work_on(int cpu,
- 			struct work_struct *work, unsigned long delay)
- {
+

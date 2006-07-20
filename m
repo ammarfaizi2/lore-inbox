@@ -1,54 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWGTHOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGTIJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWGTHOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 03:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWGTHOI
+	id S964836AbWGTIJA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 04:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWGTIJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 03:14:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:20864 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964846AbWGTHOH (ORCPT
+	Thu, 20 Jul 2006 04:09:00 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:3266 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964836AbWGTII7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 03:14:07 -0400
-Date: Thu, 20 Jul 2006 17:13:10 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Kasper Sandberg <lkml@metanurb.dk>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Torsten Landschoff <torsten@debian.org>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: FAQ updated (was Re: XFS breakage...)
-Message-ID: <20060720171310.B1970528@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1153304468.3706.4.camel@localhost>; from lkml@metanurb.dk on Wed, Jul 19, 2006 at 12:21:08PM +0200
+	Thu, 20 Jul 2006 04:08:59 -0400
+Date: Thu, 20 Jul 2006 10:07:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Shorty Porty <getshorty_@hotmail.com>
+cc: linux-kernel@vger.kernel.org, ricknu-0@student.ltu.se
+Subject: RE: [RFC][PATCH] A generic boolean
+In-Reply-To: <BAY104-DAV11BD5C0159C7CD7BA10CA3ED610@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0607200959020.19497@yvahk01.tjqt.qr>
+References: <BAY104-DAV11BD5C0159C7CD7BA10CA3ED610@phx.gbl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 19, 2006 at 12:21:08PM +0200, Kasper Sandberg wrote:
-> On Wed, 2006-07-19 at 08:57 +1000, Nathan Scott wrote:
-> > On Wed, Jul 19, 2006 at 12:29:41AM +0200, Torsten Landschoff wrote:
-> > > 
-> > > Jul 17 07:33:53 pulsar kernel: xfs_da_do_buf: bno 16777216
-> > > Jul 17 07:33:53 pulsar kernel: dir: inode 54526538
-> > 
-> > I suspect you had some residual directory corruption from using the
-> > 2.6.17 XFS (which is known to have a lurking dir2 corruption issue,
-> > fixed in the latest -stable point release).
+>[...]
+>from the compiler's standpoint. Function that return 'true' for an integer
+>type (as opposed to a C++ standard-type bool) should be tested like
+>
+>  if(SomeFunction())
+>
+>or
+>  if(!SomeFunction())
+>
+>instead of testing for equality
+>
+>  if(SomeFunction() == TRUE)
+>of
+>  if(SomeFunction() == FALSE)
+>
+>as the former (IMO) is as readable, if not more readable as the latter
 
-Correction there - no -stable exists with this yet, I guess that'll
-be 2.6.17.7 once its out though.
+Full ACK. What currently bugs me is that there are code places which 
+"violate" your suggestion in a different way, i.e.
 
-> what action do you suggest i do now?
+ void *foo = null_or_not_null_that_is_the_question();
+ ...
+ if(foo)
+      do_bar();
 
-I've captured the state of this issue here, with options and ways
-to correct the problem:
-	http://oss.sgi.com/projects/xfs/faq.html#dir2
+vs
 
-Hope this helps.
+ if(foo == NULL)
 
-cheers.
+>, and it's likely to get optimised better.
 
+Unlikely that it will be better, as the compiler knows that bar() returns 
+bool, testing it against TRUE or FALSE does not make a difference to
+using "bar()" or "!bar()" respectively.
+
+But I agree. The "!" operator was invented *for a reason*, so we do not 
+need ==false.
+
+>That and someone might give true AND return a status by returning neither 
+>0 or 1, in which case 
+
+In that case you cannot work with bools at all, because they are not 
+guaranteed to be big enough for status codes. Here, 'int' comes into play.
+And then func_return_int()==TRUE/FALSE seems strange anyhow. That's like
+
+>> > If this is the case, then wouldn't "long" be preferable to "int"?
+>
+>Meh, it's all the same.
+
+On x86, it is not. But x86_64 has int=4 bytes and long=8 bytes.
+What's wasted is probably the cacheline due to a longer immediate 
+integer in the instruction. SPARC64 for example is even more sensitive:
+also has int=4 and long=8, but generates a lot more instructions for 'long' 
+data shuffling than for 'int', because it has a small instruction size.
+And also start to think of 'long long' (resp. int64_t) used somewhere [in 
+code] on x86 -- also needs extra ops because the regs are not wide enough.
+
+
+Jan Engelhardt
 -- 
-Nathan

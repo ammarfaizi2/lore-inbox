@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWGTIQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbWGTI1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWGTIQu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 04:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbWGTIQu
+	id S964906AbWGTI1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 04:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWGTI1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 04:16:50 -0400
-Received: from sandesha.sasken.com ([164.164.56.19]:4272 "EHLO
-	mail3.sasken.com") by vger.kernel.org with ESMTP id S964903AbWGTIQt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 04:16:49 -0400
-Date: Thu, 20 Jul 2006 13:46:41 +0530 (IST)
-From: Subbu <subbu@sasken.com>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-cc: subbu2k_av@yahoo.com
-Subject: Memory allocation Failure problem with kmalloc.
-In-Reply-To: <Pine.GSO.4.64.0607171557040.15797@sunm21.sasken.com>
-Message-ID: <Pine.GSO.4.64.0607201340580.13879@sunm21.sasken.com>
-References: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com><Pine.GSO.4.
-	64.0607171557040.15797@sunm21.sasken.com>
+	Thu, 20 Jul 2006 04:27:18 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:18308 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964906AbWGTI1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 04:27:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VV3oujKXMrs6x/Kk2Q0W2kX1R8OCXry1xMbmHGtsWLSgJzMvoEVdXO7G0YJ/FmOB4UPuKUmhvBJ//yJlEzAnVTzUAwroZUCel5+6+nIRS8g8VmgoWhPl1NyhRIkXNzQSoxbMYBZ2CyqikGgwq6TqVDovjZLKS0s0PTdSCrdDvKQ=
+Message-ID: <9a8748490607200127r40ad4e66iffa3a6efb6f9f06c@mail.gmail.com>
+Date: Thu, 20 Jul 2006 10:27:13 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: Subbu <subbu@sasken.com>
+Subject: Re: Memory allocation Failure problem with kmalloc.
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       subbu2k_av@yahoo.com
+In-Reply-To: <Pine.GSO.4.64.0607201340580.13879@sunm21.sasken.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset=US-ASCII;
-	format=flowed
-X-imss-version: 2.037
-X-imss-result: Passed
-X-imss-scores: Clean:99.90000 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:3 C:2 M:3 S:3 R:3 (0.5000 0.5000)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.GSO.4.64.0607071626210.2230@sunm21.sasken.com>
+	 <Pine.GSO.4.64.0607171557040.15797@sunm21.sasken.com>
+	 <Pine.GSO.4.64.0607201340580.13879@sunm21.sasken.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20/07/06, Subbu <subbu@sasken.com> wrote:
+>
+>
+> Hi,
+>
+>    I am working on 2.4.20 kernel.
+>
+>    I need to allocate memory with kmalloc.
+>
+>    kmalloc fails because i want to allocate more than 128kb. How to handle
+> this issue.
+>
+>    Please help me in this regard.
+>
+>    How i can allocate memory of size equal to 1Mb with kmalloc or any other
+> function (2.4 kernel)
+>
+kmalloc() allocates physically contiguous pages. 1M is a hell of a lot
+of contig pages to ask for. I doubt you can get that much except at
+early boot. But, if the pages don't actually need to be physically
+contiguous, then you can use vmalloc() - it'll give you a virtually
+contiguous range but the pages are not nessesarily physically
+contiguous.
 
+Why do you need this much btw?
 
-Hi,
-
-   I am working on 2.4.20 kernel.
-
-   I need to allocate memory with kmalloc.
-
-   kmalloc fails because i want to allocate more than 128kb. How to handle 
-this issue.
-
-   Please help me in this regard.
-
-   How i can allocate memory of size equal to 1Mb with kmalloc or any other 
-function (2.4 kernel)
-
-THanx in advance.
-Subbu
-
-
-"SASKEN RATED Among THE Top 3 BEST COMPANIES TO WORK FOR IN INDIA - SURVEY 2005 conducted by the BUSINESS TODAY - Mercer - TNS India"
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

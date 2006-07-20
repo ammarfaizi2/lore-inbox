@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWGTUDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWGTUEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWGTUDh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 16:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWGTUDg
+	id S1030371AbWGTUEX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 16:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWGTUEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 16:03:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:54980 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030370AbWGTUDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 16:03:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kari Hurtta <hurtta+gmane@siilo.fmi.fi>
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls
-Date: 20 Jul 2006 23:02:53 +0300
-Message-ID: <5dd5c0nixe.fsf@attruh.keh.iki.fi>
-References: <Pine.LNX.4.58.0607201504040.18901@sbz-30.cs.Helsinki.FI>
+	Thu, 20 Jul 2006 16:04:23 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:29715 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030371AbWGTUEX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 16:04:23 -0400
+Date: Fri, 21 Jul 2006 06:04:13 +1000
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: Mark McLoughlin <markmc@redhat.com>, jesse.brandeburg@intel.com,
+       linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com
+Subject: Re: e1000: Problem with "disable CRC stripping workaround" patch
+Message-ID: <20060720200413.GA18715@gondor.apana.org.au>
+References: <1153411868.2758.34.camel@localhost.localdomain> <44BFB288.5000105@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cs181108174.pp.htv.fi
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Cc: linux-fsdevel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <44BFB288.5000105@intel.com>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> writes in
-gmane.linux.file-systems,gmane.linux.kernel:
+On Thu, Jul 20, 2006 at 09:42:48AM -0700, Auke Kok wrote:
+>
+> Please give it a try and let us know if it fixes the issue for you, it 
+> should be much better than patching xen's code.
 
-> From: Pekka Enberg <penberg@cs.helsinki.fi>
-> 
-> This patch implements the revoke(2) and frevoke(2) system calls for all
-> types of files. We revoke files in two passes: first we scan all open 
-> files that refer to the inode and substitute the struct file pointer in fd 
-> table with NULL causing all subsequent operations on that fd to fail. 
-> After we have done that to all file descriptors, we close the files and 
-> take down mmaps.
-> 
-> Note that now we need to unconditionally do fput/fget in sys_write and
-> sys_read because they race with do_revoke.
-> 
-> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+I don't really care on way or another whether we get the FCS.
+However, the important thing to note here for Xen is that MTU
+!= MRU.  Just because you've set the MTU to 1500 does not imply
+that you won't receive packets > 1500.
 
-What permissions is needed revoke access of other users open
-files ?
-
-> +asmlinkage int sys_revoke(const char __user *filename)
-> +{
-> +	int err;
-> +	struct nameidata nd;
-> +
-> +	err = __user_walk(filename, 0, &nd);
-> +	if (!err) {
-> +		err = do_revoke(nd.dentry->d_inode, NULL);
-> +		path_release(&nd);
-> +	}
-> +	return err;
-> +}
-> +
-> +asmlinkage int sys_frevoke(unsigned int fd)
-> +{
-> +	struct file *file = fget(fd);
-> +	int err = -EBADF;
-> +
-> +	if (file) {
-> +		err = do_revoke(file->f_dentry->d_inode, file);
-> +		fput(file);
-> +	}
-> +	return err;
-> +}
-
-Is that requiring only that user is able to refer file ?
-
-
-BSD manual page for revoke(2) seems say:
-
-    Access to a file may be revoked only by its owner or the super user.
-
-/ Kari Hurtta
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

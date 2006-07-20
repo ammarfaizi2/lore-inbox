@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWGTW5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWGTW7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030397AbWGTW5O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 18:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWGTW5N
+	id S1030398AbWGTW7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 18:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030399AbWGTW7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 18:57:13 -0400
-Received: from lucidpixels.com ([66.45.37.187]:47752 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1030397AbWGTW5N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 18:57:13 -0400
-Date: Thu, 20 Jul 2006 18:57:11 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34.internal.lan
-To: Nathan Scott <nathans@sgi.com>
-cc: Chris Wedgwood <cw@f00f.org>, David Greaves <david@dgreaves.com>,
-       Kasper Sandberg <lkml@metanurb.dk>,
-       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com, ml@magog.se, radsaq@gmail.com
-Subject: Re: FAQ updated (was Re: XFS breakage...)
-In-Reply-To: <Pine.LNX.4.64.0607201855270.2652@p34.internal.lan>
-Message-ID: <Pine.LNX.4.64.0607201856320.2652@p34.internal.lan>
-References: <20060718222941.GA3801@stargate.galaxy>
- <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost>
- <20060720171310.B1970528@wobbly.melbourne.sgi.com> <44BF8500.1010708@dgreaves.com>
- <20060720161121.GA26748@tuatara.stupidest.org> <20060721081452.B1990742@wobbly.melbourne.sgi.com>
- <Pine.LNX.4.64.0607201817450.23697@p34.internal.lan>
- <20060721082448.C1990742@wobbly.melbourne.sgi.com>
- <Pine.LNX.4.64.0607201843020.2619@p34.internal.lan>
- <20060721085230.F1990742@wobbly.melbourne.sgi.com>
- <Pine.LNX.4.64.0607201855270.2652@p34.internal.lan>
+	Thu, 20 Jul 2006 18:59:11 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:7857 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1030398AbWGTW7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 18:59:09 -0400
+Message-ID: <44BFFCB1.4020009@namesys.com>
+Date: Thu, 20 Jul 2006 15:59:13 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>
+Subject: reiser4 status (correction)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erm, the xfs_repair -n only prints out what it needs to fix, I read 
-somewhere that xfs_repair may make things worse?
+Well, it seems we still aren't quite as stable as we were 6 months ago 
+(the new reduced cpu usage code was extensive, as was the VFS change 
+code), and we know of a bug we can reproduce using our standard tests.  
+Also, it seems we can oops when a particular program is run to consume 
+all memory (thanks Jate for finding it).  Hopefully things will be more 
+stable next week....  Us developers are using the new code on our 
+workstations without problem though.
 
-What is the 'correct' fix?
+On a more positive note, Reiser4.1 is getting closer to release....  It 
+is working fine for the developer coding it, and we are scheduling code 
+reviews for it and defining migration paths, etc.  Hopefully in 2 months 
+it will ship.
 
-On Thu, 20 Jul 2006, Justin Piszcz wrote:
+The big issue with 4.1 is that we are having to deal with all the issues 
+of REALLY allowing users to change default plugins, etc., and finding we 
+missed details.  We will say more later.
 
-> Nasty!
->
->        - agno = 37
-> No modify flag set, skipping phase 5
-> Phase 6 - check inode connectivity...
->        - traversing filesystem starting at / ...
-> free block 16777216 for directory inode 2684356622 bad nused
-> free block 16777216 for directory inode 2147485710 bad nused
->        - traversal finished ...
->        - traversing all unattached subtrees ...
->        - traversals finished ...
->        - moving disconnected inodes to lost+found ...
-> Phase 7 - verify link counts...
-> No modify flag set, skipping filesystem flush and exiting.
-> p34:~#
->
-> I applied the "one line fix" - I should be ok now?
->
->
->
-> On Fri, 21 Jul 2006, Nathan Scott wrote:
->
->> On Thu, Jul 20, 2006 at 06:43:34PM -0400, Justin Piszcz wrote:
->>> p34:~# xfs_check -v /dev/md3
->>> xfs_check: out of memory
->>> p34:~#
->>> 
->>> D'oh...
->> 
->> xfs_repair -n is another option, it has a cheaper (memory wise,
->> usually) checking algorithm.
->> 
->>> As long as it mounted ok with the patched kernel, should one be ok?
->> 
->> Not necessarily, no - mount will only read the root inode.
->> 
->> cheers.
->> 
->> -- 
->> Nathan
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->> 
->
+Thanks for your patience,
+
+Hans

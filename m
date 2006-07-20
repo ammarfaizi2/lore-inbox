@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWGTWPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWGTWLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030389AbWGTWPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 18:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWGTWPr
+	id S1030387AbWGTWLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 18:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWGTWLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 18:15:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34252 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030389AbWGTWPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 18:15:47 -0400
-Date: Fri, 21 Jul 2006 08:14:52 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: David Greaves <david@dgreaves.com>, Kasper Sandberg <lkml@metanurb.dk>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com, ml@magog.se, radsaq@gmail.com
-Subject: Re: FAQ updated (was Re: XFS breakage...)
-Message-ID: <20060721081452.B1990742@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost> <20060720171310.B1970528@wobbly.melbourne.sgi.com> <44BF8500.1010708@dgreaves.com> <20060720161121.GA26748@tuatara.stupidest.org>
+	Thu, 20 Jul 2006 18:11:09 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:24208 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S1030387AbWGTWLI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 18:11:08 -0400
+Date: Fri, 21 Jul 2006 00:11:06 +0200
+From: Frank van Maarseveen <frankvm@frankvm.com>
+To: Bill Ryder <bryder@wetafx.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc1]  Make group sorting optional in the 2.6.x kernels
+Message-ID: <20060720221106.GA5062@janus>
+References: <44B32888.6050406@wetafx.co.nz> <20060719080213.GA22925@janus> <44BE936B.3080107@wetafx.co.nz> <20060720093557.GA1796@janus> <44BFEA4C.6050602@wetafx.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060720161121.GA26748@tuatara.stupidest.org>; from cw@f00f.org on Thu, Jul 20, 2006 at 09:11:21AM -0700
+In-Reply-To: <44BFEA4C.6050602@wetafx.co.nz>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 20, 2006 at 09:11:21AM -0700, Chris Wedgwood wrote:
-> On Thu, Jul 20, 2006 at 02:28:32PM +0100, David Greaves wrote:
+On Fri, Jul 21, 2006 at 08:40:44AM +1200, Bill Ryder wrote:
+[...]
+> This phrase is worrying:
 > 
-> > Does this problem exist in 2.16.6.x??
+> When there is no group id information passed downwards
+> then it reverts to old behavior too.
 > 
-> The change was merged after 2.6.16.x was branched, I was mistaken
-> in how long I thought the bug has been about.
-> 
-> > I hope so because I assumed there simply wasn't a patch for 2.6.16 and
-> > applied this 'best guess' to my servers and rebooted/remounted successfully.
-> 
-> Doing the correct change to 2.6.16.x won't hurt, but it's not
-> necessary.
+> Why would no group id information be passed?
 
-Yep.  As Chris said, 2.6.17 is the only affected kernel.  I've
-fixed up the whacky html formatting and my merge error (thanks
-to all for reporting those) so its a bit more readable now.
+There are a few NFS operations (or related ones such as
+for file locking) which do not need that information IIRC.
+"old behavior" means doing what it does _today_.
 
-cheers.
+
+> For someone of my level of knowledge of the kernel the README does not
+> convince me it will work in all situations.
+
+NFS with AUTH_UNIX authentication cannot possibly get worse than it is
+today with respect to processes in more than 16 groups. And the patch
+is effectively disabled for processes in <=16 groups so I wouldn't
+worry.
+
+Anyway, a revised patch from you which no longer sorts the first 16
+groups for compatibility reasons is probably easier to get merged.
 
 -- 
-Nathan
+Frank

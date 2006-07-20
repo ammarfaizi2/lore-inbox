@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWGTP7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030353AbWGTQA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030348AbWGTP7y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 11:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWGTP7x
+	id S1030353AbWGTQA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 12:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWGTQA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 11:59:53 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20656 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1030348AbWGTP7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 11:59:52 -0400
-Date: Fri, 21 Jul 2006 02:59:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: CPU hotplug: smoke test
-Message-ID: <20060721005903.GC1889@elf.ucw.cz>
+	Thu, 20 Jul 2006 12:00:28 -0400
+Received: from assei2bl6.telenet-ops.be ([195.130.133.69]:27864 "EHLO
+	assei2bl6.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S1030350AbWGTQAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 12:00:18 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: dustin@sensoria.com, netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] smc911x: Re-release spinlock on spurious interrupt
+Date: Thu, 20 Jul 2006 05:59:15 +0200
+Message-ID: <87psg1hqp8.fsf@slug.be.48ers.dk>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-I tried running few instances of
+The smc911x driver forgets to release the spinlock on spurious
+interrupts. This little patch fixes it.
 
-while true; do echo 0 > /sys/devices/system/cpu/cpu1/online;   echo 1
-> /sys/devices/system/cpu/cpu1/online; done
+diff -Naur linux-2.6.18-rc2.orig/drivers/net/smc911x.c linux-2.6.18-rc2/drivers/net/smc911x.c
+--- linux-2.6.18-rc2.orig/drivers/net/smc911x.c	2006-07-20 10:26:20.000000000 +0200
++++ linux-2.6.18-rc2/drivers/net/smc911x.c	2006-07-20 17:44:26.000000000 +0200
+@@ -1092,6 +1092,7 @@
+ 	/* Spurious interrupt check */
+ 	if ((SMC_GET_IRQ_CFG() & (INT_CFG_IRQ_INT_ | INT_CFG_IRQ_EN_)) !=
+ 		(INT_CFG_IRQ_INT_ | INT_CFG_IRQ_EN_)) {
++		spin_unlock_irqrestore(&lp->lock, flags);
+ 		return IRQ_NONE;
+ 	}
 
-in paralel. It works okay, but, unfortunately, it provokes strange
-failures while trying to build kernel from another console: 
-
-  CHK     include/linux/version.h
-  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-pxa
-make: Makefile:315: fork: Interrupted system call
-1.88user 0.78system 11.20 (0m11.206s) elapsed 23.81%CPU
-pavel@amd:/data/l/linux-z$
-
-  CHK     include/linux/version.h
-  SYMLINK include/asm-arm/arch -> include/asm-arm/arch-pxa
-make: Makefile:315: fork: Interrupted system call
-1.75user 0.72system 6.57 (0m6.578s) elapsed 37.64%CPU
-pavel@amd:/data/l/linux-z$
-
-  CC      fs/dnotify.o
-make[1]: vfork: Interrupted system call
-  CC      kernel/uid16.o
-  CC      security/commoncap.o
-  CC      ipc/shm.o
-  CC      crypto/api.o
-  CC      crypto/scatterwalk.o
-  LD      security/built-in.o
-  CC      kernel/kallsyms.o
-  LD      ipc/built-in.o
-make: Makefile:876: fork: Interrupted system call
-40.89user 8.60system 102.10 (1m42.101s) elapsed 48.48%CPU
-pavel@amd:/data/l/linux-z$   CC      crypto/cipher.o
-  CC      crypto/digest.o
-
-									Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Bye, Peter Korsgaard

@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbWGUDBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWGUC6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbWGUDBI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 23:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWGUDBI
+	id S964892AbWGUC6x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 22:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWGUC6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 23:01:08 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:3006 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964827AbWGUDBG (ORCPT
+	Thu, 20 Jul 2006 22:58:53 -0400
+Received: from mail.tmr.com ([64.65.253.246]:25801 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S964892AbWGUC6v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 23:01:06 -0400
-Message-ID: <44C0436E.306@garzik.org>
-Date: Thu, 20 Jul 2006 23:01:02 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 20 Jul 2006 22:58:51 -0400
+Message-ID: <44C045B4.3040609@tmr.com>
+Date: Thu, 20 Jul 2006 23:10:44 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Ed Lin <ed.lin@promise.com>,
-       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-       hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
-Subject: Re: [PATCH] Promise 'stex' driver
-References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org> <20060721010724.GB24176@suse.de> <44C02D1E.4090206@garzik.org> <20060721013822.GA25504@suse.de> <44C037B3.4080707@garzik.org> <20060721023647.GA29220@suse.de>
-In-Reply-To: <20060721023647.GA29220@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: "J. Bruce Fields" <bfields@fieldses.org>, Theodore Tso <tytso@mit.edu>,
+       Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ext4 features
+References: <20060701163301.GB24570@cip.informatik.uni-erlangen.de>	 <20060704010240.GD6317@thunk.org> <44ABAF7D.8010200@tmr.com>	 <20060705125956.GA529@fieldses.org>	 <1152128033.22345.17.camel@lade.trondhjem.org>  <44AC2D9A.7020401@tmr.com>	 <1152135740.22345.42.camel@lade.trondhjem.org>  <44B01DEF.9070607@tmr.com>	 <1152562135.6220.7.camel@lade.trondhjem.org>  <44B2D6AA.3090707@tmr.com> <1152585383.10156.9.camel@lade.trondhjem.org>
+In-Reply-To: <1152585383.10156.9.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> If I thought that it would ever be updated to use block tagging, I would
-> not care at all. The motivation to add it from the Promise end would be
-> zero, as it doesn't really bring any immediate improvements for them. So
-> it would have to be done by someone else, which means me or you. I don't
-> have the hardware to actually test it, so unless you do and would want
-> to do it, chances are looking slim :-)
-> 
-> It's a bit of a chicken and egg problem, unfortunately. The block layer
-> tagging _should_ be _the_ way to do it, and as such could be labelled a
-> requirement. I know that's a bit harsh for the Promise folks, but
-> unfortunately someone has to pay the price...
+Trond Myklebust wrote:
 
-I think it's highly rude to presume that someone who has so-far been 
-responsive, and responsible, will suddenly not be so.  That is not the 
-way to encourage vendors to join the Linux process.
+>On Mon, 2006-07-10 at 18:37 -0400, Bill Davidsen wrote:
+>  
+>
+>Linus might accept it, but I won't. It is totally unnecessary.
+>  
+>
 
-They set up an alias for Linux maintainer stuff and have been acting 
-like a maintainer that will stick around.  Why punish them for good 
-behavior?
+By "totally unnecessary" you mean "I don't see why it's useful."
 
-	Jeff
+The reason for using noatime is to avoid generating disk activity while 
+the data is being accessed. It's not usually used to hide the fact that 
+the data has been used and is therefore useful to someone. In a perfect 
+world, where money is no object, all data is on very fast storage which 
+never fails. In my world I would like to identify which data, source or 
+documentation, has been referenced over some period of time. This is 
+useful for moving some data to slower (yes I mean less expensive) storage.
 
+It's also useful to identify stuff which no one has used in a very long 
+time and which is a candidate for not being on line at all.
+
+By keeping lazy track of access time it's possible to still have that 
+data, with minimal disk access cost. And to some people that can be 
+really useful, such as those of us who have to justify expenditures.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 

@@ -1,73 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWGUBZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbWGUB3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030433AbWGUBZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 21:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWGUBZ5
+	id S1030425AbWGUB3I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 21:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWGUB3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 21:25:57 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:32955 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030428AbWGUBZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 21:25:56 -0400
-Message-ID: <44C02D1E.4090206@garzik.org>
-Date: Thu, 20 Jul 2006 21:25:50 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 20 Jul 2006 21:29:08 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:28622 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1030425AbWGUB3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 21:29:07 -0400
+Message-ID: <1153445087.44c02cdf40511@portal.student.luth.se>
+Date: Fri, 21 Jul 2006 03:24:47 +0200
+From: ricknu-0@student.ltu.se
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>
+Subject: [RFC][PATCH] A generic boolean (version 2)
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+In-Reply-To: <1153341500.44be983ca1407@portal.student.luth.se>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       Ed Lin <ed.lin@promise.com>,
-       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-       hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
-Subject: Re: [PATCH] Promise 'stex' driver
-References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org> <20060721010724.GB24176@suse.de>
-In-Reply-To: <20060721010724.GB24176@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Jul 20 2006, Jeff Garzik wrote:
->> James Bottomley wrote:
->>> On Thu, 2006-07-20 at 17:27 -0400, Jeff Garzik wrote:
->>>> Since _no individual SCSI driver_ uses the block layer
->>>> tagging, it is likely that some instability and core kernel
->>>> development
->>>> will occur, in order to make that work.
->>> That's not quite true: 53c700 and tmscsim both use it ... I could with
->>> the usage were wider, but at least 53c700 has pretty regular and
->>> constant usage ... enough I think to validate the block tag code (it's
->>> been using it for the last three years).
->> Not for the case being discussed in this thread, adapter-wide tags.
-> 
-> That just means the map is shared, otherwise there should be little if
-> any difference.
-> 
->> AFAICS, no file in include/scsi/* or drivers/scsi/* ever calls 
->> blk_queue_init_tags() with a non-NULL third arg.
-> 
-> grpe again, it's in scsi_tcq.h.
+Here is the second "version". My special thanks to Jeff Garzik and Alexey Dobriyan.
 
-What tree are you looking at?
-
-There is only one user in the entire tree, and NULL is hardcoded as the 
-third arg.  This is 2.6.18-rc2:
-> [jgarzik@pretzel linux-2.6]$ grep -r blk_queue_init_tags *
-> block/ll_rw_blk.c: * blk_queue_init_tags - initialize the queue tag info
-> block/ll_rw_blk.c:int blk_queue_init_tags(request_queue_t *q, int depth,
-> block/ll_rw_blk.c:EXPORT_SYMBOL(blk_queue_init_tags);
-> Documentation/block/biodoc.txt: blk_queue_init_tags(request_queue_t *q, int depth)
-> include/linux/blkdev.h:extern int blk_queue_init_tags(request_queue_t *, int, struct blk_queue_tag *);
-> include/scsi/scsi_tcq.h:                blk_queue_init_tags(sdev->request_queue, depth, NULL);
-
-Regards,
-
-	Jeff
+The changes are:
+* u2 has been corrected to u1 (and also added it as __u1)
+* removed the check if the gcc-compiler is at least of version 3, since it is
+required of the kernel
+* changed "false" and "true" from enum to #define, since an enum is the size of
+an int. No #undef since an other definition of "false" and/or "true" should be
+tracked down and not hidden)
+    (this is the same as in gcc's stdbool.h-file. Is it not C99 compliant then?)
+* bool is of "unsigned int" (under i386, may differ on other arches), instead of
+"unsigned char"
 
 
+Happy hacking
+/Richard Knutsson
+
+PS
+I added everyone I found in the thread so if you to be removed, please tell.
+DS
+
+
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+
+---
+
+ drivers/block/DAC960.h            |    2 +-
+ drivers/media/video/cpia2/cpia2.h |    4 ----
+ drivers/net/dgrs.c                |    1 -
+ drivers/scsi/BusLogic.h           |    5 +----
+ include/asm-i386/types.h          |   11 +++++++++++
+ include/linux/stddef.h            |    3 +++
+ 6 files changed, 16 insertions(+), 10 deletions(-)
+
+
+diff --git a/drivers/block/DAC960.h b/drivers/block/DAC960.h
+index a82f37f..f9217c3 100644
+--- a/drivers/block/DAC960.h
++++ b/drivers/block/DAC960.h
+@@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
+   Define a Boolean data type.
+ */
+ 
+-typedef enum { false, true } __attribute__ ((packed)) boolean;
++typedef bool boolean;
+ 
+ 
+ /*
+diff --git a/drivers/media/video/cpia2/cpia2.h b/drivers/media/video/cpia2/cpia2.h
+index c5ecb2b..8d2dfc1 100644
+--- a/drivers/media/video/cpia2/cpia2.h
++++ b/drivers/media/video/cpia2/cpia2.h
+@@ -50,10 +50,6 @@ #define CPIA2_PATCH_VER	0
+ /***
+  * Image defines
+  ***/
+-#ifndef true
+-#define true 1
+-#define false 0
+-#endif
+ 
+ /*  Misc constants */
+ #define ALLOW_CORRUPT 0		/* Causes collater to discard checksum */
+diff --git a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+index fa4f094..4dbc23d 100644
+--- a/drivers/net/dgrs.c
++++ b/drivers/net/dgrs.c
+@@ -110,7 +110,6 @@ static char version[] __initdata =
+  *	DGRS include files
+  */
+ typedef unsigned char uchar;
+-typedef unsigned int bool;
+ #define vol volatile
+ 
+ #include "dgrs.h"
+diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
+index 9792e5a..d6d1d56 100644
+--- a/drivers/scsi/BusLogic.h
++++ b/drivers/scsi/BusLogic.h
+@@ -237,10 +237,7 @@ enum BusLogic_BIOS_DiskGeometryTranslati
+   Define a Boolean data type.
+ */
+ 
+-typedef enum {
+-	false,
+-	true
+-} PACKED boolean;
++typedef bool boolean;
+ 
+ /*
+   Define a 10^18 Statistics Byte Counter data type.
+diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
+index 4b4b295..841792b 100644
+--- a/include/asm-i386/types.h
++++ b/include/asm-i386/types.h
+@@ -1,6 +1,13 @@
+ #ifndef _I386_TYPES_H
+ #define _I386_TYPES_H
+ 
++#if defined(__GNUC__)
++typedef _Bool bool;
++#else
++#warning You compiler doesn't seem to support boolean types, will set 'bool' as
+an 'unsigned int'
++typedef unsigned int bool;
++#endif
++
+ #ifndef __ASSEMBLY__
+ 
+ typedef unsigned short umode_t;
+@@ -10,6 +17,8 @@ typedef unsigned short umode_t;
+  * header files exported to user space
+  */
+ 
++typedef bool __u1;
++
+ typedef __signed__ char __s8;
+ typedef unsigned char __u8;
+ 
+@@ -36,6 +45,8 @@ #define BITS_PER_LONG 32
+ #ifndef __ASSEMBLY__
+ 
+ 
++typedef bool u1;
++
+ typedef signed char s8;
+ typedef unsigned char u8;
+ 
+diff --git a/include/linux/stddef.h b/include/linux/stddef.h
+index b3a2cad..498813b 100644
+--- a/include/linux/stddef.h
++++ b/include/linux/stddef.h
+@@ -10,6 +10,9 @@ #else
+ #define NULL ((void *)0)
+ #endif
+ 
++#define false	((0))
++#define true	((1))
++
+ #undef offsetof
+ #ifdef __compiler_offsetof
+ #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
 

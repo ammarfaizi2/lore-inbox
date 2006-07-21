@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWGUKUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWGUKZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbWGUKUu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 06:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWGUKUu
+	id S1161029AbWGUKZT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 06:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWGUKZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 06:20:50 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:59181 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161023AbWGUKUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 06:20:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CoKYQVeyH4lSnctM0ajk3mVffuejLefOUTo6/QQ5cpztUcw42Sv/kVemvh0L8PM2nNeVxlrz29tTcHOD6eNPd3HYQDRUsLORxpGsw8JL3PIh9TZMMjF7SXHv2pczTH6+CyeWyM/Ybhbfmt32nvabOgZMRXDNSTY9ZRlFu/NPE6g=
-Message-ID: <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
-Date: Fri, 21 Jul 2006 12:20:48 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Pekka Enberg" <penberg@cs.helsinki.fi>,
-       "Rolf Eike Beer" <eike-kernel@sf-tec.de>,
-       "Panagiotis Issaris" <takis@lumumba.uhasselt.be>,
+	Fri, 21 Jul 2006 06:25:18 -0400
+Received: from in.cluded.net ([195.159.98.120]:37250 "EHLO in.cluded.net")
+	by vger.kernel.org with ESMTP id S1161026AbWGUKZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 06:25:17 -0400
+Message-ID: <44C0AA9A.6090708@cluded.net>
+Date: Fri, 21 Jul 2006 10:21:14 +0000
+From: "Daniel K." <daniel@cluded.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060307 SeaMonkey/1.5a
+MIME-Version: 1.0
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+CC: Panagiotis Issaris <takis@lumumba.uhasselt.be>,
        linux-kernel@vger.kernel.org, len.brown@intel.com,
        chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
        benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-In-Reply-To: <44C099D2.5030300@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, jgarzik@pobox.com,
+       vandrove@vc.cvut.cz, adaplas@pol.net, thomas@winischhofer.net,
+       weissg@vienna.at, philb@gnu.org, linux-pcmcia@lists.infradead.org,
+       jkmaline@cc.hut.fi, paulus@samba.org
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060720190529.GC7643@lumumba.uhasselt.be> <200607210850.17878.eike-kernel@sf-tec.de>
+In-Reply-To: <200607210850.17878.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060720190529.GC7643@lumumba.uhasselt.be>
-	 <200607210850.17878.eike-kernel@sf-tec.de>
-	 <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>
-	 <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21/07/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
-> Jeff Garzik wrote:
-> > Pekka Enberg wrote:
-> >> On 7/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> >>> > -     if (!(handle = kmalloc(sizeof(struct input_handle), GFP_KERNEL)))
-> >>> > +     handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
-> >>> > +     if (!handle)
-> >>> >               return NULL;
-> >>>
-> >>> sizeof(*handle)?
-> >>
-> >> In general, yes. However, some maintainers don't like that, so I would
-> >> recommend to keep them as-is unless you get a clear ack from the
-> >> maintainer to change it.
->
-> I suggest:
->  - check if "sizeof(type)"->"sizeof(*ptr)" is correct
->  - if yes, change it
-[snip]
->  - better style of the size argument where correct,
+Rolf Eike Beer wrote:
+> Am Donnerstag, 20. Juli 2006 21:05 schrieb Panagiotis Issaris:
+>> @@ -443,12 +442,11 @@ int con_clear_unimap(struct vc_data *vc,
+>>  	p = (struct uni_pagedir *)*vc->vc_uni_pagedir_loc;
+>>  	if (p && p->readonly) return -EIO;
+>>  	if (!p || --p->refcount) {
+>> -		q = (struct uni_pagedir *)kmalloc(sizeof(*p), GFP_KERNEL);
+>> +		q = kzalloc(sizeof(*p), GFP_KERNEL);
+>>  		if (!q) {
+>>  			if (p) p->refcount++;
+>>  			return -ENOMEM;
+>>  		}
+>> -		memset(q, 0, sizeof(*q));
+>>  		q->refcount=1;
+>>  		*vc->vc_uni_pagedir_loc = (unsigned long)q;
+>>  	} else {
+> 
+> This one still changes the way the code works. Before your patch *p will be 
+> always zeroed out. Now if p is there before it will keep it's contents.
 
-Who says it's "better style" ?
-You can argue that   sizeof(type) is more readable.
-When reading the code you don't have to go lookup the type of ptr in
-sizeof(*ptr)  before you know what type the code is working with.
+No, it doesn't, the data at *p is/was not zeroed inside the if { .. } block.
+Read carefully, the multiple statements on one line obfuscations might
+have thrown you off. 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+However, it is slightly confusing that the value assigned to `q' is
+kzalloced using sizeof(*p). It is an improvement though, as the old version
+kmalloced using sizeof(*p), and memset using sizeof(*q).
+That was really strange.
+
+
+Daniel K.

@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWGUBGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWGUBHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWGUBGg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 21:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbWGUBGg
+	id S1030426AbWGUBHa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 21:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030425AbWGUBHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 21:06:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:5717 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030425AbWGUBGf (ORCPT
+	Thu, 20 Jul 2006 21:07:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40533 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030426AbWGUBH3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 21:06:35 -0400
-Date: Fri, 21 Jul 2006 03:06:22 +0200
+	Thu, 20 Jul 2006 21:07:29 -0400
+Date: Fri, 21 Jul 2006 03:07:24 +0200
 From: Jens Axboe <axboe@suse.de>
 To: Jeff Garzik <jeff@garzik.org>
-Cc: Ed Lin <ed.lin@promise.com>,
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Ed Lin <ed.lin@promise.com>,
        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-       "James.Bottomley" <James.Bottomley@SteelEye.com>,
        hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
        akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
 Subject: Re: [PATCH] Promise 'stex' driver
-Message-ID: <20060721010622.GA24176@suse.de>
-References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org>
+Message-ID: <20060721010724.GB24176@suse.de>
+References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44BFF539.4000700@garzik.org>
+In-Reply-To: <44C01CD7.4030308@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, Jul 20 2006, Jeff Garzik wrote:
-> 5) [agreement/correction]  The block tagging API supports adapter-wide
-> tags just fine.  HOWEVER, I nonetheless feel that block tagging API use
-> should be considered post-merge.  The 'stex' driver is working and
-> tested today.  Since _no individual SCSI driver_ uses the block layer
-> tagging, it is likely that some instability and core kernel development
-> will occur, in order to make that work.
+> James Bottomley wrote:
+> >On Thu, 2006-07-20 at 17:27 -0400, Jeff Garzik wrote:
+> >>Since _no individual SCSI driver_ uses the block layer
+> >>tagging, it is likely that some instability and core kernel
+> >>development
+> >>will occur, in order to make that work.
+> >
+> >That's not quite true: 53c700 and tmscsim both use it ... I could with
+> >the usage were wider, but at least 53c700 has pretty regular and
+> >constant usage ... enough I think to validate the block tag code (it's
+> >been using it for the last three years).
+> 
+> Not for the case being discussed in this thread, adapter-wide tags.
 
-I'd disagree. If the driver gets merged with the current tagging, I'll
-get you two beers that it never gets changed.
+That just means the map is shared, otherwise there should be little if
+any difference.
 
-And you are wrong, block layer tagging is used by at least one SCSI
-driver. We definitely need to start pushing it more.
+> AFAICS, no file in include/scsi/* or drivers/scsi/* ever calls 
+> blk_queue_init_tags() with a non-NULL third arg.
+
+grpe again, it's in scsi_tcq.h.
+
+> The block tagging capability being discussed here is poorly validated 
+> due to overall underuse, and its never been used in SCSI AFAIK.
+
+It has and is, James uses it every day!
 
 -- 
 Jens Axboe

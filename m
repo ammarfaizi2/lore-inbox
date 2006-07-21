@@ -1,214 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbWGUCWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWGUChA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030445AbWGUCWc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 22:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbWGUCWc
+	id S1030442AbWGUChA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 22:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbWGUCg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 22:22:32 -0400
-Received: from [202.38.127.182] ([202.38.127.182]:18581 "EHLO
-	opentech.lzu.edu.cn") by vger.kernel.org with ESMTP
-	id S1030436AbWGUCW3 (ORCPT <rfc822;linux-kernel@Vger.Kernel.Org>);
-	Thu, 20 Jul 2006 22:22:29 -0400
-Date: Fri, 21 Jul 2006 09:55:46 +0800
-Message-Id: <200607210155.k6L1tkXP001839@opentech.lzu.edu.cn>
-To: nag@nag.ru, lindis@ikarios.com, Lindsay@GANDALF.CS.CMU.EDU,
-       lindsaymeek@hotmail.com, lindwurm@hanser.de, lingx@andrew.cmu.edu,
-       linimon@lonesome.com, linimon@nominil.lonesome.com,
-       links@bittorrentportal.net, links@countrymeadowcreations.com,
-       links@cyber-robotics.com, Links@Microsoft.com, links@travlang.com,
-       links@yandros.net, linksyssupport@linksys.com, Linn@ultra.enet.dec.com,
-       linn@zendia.enet.dec.com, Linux-8086@vger.kernel.org,
-       linux-bra@abol.com.br, linux-iso@cgi-now.de,
-       linux-kernel-digest@lists.us.dell.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-vax@pergamentum.com, linux-versand@web.de, linux@acinfo.hu,
-       linux@amont-info.com, linux@enexis.hu,
-       linux@eurielec.clubs.etsit.upm.es, linux@idg.co.jp,
-       Linux@LINUX.SYS-CON.COM, linux@mathias-kettner.de
-From: mcguire@lzu.edu.cn
-Subject: [RTLWS8-CFP] Eighth Real-Time Linux Workshop 2nd CFP
+	Thu, 20 Jul 2006 22:36:59 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:55562 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030440AbWGUCg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 22:36:59 -0400
+Date: Fri, 21 Jul 2006 04:36:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Ed Lin <ed.lin@promise.com>,
+       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+       hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
+Subject: Re: [PATCH] Promise 'stex' driver
+Message-ID: <20060721023647.GA29220@suse.de>
+References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org> <20060721010724.GB24176@suse.de> <44C02D1E.4090206@garzik.org> <20060721013822.GA25504@suse.de> <44C037B3.4080707@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C037B3.4080707@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 20 2006, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Thu, Jul 20 2006, Jeff Garzik wrote:
+> >>Jens Axboe wrote:
+> >>>On Thu, Jul 20 2006, Jeff Garzik wrote:
+> >>>>James Bottomley wrote:
+> >>>>>On Thu, 2006-07-20 at 17:27 -0400, Jeff Garzik wrote:
+> >>>>>>Since _no individual SCSI driver_ uses the block layer
+> >>>>>>tagging, it is likely that some instability and core kernel
+> >>>>>>development
+> >>>>>>will occur, in order to make that work.
+> >>>>>That's not quite true: 53c700 and tmscsim both use it ... I could with
+> >>>>>the usage were wider, but at least 53c700 has pretty regular and
+> >>>>>constant usage ... enough I think to validate the block tag code (it's
+> >>>>>been using it for the last three years).
+> >>>>Not for the case being discussed in this thread, adapter-wide tags.
+> >>>That just means the map is shared, otherwise there should be little if
+> >>>any difference.
+> >>>
+> >>>>AFAICS, no file in include/scsi/* or drivers/scsi/* ever calls 
+> >>>>blk_queue_init_tags() with a non-NULL third arg.
+> >>>grpe again, it's in scsi_tcq.h.
+> >>What tree are you looking at?
+> >>
+> >>There is only one user in the entire tree, and NULL is hardcoded as the 
+> >>third arg.  This is 2.6.18-rc2:
+> >
+> >Sorry, missed your non-NULL statement, I thought you meant in generel.
+> >
+> >As long as you get the locking right for the map access, there's really
+> >nothing that seperates shared vs non-shared tag mappings. So I don't
+> >think it's a big deal.
+> >
+> >If we don't encourage new drivers to use the block layer tagging, we
+> >might as well not bother with it.
+> 
+> I don't disagree it's a good thing to have.
+> 
+> I only assert that a --completely unused-- sub-feature cannot be a merge 
+> requirement for a new driver.  That's an unreasonable standard.  We have 
+> a driver that is clean and works with all well-known and well-used APIs.
 
-We apologize for multiple receipts.
+The feature is used, by far the main part of it is just the tagging
+itself, not the shared map feature.
 
+> As I discovered painfully via libata, using an unused API upstream 
+> (->eh_strategy_handler) can often be a destabilizing or limiting factor.
+> 
+> You _hope_ that this feature works, but it's far better IMO to debug an 
+> unused core feature upstream.  If the upstream driver breaks when 
+> host-wide blktag support is added, then it's trivial to find where the 
+> breakage occurred: the stex blktag-update patch.
 
+If I thought that it would ever be updated to use block tagging, I would
+not care at all. The motivation to add it from the Promise end would be
+zero, as it doesn't really bring any immediate improvements for them. So
+it would have to be done by someone else, which means me or you. I don't
+have the hardware to actually test it, so unless you do and would want
+to do it, chances are looking slim :-)
 
---------------------------------------------------------------------------------
+It's a bit of a chicken and egg problem, unfortunately. The block layer
+tagging _should_ be _the_ way to do it, and as such could be labelled a
+requirement. I know that's a bit harsh for the Promise folks, but
+unfortunately someone has to pay the price...
 
-
-
-                      Eighth Real-Time Linux Workshop
-
-                            October 12-15, 2006
-                         Lanzhou University - SISE
-                          Tianshui South Road 222
-                           Lanzhou, Gansu 730000
-                                 P.R.China
-
-
-  General
-
-   Following  the  meetings  of  developers  and  users at the previous 7
-   successful  real-time Linux workshops held in Vienna, Orlando, Milano,
-   Boston,  and  Valencia, Singapore, Lille, the Real-Time Linux Workshop
-   for  2006  will  come back to Asia again, to be held at the School for
-   Information  Science  and  Engineering, Lanzhou University, in Lanzhou
-   China.
-
-   Embedded  and  real-time Linux is rapidly gaining traction in the Asia
-   Pacific  region.  Embedded  systems  in  both  automation/control  and
-   entertainment moving to 32/64bit systems, opening the door for the use
-   of  full  featured  OS  like  GNU/Linux  on  COTS  based systems. With
-   real-time  capabilities being a common demand for embedded systems the
-   soft  and  hard  real-time  variants are an important extension to the
-   versatile GNU/Linux GPOS.
-
-   Authors  are  invited  to  submit  original  work dealing with general
-   topics  related  to  real-time  Linux  research,  experiments and case
-   studies,  as  well  as issues of integration of real-time and embedded
-   Linux.  A  special focus will be on industrial case studies. Topics of
-   interest include, but are not limited to:
-
-     * Modifications and variants of the GNU/Linux operating system
-       extending its real-time capabilities,
-     * Contributions to real-time Linux variants, drivers and extensions,
-     * User-mode real-time concepts, implementation and experience,
-     * Real-time Linux applications, in academia, research and industry,
-     * Work in progress reports, covering recent developments,
-     * Educational material on real-time Linux,
-     * Tools for embedding Linux or real-time Linux and embedded
-       real-time Linux applications,
-     * RTOS core concepts, RT-safe synchronization mechanisms,
-     * RT-safe interaction of RT and non RT components,
-     * IPC mechanisms in RTOS,
-     * Analysis and Benchmarking methods and results of 
-       real-time GNU/Linux variants,
-     * Debugging techniques and tools, both for code and temporal
-       debugging of core RTOS components, drivers and real-time
-       applications,
-     * Real-time related extensions to development environments.
-  
-  Further information:
- 
-  EN: http://www.realtimelinuxfoundation.org/events/rtlws-2006/ws.html 
-  CN: http://dslab.lzu.edu.cn/rtlws8/index.html
-
-  Awarded papers
-
-  The  Programme Committee  will award a best paper in the category Real-
-  Time Systems Theory.  This best paper will be invited  for  publication 
-  to the Real-Time Systems Journal, RTSJ. 
-  
-  The  Programme Committee will award a best paper in the category Real-
-  Time Systems Application. This best paper will be invited for publication 
-  to the Dr Dobbs Journal. Moreover, the publication of the other papers in
-  a special issue of Dr Dobbs Journal is in discussion. 
-
-  Abstract submission
-
-  In  order register an abstract, please go to:
-  http://www.realtimelinuxfoundation.org/rtlf/register-abstract.html
-
-  Venue
-
-  Lanzhou University Information Building, School of Information Science
-  and Engineering, Laznhou University, http://www.lzu.edu.cn/.
-
-  Registration
-
-  In  order  to  participate  to  the  workshop,  please register on the
-  registration page at:
-  http://www.realtimelinuxfoundation.org/rtlf/register-participant.html
-
-  Accommodation
-
-  Please refer to the Lanzhou hotel page for accomodation at
-  http://dslab.lzu.edu.cn/rtlws8/hotels/hotels.htm
-
-  Travel information
-
-  For travel information and directions how to get to Lanzhou from an 
-  international airport in China please refer to:
-  http://www.realtimelinuxfoundation.org/events/rtlws-2006/
-
-  Important dates
-
-  August    28:  Abstract submission
-  September 15:  Notification of acceptance
-  September 29:  Final paper
-
-  Pannel Participants:
-
-     o Roberto Bucher - Scuola Universitaria Professionale della Svizzera
-       Italiana, Switzerland, RTAI/ADEOS/RTAI-Lab.
-
-     o Alfons Crespo Lorente - University of Valenica, Spain,Departament
-       d'Informtica de Sistemes i Computadors, XtratuM.
-
-     o Herman Haertig - Technical University Dresden, Germany,Institute for
-       System Architecture, L4/Fiasco/L4Linux.
-
-     o Nicholas Mc Guire - Lanzhou University, P.R. China, Distributed and
-       Embedded Systems Lab, RTLinux/GPL.
-
-     o Douglas Niehaus - University of Kansas, USA, Information and
-       Telecommunication Technology Center, RT-preempt.
-
-  Organization committee:
-
-     * Prof. Li LIAN (Co-Chair), (SISE, Lanzhou University, CHINA)
-     * Xiaoping ZHANG, LZU, CHINA
-     * Jiming WANG, PKU, CHINA
-     * Zhibing LI, ECNU, China
-     * Prof.  Nicholas  MCGUIRE  (Co-Chair),  Real  Time Linux Foundation
-       (RTLF)
-     * Dr. Peter WURMSDOBLER, Real Time Linux Foundation (RTLF)
-     * Dr.  Qingguo  ZHOU, (Distributed and Embedded Systems Lab, Lanzhou
-       University, CHINA)
-
-  Program committee:
-
-    * Prof. Li Xing (Co-Chair), (Tsinghua University, CHINA)
-     * Dr.  Zhang  Yunquan,  (Institute  of  Software, Chinese Academy of
-       Science, CHINA)
-     * Dr. Chen Yu, (Tsinghua University, CHINA)
-     * Dr. Chen Maoke, (Tsinghua University, CHINA)
-     * Dr. Yu Guanghui, (Dalian University of Techonolgy, CHINA)
-     * Prof.   Dr.   Paolo   Mantegazza,   (Dipartimento   di  Ingegneria
-       Aerospaziale, ITALY)
-     * Prof.  Dr.  Bernhard  Zagar,  (Johannes  Kepler  Universitt Linz,
-       AUSTRIA)
-     * Prof.   Dr.   Hermann  Hrtig,  (Technische  Universitt  Dresden,
-       Fakultt Informatik, GERMANY)
-     * Prof.  Tei-Wei  Kuo,  (National  Taiwan  University, Department of
-       Computer Science and Information Engineering,TAIWAN)
-     * Anthony Skjellum, (Mississippi State University, USA)
-     * Ing. Pavel Pisa, (Czech Technical University, CZECH REPUBLIC)
-     * Prof. Alfons Crespo, (Universidad Politcnica de Valencia, SPAIN)
-     * Dr. Qingguo Zhou, (Lanzhou University, CHINA)
-     * PhD. Jaesoon Choi, (National Cancer Center, KOREA)
-     * Prof. Douglas Niehaus, (Kansas University, USA)
-     * Dr. Michael Hohmuth, (Technische Universitt Dresden, GERMANY)
-     * Prof.  Thambipillai Srikanthan, (Nanyang Technological University,
-       SINGAPORE)
-     * Zhengting He, (University of Texas, USA)
-     * Martin Terbuc, (Universitz of Maribor, SLOVENIA)
-     * Yoshinori Sato, (the H8/300 project, JAPAN)
-     * Yuqing Lan, (China Standard SoftwareCo.,LTD, CHINA)
-     * Dr. Peter Wurmsdobler, (Real Time Linux Foundation, USA)
-     * Prof. Nicholas Mc Guire (Co-Chair), (Lanzhou University, CHINA)
-
-  Workshop organizers:
-
-     * School  for  Information  Science and Engineering (SISE) , Lanzhou
-       University , CHINA
-     * IBM China, Xi'an Branch , China
-     * Haag Embedded Systems, Austira
-
-
-Peter Wurmsdobler <peter@wurmsdobler.org>
-Nicholas Mc Guire <mcguire@lzu.edu.cn>
-Zhou Qingguo <zhouqg@lzu.edu.cn>
+-- 
+Jens Axboe
 

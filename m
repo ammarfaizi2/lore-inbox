@@ -1,304 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWGUGTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWGUGka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbWGUGTT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 02:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWGUGTT
+	id S1030455AbWGUGka (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 02:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWGUGka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 02:19:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30080 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1161001AbWGUGTS (ORCPT
+	Fri, 21 Jul 2006 02:40:30 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:24805 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030458AbWGUGk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 02:19:18 -0400
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@pobox.com
-Subject: 2.6.18-rc2 Intermittent failures to detect sata disks
-Mime-Version: 1.0
+	Fri, 21 Jul 2006 02:40:29 -0400
+From: Neil Brown <neilb@suse.de>
+To: Jan Kara <jack@suse.cz>
+Date: Fri, 21 Jul 2006 16:39:32 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 21 Jul 2006 16:18:47 +1000
-Message-ID: <20339.1153462727@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <17600.30372.397971.955987@cse.unsw.edu.au>
+Cc: James <20@madingley.org>, Marcel Holtmann <marcel@holtmann.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sct@redhat.com
+Subject: Re: Bad ext3/nfs DoS bug
+In-Reply-To: message from Jan Kara on Thursday July 20
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
+	<1153209318.26690.1.camel@localhost>
+	<20060718145614.GA27788@circe.esc.cam.ac.uk>
+	<1153236136.10006.5.camel@localhost>
+	<20060718152341.GB27788@circe.esc.cam.ac.uk>
+	<1153253907.21024.25.camel@localhost>
+	<20060719092810.GA4347@circe.esc.cam.ac.uk>
+	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
+	<17599.2754.962927.627515@cse.unsw.edu.au>
+	<20060720160639.GF25111@atrey.karlin.mff.cuni.cz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am seeing an intermittent failures to detect sata disks on
-2.6.18-rc2.  Dell SC1425, PIIX chipset, gcc 4.1.0 (opensuse 10.1).
-Sometimes it will detect both disks, sometimes only one, sometimes none
-at all.  AFAICT it only occurs after a soft reboot, and possibly only
-after an emergency reboot.  Alas the problem is so intermittent that it
-is hard to tell what conditions will trigger it.
+On Thursday July 20, jack@suse.cz wrote:
+>   Yes, that looks fine too. I did not realize that we get the inode
+> number only in a few places. Maybe we could wrap the checks in a
+> function (possibly inline) so that the checks are just in one place?
 
-Setting ATA_DEBUG gives these differences:
+Like this?
 
-works:
+NeilBrown
 
-  Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-  ICH5: IDE controller at PCI slot 0000:00:1f.1
-  PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-  ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 17
-  ICH5: chipset revision 2
-  ICH5: not 100% native mode: will probe irqs later
-      ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-  hda: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
-  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-  piix_init: pci_module_init
-  ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-  ata_pci_init_one: ENTER
-  ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 17
-  ata_device_add: ENTER
-  ata_host_add: ENTER
-  ata_port_start: prd alloc, virt f7b2e000, dma 37b2e000
-  ata1: SATA max UDMA/133 cmd 0xCCB8 ctl 0xCCB2 bmdma 0xCC80 irq 17
-  __ata_port_freeze: ata1 port frozen
-  ata_host_add: ENTER
-  ata_port_start: prd alloc, virt f7b1c000, dma 37b1c000
-  ata2: SATA max UDMA/133 cmd 0xCCA0 ctl 0xCC9A bmdma 0xCC88 irq 17
-  __ata_port_freeze: ata2 port frozen
-  ata_device_add: probe begin
-  scsi0 : ata_piix
-  ata_port_schedule_eh: port EH scheduled
-  ata_scsi_error: ENTER
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_eh_autopsy: ENTER
-  ata_eh_recover: ENTER
-  ata_eh_prep_resume: ENTER
-  ata_eh_prep_resume: EXIT
-  __ata_port_freeze: ata1 port frozen
-  piix_sata_prereset: ata1: ENTER, pcs=0x33 base=0
-  piix_sata_prereset: ata1: LEAVE, pcs=0x33 present_mask=0x1
-  ata_std_softreset: ENTER
-  ata_std_softreset: about to softreset, devmask=1
-  ata_bus_softreset: ata1: bus reset via SRST
-  ata_dev_classify: found ATA device by sig
-  ata_std_softreset: EXIT, classes[0]=1 [1]=0
-  ata_std_postreset: ENTER
-  ata_std_postreset: EXIT
-  ata_eh_thaw_port: ata1 port thawed
-  ata_eh_revalidate_and_attach: ENTER
-  ata_exec_command_pio: ata1: cmd 0xEC
-  ata_hsm_move: ata1: protocol 2 task_state 2 (dev_stat 0x58)
-  ata_pio_sector: data read
-  ata_hsm_move: ata1: protocol 2 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata1: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata1.00: ATA-6, max UDMA/100, 156250000 sectors: LBA 
-  ata1.00: ata1: dev 0 multi count 8
-  ata_eh_revalidate_and_attach: EXIT
-  ata_eh_resume: ENTER
-  ata_eh_resume: EXIT
-  ata_dev_set_xfermode: set features - xfer mode
-  ata_exec_command_pio: ata1: cmd 0xEF
-  ata_hsm_move: ata1: protocol 1 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata1: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_dev_set_xfermode: EXIT, err_mask=0
-  ata_exec_command_pio: ata1: cmd 0xEC
-  ata_hsm_move: ata1: protocol 2 task_state 2 (dev_stat 0x58)
-  ata_pio_sector: data read
-  ata_hsm_move: ata1: protocol 2 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata1: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_dev_set_mode: xfer_shift=8, xfer_mode=0x45
-  ata1.00: configured for UDMA/100
-  ata_eh_suspend: ENTER
-  ata_eh_suspend: EXIT
-  ata_eh_recover: EXIT, rc=0
-  ata_scsi_error: EXIT
-  scsi1 : ata_piix
-  ata_port_schedule_eh: port EH scheduled
-  ata_scsi_error: ENTER
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_eh_autopsy: ENTER
-  ata_eh_recover: ENTER
-  ata_eh_prep_resume: ENTER
-  ata_eh_prep_resume: EXIT
-  __ata_port_freeze: ata2 port frozen
-  piix_sata_prereset: ata2: ENTER, pcs=0x33 base=2
-  piix_sata_prereset: ata2: LEAVE, pcs=0x33 present_mask=0x1
-  ata_std_softreset: ENTER
-  ata_std_softreset: about to softreset, devmask=1
-  ata_bus_softreset: ata2: bus reset via SRST
-  ata_dev_classify: found ATA device by sig
-  ata_std_softreset: EXIT, classes[0]=1 [1]=0
-  ata_std_postreset: ENTER
-  ata_std_postreset: EXIT
-  ata_eh_thaw_port: ata2 port thawed
-  ata_eh_revalidate_and_attach: ENTER
-  ata_exec_command_pio: ata2: cmd 0xEC
-  ata_hsm_move: ata2: protocol 2 task_state 2 (dev_stat 0x58)
-  ata_pio_sector: data read
-  ata_hsm_move: ata2: protocol 2 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata2.00: ATA-7, max UDMA/133, 586072368 sectors: LBA48 NCQ (depth 0/32)
-  ata2.00: ata2: dev 0 multi count 8
 
-fails:
+Avoid triggering ext3_error on bad NFS file handle
 
-  Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-  ICH5: IDE controller at PCI slot 0000:00:1f.1
-  PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-  ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 17
-  ICH5: chipset revision 2
-  ICH5: not 100% native mode: will probe irqs later
-      ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-  hda: TEAC CD-ROM CD-224E, ATAPI CD/DVD-ROM drive
-  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-  piix_init: pci_module_init
-  ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-  ata_pci_init_one: ENTER
-  ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 17
-  ata_device_add: ENTER
-  ata_host_add: ENTER
-  ata_port_start: prd alloc, virt f7879000, dma 37879000
-  ata1: SATA max UDMA/133 cmd 0xCCB8 ctl 0xCCB2 bmdma 0xCC80 irq 17
-  __ata_port_freeze: ata1 port frozen
-  ata_host_add: ENTER
-  ata_port_start: prd alloc, virt f787b000, dma 3787b000
-  ata2: SATA max UDMA/133 cmd 0xCCA0 ctl 0xCC9A bmdma 0xCC88 irq 17
-  __ata_port_freeze: ata2 port frozen
-  ata_device_add: probe begin
-  scsi0 : ata_piix
-  ata_port_schedule_eh: port EH scheduled
-  ata_scsi_error: ENTER
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_eh_autopsy: ENTER
-  ata_eh_recover: ENTER
-  ata_eh_prep_resume: ENTER
-  ata_eh_prep_resume: EXIT
-  __ata_port_freeze: ata1 port frozen
-  piix_sata_prereset: ata1: ENTER, pcs=0x0 base=0
-  piix_sata_prereset: ata1: LEAVE, pcs=0x0 present_mask=0x0
-  ata1: SATA port has no device.
-  ata_eh_thaw_port: ata1 port thawed
-  ata_eh_revalidate_and_attach: ENTER
-  ata_eh_revalidate_and_attach: EXIT
-  ata_eh_resume: ENTER
-  ata_eh_resume: EXIT
-  ata_eh_suspend: ENTER
-  ata_eh_suspend: EXIT
-  ata_eh_recover: EXIT, rc=0
-  ata_scsi_error: EXIT
-  scsi1 : ata_piix
-  ata_port_schedule_eh: port EH scheduled
-  ata_scsi_error: ENTER
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_eh_autopsy: ENTER
-  ata_eh_recover: ENTER
-  ata_eh_prep_resume: ENTER
-  ata_eh_prep_resume: EXIT
-  __ata_port_freeze: ata2 port frozen
-  piix_sata_prereset: ata2: ENTER, pcs=0x33 base=2
-  piix_sata_prereset: ata2: LEAVE, pcs=0x33 present_mask=0x1
-  ata_std_softreset: ENTER
-  ata_std_softreset: about to softreset, devmask=1
-  ata_bus_softreset: ata2: bus reset via SRST
-  ata_dev_classify: found ATA device by sig
-  ata_std_softreset: EXIT, classes[0]=1 [1]=0
-  ata_std_postreset: ENTER
-  ata_std_postreset: EXIT
-  ata_eh_thaw_port: ata2 port thawed
-  ata_eh_revalidate_and_attach: ENTER
-  ata_exec_command_pio: ata2: cmd 0xEC
-  ata_hsm_move: ata2: protocol 2 task_state 2 (dev_stat 0x58)
-  ata_pio_sector: data read
-  ata_hsm_move: ata2: protocol 2 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata2.00: ATA-7, max UDMA/133, 586072368 sectors: LBA48 NCQ (depth 0/32)
-  ata2.00: ata2: dev 0 multi count 8
-  ata_eh_revalidate_and_attach: EXIT
-  ata_eh_resume: ENTER
-  ata_eh_resume: EXIT
-  ata_dev_set_xfermode: set features - xfer mode
-  ata_exec_command_pio: ata2: cmd 0xEF
-  ata_hsm_move: ata2: protocol 1 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_dev_set_xfermode: EXIT, err_mask=0
-  ata_exec_command_pio: ata2: cmd 0xEC
-  ata_hsm_move: ata2: protocol 2 task_state 2 (dev_stat 0x58)
-  ata_pio_sector: data read
-  ata_hsm_move: ata2: protocol 2 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-  ata_port_flush_task: ENTER
-  ata_port_flush_task: flush #1
-  ata_dev_set_mode: xfer_shift=8, xfer_mode=0x46
-  ata2.00: configured for UDMA/133
-  ata_eh_suspend: ENTER
-  ata_eh_suspend: EXIT
-  ata_eh_recover: EXIT, rc=0
-  ata_scsi_error: EXIT
-  ata_device_add: host probe begin
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 12 00 00 00 24 00 00 00 00
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 12 00 00 00 60 00 00 00 00
-    Vendor: ATA       Model: ST3300622AS       Rev: 3.AA
-    Type:   Direct-Access                      ANSI SCSI revision: 05
-  piix_init: done
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 00 00 00 00 00 00 00 00 00
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 25 00 00 00 00 00 00 00 00
-  SCSI device sda: 586072368 512-byte hdwr sectors (300069 MB)
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 3f 00 00 00 00 00 08
-  sda: Write Protect is off
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 08 00 00 00 00 00 08
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 08 00 00 00 00 00 24
-  SCSI device sda: drive cache: write back
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 00 00 00 00 00 00 00 00 24
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 25 00 00 00 00 00 00 00 00
-  SCSI device sda: 586072368 512-byte hdwr sectors (300069 MB)
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 3f 00 00 00 00 00 08
-  sda: Write Protect is off
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 08 00 00 00 00 00 08
-  ata_scsi_dump_cdb: CDB (2:0,0,0) 5a 00 08 00 00 00 00 00 24
-  SCSI device sda: drive cache: write back
-   sda:<3>ata_scsi_dump_cdb: CDB (2:0,0,0) 28 00 00 00 00 00 00 00 08
-  ata_sg_setup: 1 sg elements mapped
-  ata_exec_command_pio: ata2: cmd 0xC8
-  ata_hsm_move: ata2: protocol 3 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-   sda1 <<3>ata_scsi_dump_cdb: CDB (2:0,0,0) 28 00 00 00 00 38 00 00 08
-  ata_sg_setup: 1 sg elements mapped
-  ata_exec_command_pio: ata2: cmd 0xC8
-  ata_hsm_move: ata2: protocol 3 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-   sda5<3>ata_scsi_dump_cdb: CDB (2:0,0,0) 28 00 00 0f 71 78 00 00 08
-  ata_sg_setup: 1 sg elements mapped
-  ata_exec_command_pio: ata2: cmd 0xC8
-  ata_hsm_move: ata2: protocol 3 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-   sda6<3>ata_scsi_dump_cdb: CDB (2:0,0,0) 28 00 00 f4 a4 60 00 00 08
-  ata_sg_setup: 1 sg elements mapped
-  ata_exec_command_pio: ata2: cmd 0xC8
-  ata_hsm_move: ata2: protocol 3 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-   sda7<3>ata_scsi_dump_cdb: CDB (2:0,0,0) 28 00 01 04 15 e0 00 00 08
-  ata_sg_setup: 1 sg elements mapped
-  ata_exec_command_pio: ata2: cmd 0xC8
-  ata_hsm_move: ata2: protocol 3 task_state 3 (dev_stat 0x50)
-  ata_hsm_move: ata2: dev 0 command complete, drv_stat 0x50
-   sda8 >
-  sd 1:0:0:0: Attached scsi disk sda
-  serio: i8042 AUX port at 0x60,0x64 irq 12
-  serio: i8042 KBD port at 0x60,0x64 irq 1
-  mice: PS/2 mouse device common for all mice
-  TCP bic registered
-  NET: Registered protocol family 1
-  Starting balanced_irq
-  Using IPI No-Shortcut mode
-  ACPI: (supports<6>Time: tsc clocksource has been installed.
-  input: AT Translated Set 2 keyboard as /class/input/input0
-   S0 S4 S5)
-  VFS: Cannot open root device "sda10" or unknown-block(8,10)
+The inode number out of an NFS file handle gets passed 
+eventually to ext3_get_inode_block without any checking.
+If ext3_get_inode_block allows it to trigger a error,
+then bad filehandles can have unpleasant effect.
 
+So remove the call to ext3_error there and put a matching
+check in ext3/namei.c where inode numbers are read of storage.
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/ext3/inode.c         |   13 ++++++-------
+ ./fs/ext3/namei.c         |   15 +++++++++++++--
+ ./include/linux/ext3_fs.h |    9 +++++++++
+ 3 files changed, 28 insertions(+), 9 deletions(-)
+
+diff .prev/fs/ext3/inode.c ./fs/ext3/inode.c
+--- .prev/fs/ext3/inode.c	2006-07-20 14:41:07.000000000 +1000
++++ ./fs/ext3/inode.c	2006-07-21 16:36:32.000000000 +1000
+@@ -2402,14 +2402,13 @@ static ext3_fsblk_t ext3_get_inode_block
+ 	struct buffer_head *bh;
+ 	struct ext3_group_desc * gdp;
+ 
+-
+-	if ((ino != EXT3_ROOT_INO && ino != EXT3_JOURNAL_INO &&
+-		ino != EXT3_RESIZE_INO && ino < EXT3_FIRST_INO(sb)) ||
+-		ino > le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count)) {
+-		ext3_error(sb, "ext3_get_inode_block",
+-			    "bad inode number: %lu", ino);
++	if (!ext3_valid_inum(sb, ino))
++		/* This error already checked for in namei.c unless we
++		 * are looking at an NFS filehandle, in which case,
++		 * no error reported is needed
++		 */
+ 		return 0;
+-	}
++
+ 	block_group = (ino - 1) / EXT3_INODES_PER_GROUP(sb);
+ 	if (block_group >= EXT3_SB(sb)->s_groups_count) {
+ 		ext3_error(sb,"ext3_get_inode_block","group >= groups count");
+
+diff .prev/fs/ext3/namei.c ./fs/ext3/namei.c
+--- .prev/fs/ext3/namei.c	2006-07-20 14:39:51.000000000 +1000
++++ ./fs/ext3/namei.c	2006-07-21 16:36:09.000000000 +1000
+@@ -1000,7 +1000,12 @@ static struct dentry *ext3_lookup(struct
+ 	if (bh) {
+ 		unsigned long ino = le32_to_cpu(de->inode);
+ 		brelse (bh);
+-		inode = iget(dir->i_sb, ino);
++		if (!ext3_valid_inum(dir->i_sb, ino)) {
++			ext3_error(dir->i_sb, "ext3_lookup",
++				   "bad inode number: %lu", ino);
++			inode = NULL;
++		} else
++			inode = iget(dir->i_sb, ino);
+ 
+ 		if (!inode)
+ 			return ERR_PTR(-EACCES);
+@@ -1028,7 +1033,13 @@ struct dentry *ext3_get_parent(struct de
+ 		return ERR_PTR(-ENOENT);
+ 	ino = le32_to_cpu(de->inode);
+ 	brelse(bh);
+-	inode = iget(child->d_inode->i_sb, ino);
++
++	if (!ext3_valid_inum(child->d_inode->i_sb, ino)) {
++		ext3_error(child->d_inode->i_sb, "ext3_get_parent",
++			   "bad inode number: %lu", ino);
++		inode = NULL;
++	} else
++		inode = iget(child->d_inode->i_sb, ino);
+ 
+ 	if (!inode)
+ 		return ERR_PTR(-EACCES);
+
+diff .prev/include/linux/ext3_fs.h ./include/linux/ext3_fs.h
+--- .prev/include/linux/ext3_fs.h	2006-07-21 16:34:01.000000000 +1000
++++ ./include/linux/ext3_fs.h	2006-07-21 16:35:55.000000000 +1000
+@@ -492,6 +492,15 @@ static inline struct ext3_inode_info *EX
+ {
+ 	return container_of(inode, struct ext3_inode_info, vfs_inode);
+ }
++
++static inline int ext3_valid_inum(struct super_block *sb, unsigned long ino)
++{
++	return ino == EXT3_ROOT_INO ||
++		ino == EXT3_JOURNAL_INO ||
++		ino == EXT3_RESIZE_INO ||
++		(ino > EXT3_FIRST_INO(sb) &&
++		 ino <= le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count));
++}
+ #else
+ /* Assume that user mode programs are passing in an ext3fs superblock, not
+  * a kernel struct super_block.  This will allow us to call the feature-test

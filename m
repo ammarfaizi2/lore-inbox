@@ -1,61 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWGUOLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWGUOYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWGUOLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 10:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWGUOLk
+	id S1750738AbWGUOYA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 10:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWGUOX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 10:11:40 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:42907 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1750737AbWGUOLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 10:11:39 -0400
-Message-ID: <44C0DFD9.1040609@s5r6.in-berlin.de>
-Date: Fri, 21 Jul 2006 16:08:25 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-CC: Panagiotis Issaris <takis@gna.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
-       benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset tok(z|c)alloc.
-References: <20060720190529.GC7643@lumumba.uhasselt.be>  <200607210850.17878.eike-kernel@sf-tec.de>  <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>  <44C07CB2.1040303@pobox.com> <1153474342.9489.8.camel@hemera> <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI> <44C0B439.8020604@s5r6.in-berlin.de> <Pine.LNX.4.58.0607211409540.27644@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0607211409540.27644@sbz-30.cs.Helsinki.FI>
+	Fri, 21 Jul 2006 10:23:59 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27620 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750738AbWGUOX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 10:23:59 -0400
+Date: Fri, 21 Jul 2006 16:24:15 +0200
+From: Jan Kara <jack@suse.cz>
+To: Neil Brown <neilb@suse.de>
+Cc: James <20@madingley.org>, Marcel Holtmann <marcel@holtmann.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sct@redhat.com
+Subject: Re: Bad ext3/nfs DoS bug
+Message-ID: <20060721142415.GC2020@atrey.karlin.mff.cuni.cz>
+References: <1153209318.26690.1.camel@localhost> <20060718145614.GA27788@circe.esc.cam.ac.uk> <1153236136.10006.5.camel@localhost> <20060718152341.GB27788@circe.esc.cam.ac.uk> <1153253907.21024.25.camel@localhost> <20060719092810.GA4347@circe.esc.cam.ac.uk> <20060719155502.GD3270@atrey.karlin.mff.cuni.cz> <17599.2754.962927.627515@cse.unsw.edu.au> <20060720160639.GF25111@atrey.karlin.mff.cuni.cz> <17600.30372.397971.955987@cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <17600.30372.397971.955987@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg wrote:
-> On Fri, 21 Jul 2006, Stefan Richter wrote:
->> Contributors can't know what the (supposed) _agreements_ are.
->> 
->> Contributors can only know what the _documented conventions_ are.
+> On Thursday July 20, jack@suse.cz wrote:
+> >   Yes, that looks fine too. I did not realize that we get the inode
+> > number only in a few places. Maybe we could wrap the checks in a
+> > function (possibly inline) so that the checks are just in one place?
 > 
-> Life gets easier when you accept the fact that there are different 
-> conventions within the kernel, driven by maintainer preference. Which is 
-> why it is impossible to document a definite set of conventions too. 
-> CodingStyle really is just a good approximation
-[...]
+> Like this?
+  Yes.
 
-What can a contributor do when he comes across code which deviates from
-CodingStyle? He cannot tell whether the initial developer wasn't forced
-to adhere to CodingStyle or the maintainer wants it that way. So, the
-contributor
- - could ask the maintainer for his ruleset before writing a patch, or
- - could simply write the patch and wait if the maintainer feels need to
-   demand adjustments.
-I am not sure which strategy will consume less time of contributor and
-maintainer.
+> NeilBrown
+> 
+> 
+> Avoid triggering ext3_error on bad NFS file handle
+> 
+> The inode number out of an NFS file handle gets passed 
+> eventually to ext3_get_inode_block without any checking.
+> If ext3_get_inode_block allows it to trigger a error,
+> then bad filehandles can have unpleasant effect.
+> 
+> So remove the call to ext3_error there and put a matching
+> check in ext3/namei.c where inode numbers are read of storage.
+> 
+> Signed-off-by: Neil Brown <neilb@suse.de>
+  Signed-off-by: Jan Kara <jack@suse.cz>
+
+							Honza
+
+> ### Diffstat output
+>  ./fs/ext3/inode.c         |   13 ++++++-------
+>  ./fs/ext3/namei.c         |   15 +++++++++++++--
+>  ./include/linux/ext3_fs.h |    9 +++++++++
+>  3 files changed, 28 insertions(+), 9 deletions(-)
+> 
+> diff .prev/fs/ext3/inode.c ./fs/ext3/inode.c
+> --- .prev/fs/ext3/inode.c	2006-07-20 14:41:07.000000000 +1000
+> +++ ./fs/ext3/inode.c	2006-07-21 16:36:32.000000000 +1000
+> @@ -2402,14 +2402,13 @@ static ext3_fsblk_t ext3_get_inode_block
+>  	struct buffer_head *bh;
+>  	struct ext3_group_desc * gdp;
+>  
+> -
+> -	if ((ino != EXT3_ROOT_INO && ino != EXT3_JOURNAL_INO &&
+> -		ino != EXT3_RESIZE_INO && ino < EXT3_FIRST_INO(sb)) ||
+> -		ino > le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count)) {
+> -		ext3_error(sb, "ext3_get_inode_block",
+> -			    "bad inode number: %lu", ino);
+> +	if (!ext3_valid_inum(sb, ino))
+> +		/* This error already checked for in namei.c unless we
+> +		 * are looking at an NFS filehandle, in which case,
+> +		 * no error reported is needed
+> +		 */
+>  		return 0;
+> -	}
+> +
+>  	block_group = (ino - 1) / EXT3_INODES_PER_GROUP(sb);
+>  	if (block_group >= EXT3_SB(sb)->s_groups_count) {
+>  		ext3_error(sb,"ext3_get_inode_block","group >= groups count");
+> 
+> diff .prev/fs/ext3/namei.c ./fs/ext3/namei.c
+> --- .prev/fs/ext3/namei.c	2006-07-20 14:39:51.000000000 +1000
+> +++ ./fs/ext3/namei.c	2006-07-21 16:36:09.000000000 +1000
+> @@ -1000,7 +1000,12 @@ static struct dentry *ext3_lookup(struct
+>  	if (bh) {
+>  		unsigned long ino = le32_to_cpu(de->inode);
+>  		brelse (bh);
+> -		inode = iget(dir->i_sb, ino);
+> +		if (!ext3_valid_inum(dir->i_sb, ino)) {
+> +			ext3_error(dir->i_sb, "ext3_lookup",
+> +				   "bad inode number: %lu", ino);
+> +			inode = NULL;
+> +		} else
+> +			inode = iget(dir->i_sb, ino);
+>  
+>  		if (!inode)
+>  			return ERR_PTR(-EACCES);
+> @@ -1028,7 +1033,13 @@ struct dentry *ext3_get_parent(struct de
+>  		return ERR_PTR(-ENOENT);
+>  	ino = le32_to_cpu(de->inode);
+>  	brelse(bh);
+> -	inode = iget(child->d_inode->i_sb, ino);
+> +
+> +	if (!ext3_valid_inum(child->d_inode->i_sb, ino)) {
+> +		ext3_error(child->d_inode->i_sb, "ext3_get_parent",
+> +			   "bad inode number: %lu", ino);
+> +		inode = NULL;
+> +	} else
+> +		inode = iget(child->d_inode->i_sb, ino);
+>  
+>  	if (!inode)
+>  		return ERR_PTR(-EACCES);
+> 
+> diff .prev/include/linux/ext3_fs.h ./include/linux/ext3_fs.h
+> --- .prev/include/linux/ext3_fs.h	2006-07-21 16:34:01.000000000 +1000
+> +++ ./include/linux/ext3_fs.h	2006-07-21 16:35:55.000000000 +1000
+> @@ -492,6 +492,15 @@ static inline struct ext3_inode_info *EX
+>  {
+>  	return container_of(inode, struct ext3_inode_info, vfs_inode);
+>  }
+> +
+> +static inline int ext3_valid_inum(struct super_block *sb, unsigned long ino)
+> +{
+> +	return ino == EXT3_ROOT_INO ||
+> +		ino == EXT3_JOURNAL_INO ||
+> +		ino == EXT3_RESIZE_INO ||
+> +		(ino > EXT3_FIRST_INO(sb) &&
+> +		 ino <= le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count));
+> +}
+>  #else
+>  /* Assume that user mode programs are passing in an ext3fs superblock, not
+>   * a kernel struct super_block.  This will allow us to call the feature-test
 -- 
-Stefan Richter
--=====-=-==- -=== =--==
-http://arcgraph.de/sr/
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

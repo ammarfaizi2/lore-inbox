@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWGUStQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWGUSxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWGUStQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 14:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWGUStQ
+	id S1750876AbWGUSxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 14:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWGUSxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 14:49:16 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:59849 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1750885AbWGUStP (ORCPT
+	Fri, 21 Jul 2006 14:53:36 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:21724 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750876AbWGUSxf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 14:49:15 -0400
-Message-Id: <200607211849.k6LInCi8011368@laptop13.inf.utfsm.cl>
-To: "Joshua Hudson" <joshudson@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: what is necessary for directory hard links 
-In-Reply-To: Your message of "Thu, 20 Jul 2006 18:04:49 MST."
-             <bda6d13a0607201804je89fc3exd0b8f821509a3894@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Fri, 21 Jul 2006 14:49:12 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 21 Jul 2006 14:49:12 -0400 (CLT)
+	Fri, 21 Jul 2006 14:53:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YK5+VGuNe6PAap0f7dmE8GLOHDj3txeWXLzJAIzYA0H8o2IETFBNg5BiRQd5ZntjBex0YbR4RFXLwN7c96+7NrzZ1MZW/qHnmwXio/IgdlyTiIZjKxugi3UEbm4f+PF/hqnCQSrXvUFU8M8SiIY3tSzjGf50hz52fxCAyVxEmSc=
+Message-ID: <d120d5000607211153p541a56bbo2f121dd9aa41743d@mail.gmail.com>
+Date: Fri, 21 Jul 2006 14:53:34 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "=?ISO-8859-1?Q?Magnus_Vigerl=F6f?=" <wigge@bigfoot.com>
+Subject: Re: input: Oops when unplugging opened Wacom USB device
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <200607212029.23617.wigge@bigfoot.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200607212029.23617.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson <joshudson@gmail.com> wrote:
-> This patch is the sum total of all that I had to change in the kernel
-> VFS layer to support hard links to directories
+On 7/21/06, Magnus Vigerlöf <wigge@bigfoot.com> wrote:
+>
+> Does somebody knows the reason for the lack of locking in this part
+> of the code? The code is similar and the problems may be the same
+> in joydev.c and tsdev.c as well.
+>
 
-Can't be done, as it creates the possibility of loops. The "only files can
-be hardlinked" idea makes garbage collection (== deleting of unreachable
-objects) simple: Just check the number of references.
+Ahem, well, just lack of time I suppose. I am starting adding some
+locking to the input core, once its done we can work on locking in
+handlers.
 
-Detecting unconnected subgraphs uses a /lot/ of memory; and much worse, you
-have to stop (almost) all filesystem activity while doing it.
-
-Besides, the flow "root down through directories" gives a natural order in
-which to go locking stuff when needed; if there can be loops, the system
-could easily deadlock.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+Dmitry

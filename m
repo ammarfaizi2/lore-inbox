@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWGUWzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWGUW7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWGUWzn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 18:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWGUWzn
+	id S1750853AbWGUW7E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 18:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWGUW7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 18:55:43 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:41913 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751242AbWGUWzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 18:55:42 -0400
-Date: Fri, 21 Jul 2006 15:55:41 -0700 (PDT)
-From: Trent Piepho <xyzzy@speakeasy.org>
-X-X-Sender: xyzzy@shell2.speakeasy.net
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-cc: v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device
- corruption
-In-Reply-To: <1153513837.32625.71.camel@praia>
-Message-ID: <Pine.LNX.4.58.0607211536190.26854@shell2.speakeasy.net>
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com> 
- <20060713050541.GA31257@kroah.com>  <20060712222407.d737129c.rdunlap@xenotime.net>
-  <20060712224453.5faeea4a.akpm@osdl.org> <20060715230849.GA3385@localhost>
-  <1153013464.4755.35.camel@praia>  <Pine.LNX.4.58.0607171650510.18488@shell3.speakeasy.net>
-  <1153310092.27276.9.camel@praia>  <Pine.LNX.4.58.0607201425060.18071@shell2.speakeasy.net>
-  <1153484805.16225.12.camel@praia>  <Pine.LNX.4.58.0607211226430.26854@shell2.speakeasy.net>
- <1153513837.32625.71.camel@praia>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Jul 2006 18:59:03 -0400
+Received: from lilly.ping.de ([83.97.42.2]:32521 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id S1750853AbWGUW7B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 18:59:01 -0400
+Date: Sat, 22 Jul 2006 00:53:04 +0200
+From: Jochen Heuer <jogi-kernel@planetzork.ping.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, nathans@sgi.com,
+       xfs@oss.sgi.com
+Subject: Re: BUG: soft lockup detected on CPU#1!
+Message-ID: <20060721225304.GA12184@planetzork.ping.de>
+References: <20060717125216.GA15481@planetzork.ping.de> <1153146608.1218.9.camel@localhost.localdomain> <20060717144831.GA28284@planetzork.ping.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060717144831.GA28284@planetzork.ping.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jul 2006, Mauro Carvalho Chehab wrote:
-> config VIDEO_BT848
->         tristate "BT848 Video For Linux"
->         depends on VIDEO_DEV && PCI && I2C && VIDEO_V4L2
->
-> Argh! it should be V4L1 instead!
+On Mon, Jul 17, 2006 at 04:48:31PM +0200, Jochen Heuer wrote:
+> On Mon, Jul 17, 2006 at 10:30:08AM -0400, Steven Rostedt wrote:
+> > 
+> > Jochen, you didn't say whether or not the 2.6.18-rc2 locked up. I'm
+> > assuming it did. But did it?
+> 
+> Hi Steven,
+> 
+> no, it did not lock up yet but I did not do any "serious" webbrowsing
+> with 2.6.18-rc2 so far.
 
-You can compile and use bt848 without V4L1 turned on.  It still has some
-V4L1 functions defined.
+Hi,
 
-> > All these files include v4l2-dev.h and have HAVE_V4L1 defined when V4L1 is
-> > not turned on in Kconfig.  There files are all buildable when V4L1 is off;
-> > they don't depend on it in Kconfig.
-> Some of the above drivers are V4L2, like tda9887, tuner-core,
-> tuner-simple, msp3400, cs53l32a, tveeprom, wm87xx. Maybe they are just
-> including the wrong headers. We should try to change to videodev2.h and
-> see what happens with all those drivers. The ones that break should me
-> marked with the proper requirement on Kconfig.
->
-> Some of they need some #ifdef inside. For example, compat_ioctl32 should
-> handle both APIs, since it is a generic code to fix 32 bit calls to 64
-> bit kernel.
+well, it locks up with 2.6.18-rc2 too. Three times today. And always during
+webbrowsing ... What's so special about it? Could it be because it accesses
+network and disk at the same time?
 
-I think this is pretty much what I've been saying.  Drivers should:
-A. Not include videodev.h, but use videodev2.h
-B. Include videodev.h, but be marked V4L1 in Kconfig
-C. #ifdef around videodev.h (and code that needs videodev.h), so it
-   is not included or needed when V4L1 is turned off.
+The system has been pretty busy compiling the last days because I did setup a
+new Gentoo system in chroot environment. No problem whatsoever. I did run
+2 x mprime for a day and also no problem.
+
+Is there anything I can test? Disable irq balancing? Disabling preemption did
+not help. Disabling IO-APIC? What can I do to help isolate the problem because
+it really is annoying and I don't like pushing the reset button. Because if the
+system locks up *really* nothing works. The screen is frozen, no mouse, no
+keyboard, no sys-rq, no network ... nothing.
+
+Thanks for your help and best regards,
+
+   Jochen

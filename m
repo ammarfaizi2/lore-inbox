@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWGUWgm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWGUWen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWGUWgm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 18:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWGUWgm
+	id S1751236AbWGUWen (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 18:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWGUWen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 18:36:42 -0400
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:30945 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751243AbWGUWgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 18:36:42 -0400
-Date: Fri, 21 Jul 2006 18:30:57 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] spinlock_debug: don't recompute (jiffies_per_loop *
-  HZ) in spinloop
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200607211834_MC3-1-C5BD-B57D@compuserve.com>
+	Fri, 21 Jul 2006 18:34:43 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:40068 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751236AbWGUWem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 18:34:42 -0400
+Message-ID: <1153521067.44c155ab6b7d4@portal.student.luth.se>
+Date: Sat, 22 Jul 2006 00:31:07 +0200
+From: ricknu-0@student.ltu.se
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [RFC][PATCH] A generic boolean (version 2)
+References: <1153341500.44be983ca1407@portal.student.luth.se> <1153445087.44c02cdf40511@portal.student.luth.se> <44C02F35.4000604@garzik.org>
+In-Reply-To: <44C02F35.4000604@garzik.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In spinlock_debug.c, the spinloops call __delay() on every iteration.
-Because that is an external function, (jiffies_per_loop * HZ), the
-loop's iteration limit, gets recomputed every time. Caching it
-explicitly prevents that.
+Citerar Jeff Garzik <jeff@garzik.org>:
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> ricknu-0@student.ltu.se wrote:
+> > diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
+> > index 4b4b295..841792b 100644
+> > --- a/include/asm-i386/types.h
+> > +++ b/include/asm-i386/types.h
+> > @@ -1,6 +1,13 @@
+> >  #ifndef _I386_TYPES_H
+> >  #define _I386_TYPES_H
+> >  
+> > +#if defined(__GNUC__)
+> > +typedef _Bool bool;
+> > +#else
+> > +#warning You compiler doesn't seem to support boolean types, will set
+> 'bool' as
+> > an 'unsigned int'
+> > +typedef unsigned int bool;
+> > +#endif
+> > +
+> >  #ifndef __ASSEMBLY__
+> >  
+> >  typedef unsigned short umode_t;
+> 
+> Just delete the #ifdef and assume its either gcc, or a compatible 
+> compiler.  That's what we assume with other data types.
 
----
+You are right. Will remove it.
+Just remembered one of reasons I had version-check before, how about linux 2.4?
+What I understand, they have the same drivers as 2.6 but they have not commited
+to use gcc >= 3. Can anyone confirm or deny this? Otherwise the discussion about
+alternetiv bool-type is off no relevence anymore.
 
-__delay() should really be declared __attribute_pure.
+> 
+> 
+> > @@ -10,6 +17,8 @@ typedef unsigned short umode_t;
+> >   * header files exported to user space
+> >   */
+> >  
+> > +typedef bool __u1;
+> > +
+> >  typedef __signed__ char __s8;
+> >  typedef unsigned char __u8;
+> >  
+> > @@ -36,6 +45,8 @@ #define BITS_PER_LONG 32
+> >  #ifndef __ASSEMBLY__
+> >  
+> >  
+> > +typedef bool u1;
+> > +
+> >  typedef signed char s8;
+> >  typedef unsigned char u8;
+> >  
+> 
+> I wouldn't bother with these types.  Nobody uses creates in their own 
+> hand-crafted bool uses, so I don't think people would suddenly start.
 
+Removed
 
---- 2.6.18-rc2-64-numa.orig/lib/spinlock_debug.c
-+++ 2.6.18-rc2-64-numa/lib/spinlock_debug.c
-@@ -99,11 +99,12 @@ static inline void debug_spin_unlock(spi
- 
- static void __spin_lock_debug(spinlock_t *lock)
- {
--	int print_once = 1;
- 	u64 i;
-+	u64 loops = loops_per_jiffy * HZ;
-+	int print_once = 1;
- 
- 	for (;;) {
--		for (i = 0; i < loops_per_jiffy * HZ; i++) {
-+		for (i = 0; i < loops; i++) {
- 			if (__raw_spin_trylock(&lock->raw_lock))
- 				return;
- 			__delay(1);
-@@ -164,11 +165,12 @@ static void rwlock_bug(rwlock_t *lock, c
- 
- static void __read_lock_debug(rwlock_t *lock)
- {
--	int print_once = 1;
- 	u64 i;
-+	u64 loops = loops_per_jiffy * HZ;
-+	int print_once = 1;
- 
- 	for (;;) {
--		for (i = 0; i < loops_per_jiffy * HZ; i++) {
-+		for (i = 0; i < loops; i++) {
- 			if (__raw_read_trylock(&lock->raw_lock))
- 				return;
- 			__delay(1);
-@@ -237,11 +239,12 @@ static inline void debug_write_unlock(rw
- 
- static void __write_lock_debug(rwlock_t *lock)
- {
--	int print_once = 1;
- 	u64 i;
-+	u64 loops = loops_per_jiffy * HZ;
-+	int print_once = 1;
- 
- 	for (;;) {
--		for (i = 0; i < loops_per_jiffy * HZ; i++) {
-+		for (i = 0; i < loops; i++) {
- 			if (__raw_write_trylock(&lock->raw_lock))
- 				return;
- 			__delay(1);
--- 
-Chuck
+/Richard

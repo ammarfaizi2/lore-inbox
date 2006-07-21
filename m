@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWGUNZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWGUNsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWGUNZU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 09:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWGUNZU
+	id S1750732AbWGUNsE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 09:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWGUNsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 09:25:20 -0400
-Received: from main.gmane.org ([80.91.229.2]:40651 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750730AbWGUNZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 09:25:19 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-2?q?=A3ukasz_Jachymczyk?= <lfx@tlen.pl>
-Subject: BUG? rebooting
-Date: Fri, 21 Jul 2006 15:18:37 +0200
-Message-ID: <pan.2006.07.21.13.18.37.180629@tlen.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: awj146.internetdsl.tpnet.pl
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+	Fri, 21 Jul 2006 09:48:04 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:53896 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750732AbWGUNsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 09:48:02 -0400
+Date: Fri, 21 Jul 2006 09:47:22 -0400 (EDT)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: LKML <linux-kernel@vger.kernel.org>
+cc: akpm@osdl.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH] reference rt-mutex-design in rtmutex.c
+Message-ID: <Pine.LNX.4.58.0607210942410.1190@gandalf.stny.rr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've got a problem with rebooting my linux on laptop hp nx6310 (centrino
-core duo). After restarting, bios hangs for a while and it runs slower
-then usual (up to 15 seconds until grub loads). After that, my linux works
-quite fine, however I'm not able to achieve maximym cpu speed with cpufreq
-and acpi doesn't show actual information about battery left (it shows all
-the time 2:30 hours left) - simply, acpi hangs in the moment of booting.
+In order to prevent Doc Rot, this patch adds a reference to the design
+document for rtmutex.c in rtmutex.c.  So when someone needs to update or
+change the design of that file they will know that a document actually
+exists that explains the design (helping them change it), as well as
+letting them know that they need to update it if it becomes out of date.
 
-But there is also ms windows on the same laptop. It reboots smoothly and
-quickly. There is no bios hanging effect. And after such reboot from
-windows, when I boot linux, everything - acpi and cpufreq - works fine!
+-- Steve
 
-I guess it's the problem of the way how linux' kernel reboots.
-First, I thought that acpi is doing something nasty, so I compiled kernel
-without power management support (in fact, this kernel contained only
-essential features for my laptop, see .config:
-http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/config-clean). As you can
-imagine, of course it didn't help.
-Here is dmesg output on this kernel:
-http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/dmesg-clean
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Here: http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/ are also dmesg-acpi
-and config-acpi files of my (almost) fully functional kernel. It does
-reboot improperly too.
-
-My question is: how can I make my linux to reboot smoothly as i.e. windows
-does? What causes this problem? If it wasn't good place for asking about
-this, please tell me where to find help. If you need more info about
-what's happening on my laptop, please write.
-
--- 
-£ukasz Jachymczyk
-http://fatcat.ftj.agh.edu.pl/~lfx/
-
-
+Index: linux-2.6.18-rc2/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/rtmutex.c	2006-07-21 09:38:08.000000000 -0400
++++ linux-2.6.18-rc2/kernel/rtmutex.c	2006-07-21 09:36:05.000000000 -0400
+@@ -7,6 +7,9 @@
+  *  Copyright (C) 2005-2006 Timesys Corp., Thomas Gleixner <tglx@timesys.com>
+  *  Copyright (C) 2005 Kihon Technologies Inc., Steven Rostedt
+  *  Copyright (C) 2006 Esben Nielsen
++ *
++ *  Before making any design changes to this file, please refer to
++ *  Documentation/rt-mutex-design.txt and update accordingly.
+  */
+ #include <linux/spinlock.h>
+ #include <linux/module.h>

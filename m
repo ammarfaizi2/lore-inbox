@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWGUVQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWGUVQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWGUVQB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 17:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWGUVQB
+	id S1751196AbWGUVQb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 17:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWGUVQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 17:16:01 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:63705 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751178AbWGUVQA (ORCPT
+	Fri, 21 Jul 2006 17:16:31 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:4314 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751196AbWGUVQa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 17:16:00 -0400
-Message-ID: <44C143FA.9030808@pobox.com>
-Date: Fri, 21 Jul 2006 17:15:38 -0400
+	Fri, 21 Jul 2006 17:16:30 -0400
+Message-ID: <44C14426.9000300@pobox.com>
+Date: Fri, 21 Jul 2006 17:16:22 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>,
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
        Rolf Eike Beer <eike-kernel@sf-tec.de>,
        Panagiotis Issaris <takis@lumumba.uhasselt.be>,
        linux-kernel@vger.kernel.org, len.brown@intel.com,
@@ -26,8 +27,8 @@ CC: Pekka Enberg <penberg@cs.helsinki.fi>,
        philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
        paulus@samba.org
 Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-References: <20060720190529.GC7643@lumumba.uhasselt.be>	 <200607210850.17878.eike-kernel@sf-tec.de> <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de>
-In-Reply-To: <44C099D2.5030300@s5r6.in-berlin.de>
+References: <20060720190529.GC7643@lumumba.uhasselt.be>	 <200607210850.17878.eike-kernel@sf-tec.de>	 <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>	 <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de> <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
+In-Reply-To: <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.2 (----)
@@ -36,31 +37,38 @@ X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Richter wrote:
-> Jeff Garzik wrote:
->> Pekka Enberg wrote:
->>> On 7/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
->>>>> -     if (!(handle = kmalloc(sizeof(struct input_handle), GFP_KERNEL)))
->>>>> +     handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
->>>>> +     if (!handle)
->>>>>               return NULL;
->>>> sizeof(*handle)?
->>> In general, yes. However, some maintainers don't like that, so I would
->>> recommend to keep them as-is unless you get a clear ack from the
->>> maintainer to change it.
+Jesper Juhl wrote:
+> On 21/07/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+>> Jeff Garzik wrote:
+>> > Pekka Enberg wrote:
+>> >> On 7/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+>> >>> > -     if (!(handle = kmalloc(sizeof(struct input_handle), 
+>> GFP_KERNEL)))
+>> >>> > +     handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
+>> >>> > +     if (!handle)
+>> >>> >               return NULL;
+>> >>>
+>> >>> sizeof(*handle)?
+>> >>
+>> >> In general, yes. However, some maintainers don't like that, so I would
+>> >> recommend to keep them as-is unless you get a clear ack from the
+>> >> maintainer to change it.
+>>
+>> I suggest:
+>>  - check if "sizeof(type)"->"sizeof(*ptr)" is correct
+>>  - if yes, change it
+> [snip]
+>>  - better style of the size argument where correct,
 > 
-> I suggest:
->  - check if "sizeof(type)"->"sizeof(*ptr)" is correct
->  - if yes, change it
->  - do this for all kmalloc + kzalloc in a file you touched, or
->    better yet for all kmalloc + kzalloc in a driver or subsystem you
->    touched
+> Who says it's "better style" ?
+> You can argue that   sizeof(type) is more readable.
+> When reading the code you don't have to go lookup the type of ptr in
+> sizeof(*ptr)  before you know what type the code is working with.
 
-This breaks the rules of standard Linux patches.
-
-The patch should contain ONE logical change.  Any cleanups such as 
-sizeof(type) -> sizeof(*ptr) should be in a SEPARATE PATCH.
+All the more reason that such changes -- unrelated to kzalloc/kcalloc 
+conversion -- should be in a separate patch.
 
 	Jeff
+
 
 

@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030432AbWGUJch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWGUJoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030432AbWGUJch (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 05:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWGUJch
+	id S1750840AbWGUJoD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 05:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbWGUJoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 05:32:37 -0400
-Received: from outmx001.isp.belgacom.be ([195.238.5.51]:34531 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1161017AbWGUJch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 05:32:37 -0400
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset tok(z|c)alloc.
-From: Panagiotis Issaris <takis@gna.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
-       benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-In-Reply-To: <44C07CB2.1040303@pobox.com>
-References: <20060720190529.GC7643@lumumba.uhasselt.be> 
-	<200607210850.17878.eike-kernel@sf-tec.de> 
-	<84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> 
-	<44C07CB2.1040303@pobox.com>
-Content-Type: text/plain
-Date: Fri, 21 Jul 2006 11:32:22 +0200
-Message-Id: <1153474342.9489.8.camel@hemera>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 21 Jul 2006 05:44:03 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:43699 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750940AbWGUJoB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 05:44:01 -0400
+Message-ID: <44C093D2.1040703@namesys.com>
+Date: Fri, 21 Jul 2006 02:44:02 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>
+Subject: Re: reiser4 status (correction)
+References: <44BFFCB1.4020009@namesys.com> <44C043B5.3070501@slaphack.com>
+In-Reply-To: <44C043B5.3070501@slaphack.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-imss-version: 2.032
-X-imss-result: Passed
-X-imss-scanInfo: M:P L:E SM:0
-X-imss-tmaseResult: TT:0 TS:0.0000 TC:00 TRN:0 TV:3.51.1032(14006.000)
-X-imss-scores: Clean:99.90000 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Masover wrote:
 
-On vr, 2006-07-21 at 03:05 -0400, Jeff Garzik wrote:
-> Pekka Enberg wrote:
-> > On 7/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> >> > -     if (!(handle = kmalloc(sizeof(struct input_handle), GFP_KERNEL)))
-> >> > +     handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
-> >> > +     if (!handle)
-> >> >               return NULL;
-> >>
-> >> sizeof(*handle)?
-> > 
-> > In general, yes. However, some maintainers don't like that, so I would
-> > recommend to keep them as-is unless you get a clear ack from the
-> > maintainer to change it.
-> 
-> Strongly agreed.  Follow the style of the existing code as closely as 
-> possible, and resist the temptation of making little "improvements" 
-> while you are doing a task...
+> Hans Reiser wrote:
+>
+>> On a more positive note, Reiser4.1 is getting closer to release....
+>
+>
+> Good news!  But it's been awhile since I've followed development, and
+> the homepage seems out of date (as usual).  Where can I find a list of
+> changes since v4?
+>
+> By "out of date", I mean things like this:
+>
+> "Reiser4.1 will modify the repacker to insert controlled "air holes",
+> as it is well known that insertion efficiency is harmed by overly
+> tight packing."
 
-Ah okay. Up until now, I thought it would be okay to change the style of
-the code if it was listed in the CodingStyle document and in any other
-cause should be left untouched as it would be left to the maintainers
-personal preference. That's why I explicitly asked about the "if ((buf =
-kmalloc(...)==NULL) -> buf = kmalloc(...); if (!buf)" type of changes.
+Sigh, no, the repacker will probably be after 4.1....
 
-Ofcourse, I should have put cosmetic changes in a separate patch anyway.
+The list of tasks for zam looks something like:
 
-With friendly regards,
-Takis
+fix bugs that arise
+
+debug read optimization code (CPU reduction only, has no effect on IO),
+1 week est.  (would be nice if it was less)
+
+review compression code 1 day per week until it ships.
+
+fix fsync performance (est. 1 week of time to make post-commit writes
+asynchronous, maybe 3 weeks to create fixed-reserve for write twice
+blocks, and make all fsync blocks write twice)
+
+write repacker (12 weeks).
+
+I am not sure that putting the repacker after fsync is the right choice....
+
+The task list for vs looks like:
+
+* fix bugs as they arise.
+
+* fix whatever lkml complains about that either seems reasonable, or
+that akpm agrees with.
+
+* Help edward get the compression plugins out the door.
+
+* Improve fsck's time performance.
+
+* Fix any V3 bugs that Chris and Jeff don't fix for us.  Which reminds
+me, I need to check on whether the 90% full bug got fixed....
 

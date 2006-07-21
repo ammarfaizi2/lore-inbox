@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbWGUJDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWGUJMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030423AbWGUJDY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 05:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWGUJDY
+	id S1030440AbWGUJMx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 05:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWGUJMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 05:03:24 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:26770 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1030423AbWGUJDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 05:03:23 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Martin Waitz <tali@admingilde.org>
-Subject: [PATCH][Doc] Fix parameter names in drivers/base/class.c
-Date: Fri, 21 Jul 2006 11:04:43 +0200
-User-Agent: KMail/1.9.3
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, trivial@kernel.org
+	Fri, 21 Jul 2006 05:12:52 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:9112 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1161016AbWGUJMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 05:12:52 -0400
+Message-ID: <44C099D2.5030300@s5r6.in-berlin.de>
+Date: Fri, 21 Jul 2006 11:09:38 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
+       benh@kernel.crashing.org, video4linux-list@redhat.com,
+       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
+       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
+       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
+       paulus@samba.org
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060720190529.GC7643@lumumba.uhasselt.be>	 <200607210850.17878.eike-kernel@sf-tec.de> <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> <44C07CB2.1040303@pobox.com>
+In-Reply-To: <44C07CB2.1040303@pobox.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607211104.43379.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change parameter names to match arguments of functions.
+Jeff Garzik wrote:
+> Pekka Enberg wrote:
+>> On 7/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+>>> > -     if (!(handle = kmalloc(sizeof(struct input_handle), GFP_KERNEL)))
+>>> > +     handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
+>>> > +     if (!handle)
+>>> >               return NULL;
+>>>
+>>> sizeof(*handle)?
+>> 
+>> In general, yes. However, some maintainers don't like that, so I would
+>> recommend to keep them as-is unless you get a clear ack from the
+>> maintainer to change it.
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+I suggest:
+ - check if "sizeof(type)"->"sizeof(*ptr)" is correct
+ - if yes, change it
+ - do this for all kmalloc + kzalloc in a file you touched, or
+   better yet for all kmalloc + kzalloc in a driver or subsystem you
+   touched
+Maintainers who don't agree can always post a NAK. There are hardly any
+special cases which speak against that change --- provided the change is
+done for the whole subsystem.
 
----
-commit bcc1d90c34aa815e6f96b7f45d2dda1802e36f68
-tree 5f5f6815eca9114a12efa99d4cb3fac9d42ade58
-parent 71f5e8f5ba65ff8f743095017e6a44f1b6f9fe51
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 21 Jul 2006 11:02:51 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 21 Jul 2006 11:02:51 +0200
+> Strongly agreed.  Follow the style of the existing code as closely as 
+> possible, and resist the temptation of making little "improvements" 
+> while you are doing a task...
 
- drivers/base/class.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+The 2nd half of this statement is a good and important rule. But look at
+this particular case. The patch does (or could) contain
+ - consolidation of kmalloc+memset/0 -> kzalloc where correct,
+ - better style of the size argument where correct,
+ - whitespace style adjustments of the touched regions.
+All of these changes, if done correct, are true improvements WRT
+programming idioms. IMO it's a single task, therefore adheres to that
+rule. I'd only split this kind of patches if separately maintained
+subsystems are touched.
 
-diff --git a/drivers/base/class.c b/drivers/base/class.c
-index de89083..89f824e 100644
---- a/drivers/base/class.c
-+++ b/drivers/base/class.c
-@@ -226,7 +226,7 @@ error:
- 
- /**
-  * class_destroy - destroys a struct class structure
-- * @cs: pointer to the struct class that is to be destroyed
-+ * @cls: pointer to the struct class that is to be destroyed
-  *
-  * Note, the pointer to be destroyed must have been created with a call
-  * to class_create().
-@@ -656,9 +656,9 @@ int class_device_register(struct class_d
- 
- /**
-  * class_device_create - creates a class device and registers it with sysfs
-- * @cs: pointer to the struct class that this device should be registered to.
-+ * @cls: pointer to the struct class that this device should be registered to.
-  * @parent: pointer to the parent struct class_device of this new device, if any.
-- * @dev: the dev_t for the char device to be added.
-+ * @devt: the dev_t for the char device to be added.
-  * @device: a pointer to a struct device that is assiociated with this class device.
-  * @fmt: string for the class device's name
-  *
-@@ -763,7 +763,7 @@ void class_device_unregister(struct clas
- /**
-  * class_device_destroy - removes a class device that was created with class_device_create()
-  * @cls: the pointer to the struct class that this device was registered * with.
-- * @dev: the dev_t of the device that was previously registered.
-+ * @devt: the dev_t of the device that was previously registered.
-  *
-  * This call unregisters and cleans up a class device that was created with a
-  * call to class_device_create()
+As for the 1st half of this statement, "follow the style of existing
+code as closely as possible": This is problematic in light of the more
+important rule "follow CodingStyle".
+
+I suggest to follow existing style if small changes are introduced and
+the existing code mostly complies to CodingStyle. If existing code with
+small deviations from CodingStyle is touched, the potential loss of
+readability by partial conversion to CodingStyle may be negligible. If
+existing code with bigger deviations from CodingStyle is touched, the
+author of a patch should consider to provide an additional patch before
+or after that with a complete conversion to CodingStyle. (I took the
+time to do this on a few occasions too.)
+-- 
+Stefan Richter
+-=====-=-==- -=== =--==
+http://arcgraph.de/sr/

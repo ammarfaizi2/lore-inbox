@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWGUNVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWGUNZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWGUNVw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 09:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWGUNVw
+	id S1750730AbWGUNZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 09:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWGUNZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 09:21:52 -0400
-Received: from smtp.net4india.com ([202.71.129.67]:16568 "EHLO
-	smtp.net4india.com") by vger.kernel.org with ESMTP id S1750726AbWGUNVv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 09:21:51 -0400
-Message-ID: <44C0D5B0.4000008@designergraphix.com>
-Date: Fri, 21 Jul 2006 18:55:04 +0530
-From: Kaiwan N Billimoria <kaiwan@designergraphix.com>
-Reply-To: kaiwan@designergraphix.com
-Organization: Designer Graphix
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 21 Jul 2006 09:25:20 -0400
+Received: from main.gmane.org ([80.91.229.2]:40651 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750730AbWGUNZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 09:25:19 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-CC: Tim Waugh <tim@cyberelk.demon.co.uk>, Philip Blundell <philb@gnu.org>
-Subject: parport: small addition to Documentation/parport-lowlevel.txt 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: =?iso-8859-2?q?=A3ukasz_Jachymczyk?= <lfx@tlen.pl>
+Subject: BUG? rebooting
+Date: Fri, 21 Jul 2006 15:18:37 +0200
+Message-ID: <pan.2006.07.21.13.18.37.180629@tlen.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: awj146.internetdsl.tpnet.pl
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A small note inserted, regarding usage of the parport_unregister_driver 
-interface.
+Hello,
 
-Only a single file Documentation/parport-lowlevel.txt is affected 
-(pulled from 2.6.18-rc2 :
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=8f2302415eff90b0df7aa655f132f9567ff9ccd7;hb=82d6897fefca6206bca7153805b4c5359ce97fc4;f=Documentation/parport-lowlevel.txt
-)
+I've got a problem with rebooting my linux on laptop hp nx6310 (centrino
+core duo). After restarting, bios hangs for a while and it runs slower
+then usual (up to 15 seconds until grub loads). After that, my linux works
+quite fine, however I'm not able to achieve maximym cpu speed with cpufreq
+and acpi doesn't show actual information about battery left (it shows all
+the time 2:30 hours left) - simply, acpi hangs in the moment of booting.
 
-Came across this "issue" while writing a parport-based driver.
-Does this make sense?
+But there is also ms windows on the same laptop. It reboots smoothly and
+quickly. There is no bios hanging effect. And after such reboot from
+windows, when I boot linux, everything - acpi and cpufreq - works fine!
 
-- Kaiwan.
+I guess it's the problem of the way how linux' kernel reboots.
+First, I thought that acpi is doing something nasty, so I compiled kernel
+without power management support (in fact, this kernel contained only
+essential features for my laptop, see .config:
+http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/config-clean). As you can
+imagine, of course it didn't help.
+Here is dmesg output on this kernel:
+http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/dmesg-clean
 
----
---- parport-lowlevel.vanilla    2006-07-21 18:25:24.000000000 +0530
-+++ parport-lowlevel    2006-07-21 18:34:52.000000000 +0530
-@@ -258,6 +258,18 @@
-        ...
- }
+Here: http://fatcat.ftj.agh.edu.pl/~lfx/upload/kernel/ are also dmesg-acpi
+and config-acpi files of my (almost) fully functional kernel. It does
+reboot improperly too.
 
-+Note-
-+If you are using this interface in the "usual" way, you are probably first
-+registering your driver with parport_register_driver and unregistering with
-+parport_unregister_driver (as shown in the "lp_driver" example about a page
-+up from here). You will have attach and detach function callbacks.
-+The point is: when your driver is removed from the kernel, your
-+cleanup_module function is invoked, which typically invokes
-+parport_unregister_driver. This will cause the detach function to kick in.
-+Now, this guy should _not_ be (re)invoking parport_unregister_driver, but
-+just parport_unregister_device as necessary.
-+
-+
- SEE ALSO
+My question is: how can I make my linux to reboot smoothly as i.e. windows
+does? What causes this problem? If it wasn't good place for asking about
+this, please tell me where to find help. If you need more info about
+what's happening on my laptop, please write.
 
- parport_register_driver, parport_enumerate
+-- 
+£ukasz Jachymczyk
+http://fatcat.ftj.agh.edu.pl/~lfx/
+
 

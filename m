@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbWGUIxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbWGUIw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030417AbWGUIxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 04:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWGUIxE
+	id S1030413AbWGUIw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 04:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbWGUIw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 04:53:04 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:62940 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1030417AbWGUIxD (ORCPT
+	Fri, 21 Jul 2006 04:52:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42977 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030413AbWGUIw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 04:53:03 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Martin Waitz <tali@admingilde.org>
-Subject: [PATCH][Doc] Include documentation for functions in drivers/base/class.c
-Date: Fri, 21 Jul 2006 10:54:22 +0200
-User-Agent: KMail/1.9.3
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 21 Jul 2006 04:52:27 -0400
+Subject: Re: e1000: Problem with "disable CRC stripping workaround" patch
+From: Mark McLoughlin <markmc@redhat.com>
+To: Auke Kok <auke-jan.h.kok@intel.com>
+Cc: jesse.brandeburg@intel.com, linux-kernel@vger.kernel.org,
+       xen-devel@lists.xensource.com, Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <44BFB288.5000105@intel.com>
+References: <1153411868.2758.34.camel@localhost.localdomain>
+	 <44BFB288.5000105@intel.com>
+Content-Type: text/plain
+Date: Fri, 21 Jul 2006 09:51:35 +0100
+Message-Id: <1153471895.8519.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607211054.23017.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/base/class.c is omitted by "make *docs". Add it to get documentation 
-for class_create() and friends for free.
+Hi,
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+On Thu, 2006-07-20 at 09:42 -0700, Auke Kok wrote:
+> Mark McLoughlin wrote:
+> > Hi Jesse,
+> > 	I just came across this:
+> > 
+> >   http://www.mail-archive.com/netdev@vger.kernel.org/msg14547.html
+> > 
+> > 	I'm seeing a problem with this currently under Xen's bridging
+> > configuration.
 
----
-commit 71f5e8f5ba65ff8f743095017e6a44f1b6f9fe51
-tree c76a3509335af368adcfc70063225f0fce90adea
-parent a61512454736a148d2add339eb2c682e86645f9f
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 21 Jul 2006 10:52:04 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 21 Jul 2006 10:52:04 +0200
+>  > 	One option is to fix this specific problem is to subtract the CRC
+>  > length from skb->len in e1000, another is to raise the MTU on the
+>  > receive side of Xen's loopback interface. I've attached a patch for the
+>  > latter, but I've no real opinion on which is more correct.
+> 
+> We were sort of expecting this and sent the following patch upstream already - 
+> it's already queued for 2.6.18-rc3:
+> 
+> http://kernel.org/git/?p=linux/kernel/git/jgarzik/netdev-2.6.git;a=commitdiff_plain;h=f235a2abb27b9396d2108dd2987fb8262cb508a3;hp=d3d9e484b2ca502c87156b69fa6b8f8fd5fa18a0
+> 
+> Please give it a try and let us know if it fixes the issue for you, it should 
+> be much better than patching xen's code.
 
- Documentation/DocBook/kernel-api.tmpl |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+	Yep, this fixes the problem for me.
 
-diff --git a/Documentation/DocBook/kernel-api.tmpl b/Documentation/DocBook/kernel-api.tmpl
-index 2d0cc38..5dac02e 100644
---- a/Documentation/DocBook/kernel-api.tmpl
-+++ b/Documentation/DocBook/kernel-api.tmpl
-@@ -388,6 +388,7 @@ X!Iinclude/linux/device.h
- -->
- !Edrivers/base/driver.c
- !Edrivers/base/core.c
-+!Edrivers/base/class.c
- !Edrivers/base/firmware_class.c
- !Edrivers/base/transport_class.c
- !Edrivers/base/dmapool.c
+Thanks,
+Mark.
+

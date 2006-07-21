@@ -1,105 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWGUBex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWGUBia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030429AbWGUBex (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 21:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWGUBex
+	id S1030435AbWGUBia (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 21:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWGUBia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 21:34:53 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60603 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030429AbWGUBew (ORCPT
+	Thu, 20 Jul 2006 21:38:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20066 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030431AbWGUBi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 21:34:52 -0400
-Message-ID: <44C02F35.4000604@garzik.org>
-Date: Thu, 20 Jul 2006 21:34:45 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: ricknu-0@student.ltu.se
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC][PATCH] A generic boolean (version 2)
-References: <1153341500.44be983ca1407@portal.student.luth.se> <1153445087.44c02cdf40511@portal.student.luth.se>
-In-Reply-To: <1153445087.44c02cdf40511@portal.student.luth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Thu, 20 Jul 2006 21:38:29 -0400
+Date: Fri, 21 Jul 2006 03:38:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Ed Lin <ed.lin@promise.com>,
+       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+       hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
+Subject: Re: [PATCH] Promise 'stex' driver
+Message-ID: <20060721013822.GA25504@suse.de>
+References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org> <20060721010724.GB24176@suse.de> <44C02D1E.4090206@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C02D1E.4090206@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ricknu-0@student.ltu.se wrote:
-> diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
-> index 4b4b295..841792b 100644
-> --- a/include/asm-i386/types.h
-> +++ b/include/asm-i386/types.h
-> @@ -1,6 +1,13 @@
->  #ifndef _I386_TYPES_H
->  #define _I386_TYPES_H
->  
-> +#if defined(__GNUC__)
-> +typedef _Bool bool;
-> +#else
-> +#warning You compiler doesn't seem to support boolean types, will set 'bool' as
-> an 'unsigned int'
-> +typedef unsigned int bool;
-> +#endif
-> +
->  #ifndef __ASSEMBLY__
->  
->  typedef unsigned short umode_t;
+On Thu, Jul 20 2006, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Thu, Jul 20 2006, Jeff Garzik wrote:
+> >>James Bottomley wrote:
+> >>>On Thu, 2006-07-20 at 17:27 -0400, Jeff Garzik wrote:
+> >>>>Since _no individual SCSI driver_ uses the block layer
+> >>>>tagging, it is likely that some instability and core kernel
+> >>>>development
+> >>>>will occur, in order to make that work.
+> >>>That's not quite true: 53c700 and tmscsim both use it ... I could with
+> >>>the usage were wider, but at least 53c700 has pretty regular and
+> >>>constant usage ... enough I think to validate the block tag code (it's
+> >>>been using it for the last three years).
+> >>Not for the case being discussed in this thread, adapter-wide tags.
+> >
+> >That just means the map is shared, otherwise there should be little if
+> >any difference.
+> >
+> >>AFAICS, no file in include/scsi/* or drivers/scsi/* ever calls 
+> >>blk_queue_init_tags() with a non-NULL third arg.
+> >
+> >grpe again, it's in scsi_tcq.h.
+> 
+> What tree are you looking at?
+> 
+> There is only one user in the entire tree, and NULL is hardcoded as the 
+> third arg.  This is 2.6.18-rc2:
 
-Just delete the #ifdef and assume its either gcc, or a compatible 
-compiler.  That's what we assume with other data types.
+Sorry, missed your non-NULL statement, I thought you meant in generel.
 
+As long as you get the locking right for the map access, there's really
+nothing that seperates shared vs non-shared tag mappings. So I don't
+think it's a big deal.
 
-> @@ -10,6 +17,8 @@ typedef unsigned short umode_t;
->   * header files exported to user space
->   */
->  
-> +typedef bool __u1;
-> +
->  typedef __signed__ char __s8;
->  typedef unsigned char __u8;
->  
-> @@ -36,6 +45,8 @@ #define BITS_PER_LONG 32
->  #ifndef __ASSEMBLY__
->  
->  
-> +typedef bool u1;
-> +
->  typedef signed char s8;
->  typedef unsigned char u8;
->  
+If we don't encourage new drivers to use the block layer tagging, we
+might as well not bother with it.
 
-I wouldn't bother with these types.  Nobody uses creates in their own 
-hand-crafted bool uses, so I don't think people would suddenly start.
-
-
-> diff --git a/include/linux/stddef.h b/include/linux/stddef.h
-> index b3a2cad..498813b 100644
-> --- a/include/linux/stddef.h
-> +++ b/include/linux/stddef.h
-> @@ -10,6 +10,9 @@ #else
->  #define NULL ((void *)0)
->  #endif
->  
-> +#define false	((0))
-> +#define true	((1))
-
-I would say:
-
-#undef true
-#undef false
-enum {
-	false	= 0,
-	true	= 1
-};
-
-#define false false
-#define true true
+-- 
+Jens Axboe
 

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWGUOh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWGUOyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWGUOh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 10:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWGUOh2
+	id S1750750AbWGUOyB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 10:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWGUOyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 10:37:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:29839 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750746AbWGUOh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 10:37:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=Im3gD+kWDKDFLg3JOfwltUd9rYW/nSyavofFBvwz2vFyCRzdX+jr2wGl27eC2bN4R7lFk4dZC+bqtvoR6Vzbrjp5nayDqq16k/VeJCeQiDWXNmBdzXwzK4cFsDUQZMaCFS1pnHy/hmnHPXJZdvlApy7COxBBsuoFoyFqOVCDPg0=
-Date: Fri, 21 Jul 2006 16:37:23 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: takis@issaris.org
-Cc: linux-kernel@vger.kernel.org, rathamahata@php4.ru, sfrench@samba.org,
-       jffs-dev@axis.com, shaggy@austin.ibm.com, neilb@cse.unsw.edu.au,
-       trond.myklebust@fys.uio.no, reiserfs-dev@namesys.com, raven@themaw.net
-Subject: Re: [PATCH] fs: Memory allocation cleanups
-Message-ID: <20060721143723.GB2772@slug>
-References: <20060721115055.GA12329@issaris.org>
+	Fri, 21 Jul 2006 10:54:01 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:38561 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1750750AbWGUOyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 10:54:00 -0400
+Message-ID: <44C0EA85.30500@cmu.edu>
+Date: Fri, 21 Jul 2006 10:53:57 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060721115055.GA12329@issaris.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: thinkpad x60s: middle button doesn't work after hibernate
+References: <44BFD911.70106@cmu.edu> <d120d5000607201246s6af0223o83be95ef54147f10@mail.gmail.com>
+In-Reply-To: <d120d5000607201246s6af0223o83be95ef54147f10@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 21, 2006 at 01:50:55PM +0200, takis@issaris.org wrote:
-> -		dnotify_req = (struct dir_notify_req *) kmalloc(
-> -						sizeof(struct dir_notify_req),
-> +		dnotify_req = kmalloc(sizeof(struct dir_notify_req),
->  						 GFP_KERNEL);
-						^^^^^ 
-Should be aligned with the kmalloc?
-> -	ext_acl = (reiserfs_acl_header *) kmalloc(sizeof(reiserfs_acl_header) +
-> -						  acl->a_count *
-> +	ext_acl = kmalloc(sizeof(reiserfs_acl_header) + acl->a_count *
->  						  sizeof(reiserfs_acl_entry),
->  						  GFP_NOFS);
-						^^^^^
-This should be aligned too, I think.
 
-Regards,
-Frederik
+
+Dmitry Torokhov wrote:
+> On 7/20/06, George Nychis <gnychis@cmu.edu> wrote:
+>> Hey guys,
+>>
+>> I recently got the suspend to disk working and suspend to memory working
+>> thanks to many of you.  Whenever I suspend to disk and resume, the
+>> middle mouse button on my thinkpad x60s no longer works for scrolling or
+>> for pasting.  I either have to reboot, or suspend to memory and resume.
+>>  Therefore:
+>>
+>> Initial Boot: working
+>> Suspend to disk -> resume: not working
+>> Suspend to memory -> resume: working
+>>
+>> To fix it for now, i simply suspend to memory and resume after resuming
+>> a suspend to disk.
+>>
+> 
+> It sounds like psmouse resume method either not getting called or
+> fails during resume from disk. Could you do:
+> 
+> echo 1 > /sys/modules/i8042/parameters/debug
+> 
+> before suspending and send me dmesg after resuming. Make sure you have
+> big dmesg buffer.
+> 
+> Thanks!
+> 
+
+Here it is:
+http://rafb.net/paste/results/hDJXzS85.html
+
+thanks again :)
+
+- George

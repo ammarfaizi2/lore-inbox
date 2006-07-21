@@ -1,97 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWGYThJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWGYTiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWGYThJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWGYThJ
+	id S1751535AbWGYTiv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWGYTiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:37:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:2324 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964841AbWGYThH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:37:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=IZUNq0hAOKJsRgkLAeb+bg7wVa2FUcQZFQ0LzGEb0TS26BNs2ApL5Lxp1zRd/QJrs2GZdr5iFXzQI8J7LQ1Y8nFBlUWgWELVLDx87Mqoyi8yuqT3Y3MR6yngLOQikvUIxZFKvlQXAijKDECiR5VV1jc7sCujwILAKCmIzuCSwk4=
-Message-ID: <f96157c40607251237y3eca8d88sb55cc2f338064c7c@mail.gmail.com>
-Date: Tue, 25 Jul 2006 21:37:06 +0200
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
+	Tue, 25 Jul 2006 15:38:51 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:59009 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751491AbWGYTis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:38:48 -0400
+Message-ID: <44C12740.1040203@slaphack.com>
+Date: Fri, 21 Jul 2006 14:13:04 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060530)
 MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>,
+       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>
+Subject: Re: reiser4 status (correction)
+References: <44BFFCB1.4020009@namesys.com> <44C043B5.3070501@slaphack.com> <44C093D2.1040703@namesys.com>
+In-Reply-To: <44C093D2.1040703@namesys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with latest HEAD of Linus' tree I got /dev/hwrng but although the device
-exists rngtest does not pass as if hwrng does not work correctly.
-actually this case is documented in the README supplied by Debian
-but I'm surprised to hit the problem.
+Hans Reiser wrote:
 
-I'm just curious whether there's a bug in the driver, the hwrng is bad
-or if it is falsely detected and made accessible via /dev/hwrng.
+> I am not sure that putting the repacker after fsync is the right choice....
 
-rngtest 2-unofficial-mt.10
-Copyright (c) 2004 by Henrique de Moraes Holschuh
-This is free software; see the source for copying conditions.  There
-is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.
+Does the repacker use fsync?  I wouldn't expect it to.
 
-rngtest: starting FIPS tests...
-rngtest: bits received from input: 200032
-rngtest: FIPS 140-2 successes: 0
-rngtest: FIPS 140-2 failures: 10
-rngtest: FIPS 140-2(2001-10-10) Monobit: 10
-rngtest: FIPS 140-2(2001-10-10) Poker: 10
-rngtest: FIPS 140-2(2001-10-10) Runs: 10
-rngtest: FIPS 140-2(2001-10-10) Long run: 10
-rngtest: FIPS 140-2(2001-10-10) Continuous run: 10
-rngtest: input channel speed: (min=1.132; avg=2.157; max=2.794)Mibits/s
-rngtest: FIPS tests speed: (min=202.909; avg=206.647; max=211.928)Mibits/s
-rngtest: Program run time: 89804 microseconds
+Does fsync benefit from a properly packed FS?  Probably.
 
+Also, while I don't expect anyone else to be so bold, there is a way 
+around fsync performance:  Disable it.  Patch the kernel so that any 
+fsync call from userspace gets ignored, but lie and tell them it worked. 
+  Basically:
 
-lspci
-00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
-00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev
-0c)
-00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c)
-00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-oller #1 (rev 02)
-00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-oller #2 (rev 02)
-00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-oller #3 (rev 02)
-00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-oller #4 (rev 02)
-00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Cont
-roller (rev 02)
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Brid
-ge (rev 02)
-00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller
-(rev 02)
-01:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-01:04.0 System peripheral: Compaq Computer Corporation Integrated Lights Out Con
-troller (rev 01)
-01:04.2 System peripheral: Compaq Computer Corporation Integrated Lights Out  Pr
-ocessor (rev 01)
-02:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
-9)
-02:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
-9)
-03:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
-rnet (rev 10)
-03:01.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
-rnet (rev 10)
-04:03.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
-1)
-05:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
-9)
-05:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
-9)
-0a:01.0 PCI bridge: IBM PCI-X to PCI-X Bridge (rev 03)
-0b:04.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
-1)
+  asmlinkage long sys_fsync(unsigned int fd)
+  {
+-       return do_fsync(fd, 0);
++       return 0;       // do_fsync(fd, 0);
+  }
+
+In order to make this sane, you should have backups and an Uninterrupted 
+Power Supply.  In the case of a loss of power, the box should notice and 
+immediately sync, then either shut down or software suspend.  Any UPS 
+battery should be able to handle the amount of time it takes to shut the 
+system off.
+
+Since anything mission critical should have backups and a UPS anyway, 
+the only problem left is what happens if the system crashes.  But system 
+crashes are something you have to plan for anyway.  Disks fail -- stuff 
+happens.  RAID won't save you -- the RAID controller itself will 
+eventually fail.
+
+So suppose you're running some very critical server -- for now, chances 
+are it's running some sort of database.  In this case, what you really 
+want is database replication.  Have at least two servers up and running, 
+and consider the transaction complete not when it hits the disk, but 
+when all running servers acknowledge the transaction.  The RAM of two 
+boxes should be safer than the disk of one.
+
+What about a repacker?  The best I can do to hack around that is to 
+restore the whole box from backup every now and then, but this requires 
+the box to be down for awhile -- it's a repacker, but not an online one. 
+  In this case, the solution would be to have the same two servers 
+(replicating databases), and bring first one down, and then the other.
+
+That would make me much more nervous than disabling fsync, though, 
+because now you only have the one server running, and if it goes down... 
+  And depending on the size of the data in question, this may not be 
+feasable.  It seems entirely possible that in some setups like this, the 
+only backup you'd be able to afford would be in the form of replication.
+
+In my own personal case, I'd prefer the repacker to tuning fsync.  But 
+arguments could be made for both.

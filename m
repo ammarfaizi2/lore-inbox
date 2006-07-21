@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWGTWZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWGTWrZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWGTWZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jul 2006 18:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbWGTWZ3
+	id S1030393AbWGTWrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jul 2006 18:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbWGTWrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jul 2006 18:25:29 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:2509 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030386AbWGTWZ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jul 2006 18:25:29 -0400
-Date: Fri, 21 Jul 2006 08:24:49 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Chris Wedgwood <cw@f00f.org>, David Greaves <david@dgreaves.com>,
-       Kasper Sandberg <lkml@metanurb.dk>,
-       Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com, ml@magog.se, radsaq@gmail.com
-Subject: Re: FAQ updated (was Re: XFS breakage...)
-Message-ID: <20060721082448.C1990742@wobbly.melbourne.sgi.com>
-References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <1153304468.3706.4.camel@localhost> <20060720171310.B1970528@wobbly.melbourne.sgi.com> <44BF8500.1010708@dgreaves.com> <20060720161121.GA26748@tuatara.stupidest.org> <20060721081452.B1990742@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607201817450.23697@p34.internal.lan>
+	Thu, 20 Jul 2006 18:47:25 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:52456 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1030393AbWGTWrY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jul 2006 18:47:24 -0400
+Subject: Re: Bad ext3/nfs DoS bug
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Jan Kara <jack@suse.cz>, James <20@madingley.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sct@redhat.com
+In-Reply-To: <17599.2754.962927.627515@cse.unsw.edu.au>
+References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
+	 <1153209318.26690.1.camel@localhost>
+	 <20060718145614.GA27788@circe.esc.cam.ac.uk>
+	 <1153236136.10006.5.camel@localhost>
+	 <20060718152341.GB27788@circe.esc.cam.ac.uk>
+	 <1153253907.21024.25.camel@localhost>
+	 <20060719092810.GA4347@circe.esc.cam.ac.uk>
+	 <20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
+	 <17599.2754.962927.627515@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Fri, 21 Jul 2006 02:42:13 +0200
+Message-Id: <1153442533.5050.1.camel@aeonflux.holtmann.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.64.0607201817450.23697@p34.internal.lan>; from jpiszcz@lucidpixels.com on Thu, Jul 20, 2006 at 06:18:14PM -0400
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 20, 2006 at 06:18:14PM -0400, Justin Piszcz wrote:
-> Nathan,
+Hi Neil,
+
+> > > So what happens next? Is the ext3 maintainer on sabatical,
+> > > or am I expected to submit a patch to fix this?
+> >   I guess people are mostly busy with OLS and such so maybe they missed
+> > the discussion.. Giving CC to relevant people to catch their attention
+> > :)
+> >   Andrew, Stephen: James has come across a nasty bug (potentially remote
+> > DoS). NFS extracts inode number from a filehandle and the inode number
+> > eventually ends in ext3_read_inode(). Now if the inode number is bogus,
+> > ext3_get_inode_block() calls ext3_error() and filesystem is remounted
+> > RO or whatever else is configured. That is quite undesirable in this
+> > case.
+> >   Now the easy "fix" is to change ext3_error() to ext3_warning() but an
+> > attacker flooding your logs with warnings is probably not good either
+> > and in case the inode number comes from ext3 itself we should really do
+> > ext3_error() as there is some corruption in the fs.
+> >   Better fix would be to add a flag to read_inode() saying that the inode
+> > number is from untrusted source (but that means changing a prototype of a
+> > function every fs uses) and change export_iget() to pass this flag. Yet
+> > another solution would be to make ext3 implement its own get_dentry() export
+> > function and pass the flag internally...
+> >   What do you think is the best solution?
 > 
-> Does the bug only occur during a crash?
+> I think that a good solution (hard to say if it is the best) is to
+> remove that error message altogether, and put it where inode numbers
+> are read out of directories.  Something like the following patch -
+> compile tested only.
 
-No, its unrelated to crashing.  Only when adding/removing from a
-directory that is in a specific node/btree format (many entries),
-and only under a specific set of conditions (like what directory
-entry names were used, which blocks they've hashed to and how they
-ended up being allocated and in what order each block gets removed
-from the directory).
+I tested your patch and it works for me. So can someone with ext3
+knowledge review and then propose it for upstream inclusion.
 
-> I have been running 2.6.17.x for awhile now (multiple XFS filesystems, all 
-> on UPS) - no issue?
+Regards
 
-Could be an issue, could be none.  xfs_check it to be sure.
+Marcel
 
-cheers.
 
--- 
-Nathan

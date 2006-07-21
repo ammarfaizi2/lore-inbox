@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWGULFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWGULLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWGULFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 07:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWGULFb
+	id S1161044AbWGULLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 07:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWGULLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 07:05:31 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:15770 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1751094AbWGULFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 07:05:30 -0400
-Message-ID: <44C0B439.8020604@s5r6.in-berlin.de>
-Date: Fri, 21 Jul 2006 13:02:17 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-CC: Panagiotis Issaris <takis@gna.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+	Fri, 21 Jul 2006 07:11:09 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:5865 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1161044AbWGULLI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 07:11:08 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Panagiotis Issaris <takis@gna.org>
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+Date: Fri, 21 Jul 2006 13:12:25 +0200
+User-Agent: KMail/1.9.3
+Cc: Panagiotis Issaris <takis@lumumba.uhasselt.be>,
        linux-kernel@vger.kernel.org, len.brown@intel.com,
        chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
        benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset tok(z|c)alloc.
-References: <20060720190529.GC7643@lumumba.uhasselt.be>  <200607210850.17878.eike-kernel@sf-tec.de>  <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>  <44C07CB2.1040303@pobox.com> <1153474342.9489.8.camel@hemera> <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain; charset=us-ascii
+       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, jgarzik@pobox.com,
+       vandrove@vc.cvut.cz, adaplas@pol.net, thomas@winischhofer.net,
+       weissg@vienna.at, philb@gnu.org, linux-pcmcia@lists.infradead.org,
+       jkmaline@cc.hut.fi, paulus@samba.org
+References: <20060720190529.GC7643@lumumba.uhasselt.be> <200607210850.17878.eike-kernel@sf-tec.de> <1153477839.9489.25.camel@hemera>
+In-Reply-To: <1153477839.9489.25.camel@hemera>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607211312.26459.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg wrote:
-> At least Andrew seems to prefer cleaning up in the same patch. Anyway, I 
-> don't think Jeff meant that you shouldn't do any cleanups, but that you 
-> should try to respect the existing style as much possible.
+Panagiotis Issaris wrote:
 
-First and foremost, respect that the Linux sources need to have a
-minimum level of stylistic uniformity.
+> > > @@ -443,12 +442,11 @@ int con_clear_unimap(struct vc_data *vc,
+> > >  	p = (struct uni_pagedir *)*vc->vc_uni_pagedir_loc;
+> > >  	if (p && p->readonly) return -EIO;
+> > >  	if (!p || --p->refcount) {
+> > > -		q = (struct uni_pagedir *)kmalloc(sizeof(*p), GFP_KERNEL);
+> > > +		q = kzalloc(sizeof(*p), GFP_KERNEL);
+> > >  		if (!q) {
+> > >  			if (p) p->refcount++;
+> > >  			return -ENOMEM;
+> > >  		}
+> > > -		memset(q, 0, sizeof(*q));
+> > >  		q->refcount=1;
+> > >  		*vc->vc_uni_pagedir_loc = (unsigned long)q;
+> > >  	} else {
+> >
+> > This one still changes the way the code works. Before your patch *p will
+> > be always zeroed out. Now if p is there before it will keep it's
+> > contents.
+>
+> Hmm. I do not really see the functional change here: If the memory
+> allocation failed, then in both cases, q will be zero and the function
+> will return. If the memory allocation succeeds, then in both cases a
+> memset will occur. Is it more subtle than that?
 
-> There are 
-> things that are almost generally agreed upon, such as removal of redundant 
-> typecasts, redundant wrappers, and moving assignment out of if statement 
-> expression. Formatting and the dreaded sizeof thing, however, 
-> are not, so it is best to keep them as-is.
+You're right, I got somehow confused by this p and q stuff.
 
-Contributors can't know what the (supposed) _agreements_ are.
-
-Contributors can only know what the _documented conventions_ are.
--- 
-Stefan Richter
--=====-=-==- -=== =--==
-http://arcgraph.de/sr/
+Eike

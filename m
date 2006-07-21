@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161012AbWGUIKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWGUIWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161012AbWGUIKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 04:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWGUIKM
+	id S1161014AbWGUIWY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 04:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWGUIWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 04:10:12 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:8388 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1161012AbWGUIKL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 04:10:11 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: zanussi@us.ibm.com
-Subject: [PATCH][Doc] change identation of one paragraph in Documentation/filesystems/relayfs.txt
-Date: Fri, 21 Jul 2006 10:11:28 +0200
-User-Agent: KMail/1.9.3
-Cc: karim@opersys.com, linux-kernel@vger.kernel.org, trivial@kernel.org
+	Fri, 21 Jul 2006 04:22:24 -0400
+Received: from etna.obsidian.co.za ([196.36.119.67]:44459 "EHLO
+	etna.obsidianonline.net") by vger.kernel.org with ESMTP
+	id S1161014AbWGUIWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 04:22:24 -0400
+Message-ID: <44C08E97.4000909@rootcore.co.za>
+Date: Fri, 21 Jul 2006 10:21:43 +0200
+From: Charles Majola <chmj@rootcore.co.za>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Michael Lothian <mike@fireburn.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Status of the T-Mobile 3G PCMCIA Card
+References: <fc94aae90607201140m6d50b8d0qa547a93e14babb66@mail.gmail.com> <1153427335.2772.4.camel@aeonflux.holtmann.net>
+In-Reply-To: <1153427335.2772.4.camel@aeonflux.holtmann.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607211011.28311.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the identation of one paragraph to match that of the others in this
-section.
+Few problems..
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+chmj@buildd:~/projects/kernel$ cg-clone 
+http://git.holtmann.org/nozomi.git nozomi
+defaulting to local storage area
+Fetching head...
+cg-fetch: unable to get the HEAD branch
+cg-clone: fetch failed
+chmj@buildd:~/projects/kernel$ git clone 
+http://git.holtmann.org/nozomi.git nozomi
+defaulting to local storage area
+Cannot get remote repository information.
+Perhaps git-update-server-info needs to be run there?
 
----
-commit a61512454736a148d2add339eb2c682e86645f9f
-tree c122c5a9b9cfd645b6696ddd80303256d8382f88
-parent 4223d94a33bdb10bad3f2c0adebb7fea40ae185a
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 21 Jul 2006 10:10:12 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 21 Jul 2006 10:10:12 +0200
 
- Documentation/filesystems/relayfs.txt |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+--
+chmj
+"Wot? me worry?"
 
-diff --git a/Documentation/filesystems/relayfs.txt b/Documentation/filesystems/relayfs.txt
-index 5832377..8533d42 100644
---- a/Documentation/filesystems/relayfs.txt
-+++ b/Documentation/filesystems/relayfs.txt
-@@ -106,9 +106,9 @@ read()	 read the contents of a channel b
- poll()	 POLLIN/POLLRDNORM/POLLERR supported.  User applications are
- 	 notified when sub-buffer boundaries are crossed.
- 
--close() decrements the channel buffer's refcount.  When the refcount
--	reaches 0 i.e. when no process or kernel client has the buffer
--	open, the channel buffer is freed.
-+close()	 decrements the channel buffer's refcount.  When the refcount
-+	 reaches 0 i.e. when no process or kernel client has the buffer
-+	 open, the channel buffer is freed.
- 
- 
- In order for a user application to make use of relayfs files, the
+Marcel Holtmann wrote:
+> Hi Michael,
+>
+>   
+>> I've recently subscribed to T-Mobile's 3G service for my laptop. I
+>> found v little info on the card but heard a few success stories with
+>> the Vodafone card with Linux.
+>>
+>> Upon getting the card I've not realised my mistake and it appears that
+>> it isn't as simple as I'd hoped.
+>>
+>> Has anyone had any success with this card at all?
+>>
+>> The lspci out put is:
+>>
+>> 04:00.2 Network controller: Option N.V. Qualcomm MSM6275 UMTS chip
+>>         Flags: medium devsel, IRQ 17
+>>         Memory at 52040000 (32-bit, non-prefetchable) [disabled] [size=2K]
+>> 04:00.2 0280: 1931:000c
+>>
+>> pccard: CardBus card inserted into slot 0 is what dmesg says
+>>
+>> And nothing appears under lsusb
+>>
+>> I'd be grateful for any help anyone can offer because if I can't get
+>> it to work I'll need to return it within the "cooling down" period
+>> which is the next few days and be locked into an 18 month contract
+>>     
+>
+> they provided a driver for it and I am working on cleaning it up and
+> getting it merged mainline, but this hasn't been finished now. However I
+> am using this card for quite some time now with Linux. You can download
+> my current driver version with this command:
+>
+> 	cg-clone http://git.holtmann.org/nozomi.git
+>
+> I broke the latest revision with a change that produces a NULL pointer
+> dereference and haven't had the time to fix it. Will take a look at it
+> once I am back from the OLS.
+>
+> Regards
+>
+> Marcel
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>   
+

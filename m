@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWGUWen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWGUWzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWGUWen (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 18:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWGUWen
+	id S1751242AbWGUWzn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 18:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWGUWzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 18:34:43 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:40068 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751236AbWGUWem
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 18:34:42 -0400
-Message-ID: <1153521067.44c155ab6b7d4@portal.student.luth.se>
-Date: Sat, 22 Jul 2006 00:31:07 +0200
-From: ricknu-0@student.ltu.se
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [RFC][PATCH] A generic boolean (version 2)
-References: <1153341500.44be983ca1407@portal.student.luth.se> <1153445087.44c02cdf40511@portal.student.luth.se> <44C02F35.4000604@garzik.org>
-In-Reply-To: <44C02F35.4000604@garzik.org>
+	Fri, 21 Jul 2006 18:55:43 -0400
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:41913 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751242AbWGUWzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 18:55:42 -0400
+Date: Fri, 21 Jul 2006 15:55:41 -0700 (PDT)
+From: Trent Piepho <xyzzy@speakeasy.org>
+X-X-Sender: xyzzy@shell2.speakeasy.net
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+cc: v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device
+ corruption
+In-Reply-To: <1153513837.32625.71.camel@praia>
+Message-ID: <Pine.LNX.4.58.0607211536190.26854@shell2.speakeasy.net>
+References: <200607130047_MC3-1-C4D3-43D6@compuserve.com> 
+ <20060713050541.GA31257@kroah.com>  <20060712222407.d737129c.rdunlap@xenotime.net>
+  <20060712224453.5faeea4a.akpm@osdl.org> <20060715230849.GA3385@localhost>
+  <1153013464.4755.35.camel@praia>  <Pine.LNX.4.58.0607171650510.18488@shell3.speakeasy.net>
+  <1153310092.27276.9.camel@praia>  <Pine.LNX.4.58.0607201425060.18071@shell2.speakeasy.net>
+  <1153484805.16225.12.camel@praia>  <Pine.LNX.4.58.0607211226430.26854@shell2.speakeasy.net>
+ <1153513837.32625.71.camel@praia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Citerar Jeff Garzik <jeff@garzik.org>:
+On Fri, 21 Jul 2006, Mauro Carvalho Chehab wrote:
+> config VIDEO_BT848
+>         tristate "BT848 Video For Linux"
+>         depends on VIDEO_DEV && PCI && I2C && VIDEO_V4L2
+>
+> Argh! it should be V4L1 instead!
 
-> ricknu-0@student.ltu.se wrote:
-> > diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
-> > index 4b4b295..841792b 100644
-> > --- a/include/asm-i386/types.h
-> > +++ b/include/asm-i386/types.h
-> > @@ -1,6 +1,13 @@
-> >  #ifndef _I386_TYPES_H
-> >  #define _I386_TYPES_H
-> >  
-> > +#if defined(__GNUC__)
-> > +typedef _Bool bool;
-> > +#else
-> > +#warning You compiler doesn't seem to support boolean types, will set
-> 'bool' as
-> > an 'unsigned int'
-> > +typedef unsigned int bool;
-> > +#endif
-> > +
-> >  #ifndef __ASSEMBLY__
-> >  
-> >  typedef unsigned short umode_t;
-> 
-> Just delete the #ifdef and assume its either gcc, or a compatible 
-> compiler.  That's what we assume with other data types.
+You can compile and use bt848 without V4L1 turned on.  It still has some
+V4L1 functions defined.
 
-You are right. Will remove it.
-Just remembered one of reasons I had version-check before, how about linux 2.4?
-What I understand, they have the same drivers as 2.6 but they have not commited
-to use gcc >= 3. Can anyone confirm or deny this? Otherwise the discussion about
-alternetiv bool-type is off no relevence anymore.
+> > All these files include v4l2-dev.h and have HAVE_V4L1 defined when V4L1 is
+> > not turned on in Kconfig.  There files are all buildable when V4L1 is off;
+> > they don't depend on it in Kconfig.
+> Some of the above drivers are V4L2, like tda9887, tuner-core,
+> tuner-simple, msp3400, cs53l32a, tveeprom, wm87xx. Maybe they are just
+> including the wrong headers. We should try to change to videodev2.h and
+> see what happens with all those drivers. The ones that break should me
+> marked with the proper requirement on Kconfig.
+>
+> Some of they need some #ifdef inside. For example, compat_ioctl32 should
+> handle both APIs, since it is a generic code to fix 32 bit calls to 64
+> bit kernel.
 
-> 
-> 
-> > @@ -10,6 +17,8 @@ typedef unsigned short umode_t;
-> >   * header files exported to user space
-> >   */
-> >  
-> > +typedef bool __u1;
-> > +
-> >  typedef __signed__ char __s8;
-> >  typedef unsigned char __u8;
-> >  
-> > @@ -36,6 +45,8 @@ #define BITS_PER_LONG 32
-> >  #ifndef __ASSEMBLY__
-> >  
-> >  
-> > +typedef bool u1;
-> > +
-> >  typedef signed char s8;
-> >  typedef unsigned char u8;
-> >  
-> 
-> I wouldn't bother with these types.  Nobody uses creates in their own 
-> hand-crafted bool uses, so I don't think people would suddenly start.
-
-Removed
-
-/Richard
+I think this is pretty much what I've been saying.  Drivers should:
+A. Not include videodev.h, but use videodev2.h
+B. Include videodev.h, but be marked V4L1 in Kconfig
+C. #ifdef around videodev.h (and code that needs videodev.h), so it
+   is not included or needed when V4L1 is turned off.

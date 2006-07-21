@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbWGULUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWGULbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161047AbWGULUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 07:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWGULUE
+	id S1161057AbWGULbY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 07:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbWGULbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 07:20:04 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:35516 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1161048AbWGULUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 07:20:03 -0400
-Date: Fri, 21 Jul 2006 14:20:02 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Panagiotis Issaris <takis@gna.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
-       benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset tok(z|c)alloc.
-In-Reply-To: <44C0B439.8020604@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.58.0607211409540.27644@sbz-30.cs.Helsinki.FI>
-References: <20060720190529.GC7643@lumumba.uhasselt.be> 
- <200607210850.17878.eike-kernel@sf-tec.de> 
- <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> 
- <44C07CB2.1040303@pobox.com> <1153474342.9489.8.camel@hemera>
- <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI>
- <44C0B439.8020604@s5r6.in-berlin.de>
-Mime-Version: 1.0
+	Fri, 21 Jul 2006 07:31:24 -0400
+Received: from outmx020.isp.belgacom.be ([195.238.4.201]:27297 "EHLO
+	outmx020.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1161057AbWGULbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 07:31:24 -0400
+Date: Fri, 21 Jul 2006 13:32:10 +0200
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] block: Conversions from kmalloc+memset to k(z|c)alloc
+Message-ID: <20060721113210.GB11822@issaris.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
+From: takis@issaris.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in time, I wrote:
-> > There are things that are almost generally agreed upon, such as 
-> > removal of redundant typecasts, redundant wrappers, and moving 
-> > assignment out of if statement expression. Formatting and the dreaded
-> > sizeof thing, however, are not, so it is best to keep them as-is.
+From: Panagiotis Issaris <takis@issaris.org>
 
-On Fri, 21 Jul 2006, Stefan Richter wrote:
-> Contributors can't know what the (supposed) _agreements_ are.
-> 
-> Contributors can only know what the _documented conventions_ are.
+block: Conversions from kmalloc+memset to kzalloc
 
-Life gets easier when you accept the fact that there are different 
-conventions within the kernel, driven by maintainer preference. Which is 
-why it is impossible to document a definite set of conventions too. 
-CodingStyle really is just a good approximation what kernel code should 
-look like. If you deviate from it too much, everyone agrees that 
-you're violating it, but there definitely is room for maintainer 
-preference. As a contributor, when you accept that, you'll have much 
-greater chances of getting your patches merged.
+Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+---
+ block/cfq-iosched.c |    4 +---
+ block/elevator.c    |    3 +--
+ block/scsi_ioctl.c  |    4 +---
+ 3 files changed, 3 insertions(+), 8 deletions(-)
 
-				Pekka
+diff --git a/block/cfq-iosched.c b/block/cfq-iosched.c
+index 102ebc2..d3d095f 100644
+--- a/block/cfq-iosched.c
++++ b/block/cfq-iosched.c
+@@ -2231,12 +2231,10 @@ static void *cfq_init_queue(request_queu
+ 	struct cfq_data *cfqd;
+ 	int i;
+ 
+-	cfqd = kmalloc(sizeof(*cfqd), GFP_KERNEL);
++	cfqd = kzalloc(sizeof(*cfqd), GFP_KERNEL);
+ 	if (!cfqd)
+ 		return NULL;
+ 
+-	memset(cfqd, 0, sizeof(*cfqd));
+-
+ 	for (i = 0; i < CFQ_PRIO_LISTS; i++)
+ 		INIT_LIST_HEAD(&cfqd->rr_list[i]);
+ 
+diff --git a/block/elevator.c b/block/elevator.c
+index bc7baee..e51febf 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -153,9 +153,8 @@ static struct kobj_type elv_ktype;
+ 
+ static elevator_t *elevator_alloc(struct elevator_type *e)
+ {
+-	elevator_t *eq = kmalloc(sizeof(elevator_t), GFP_KERNEL);
++	elevator_t *eq = kzalloc(sizeof(elevator_t), GFP_KERNEL);
+ 	if (eq) {
+-		memset(eq, 0, sizeof(*eq));
+ 		eq->ops = &e->ops;
+ 		eq->elevator_type = e;
+ 		kobject_init(&eq->kobj);
+diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
+index b33eda2..f6a8bea 100644
+--- a/block/scsi_ioctl.c
++++ b/block/scsi_ioctl.c
+@@ -409,11 +409,9 @@ int sg_scsi_ioctl(struct file *file, str
+ 
+ 	bytes = max(in_len, out_len);
+ 	if (bytes) {
+-		buffer = kmalloc(bytes, q->bounce_gfp | GFP_USER| __GFP_NOWARN);
++		buffer = kzalloc(bytes, q->bounce_gfp | GFP_USER| __GFP_NOWARN);
+ 		if (!buffer)
+ 			return -ENOMEM;
+-
+-		memset(buffer, 0, bytes);
+ 	}
+ 
+ 	rq = blk_get_request(q, in_len ? WRITE : READ, __GFP_WAIT);
+-- 
+1.4.2.rc1.ge7a0-dirty
+

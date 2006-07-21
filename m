@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWGUMaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWGUMcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161068AbWGUMaV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 08:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWGUMaU
+	id S1161066AbWGUMcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 08:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWGUMcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 08:30:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18137 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161068AbWGUMaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 08:30:18 -0400
-Date: Fri, 21 Jul 2006 05:29:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: neilb@suse.de, jack@suse.cz, 20@madingley.org,
-       linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: Bad ext3/nfs DoS bug
-Message-Id: <20060721052924.b3916d95.akpm@osdl.org>
-In-Reply-To: <1153442533.5050.1.camel@aeonflux.holtmann.net>
-References: <20060717130128.GA12832@circe.esc.cam.ac.uk>
-	<1153209318.26690.1.camel@localhost>
-	<20060718145614.GA27788@circe.esc.cam.ac.uk>
-	<1153236136.10006.5.camel@localhost>
-	<20060718152341.GB27788@circe.esc.cam.ac.uk>
-	<1153253907.21024.25.camel@localhost>
-	<20060719092810.GA4347@circe.esc.cam.ac.uk>
-	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
-	<17599.2754.962927.627515@cse.unsw.edu.au>
-	<1153442533.5050.1.camel@aeonflux.holtmann.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+	Fri, 21 Jul 2006 08:32:13 -0400
+Received: from outmx013.isp.belgacom.be ([195.238.5.64]:57564 "EHLO
+	outmx013.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1161066AbWGUMcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 08:32:13 -0400
+Subject: Re: [PATCH] block: Conversions from kmalloc+memset to k(z|c)alloc
+From: Panagiotis Issaris <takis@gna.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: takis@issaris.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060721121352.GB25045@suse.de>
+References: <20060721113210.GB11822@issaris.org>
+	 <20060721121352.GB25045@suse.de>
+Content-Type: text/plain
+Date: Fri, 21 Jul 2006 14:32:04 +0200
+Message-Id: <1153485124.9489.37.camel@hemera>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jul 2006 02:42:13 +0200
-Marcel Holtmann <marcel@holtmann.org> wrote:
+Hi,
 
-> I tested your patch and it works for me. So can someone with ext3
-> knowledge review and then propose it for upstream inclusion.
+On vr, 2006-07-21 at 14:13 +0200, Jens Axboe wrote:
+> On Fri, Jul 21 2006, takis@issaris.org wrote:
+> > From: Panagiotis Issaris <takis@issaris.org>
+> > 
+> > block: Conversions from kmalloc+memset to kzalloc
+> 
+> They are already done in the block git repo.
+Weird, I had even checked if they weren't already done:
+http://kernel.org/git/?p=linux/kernel/git/axboe/linux-2.6-block.git;a=blob;h=102ebc2c5c34c73f8e7f76c589559ddfde0d9885;hb=82d6897fefca6206bca7153805b4c5359ce97fc4;f=block/cfq-iosched.c
 
-Yup, I have it save away for next week's resumption of work.
+Am I looking at the wrong repos, or is it just not in sync
+with your daily work?
+
+With friendly regards,
+Takis
+

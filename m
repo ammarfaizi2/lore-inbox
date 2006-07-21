@@ -1,50 +1,212 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWGUKcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWGUKcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161033AbWGUKcf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 06:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWGUKcf
+	id S1161042AbWGUKcI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 06:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWGUKcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 06:32:35 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:10597 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161047AbWGUKce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 06:32:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=HCa3xKSpr4Uk6TahVURsWjeip/gQc+DwUviHsqL6gwOfhaawZbKCK2ywVi+xstY+cpdX0Y/9FV6lfvXYOE5DvlWXWYKxAI43oO+Crq7zvWHx75pWyfZwG0A2Br4VmkrGfAz8ELXaTm9U5BWr9zivJp+X0MdSQZSXyKZIO+kicWo=
-Message-ID: <84144f020607210332l2ecf4c7ch7fe144e2d8c7764d@mail.gmail.com>
-Date: Fri, 21 Jul 2006 13:32:32 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Arthur Othieno" <apgo@patchbomb.org>
-Subject: Re: [PATCH] doc: pci_module_init() removal
-Cc: gregkh@suse.de, "Richard Knutsson" <ricknu-0@student.ltu.se>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060719234044.GB8584@krypton>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060719234044.GB8584@krypton>
-X-Google-Sender-Auth: bb2f52c88e512cc2
+	Fri, 21 Jul 2006 06:32:08 -0400
+Received: from [202.38.127.182] ([202.38.127.182]:20646 "EHLO
+	opentech.lzu.edu.cn") by vger.kernel.org with ESMTP
+	id S1161033AbWGUKcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 06:32:06 -0400
+Date: Fri, 21 Jul 2006 17:57:03 +0800
+Message-Id: <200607210957.k6L9v3Jw005717@opentech.lzu.edu.cn>
+To: nag@nag.ru, linux-kernel@vger.kernel.org, pavel@ucw.cz,
+       driverpavel@janik.cz, mgreer@mivsta.com, Pavel@janik.cz,
+       oliver@vermuden.neukum.org, qboosh@pld.org.pl, john@amd.com,
+       dunlap@verizon.net, solt@dns.toxicfilms.tv, baccala@vger.freesoft.org,
+       tonyb@cybernetics.com, kletnieks@vt.edu, ebrower@resilience.com,
+       ecd@skynet.be, bergner@cannon.rchland.ibm.com, jgarzik@rum.normnet.org,
+       jo-lkml@suckfuell.net, jmcmullan@linuxcare.com,
+       agrover@groveronline.com, anton@samba.org, kiran@in.ibm.com,
+       mauelshagen@sistina.com, lfo@polyad.org, michaelw@foldr.org,
+       pkot@linuxnews.pl, msdemlei@cl.uni-heidelberg.de, wa@almesberger.net,
+       gibbs@overdrive.btc.adaptec.com, okurth@gmx.net, jamagallon@able.es,
+       makisara@kolumbus.fi
+From: mcguire@lzu.edu.cn
+Subject: [RTLWS8-CFP] Eighth Real-Time Linux Workshop 2nd CFP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/20/06, Arthur Othieno <apgo@patchbomb.org> wrote:
-> pci_module_init() is deprecated and on it's way out in favor of
-> pci_register_driver(). Remove all documentation references to it.
 
-[snip]
+We apologize for multiple receipts.
 
-> diff --git a/Documentation/PCIEBUS-HOWTO.txt b/Documentation/PCIEBUS-HOWTO.txt
-> index c93f42a..7369219 100644
-> --- a/Documentation/PCIEBUS-HOWTO.txt
-> +++ b/Documentation/PCIEBUS-HOWTO.txt
-> @@ -93,7 +93,7 @@ the PCI Express Port Bus driver from loa
->
->  int pcie_port_service_register(struct pcie_port_service_driver *new)
->
-> -This API replaces the Linux Driver Model's pci_module_init API. A
-> +This API replaces the Linux Driver Model's pci_register_driver API. A
 
-This doesn't look right.
+
+--------------------------------------------------------------------------------
+
+
+
+                      Eighth Real-Time Linux Workshop
+
+                            October 12-15, 2006
+                         Lanzhou University - SISE
+                          Tianshui South Road 222
+                           Lanzhou, Gansu 730000
+                                 P.R.China
+
+
+  General
+
+   Following  the  meetings  of  developers  and  users at the previous 7
+   successful  real-time Linux workshops held in Vienna, Orlando, Milano,
+   Boston,  and  Valencia, Singapore, Lille, the Real-Time Linux Workshop
+   for  2006  will  come back to Asia again, to be held at the School for
+   Information  Science  and  Engineering, Lanzhou University, in Lanzhou
+   China.
+
+   Embedded  and  real-time Linux is rapidly gaining traction in the Asia
+   Pacific  region.  Embedded  systems  in  both  automation/control  and
+   entertainment moving to 32/64bit systems, opening the door for the use
+   of  full  featured  OS  like  GNU/Linux  on  COTS  based systems. With
+   real-time  capabilities being a common demand for embedded systems the
+   soft  and  hard  real-time  variants are an important extension to the
+   versatile GNU/Linux GPOS.
+
+   Authors  are  invited  to  submit  original  work dealing with general
+   topics  related  to  real-time  Linux  research,  experiments and case
+   studies,  as  well  as issues of integration of real-time and embedded
+   Linux.  A  special focus will be on industrial case studies. Topics of
+   interest include, but are not limited to:
+
+     * Modifications and variants of the GNU/Linux operating system
+       extending its real-time capabilities,
+     * Contributions to real-time Linux variants, drivers and extensions,
+     * User-mode real-time concepts, implementation and experience,
+     * Real-time Linux applications, in academia, research and industry,
+     * Work in progress reports, covering recent developments,
+     * Educational material on real-time Linux,
+     * Tools for embedding Linux or real-time Linux and embedded
+       real-time Linux applications,
+     * RTOS core concepts, RT-safe synchronization mechanisms,
+     * RT-safe interaction of RT and non RT components,
+     * IPC mechanisms in RTOS,
+     * Analysis and Benchmarking methods and results of 
+       real-time GNU/Linux variants,
+     * Debugging techniques and tools, both for code and temporal
+       debugging of core RTOS components, drivers and real-time
+       applications,
+     * Real-time related extensions to development environments.
+  
+  Further information:
+ 
+  EN: http://www.realtimelinuxfoundation.org/events/rtlws-2006/ws.html 
+  CN: http://dslab.lzu.edu.cn/rtlws8/index.html
+
+  Awarded papers
+
+  The  Programme Committee  will award a best paper in the category Real-
+  Time Systems Theory.  This best paper will be invited  for  publication 
+  to the Real-Time Systems Journal, RTSJ. 
+  
+  The  Programme Committee will award a best paper in the category Real-
+  Time Systems Application. This best paper will be invited for publication 
+  to the Dr Dobbs Journal. Moreover, the publication of the other papers in
+  a special issue of Dr Dobbs Journal is in discussion. 
+
+  Abstract submission
+
+  In  order register an abstract, please go to:
+  http://www.realtimelinuxfoundation.org/rtlf/register-abstract.html
+
+  Venue
+
+  Lanzhou University Information Building, School of Information Science
+  and Engineering, Laznhou University, http://www.lzu.edu.cn/.
+
+  Registration
+
+  In  order  to  participate  to  the  workshop,  please register on the
+  registration page at:
+  http://www.realtimelinuxfoundation.org/rtlf/register-participant.html
+
+  Accommodation
+
+  Please refer to the Lanzhou hotel page for accomodation at
+  http://dslab.lzu.edu.cn/rtlws8/hotels/hotels.htm
+
+  Travel information
+
+  For travel information and directions how to get to Lanzhou from an 
+  international airport in China please refer to:
+  http://www.realtimelinuxfoundation.org/events/rtlws-2006/
+
+  Important dates
+
+  August    28:  Abstract submission
+  September 15:  Notification of acceptance
+  September 29:  Final paper
+
+  Pannel Participants:
+
+     o Roberto Bucher - Scuola Universitaria Professionale della Svizzera
+       Italiana, Switzerland, RTAI/ADEOS/RTAI-Lab.
+
+     o Alfons Crespo Lorente - University of Valenica, Spain,Departament
+       d'Informtica de Sistemes i Computadors, XtratuM.
+
+     o Herman Haertig - Technical University Dresden, Germany,Institute for
+       System Architecture, L4/Fiasco/L4Linux.
+
+     o Nicholas Mc Guire - Lanzhou University, P.R. China, Distributed and
+       Embedded Systems Lab, RTLinux/GPL.
+
+     o Douglas Niehaus - University of Kansas, USA, Information and
+       Telecommunication Technology Center, RT-preempt.
+
+  Organization committee:
+
+     * Prof. Li LIAN (Co-Chair), (SISE, Lanzhou University, CHINA)
+     * Xiaoping ZHANG, LZU, CHINA
+     * Jiming WANG, PKU, CHINA
+     * Zhibing LI, ECNU, China
+     * Prof.  Nicholas  MCGUIRE  (Co-Chair),  Real  Time Linux Foundation
+       (RTLF)
+     * Dr. Peter WURMSDOBLER, Real Time Linux Foundation (RTLF)
+     * Dr.  Qingguo  ZHOU, (Distributed and Embedded Systems Lab, Lanzhou
+       University, CHINA)
+
+  Program committee:
+
+    * Prof. Li Xing (Co-Chair), (Tsinghua University, CHINA)
+     * Dr.  Zhang  Yunquan,  (Institute  of  Software, Chinese Academy of
+       Science, CHINA)
+     * Dr. Chen Yu, (Tsinghua University, CHINA)
+     * Dr. Chen Maoke, (Tsinghua University, CHINA)
+     * Dr. Yu Guanghui, (Dalian University of Techonolgy, CHINA)
+     * Prof.   Dr.   Paolo   Mantegazza,   (Dipartimento   di  Ingegneria
+       Aerospaziale, ITALY)
+     * Prof.  Dr.  Bernhard  Zagar,  (Johannes  Kepler  Universitt Linz,
+       AUSTRIA)
+     * Prof.   Dr.   Hermann  Hrtig,  (Technische  Universitt  Dresden,
+       Fakultt Informatik, GERMANY)
+     * Prof.  Tei-Wei  Kuo,  (National  Taiwan  University, Department of
+       Computer Science and Information Engineering,TAIWAN)
+     * Anthony Skjellum, (Mississippi State University, USA)
+     * Ing. Pavel Pisa, (Czech Technical University, CZECH REPUBLIC)
+     * Prof. Alfons Crespo, (Universidad Politcnica de Valencia, SPAIN)
+     * Dr. Qingguo Zhou, (Lanzhou University, CHINA)
+     * PhD. Jaesoon Choi, (National Cancer Center, KOREA)
+     * Prof. Douglas Niehaus, (Kansas University, USA)
+     * Dr. Michael Hohmuth, (Technische Universitt Dresden, GERMANY)
+     * Prof.  Thambipillai Srikanthan, (Nanyang Technological University,
+       SINGAPORE)
+     * Zhengting He, (University of Texas, USA)
+     * Martin Terbuc, (Universitz of Maribor, SLOVENIA)
+     * Yoshinori Sato, (the H8/300 project, JAPAN)
+     * Yuqing Lan, (China Standard SoftwareCo.,LTD, CHINA)
+     * Dr. Peter Wurmsdobler, (Real Time Linux Foundation, USA)
+     * Prof. Nicholas Mc Guire (Co-Chair), (Lanzhou University, CHINA)
+
+  Workshop organizers:
+
+     * School  for  Information  Science and Engineering (SISE) , Lanzhou
+       University , CHINA
+     * IBM China, Xi'an Branch , China
+     * Haag Embedded Systems, Austira
+
+
+Peter Wurmsdobler <peter@wurmsdobler.org>
+Nicholas Mc Guire <mcguire@lzu.edu.cn>
+Zhou Qingguo <zhouqg@lzu.edu.cn>
+

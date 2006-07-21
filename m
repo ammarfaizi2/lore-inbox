@@ -1,63 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWGUV1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWGUV5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWGUV1c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 17:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWGUV1b
+	id S1751221AbWGUV5W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 17:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWGUV5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 17:27:31 -0400
-Received: from compunauta.com ([69.36.170.169]:19144 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S1751197AbWGUV1b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 17:27:31 -0400
-From: Gustavo Guillermo =?iso-8859-1?q?P=E9rez?= 
-	<gustavo@compunauta.com>
-Organization: www.compunauta.com
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] devfs is obsolete, but dbus/hald/ivman does not spend more resources at boot time?
-Date: Fri, 21 Jul 2006 00:38:31 -0500
-User-Agent: KMail/1.8.2
-References: <200607181211.32092.gustavo@compunauta.com> <20060718175959.GA9311@kroah.com>
-In-Reply-To: <20060718175959.GA9311@kroah.com>
+	Fri, 21 Jul 2006 17:57:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:36680 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751221AbWGUV5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 17:57:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TO9+MP0geoCM0MxFuQmvGR8uHczxWjy29Uk2XVgguYF6927+jXPsSJkALB+c2QFuD/p3A41HLaiEYW6Hz0fWfESDmvRSaUaUTqNim+1u0wqQTf0D+OiKx1i8YoKIdpC717RQdkuGiSXXV7An9cJWKt9qCoEz3nP4VIeocKPHV9Q=
+Message-ID: <bda6d13a0607211457k596e912fx845c68c2daa298f6@mail.gmail.com>
+Date: Fri, 21 Jul 2006 14:57:20 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what is necessary for directory hard links
+In-Reply-To: <20060721202825.GB29656@robsims.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607210038.31902.gustavo@compunauta.com>
+References: <bda6d13a0607201804je89fc3exd0b8f821509a3894@mail.gmail.com>
+	 <20060721202825.GB29656@robsims.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Martes, 18 de Julio de 2006 12:59, escribió:
-> On Tue, Jul 18, 2006 at 12:11:31PM -0500, Gustavo Guillermo P?rez wrote:
-> > I was used to mount devfs in a separate folder, to search for a ZISO file
-> > on hard drives or DVD/CD units in my boot ram rescue disks, and Gentoo
-> > live DVD, in last kernel versions devfs still there but not anymore in
-> > config, we still able to use it, touching some files.
-> >
-> > Just to know ?How many releases will still there?
->
-> devfs has been fully removed from the kernel for 2.6.18, but had been
-> disabled and really not working at all since 2.6.13, which has been for
-> a year now.
-True, but for hard drives and CD units works fine
-> > How do you a search for drives with hald/dbus at boot time on a ramdisk
-> > it is not more complex?!?!?!.
->
-> What exactly are you trying to do?  Look at /sys/block/ for all block
-> devices in the system.
-Yes there are the block devices and partitions but I'm not sure if removable=1 
-means CDROM...
-> If you want to do it in a more portable and cross-OS way, use HAL, and ask 
-> those developers on how to do it. 
-I guess, ok, I'll give a try to hal, and I see I can use too 
-the /sys/block/*/dev info to make nodes, and would be the same, cause is just 
-for probing media and looking for a big file with the system, when the system 
-is found, dbus/hal/ivman take scene.
-> thanks,
-Thanks to you.
-> greg k-h
+Some people seem to think that I am proposing to do something.
+Understand that I have done it for 2.6.17-rc4 and am currently
+involved in bringing it forward to newer kernels.
 
--- 
-Gustavo Guillermo Pérez
-Compunauta uLinux
-www.compunauta.com
+>
+> What is the parent of a hard linked directory?  What is the parent if
+> the link in "the parent" is deleted?
+
+The parent is any and all directories that contain a link to the
+stated directory.  ".." points back along the path the referrer used
+to reach the current directory (this behavior is already in kernel:
+didn't have to lift a finger to get it).

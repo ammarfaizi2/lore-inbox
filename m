@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWGUHOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWGUHpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWGUHOi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 03:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbWGUHOi
+	id S1161009AbWGUHpn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 03:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWGUHpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 03:14:38 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30436 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030462AbWGUHOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 03:14:37 -0400
-Date: Fri, 21 Jul 2006 00:14:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: suresh.b.siddha@intel.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, sivanich@sgi.com
-Subject: Re: [BUG] Cpuset: dynamic sched domain crash on > 16 cpu systems.
-Message-Id: <20060721001431.f1fecf97.pj@sgi.com>
-In-Reply-To: <20060720230909.A4984@unix-os.sc.intel.com>
-References: <20060720132959.31161.284.sendpatchset@v0>
-	<20060720230909.A4984@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jul 2006 03:45:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:59591 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1161014AbWGUHpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 03:45:42 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: why is intercepting system calls considerred bad?
+To: Joshua Hudson <joshudson@gmail.com>, Irfan Habib <irfan.habib@gmail.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 21 Jul 2006 09:44:46 +0200
+References: <6AVr2-6FS-3@gated-at.bofh.it> <6AVU0-7fw-3@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G3ph4-0000Z9-VV@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh wrote:
-> I don't have these type of systems. So can you please check if the appended
-> patch fixes your issue.
+Joshua Hudson <joshudson@gmail.com> wrote:
+> On 7/20/06, Irfan Habib <irfan.habib@gmail.com> wrote:
 
-Good - that fixes it.  Thanks.
+>> I recently met a kernel janitor, who told me that intercepting system
+>> calls is undesirable, why?
+> 
+> I'll bite.
+> 
+> You intercept. Somebody else intercepts. You want to stop intercepting.
 
+Use a double-linked list.
+
+Having a mechanism to intercept syscalls will slow down syscall processing,
+and there was no legit user in the history of linux. If you need something
+like that, there is ptrace.
+
+> For this reason, anybody who intercepts a system call must be compiled
+> in,
+
+No, but they may need to be compiled in for other reasons.
+
+> and if two intercept the same system call, than the link order
+> dictates behavior.
+> 
+> Obviously not desirable.
+
+ACK.
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

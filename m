@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWGUP3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWGUPjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWGUP3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 11:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWGUP3D
+	id S1751057AbWGUPjn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 11:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWGUPjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 11:29:03 -0400
-Received: from mga02.intel.com ([134.134.136.20]:39487 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750795AbWGUP3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 11:29:02 -0400
-X-IronPort-AV: i="4.07,169,1151910000"; 
-   d="scan'208"; a="68686127:sNHT2673076329"
-Message-ID: <44C0F13E.2030008@intel.com>
-Date: Fri, 21 Jul 2006 08:22:38 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.4 (X11/20060617)
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
-       Auke Kok <auke-jan.h.kok@intel.com>, pavel@ucw.cz, cramerj@intel.com,
-       john.ronciak@intel.com, jesse.brandeburg@intel.com,
-       jeffrey.t.kirsher@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: e1000: "fix" it on thinkpad x60 / eeprom checksum read fails
-References: <20060721005832.GA1889@elf.ucw.cz> <44BFADA6.6090909@intel.com> <20060720170758.GA9938@atrey.karlin.mff.cuni.cz> <44BFBE9F.7070600@intel.com> <20060721064105.aa960acd.akpm@osdl.org> <20060721151239.GC2290@thunk.org>
-In-Reply-To: <20060721151239.GC2290@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Jul 2006 15:23:40.0091 (UTC) FILETIME=[A4E3C8B0:01C6ACD9]
+	Fri, 21 Jul 2006 11:39:43 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:25767 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750911AbWGUPjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 11:39:42 -0400
+Date: Fri, 21 Jul 2006 18:39:39 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Panagiotis Issaris <takis@lumumba.uhasselt.be>
+Cc: linux-kernel@vger.kernel.org, kyle@parisc-linux.org,
+       James@superbug.demon.co.uk, zab@zabbo.net, sailer@ife.ee.ethz.ch,
+       perex@suse.cz
+Subject: Re: [PATCH] sound/oss: Conversions from kmalloc+memset to k(c|z)alloc.
+Message-ID: <20060721153939.GB28584@rhun.ibm.com>
+References: <20060720185812.GB7643@lumumba.uhasselt.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060720185812.GB7643@lumumba.uhasselt.be>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
-> On Fri, Jul 21, 2006 at 06:41:05AM -0700, Andrew Morton wrote:
->>> It's completely not acceptable to run when the EEPROM checksum fails - you 
->>> might even be running with the wrong MAC address, or worse. Lets fix this the 
->>> right way instead.
->> A printk which helps the user to understand all this saga would be very nice.
->> -
+On Thu, Jul 20, 2006 at 08:58:12PM +0200, Panagiotis Issaris wrote:
+
+> From: Panagiotis Issaris <takis@issaris.org>
 > 
-> And if someone who understands all of these details could put a note
-> in the thinkwiki (say, here:
-> http://www.thinkwiki.org/wiki/Ethernet_Controllers#Intel_Gigabit_.2810.2F100.2F1000.29)
-> it would be greatly appreciated.
+> Changes in sound/oss:
+> - Conversions from kmalloc+memset to k(c|z)alloc
+> - Kill useless type casts
 > 
+> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
 
-why don't I do that :)
+trident.c changes are
 
+Acked-by: Muli Ben-Yehuda <muli@il.ibm.com>
 
-Andrew: I'm contemplating that printk...
-
+Let me know if you want me to push it seperately from the rest of the
+patch.
 
 Cheers,
-
-Auke
+Muli

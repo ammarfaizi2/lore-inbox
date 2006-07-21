@@ -1,18 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWGUKn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWGUK5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbWGUKn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 06:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbWGUKn3
+	id S1161045AbWGUK5H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 06:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWGUK5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 06:43:29 -0400
-Received: from outmx025.isp.belgacom.be ([195.238.4.49]:5548 "EHLO
-	outmx025.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1161030AbWGUKn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 06:43:29 -0400
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset tok(z|c)alloc.
-From: Panagiotis Issaris <takis@gna.org>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+	Fri, 21 Jul 2006 06:57:07 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:154 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1750942AbWGUK5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 06:57:06 -0400
+Message-ID: <44C0B23F.5090808@s5r6.in-berlin.de>
+Date: Fri, 21 Jul 2006 12:53:51 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
        Panagiotis Issaris <takis@lumumba.uhasselt.be>,
        linux-kernel@vger.kernel.org, len.brown@intel.com,
        chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
@@ -21,41 +26,22 @@ Cc: Jeff Garzik <jgarzik@pobox.com>, Rolf Eike Beer <eike-kernel@sf-tec.de>,
        adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
        philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
        paulus@samba.org
-In-Reply-To: <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI>
-References: <20060720190529.GC7643@lumumba.uhasselt.be>
-	 <200607210850.17878.eike-kernel@sf-tec.de>
-	 <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>
-	 <44C07CB2.1040303@pobox.com> <1153474342.9489.8.camel@hemera>
-	 <Pine.LNX.4.58.0607211308590.25982@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain
-Date: Fri, 21 Jul 2006 12:42:59 +0200
-Message-Id: <1153478579.9489.33.camel@hemera>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060720190529.GC7643@lumumba.uhasselt.be>	 <200607210850.17878.eike-kernel@sf-tec.de>	 <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>	 <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de> <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
+In-Reply-To: <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On vr, 2006-07-21 at 13:14 +0300, Pekka J Enberg wrote:
-> On Fri, 21 Jul 2006, Panagiotis Issaris wrote:
-> > Ah okay. Up until now, I thought it would be okay to change the style of
-> > the code if it was listed in the CodingStyle document and in any other
-> > cause should be left untouched as it would be left to the maintainers
-> > personal preference. That's why I explicitly asked about the "if ((buf =
-> > kmalloc(...)==NULL) -> buf = kmalloc(...); if (!buf)" type of changes.
-> > 
-> > Ofcourse, I should have put cosmetic changes in a separate patch anyway.
+Jesper Juhl wrote:
+> On 21/07/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+>>  - better style of the size argument where correct,
 > 
-> At least Andrew seems to prefer cleaning up in the same patch. Anyway, I 
-> don't think Jeff meant that you shouldn't do any cleanups, but that you 
-> should try to respect the existing style as much possible. There are 
-> things that are almost generally agreed upon, such as removal of redundant 
-> typecasts, redundant wrappers, and moving assignment out of if statement 
-> expression. Formatting and the dreaded sizeof thing, however, 
-> are not, so it is best to keep them as-is.
-Thank God! I had been preparing such a cleanup patch for several hours
-last night :)
+> Who says it's "better style" ?
 
-With friendly regards,
-Takis
-
+I correct myself: s/better/conforming/
+-- 
+Stefan Richter
+-=====-=-==- -=== =--==
+http://arcgraph.de/sr/

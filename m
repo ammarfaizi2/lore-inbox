@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWGUMf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWGUMjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWGUMf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 08:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWGUMf4
+	id S1161067AbWGUMjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 08:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbWGUMjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 08:35:56 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:53327 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161036AbWGUMfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 08:35:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=S514xCjBpFk1fNfT5aZ25LvZL48yd8PWCQ3txSv1t/ejl5qWLoCTM1wCVpMWGGVf6CyHG0AGjlrCGHLKmsXnnLCLhzlva9vf9Vsc/Z4DonQeXYt8r/LfmE5t6+2zlui66jBOfr8zT24UD5onI9/paY5hV6lx9sdxcAMpUChD5Xc=
-Message-ID: <d120d5000607210535u6e8cad16u895cbb4671119dbc@mail.gmail.com>
-Date: Fri, 21 Jul 2006 08:35:53 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Panagiotis Issaris" <takis@lumumba.uhasselt.be>
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com, chas@cmf.nrl.navy.mil,
-       miquel@df.uba.ar, kkeil@suse.de, benh@kernel.crashing.org,
-       video4linux-list@redhat.com, rmk+mmc@arm.linux.org.uk,
-       Neela.Kolli@engenio.com, jgarzik@pobox.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-In-Reply-To: <20060720190529.GC7643@lumumba.uhasselt.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jul 2006 08:39:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29494 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1161067AbWGUMjM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 08:39:12 -0400
+Date: Fri, 21 Jul 2006 14:38:27 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Panagiotis Issaris <takis@gna.org>
+Cc: takis@issaris.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] block: Conversions from kmalloc+memset to k(z|c)alloc
+Message-ID: <20060721123827.GA26368@suse.de>
+References: <20060721113210.GB11822@issaris.org> <20060721121352.GB25045@suse.de> <1153485124.9489.37.camel@hemera>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060720190529.GC7643@lumumba.uhasselt.be>
+In-Reply-To: <1153485124.9489.37.camel@hemera>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/20/06, Panagiotis Issaris <takis@lumumba.uhasselt.be> wrote:
-> From: Panagiotis Issaris <takis@issaris.org>
->
-> drivers: Conversions from kmalloc+memset to k(z|c)alloc.
->
-> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
-> ---
-> Second edition
->
->  drivers/acpi/hotkey.c                      |    6 ++----
->  drivers/atm/zatm.c                         |    6 ++----
->  drivers/char/consolemap.c                  |    6 ++----
->  drivers/char/keyboard.c                    |    4 ++--
+On Fri, Jul 21 2006, Panagiotis Issaris wrote:
+> Hi,
+> 
+> On vr, 2006-07-21 at 14:13 +0200, Jens Axboe wrote:
+> > On Fri, Jul 21 2006, takis@issaris.org wrote:
+> > > From: Panagiotis Issaris <takis@issaris.org>
+> > > 
+> > > block: Conversions from kmalloc+memset to kzalloc
+> > 
+> > They are already done in the block git repo.
+> Weird, I had even checked if they weren't already done:
+> http://kernel.org/git/?p=linux/kernel/git/axboe/linux-2.6-block.git;a=blob;h=102ebc2c5c34c73f8e7f76c589559ddfde0d9885;hb=82d6897fefca6206bca7153805b4c5359ce97fc4;f=block/cfq-iosched.c
+> 
+> Am I looking at the wrong repos, or is it just not in sync
+> with your daily work?
 
-Hi,
-
-Could you please drop drivers/char/keyboard.c changes? I already have
-patch in my queue that does kzalloc conversion there (among other
-things).
-
-Thanks!
+It should be in the iosched branch.
 
 -- 
-Dmitry
+Jens Axboe
+

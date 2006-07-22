@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWGVRY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWGVR1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWGVRY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 13:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWGVRY1
+	id S1750980AbWGVR1g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 13:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWGVR1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 13:24:27 -0400
-Received: from ptb-relay03.plus.net ([212.159.14.214]:23230 "EHLO
-	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
-	id S1750974AbWGVRY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 13:24:26 -0400
-Message-ID: <44C25F49.3010803@mauve.plus.com>
-Date: Sat, 22 Jul 2006 18:24:25 +0100
-From: Ian Stirling <tandra@mauve.plus.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Sat, 22 Jul 2006 13:27:36 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:60382 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S1750927AbWGVR1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 13:27:36 -0400
+Date: Sat, 22 Jul 2006 10:27:34 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Peter Korsgaard <jacmet@sunsite.dk>, Andrew Morton <akpm@osdl.org>
+Cc: rpurdie@rpsys.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ppc32 zImage inflate
+Message-ID: <20060722172734.GK24522@smtp.west.cox.net>
+References: <87u05dhquk.fsf@slug.be.48ers.dk> <87lkqoj564.fsf@slug.be.48ers.dk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB snd-usb-audio oops
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lkqoj564.fsf@slug.be.48ers.dk>
+Organization: Embedded Alley Solutions, Inc
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has hit me yesterday too - maybe, but I diddn't get it logged - as 
-it just locked.
-With enforce bandwidth on and off (today and yesterday)
-Otherwise the config is identical to the one I posted several messages ago.
+On Thu, Jul 20, 2006 at 06:01:23AM +0200, Peter Korsgaard wrote:
+> >>>>> "Peter" == Peter Korsgaard <jacmet@sunsite.dk> writes:
+> 
+>  Peter> Hi,
+>  Peter> The recent zlib update (commit
+>  Peter> 4f3865fb57a04db7cca068fed1c15badc064a302) broke ppc32 zImage
+>  Peter> decompression as it tries to decompress to address zero and the
+>  Peter> updated zlib_inflate checks that strm->next_out isn't a null pointer.
+> 
+>  Peter> This little patch fixes it.
+> 
+> Crap - forgot to sign off :/
+> 
 
-I was simply trying to start mplayer - to play some tunes after a lot of 
-unplugging to test things.
+Acked-by: Tom Rini <trini@kernel.crashing.org>
 
+> Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+> 
+> diff -Naur linux-2.6.18-rc2.orig/lib/zlib_inflate/inflate.c linux-2.6.18-rc2/lib/zlib_inflate/inflate.c
+> --- linux-2.6.18-rc2.orig/lib/zlib_inflate/inflate.c	2006-07-20 10:26:21.000000000 +0200
+> +++ linux-2.6.18-rc2/lib/zlib_inflate/inflate.c	2006-07-20 17:02:27.000000000 +0200
+> @@ -347,7 +347,7 @@
+>      static const unsigned short order[19] = /* permutation of code lengths */
+>          {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+>  
+> -    if (strm == NULL || strm->state == NULL || strm->next_out == NULL ||
+> +    if (strm == NULL || strm->state == NULL ||
+>          (strm->next_in == NULL && strm->avail_in != 0))
+>          return Z_STREAM_ERROR;
+> 
+> -- 
+> Bye, Peter Korsgaard
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-BUG: unable to handle kernel paging request at virtual address 1b154000
-  printing eip:
-c0283629
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: zd1211 toshiba_acpi aes_i586 rd snd_usb_audio 
-snd_usb_lib snd_hwdep usbhid uhci_hcd ehci_hcd
-ohci_hcd pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core 
-eepro100 twofish tea sha512 sha256 sha1 s
-erpent michael_mic md5 md4 khazad des deflate zlib_deflate zlib_inflate 
-crypto_null cast6 cast5 blowfish arc4 cr
-yptoloop loop sd_mod usb_storage libusual usbcore snd_es1968 
-snd_ac97_codec snd_ac97_bus snd_mpu401_uart snd_raw
-midi
-CPU:    0
-EIP:    0060:[<c0283629>]    Not tainted VLI
-EFLAGS: 00210246   (2.6.17laptop-3110-firstcut #7)
-EIP is at snd_ctl_release+0xb2/0x161
-eax: c2d42b60   ebx: 00200246   ecx: 00000000   edx: 1b154000
-esi: c2d42a00   edi: c7ec28a0   ebp: c4f20960   esp: c5fbff4c
-ds: 007b   es: 007b   ss: 0068
-Process mplayer (pid: 16279, threadinfo=c5fbe000 task=c7855a70)
-Stack: 00000010 c4f20960 c2919338 c51e96d4 c015110d c2919338 c4f20960 
-c7fcb220
-        c4f20960 c7f438e0 00000000 c4f20960 c014fadf c4f20960 c7f438e0 
-c4f20960
-        c7f438e0 00000004 c7f438e0 c5fbe000 c014fb64 c4f20960 c7f438e0 
-00000004
-Call Trace:
-  <c015110d> __fput+0x190/0x1a3  <c014fadf> filp_close+0x36/0x57
-  <c014fb64> sys_close+0x64/0x99  <c0102d4f> syscall_call+0x7/0xb
-Code: 8d 74 26 00 8d 86 60 01 00 00 39 c2 74 2d 31 c9 3b 4a 48 73 14 89 
-d0 39 78 64 0f 84 a4 00 00 00 41 83 c0 0
-c 3b 4a 48 72 ee 8b 12 <8b> 02 8d 74 26 00 8d 86 60 01 00 00 39 c2 75 d3 
-8d 86 4c 01 00
-EIP: [<c0283629>] snd_ctl_release+0xb2/0x161 SS:ESP 0068:c5fbff4c
+-- 
+Tom Rini

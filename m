@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWGVR6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWGVSK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWGVR6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 13:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWGVR6V
+	id S1750938AbWGVSK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 14:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWGVSK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 13:58:21 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:22150 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S1750776AbWGVR6U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 13:58:20 -0400
-Date: Sat, 22 Jul 2006 19:58:16 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Panagiotis Issaris <takis@gna.org>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Rolf Eike Beer <eike-kernel@sf-tec.de>,
-       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com,
-       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
-       benh@kernel.crashing.org, video4linux-list@redhat.com,
-       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
-       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
-       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
-       paulus@samba.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-In-Reply-To: <44C0B29F.2080604@s5r6.in-berlin.de>
-Message-ID: <Pine.BSO.4.63.0607221949490.10018@rudy.mif.pg.gda.pl>
-References: <20060720190529.GC7643@lumumba.uhasselt.be> 
- <200607210850.17878.eike-kernel@sf-tec.de> 
- <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> 
- <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de> 
- <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com>
- <1153478157.9489.30.camel@hemera> <Pine.LNX.4.58.0607211336450.26827@sbz-30.cs.Helsinki.FI>
- <44C0B29F.2080604@s5r6.in-berlin.de>
+	Sat, 22 Jul 2006 14:10:29 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:31900 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750935AbWGVSK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 14:10:28 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44C26991.2080902@s5r6.in-berlin.de>
+Date: Sat, 22 Jul 2006 20:08:17 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-2106383190-1153591096=:10018"
+To: ricknu-0@student.ltu.se
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [RFC][PATCH] A generic boolean (version 3)
+References: <1153341500.44be983ca1407@portal.student.luth.se> <1153524422.44c162c65c21b@portal.student.luth.se> <44C1BA4A.4070107@s5r6.in-berlin.de> <1153588128.44c25ba03071c@portal.student.luth.se>
+In-Reply-To: <1153588128.44c25ba03071c@portal.student.luth.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.906) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+ricknu-0@student.ltu.se wrote:
+> Citerar Stefan Richter <stefanr@s5r6.in-berlin.de>:
+...
+>>Drivers in 2.4 and 2.6 differ. We don't put 2.4-compatibility code into 
+>>2.6. And the bool type won't get into 2.4.
+> 
+> It doesn't?! Good, that simplify it to only a:
+> typedef _Bool bool;
+> line. Did googled on it but did not find anything that comfirmed or denied it.
+...
 
---0-2106383190-1153591096=:10018
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Well, it's because the 2.4 mainline receives only bug fixes now. You can 
+imagine that since 2.5 was started, new data types were added in 2.5/2.6 
+but never backported to 2.4, especially if they were tied to 
+infrastructural changes or new features.
 
-On Fri, 21 Jul 2006, Stefan Richter wrote:
-
-> Pekka J Enberg wrote:
->> Yeah, that's what Andrew prefers but there are maintainers that disagree
->> with that.
->
-> Then they should change CodingStyle.
-
-Better will be start use indent.
-Coding style seems is Linux case kind of never ending story.
-Keep one/common coding style in this case is someting not for small tool 
-but more for .. Superman/Hecules (?)
-
-Why not add .indent.pro file in aeach source tree directory and add to 
-Makefile "indent" target ?
-Why not after add this just before make next release run "make indent" and 
-commit all this to git tree ?
-
-kloczek
+Of course there may be downstream projects who maintain 2.4 drivers to 
+further extent than the 2.4 mainline. But this doesn't imply a 
+requirement to put compatibility code into 2.6.
 -- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-2106383190-1153591096=:10018--
+Stefan Richter
+-=====-=-==- -=== =-==-
+http://arcgraph.de/sr/

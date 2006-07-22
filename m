@@ -1,55 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWGVP3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWGVPha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWGVP3b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 11:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWGVP3b
+	id S1750810AbWGVPha (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 11:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWGVPh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 11:29:31 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:396 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750797AbWGVP3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 11:29:30 -0400
-Date: Sat, 22 Jul 2006 11:29:34 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org
-Subject: NMI reentrant RCU list for -rt kernels
-Message-ID: <20060722152933.GA17148@Krystal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.31-grsec (i686)
-X-Uptime: 11:12:30 up 77 days, 18:21,  1 user,  load average: 1.64, 1.26, 1.16
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sat, 22 Jul 2006 11:37:29 -0400
+Received: from wm402rot.66.ADSL.NetSurf.Net ([66.135.97.66]:32898 "EHLO
+	png3r11.pngxnet.com") by vger.kernel.org with ESMTP
+	id S1750810AbWGVPh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 11:37:28 -0400
+From: Dave Airlie <airlied@linux.ie>
+To: linux-kernel@vger.kernel.org
+Cc: Dave Airlie <airlied@linux.ie>
+Subject: [PATCH] drm: remove pci domain local copy (02/07)
+Date: Sun, 23 Jul 2006 01:38:28 +1000
+Message-Id: <11535827131612-git-send-email-airlied@linux.ie>
+X-Mailer: git-send-email 1.4.1.ga3e6
+In-Reply-To: <11535827133352-git-send-email-airlied@linux.ie>
+References: <11535827134076-git-send-email-airlied@linux.ie> <11535827133352-git-send-email-airlied@linux.ie>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
+Just call a function to retrieve the pci domain, this isn't exactly
+hotpath code.
 
-Following your presentation on RCU lists for -rt kernel, discussing with Bill
-Huey led me to the following idea that could solve the problem of NMI reentrancy
-of RCU read side in the -rt kernels.
+Signed-off-by: Dave Airlie <airlied@linux.ie>
+(cherry picked from 01852d755753bbfcd5434c55d4d7375580f8338f commit)
+---
+ drivers/char/drm/drmP.h      |   10 +++++++++-
+ drivers/char/drm/drm_ioctl.c |    4 ++--
+ drivers/char/drm/drm_irq.c   |    2 +-
+ 3 files changed, 12 insertions(+), 4 deletions(-)
 
-If we consider that the RCU list modification that makes the read side
-lock preemptible is only needed for very long code paths, we could leave the
-original RCU implementation along with the preemptible one, so that very short
-and frequent code paths could benefit of using the very cheap preempt count
-protection without having a too big impact on the scheduler latency.
+diff --git a/drivers/char/drm/drmP.h b/drivers/char/drm/drmP.h
+index 5c8f245..4dd28e1 100644
+--- a/drivers/char/drm/drmP.h
++++ b/drivers/char/drm/drmP.h
+@@ -711,7 +711,6 @@ typedef struct drm_device {
+ 	drm_agp_head_t *agp;	/**< AGP data */
+ 
+ 	struct pci_dev *pdev;		/**< PCI device structure */
+-	int pci_domain;			/**< PCI bus domain number */
+ #ifdef __alpha__
+ 	struct pci_controller *hose;
+ #endif
+@@ -733,6 +732,15 @@ static __inline__ int drm_core_check_fea
+ 	return ((dev->driver->driver_features & feature) ? 1 : 0);
+ }
+ 
++static inline int drm_get_pci_domain(struct drm_device *dev)
++{
++#ifdef __alpha__
++	return dev->hose->bus->number;
++#else
++	return 0;
++#endif
++}
++
+ #if __OS_HAS_AGP
+ static inline int drm_core_has_AGP(struct drm_device *dev)
+ {
+diff --git a/drivers/char/drm/drm_ioctl.c b/drivers/char/drm/drm_ioctl.c
+index 5c020b8..9d9f988 100644
+--- a/drivers/char/drm/drm_ioctl.c
++++ b/drivers/char/drm/drm_ioctl.c
+@@ -127,7 +127,7 @@ int drm_setunique(struct inode *inode, s
+ 	domain = bus >> 8;
+ 	bus &= 0xff;
+ 
+-	if ((domain != dev->pci_domain) ||
++	if ((domain != drm_get_pci_domain(dev)) ||
+ 	    (bus != dev->pdev->bus->number) ||
+ 	    (slot != PCI_SLOT(dev->pdev->devfn)) ||
+ 	    (func != PCI_FUNC(dev->pdev->devfn)))
+@@ -149,7 +149,7 @@ static int drm_set_busid(drm_device_t * 
+ 		return ENOMEM;
+ 
+ 	len = snprintf(dev->unique, dev->unique_len, "pci:%04x:%02x:%02x.%d",
+-		       dev->pci_domain, dev->pdev->bus->number,
++		       drm_get_pci_domain(dev), dev->pdev->bus->number,
+ 		       PCI_SLOT(dev->pdev->devfn),
+ 		       PCI_FUNC(dev->pdev->devfn));
+ 
+diff --git a/drivers/char/drm/drm_irq.c b/drivers/char/drm/drm_irq.c
+index ee4b183..f93d8cd 100644
+--- a/drivers/char/drm/drm_irq.c
++++ b/drivers/char/drm/drm_irq.c
+@@ -64,7 +64,7 @@ int drm_irq_by_busid(struct inode *inode
+ 	if (copy_from_user(&p, argp, sizeof(p)))
+ 		return -EFAULT;
+ 
+-	if ((p.busnum >> 8) != dev->pci_domain ||
++	if ((p.busnum >> 8) != drm_get_pci_domain(dev) ||
+ 	    (p.busnum & 0xff) != dev->pdev->bus->number ||
+ 	    p.devnum != PCI_SLOT(dev->pdev->devfn) || p.funcnum != PCI_FUNC(dev->pdev->devfn))
+ 		return -EINVAL;
+-- 
+1.4.1.ga3e6
 
-For instance, my LTTng tracer disables the preemption for about 95 ns, which I
-doubt would be a problem for real-time behavior. I could easily fix maximum
-a maximum list size so it can be run in a constant time.
-
-So, basically, the idea is to have two RCU API that could take names like :
-atomic_rcu_* and rcu_*
-
-Does this idea make sense ?
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

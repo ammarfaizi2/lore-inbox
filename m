@@ -1,28 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWGVNC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWGVNS3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbWGVNC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 09:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWGVNC2
+	id S1751343AbWGVNS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 09:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWGVNS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 09:02:28 -0400
-Received: from thunk.org ([69.25.196.29]:43934 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751335AbWGVNC1 (ORCPT
+	Sat, 22 Jul 2006 09:18:29 -0400
+Received: from thunk.org ([69.25.196.29]:58033 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751343AbWGVNS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 09:02:27 -0400
-Date: Sat, 22 Jul 2006 09:02:19 -0400
+	Sat, 22 Jul 2006 09:18:29 -0400
+Date: Sat, 22 Jul 2006 09:17:59 -0400
 From: Theodore Tso <tytso@mit.edu>
-To: Hans Reiser <reiser@namesys.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060722130219.GB7321@thunk.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>, jack@suse.cz, 20@madingley.org,
+       marcel@holtmann.org, linux-kernel@vger.kernel.org, sct@redhat.com,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: Bad ext3/nfs DoS bug
+Message-ID: <20060722131759.GC7321@thunk.org>
 Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Hans Reiser <reiser@namesys.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <44C12F0A.1010008@namesys.com>
+	Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@suse.de>,
+	jack@suse.cz, 20@madingley.org, marcel@holtmann.org,
+	linux-kernel@vger.kernel.org, sct@redhat.com,
+	Andreas Dilger <adilger@clusterfs.com>
+References: <20060718145614.GA27788@circe.esc.cam.ac.uk> <1153236136.10006.5.camel@localhost> <20060718152341.GB27788@circe.esc.cam.ac.uk> <1153253907.21024.25.camel@localhost> <20060719092810.GA4347@circe.esc.cam.ac.uk> <20060719155502.GD3270@atrey.karlin.mff.cuni.cz> <17599.2754.962927.627515@cse.unsw.edu.au> <20060720160639.GF25111@atrey.karlin.mff.cuni.cz> <17600.30372.397971.955987@cse.unsw.edu.au> <20060721170627.4cbea27d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44C12F0A.1010008@namesys.com>
+In-Reply-To: <20060721170627.4cbea27d.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -30,62 +34,58 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 21, 2006 at 01:46:18PM -0600, Hans Reiser wrote:
-> Let me ask that one compare and contrast the ext4 integration procedure
-> outlined by Ted Tso
+Sorry, OLS and some work-related emergencies have been hitting hard
+this week, so I've been deferred doing a full review of Jan's patch.
+Hopefully after OLS I'll be able to comment more fully.
 
-"integration procedure" is hardly an accurate description, rather it
-is a development procedure that was developed after discussion and
-consensus building across LKML and the ext2/3/4 development team.  It
-was not the original plan put forth by the ext2 developers, but after
-listening to the concerns and suggestions, we did not question the
-motives of the people making suggestions; we listened.
+On Fri, Jul 21, 2006 at 05:06:27PM -0700, Andrew Morton wrote:
+> There are strange things happening in here.
+> 
+> > +static inline int ext3_valid_inum(struct super_block *sb, unsigned long ino)
+> > +{
+> > +	return ino == EXT3_ROOT_INO ||
+> > +		ino == EXT3_JOURNAL_INO ||
+> > +		ino == EXT3_RESIZE_INO ||
+> > +		(ino > EXT3_FIRST_INO(sb) &&
+> > +		 ino <= le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count));
+> > +}
+> 
+> One would expect the inode validity test to be
+> 
+> 	(ino >= EXT3_FIRST_INO(sb)) && (ino < ...->s_inodes_count))
+>
+> but even this assumes that s_inodes_count is misnamed and really should be
+> called s_last_inode_plus_one.  If it is not misnamed then the validity test
+> should be
+> 
+> 	(ino >= EXT3_FIRST_INO(sb)) &&
+> 		(ino < EXT3_FIRST_INO(sb) + ...->s_inodes_count))
+> 
+> Look through the filesystem for other uses of EXT3_FIRST_INO().  It's all
+> rather fishily inconsistent.
 
-> The code isn't even written, benchmarked, or tested yet,
+I don't think there's anything in consistent.  Basically, inodes are 1
+based (inode number 0 in a directory entry means that the file is
+deleted and the directory entry is freed).  Hence valid inode numbers
+are between 1 and s_inodes_count, inclusive.
 
-Actually, the first bits that we plan to merge have already been
-written and in use by hundreds of clusterfs customers, posted to LKML
-for comments (and we don't attack our reviewers, we thank them for
-their comments), and in fact they were written about at last year's
-OLS complete with benchmarks and graphs.
-(http://ext2.sourceforge.net/2005-ols/2005-ols-ext3.html)
+Inodes between 1 and EXT3_FIRST_INO-1 (inclusive) are reserved, are
+should always be marked as in use in the inode allocation bitmap.
+EXT3_FIRST_INO (which is 11 on all ext3 filesystems to date) is
+generally the lost+found directory, but that's just because it is the
+first file/directory which is allocated by mke2fs.  So EXT3_FIRST_INO
+representes the first inode which can be allocated by userspace.  (The
+root inode doesn't fall in this category because it can never be
+deleted or reallocated after the filesystem is created, and as a nod
+to Unix filesystem history, it has inode #2).
 
-> Consider what happened with XFS as the article writer mentions.  I met
-> the original XFS team, led by two very senior developers (Jim Grey, and
-> another fellow whose name I am blanking on, forgive me, I learned much
-> from him in just a few conversations).  
+The net of all of this is the inode validity test should be:
 
-I believe you are referring to Jim Mostek and Steve Lord, and yes,
-they were very talented developers and engineers.  I very much enjoyed
-talking to them at various filesystem and Linux conferences and
-workshops.
+ 	(ino >= EXT3_FIRST_INO(sb)) && (ino <= ...->s_inodes_count))
 
-> supervision.  What happened?  They got hassled.  Instead of learning
-> from them, welcoming into our community two very senior developers who
-> knew a lot more than any of us about the topics they chose to speak
-> about, they got hassled, they get ignored, they felt rejected, and left
-> the Linux community forever, never to return.  
+However, I would suggest that we *not* allow remote NFS users to get
+access to the journal inode or the resize inode, please?  That's only
+going to cause mischief of the DoS attack kind.....  
 
-That's hardly what happened.  SGI went through layoffs, and they were
-hit.  See:  http://slashdot.org/articles/01/05/26/0743254.shtml
+						- Ted
 
-> A reasonable approach would be to say that any
-> filesystem marked as experimental can be dropped at any time, so if you
-> aren't able to tar and untar the partition it is on when a new kernel
-> comes out, you should not use experimental filesystems.  Then most
-> distros will not make the experimental FS visible to users who don't
-> press three buttons acknowledging that they were warned....  Linspire's
-> view is pretty simple, they need to know that Reiser4 will be accepted
-> BEFORE they make their distro depend on it.  
-
-You do realize these two statements are completely contradictory,
-don't you?  If an experimental filesystem can be dropped at any time,
-then Linspire can't depend on it from the point of view of supporting
-their users.  If there is a huge user base, then someone is going to
-have to maintain it, even if the developer community has moved on to
-supporting the next new exciting filesystem thing.  Hence, it is
-critical that the resulting filesystem be fully maintainable before it
-is integrated.  To put it in your words, it wouldn't be responsible to
-the user base to do otherwise.
-
-							- Ted

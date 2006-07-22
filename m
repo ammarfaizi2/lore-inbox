@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWGVDif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWGVEM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWGVDif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 23:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWGVDif
+	id S1751291AbWGVEM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 00:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWGVEM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 23:38:35 -0400
-Received: from science.horizon.com ([192.35.100.1]:40510 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S1751272AbWGVDie
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 23:38:34 -0400
-Date: 21 Jul 2006 23:38:33 -0400
-Message-ID: <20060722033833.10407.qmail@science.horizon.com>
-From: linux@horizon.com
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Bad ext3/nfs DoS bug
+	Sat, 22 Jul 2006 00:12:29 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:46866 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751291AbWGVEM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 00:12:28 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 6/6] cpuid neatening.
+Date: Fri, 21 Jul 2006 21:12:07 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOENJNEAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1153527194.13699.34.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 21 Jul 2006 21:07:18 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 21 Jul 2006 21:07:18 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +static inline int ext3_valid_inum(struct super_block *sb, unsigned long ino)
->> +{
->> +	return ino == EXT3_ROOT_INO ||
->> +		ino == EXT3_JOURNAL_INO ||
->> +		ino == EXT3_RESIZE_INO ||
->> +		(ino > EXT3_FIRST_INO(sb) &&
->> +		 ino <= le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count));
->> +}
-> 
-> One would expect the inode validity test to be
-> 
-> 	(ino >= EXT3_FIRST_INO(sb)) && (ino < ...->s_inodes_count))
-> 
-> but even this assumes that s_inodes_count is misnamed and really should be
-> called s_last_inode_plus_one.  If it is not misnamed then the validity test
-> should be
-> 
-> 	(ino >= EXT3_FIRST_INO(sb)) &&
-> 		(ino < EXT3_FIRST_INO(sb) + ...->s_inodes_count))
-> 
-> Look through the filesystem for other uses of EXT3_FIRST_INO().  It's all
-> rather fishily inconsistent.
 
-Er... I'm not an authoritative speaker, but it seems very simple to me.
+> +static inline void __cpuid(unsigned int *eax, unsigned int *ebx,
+> +			   unsigned int *ecx, unsigned int *edx)
+> +{
+> +	/* ecx is often an input as well as an output. */
+> +	__asm__("cpuid"
+> +		: "=a" (*eax),
+> +		  "=b" (*ebx),
+> +		  "=c" (*ecx),
+> +		  "=d" (*edx)
+> +		: "0" (*eax), "2" (*ecx));
+> +}
+> +
 
-Inodes are indexed starting from 1; the index 0 is reserved, and the first
-inode on disk is number 1.
+	Shouldn't that be:
 
-Thus, potentially valid inode numbers are 1 through s_inodes_count,
-inclusive. Thus the <=.  If this were a standard 0-based index, it would
-be <, but it's not.
+__asm__("cpuid"
+: "+a" (*eax),
+  "=b" (*ebx),
+  "+c" (*ecx),
+  "=d" (*edx)
+);
 
-Further, a range of low inode numbers are reserved for special purposes.
-Only a few inode numbers in this range are valid.  However, these
-numbers are still assigned space in the inode tables.
+	DS
 
-The only confusing term is EXT3_FIRST_INO, which is actually
-more like EXT3_RESERVED_INODES.  The same 1-based indexing explains
-the use of > rather than >= there.
+

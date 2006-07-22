@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWGVQ6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWGVRAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWGVQ6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 12:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWGVQ6X
+	id S1750962AbWGVRAn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 13:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWGVRAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 12:58:23 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:52690 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750939AbWGVQ6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 12:58:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tF5jrcZ+eS5OmZ0RcyKNf8Zchyx9MVPbUMwedN/fqIIMrwJiJSY4HHbXjcNL143mSZ2GX9shhlCq9661gzJ2/yC3nK01RErs3VH2aG506wSRh5XFfs6K0K0x047zCzH6Rm/F6iUEu/N1kKMIxTnhGIHS9yAJGiVizhS2BcBQeZQ=
-Message-ID: <806dafc20607220958n1f5d0c88s6e64d1771585ea69@mail.gmail.com>
-Date: Sat, 22 Jul 2006 12:58:21 -0400
-From: "Christopher Montgomery" <xiphmont@gmail.com>
-To: "Ian Stirling" <tandra@mauve.plus.com>
-Subject: Re: [linux-usb-devel] USB bandwidth enforcement troubles.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44C212A8.7050806@mauve.plus.com>
+	Sat, 22 Jul 2006 13:00:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:33526 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750962AbWGVRAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 13:00:42 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Joshua Hudson <joshudson@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sat, 22 Jul 2006 18:59:45 +0200
+References: <6ARGK-19L-5@gated-at.bofh.it> <6B8og-1iB-17@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44C212A8.7050806@mauve.plus.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G4Kpi-0001Os-AK@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Subject: Re: what is necessary for directory hard links
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nothing is simple in USB, although 1.1 is alot easier than 2.0 :-)
+Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-The logs, unfortunately, don't tell much.  But the short answer is
-probably 'don't use USB bandwidth enforcement'.  If the bandwidth
-request it is reporting is accurate, the kernel is correctly rejecting
-the request.  But, I suspect strongly either the kernel is
-miscalculating or the headset is vastly overreporting its needs.
-991us in a FS frame would indeed be too much to schedule, but no
-headset would ever have cause to use that kind of bandwidth.
+> Joshua Hudson <joshudson@gmail.com> wrote:
+>> This patch is the sum total of all that I had to change in the kernel
+>> VFS layer to support hard links to directories
+> 
+> Can't be done, as it creates the possibility of loops.
 
-Monty
+Don't do that then?
+
+> The "only files can
+> be hardlinked" idea makes garbage collection (== deleting of unreachable
+> objects) simple: Just check the number of references.
+> 
+> Detecting unconnected subgraphs uses a /lot/ of memory; and much worse, you
+> have to stop (almost) all filesystem activity while doing it.
+
+In order to disconnect a directory, you'd have to empty it first, and after
+emptying a directory, it won't be part of a loop. Maybe emtying is the
+problem ...
+
+
+This feature was implemented, and I asume it was removed for a reason.
+Can somebody remember?
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
+
+http://david.woodhou.se/why-not-spf.html

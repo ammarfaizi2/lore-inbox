@@ -1,229 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWGVNe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWGVOEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWGVNe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 09:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGVNe6
+	id S1750774AbWGVOEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 10:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWGVOEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 09:34:58 -0400
-Received: from ozlabs.org ([203.10.76.45]:55944 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751347AbWGVNe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 09:34:57 -0400
-Subject: Re: [PATCH 5/6] Begin abstraction of sensitive instructions: asm
-	files
-From: Rusty Russell <rusty@rustcorp.com.au>
+	Sat, 22 Jul 2006 10:04:50 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:39584
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1750774AbWGVOEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 10:04:49 -0400
+Message-ID: <44C2307C.9060607@microgate.com>
+Date: Sat, 22 Jul 2006 09:04:44 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>
-In-Reply-To: <200607212326_MC3-1-C5B8-F9ED@compuserve.com>
-References: <200607212326_MC3-1-C5B8-F9ED@compuserve.com>
-Content-Type: text/plain
-Date: Sat, 22 Jul 2006 23:34:48 +1000
-Message-Id: <1153575288.13198.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Success: tty_io flush_to_ldisc() error message triggered
+References: <200607212301_MC3-1-C5B7-9F6C@compuserve.com>
+In-Reply-To: <200607212301_MC3-1-C5B7-9F6C@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-21 at 23:23 -0400, Chuck Ebbert wrote:
-> In-Reply-To:<1153527274.13699.36.camel@localhost.localdomain>
+Chuck Ebbert wrote:
+> Using the patch below that you sent me, this message printed today on
+> my SMP system when terminating pppd:
 > 
-> On Sat, 22 Jul 2006 10:14:34 +1000, Rusty Russell wrote:
-> > +#define GET_CR0                      movl %cr0, %eax
->  
-> Could you change GET_CR0 to MOV_CR0_EAX?  GET_CR0 seems like it's
-> taking a reference or something.
+>         flush_to_ldisc - TTY_FLUSHING set, low_latency=0
+> 
+> And this bug is also in 2.6.17.4 - I forgot to reboot into 2.6.16.x
+> and the system locked up the same way 2.6.16 used to.  That was made
+> even more fun by the 'SysRq broken on SMP' bug fixed by a pending
+> 2.6.17.7 patch...
 
-Hi Chuck,
+That confirms my thoughts on what went wrong:
+multiple copies of the queued work (flush_to_ldisc)
+running in parallel and corrupting the free buffer list.
 
-	Agreed: certainly eax should be mentioned.  GET_CR0_INTO_EAX?  MOV is a
-bit close to describing how it's happening (which, on paravirt it might
-not be) so it might lead the reader to unwarranted assumptions.
+A cleaner fix for this is already
+in the 2.6.18 rc series.
 
-===
-Abstract sensitive instructions in assembler code, replacing them with
-macros (which currently are #defined to the native versions).  We use
-long names: assembler is case-insensitive, so if something goes wrong
-and macros do not expand, it would assemble anyway.
+Thanks,
+Paul
 
-Resulting object files are exactly the same as before.
+--
+Paul Fulghum
+Microgate Systems, Ltd.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Index: working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/entry.S
-===================================================================
---- working-2.6.18-rc2-hg-paravirt.orig/arch/i386/kernel/entry.S	2006-07-21 21:09:22.000000000 +1000
-+++ working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/entry.S	2006-07-22 04:32:25.000000000 +1000
-@@ -76,8 +76,15 @@
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
- 
-+/* These are replaces for paravirtualization */
-+#define DISABLE_INTERRUPTS		cli
-+#define ENABLE_INTERRUPTS		sti
-+#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
-+#define INTERRUPT_RETURN		iret
-+#define GET_CR0_INTO_EAX		movl %cr0, %eax
-+
- #ifdef CONFIG_PREEMPT
--#define preempt_stop		cli; TRACE_IRQS_OFF
-+#define preempt_stop		DISABLE_INTERRUPTS; TRACE_IRQS_OFF
- #else
- #define preempt_stop
- #define resume_kernel		restore_nocheck
-@@ -234,7 +241,7 @@
- 	cmpl $SEGMENT_RPL_MASK, %eax
- 	jb resume_kernel		# returning to kernel or vm86-space
- ENTRY(resume_userspace)
-- 	cli				# make sure we don't miss an interrupt
-+ 	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
- 					# between sampling and the iret
- 	movl TI_flags(%ebp), %ecx
-@@ -245,7 +252,7 @@
- 
- #ifdef CONFIG_PREEMPT
- ENTRY(resume_kernel)
--	cli
-+	DISABLE_INTERRUPTS
- 	cmpl $0,TI_preempt_count(%ebp)	# non-zero preempt_count ?
- 	jnz restore_nocheck
- need_resched:
-@@ -273,7 +280,7 @@
- 	 * No need to follow this irqs on/off section: the syscall
- 	 * disabled irqs and here we enable it straight after entry:
- 	 */
--	sti
-+	ENABLE_INTERRUPTS
- 	pushl $(__USER_DS)
- 	CFI_ADJUST_CFA_OFFSET 4
- 	/*CFI_REL_OFFSET ss, 0*/
-@@ -318,7 +325,7 @@
- 	jae syscall_badsys
- 	call *sys_call_table(,%eax,4)
- 	movl %eax,EAX(%esp)
--	cli
-+	DISABLE_INTERRUPTS
- 	TRACE_IRQS_OFF
- 	movl TI_flags(%ebp), %ecx
- 	testw $_TIF_ALLWORK_MASK, %cx
-@@ -328,8 +335,7 @@
- 	movl OLDESP(%esp), %ecx
- 	xorl %ebp,%ebp
- 	TRACE_IRQS_ON
--	sti
--	sysexit
-+	ENABLE_INTERRUPTS_SYSEXIT
- 	CFI_ENDPROC
- 
- 
-@@ -354,7 +360,7 @@
- 	call *sys_call_table(,%eax,4)
- 	movl %eax,EAX(%esp)		# store the return value
- syscall_exit:
--	cli				# make sure we don't miss an interrupt
-+	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
- 					# between sampling and the iret
- 	TRACE_IRQS_OFF
-@@ -379,11 +385,11 @@
- 	RESTORE_REGS
- 	addl $4, %esp
- 	CFI_ADJUST_CFA_OFFSET -4
--1:	iret
-+1:	INTERRUPT_RETURN
- .section .fixup,"ax"
- iret_exc:
- 	TRACE_IRQS_ON
--	sti
-+	ENABLE_INTERRUPTS
- 	pushl $0			# no error code
- 	pushl $do_iret_error
- 	jmp error_code
-@@ -407,7 +413,7 @@
- 	 * dosemu and wine happy. */
- 	subl $8, %esp		# reserve space for switch16 pointer
- 	CFI_ADJUST_CFA_OFFSET 8
--	cli
-+	DISABLE_INTERRUPTS
- 	TRACE_IRQS_OFF
- 	movl %esp, %eax
- 	/* Set up the 16bit stack frame with switch32 pointer on top,
-@@ -417,7 +423,7 @@
- 	TRACE_IRQS_IRET
- 	RESTORE_REGS
- 	lss 20+4(%esp), %esp	# switch to 16bit stack
--1:	iret
-+1:	INTERRUPT_RETURN
- .section __ex_table,"a"
- 	.align 4
- 	.long 1b,iret_exc
-@@ -432,7 +438,7 @@
- 	jz work_notifysig
- work_resched:
- 	call schedule
--	cli				# make sure we don't miss an interrupt
-+	DISABLE_INTERRUPTS		# make sure we don't miss an interrupt
- 					# setting need_resched or sigpending
- 					# between sampling and the iret
- 	TRACE_IRQS_OFF
-@@ -488,7 +494,7 @@
- 	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
- 	jz work_pending
- 	TRACE_IRQS_ON
--	sti				# could let do_syscall_trace() call
-+	ENABLE_INTERRUPTS		# could let do_syscall_trace() call
- 					# schedule() instead
- 	movl %esp, %eax
- 	movl $1, %edx
-@@ -667,7 +673,7 @@
- 	pushl $-1			# mark this as an int
- 	CFI_ADJUST_CFA_OFFSET 4
- 	SAVE_ALL
--	movl %cr0, %eax
-+	GET_CR0_INTO_EAX
- 	testl $0x4, %eax		# EM (math emulation bit)
- 	jne device_not_available_emulate
- 	preempt_stop
-@@ -797,7 +803,7 @@
- 	call do_nmi
- 	RESTORE_REGS
- 	lss 12+4(%esp), %esp		# back to 16bit stack
--1:	iret
-+1:	INTERRUPT_RETURN
- 	CFI_ENDPROC
- .section __ex_table,"a"
- 	.align 4
-Index: working-2.6.18-rc2-hg-paravirt/include/asm-i386/spinlock.h
-===================================================================
---- working-2.6.18-rc2-hg-paravirt.orig/include/asm-i386/spinlock.h	2006-07-21 20:27:59.000000000 +1000
-+++ working-2.6.18-rc2-hg-paravirt/include/asm-i386/spinlock.h	2006-07-22 04:32:51.000000000 +1000
-@@ -17,6 +17,9 @@
-  * (the type definitions are in asm/spinlock_types.h)
-  */
- 
-+#define CLI_STRING	"cli"
-+#define STI_STRING	"sti"
-+
- #define __raw_spin_is_locked(x) \
- 		(*(volatile signed char *)(&(x)->slock) <= 0)
- 
-@@ -43,12 +46,12 @@
- 	"2:\t" \
- 	"testl $0x200, %1\n\t" \
- 	"jz 4f\n\t" \
--	"sti\n" \
-+	STI_STRING "\n" \
- 	"3:\t" \
- 	"rep;nop\n\t" \
- 	"cmpb $0, %0\n\t" \
- 	"jle 3b\n\t" \
--	"cli\n\t" \
-+	CLI_STRING "\n\t" \
- 	"jmp 1b\n" \
- 	"4:\t" \
- 	"rep;nop\n\t" \
 
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

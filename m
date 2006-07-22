@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWGVA56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWGVBHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWGVA56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 20:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWGVA56
+	id S1750912AbWGVBHa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 21:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWGVBHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 20:57:58 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:63301 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750912AbWGVA55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 20:57:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=VszjpV2WnotLpWbE4Xtwnms/A5d3BSGusyxqnACIRe7f5Vk6P+qCsm5kLFKNKhOu6OWZhzFdOC5dd0uXU0NBbcQLU5xUba7LwGT9jTq0h0DwJSHoD7D46YGTRIXIloOO1zwQEjUD4KQ4+gMqgIvUiVAUs5EXpjqABeenmhwc6ww=
-Message-ID: <9c21eeae0607211757p6a256b47w5169ecb3f7dbd5b3@mail.gmail.com>
-Date: Fri, 21 Jul 2006 17:57:56 -0700
-From: "David Brown" <dmlb2000@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Directory Overlay of Root
+	Fri, 21 Jul 2006 21:07:30 -0400
+Received: from xenotime.net ([66.160.160.81]:22415 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750773AbWGVBH3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 21:07:29 -0400
+Message-Id: <1153530447.22255@shark.he.net>
+Date: Fri, 21 Jul 2006 18:07:27 -0700
+From: "Randy Dunlap" <rdunlap@xenotime.net>
+To: David Lang <dlang@digitalinsight.com>,
+       Matt LaPlante <kernel1@cyberdogtech.com>, linux-kernel@vger.kernel.org
+Subject: Re: How long to wait on patches?
+X-Mailer: WebMail 1.25
+X-IPAddress: 216.191.251.226
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to figure out how to do these series of tests against
-my system, they involve file access, modification, creation, deletion,
-etc. The tests can't be split up to only run against particular
-sub-directories of /. I would rather not risk running these tests on
-my system unprotected. I've investigated using unionfs but it won't
-let me union / with a subdirectory. I've also looked into installwatch
-but it will only show what's been touched after the fact.  Also
-there's quite a bit of data in lots of small files so copying
-everything then doing a chroot is also out of the question. Any
-suggestions as to what to use and how I can go about performing these
-tests would be useful.
 
-- David Brown
+
+> On Fri, 21 Jul 2006, Matt LaPlante wrote:
+> 
+> > I checked the FAQ but didn't see an answer to this.  Over the past
+few weeks 
+> > I've submitted probably around 8 simple typo-fix patches all of
+which seemed 
+> > to be approved by others on the list.  I've been following the GIT,
+but these 
+> > patches haven't been merged yet.  I know people are busy with other
+things, 
+> > probably more important, but I would like to know how long is
+"acceptable" to 
+> > wait before I should re-submit a patch.  Obviously if enough time
+passes, 
+> > patches start to break as source files change.  I don't mean to be a
+nuisance; 
+> > I'm just trying to determine proper protocol.  That and the fact I
+can submit 
+> > several more patches once I get some of these old ones out of my
+queue. :)
+> 
+> be sure to watch the -mm tree as well, a lot of patches are picked up
+by Andrew 
+> to be fed to Linus that way
+> 
+> this is a particularly bad week since almost all the core developers
+were up at 
+> OLS.
+> 
+> one thing you may want to look at doing (hosting permitting) is to
+setup a git 
+> tree to just hold your trivial patches so that they can be pulled easily.
+> 
+> I thought there was a person who was maintaining a -trivial tree for this 
+> purpose, I don't remember who it was though.
+
+
+Yes, Adrian Bunk accepts and forwards trivial patches. See
+http://www.kernel.org/pub/linux/kernel/people/bunk/trivial/
+
+---
+~Randy

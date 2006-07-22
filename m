@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWGVD2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWGVDif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWGVD2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 23:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWGVD2d
+	id S1751272AbWGVDif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 23:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWGVDif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 23:28:33 -0400
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:51113 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751262AbWGVD2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 23:28:32 -0400
-Date: Fri, 21 Jul 2006 23:23:03 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 5/6] Begin abstraction of sensitive instructions:
-  asm files
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607212326_MC3-1-C5B8-F9ED@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Fri, 21 Jul 2006 23:38:35 -0400
+Received: from science.horizon.com ([192.35.100.1]:40510 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1751272AbWGVDie
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jul 2006 23:38:34 -0400
+Date: 21 Jul 2006 23:38:33 -0400
+Message-ID: <20060722033833.10407.qmail@science.horizon.com>
+From: linux@horizon.com
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Bad ext3/nfs DoS bug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To:<1153527274.13699.36.camel@localhost.localdomain>
+>> +static inline int ext3_valid_inum(struct super_block *sb, unsigned long ino)
+>> +{
+>> +	return ino == EXT3_ROOT_INO ||
+>> +		ino == EXT3_JOURNAL_INO ||
+>> +		ino == EXT3_RESIZE_INO ||
+>> +		(ino > EXT3_FIRST_INO(sb) &&
+>> +		 ino <= le32_to_cpu(EXT3_SB(sb)->s_es->s_inodes_count));
+>> +}
+> 
+> One would expect the inode validity test to be
+> 
+> 	(ino >= EXT3_FIRST_INO(sb)) && (ino < ...->s_inodes_count))
+> 
+> but even this assumes that s_inodes_count is misnamed and really should be
+> called s_last_inode_plus_one.  If it is not misnamed then the validity test
+> should be
+> 
+> 	(ino >= EXT3_FIRST_INO(sb)) &&
+> 		(ino < EXT3_FIRST_INO(sb) + ...->s_inodes_count))
+> 
+> Look through the filesystem for other uses of EXT3_FIRST_INO().  It's all
+> rather fishily inconsistent.
 
-On Sat, 22 Jul 2006 10:14:34 +1000, Rusty Russell wrote:
->
-> Abstract sensitive instructions in assembler code, replacing them with
-> macros (which currently are #defined to the native versions).  We use
-> long names: assembler is case-insensitive, so if something goes wrong
-> and macros do not expand, it would assemble anyway.
-...
-> --- working-2.6.18-rc2-hg-paravirt.orig/arch/i386/kernel/entry.S      2006-07-21 21:09:22.000000000 +1000
-> +++ working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/entry.S   2006-07-22 04:32:25.000000000 +1000
-> @@ -76,8 +76,15 @@
->  NT_MASK              = 0x00004000
->  VM_MASK              = 0x00020000
->  
-> +/* These are replaces for paravirtualization */
-> +#define DISABLE_INTERRUPTS           cli
-> +#define ENABLE_INTERRUPTS            sti
-> +#define ENABLE_INTERRUPTS_SYSEXIT    sti; sysexit
-> +#define INTERRUPT_RETURN             iret
-> +#define GET_CR0                      movl %cr0, %eax
-> +
- 
-Could you change GET_CR0 to MOV_CR0_EAX?  GET_CR0 seems like it's
-taking a reference or something.
+Er... I'm not an authoritative speaker, but it seems very simple to me.
 
--- 
-Chuck
-And did we tell you the name of the game, boy, we call it Riding the Gravy Train.
+Inodes are indexed starting from 1; the index 0 is reserved, and the first
+inode on disk is number 1.
+
+Thus, potentially valid inode numbers are 1 through s_inodes_count,
+inclusive. Thus the <=.  If this were a standard 0-based index, it would
+be <, but it's not.
+
+Further, a range of low inode numbers are reserved for special purposes.
+Only a few inode numbers in this range are valid.  However, these
+numbers are still assigned space in the inode tables.
+
+The only confusing term is EXT3_FIRST_INO, which is actually
+more like EXT3_RESERVED_INODES.  The same 1-based indexing explains
+the use of > rather than >= there.

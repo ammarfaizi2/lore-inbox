@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWGVOEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWGVOCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWGVOEu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 10:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWGVOEu
+	id S1750775AbWGVOCk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 10:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWGVOCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 10:04:50 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:39584
+	Sat, 22 Jul 2006 10:02:40 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:36768
 	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750774AbWGVOEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 10:04:49 -0400
-Message-ID: <44C2307C.9060607@microgate.com>
-Date: Sat, 22 Jul 2006 09:04:44 -0500
+	id S1750775AbWGVOCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 10:02:40 -0400
+Message-ID: <44C22FFA.9050704@microgate.com>
+Date: Sat, 22 Jul 2006 09:02:34 -0500
 From: Paul Fulghum <paulkf@microgate.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
@@ -50,6 +50,5 @@ Paul
 --
 Paul Fulghum
 Microgate Systems, Ltd.
-
 
 

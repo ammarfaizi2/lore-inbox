@@ -1,40 +1,41 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWGVJZl (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 22 Jul 2006 05:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWGVJZl
+	id S1751063AbWGVVe4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 22 Jul 2006 17:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWGVVe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 05:25:41 -0400
-Received: from 201-10-18-67.paemt704.dsl.brasiltelecom.net.br ([201.10.18.67]:28684
-	"HELO nethomebiz.net") by vger.kernel.org with SMTP
-	id S1751265AbWGVJZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 05:25:40 -0400
-Message-ID: <AE3066A7.5330780@netcabo.pt>
-Date: Sat, 22 Jul 2006 06:25:43 -0300
-From: Joshua <Ryan@netcabo.pt>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Die einzigartige Moglichkeit den wurdigen Gehalt zu haben
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 22 Jul 2006 17:34:56 -0400
+Received: from vsmtp1.tin.it ([212.216.176.141]:47080 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S1751060AbWGVVez (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 17:34:55 -0400
+Message-ID: <10c981ec5c8.josef_yun9@virgilio.it>
+Date: Sat, 22 Jul 2006 22:23:08 +0100 (GMT+01:00)
+From: JOSEF YUN <josef_yun9@virgilio.it>
+Reply-To: j_yun47@yahoo.com.hk
+Subject: MY OFFER
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 64.70.24.67
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751265AbWGVJZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751063AbWGVVe4@vger.kernel.org>
 
-Brauchen Sie zusaetzliches Einkommen?
- 
-Schon heute haben Sie diese neue Moeglichkeit!
- 
- Company Get Assisted Co. bietet Ihnen die Zusammenarbeit an.
-Sie sind verantwortlich und punktlich.
- Sie sind zwischen 18 und 60 Jahre.
+Hello,
 
-Sie haben Freizeit (2-4 Stunden taglich)
+I want to solicit your attention in receiving funds on my 
+behalf.
 
-Das ist Ihre Chance. 
+The purpose of my contacting you is because you live in a 
+country with a stable economy where one can invest.
 
- Kontaktieren Sie mit uns, bitte, Ihr Job wartet auf Sie!
-Schicken Sie bitte Ihre E-Mails an support@g-ted.biz
+On receipt of your 
+response, I will send you full details and more information 
+about 
+myself and the funds.
 
+Thank you.
+
+Yun
 

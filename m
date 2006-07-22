@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWGVGWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWGVGYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWGVGWk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 02:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWGVGWk
+	id S932079AbWGVGYg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 02:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWGVGYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 02:22:40 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:2436 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932075AbWGVGWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 02:22:39 -0400
-Date: Sat, 22 Jul 2006 09:22:37 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Andrew Morton <akpm@osdl.org>
-cc: alan@lxorguk.ukuu.org.uk, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls
-In-Reply-To: <20060721171922.602706f9.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0607220918070.13537@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0607201504040.18901@sbz-30.cs.Helsinki.FI>
- <20060721171922.602706f9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 22 Jul 2006 02:24:36 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:21179 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932079AbWGVGYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 02:24:36 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44C1C3BC.606@s5r6.in-berlin.de>
+Date: Sat, 22 Jul 2006 08:20:44 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
+       benh@kernel.crashing.org, video4linux-list@redhat.com,
+       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
+       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
+       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
+       paulus@samba.org
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060720190529.GC7643@lumumba.uhasselt.be>	 <200607210850.17878.eike-kernel@sf-tec.de> <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com> <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de> <44C143FA.9030808@pobox.com>
+In-Reply-To: <44C143FA.9030808@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.904) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jul 2006 15:07:30 +0300 (EEST)
-Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-> > This patch implements the revoke(2) and frevoke(2) system calls for all
-> > types of files.
-> >
-> > ...
-> >
-> > -	file = fget_light(fd, &fput_needed);
-> > +	file = fget(fd);
- 
-On Fri, 21 Jul 2006, Andrew Morton wrote:
-> This is sad.
+Jeff Garzik wrote:
+> The patch should contain ONE logical change.
 
-There are alternatives, playing games with ->f_op, creating fake struct 
-file, and doing IS_REVOKED if-else in the paths, but I think this is by 
-far the simplest way to do it. So in the Andrew scale of sads, how 
-sad is it, exactly?-)
- 
-On Thu, 20 Jul 2006 15:07:30 +0300 (EEST)
-Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-> > +static int revoke_files(struct task_struct *owner, struct inode *inode,
-> > +			struct file *exclude, struct list_head *to_close)
-> > +{
-> > ...
-> > +	spin_lock(&files->file_lock);
-> > ...
-> > +		revoked = kmalloc(sizeof(*revoked), GFP_KERNEL);
- 
-On Fri, 21 Jul 2006, Andrew Morton wrote:
-> This is bad.
+Definitely yes. The problem is to figure out what "one" is.
 
-Indeed, I'll come up with a better one as soon as I sort out the mmap 
-takedown issues.
-
-Thanks Andrew.
-
-					Pekka
+I already posted what I considered one logical change in this case and 
+why I did: It's an idiomatic makeover of k*alloc calls without change in 
+functionality. What breaks my counting of "one" is that unwritten rules 
+about preferred idioms (are said to) override written rules.
+-- 
+Stefan Richter
+-=====-=-==- -=== =-==-
+http://arcgraph.de/sr/

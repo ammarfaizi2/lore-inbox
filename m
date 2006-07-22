@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGVCHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWGVCJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWGVCHE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 22:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWGVCHE
+	id S1751108AbWGVCJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 22:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWGVCJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 22:07:04 -0400
-Received: from xenotime.net ([66.160.160.81]:55215 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751104AbWGVCHC (ORCPT
+	Fri, 21 Jul 2006 22:09:08 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:45092 "EHLO
+	asav07.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751108AbWGVCJH convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 22:07:02 -0400
-Message-Id: <1153534021.1550@shark.he.net>
-Date: Fri, 21 Jul 2006 19:07:01 -0700
-From: "Randy Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>, David Lang <dlang@digitalinsight.com>,
-       kernel1@cyberdogtech.com, linux-kernel@vger.kernel.org
-Subject: Re: How long to wait on patches?
-X-Mailer: WebMail 1.25
-X-IPAddress: 216.191.251.226
+	Fri, 21 Jul 2006 22:09:07 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KAGYkwUSBTw
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Magnus =?utf-8?q?Vigerl=C3=B6f?= <wigge@bigfoot.com>
+Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
+Date: Fri, 21 Jul 2006 22:09:04 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <20060721211341.5366.93270.sendpatchset@pipe>
+In-Reply-To: <20060721211341.5366.93270.sendpatchset@pipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607212209.05254.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Magnus,
 
-
-> On Fri, 21 Jul 2006 15:45:08 -0700 (PDT)
-> David Lang <dlang@digitalinsight.com> wrote:
+On Friday 21 July 2006 17:13, Magnus Vigerlöf wrote:
+> I'd appreciate whether you think this is a viable idea to make it as a
+> generic driver instead or should I continue with the Wacom-specific
+> one. I know the 'right' thing would be to make X truly hot-plug aware,
+> but this driver is something that would be possible to use in current
+> systems without any problems.
 > 
-> > > I checked the FAQ but didn't see an answer to this.  Over the past
-few weeks 
-> > > I've submitted probably around 8 simple typo-fix patches all of
-which seemed 
-> > > to be approved by others on the list.  I've been following the
-GIT, but these 
-> > > patches haven't been merged yet.  I know people are busy with
-other things, 
-> > > probably more important, but I would like to know how long is
-"acceptable" to 
-> > > wait before I should re-submit a patch.  Obviously if enough time
-passes, 
-> > > patches start to break as source files change.  I don't mean to be
-a nuisance; 
-> > > I'm just trying to determine proper protocol.  That and the fact I
-can submit 
-> > > several more patches once I get some of these old ones out of my
-queue. :)
-> > 
-> > be sure to watch the -mm tree as well, a lot of patches are picked
-up by Andrew 
-> > to be fed to Linus that way
+
+Yes, I think fixing X would ultimately be time better spent. 
+
+> If it is a viable idea; Which other devices/types of device do you
+> think could be of interest to handle in a similar fashion? Tablets of
+> different makes/models are obvious, but are there any others that
+> would benefit from a similar driver?
 > 
-> Yes, I hoover up unloved patches from the mailing list.  But only from
-this
-> mailing list, and there are probably lots of potentially-useful patches on
-> other lists which get lost.
-> 
-> However I have a personal i-dont-do-typo-patches policy.  Resending
-them to
-> kernel-janitor-discuss@lists.sourceforge.net would be a good idea.
 
-Please make that kernel-janitors@lists.osdl.org
-The sf.net list/hosting is no longer used.
+I do not think that creating device-specific "drivers" is a good idea
+even short term, especially in kernel. If you want a "persistent"
+device just create a userspace daemon and listen for hotplug events.
+When you see the input device you interested in grab it and pipe all
+data into somewhere. Next time you see hotplug event for the same
+device release the old instance and grab the new one. In cases when
+final recepient of events uses ioctls to query input devices capabilities
+you can create uinput feed back into kernel. This way your program will
+work for all types of input devices and no kernel changes are needed.
 
-or just to trivial will also work.  Neither of them is especially
-fast and should not be used for critical patches.
-
----
-~Randy
+-- 
+Dmitry

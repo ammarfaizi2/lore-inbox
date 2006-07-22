@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWGVQS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWGVQR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWGVQS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 12:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWGVQS0
+	id S1750844AbWGVQR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 12:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWGVQR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 12:18:26 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:35989 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1750843AbWGVQS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 12:18:26 -0400
-Date: Sat, 22 Jul 2006 18:15:58 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: len.brown@intel.com
-cc: linux-acpi@intel.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ACPI - change GFP_ATOMIC to GFP_KERNEL for non-atomic
- allocation
-Message-ID: <Pine.LNX.4.58.0607221801240.30557@twin.jikos.cz>
+	Sat, 22 Jul 2006 12:17:28 -0400
+Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:19937 "EHLO
+	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750843AbWGVQR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 12:17:28 -0400
+Date: Sat, 22 Jul 2006 12:07:00 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Success: tty_io flush_to_ldisc() error message triggered
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-stable <stable@kernel.org>
+Message-ID: <200607221209_MC3-1-C5CA-50EB@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In-Reply-To: <44C2307C.9060607@microgate.com>
 
-drivers/acpi/pci_link.c::acpi_pci_link_set() sets the GFP_ATOMIC for
-kmalloc() allocation for no first-sight obvious reason; as far as I can
-see this is always called outside the atomic/interrupt context, so
-GFP_KERNEL allocation should be used instead.
+On Sat, 22 Jul 2006 09:04:44 -0500, Paul Fulghum wrote:
 
-If applicable, please apply
+> That confirms my thoughts on what went wrong:
+> multiple copies of the queued work (flush_to_ldisc)
+> running in parallel and corrupting the free buffer list.
+> 
+> A cleaner fix for this is already
+> in the 2.6.18 rc series.
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+The cleaner fix looks more intrusive, though.
 
---- drivers/acpi/pci_link.c.orig	2006-07-15 21:00:43.000000000 +0200
-+++ drivers/acpi/pci_link.c	2006-07-22 17:45:11.000000000 +0200
-@@ -318,7 +318,7 @@ static int acpi_pci_link_set(struct acpi
- 	if (!link || !irq)
- 		return_VALUE(-EINVAL);
+Is this simpler change (what I'm running but without the warning
+messages) the preferred fix for -stable?
+
+
+From: Paul Fulghum <paulkf@microgate.com>
+
+Serialize flush_to_ldisc() per-device. Fixes free list corruption
+that causes lockup on SMP systems.
+
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+Acked-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 2.6.16.20-d4.orig/include/linux/tty.h
++++ 2.6.16.20-d4/include/linux/tty.h
+@@ -266,6 +266,7 @@ struct tty_struct {
+ #define TTY_PTY_LOCK 		16	/* pty private */
+ #define TTY_NO_WRITE_SPLIT 	17	/* Preserve write boundaries to driver */
+ #define TTY_HUPPED 		18	/* Post driver->hangup() */
++#define TTY_FLUSHING 		19	/* Flushing tty buffers to line discipline */
  
--	resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
-+	resource = kmalloc(sizeof(*resource) + 1, GFP_KERNEL);
- 	if (!resource)
- 		return_VALUE(-ENOMEM);
+ #define TTY_WRITE_FLUSH(tty) tty_write_flush((tty))
  
+--- 2.6.16.20-d4.orig/drivers/char/tty_io.c
++++ 2.6.16.20-d4/drivers/char/tty_io.c
+@@ -2780,10 +2780,8 @@ static void flush_to_ldisc(void *private
+ 	if (disc == NULL)	/*  !TTY_LDISC */
+ 		return;
  
-
+-	if (test_bit(TTY_DONT_FLIP, &tty->flags)) {
+-		/*
+-		 * Do it after the next timer tick:
+-		 */
++	if (test_bit(TTY_DONT_FLIP, &tty->flags) ||
++	    test_and_set_bit(TTY_FLUSHING, &tty->flags)) {
+ 		schedule_delayed_work(&tty->buf.work, 1);
+ 		goto out;
+ 	}
+@@ -2805,6 +2803,7 @@ static void flush_to_ldisc(void *private
+ 		tty_buffer_free(tty, tbuf);
+ 	}
+ 	spin_unlock_irqrestore(&tty->buf.lock, flags);
++	clear_bit(TTY_FLUSHING, &tty->flags);
+ out:
+ 	tty_ldisc_deref(disc);
+ }
 -- 
-JiKos.
+Chuck

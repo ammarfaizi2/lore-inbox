@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWGVJtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWGVKA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWGVJtz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 05:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWGVJtz
+	id S932109AbWGVKA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 06:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWGVKA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 05:49:55 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:54766 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751308AbWGVJty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 05:49:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=K2DgzCsaSTv12m9s2dAeWj9Lsn7XY/iz/Sad15HmEhoJi6uior2Hu795ArVq1a9AvcJUJrNeOqFsElX1wfvwTFZeC9CqeHJRgzzeisOyO+U7CP6mQoGwkvzXJv8BZ4JjIcblBPSWFRfezLmAJfcX/Wg8PhgD0AQc5lTnbREHQvU=
-Date: Sat, 22 Jul 2006 11:49:48 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] mdacon: fix __init section warnings
-Message-ID: <20060722094948.GD2772@slug>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org>
+	Sat, 22 Jul 2006 06:00:56 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:7651 "EHLO kingpin.cenara.com")
+	by vger.kernel.org with ESMTP id S932109AbWGVKAz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 06:00:55 -0400
+From: Magnus =?utf-8?q?Vigerl=C3=B6f?= <wigge@bigfoot.com>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
+Date: Sat, 22 Jul 2006 12:00:51 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <20060721211341.5366.93270.sendpatchset@pipe> <200607212209.05254.dtor@insightbb.com>
+In-Reply-To: <200607212209.05254.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060713224800.6cbdbf5d.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+Message-Id: <200607221200.51700.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 13, 2006 at 10:48:00PM -0700, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/
-> 
-> - Patches were merged, added, dropped and fixed.  Nothing particularly exciting.
-> 
-Compilation issues the following warnings:
-WARNING: drivers/video/console/mdacon.o - Section mismatch: reference to .init.text: from .text between 'mdacon_startup' (at offset 0x123) and 'mdacon_init'
-WARNING: drivers/video/console/mdacon.o - Section mismatch: reference to .init.text: from .text between 'mdacon_startup' (at offset 0x18b) and 'mdacon_init'
+On Saturday 22 July 2006 04:09, Dmitry Torokhov wrote:
+> Hi Magnus,
+>
+> On Friday 21 July 2006 17:13, Magnus Vigerlöf wrote:
+> > I'd appreciate whether you think this is a viable idea to make it as a
+> > generic driver instead or should I continue with the Wacom-specific
+> > one. I know the 'right' thing would be to make X truly hot-plug aware,
+> > but this driver is something that would be possible to use in current
+> > systems without any problems.
+>
+> Yes, I think fixing X would ultimately be time better spent.
+As a long term fix, I'll consider getting involved with that.. However, I'd 
+like to have something that works with my current setup, hence the.. 
+temporary driver... Ok, I'm still going to use it as it solves one bad and 
+one annoying thing I have with my Wacom tablet, but I'll keep it outside the 
+kernel while better ways to solve this are made.
 
-The attached patch removes the __init directives from mda_detect and mda_initialize which are
-called from mdacon_startup (which is not __init tagged).
+> > If it is a viable idea; Which other devices/types of device do you
+> > think could be of interest to handle in a similar fashion? Tablets of
+> > different makes/models are obvious, but are there any others that
+> > would benefit from a similar driver?
+>
+> I do not think that creating device-specific "drivers" is a good idea
+> even short term, especially in kernel. If you want a "persistent"
+> device just create a userspace daemon and listen for hotplug events.
+> When you see the input device you interested in grab it and pipe all
+> data into somewhere. Next time you see hotplug event for the same
+> device release the old instance and grab the new one. In cases when
+> final recepient of events uses ioctls to query input devices capabilities
+> you can create uinput feed back into kernel. This way your program will
+> work for all types of input devices and no kernel changes are needed.
 
-Regards,
-Frederik
+Creating userspace device drivers is something new for me. If you have some 
+pointers to information about it I would be grateful (I've found the FUSD 
+framework through google). From what I can read from the doc of FUSD, I'll 
+have to open the inputX device if I want events from the tablet to propagate, 
+and I'm afraid I might hit the oops in evdev I described in my previous 
+thread if I do that.
 
+So.. Are the locking issues in evdev something that is about to be fixed soon 
+or should I contribute? Or do you think the issue will be completely 
+irrelevant for a user-space driver?
 
---- drivers/video/console/mdacon.c~mdacon-section-warning-fix.patch	2006-07-22 11:40:21.000000000 +0200
-+++ drivers/video/console/mdacon.c	2006-07-22 11:34:20.000000000 +0200
-@@ -197,7 +197,7 @@ static int __init mdacon_setup(char *str
- __setup("mdacon=", mdacon_setup);
- #endif
- 
--static int __init mda_detect(void)
-+static int mda_detect(void)
- {
- 	int count=0;
- 	u16 *p, p_save;
-@@ -282,7 +282,7 @@ static int __init mda_detect(void)
- 	return 1;
- }
- 
--static void __init mda_initialize(void)
-+static void mda_initialize(void)
- {
- 	write_mda_b(97, 0x00);		/* horizontal total */
- 	write_mda_b(80, 0x01);		/* horizontal displayed */
+Thanks
+ Magnus

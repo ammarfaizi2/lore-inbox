@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWGVTyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWGVUD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWGVTyE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 15:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWGVTyE
+	id S1751039AbWGVUD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 16:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWGVUD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 15:54:04 -0400
-Received: from outbound-mail-50.bluehost.com ([70.96.188.19]:61668 "HELO
-	outbound-mail-50.bluehost.com") by vger.kernel.org with SMTP
-	id S1751034AbWGVTyC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 15:54:02 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Dave Airlie <airlied@linux.ie>
-Subject: Re: [PATCH] gpu: Initial GPU layer addition. (03/07)
-Date: Sat, 22 Jul 2006 12:54:06 -0700
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <11535827134076-git-send-email-airlied@linux.ie> <11535827131612-git-send-email-airlied@linux.ie> <11535827132905-git-send-email-airlied@linux.ie>
-In-Reply-To: <11535827132905-git-send-email-airlied@linux.ie>
+	Sat, 22 Jul 2006 16:03:59 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:63365 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751031AbWGVUD7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 16:03:59 -0400
+Message-ID: <44C28472.2080509@pobox.com>
+Date: Sat, 22 Jul 2006 16:02:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607221254.06817.jbarnes@virtuousgeek.org>
-X-Identified-User: {642:box128.bluehost.com:virtuous:virtuousgeek.org} {sentby:smtp auth 70.54.194.129 authed with jbarnes@virtuousgeek.org}
+To: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+CC: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Panagiotis Issaris <takis@gna.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Panagiotis Issaris <takis@lumumba.uhasselt.be>,
+       linux-kernel@vger.kernel.org, len.brown@intel.com,
+       chas@cmf.nrl.navy.mil, miquel@df.uba.ar, kkeil@suse.de,
+       benh@kernel.crashing.org, video4linux-list@redhat.com,
+       rmk+mmc@arm.linux.org.uk, Neela.Kolli@engenio.com, vandrove@vc.cvut.cz,
+       adaplas@pol.net, thomas@winischhofer.net, weissg@vienna.at,
+       philb@gnu.org, linux-pcmcia@lists.infradead.org, jkmaline@cc.hut.fi,
+       paulus@samba.org
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+References: <20060720190529.GC7643@lumumba.uhasselt.be>  <200607210850.17878.eike-kernel@sf-tec.de>  <84144f020607202358u4bdc5e7egd4096386751d70f7@mail.gmail.com>  <44C07CB2.1040303@pobox.com> <44C099D2.5030300@s5r6.in-berlin.de>  <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com> <1153478157.9489.30.camel@hemera> <Pine.LNX.4.58.0607211336450.26827@sbz-30.cs.Helsinki.FI> <44C0B29F.2080604@s5r6.in-berlin.de> <Pine.BSO.4.63.0607221949490.10018@rudy.mif.pg.gda.pl> <44C26D90.4030307@s5r6.in-berlin.de> <Pine.BSO.4.63.0607222030370.10018@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.63.0607222030370.10018@rudy.mif.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, July 22, 2006 8:38 am, Dave Airlie wrote:
-> +config GPU
-> +	bool
-> +	default n
-> +
+Tomasz K³oczko wrote:
+> Moment .. are you want to say something like "keep commont coding style 
+> can't be maintained by tool" ?
+> Even if indent watches on to small coding style emenets still I don't 
+> see why using this tool isn't one of the current ement of release 
+> procedure (?).
 
-Does this change existing userspace ABI or just add a new one (via new 
-files in sysfs)?  If the latter, can this config option just be enabled 
-by default or killed entirely, making the build dependent on the higher 
-level CONFIG_DRM option?
+indent isn't perfect, _especially_ where C99 comes into the picture.
 
-> +/* GPUs we manage */
-> +LIST_HEAD(gpu_bus_list);
-> +
-> +/* used when allocating bus numbers */
-> +#define GPU_MAXBUS		16
-> +struct gpu_busmap {
-> +	unsigned long busmap [GPU_MAXBUS / (8*sizeof (unsigned long))];
-> +};
-> +static struct gpu_busmap busmap;
-> +
-> +/* used when updating list of gpus */
-> +DEFINE_MUTEX(gpu_bus_list_lock);
+And running indent across the tree pre-release would (a) create a ton of 
+noise before each release, and (b) undo perfectly valid, readable 
+formatting.
 
-Why 16?  Isn't there only one logical 'GPU bus' on the system containing 
-all the graphics devices?  Or is this a limit on how many devices can 
-be registered?  Or is each device considered a GPU bus in itself?
+scripts/Lindent exists and gets used, but it is not perfect.
 
-> + * This registers a GPU bus with the GPU layer,
-> + * it fills in a default bus match function, and adds the device to
-> the list + */
-> +int gpu_register_bus(struct gpu_bus *bus)
-> +{
-> +	int busnum;
-> +
-> +	mutex_lock(&gpu_bus_list_lock);
-> +
-> +	busnum = find_next_zero_bit(busmap.busmap, GPU_MAXBUS, 1);
-> +	if (busnum < GPU_MAXBUS) {
-> +		set_bit(busnum, busmap.busmap);
-> +		bus->busnum = busnum;
-> +	} else {
-> +		printk(KERN_ERR "%s: to many buses\n", "gpu");
-> +		mutex_unlock(&gpu_bus_list_lock);
-> +		return -E2BIG;
+	Jeff
 
-Is this the right return value or should it be -ENOSPC?  Also, I think 
-you mean "too" on the previous line (figured I'd metion it before the 
-spelling nazis get to you :).
 
-Overall, seems like a nice layer to help with fb/drm coordination and 
-possibly power management & suspend/resume.
-
-Thanks,
-Jesse

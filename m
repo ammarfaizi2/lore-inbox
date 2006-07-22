@@ -1,56 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWGVQ1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWGVQ2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWGVQ1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 12:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWGVQ1Y
+	id S1750871AbWGVQ2k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 12:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWGVQ2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 12:27:24 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:1170 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1750865AbWGVQ1Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 12:27:24 -0400
-Date: Sat, 22 Jul 2006 17:27:24 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@prinz64.housecafe.de
-To: Nathan Scott <nathans@sgi.com>
-cc: Torsten Landschoff <torsten@debian.org>, linux-kernel@vger.kernel.org,
-       xfs@oss.sgi.com
-Subject: Re: XFS breakage in 2.6.18-rc1
-In-Reply-To: <20060719085731.C1935136@wobbly.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.64.0607221722500.8407@prinz64.housecafe.de>
-References: <20060718222941.GA3801@stargate.galaxy>
- <20060719085731.C1935136@wobbly.melbourne.sgi.com>
+	Sat, 22 Jul 2006 12:28:39 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:31700 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S1750871AbWGVQ2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 12:28:38 -0400
+Date: Sat, 22 Jul 2006 18:28:21 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: adaplas@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] rivafb/nvidiafb: race between register_framebuffer and *_bl_init
+Message-ID: <20060722162821.GA4791@bogon.ms20.nix>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Hi,
+Since we now use the generic backlight infrastructure, I think we need
+to call rivafb_bl_init before calling register_framebuffer since
+otherwise rivafb_bl_init might race with the framebuffer layer already
+opening the device and setting up the video mode. In this case we might
+end up with a not yet fully intialized backlight (info->bl_dev still
+NULL) when calling riva_bl_set_power via
+rivafb_set_par/rivafb_load_video_mode and the kernel dies without any
+further notice during boot.
+This fixes booting current git on a PB 6,1, please apply if it looks
+correct - in this case radeonfb/atyfb would be affected too - I can fix
+that too but don't have any hardware to test this on.
+Cheers,
+ -- Guido
 
-On Wed, 19 Jul 2006, Nathan Scott wrote:
-> 2.6.18-rc1 should be fine (contains the corruption fix).  Did you
-> mkfs and restore?  Or at least get a full repair run?  If you did,
-> and you still see issues in .18-rc1, please let me know asap.
+diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
+index 9f2066f..eae291e 100644
+--- a/drivers/video/nvidia/nvidia.c
++++ b/drivers/video/nvidia/nvidia.c
+@@ -1303,20 +1303,19 @@ #endif				/* CONFIG_MTRR */
+ 
+ 	nvidia_save_vga(par, &par->SavedReg);
+ 
++	pci_set_drvdata(pd, info);
++	nvidia_bl_init(par);
+ 	if (register_framebuffer(info) < 0) {
+ 		printk(KERN_ERR PFX "error registering nVidia framebuffer\n");
+ 		goto err_out_iounmap_fb;
+ 	}
+ 
+-	pci_set_drvdata(pd, info);
+ 
+ 	printk(KERN_INFO PFX
+ 	       "PCI nVidia %s framebuffer (%dMB @ 0x%lX)\n",
+ 	       info->fix.id,
+ 	       par->FbMapSize / (1024 * 1024), info->fix.smem_start);
+ 
+-	nvidia_bl_init(par);
+-
+ 	NVTRACE_LEAVE();
+ 	return 0;
+ 
+@@ -2132,15 +2132,17 @@ #endif /* CONFIG_MTRR */
+ 
+ 	fb_destroy_modedb(info->monspecs.modedb);
+ 	info->monspecs.modedb = NULL;
++
++	pci_set_drvdata(pd, info);
++	riva_bl_init(info->par);
+ 	ret = register_framebuffer(info);
++
+ 	if (ret < 0) {
+ 		printk(KERN_ERR PFX
+ 			"error registering riva framebuffer\n");
+ 		goto err_iounmap_screen_base;
+ 	}
+ 
+-	pci_set_drvdata(pd, info);
+-
+ 	printk(KERN_INFO PFX
+ 		"PCI nVidia %s framebuffer ver %s (%dMB @ 0x%lX)\n",
+ 		info->fix.id,
+@@ -2148,8 +2150,6 @@ #endif /* CONFIG_MTRR */
+ 		info->fix.smem_len / (1024 * 1024),
+ 		info->fix.smem_start);
+ 
+-	riva_bl_init(info->par);
+-
+ 	NVTRACE_LEAVE();
+ 	return 0;
+ 
 
-well, at least for me, corruption/errors *started* with 2.6.18-rc1:
 
-http://oss.sgi.com/archives/xfs/2006-07/msg00151.html
-
-I downgraded to 2.6.17.5 and the errors stopped. Now I've upgraded to 
-2.6.18-rc2 and see the same errors:
-
-xfs_da_do_buf: bno 16777216
-dir: inode 24472381
-Filesystem "md0": XFS internal error xfs_da_do_buf(1) at line 1992 of file fs/xfs/xfs_da_btree.c.  Caller 0xc0219230
-Filesystem "md0": XFS internal error xfs_trans_cancel at line 1138 of file fs/xfs/xfs_trans.c.  Caller 0xc024d717
-
-Please see the whole error/.config/logs here:
-
-http://nerdbynature.de/bits/2.6.18-rc2/
-
-Thanks,
-Christian.
--- 
-BOFH excuse #38:
-
-secretary plugged hairdryer into UPS
+Signed-Off-By: Guido Guenther <agx@sigxcpu.org>

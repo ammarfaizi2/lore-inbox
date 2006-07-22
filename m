@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWGVCJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWGVCWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWGVCJI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jul 2006 22:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWGVCJI
+	id S1750838AbWGVCWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jul 2006 22:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWGVCWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jul 2006 22:09:08 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:45092 "EHLO
-	asav07.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751108AbWGVCJH convert rfc822-to-8bit (ORCPT
+	Fri, 21 Jul 2006 22:22:16 -0400
+Received: from mga01.intel.com ([192.55.52.88]:16022 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750838AbWGVCWP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jul 2006 22:09:07 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AT0KAGYkwUSBTw
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Magnus =?utf-8?q?Vigerl=C3=B6f?= <wigge@bigfoot.com>
-Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
-Date: Fri, 21 Jul 2006 22:09:04 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <20060721211341.5366.93270.sendpatchset@pipe>
-In-Reply-To: <20060721211341.5366.93270.sendpatchset@pipe>
+	Fri, 21 Jul 2006 22:22:15 -0400
+X-IronPort-AV: i="4.07,170,1151910000"; 
+   d="scan'208"; a="102021192:sNHT2266278665"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607212209.05254.dtor@insightbb.com>
+Subject: RE: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+Date: Fri, 21 Jul 2006 22:22:10 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB601091274@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+Thread-Index: AcasMA0n0RkBna8CQ4uc3+uZCKjoAgBBJ+Pw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Panagiotis Issaris" <takis@lumumba.uhasselt.be>,
+       <linux-kernel@vger.kernel.org>
+Cc: <chas@cmf.nrl.navy.mil>, <miquel@df.uba.ar>, <kkeil@suse.de>,
+       <benh@kernel.crashing.org>, <video4linux-list@redhat.com>,
+       <rmk+mmc@arm.linux.org.uk>, <Neela.Kolli@engenio.com>,
+       <jgarzik@pobox.com>, <vandrove@vc.cvut.cz>, <adaplas@pol.net>,
+       <thomas@winischhofer.net>, <weissg@vienna.at>, <philb@gnu.org>,
+       <linux-pcmcia@lists.infradead.org>, <jkmaline@cc.hut.fi>,
+       <paulus@samba.org>
+X-OriginalArrivalTime: 22 Jul 2006 02:22:13.0272 (UTC) FILETIME=[A494B980:01C6AD35]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Magnus,
 
-On Friday 21 July 2006 17:13, Magnus Vigerlöf wrote:
-> I'd appreciate whether you think this is a viable idea to make it as a
-> generic driver instead or should I continue with the Wacom-specific
-> one. I know the 'right' thing would be to make X truly hot-plug aware,
-> but this driver is something that would be possible to use in current
-> systems without any problems.
+>diff --git a/drivers/acpi/hotkey.c b/drivers/acpi/hotkey.c
+>index 32c9d88..037d022 100644
+>--- a/drivers/acpi/hotkey.c
+>+++ b/drivers/acpi/hotkey.c
+>@@ -246,10 +246,8 @@ static char *format_result(union acpi_ob
+> {
+> 	char *buf = NULL;
 > 
+>-	buf = (char *)kmalloc(RESULT_STR_LEN, GFP_KERNEL);
+>-	if (buf)
+>-		memset(buf, 0, RESULT_STR_LEN);
+>-	else
+>+	buf = kzalloc(RESULT_STR_LEN, GFP_KERNEL);
+>+	if (!buf)
+> 		goto do_fail;
 
-Yes, I think fixing X would ultimately be time better spent. 
+Go ahead and delete the '= NULL' while you're there.
 
-> If it is a viable idea; Which other devices/types of device do you
-> think could be of interest to handle in a similar fashion? Tablets of
-> different makes/models are obvious, but are there any others that
-> would benefit from a similar driver?
-> 
+Acked-by: Len Brown <len.brown@intel.com>
 
-I do not think that creating device-specific "drivers" is a good idea
-even short term, especially in kernel. If you want a "persistent"
-device just create a userspace daemon and listen for hotplug events.
-When you see the input device you interested in grab it and pipe all
-data into somewhere. Next time you see hotplug event for the same
-device release the old instance and grab the new one. In cases when
-final recepient of events uses ioctls to query input devices capabilities
-you can create uinput feed back into kernel. This way your program will
-work for all types of input devices and no kernel changes are needed.
-
--- 
-Dmitry
+thanks,
+-Len

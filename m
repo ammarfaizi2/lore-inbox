@@ -1,101 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWGVTdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWGVTkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWGVTdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 15:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWGVTdj
+	id S1751007AbWGVTkY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 15:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWGVTkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 15:33:39 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:25481 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750907AbWGVTdi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 15:33:38 -0400
-Message-ID: <44C26F65.4000103@namesys.com>
-Date: Sat, 22 Jul 2006 12:33:09 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org>
-In-Reply-To: <20060722130219.GB7321@thunk.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Jul 2006 15:40:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33195 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751006AbWGVTkY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 15:40:24 -0400
+Date: Sat, 22 Jul 2006 15:40:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: remove cpu hotplug bustification in cpufreq.
+Message-ID: <20060722194018.GA28924@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+This stuff makes my head hurt. Someone who is motivated
+enough to fix up hotplug-cpu can fix this up later.
+In the meantime, this patch should cure the lockdep
+warnings that seem to trigger very easily.
 
->
->Actually, the first bits
->
-yes, the first bits....   other people send in completed filesystems....
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-> that we plan to merge
->
-I don't actually think that your merge approach is the wrong one, I
-think that it being exclusive to you is what is wrong.
+--- linux-2.6.17.noarch/drivers/cpufreq/cpufreq_ondemand.c~	2006-07-22 15:35:04.000000000 -0400
++++ linux-2.6.17.noarch/drivers/cpufreq/cpufreq_ondemand.c	2006-07-22 15:35:16.000000000 -0400
+@@ -408,7 +408,6 @@ static int cpufreq_governor_dbs(struct c
+ 		break;
+ 
+ 	case CPUFREQ_GOV_LIMITS:
+-		lock_cpu_hotplug();
+ 		mutex_lock(&dbs_mutex);
+ 		if (policy->max < this_dbs_info->cur_policy->cur)
+ 			__cpufreq_driver_target(this_dbs_info->cur_policy,
+@@ -419,7 +418,6 @@ static int cpufreq_governor_dbs(struct c
+ 			                        policy->min,
+ 			                        CPUFREQ_RELATION_L);
+ 		mutex_unlock(&dbs_mutex);
+-		unlock_cpu_hotplug();
+ 		break;
+ 	}
+ 	return 0;
+--- linux-2.6.17.noarch/drivers/cpufreq/cpufreq_stats.c~	2006-07-22 15:35:40.000000000 -0400
++++ linux-2.6.17.noarch/drivers/cpufreq/cpufreq_stats.c	2006-07-22 15:35:54.000000000 -0400
+@@ -350,12 +350,10 @@ __init cpufreq_stats_init(void)
+ 	}
+ 
+ 	register_hotcpu_notifier(&cpufreq_stat_cpu_notifier);
+-	lock_cpu_hotplug();
+ 	for_each_online_cpu(cpu) {
+ 		cpufreq_stat_cpu_callback(&cpufreq_stat_cpu_notifier, CPU_ONLINE,
+ 			(void *)(long)cpu);
+ 	}
+-	unlock_cpu_hotplug();
+ 	return 0;
+ }
+ static void
+@@ -368,12 +366,10 @@ __exit cpufreq_stats_exit(void)
+ 	cpufreq_unregister_notifier(&notifier_trans_block,
+ 			CPUFREQ_TRANSITION_NOTIFIER);
+ 	unregister_hotcpu_notifier(&cpufreq_stat_cpu_notifier);
+-	lock_cpu_hotplug();
+ 	for_each_online_cpu(cpu) {
+ 		cpufreq_stat_cpu_callback(&cpufreq_stat_cpu_notifier, CPU_DEAD,
+ 			(void *)(long)cpu);
+ 	}
+-	unlock_cpu_hotplug();
+ }
+ 
+ MODULE_AUTHOR ("Zou Nan hai <nanhai.zou@intel.com>");
+--- linux-2.6.17.noarch/drivers/cpufreq/cpufreq.c~	2006-07-22 15:36:05.000000000 -0400
++++ linux-2.6.17.noarch/drivers/cpufreq/cpufreq.c	2006-07-22 15:36:20.000000000 -0400
+@@ -423,8 +423,6 @@ static ssize_t store_scaling_governor (s
+ 	if (cpufreq_parse_governor(str_governor, &new_policy.policy, &new_policy.governor))
+ 		return -EINVAL;
+ 
+-	lock_cpu_hotplug();
+-
+ 	/* Do not use cpufreq_set_policy here or the user_policy.max
+ 	   will be wrongly overridden */
+ 	mutex_lock(&policy->lock);
+@@ -434,8 +432,6 @@ static ssize_t store_scaling_governor (s
+ 	policy->user_policy.governor = policy->governor;
+ 	mutex_unlock(&policy->lock);
+ 
+-	unlock_cpu_hotplug();
+-
+ 	return ret ? ret : count;
+ }
+ 
+@@ -1203,14 +1199,11 @@ int __cpufreq_driver_target(struct cpufr
+ {
+ 	int retval = -EINVAL;
+ 
+-	lock_cpu_hotplug();
+ 	dprintk("target for CPU %u: %u kHz, relation %u\n", policy->cpu,
+ 		target_freq, relation);
+ 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
+ 		retval = cpufreq_driver->target(policy, target_freq, relation);
+ 
+-	unlock_cpu_hotplug();
+-
+ 	return retval;
+ }
+ EXPORT_SYMBOL_GPL(__cpufreq_driver_target);
+--- linux-2.6.17.noarch/drivers/cpufreq/cpufreq_conservative.c~	2006-07-22 15:36:46.000000000 -0400
++++ linux-2.6.17.noarch/drivers/cpufreq/cpufreq_conservative.c	2006-07-22 15:36:57.000000000 -0400
+@@ -423,14 +423,12 @@ static void dbs_check_cpu(int cpu)
+ static void do_dbs_timer(void *data)
+ { 
+ 	int i;
+-	lock_cpu_hotplug();
+ 	mutex_lock(&dbs_mutex);
+ 	for_each_online_cpu(i)
+ 		dbs_check_cpu(i);
+ 	schedule_delayed_work(&dbs_work, 
+ 			usecs_to_jiffies(dbs_tuners_ins.sampling_rate));
+ 	mutex_unlock(&dbs_mutex);
+-	unlock_cpu_hotplug();
+ } 
+ 
+ static inline void dbs_timer_init(void)
+@@ -525,7 +523,6 @@ static int cpufreq_governor_dbs(struct c
+ 		break;
+ 
+ 	case CPUFREQ_GOV_LIMITS:
+-		lock_cpu_hotplug();
+ 		mutex_lock(&dbs_mutex);
+ 		if (policy->max < this_dbs_info->cur_policy->cur)
+ 			__cpufreq_driver_target(
+@@ -536,7 +533,6 @@ static int cpufreq_governor_dbs(struct c
+ 					this_dbs_info->cur_policy,
+ 				       	policy->min, CPUFREQ_RELATION_L);
+ 		mutex_unlock(&dbs_mutex);
+-		unlock_cpu_hotplug();
+ 		break;
+ 	}
+ 	return 0;
 
->
->  
->
->>Consider what happened with XFS as the article writer mentions.  I met
->>the original XFS team, led by two very senior developers (Jim Grey, and
->>another fellow whose name I am blanking on, forgive me, I learned much
->>from him in just a few conversations).  
->>    
->>
->
->I believe you are referring to Jim Mostek
->
-Ah, Jim Mostek and Jim Gray.  (Steve Lord was not a senior guy back
-then, and he is still with SGI last I heard....  I actually don't know
-Steve very well, hmm, maybe some future conference....)  Thanks.
-
->That's hardly what happened.  SGI went through layoffs, and they were
->hit.  See:  http://slashdot.org/articles/01/05/26/0743254.shtml
->  
->
-As the other poster mentioned, they went off to startups, and did not
-become part of our community.  How much of that was because their
-contributions were more hassled than welcomed, I cannot say with
-certainty, I can only say that they were discouraged by the difficulty
-of getting their stuff in, and this was not as it should have been. 
-They were more knowledgeable than we were on the topics they spoke on,
-and this was not recognized and acknowledged.
-
-Outsiders are not respected by the kernel community.  This means we miss
-a lot.
-
->  
->
->>A reasonable approach would be to say that any
->>filesystem marked as experimental can be dropped at any time, so if you
->>aren't able to tar and untar the partition it is on when a new kernel
->>comes out, you should not use experimental filesystems.  Then most
->>distros will not make the experimental FS visible to users who don't
->>press three buttons acknowledging that they were warned....  Linspire's
->>view is pretty simple, they need to know that Reiser4 will be accepted
->>BEFORE they make their distro depend on it.  
->>    
->>
->
->You do realize these two statements are completely contradictory,
->don't you? 
->
-No, because distros would wait until it is not experimental before
-giving it to their users by default, in my proposed release model.  lkml
-is populated with people FAR more suited to experimenting with
-experimental filesystems than typical distro customer lists are.  It is
-commercial and political reasons that motivate distros being the first
-with patches not tried yet by lkml, not the interests of the users.
-
-Now, for other patches these commercial and political reasons may need
-to be catered to as the price of getting the Redhats of the world to
-fund kernel development, but that logic does not apply to Reiser4's
-particulars.
-
-Hans
+-- 
+http://www.codemonkey.org.uk

@@ -1,102 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWGVRTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWGVRY1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWGVRTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 13:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWGVRTw
+	id S1750974AbWGVRY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 13:24:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWGVRY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 13:19:52 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:21417 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1750974AbWGVRTv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 13:19:51 -0400
-Message-ID: <1153588759.44c25e17dd274@portal.student.luth.se>
-Date: Sat, 22 Jul 2006 19:19:19 +0200
-From: ricknu-0@student.ltu.se
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [RFC][PATCH] A generic boolean (version 3)
-References: <1153341500.44be983ca1407@portal.student.luth.se> <1153524422.44c162c65c21b@portal.student.luth.se> <Pine.LNX.4.61.0607221057050.8381@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0607221057050.8381@yvahk01.tjqt.qr>
+	Sat, 22 Jul 2006 13:24:27 -0400
+Received: from ptb-relay03.plus.net ([212.159.14.214]:23230 "EHLO
+	ptb-relay03.plus.net") by vger.kernel.org with ESMTP
+	id S1750974AbWGVRY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 13:24:26 -0400
+Message-ID: <44C25F49.3010803@mauve.plus.com>
+Date: Sat, 22 Jul 2006 18:24:25 +0100
+From: Ian Stirling <tandra@mauve.plus.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+To: linux-kernel@vger.kernel.org
+Subject: USB snd-usb-audio oops
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Citerar Jan Engelhardt <jengelh@linux01.gwdg.de>:
+This has hit me yesterday too - maybe, but I diddn't get it logged - as 
+it just locked.
+With enforce bandwidth on and off (today and yesterday)
+Otherwise the config is identical to the one I posted several messages ago.
 
-> >+++ b/drivers/block/DAC960.h
-> >@@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
-> >   Define a Boolean data type.
-> > */
-> > 
-> >-typedef enum { false, true } __attribute__ ((packed)) boolean;
-> >+typedef bool boolean;
-> > 
-> Probably I missed some mail, but why can't we just have typedef _Bool bool?
-> Like below?
+I was simply trying to start mplayer - to play some tunes after a lot of 
+unplugging to test things.
 
-Because it defines bool in include/asm/types.h, then "all" files will have the
-bool-type. But because DAC960.h calles it boolean I just typedefed the new
-bool-type to "boolean". Then if this gets into -mm or linus-tree, I/we can start
-to clean up all the code using booleans. After all, there is also BOOL and
-BOOLEAN but they are not effected by this change.
 
-> 
-> >+++ b/include/asm-i386/types.h
-> >@@ -1,6 +1,13 @@
-> > #ifndef _I386_TYPES_H
-> > #define _I386_TYPES_H
-> > 
-> >+#if __GNUC__ >= 3
-> >+typedef _Bool bool;
-> >+#else
-> >+#warning You compiler doesn't seem to support boolean types, will set
-> 'bool' as
-> >an 'unsigned int'
-> >+typedef unsigned int bool;
-> >+#endif
-> >+
-> > #ifndef __ASSEMBLY__
-> > 
-> > typedef unsigned short umode_t;
-> >--- a/include/linux/stddef.h
-> >+++ b/include/linux/stddef.h
-> >@@ -10,6 +10,17 @@ #else
-> > #define NULL ((void *)0)
-> > #endif
-> > 
-> >+#undef false
-> >+#undef true
-> 
-> Wasnot this supposed to go away?
-
-#undef or enum?
-There has not been any #undef's before, and enum I think is better. This since
-Jeff showed it could be combined with the #define for the cpp's sake.
-
-> 
-> >+
-> >+enum {
-> >+	false	= 0,
-> >+	true	= 1
-> >+};
-> >+
-> >+#define false false
-> >+#define true true 
-> >+
-> > #undef offsetof
-> > #ifdef __compiler_offsetof
-> > #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
-> >
-> 
-> Jan Engelhardt
-
-/Richard Knutsson
+BUG: unable to handle kernel paging request at virtual address 1b154000
+  printing eip:
+c0283629
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: zd1211 toshiba_acpi aes_i586 rd snd_usb_audio 
+snd_usb_lib snd_hwdep usbhid uhci_hcd ehci_hcd
+ohci_hcd pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core 
+eepro100 twofish tea sha512 sha256 sha1 s
+erpent michael_mic md5 md4 khazad des deflate zlib_deflate zlib_inflate 
+crypto_null cast6 cast5 blowfish arc4 cr
+yptoloop loop sd_mod usb_storage libusual usbcore snd_es1968 
+snd_ac97_codec snd_ac97_bus snd_mpu401_uart snd_raw
+midi
+CPU:    0
+EIP:    0060:[<c0283629>]    Not tainted VLI
+EFLAGS: 00210246   (2.6.17laptop-3110-firstcut #7)
+EIP is at snd_ctl_release+0xb2/0x161
+eax: c2d42b60   ebx: 00200246   ecx: 00000000   edx: 1b154000
+esi: c2d42a00   edi: c7ec28a0   ebp: c4f20960   esp: c5fbff4c
+ds: 007b   es: 007b   ss: 0068
+Process mplayer (pid: 16279, threadinfo=c5fbe000 task=c7855a70)
+Stack: 00000010 c4f20960 c2919338 c51e96d4 c015110d c2919338 c4f20960 
+c7fcb220
+        c4f20960 c7f438e0 00000000 c4f20960 c014fadf c4f20960 c7f438e0 
+c4f20960
+        c7f438e0 00000004 c7f438e0 c5fbe000 c014fb64 c4f20960 c7f438e0 
+00000004
+Call Trace:
+  <c015110d> __fput+0x190/0x1a3  <c014fadf> filp_close+0x36/0x57
+  <c014fb64> sys_close+0x64/0x99  <c0102d4f> syscall_call+0x7/0xb
+Code: 8d 74 26 00 8d 86 60 01 00 00 39 c2 74 2d 31 c9 3b 4a 48 73 14 89 
+d0 39 78 64 0f 84 a4 00 00 00 41 83 c0 0
+c 3b 4a 48 72 ee 8b 12 <8b> 02 8d 74 26 00 8d 86 60 01 00 00 39 c2 75 d3 
+8d 86 4c 01 00
+EIP: [<c0283629>] snd_ctl_release+0xb2/0x161 SS:ESP 0068:c5fbff4c

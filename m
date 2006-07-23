@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWGWCTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWGWDVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWGWCTe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 22:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWGWCTd
+	id S1750717AbWGWDVr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 23:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWGWDVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 22:19:33 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:22972 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1750809AbWGWCTd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 22:19:33 -0400
-Message-Id: <200607230219.k6N2JMHI021999@laptop13.inf.utfsm.cl>
-To: 7eggert@gmx.de
-cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Joshua Hudson <joshudson@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: what is necessary for directory hard links 
-In-Reply-To: Message from Bodo Eggert <7eggert@elstempel.de> 
-   of "Sat, 22 Jul 2006 18:59:45 +0200." <E1G4Kpi-0001Os-AK@be1.lrz> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Sat, 22 Jul 2006 22:19:22 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Sat, 22 Jul 2006 22:19:26 -0400 (CLT)
+	Sat, 22 Jul 2006 23:21:47 -0400
+Received: from rialto-h50.host.net ([64.135.31.50]:12498 "EHLO
+	mail.ultrawaves.com") by vger.kernel.org with ESMTP
+	id S1750717AbWGWDVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 23:21:46 -0400
+Message-ID: <44C2EB45.1050302@lammerts.org>
+Date: Sat, 22 Jul 2006 23:21:41 -0400
+From: Eric Lammerts <eric@lammerts.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Chris Boot <bootc@bootc.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
+Subject: Re: [RFC][PATCH] LED Class support for Soekris net48xx
+References: <44AF7B00.9060108@bootc.net>
+In-Reply-To: <44AF7B00.9060108@bootc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <7eggert@elstempel.de> wrote:
-> Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
-> > Joshua Hudson <joshudson@gmail.com> wrote:
-> >> This patch is the sum total of all that I had to change in the kernel
-> >> VFS layer to support hard links to directories
+Chris Boot wrote:
+> I'd love to find a way of detecting a Soekris net48xx device
+ > but there is no DMI or any Soekris-specific PCI devices.
 
-> > Can't be done, as it creates the possibility of loops.
+You could do ugly things like this:
 
-> Don't do that then?
+         int i;
+         char *bios = __va(0xf0000);
 
-Stop /everything/ to make sure no concurrent activity creates a loop, while
-checking the current mkdir(2) doesn't create one?
+         for(i = 0; i < 0x10000 - 19; i++) {
+                 if(memcmp(bios + i, "Soekris Engineering", 19) == 0) {
+                         printk("soekris string found at 0x%x\n", i);
+                 }
+         }
 
-> > The "only files can
-> > be hardlinked" idea makes garbage collection (== deleting of unreachable
-> > objects) simple: Just check the number of references.
-> > 
-> > Detecting unconnected subgraphs uses a /lot/ of memory; and much worse, you
-> > have to stop (almost) all filesystem activity while doing it.
+The string "net4801" is also in there (although I'm using a 4826).
 
-> In order to disconnect a directory, you'd have to empty it first, and after
-> emptying a directory, it won't be part of a loop. Maybe emtying is the
-> problem ...
+If anyone knows a better way, I'd like to know it too.
 
-What does "emptying a directory" mean if there might be loops?
-
-> This feature was implemented,
-
-Never in my memory of any Unix (and lookalike) system in real use (I've
-seen a few).
-
->                               and I asume it was removed for a reason.
-> Can somebody remember?
-
-See my objections.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Eric

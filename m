@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWGWXfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWGWX47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWGWXfD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 19:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWGWXfD
+	id S1751153AbWGWX47 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 19:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWGWX47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 19:35:03 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:56529 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751313AbWGWXfB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 19:35:01 -0400
-Message-ID: <44C3F99B.9000307@namesys.com>
-Date: Sun, 23 Jul 2006 16:35:07 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Sun, 23 Jul 2006 19:56:59 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:24336 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751153AbWGWX47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 19:56:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=h/2cDiR2Hr3L4D6DcOORsuNXLC6B6AhqJeNfswKWgQh4siITM6ro+gULU/r6gOUYk62g4rAgghLu12FSLk0K0vlD9J6+EkrMKf5eg/TX5ZGPqlB0nFiW6DHqy7g19oQTU6UedSAXI67cBODxW2Og6CMfcaBkTpXBDCgkRvdFvt0=
+Message-ID: <44C40CD3.80000@gmail.com>
+Date: Mon, 24 Jul 2006 01:56:44 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Jeff Mahoney <jeffm@suse.com>
-CC: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <44C3E041.1020909@suse.com> <44C3E6EE.8080607@namesys.com> <44C404C9.6050409@suse.com>
-In-Reply-To: <44C404C9.6050409@suse.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: hnazfoo@googlemail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent usage of uninitialized variable in transmeta
+ cpu driver
+References: <20060723214834.GA1484@leiferikson.gentoo>
+In-Reply-To: <20060723214834.GA1484@leiferikson.gentoo>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Mahoney wrote:
+Johannes Weiner napsal(a):
+> This patch fixes a gcc-`uninitialized' warning in
+> arch/i386/kernel/cpu/transmeta.c.
 
->
->
-> Anyone up for it? :) There are changes I'd like to see in reiser3,
-> particularly ones that address the severe problems observed in David
-> Chinner's high bandwidth file system talk this year at OLS. Specifically,
-> it ended up making very little progress and spending the majority of the
-> time in the journal when the workload is streaming data at the disk at a
-> very high rate on a very large file system. Yes, that is certainly XFS's
-> sweet spot, but barely making progress at all is a bit more severe than
-> "poor performance." Perhaps mkreiserfs should be a bit saner about
-> choosing
-> journal sizes, since a 32 MB journal is not a good fit for all cases.
-> Also,
-> I'd like to see the usage of the BKL gone as it severely limits
-> performance
-> when more than one thread is writing to the file system, or even another
-> reiserfs file system. It's not entirely low hanging fruit since the nested
-> cases need to be audited, but it shouldn't be too hard to eliminate the
-> inter-filesystem lock contention by replacing the BKL with a per-sb mutex.
+NACK.
 
-Getting rid of the BKL is a huge task that was done in V4 for a reason. 
-You are talking about 6+ man-months, and years of shake-out to fully
-debug.  Actually, it is a tribute to Zam's skill that V4's locking got
-debugged so fast: I gave him the task knowing it was going to be the
-hardest code to debug, and he did it very well.
+Gcc bug, don't hide it (I don't really know, why cpu_rev is zeroed).
 
-These things you discuss, except for the journal size, are not things to
-fix in a stable branch.
+[Post only whitespace changes. And note that such changes should be in separated
+patches.]
 
-My apologies that I thought this was a new bug.  Let us be glad that a
-user gave us enough detail we saw it.
+> 
+> Signed-off-by: Johannes Weiner <hnazfoo@gmail.com>
+> 
+> ---
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
+> index 7214c9b..5b71071 100644
+> --- a/arch/i386/kernel/cpu/transmeta.c
+> +++ b/arch/i386/kernel/cpu/transmeta.c
+> @@ -17,9 +17,9 @@ static void __init init_transmeta(struct
+>  
+>  	/* Print CMS and CPU revision */
+>  	max = cpuid_eax(0x80860000);
+> -	cpu_rev = 0;
+> +	cpu_rev = cpu_freq = 0;
+>  	if ( max >= 0x80860001 ) {
+> -		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags); 
+> +		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
+>  		if (cpu_rev != 0x02000000) {
+>  			printk(KERN_INFO "CPU: Processor revision %u.%u.%u.%u, %u MHz\n",
+>  				(cpu_rev >> 24) & 0xff,
+> @@ -72,7 +72,7 @@ static void __init init_transmeta(struct
+>  	wrmsr(0x80860004, ~0, uk);
+>  	c->x86_capability[0] = cpuid_edx(0x00000001);
+>  	wrmsr(0x80860004, cap_mask, uk);
+> -	
+> +
+>  	/* If we can run i686 user-space code, call us an i686 */
+>  #define USER686 (X86_FEATURE_TSC|X86_FEATURE_CX8|X86_FEATURE_CMOV)
+>          if ( c->x86 == 5 && (c->x86_capability[0] & USER686) == USER686 )
 
-> I have some more things, but I have nowhere near the time to do them,
-> and other file systems will perform fine.
->
->
->
+regards,
+-- 
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

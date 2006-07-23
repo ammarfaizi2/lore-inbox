@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWGWNDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWGWNLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWGWNDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 09:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWGWNDV
+	id S1750881AbWGWNLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 09:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWGWNLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 09:03:21 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:51850 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751205AbWGWNDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 09:03:21 -0400
-Date: Sun, 23 Jul 2006 06:03:09 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [patch] slab: always follow arch requested alignments
-In-Reply-To: <20060723073500.GA10556@osiris.ibm.com>
-Message-ID: <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com>
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com>
- <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com>
- <20060723073500.GA10556@osiris.ibm.com>
+	Sun, 23 Jul 2006 09:11:04 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:34564 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1750881AbWGWNLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 09:11:03 -0400
+Message-ID: <44C37565.6090009@superbug.co.uk>
+Date: Sun, 23 Jul 2006 14:11:01 +0100
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060609)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Cross platform method for detecting hot unplug in irq handler
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jul 2006, Heiko Carstens wrote:
+Hi,
 
-> > 
-> > See kmem_cache_create():
-> >       /* 2) arch mandated alignment: disables debug if necessary */
-> >         if (ralign < ARCH_SLAB_MINALIGN) {
-> >                 ralign = ARCH_SLAB_MINALIGN;
-> >                 if (ralign > BYTES_PER_WORD)
-> >                         flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
-> >         }
-> 
-> That is because if kmem_cache_create gets called with SLAB_HWCACHE_ALIGN set
-> in flags then ralign will be greater or equal to ARCH_SLAB_MINALIGN:
-> 
->         /* 1) arch recommendation: can be overridden for debug */ 
->         if (flags & SLAB_HWCACHE_ALIGN) { 
-> 	        [...]
->                 ralign = cache_line_size(); 
-> 	        [...]
+I am writing a driver for a PCMCIA device.
+When the card is removed, the driver's IRQ handler is called.
+The first thing the IRQ handler does is read a status register from the
+card's IOPORT. On the ia32 (i386) platform, the resulting status read
+will return 0xffffffff. If the driver reads this value, it assumes the
+card has been removed and acts accordingly.
 
-Ok. Then you do not have a problem because ralign is greater than
-ARCH_SLAB_MINALIGN.
- 
-> Therefore the test above will be passed and SLAB_RED_ZONE and SLAB_STORE_USER
-> will stay in flags.
-> cache_line_size() will return 256 on s390.
+Is this a reliable way of detecting PCMCIA or Hotplug card removal
+inside an IRQ handler?
+Is it consistent cross platforms. E.g. ia64, amd64, PPC, MIPS etc.?
+Does a more reliable detection method exist in the kernel?
 
-Looks as if you would have the correct alignment then. I still do not 
-understand where the problem is since you want to align on an 8 byte 
-boundary.
-
-
+James

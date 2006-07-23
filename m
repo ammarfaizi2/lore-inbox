@@ -1,93 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWGWLsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWGWLxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWGWLsb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 07:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWGWLsa
+	id S1751013AbWGWLxe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 07:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWGWLxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 07:48:30 -0400
-Received: from lug-owl.de ([195.71.106.12]:61365 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750831AbWGWLsa (ORCPT
+	Sun, 23 Jul 2006 07:53:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40892 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751013AbWGWLxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 07:48:30 -0400
-Date: Sun, 23 Jul 2006 13:48:28 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060723114828.GC27825@lug-owl.de>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-	LKML <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com>
+	Sun, 23 Jul 2006 07:53:33 -0400
+Date: Sun, 23 Jul 2006 04:46:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com, torvalds@osdl.org,
+       bunk@stusta.de, lethal@linux-sh.org, hirofumi@mail.parknet.co.jp
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+Message-Id: <20060723044637.3857d428.akpm@osdl.org>
+In-Reply-To: <20060723081604.GD27566@kiste.smurf.noris.de>
+References: <20060722233638.GC27566@kiste.smurf.noris.de>
+	<20060722173649.952f909f.akpm@osdl.org>
+	<20060723081604.GD27566@kiste.smurf.noris.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="S1BNGpv0yoYahz37"
-Content-Disposition: inline
-In-Reply-To: <44C32348.8020704@namesys.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Jul 2006 10:16:04 +0200
+Matthias Urlichs <smurf@smurf.noris.de> wrote:
 
---S1BNGpv0yoYahz37
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Are you able to compare the present bootlog with the 2.6.17 bootlog?
+> > 
+> Sure. The diff says:
+> 
+>  checking TSC synchronization across 4 CPUs:
+> +CPU#0 had 748437 usecs TSC skew, fixed it up.
+> +CPU#1 had 748437 usecs TSC skew, fixed it up.
+> +CPU#2 had -748437 usecs TSC skew, fixed it up.
+> +CPU#3 had -748437 usecs TSC skew, fixed it up.
+>  Brought up 4 CPUs
+> -migration_cost=4000,8000
+> +migration_cost=85,1724
+> 
+> ... but apparently, that skew is not corrected.
+> 
+> These numbers do match the difference in observed "date" outputs.
 
-On Sun, 2006-07-23 01:20:40 -0600, Hans Reiser <reiser@namesys.com> wrote:
-> There is nothing about small patches that makes them better code.  There
+>From this I'll assume that
 
-Erm, a small patch is something which should _obviously_ fix one
-issue. A small patch, containing at max some 100 lines, can easily be
-read and understood.
+- CPU0 and CPU1 share a TSC and CPU2 and CPU3 share another TSC.
 
-A complete filesystem (I'm co-maintaining one for an ancient on-disk
-format, too) isn't really easy to understand or to verify from looking
-at it for 5min.
+- write_tsc() simply doesn't work on this machine.
 
-> is no reason we should favor them, if the developers are willing to work
-> on something for 5 years to escape a local optimum, that is often the
-> RIGHT thing to do.
+- Earlier kernels weren't able to modify the TSC either.
 
-I give a shit of nothing to some 5 year work if I cannot verify that
-it won't hurt me at some point.
+- Earlier kernels didn't use the TSC as a time source whereas this one
+  does, hence the problems which you're observing.
 
-> It is importand that we embrace our diversity, and be happy for the
-> strength it gives us.  Some of us are good at small patches that evolve,
-> and some are good at escaping local optimums.  We all have value, both
-> trees and grass have their place in the world.
 
-Just put reiser4 in some GIT tree and publish it. Maybe you can place
-it on git.kernel.org .
+Some or all of the below might be wrong, but I don't think so:
 
-MfG, JBG
 
---=20
-       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
-8481
- Signature of:                     ...und wenn Du denkst, es geht nicht meh=
-r,
- the second  :                            kommt irgendwo ein Lichtlein her.
+I assume that booting with clock=pit or clock=pmtmr fixes it?
 
---S1BNGpv0yoYahz37
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+It would be useful to check your 2.6.17 boot logs, see if we can work out
+what 2.6.17 was using for a clock source.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+We need to fix that "fixed it up" message because it just ain't so.
 
-iD8DBQFEw2IMHb1edYOZ4bsRAtBDAJ0Qym+4r9bF+dHPNoYYiOAmfVEkZgCfXkWF
-3zck3qVosxcJYtP3AZyCC4U=
-=AqyK
------END PGP SIGNATURE-----
+The new clocksouce code needs to detect this and to mark the TSC source as
+unstable, or otherwise unusable.
 
---S1BNGpv0yoYahz37--
+We _could_ fix the TSC skew up, by adjusting the rdtsc output by the
+tsc_values[] entry wherever we read the TSC.
+
+It would of course be better to make write_tsc() work.  I wonder why it
+doesn't?
+

@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWGWVtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWGWWGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWGWVtw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 17:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGWVtw
+	id S1751369AbWGWWGC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 18:06:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWGWWGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 17:49:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:58066 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751337AbWGWVtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 17:49:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:from;
-        b=sw0pqWUYptmLQJ5Ax8nwO8mLR/UEpPUL7ExfaqZKVmlS/nXjncIyjFnpo8mrv61YIphA32ww2hD4M/l7hvn+YiS00dQWGKklxfR+r1VWSLTdjET72IlEu+SNVhDowaaQduPu0+B84X0ON+1lMs/KAthk8f+B+q5bhfY3eh6hY+g=
-Date: Sun, 23 Jul 2006 23:48:34 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Prevent usage of uninitialized variable in transmeta cpu driver
-Message-ID: <20060723214834.GA1484@leiferikson.gentoo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 23 Jul 2006 18:06:01 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:32162 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751325AbWGWWGA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 18:06:00 -0400
+Message-ID: <44C3F2C6.5010001@garzik.org>
+Date: Sun, 23 Jul 2006 18:05:58 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Private driver support emails should be avoided.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Just a reminder to folks out there...  Don't send private driver support 
+emails.
+
+I receive a lot of email.  A lot.  Not as much as Linus or Andrew 
+probably, but still sizable.  And quite regularly, I will receive a 
+private email asking for help on a SATA or net driver problem.  The 
+poster will include various details on their problem, and ask for help 
+debugging the problem.  While the email will indeed be skimmed -- 
+looking at a mass of bug reports, one can better detect patterns -- the 
+people seeking support privately will almost NEVER RECEIVE A RESPONSE.
+
+Unless there is a security issue (email security@kernel.org), posters 
+should ALWAYS email their report(s) to one or more mailing lists.
+
+Private email
+* is not archived publicly
+* is not Google-able
+* restricts the sharing of knowledge
+* prevents other users from responding to your email
+
+Feel free to CC me on problems you think should warrant my attention.  A 
+carbon copy is acceptable to almost all regular kernel contributors.
 
 
-This patch fixes a gcc-`uninitialized' warning in
-arch/i386/kernel/cpu/transmeta.c.
+As another tip, if a kernel bug or annoyance persists, people are 
+encouraged to maintain wiki and web pages describing the behavior, and 
+discussed problem history.  Maintaining "SATA sucks on ThinkPad" style 
+web pages is always a good way to shame kernel hackers into action ;-) 
+Maintaining such web pages is a good way for a group of affected users 
+to pool common information, and suggested workarounds.
 
-Signed-off-by: Johannes Weiner <hnazfoo@gmail.com>
+Ensuring the freshness of bugzilla.kernel.org information is also a 
+great way for non-kernel hackers to help out.  Sometimes a bug is only 
+solved after a pattern emerges from a group of problem reports.  Even 
+"me too!" bugzilla reports are helpful...  if they are followed by 
+highly detailed hardware and kernel information.
 
----
+	Jeff
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="transmeta-suppress-warning.patch"
 
-diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
-index 7214c9b..5b71071 100644
---- a/arch/i386/kernel/cpu/transmeta.c
-+++ b/arch/i386/kernel/cpu/transmeta.c
-@@ -17,9 +17,9 @@ static void __init init_transmeta(struct
- 
- 	/* Print CMS and CPU revision */
- 	max = cpuid_eax(0x80860000);
--	cpu_rev = 0;
-+	cpu_rev = cpu_freq = 0;
- 	if ( max >= 0x80860001 ) {
--		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags); 
-+		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
- 		if (cpu_rev != 0x02000000) {
- 			printk(KERN_INFO "CPU: Processor revision %u.%u.%u.%u, %u MHz\n",
- 				(cpu_rev >> 24) & 0xff,
-@@ -72,7 +72,7 @@ static void __init init_transmeta(struct
- 	wrmsr(0x80860004, ~0, uk);
- 	c->x86_capability[0] = cpuid_edx(0x00000001);
- 	wrmsr(0x80860004, cap_mask, uk);
--	
-+
- 	/* If we can run i686 user-space code, call us an i686 */
- #define USER686 (X86_FEATURE_TSC|X86_FEATURE_CX8|X86_FEATURE_CMOV)
-         if ( c->x86 == 5 && (c->x86_capability[0] & USER686) == USER686 )
 
---k1lZvvs/B4yU6o8G--

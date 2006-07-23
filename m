@@ -1,57 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWGWSeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWGWSgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWGWSeA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 14:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWGWSeA
+	id S1751163AbWGWSgc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 14:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWGWSgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 14:34:00 -0400
-Received: from wr-out-0506.google.com ([64.233.184.230]:44062 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750755AbWGWSd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 14:33:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=X4ci0xJY0BA+ZIWhkO93b88pacLRrDEZSWwUKj7UOHptHy3610R4E3G8feczRoq4te32w3nsD+mWTQQGga2gnEHl08i/meDPwSZE/db/YvnQmDM1elkBSK8lubYfk+jWCzdpK1JV33XBe/gd/HmfpSyYpxxOhGlQUIJsoSfI0ek=
-From: Patrick McFarland <diablod3@gmail.com>
+	Sun, 23 Jul 2006 14:36:32 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:45489 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751163AbWGWSgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 14:36:31 -0400
+Date: Sun, 23 Jul 2006 11:36:08 -0700
+From: Paul Jackson <pj@sgi.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-Date: Sun, 23 Jul 2006 14:34:23 -0400
-User-Agent: KMail/1.9.1
-Cc: Arjan van de Ven <arjan@linux.intel.com>, Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel@vger.kernel.org, davej@redhat.com,
-       Andrew Morton <akpm@osdl.org>
-References: <20060722194018.GA28924@redhat.com> <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org> <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Cc: akpm@osdl.org, dino@in.ibm.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, davej@redhat.com,
+       ashok.raj@intel.com
+Subject: Re: [PATCH] Cpuset: fix ABBA deadlock with cpu hotplug lock
+Message-Id: <20060723113608.44e57672.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607231122570.29649@g5.osdl.org>
+References: <20060714095434.24283.5979.sendpatchset@jackhammer.engr.sgi.com>
+	<20060723111243.d1373616.pj@sgi.com>
+	<Pine.LNX.4.64.0607231122570.29649@g5.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607231434.24376.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 July 2006 14:12, Linus Torvalds wrote:
-> On Sun, 23 Jul 2006, Linus Torvalds wrote:
-> [ Linus bangs his head against the wall until tears of blood course down
->   his face ]
+From: Paul Jackson <pj@sgi.com>
 
-I know how you feel.
+Resending ...
 
-> cpufreq (or at least ondemand) must DIE! And the people who wrote that
-> crap should have red-hot pokers jammed into some very uncomfortable
-> places.
+Fix ABBA deadlock between lock_cpu_hotplug() and the cpuset
+callback_mutex lock.
 
-You know what else must die? powernowd... which does exactly what the 
-conservative governor does, but takes about a meg of memory to do it, and it 
-doesn't even provide stuff like changing behavior based on ac/battery state 
-or lm_sensors feedback.
+It only happens on cpu_exclusive cpusets, due to the dynamic
+sched domain code trying to take the cpu hotplug lock inside
+the cpuset callback_mutex lock.
+
+This bug has apparently been here for several months, but didn't
+get hit until the right customer load on a large system.
+
+This fix appears right from inspection, but it will take a few
+more days running it on that customers workload to be confident
+we nailed it.  We don't have any other reproducible test case.
+
+The cpu_hotplug_lock() tends to cover large runs of code.
+The other places that hold both that lock and the cpuset callback
+mutex lock always nest the cpuset lock inside the hotplug lock.
+This place tries to do the reverse, risking an ABBA deadlock.
+
+This is in the cpuset_rmdir() code, where we:
+  * take the callback_mutex lock
+  * mark the cpuset CS_REMOVED
+  * call update_cpu_domains for cpu_exclusive cpusets
+  * in that call, take the cpu_hotplug lock if the
+    cpuset is marked for removal.
+
+Thanks to Jack Steiner for identifying this deadlock.
+
+The fix is to tear down the dynamic sched domain before we grab
+the cpuset callback_mutex lock.  This way, the two locks are
+serialized, with the hotplug lock taken and released before
+trying for the cpuset lock.
+
+I suspect that this bug was introduced when I changed the
+cpuset locking from one lock to two.  The dynamic sched domain
+dependency on cpu_exclusive cpusets and its hotplug hooks were
+added to this code earlier, when cpusets had only a single lock.
+It may well have been fine then.
+
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ kernel/cpuset.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+--- 2.6.18-rc1-mm1.orig/kernel/cpuset.c	2006-07-13 01:43:26.944147637 -0700
++++ 2.6.18-rc1-mm1/kernel/cpuset.c	2006-07-13 01:43:30.144185379 -0700
+@@ -761,6 +761,8 @@ static int validate_change(const struct 
+  *
+  * Call with manage_mutex held.  May nest a call to the
+  * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
++ * Must not be called holding callback_mutex, because we must
++ * not call lock_cpu_hotplug() while holding callback_mutex.
+  */
+ 
+ static void update_cpu_domains(struct cpuset *cur)
+@@ -780,7 +782,7 @@ static void update_cpu_domains(struct cp
+ 		if (is_cpu_exclusive(c))
+ 			cpus_andnot(pspan, pspan, c->cpus_allowed);
+ 	}
+-	if (is_removed(cur) || !is_cpu_exclusive(cur)) {
++	if (!is_cpu_exclusive(cur)) {
+ 		cpus_or(pspan, pspan, cur->cpus_allowed);
+ 		if (cpus_equal(pspan, cur->cpus_allowed))
+ 			return;
+@@ -1916,6 +1918,17 @@ static int cpuset_mkdir(struct inode *di
+ 	return cpuset_create(c_parent, dentry->d_name.name, mode | S_IFDIR);
+ }
+ 
++/*
++ * Locking note on the strange update_flag() call below:
++ *
++ * If the cpuset being removed is marked cpu_exclusive, then simulate
++ * turning cpu_exclusive off, which will call update_cpu_domains().
++ * The lock_cpu_hotplug() call in update_cpu_domains() must not be
++ * made while holding callback_mutex.  Elsewhere the kernel nests
++ * callback_mutex inside lock_cpu_hotplug() calls.  So the reverse
++ * nesting would risk an ABBA deadlock.
++ */
++
+ static int cpuset_rmdir(struct inode *unused_dir, struct dentry *dentry)
+ {
+ 	struct cpuset *cs = dentry->d_fsdata;
+@@ -1935,11 +1948,16 @@ static int cpuset_rmdir(struct inode *un
+ 		mutex_unlock(&manage_mutex);
+ 		return -EBUSY;
+ 	}
++	if (is_cpu_exclusive(cs)) {
++		int retval = update_flag(CS_CPU_EXCLUSIVE, cs, "0");
++		if (retval < 0) {
++			mutex_unlock(&manage_mutex);
++			return retval;
++		}
++	}
+ 	parent = cs->parent;
+ 	mutex_lock(&callback_mutex);
+ 	set_bit(CS_REMOVED, &cs->flags);
+-	if (is_cpu_exclusive(cs))
+-		update_cpu_domains(cs);
+ 	list_del(&cs->sibling);	/* delete my sibling from parent->children */
+ 	spin_lock(&cs->dentry->d_lock);
+ 	d = dget(cs->dentry);
+
 
 -- 
-Patrick McFarland || www.AdTerrasPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

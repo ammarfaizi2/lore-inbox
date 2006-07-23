@@ -1,91 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWGWU5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWGWU7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWGWU5m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 16:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWGWU5m
+	id S1751319AbWGWU7V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 16:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWGWU7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 16:57:42 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:27841 "EHLO
+	Sun, 23 Jul 2006 16:59:21 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:43969 "EHLO
 	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751316AbWGWU5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 16:57:42 -0400
+	id S1751319AbWGWU7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 16:59:20 -0400
 X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sun, 23 Jul 2006 22:56:07 +0200 (CEST)
+Date: Sun, 23 Jul 2006 22:57:52 +0200 (CEST)
 From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.18-rc1-mm2 2/6] ieee1394: sbp2: discard return value of
- sbp2_link_orb_command
+Subject: [PATCH 2.6.18-rc1-mm2 3/6] ieee1394: sbp2: optimize DMA direction of
+ command ORBs
 To: linux1394-devel@lists.sourceforge.net
 cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <tkrat.25e69df87688def6@s5r6.in-berlin.de>
-Message-ID: <tkrat.b6336d1c43109bd5@s5r6.in-berlin.de>
+Message-ID: <tkrat.77f108a4473ed590@s5r6.in-berlin.de>
 References: <tkrat.25e69df87688def6@s5r6.in-berlin.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; CHARSET=us-ascii
 Content-Disposition: INLINE
-X-Spam-Score: (0.91) AWL,BAYES_50
+X-Spam-Score: (-0.334) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since sbp2 is at the moment unable to do anything with the return value
-of sbp2_link_orb_command, just discard it.
+Only the driver writes ORBs, the device just reads them.  Therefore
+PCI_DMA_BIDIRECTIONAL can be replaced by PCI_DMA_TODEVICE which may be
+cheaper on some architectures.
 
 Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
- drivers/ieee1394/sbp2.c |    8 +++-----
- drivers/ieee1394/sbp2.h |    5 -----
- 2 files changed, 3 insertions(+), 10 deletions(-)
+ drivers/ieee1394/sbp2.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
 
 TODO:
-Alas sbp2 initiates 1394 write requests to the target's ORB_POINTER and
-DOORBELL registers from atomic context.  These write transactions should
-be moved into non-atomic context, i.e. a kthread or workqueue.  That way
-typical failures of sbp2util_node_write_no_wait can be avoided in the
-first place, and there are better possibilities to recover from
-remaining failures.
+Convert sbp2 from PCI DMA to generic DMA mapping.
 
 Index: linux/drivers/ieee1394/sbp2.c
 ===================================================================
---- linux.orig/drivers/ieee1394/sbp2.c	2006-07-23 10:11:10.000000000 +0200
-+++ linux/drivers/ieee1394/sbp2.c	2006-07-23 10:26:32.000000000 +0200
-@@ -1964,7 +1964,7 @@ static void sbp2_create_command_orb(stru
- /*
-  * This function is called in order to begin a regular SBP-2 command.
-  */
--static int sbp2_link_orb_command(struct scsi_id_instance_data *scsi_id,
-+static void sbp2_link_orb_command(struct scsi_id_instance_data *scsi_id,
- 				 struct sbp2_command_info *command)
- {
- 	struct sbp2scsi_host_info *hi = scsi_id->hi;
-@@ -2030,11 +2030,9 @@ static int sbp2_link_orb_command(struct 
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-07-23 10:16:57.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-07-23 10:19:29.000000000 +0200
+@@ -492,7 +492,7 @@ static int sbp2util_create_command_orb_p
+ 		command->command_orb_dma =
+ 		    pci_map_single(hi->host->pdev, &command->command_orb,
+ 				   sizeof(struct sbp2_command_orb),
+-				   PCI_DMA_BIDIRECTIONAL);
++				   PCI_DMA_TODEVICE);
+ 		SBP2_DMA_ALLOC("single command orb DMA");
+ 		command->sge_dma =
+ 		    pci_map_single(hi->host->pdev,
+@@ -525,7 +525,7 @@ static void sbp2util_remove_command_orb_
+ 			/* Release our generic DMA's */
+ 			pci_unmap_single(host->pdev, command->command_orb_dma,
+ 					 sizeof(struct sbp2_command_orb),
+-					 PCI_DMA_BIDIRECTIONAL);
++					 PCI_DMA_TODEVICE);
+ 			SBP2_DMA_FREE("single command orb DMA");
+ 			pci_unmap_single(host->pdev, command->sge_dma,
+ 					 sizeof(command->scatter_gather_element),
+@@ -1982,7 +1982,7 @@ static void sbp2_link_orb_command(struct
  
- 	SBP2_ORB_DEBUG("write to %s register, command orb %p",
- 			last_orb ? "DOORBELL" : "ORB_POINTER", command_orb);
--	if (sbp2util_node_write_no_wait(scsi_id->ne, addr, data, length) < 0) {
-+	if (sbp2util_node_write_no_wait(scsi_id->ne, addr, data, length))
- 		SBP2_ERR("sbp2util_node_write_no_wait failed.\n");
--		return -EIO;
--	}
--	return 0;
-+	/* We rely on SCSI EH to deal with _node_write_ failures. */
- }
- 
- /*
-Index: linux/drivers/ieee1394/sbp2.h
-===================================================================
---- linux.orig/drivers/ieee1394/sbp2.h	2006-07-23 10:08:51.000000000 +0200
-+++ linux/drivers/ieee1394/sbp2.h	2006-07-23 10:23:26.000000000 +0200
-@@ -390,11 +390,6 @@ static int sbp2_logout_device(struct scs
- static int sbp2_handle_status_write(struct hpsb_host *host, int nodeid, int destid,
- 				    quadlet_t *data, u64 addr, size_t length, u16 flags);
- static int sbp2_agent_reset(struct scsi_id_instance_data *scsi_id, int wait);
--static int sbp2_link_orb_command(struct scsi_id_instance_data *scsi_id,
--				 struct sbp2_command_info *command);
--static int sbp2_send_command(struct scsi_id_instance_data *scsi_id,
--			     struct scsi_cmnd *SCpnt,
--			     void (*done)(struct scsi_cmnd *));
- static unsigned int sbp2_status_to_sense_data(unchar *sbp2_status,
- 					      unchar *sense_data);
- static void sbp2_parse_unit_directory(struct scsi_id_instance_data *scsi_id,
-
+ 	pci_dma_sync_single_for_device(hi->host->pdev, command->command_orb_dma,
+ 				       sizeof(struct sbp2_command_orb),
+-				       PCI_DMA_BIDIRECTIONAL);
++				       PCI_DMA_TODEVICE);
+ 	pci_dma_sync_single_for_device(hi->host->pdev, command->sge_dma,
+ 				       sizeof(command->scatter_gather_element),
+ 				       PCI_DMA_BIDIRECTIONAL);
+@@ -2012,14 +2012,14 @@ static void sbp2_link_orb_command(struct
+ 		 */
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, last_orb_dma,
+ 					    sizeof(struct sbp2_command_orb),
+-					    PCI_DMA_BIDIRECTIONAL);
++					    PCI_DMA_TODEVICE);
+ 		last_orb->next_ORB_lo = cpu_to_be32(command->command_orb_dma);
+ 		wmb();
+ 		/* Tells hardware that this pointer is valid */
+ 		last_orb->next_ORB_hi = 0;
+ 		pci_dma_sync_single_for_device(hi->host->pdev, last_orb_dma,
+ 					       sizeof(struct sbp2_command_orb),
+-					       PCI_DMA_BIDIRECTIONAL);
++					       PCI_DMA_TODEVICE);
+ 		addr += SBP2_DOORBELL_OFFSET;
+ 		data[0] = 0;
+ 		length = 4;
+@@ -2176,7 +2176,7 @@ static int sbp2_handle_status_write(stru
+ 		SBP2_DEBUG("Found status for command ORB");
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, command->command_orb_dma,
+ 					    sizeof(struct sbp2_command_orb),
+-					    PCI_DMA_BIDIRECTIONAL);
++					    PCI_DMA_TODEVICE);
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, command->sge_dma,
+ 					    sizeof(command->scatter_gather_element),
+ 					    PCI_DMA_BIDIRECTIONAL);
+@@ -2365,7 +2365,7 @@ static void sbp2scsi_complete_all_comman
+ 		command = list_entry(lh, struct sbp2_command_info, list);
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, command->command_orb_dma,
+ 					    sizeof(struct sbp2_command_orb),
+-					    PCI_DMA_BIDIRECTIONAL);
++					    PCI_DMA_TODEVICE);
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, command->sge_dma,
+ 					    sizeof(command->scatter_gather_element),
+ 					    PCI_DMA_BIDIRECTIONAL);
+@@ -2548,7 +2548,7 @@ static int sbp2scsi_abort(struct scsi_cm
+ 			pci_dma_sync_single_for_cpu(hi->host->pdev,
+ 						    command->command_orb_dma,
+ 						    sizeof(struct sbp2_command_orb),
+-						    PCI_DMA_BIDIRECTIONAL);
++						    PCI_DMA_TODEVICE);
+ 			pci_dma_sync_single_for_cpu(hi->host->pdev,
+ 						    command->sge_dma,
+ 						    sizeof(command->scatter_gather_element),
 
 

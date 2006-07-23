@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWGWSZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWGWS0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWGWSZE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 14:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWGWSZE
+	id S1751195AbWGWS0G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 14:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWGWS0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 14:25:04 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:10148
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751172AbWGWSZC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 14:25:02 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Tomasz =?utf-8?q?K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-Date: Sun, 23 Jul 2006 20:24:43 +0200
-User-Agent: KMail/1.9.1
-References: <44C099D2.5030300@s5r6.in-berlin.de> <20060723112005.GA6815@martell.zuzino.mipt.ru> <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl>
-In-Reply-To: <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>
+	Sun, 23 Jul 2006 14:26:06 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:14222 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751195AbWGWS0F convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 14:26:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pnNd3VVFxjTcFXhg9uFJlXKrQXFo/Zeyii0gbcXB0TqpUTnObmCgjeBckAe2bYUzuHLbPcz28L6PCGM8CxcYlHG6mqZI5uB3ePx2zpcb85wJfottQq2H+tXoawbYNi2BHjQ54JPNG/Ir5xA42eDDHIh2uocsqNEzTUI3uAgOF8s=
+Message-ID: <b8bf37780607231126u7e33a9dexcaa0d5a63dd6b356@mail.gmail.com>
+Date: Sun, 23 Jul 2006 14:26:04 -0400
+From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
+To: "linux list" <linux-kernel@vger.kernel.org>
+Subject: RE: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+In-Reply-To: <1153678231.044608.12610@i3g2000cwc.googlegroups.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607232024.43237.mb@bu3sch.de>
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <6Ba6G-41w-3@gated-at.bofh.it> <6Bpp9-1XU-23@gated-at.bofh.it>
+	 <6Bvuv-2Wa-11@gated-at.bofh.it> <6Bwqz-4m0-11@gated-at.bofh.it>
+	 <1153678231.044608.12610@i3g2000cwc.googlegroups.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 July 2006 19:55, Tomasz KÅ‚oczko wrote:
-> On Sun, 23 Jul 2006, Alexey Dobriyan wrote:
-> [..]
-> >> Again: using indent mainly will mean only one time massive changes.
+Jeff Garzik wrote:
+> Hans Reiser wrote:
+> > Theodore Tso wrote:
 > >
-> > True, 180M(!) of them.
-> 
-> ~160M.
-> And this is so huge now because seems there is no obligation use common 
-> format .. all is formated using hands/mind/difftent editors autoformaters.
-> 
-> >> After
-> >> this ident can be runed for example by Linus just before make release
-> >> and/or partial release.
-> >
-> > ~4M per run.
-> 
-> If patch submmitter will use formating tool and it will add it will statr 
-> work on formated source tree it will be 0M per run.
-> 
-> >>> scripts/Lindent exists and gets used, but it is not perfect.
-> >
-> > Correction: GNU indent exists and gets used, but it is not perfect.
-> 
-> Yes .. and produce by Lindent ~160MB patch it excelent proof how offent is 
-> is used now :>
-> (please stop this crap "argumentation" :>)
+> >> Actually, the first bits
+> >>
+> > yes, the first bits....   other people send in completed filesystems....
+>
+> Completed filesystems have a much higher barrier to entry, because they
+> require a fresh review.
+>
+> ext4 will go upstream MUCH faster, because it follows the standard
+> process of Linux evolution, building on top of existing code with
+> progressive changes:
 
-Yeah, please stop it.
-Did you actually _look_ at what indent does to code sometimes?
-It sometimes (often?) renders perfectly readable code into a
-huge blob of crap.
+Hi, Hans!
 
-Face reality. The linux kernel is following the general codingstyle
-very well already. I don't think there is need to improve the current
-codebase for non-existent codingstyle issues. And we already review
-new code for codingstyle issues, so the codebase remains clean.
+    I think you are mostly right in your conclusions, it is sad but
+true that we lose very good developers sometimes. I hope this
+can be changed by emails like yours in the long run.
 
-Look at other projects with horrible codingstyle problems
-and suggest solutions to their _real_ issues. *cough*kde*cough*
+   I would like to see you and Christoph working again with synergy
+(with harmony), but you have insulted him in the past. I regret this
+happened and I think reiser4 would be already with us all if you had
+focused at the technical discussion with him. I know that sometimes
+it is difficult but we must all learn with Greg Kroah-Hartman, one of
+the major contributors in volume to the kernel: be highly diplomatic
+and respectfull. See more here:
+
+    http://os.newsforge.com/os/06/07/23/1212252.shtml?tid=2&tid=138
+
+    The arguments Jeff presented are super strong and are backed by an
+entire past thread where Linus and others share a sharp clear vision
+which I think that works very well in practice:
+
+http://www.kernel-traffic.org/kernel-traffic/kt19991101_41.html#6
+
+    They are _right_ (tm) here. We all know they are from our experiences
+in past mistakes.
+
+   I would like to thank you for reiser4, it is great! Please use your
+diplomacy to get more reviews. After getting the code reviewed, fix the
+complaints or discuss technically your POV.
+   We all want reiser4 in (I do think it is great), but after reviewed by the
+filesystem experts.
+
+Thank you and the reiser4 team!
 
 -- 
-Greetings Michael.
+[]s,
+André Goddard

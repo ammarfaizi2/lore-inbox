@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWGWTpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWGWTrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWGWTpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 15:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWGWTpn
+	id S1751284AbWGWTrD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 15:47:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWGWTrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 15:45:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47078 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751281AbWGWTpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 15:45:42 -0400
-Date: Sun, 23 Jul 2006 20:45:39 +0100
-From: hch <hch@infradead.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
-       Ed Lin <ed.lin@promise.com>,
-       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-       hch <hch@infradead.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, promise_linux <promise_linux@promise.com>
-Subject: Re: [PATCH] Promise 'stex' driver
-Message-ID: <20060723194539.GB25789@infradead.org>
-Mail-Followup-To: hch <hch@infradead.org>, Jeff Garzik <jeff@garzik.org>,
-	Jens Axboe <axboe@suse.de>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Ed Lin <ed.lin@promise.com>,
-	"linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-	promise_linux <promise_linux@promise.com>
-References: <NONAMEBMcvsq9IcVux1000001f9@nonameb.ptu.promise.com> <44BFF539.4000700@garzik.org> <1153439728.4754.19.camel@mulgrave> <44C01CD7.4030308@garzik.org> <20060721010724.GB24176@suse.de> <44C02D1E.4090206@garzik.org> <20060721013822.GA25504@suse.de> <44C037B3.4080707@garzik.org> <20060721023647.GA29220@suse.de> <44C0436E.306@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C0436E.306@garzik.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 23 Jul 2006 15:47:03 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:1000 "EHLO gepetto.dc.ltu.se")
+	by vger.kernel.org with ESMTP id S1751284AbWGWTrC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 15:47:02 -0400
+Message-ID: <1153683996.44c3d21c430b5@portal.student.luth.se>
+Date: Sun, 23 Jul 2006 21:46:36 +0200
+From: ricknu-0@student.ltu.se
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] A generic boolean (version 4)
+References: <1153341500.44be983ca1407@portal.student.luth.se> <1153669750.44c39a7607a30@portal.student.luth.se> <200607231813.21813.mb@bu3sch.de>
+In-Reply-To: <200607231813.21813.mb@bu3sch.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 20, 2006 at 11:01:02PM -0400, Jeff Garzik wrote:
-> I think it's highly rude to presume that someone who has so-far been 
-> responsive, and responsible, will suddenly not be so.  That is not the 
-> way to encourage vendors to join the Linux process.
+Citerar Michael Buesch <mb@bu3sch.de>:
 
-But it is like that in practice.  I know more than enough examples where
-there is no more incentive to fix things up once it's in, heck I'm guilty
-of that myself.  It has to do with beeing lazy and not wanting to change code
-anymore once it has settled.
+> On Sunday 23 July 2006 17:49, ricknu-0@student.ltu.se wrote:
+> > And here comes lucky number four.
+> 
+> > diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
+> > index 4b4b295..3cb84ac 100644
+> > --- a/include/asm-i386/types.h
+> > +++ b/include/asm-i386/types.h
+> > @@ -1,6 +1,8 @@
+> >  #ifndef _I386_TYPES_H
+> >  #define _I386_TYPES_H
+> >  
+> > +typedef _Bool bool;
+> > +
+> >  #ifndef __ASSEMBLY__
+> 
+> I'd say that typedef must go into the !__ASSEMBLY__ section here,
+> like the other typedefs in that header.
 
+You are right. Misstook the #endif as #else (a downside of programming late).
+It is corrected, thanks.
+
+> Greetings Michael.
+
+See ya
+/Richard

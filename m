@@ -1,55 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWGWHh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWGWHtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbWGWHh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 03:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWGWHh1
+	id S1750839AbWGWHtK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 03:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWGWHtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 03:37:27 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:9853 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750768AbWGWHh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 03:37:27 -0400
-Date: Sun, 23 Jul 2006 09:35:00 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [patch] slab: always follow arch requested alignments
-Message-ID: <20060723073500.GA10556@osiris.ibm.com>
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com>
+	Sun, 23 Jul 2006 03:49:10 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:47979 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750888AbWGWHtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 03:49:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=sEA1BLW1PaaKELPKKHY494YaW/8Pt5oRcI04qvuONQ5o4qw5K+IgRQDsmZtZpKIaUNEQGnChoXHTCZwzRamp/K9TxqhPThm0aRqP5r0sMz//G/Vkx5xQNTrY9zNUILokl0NLkMKXo9//AOsI3ToImg/p6OIeqFHZp06ZM3UM7tY=
+Message-ID: <44C329FB.3010901@gmail.com>
+Date: Sun, 23 Jul 2006 09:48:52 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/acpi/battery.c cleanups
+References: <20060723002907.GA8886@leiferikson.gentoo>
+In-Reply-To: <20060723002907.GA8886@leiferikson.gentoo>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 22, 2006 at 12:42:32PM -0700, Christoph Lameter wrote:
-> On Sat, 22 Jul 2006, Heiko Carstens wrote:
-> > Since that didn't work I thought why not set ARCH_SLAB_MINALIGN to 8, since
-> > that would (according to the description) guarantee that _all_ caches would
-> > have an 8 byte alignment. But that didn't work too.
+Johannes Weiner napsal(a):
+> Removed assignment casts, substituted kmalloc+memset with kzalloc, made
+> functions void if they never return a value. Style adjustments.
 > 
-> Why did that not work
+> Signed-off-by: Johannes Weiner <hnazfoo@gmail.com>
 > 
-> See kmem_cache_create():
->       /* 2) arch mandated alignment: disables debug if necessary */
->         if (ralign < ARCH_SLAB_MINALIGN) {
->                 ralign = ARCH_SLAB_MINALIGN;
->                 if (ralign > BYTES_PER_WORD)
->                         flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
->         }
+> ---
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+> index 6e52217..85f6a23 100644
+> --- a/drivers/acpi/battery.c
+> +++ b/drivers/acpi/battery.c
+> @@ -147,7 +147,7 @@ acpi_battery_get_info(struct acpi_batter
+>  		return -ENODEV;
+>  	}
+>  
+> -	package = (union acpi_object *)buffer.pointer;
+> +	package = buffer.pointer;
+>  
+>  	/* Extract Package Data */
+>  
+> @@ -158,12 +158,11 @@ acpi_battery_get_info(struct acpi_batter
+>  		goto end;
+>  	}
+>  
+> -	data.pointer = kmalloc(data.length, GFP_KERNEL);
+> +	data.pointer = kzalloc(data.length, GFP_KERNEL);
+>  	if (!data.pointer) {
+>  		result = -ENOMEM;
+>  		goto end;
+>  	}
+> -	memset(data.pointer, 0, data.length);
+>  
+>  	status = acpi_extract_package(package, &format, &data);
+>  	if (ACPI_FAILURE(status)) {
+> @@ -173,11 +172,11 @@ acpi_battery_get_info(struct acpi_batter
+>  		goto end;
+>  	}
+>  
+> -      end:
+> +end:
+>  	kfree(buffer.pointer);
+>  
+>  	if (!result)
+> -		(*bif) = (struct acpi_battery_info *)data.pointer;
+> +		(*bif) = data.pointer;
 
-That is because if kmem_cache_create gets called with SLAB_HWCACHE_ALIGN set
-in flags then ralign will be greater or equal to ARCH_SLAB_MINALIGN:
+still unneeded ()
 
-        /* 1) arch recommendation: can be overridden for debug */ 
-        if (flags & SLAB_HWCACHE_ALIGN) { 
-	        [...]
-                ralign = cache_line_size(); 
-	        [...]
+>  
+>  	return result;
+>  }
+> @@ -207,7 +206,7 @@ acpi_battery_get_status(struct acpi_batt
+>  		return -ENODEV;
+>  	}
+>  
+> -	package = (union acpi_object *)buffer.pointer;
+> +	package = buffer.pointer;
+>  
+>  	/* Extract Package Data */
+>  
+> @@ -218,12 +217,11 @@ acpi_battery_get_status(struct acpi_batt
+>  		goto end;
+>  	}
+>  
+> -	data.pointer = kmalloc(data.length, GFP_KERNEL);
+> +	data.pointer = kzalloc(data.length, GFP_KERNEL);
+>  	if (!data.pointer) {
+>  		result = -ENOMEM;
+>  		goto end;
+>  	}
+> -	memset(data.pointer, 0, data.length);
+>  
+>  	status = acpi_extract_package(package, &format, &data);
+>  	if (ACPI_FAILURE(status)) {
+> @@ -233,11 +231,11 @@ acpi_battery_get_status(struct acpi_batt
+>  		goto end;
+>  	}
+>  
+> -      end:
+> +end:
+>  	kfree(buffer.pointer);
+>  
+>  	if (!result)
+> -		(*bst) = (struct acpi_battery_status *)data.pointer;
+> +		(*bst) = data.pointer;
 
-Therefore the test above will be passed and SLAB_RED_ZONE and SLAB_STORE_USER
-will stay in flags.
-cache_line_size() will return 256 on s390.
+and here
+
+regards,
+-- 
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

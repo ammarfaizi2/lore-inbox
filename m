@@ -1,131 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWGWVAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWGWVBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWGWVAO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 17:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWGWVAO
+	id S1751324AbWGWVBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 17:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWGWVBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 17:00:14 -0400
-Received: from orca.ele.uri.edu ([131.128.51.63]:38366 "EHLO orca.ele.uri.edu")
-	by vger.kernel.org with ESMTP id S1751320AbWGWVAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 17:00:13 -0400
-Date: Sun, 23 Jul 2006 17:00:39 -0400
-From: Will Simoneau <simoneau@ele.uri.edu>
-To: pageexec@freemail.hu
-Cc: grsecurity@grsecurity.net, linux-kernel@vger.kernel.org
-Subject: Re: [grsec] kdeinit causes scheduling while atomic
-Message-ID: <20060723210039.GC30515@ele.uri.edu>
-References: <20060718135817.GA21666@ele.uri.edu> <44C382C9.4760.1D4085C8@pageexec.freemail.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
-Content-Disposition: inline
-In-Reply-To: <44C382C9.4760.1D4085C8@pageexec.freemail.hu>
-User-Agent: Mutt/1.5.11 [Linux 2.6.17.6-grsec-b0rg i686]
+	Sun, 23 Jul 2006 17:01:14 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:1986 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751324AbWGWVBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 17:01:13 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Sun, 23 Jul 2006 22:59:47 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.18-rc1-mm2 5/6] ieee1394: sbp2: more checks of status
+ block
+To: linux1394-devel@lists.sourceforge.net
+cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <tkrat.25e69df87688def6@s5r6.in-berlin.de>
+Message-ID: <tkrat.1e07144d0042077e@s5r6.in-berlin.de>
+References: <tkrat.25e69df87688def6@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.912) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ - Add checks for the (very unlikely) cases that the target writes too
+   little or too much status data or writes unsolicited status.
+ - Indicate that these and similar conditions are unlikely().
+ - Check the 'resp' and 'sbp_status' fields for possible failure status.
+ - Slightly optimize access macros for the status block bitfields.
+ - Unify a few related log messages.
 
---Sr1nOIr3CvdE5hEN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+ drivers/ieee1394/sbp2.c |   70 +++++++++++++++++-----------------------
+ drivers/ieee1394/sbp2.h |   14 ++++----
+ 2 files changed, 38 insertions(+), 46 deletions(-)
 
-On 14:08 Sun 23 Jul     , pageexec@freemail.hu wrote:
-> On 18 Jul 2006 at 9:58, Will Simoneau wrote:
-> > A scheduling while atomic just started showing up in the kernel log on
-> > my machine, which unfortunately is running an odd combination of
-> > non-vanilla patches. Maybe someone who knows at least some of the code
-> > can give me some hints tracking this down? Or maybe the grsecurity folks
-> > have an idea?
->=20
-> given that probably neither side is familiar with  the other's patches,
-> you should try to reproduce this with only one patch first. in the meanti=
-me,
-> it'd help to find out what gets called at copy_process+0x614/0xdea, there=
-'s
-> probably a 'call' insn around copy_process+60f, you can use objdump to fi=
-nd
-> out who the target is.
+TODO:
+Check if status' 'src'==1, then withhold the respective ORB from reuse
+until status for any subsequent ORB was received.
 
-objdump -d:
+Index: linux/drivers/ieee1394/sbp2.h
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.h	2006-07-23 10:11:34.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.h	2006-07-23 10:21:31.000000000 +0200
+@@ -180,12 +180,14 @@ struct sbp2_unrestricted_page_table {
+ 
+ #define SBP2_SCSI_STATUS_SELECTION_TIMEOUT	0xff
+ 
+-#define STATUS_GET_ORB_OFFSET_HI(value)         (value & 0xffff)
+-#define STATUS_GET_SBP_STATUS(value)            ((value >> 16) & 0xff)
+-#define STATUS_GET_LENGTH(value)                ((value >> 24) & 0x7)
+-#define STATUS_GET_DEAD_BIT(value)              ((value >> 27) & 0x1)
+-#define STATUS_GET_RESP(value)                  ((value >> 28) & 0x3)
+-#define STATUS_GET_SRC(value)                   ((value >> 30) & 0x3)
++#define STATUS_GET_SRC(value)			(((value) >> 30) & 0x3)
++#define STATUS_GET_LEN(value)			(((value) >> 24) & 0x7)
++#define STATUS_GET_ORB_OFFSET_HI(value)		((value) & 0x0000ffff)
++#define STATUS_TEST_D(value)			((value) & 0x08000000)
++/* test 'resp' | 'sbp2_status' */
++#define STATUS_TEST_RS(value)			((value) & 0x30ff0000)
++/* test 'resp' | 'dead' | 'sbp2_status' */
++#define STATUS_TEST_RDS(value)			((value) & 0x38ff0000)
+ 
+ struct sbp2_status_block {
+ 	u32 ORB_offset_hi_misc;
+Index: linux/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-07-23 10:21:07.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-07-23 10:21:31.000000000 +0200
+@@ -1201,11 +1201,8 @@ static int sbp2_query_logins(struct scsi
+ 		return -EIO;
+ 	}
+ 
+-	if (STATUS_GET_RESP(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_DEAD_BIT(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_SBP_STATUS(scsi_id->status_block.ORB_offset_hi_misc)) {
+-
+-		SBP2_INFO("Error querying logins to SBP-2 device - timed out");
++	if (STATUS_TEST_RDS(scsi_id->status_block.ORB_offset_hi_misc)) {
++		SBP2_INFO("Error querying logins to SBP-2 device - failed");
+ 		return -EIO;
+ 	}
+ 
+@@ -1298,18 +1295,12 @@ static int sbp2_login_device(struct scsi
+ 	 * Sanity. Make sure status returned matches login orb.
+ 	 */
+ 	if (scsi_id->status_block.ORB_offset_lo != scsi_id->login_orb_dma) {
+-		SBP2_ERR("Error logging into SBP-2 device - login timed-out");
++		SBP2_ERR("Error logging into SBP-2 device - timed out");
+ 		return -EIO;
+ 	}
+ 
+-	/*
+-	 * Check status
+-	 */
+-	if (STATUS_GET_RESP(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_DEAD_BIT(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_SBP_STATUS(scsi_id->status_block.ORB_offset_hi_misc)) {
+-
+-		SBP2_ERR("Error logging into SBP-2 device - login failed");
++	if (STATUS_TEST_RDS(scsi_id->status_block.ORB_offset_hi_misc)) {
++		SBP2_ERR("Error logging into SBP-2 device - failed");
+ 		return -EIO;
+ 	}
+ 
+@@ -1333,9 +1324,7 @@ static int sbp2_login_device(struct scsi
+ 	scsi_id->sbp2_command_block_agent_addr &= 0x0000ffffffffffffULL;
+ 
+ 	SBP2_INFO("Logged into SBP-2 device");
+-
+ 	return 0;
+-
+ }
+ 
+ /*
+@@ -1466,25 +1455,17 @@ static int sbp2_reconnect_device(struct 
+ 	 * Sanity. Make sure status returned matches reconnect orb.
+ 	 */
+ 	if (scsi_id->status_block.ORB_offset_lo != scsi_id->reconnect_orb_dma) {
+-		SBP2_ERR("Error reconnecting to SBP-2 device - reconnect timed-out");
++		SBP2_ERR("Error reconnecting to SBP-2 device - timed out");
+ 		return -EIO;
+ 	}
+ 
+-	/*
+-	 * Check status
+-	 */
+-	if (STATUS_GET_RESP(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_DEAD_BIT(scsi_id->status_block.ORB_offset_hi_misc) ||
+-	    STATUS_GET_SBP_STATUS(scsi_id->status_block.ORB_offset_hi_misc)) {
+-
+-		SBP2_ERR("Error reconnecting to SBP-2 device - reconnect failed");
++	if (STATUS_TEST_RDS(scsi_id->status_block.ORB_offset_hi_misc)) {
++		SBP2_ERR("Error reconnecting to SBP-2 device - failed");
+ 		return -EIO;
+ 	}
+ 
+ 	HPSB_DEBUG("Reconnected to SBP-2 device");
+-
+ 	return 0;
+-
+ }
+ 
+ /*
+@@ -2115,18 +2096,19 @@ static int sbp2_handle_status_write(stru
+ 
+ 	sbp2util_packet_dump(data, length, "sbp2 status write by device", (u32)addr);
+ 
+-	if (!host) {
++	if (unlikely(length < 8 || length > sizeof(struct sbp2_status_block))) {
++		SBP2_ERR("Wrong size of status block");
++		return RCODE_ADDRESS_ERROR;
++	}
++	if (unlikely(!host)) {
+ 		SBP2_ERR("host is NULL - this is bad!");
+ 		return RCODE_ADDRESS_ERROR;
+ 	}
+-
+ 	hi = hpsb_get_hostinfo(&sbp2_highlevel, host);
+-
+-	if (!hi) {
++	if (unlikely(!hi)) {
+ 		SBP2_ERR("host info is NULL - this is bad!");
+ 		return RCODE_ADDRESS_ERROR;
+ 	}
+-
+ 	/*
+ 	 * Find our scsi_id structure by looking at the status fifo address
+ 	 * written to by the sbp2 device.
+@@ -2138,8 +2120,7 @@ static int sbp2_handle_status_write(stru
+ 			break;
+ 		}
+ 	}
+-
+-	if (!scsi_id) {
++	if (unlikely(!scsi_id)) {
+ 		SBP2_ERR("scsi_id is NULL - device is gone?");
+ 		return RCODE_ADDRESS_ERROR;
+ 	}
+@@ -2156,12 +2137,14 @@ static int sbp2_handle_status_write(stru
+ 	sbp2util_be32_to_cpu_buffer(sb, 8);
+ 
+ 	/*
+-	 * Handle command ORB status here if necessary. First, need to match
+-	 * status with command.
++	 * Ignore unsolicited status. Handle command ORB status.
+ 	 */
+-	command = sbp2util_find_command_for_orb(scsi_id, sb->ORB_offset_lo);
++	if (unlikely(STATUS_GET_SRC(sb->ORB_offset_hi_misc) == 2))
++		command = NULL;
++	else
++		command = sbp2util_find_command_for_orb(scsi_id,
++							sb->ORB_offset_lo);
+ 	if (command) {
+-
+ 		SBP2_DEBUG("Found status for command ORB");
+ 		pci_dma_sync_single_for_cpu(hi->host->pdev, command->command_orb_dma,
+ 					    sizeof(struct sbp2_command_orb),
+@@ -2177,16 +2160,23 @@ static int sbp2_handle_status_write(stru
+ 		 * Matched status with command, now grab scsi command pointers
+ 		 * and check status.
+ 		 */
++		/*
++		 * FIXME: If the src field in the status is 1, the ORB DMA must
++		 * not be reused until status for a subsequent ORB is received.
++		 */
+ 		SCpnt = command->Current_SCpnt;
+ 		spin_lock_irqsave(&scsi_id->sbp2_command_orb_lock, flags);
+ 		sbp2util_mark_command_completed(scsi_id, command);
+ 		spin_unlock_irqrestore(&scsi_id->sbp2_command_orb_lock, flags);
+ 
+ 		if (SCpnt) {
++			if (STATUS_TEST_RS(sb->ORB_offset_hi_misc))
++				scsi_status =
++					SBP2_SCSI_STATUS_COMMAND_TERMINATED;
+ 			/*
+ 			 * See if the target stored any scsi status information.
+ 			 */
+-			if (STATUS_GET_LENGTH(sb->ORB_offset_hi_misc) > 1) {
++			if (STATUS_GET_LEN(sb->ORB_offset_hi_misc) > 1) {
+ 				SBP2_DEBUG("CHECK CONDITION");
+ 				scsi_status = sbp2_status_to_sense_data(
+ 					(unchar *)sb, SCpnt->sense_buffer);
+@@ -2196,7 +2186,7 @@ static int sbp2_handle_status_write(stru
+ 			 * Check to see if the dead bit is set. If so, we'll
+ 			 * have to initiate a fetch agent reset.
+ 			 */
+-			if (STATUS_GET_DEAD_BIT(sb->ORB_offset_hi_misc)) {
++			if (STATUS_TEST_D(sb->ORB_offset_hi_misc)) {
+ 				SBP2_DEBUG("Dead bit set - "
+ 					   "initiating fetch agent reset");
+                                 sbp2_agent_reset(scsi_id, 0);
 
-   c014838a:   be 00 f0 ff ff          mov    $0xfffff000,%esi
-   c014838f:   8b bb a0 00 00 00       mov    0xa0(%ebx),%edi
-   c0148395:   21 e6                   and    %esp,%esi
-   c0148397:   8b 06                   mov    (%esi),%eax
-   c0148399:   85 ff                   test   %edi,%edi
-   c014839b:   0f b7 40 2c             movzwl 0x2c(%eax),%eax
-   c014839f:   66 89 43 2c             mov    %ax,0x2c(%ebx)
-   c01483a3:   74 51                   je     c01483f6 <copy_process+0x660>
--> c01483a5:   e8 a7 ab 0f 00          call   c0242f51 <gr_handle_brute_che=
-ck>
-   c01483aa:   8b 83 ac 00 00 00       mov    0xac(%ebx),%eax
-   c01483b0:   05 b0 00 00 00          add    $0xb0,%eax
-   c01483b5:   8b 4c 24 0c             mov    0xc(%esp),%ecx
 
->=20
-> > Patches applied on top of 2.6.17.6:
-> > grsecurity-2.1.9-2.6.17.4-200607120947
-> > suspend2-2.2.7-for-2.6.17 (without 9920-linus-basic-trace - that plus
-> > grsecurity gives rejects on vmlinux.lds.S)
->=20
-> from what i see, it's a trivial reject, you can apply it by hand after RO=
-DATA.
->=20
-> > ---cut here---
-> > PAX: execution attempt in: <NULL>, 00000000-00000000 00000000
-> > PAX: terminating task: /usr/kde/3.5/bin/konqueror(konqueror):21177, uid=
-/euid: 1000/1000, PC: 00000010, SP: 5953cf80
-> > PAX: bytes at PC: ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??=
- ?? ??=20
-> > PAX: bytes at SP-4: 00000010 00000003 5953cfb0 00000000 0000000a 000000=
-1c 40488ef8 0000001d 5618e6e0 40083d30 00000000 00000003 55efdb83 40189c00 =
-56108d92 56b09377 5618e6e0 5953d000 00000006 404eadb8 55f2bef8=20
-> > ---end cut----
-> >=20
-> > Call of a null function pointer?
->=20
-> it's interesting that at esp-4 you have 0x10, which happens to be the
-> faulting eip value as well. this can occur if the fault occured not
-> due to a 'call' but rather a 'retn' insn, that is, a function was trying
-> to return to its caller, but the return address got overwritten on the
-> stack. now whether that happened due to some programming error or a
-> gcc/ssp bug is a good question. i'd first try to recompile it (and all
-> related libraries!) w/o ssp, it's known to have code generation bugs for
-> c++ code. if that cures the problem, you should enter it into the gentoo
-> bugzilla.
-
-It's caused by qt, with -fstack-protector(-all?) enabled. Version is
-x11-libs/qt-3.3.6-r1 from portage. Without ssp, going to wikipedia in
-konqueror works fine. Will file at bugs.gentoo.org when I get a chance.
-
->=20
-> > Sometimes konqueror is killed by PaX, sometimes it dies on its own (I
-> > think with a segfault). I can reproduce this 100% of the time by firing
-> > up Konqueror and going to www.wikipedia.org, just before the front page
-> > loads the window dissapears and leave those traces behind. Other sites
-> > seem to work fine. The process either segfaults or is killed by PaX
-> > immediately after causing the scheduling while atomic.
->=20
-> you mean, the first mentioned schedule BUG triggered in kdeinit is related
-> to this crash in konqueror? or are you getting a schedule BUG in konqueror
-> as well? in any case, eliminating one variable at a time (like ssp) should
-> help you nail the bug(s) down.
->=20
-
-I'm not sure what's happening with the scheduling while atomic now.
-
---Sr1nOIr3CvdE5hEN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-
-iD8DBQFEw+N3LYBaX8VDLLURAjKqAJwPdaEb8eA7/zGMpVzkrsQ0nNyDZwCfWYVu
-TVjOvx46zijHcZg9hrJl2eQ=
-=KTha
------END PGP SIGNATURE-----
-
---Sr1nOIr3CvdE5hEN--

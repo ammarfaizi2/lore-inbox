@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWGWDVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWGWEJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWGWDVr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 23:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWGWDVr
+	id S1750716AbWGWEJX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 00:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWGWEJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 23:21:47 -0400
-Received: from rialto-h50.host.net ([64.135.31.50]:12498 "EHLO
-	mail.ultrawaves.com") by vger.kernel.org with ESMTP
-	id S1750717AbWGWDVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 23:21:46 -0400
-Message-ID: <44C2EB45.1050302@lammerts.org>
-Date: Sat, 22 Jul 2006 23:21:41 -0400
-From: Eric Lammerts <eric@lammerts.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Chris Boot <bootc@bootc.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
-Subject: Re: [RFC][PATCH] LED Class support for Soekris net48xx
-References: <44AF7B00.9060108@bootc.net>
-In-Reply-To: <44AF7B00.9060108@bootc.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Jul 2006 00:09:23 -0400
+Received: from [216.208.38.107] ([216.208.38.107]:7050 "EHLO OTTLS.pngxnet.com")
+	by vger.kernel.org with ESMTP id S1750716AbWGWEJX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 00:09:23 -0400
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       davej@redhat.com, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
+References: <20060722194018.GA28924@redhat.com>
+	 <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
+	 <20060722180602.ac0d36f5.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 23 Jul 2006 06:09:14 +0200
+Message-Id: <1153627754.7359.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot wrote:
-> I'd love to find a way of detecting a Soekris net48xx device
- > but there is no DMI or any Soekris-specific PCI devices.
+On Sat, 2006-07-22 at 18:15 -0700, Linus Torvalds wrote:
+> 
+> On Sat, 22 Jul 2006, Andrew Morton wrote:
+> > 
+> > It was just wrong in conception.  We should not and probably cannot fix it.
+> > Let's just delete it all, then implement version 2.
+> 
+> Well, I just got Ashok's trial patches which turns the thing into a rwsem 
+> as I outlined earlier.
 
-You could do ugly things like this:
-
-         int i;
-         char *bios = __va(0xf0000);
-
-         for(i = 0; i < 0x10000 - 19; i++) {
-                 if(memcmp(bios + i, "Soekris Engineering", 19) == 0) {
-                         printk("soekris string found at 0x%x\n", i);
-                 }
-         }
-
-The string "net4801" is also in there (although I'm using a 4826).
-
-If anyone knows a better way, I'd like to know it too.
-
-Eric
+with rwsems being 100% fair... how is that going to make a difference?
+Other than just making the deadlock harder to trigger because the writer
+needs to come in just at the right time...

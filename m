@@ -1,102 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWGWLUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWGWLsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWGWLUK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 07:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGWLUK
+	id S1750831AbWGWLsb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 07:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWGWLsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 07:20:10 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:779 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751185AbWGWLUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 07:20:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent;
-        b=F+puThx78+gdBN7r7PGz94yFf0OSSM/pFJbRH/069dadMV91CXqhkr/ceIQRyky/mp3ZbkpXQ4BT954vO9XN2edBKSlz6smhW/+0pWLpJHZqGVHTueLlZD0nBwlnCx11lWFc3YGRwqdhCYCMVIJNtsdfS/aPmGkUsfid/hOP7IQ=
-Date: Sun, 23 Jul 2006 15:20:05 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Tomasz =?utf-8?Q?K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
-Message-ID: <20060723112005.GA6815@martell.zuzino.mipt.ru>
-References: <44C099D2.5030300@s5r6.in-berlin.de> <9a8748490607210320l16896cfcg2dc12c9cf4c45887@mail.gmail.com> <1153478157.9489.30.camel@hemera> <Pine.LNX.4.58.0607211336450.26827@sbz-30.cs.Helsinki.FI> <44C0B29F.2080604@s5r6.in-berlin.de> <Pine.BSO.4.63.0607221949490.10018@rudy.mif.pg.gda.pl> <44C26D90.4030307@s5r6.in-berlin.de> <Pine.BSO.4.63.0607222030370.10018@rudy.mif.pg.gda.pl> <44C28472.2080509@pobox.com> <Pine.BSO.4.63.0607222242100.10018@rudy.mif.pg.gda.pl>
+	Sun, 23 Jul 2006 07:48:30 -0400
+Received: from lug-owl.de ([195.71.106.12]:61365 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750831AbWGWLsa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 07:48:30 -0400
+Date: Sun, 23 Jul 2006 13:48:28 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060723114828.GC27825@lug-owl.de>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+	LKML <linux-kernel@vger.kernel.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="S1BNGpv0yoYahz37"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.BSO.4.63.0607222242100.10018@rudy.mif.pg.gda.pl>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <44C32348.8020704@namesys.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC list trimmed]
 
-On Sat, Jul 22, 2006 at 10:55:55PM +0200, Tomasz Kłoczko wrote:
-> On Sat, 22 Jul 2006, Jeff Garzik wrote:
-> >Tomasz Kłoczko wrote:
-> >>Moment .. are you want to say something like "keep commont coding style
-> >>can't be maintained by tool" ?
-> >>Even if indent watches on to small coding style emenets still I don't see
-> >>why using this tool isn't one of the current ement of release procedure
-> >>(?).
-> >
-> >indent isn't perfect, _especially_ where C99 comes into the picture.
->
-> Again: is in this case "isn't perfect" mean "it does not make all what we
-> want" ? If yes still I don't see why not use indent + some other tool or
-> if you will show real example where it does something badady (like now
-> for checking code syntax is used compiler and some other tools like
-> sparse).
->
-> >And running indent across the tree pre-release would (a) create a ton of
-> >noise before each release, and (b) undo perfectly valid, readable
-> >formatting.
->
-> Committing all this "noise" will plug all this thing and allow reve most
-> of content Documentation/CodingStyle document.
-> Is it not wort stop all questions/discuss/flames on this subject ?
+--S1BNGpv0yoYahz37
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, it's better to stop this thread. Because you haven't done your
-homework and advocating procedure which will create massive spurious changes
-every time it's applied.
+On Sun, 2006-07-23 01:20:40 -0600, Hans Reiser <reiser@namesys.com> wrote:
+> There is nothing about small patches that makes them better code.  There
 
-If you have math background:
+Erm, a small patch is something which should _obviously_ fix one
+issue. A small patch, containing at max some 100 lines, can easily be
+read and understood.
 
-	Lindent \cdot Lindent \neq Lindent
+A complete filesystem (I'm co-maintaining one for an ancient on-disk
+format, too) isn't really easy to understand or to verify from looking
+at it for 5min.
 
-pretty often. If you don't, see below.
+> is no reason we should favor them, if the developers are willing to work
+> on something for 5 years to escape a local optimum, that is often the
+> RIGHT thing to do.
 
-> Again: using indent mainly will mean only one time massive changes.
+I give a shit of nothing to some 5 year work if I cannot verify that
+it won't hurt me at some point.
 
-True, 180M(!) of them.
+> It is importand that we embrace our diversity, and be happy for the
+> strength it gives us.  Some of us are good at small patches that evolve,
+> and some are good at escaping local optimums.  We all have value, both
+> trees and grass have their place in the world.
 
-> After
-> this ident can be runed for example by Linus just before make release
-> and/or partial release.
+Just put reiser4 in some GIT tree and publish it. Maybe you can place
+it on git.kernel.org .
 
-~4M per run.
+MfG, JBG
 
-> >scripts/Lindent exists and gets used, but it is not perfect.
+--=20
+       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
+8481
+ Signature of:                     ...und wenn Du denkst, es geht nicht meh=
+r,
+ the second  :                            kommt irgendwo ein Lichtlein her.
 
-Correction: GNU indent exists and gets used, but it is not perfect.
+--S1BNGpv0yoYahz37
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Last time I checked BSD indent don't have some option Lindent use.
-forgot which.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-> Again: anywhere are listed/was posted list of "not perfect" examples ?
+iD8DBQFEw2IMHb1edYOZ4bsRAtBDAJ0Qym+4r9bF+dHPNoYYiOAmfVEkZgCfXkWF
+3zck3qVosxcJYtP3AZyCC4U=
+=AqyK
+-----END PGP SIGNATURE-----
 
-OOhhhh, please do
-
-	find . -type f -name '*.[ch]' | xargs ./scripts/Lindent
-
-on any large C codebase.
-
-> And/or: what does it mean in this case "not perfect" ?
-
-> Show this  for
-> allow start work on fix indent by other people (if all cases will be resul
-> of some bugs in this tool).
-
-Start fixing indent(1) if you're serious about all this. There are
-_plenty_ of C code flying around.
-
+--S1BNGpv0yoYahz37--

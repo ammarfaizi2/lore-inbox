@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWGWT0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWGWThD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWGWT0a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 15:26:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWGWT0a
+	id S1751276AbWGWThD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 15:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWGWThD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 15:26:30 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:35782 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751273AbWGWT03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 15:26:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=N6lQFvLWTA2WjVWQTYjnxs9MrvdRml32FKOWH8pzo7EQsp2Bp+mhlDWRf135tLMduQNkXhQg9hukU29mysYGgORGwAygx1JA/Q/EObOVcqr8x4JnhnYvRT+//ONkRV3E7zCUGFEmYILqspnFaaTMReyVGqoUW/xIgWhcJzM0Pio=
-Date: Sun, 23 Jul 2006 23:26:26 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       James Morris <jmorris@redhat.com>, Nathan Scott <nathans@debian.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: include/linux/xattr.h: how much userpace visible?
-Message-ID: <20060723192626.GA6815@martell.zuzino.mipt.ru>
-References: <20060723184343.GA25367@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060723184343.GA25367@stusta.de>
-User-Agent: Mutt/1.5.11
+	Sun, 23 Jul 2006 15:37:03 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:51431 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751276AbWGWThB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 15:37:01 -0400
+Message-ID: <1153683377.44c3cfb146443@portal.student.luth.se>
+Date: Sun, 23 Jul 2006 21:36:17 +0200
+From: ricknu-0@student.ltu.se
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net
+Subject: Re: [RFC][PATCH] A generic boolean (version 4)
+References: <1153341500.44be983ca1407@portal.student.luth.se> <1153669750.44c39a7607a30@portal.student.luth.se> <Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 23, 2006 at 08:43:43PM +0200, Adrian Bunk wrote:
-> how much of include/linux/xattr.h has to be part of the userspace kernel
-> headers?
->
-> The function prototypes should no longer be visible in userspace.
-> But how much of the rest of this file is usable for userspace?
+Citerar Jan Engelhardt <jengelh@linux01.gwdg.de>:
 
-XATTR_CREATE, XATTR_REPLACE are passed to sys_setxattr syscall.
-struct xattr_handler is ours (it uses struct inode *). Prototypes are
-ours.
+> 
+> >Hopefully it is now ready for a "real" patch, whom adds bool to all
+> >arches. If there is no comments on this one, it will be sent about
+> >tomorrow night (GMT).
+> 
+> --- a/drivers/block/DAC960.h
+> +++ b/drivers/block/DAC960.h
+> @@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
+>    Define a Boolean data type.
+>  */
+>  
+> -typedef enum { false, true } __attribute__ ((packed)) boolean;
+> +typedef bool boolean;
+>  
+>  
+>  /*
+> 
+> Looks good. (I know found out what this is good for. Eventually, all
+> booleans
+> in the source of DAC960 et al. should be changed to just 'bool' but that's
+> another patch's job.)
+
+Yepp :)
+
+> Looks good, except for the "all arches" thing. You only seem to add it
+> to i386:
+
+I said: 'ready for a "real" patch', meaning it will be in another patch.
+Will try to be more clear in the future.
+
+> >+#undef false
+> >+#undef true
+> >+
+> >+enum {
+> >+	false	= 0,
+> >+	true	= 1
+> >+};
+> >+
+> >+#define false false
+> >+#define true true 
+> 
+> Can someone please tell me what advantage 'define true true' is going to
+> bring, besides than being able to '#ifdef true'?
+
+Assembly-code can not use enum but #define. That is the reason I find but there
+might be more.
+
+
+> Jan Engelhardt
+
+/Richard Knutsson
 

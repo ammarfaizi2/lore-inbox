@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWGWBPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWGWCTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWGWBPw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 21:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWGWBPw
+	id S1750809AbWGWCTe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 22:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWGWCTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 21:15:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15034 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750960AbWGWBPw (ORCPT
+	Sat, 22 Jul 2006 22:19:33 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:22972 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750809AbWGWCTd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 21:15:52 -0400
-Date: Sat, 22 Jul 2006 18:15:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: davej@redhat.com, linux-kernel@vger.kernel.org,
-       Ashok Raj <ashok.raj@intel.com>
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-In-Reply-To: <20060722180602.ac0d36f5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
-References: <20060722194018.GA28924@redhat.com> <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
- <20060722180602.ac0d36f5.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 22 Jul 2006 22:19:33 -0400
+Message-Id: <200607230219.k6N2JMHI021999@laptop13.inf.utfsm.cl>
+To: 7eggert@gmx.de
+cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Joshua Hudson <joshudson@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: what is necessary for directory hard links 
+In-Reply-To: Message from Bodo Eggert <7eggert@elstempel.de> 
+   of "Sat, 22 Jul 2006 18:59:45 +0200." <E1G4Kpi-0001Os-AK@be1.lrz> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Sat, 22 Jul 2006 22:19:22 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Sat, 22 Jul 2006 22:19:26 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bodo Eggert <7eggert@elstempel.de> wrote:
+> Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
+> > Joshua Hudson <joshudson@gmail.com> wrote:
+> >> This patch is the sum total of all that I had to change in the kernel
+> >> VFS layer to support hard links to directories
 
+> > Can't be done, as it creates the possibility of loops.
 
-On Sat, 22 Jul 2006, Andrew Morton wrote:
-> 
-> It was just wrong in conception.  We should not and probably cannot fix it.
-> Let's just delete it all, then implement version 2.
+> Don't do that then?
 
-Well, I just got Ashok's trial patches which turns the thing into a rwsem 
-as I outlined earlier.
+Stop /everything/ to make sure no concurrent activity creates a loop, while
+checking the current mkdir(2) doesn't create one?
 
-I'll try them out. If they don't work, we should just delete the lock and 
-go totally back to square 1.
+> > The "only files can
+> > be hardlinked" idea makes garbage collection (== deleting of unreachable
+> > objects) simple: Just check the number of references.
+> > 
+> > Detecting unconnected subgraphs uses a /lot/ of memory; and much worse, you
+> > have to stop (almost) all filesystem activity while doing it.
 
-		Linus
+> In order to disconnect a directory, you'd have to empty it first, and after
+> emptying a directory, it won't be part of a loop. Maybe emtying is the
+> problem ...
+
+What does "emptying a directory" mean if there might be loops?
+
+> This feature was implemented,
+
+Never in my memory of any Unix (and lookalike) system in real use (I've
+seen a few).
+
+>                               and I asume it was removed for a reason.
+> Can somebody remember?
+
+See my objections.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

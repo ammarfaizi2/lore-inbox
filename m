@@ -1,149 +1,367 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWGWJrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWGWKFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWGWJrI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 05:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWGWJrI
+	id S1750850AbWGWKFA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 06:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWGWKFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 05:47:08 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:53890 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP
-	id S1751180AbWGWJrH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 05:47:07 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Sun, 23 Jul 2006 06:05:00 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:52082 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750850AbWGWKE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 06:04:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=nLWxQGqTCk3Yo6KOYDiX5Yuce77erHeg92ydVBFBwMWANmajMgo5MsRoojyXlFGgZsVRDc+tfCphdiS84SLuvc037D1aA1WENu7kageMUHJHvvhokPjVAL0teuYScFNqCPQC0ljUf8mQ/Hbdno2RPMBogmSby7vwSsrsTmBQYlU=
+Date: Sun, 23 Jul 2006 12:04:05 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/acpi/battery.c cleanups
+Message-ID: <20060723100405.GA15422@leiferikson.gentoo>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060723002907.GA8886@leiferikson.gentoo> <44C329FB.3010901@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: oops in scsi_device_put after PCMCIA based USB HC is ejected
-Date: Sun, 23 Jul 2006 15:17:02 +0530
-Message-ID: <0F35D2C4458E9B4A9891BE2D4E0C8390013010B7@PNE-HJN-MBX01.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: oops in scsi_device_put after PCMCIA based USB HC is ejected
-Thread-Index: AcauPPK9M4Squx8AQ6CTW5xVDiM8QA==
-From: <deepti.chotai@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 23 Jul 2006 09:47:03.0235 (UTC) FILETIME=[F373A130:01C6AE3C]
+Content-Type: multipart/mixed; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <44C329FB.3010901@gmail.com>
+User-Agent: mutt-ng/devel-r804 (GNU/Linux)
+From: Johannes Weiner <hnazfoo@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am working on a HCD for an OHCI compliant USB Host Controller on a
-PCMICIA card for 2.6.15.4 kernel. On inserting a USB key it is
-auto-mounted in X-Windows. While carrying out transfer on USB key, on
-90% transfer completion, when I manually eject the PCMCIA card, an oops
-occurs. This happens occasionally and it occurs only on a dual core
-laptop.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Following is the /var/log/messages extract:
 
-Jul  5 17:57:38 localhost kernel: pccard: card ejected from slot 0
-Jul  5 17:57:38 localhost kernel: usb usb1: USB disconnect, address 1
-Jul  5 17:57:38 localhost kernel: usb 1-1: USB disconnect, address 2
-Jul  5 17:57:38 localhost kernel: My-hcd: USB bus 1 deregistered
-Jul  5 17:57:39 localhost fstab-sync[7999]: removed mount point
-/media/usbdisk for /dev/sdc
-Jul  5 17:57:39 localhost kernel:  6:0:0:0: rejecting I/O to dead device
-Jul  5 17:57:39 localhost kernel: FAT: bread failed in
-fat_clusters_flush
-Jul  5 17:57:39 localhost kernel: Unable to handle kernel paging request
-at virtual address 1000a5b8
-Jul  5 17:57:39 localhost kernel:  printing eip:
-Jul  5 17:57:39 localhost kernel: c01564b9
-Jul  5 17:57:39 localhost kernel: *pde = 0eaf1001
-Jul  5 17:57:39 localhost kernel: Oops: 0000 [#1]
-Jul  5 17:57:39 localhost kernel: PREEMPT SMP 
-Jul  5 17:57:39 localhost kernel: Modules linked in: serial_cs 8250
-serial_core my_cs my_hcd vfat fat usb_storage parport_pc lp parport
-autofs4 rfcomm l2cap bluetooth sunrpc dm_mod video button battery
-asus_acpi ac ipv6 ohci1394 ieee1394 yenta_socket rsrc_nonstatic shpchp
-i2c_i801 i2c_core snd_hda_intel snd_hda_codec snd_seq_dummy snd_seq_oss
-snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
-snd_pcm snd_timer snd soundcore snd_page_alloc r8169 joydev ext3 jbd
-ata_piix libata sd_mod scsi_mod
-Jul  5 17:57:39 localhost kernel: CPU:    1
-Jul  5 17:57:39 localhost kernel: EIP:    0060:[<c01564b9>]    Not
-tainted VLI
-Jul  5 17:57:39 localhost kernel: EFLAGS: 00010082   (2.6.15.4SMP) 
-Jul  5 17:57:39 localhost kernel: EIP is at kfree+0x39/0x70
-Jul  5 17:57:39 localhost kernel: eax: 00000001   ebx: cebe28c0   ecx:
-d4bd4934   edx: c1000000
-Jul  5 17:57:39 localhost fstab-sync[8048]: removed mount point
-/media/USBDISKPRO for /dev/sdb1
-Jul  5 17:57:39 localhost kernel: esi: 445f4253   edi: 1000a5b4   ebp:
-00000206   esp: ce5bae20
-Jul  5 17:57:39 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Jul  5 17:57:39 localhost kernel: Process umount (pid: 8039,
-threadinfo=ce5ba000 task=df3a7000)
-Jul  5 17:57:39 localhost kernel: Stack: cebe28c0 c03dbad8 c03dbb00
-df9ed4f8 c01fc735 cebe28d8 c01fc790 cfd15180 
-Jul  5 17:57:39 localhost kernel:        cf37484c c01fd11b c03dbad8
-c01fc755 d4bd494c c01fc790 d4bd494c c01fc790 
-Jul  5 17:57:39 localhost kernel:        c01fd11b c03dbad8 c01fc755
-d5fe6d4c c01fc790 d5fe6d4c c01fc790 c01fd11b 
-Jul  5 17:57:39 localhost kernel: Call Trace:
-Jul  5 17:57:39 localhost kernel:  [<c01fc735>]
-kobject_cleanup+0x35/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<c01fc755>]
-kobject_cleanup+0x55/0x90
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fc790>] kobject_release+0x0/0x10
-Jul  5 17:57:39 localhost kernel:  [<c01fd11b>] kref_put+0x2b/0x80
-Jul  5 17:57:39 localhost kernel:  [<e085512c>]
-scsi_device_put+0x3c/0x80 [scsi_mod]
-Jul  5 17:57:39 localhost kernel:  [<e082f141>] scsi_disk_put+0x41/0x60
-[sd_mod]
-Jul  5 17:57:39 localhost kernel:  [<e082f872>] sd_release+0x62/0x80
-[sd_mod]
-Jul  5 17:57:39 localhost kernel:  [<c017834b>] blkdev_put+0x16b/0x1b0
-Jul  5 17:57:39 localhost kernel:  [<c0178320>] blkdev_put+0x140/0x1b0
-Jul  5 17:57:39 localhost kernel:  [<c0175f2a>]
-deactivate_super+0x9a/0xc0
-Jul  5 17:57:39 localhost kernel:  [<c018def9>] sys_umount+0x39/0x80
-Jul  5 17:57:39 localhost kernel:  [<c0104451>] syscall_call+0x7/0xb
-Jul  5 17:57:39 localhost kernel: Code: 89 7c 24 08 89 6c 24 0c 74 34 9c
-5d fa 8b 15 90 7a 4e c0 8d 80 00 00 00 40 c1 e8 0c 8d 04 40 c1 e0 04 8b
-7c 10 28 e8 47 bc 0a 00 <8b> 1c 87 8b 03 3b 43 04 73 1c 89 74 83 24 40
-89 03 55 9d 8b 1c
+Removed assignment casts, substituted kmalloc+memset with kzalloc, made
+functions void if they never return a significant value, style
+adjustments. Diff against Linus' 2.6 git tree.
 
-I need help in understanding why is the crash happening in
-scsi_device_put. Is it due to the order in which the USB bus resources
-are released (hcd is removed) and USB key is unmounted? If yes, how can
-I prevent this from happening?
+Signed-off-by: Johannes Weiner <hnazfoo@gmail.com>
 
-I am not subscribed to this list. Please do cc your comments to me.
+---
 
-Thanks for your time and help.
+Removed unneeded paranthesis onto Jiri's hint too. Here goes.
 
--Deepti 
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="acpi_battery_cleanups.patch"
 
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 6e52217..5d433be 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -147,7 +147,7 @@ acpi_battery_get_info(struct acpi_batter
+ 		return -ENODEV;
+ 	}
+ 
+-	package = (union acpi_object *)buffer.pointer;
++	package = buffer.pointer;
+ 
+ 	/* Extract Package Data */
+ 
+@@ -158,12 +158,11 @@ acpi_battery_get_info(struct acpi_batter
+ 		goto end;
+ 	}
+ 
+-	data.pointer = kmalloc(data.length, GFP_KERNEL);
++	data.pointer = kzalloc(data.length, GFP_KERNEL);
+ 	if (!data.pointer) {
+ 		result = -ENOMEM;
+ 		goto end;
+ 	}
+-	memset(data.pointer, 0, data.length);
+ 
+ 	status = acpi_extract_package(package, &format, &data);
+ 	if (ACPI_FAILURE(status)) {
+@@ -173,11 +172,11 @@ acpi_battery_get_info(struct acpi_batter
+ 		goto end;
+ 	}
+ 
+-      end:
++end:
+ 	kfree(buffer.pointer);
+ 
+ 	if (!result)
+-		(*bif) = (struct acpi_battery_info *)data.pointer;
++		*bif = data.pointer;
+ 
+ 	return result;
+ }
+@@ -207,7 +206,7 @@ acpi_battery_get_status(struct acpi_batt
+ 		return -ENODEV;
+ 	}
+ 
+-	package = (union acpi_object *)buffer.pointer;
++	package = buffer.pointer;
+ 
+ 	/* Extract Package Data */
+ 
+@@ -218,12 +217,11 @@ acpi_battery_get_status(struct acpi_batt
+ 		goto end;
+ 	}
+ 
+-	data.pointer = kmalloc(data.length, GFP_KERNEL);
++	data.pointer = kzalloc(data.length, GFP_KERNEL);
+ 	if (!data.pointer) {
+ 		result = -ENOMEM;
+ 		goto end;
+ 	}
+-	memset(data.pointer, 0, data.length);
+ 
+ 	status = acpi_extract_package(package, &format, &data);
+ 	if (ACPI_FAILURE(status)) {
+@@ -233,11 +231,11 @@ acpi_battery_get_status(struct acpi_batt
+ 		goto end;
+ 	}
+ 
+-      end:
++end:
+ 	kfree(buffer.pointer);
+ 
+ 	if (!result)
+-		(*bst) = (struct acpi_battery_status *)data.pointer;
++		*bst = data.pointer;
+ 
+ 	return result;
+ }
+@@ -329,22 +327,22 @@ static int acpi_battery_check(struct acp
+    -------------------------------------------------------------------------- */
+ 
+ static struct proc_dir_entry *acpi_battery_dir;
+-static int acpi_battery_read_info(struct seq_file *seq, void *offset)
++static void acpi_battery_read_info(struct seq_file *seq, void *offset)
+ {
+ 	int result = 0;
+-	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
++	struct acpi_battery *battery = seq->private;
+ 	struct acpi_battery_info *bif = NULL;
+ 	char *units = "?";
+ 
+ 
+ 	if (!battery)
+-		goto end;
++		return;
+ 
+ 	if (battery->flags.present)
+ 		seq_printf(seq, "present:                 yes\n");
+ 	else {
+ 		seq_printf(seq, "present:                 no\n");
+-		goto end;
++		return;
+ 	}
+ 
+ 	/* Battery Info (_BIF) */
+@@ -402,10 +400,8 @@ static int acpi_battery_read_info(struct
+ 	seq_printf(seq, "battery type:            %s\n", bif->battery_type);
+ 	seq_printf(seq, "OEM info:                %s\n", bif->oem_info);
+ 
+-      end:
++end:
+ 	kfree(bif);
+-
+-	return 0;
+ }
+ 
+ static int acpi_battery_info_open_fs(struct inode *inode, struct file *file)
+@@ -413,22 +409,22 @@ static int acpi_battery_info_open_fs(str
+ 	return single_open(file, acpi_battery_read_info, PDE(inode)->data);
+ }
+ 
+-static int acpi_battery_read_state(struct seq_file *seq, void *offset)
++static void acpi_battery_read_state(struct seq_file *seq, void *offset)
+ {
+ 	int result = 0;
+-	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
++	struct acpi_battery *battery = seq->private;
+ 	struct acpi_battery_status *bst = NULL;
+ 	char *units = "?";
+ 
+ 
+ 	if (!battery)
+-		goto end;
++		return;
+ 
+ 	if (battery->flags.present)
+ 		seq_printf(seq, "present:                 yes\n");
+ 	else {
+ 		seq_printf(seq, "present:                 no\n");
+-		goto end;
++		return;
+ 	}
+ 
+ 	/* Battery Units */
+@@ -450,16 +446,15 @@ static int acpi_battery_read_state(struc
+ 	else
+ 		seq_printf(seq, "capacity state:          critical\n");
+ 
+-	if ((bst->state & 0x01) && (bst->state & 0x02)) {
++	if ((bst->state & 0x01) && (bst->state & 0x02))
+ 		seq_printf(seq,
+ 			   "charging state:          charging/discharging\n");
+-	} else if (bst->state & 0x01)
++	else if (bst->state & 0x01)
+ 		seq_printf(seq, "charging state:          discharging\n");
+ 	else if (bst->state & 0x02)
+ 		seq_printf(seq, "charging state:          charging\n");
+-	else {
++	else
+ 		seq_printf(seq, "charging state:          charged\n");
+-	}
+ 
+ 	if (bst->present_rate == ACPI_BATTERY_VALUE_UNKNOWN)
+ 		seq_printf(seq, "present rate:            unknown\n");
+@@ -479,10 +474,8 @@ static int acpi_battery_read_state(struc
+ 		seq_printf(seq, "present voltage:         %d mV\n",
+ 			   (u32) bst->present_voltage);
+ 
+-      end:
++end:
+ 	kfree(bst);
+-
+-	return 0;
+ }
+ 
+ static int acpi_battery_state_open_fs(struct inode *inode, struct file *file)
+@@ -490,18 +483,18 @@ static int acpi_battery_state_open_fs(st
+ 	return single_open(file, acpi_battery_read_state, PDE(inode)->data);
+ }
+ 
+-static int acpi_battery_read_alarm(struct seq_file *seq, void *offset)
++static void acpi_battery_read_alarm(struct seq_file *seq, void *offset)
+ {
+-	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
++	struct acpi_battery *battery = seq->private;
+ 	char *units = "?";
+ 
+ 
+ 	if (!battery)
+-		goto end;
++		return;
+ 
+ 	if (!battery->flags.present) {
+ 		seq_printf(seq, "present:                 no\n");
+-		goto end;
++		return;
+ 	}
+ 
+ 	/* Battery Units */
+@@ -517,9 +510,6 @@ static int acpi_battery_read_alarm(struc
+ 		seq_printf(seq, "unsupported\n");
+ 	else
+ 		seq_printf(seq, "%d %sh\n", (u32) battery->alarm, units);
+-
+-      end:
+-	return 0;
+ }
+ 
+ static ssize_t
+@@ -529,8 +519,8 @@ acpi_battery_write_alarm(struct file *fi
+ {
+ 	int result = 0;
+ 	char alarm_string[12] = { '\0' };
+-	struct seq_file *m = (struct seq_file *)file->private_data;
+-	struct acpi_battery *battery = (struct acpi_battery *)m->private;
++	struct seq_file *m = file->private_data;
++	struct acpi_battery *battery = m->private;
+ 
+ 
+ 	if (!battery || (count > sizeof(alarm_string) - 1))
+@@ -632,22 +622,20 @@ static int acpi_battery_add_fs(struct ac
+ 	return 0;
+ }
+ 
+-static int acpi_battery_remove_fs(struct acpi_device *device)
++static void acpi_battery_remove_fs(struct acpi_device *device)
+ {
++	if (!acpi_device_dir(device))
++		return;
+ 
+-	if (acpi_device_dir(device)) {
+-		remove_proc_entry(ACPI_BATTERY_FILE_ALARM,
+-				  acpi_device_dir(device));
+-		remove_proc_entry(ACPI_BATTERY_FILE_STATUS,
+-				  acpi_device_dir(device));
+-		remove_proc_entry(ACPI_BATTERY_FILE_INFO,
+-				  acpi_device_dir(device));
+-
+-		remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
+-		acpi_device_dir(device) = NULL;
+-	}
++	remove_proc_entry(ACPI_BATTERY_FILE_ALARM,
++			  acpi_device_dir(device));
++	remove_proc_entry(ACPI_BATTERY_FILE_STATUS,
++			  acpi_device_dir(device));
++	remove_proc_entry(ACPI_BATTERY_FILE_INFO,
++			  acpi_device_dir(device));
+ 
+-	return 0;
++	remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
++	acpi_device_dir(device) = NULL;
+ }
+ 
+ /* --------------------------------------------------------------------------
+@@ -656,7 +644,7 @@ static int acpi_battery_remove_fs(struct
+ 
+ static void acpi_battery_notify(acpi_handle handle, u32 event, void *data)
+ {
+-	struct acpi_battery *battery = (struct acpi_battery *)data;
++	struct acpi_battery *battery = data;
+ 	struct acpi_device *device = NULL;
+ 
+ 
+@@ -678,8 +666,6 @@ static void acpi_battery_notify(acpi_han
+ 				  "Unsupported event [0x%x]\n", event));
+ 		break;
+ 	}
+-
+-	return;
+ }
+ 
+ static int acpi_battery_add(struct acpi_device *device)
+@@ -692,10 +678,9 @@ static int acpi_battery_add(struct acpi_
+ 	if (!device)
+ 		return -EINVAL;
+ 
+-	battery = kmalloc(sizeof(struct acpi_battery), GFP_KERNEL);
++	battery = kzalloc(sizeof(*battery), GFP_KERNEL);
+ 	if (!battery)
+ 		return -ENOMEM;
+-	memset(battery, 0, sizeof(struct acpi_battery));
+ 
+ 	battery->device = device;
+ 	strcpy(acpi_device_name(device), ACPI_BATTERY_DEVICE_NAME);
+@@ -722,7 +707,7 @@ static int acpi_battery_add(struct acpi_
+ 	       ACPI_BATTERY_DEVICE_NAME, acpi_device_bid(device),
+ 	       device->status.battery_present ? "present" : "absent");
+ 
+-      end:
++end:
+ 	if (result) {
+ 		acpi_battery_remove_fs(device);
+ 		kfree(battery);
+@@ -740,7 +725,7 @@ static int acpi_battery_remove(struct ac
+ 	if (!device || !acpi_driver_data(device))
+ 		return -EINVAL;
+ 
+-	battery = (struct acpi_battery *)acpi_driver_data(device);
++	battery = acpi_driver_data(device);
+ 
+ 	status = acpi_remove_notify_handler(device->handle,
+ 					    ACPI_ALL_NOTIFY,
+@@ -772,12 +757,8 @@ static int __init acpi_battery_init(void
+ 
+ static void __exit acpi_battery_exit(void)
+ {
+-
+ 	acpi_bus_unregister_driver(&acpi_battery_driver);
+-
+ 	acpi_unlock_battery_dir(acpi_battery_dir);
+-
+-	return;
+ }
+ 
+ module_init(acpi_battery_init);
+
+--T4sUOijqQbZv57TR--

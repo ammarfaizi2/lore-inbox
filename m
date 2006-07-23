@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWGWSaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWGWSeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWGWSaI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 14:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWGWSaI
+	id S1750755AbWGWSeA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 14:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWGWSeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 14:30:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35482 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751259AbWGWSaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 14:30:06 -0400
-Date: Sun, 23 Jul 2006 11:30:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cross platform method for detecting hot unplug in irq handler
-Message-Id: <20060723113001.3fdd426d.akpm@osdl.org>
-In-Reply-To: <44C37565.6090009@superbug.co.uk>
-References: <44C37565.6090009@superbug.co.uk>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Jul 2006 14:34:00 -0400
+Received: from wr-out-0506.google.com ([64.233.184.230]:44062 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750755AbWGWSd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 14:33:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=X4ci0xJY0BA+ZIWhkO93b88pacLRrDEZSWwUKj7UOHptHy3610R4E3G8feczRoq4te32w3nsD+mWTQQGga2gnEHl08i/meDPwSZE/db/YvnQmDM1elkBSK8lubYfk+jWCzdpK1JV33XBe/gd/HmfpSyYpxxOhGlQUIJsoSfI0ek=
+From: Patrick McFarland <diablod3@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+Date: Sun, 23 Jul 2006 14:34:23 -0400
+User-Agent: KMail/1.9.1
+Cc: Arjan van de Ven <arjan@linux.intel.com>, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org, davej@redhat.com,
+       Andrew Morton <akpm@osdl.org>
+References: <20060722194018.GA28924@redhat.com> <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org> <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607231434.24376.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jul 2006 14:11:01 +0100
-James Courtier-Dutton <James@superbug.co.uk> wrote:
+On Sunday 23 July 2006 14:12, Linus Torvalds wrote:
+> On Sun, 23 Jul 2006, Linus Torvalds wrote:
+> [ Linus bangs his head against the wall until tears of blood course down
+>   his face ]
 
-> Hi,
-> 
-> I am writing a driver for a PCMCIA device.
-> When the card is removed, the driver's IRQ handler is called.
-> The first thing the IRQ handler does is read a status register from the
-> card's IOPORT. On the ia32 (i386) platform, the resulting status read
-> will return 0xffffffff. If the driver reads this value, it assumes the
-> card has been removed and acts accordingly.
-> 
-> Is this a reliable way of detecting PCMCIA or Hotplug card removal
-> inside an IRQ handler?
-> Is it consistent cross platforms. E.g. ia64, amd64, PPC, MIPS etc.?
-> Does a more reliable detection method exist in the kernel?
+I know how you feel.
 
-Cardbus has detection pins, ad they can be queried via the controller.  But
-it's too slow and afaik cardbus will reliably rern 0xffffffff for a removed
-card.
+> cpufreq (or at least ondemand) must DIE! And the people who wrote that
+> crap should have red-hot pokers jammed into some very uncomfortable
+> places.
 
-Lots of drivers treat a read of all-ones as indicating a removed card.  It
-works.
+You know what else must die? powernowd... which does exactly what the 
+conservative governor does, but takes about a meg of memory to do it, and it 
+doesn't even provide stuff like changing behavior based on ac/battery state 
+or lm_sensors feedback.
+
+-- 
+Patrick McFarland || www.AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
+

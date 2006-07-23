@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWGWOUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWGWObF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWGWOUv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 10:20:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGWOUv
+	id S1751214AbWGWObF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 10:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWGWObF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 10:20:51 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:674 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751102AbWGWOUu (ORCPT
+	Sun, 23 Jul 2006 10:31:05 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:59152 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S1751214AbWGWObE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 10:20:50 -0400
-Date: Sun, 23 Jul 2006 16:20:44 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: "Brown, Len" <len.brown@intel.com>
-cc: linux-acpi <linux-acpi@intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] ACPI - change GFP_ATOMIC to GFP_KERNEL for non-atomic
- allocation
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6010912DB@hdsmsx411.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.58.0607231615410.30557@twin.jikos.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6010912DB@hdsmsx411.amr.corp.intel.com>
+	Sun, 23 Jul 2006 10:31:04 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Debugging APM - cat /proc/apm produces oops
+Date: Sun, 23 Jul 2006 16:30:53 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+X-Length: 1945
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607231630.53968.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Jul 2006, Brown, Len wrote:
+Hello,
+cat /proc/apm produces oops on my DTK notebook. Using "apm=broken-psr" kernel 
+parameter fixes that but I lose the battery info. I'd like to have the 
+battery info (and it works fine in Windows) so I want to debug it and 
+(hopefully) fix.
 
-> > drivers/acpi/pci_link.c::acpi_pci_link_set() sets the GFP_ATOMIC for
-> > kmalloc() allocation for no first-sight obvious reason; as far as I
-> > can see this is always called outside the atomic/interrupt context, so
-> > GFP_KERNEL allocation should be used instead.
-> this would oops on a resume from suspend -- when it is called with
-> interrupts off.
+The oops:
+# cat /proc/apm
+<1>BUG: unable to handle kernel paging request at virtual address 00005e88
+ printing eip:
+00002f9d
+*pre = 00000000
+Oops: 0002 [#4]
+Modules linked in:
+CPU:    0
+EIP:    00c0:[<00002f9d>]    Not tainted VLI
+EFLAGS: 00010017   (2.6.17-5-dtk #23)
+EIP is at 0x2f94
+eax: 00000033   ebx: 00000001   ecx: 00000000   edx: 00000000
+esi: c10a1000   edi: 00000014   ebp: c4755e8a   esp: c4755e88
+ds: 00c8   es: 0000   ss: 0068
+Process cat (pid: 1928, threadinfo=c4754000 task=c11240b0)
+Stack: 5e948001 5fc75e55 00005e94 000000c8 10000033 5ea800c0 00000001 530a0000
+       00000016 00b86017 00000000 0000530a c010830f 00000060 0000530a 00000033
+       0000007b 0000007b c0337368 00000000 c10a1000 00000000 00000000 00000282
+Call Trace:
+ <c010830f> apm_bios_call+0x68/0xba  <c0108728> apm_get_power_status+0x44/0x90
+ <c01091a0> apm_get_info+0x34/0xdc  <c01617dc> proc_file_read+0xda/0x22d
+ <c013b5a2> vfs_read+0x82/0x10e  <c013b873> sys_read+0x3c/0x62
+ <c0102397> syscall_call+0x7/0xb
+Code:  Bad EIP value.
+EIP: [<00002f9d>] 0x2f9d SS:ESP 0068:c4755e88
 
-But in such a case I guess the following callchain has a problem:
-
-acpi_pci_link_resume -> acpi_pci_link_set -> acpi_set_current_resources ->
-acpi_rs_set_srs_method_data -> acpi_ut_create_internal_object_dbg ->
-acpi_ut_allocate_object_desc_dbg -> acpi_os_acquire_object ->
-kmem_cache_alloc with GFP_KERNEL flag.
-
-What about the following patch to handle both cases without oopsing? (I am 
-not using the acpi_in_resume flag, as it is makred for removal)
-
-
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-
---- drivers/acpi/osl.c.orig	2006-07-15 21:00:43.000000000 +0200
-+++ drivers/acpi/osl.c	2006-07-23 16:03:08.000000000 +0200
-@@ -1141,7 +1141,13 @@ acpi_status acpi_os_release_object(acpi_
- 
- void *acpi_os_acquire_object(acpi_cache_t * cache)
- {
--	void *object = kmem_cache_alloc(cache, GFP_KERNEL);
-+	void *object;
-+
-+	/* irqs could be disabled when resuming from suspend */
-+	if (irqs_disabled())
-+		object = kmem_cache_alloc(cache, GFP_ATOMIC);
-+	else
-+		object = kmem_cache_alloc(cache, GFP_KERNEL);
- 	WARN_ON(!object);
- 	return object;
- }
---- drivers/acpi/pci_link.c.orig	2006-07-15 21:00:43.000000000 +0200
-+++ drivers/acpi/pci_link.c	2006-07-23 16:01:42.000000000 +0200
-@@ -318,7 +318,12 @@ static int acpi_pci_link_set(struct acpi
- 	if (!link || !irq)
- 		return_VALUE(-EINVAL);
- 
--	resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
-+	/* irqs could be disabled when resuming from suspend */
-+	if (irqs_disabled())
-+		resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
-+	else
-+		resource = kmalloc(sizeof(*resource) + 1, GFP_KERNEL);
-+	
- 	if (!resource)
- 		return_VALUE(-ENOMEM);
- 
+So it looks like it dies somewhere in the APM BIOS code. But how to find 
+exactly where and/or why? Maybe use GDB somehow (I've used it only for really 
+simple debugging yet).
+I've tried calling the APM 0x530A function from DOS (real mode, int 15h) and 
+single-stepping the BIOS APM code (using good old user-friendly Turbo 
+Debugger). Noticed some OUTs to 0xB1 (or something like that), then some PCI 
+accesses (0xCF8 and 0xCFC) and then IP ended in area of all zeros. When I 
+step over the int 15h call, it works fine - returns correct info.
 
 -- 
-JiKos.
+Ondrej Zary

@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWGWLxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWGWMJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWGWLxe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 07:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWGWLxe
+	id S1751023AbWGWMJE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 08:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWGWMJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 07:53:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40892 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751013AbWGWLxd (ORCPT
+	Sun, 23 Jul 2006 08:09:04 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:6865 "EHLO smurf.noris.de")
+	by vger.kernel.org with ESMTP id S1751023AbWGWMJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 07:53:33 -0400
-Date: Sun, 23 Jul 2006 04:46:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthias Urlichs <smurf@smurf.noris.de>
+	Sun, 23 Jul 2006 08:09:02 -0400
+Date: Sun, 23 Jul 2006 14:08:29 +0200
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com, torvalds@osdl.org,
        bunk@stusta.de, lethal@linux-sh.org, hirofumi@mail.parknet.co.jp
 Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
-Message-Id: <20060723044637.3857d428.akpm@osdl.org>
-In-Reply-To: <20060723081604.GD27566@kiste.smurf.noris.de>
-References: <20060722233638.GC27566@kiste.smurf.noris.de>
-	<20060722173649.952f909f.akpm@osdl.org>
-	<20060723081604.GD27566@kiste.smurf.noris.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060723120829.GA7776@kiste.smurf.noris.de>
+References: <20060722233638.GC27566@kiste.smurf.noris.de> <20060722173649.952f909f.akpm@osdl.org> <20060723081604.GD27566@kiste.smurf.noris.de> <20060723044637.3857d428.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060723044637.3857d428.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: Matthias Urlichs <smurf@smurf.noris.de>
+X-Smurf-Spam-Score: -2.6 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jul 2006 10:16:04 +0200
-Matthias Urlichs <smurf@smurf.noris.de> wrote:
+Hi,
 
-> > Are you able to compare the present bootlog with the 2.6.17 bootlog?
-> > 
-> Sure. The diff says:
+Andrew Morton:
+> - CPU0 and CPU1 share a TSC and CPU2 and CPU3 share another TSC.
 > 
->  checking TSC synchronization across 4 CPUs:
-> +CPU#0 had 748437 usecs TSC skew, fixed it up.
-> +CPU#1 had 748437 usecs TSC skew, fixed it up.
-> +CPU#2 had -748437 usecs TSC skew, fixed it up.
-> +CPU#3 had -748437 usecs TSC skew, fixed it up.
->  Brought up 4 CPUs
-> -migration_cost=4000,8000
-> +migration_cost=85,1724
+That mmakes sense, since they're one dual-core Xeon each.
+
+> - Earlier kernels didn't use the TSC as a time source whereas this one
+>   does, hence the problems which you're observing.
 > 
-> ... but apparently, that skew is not corrected.
+Correct; see below.
+
+> I assume that booting with clock=pit or clock=pmtmr fixes it?
 > 
-> These numbers do match the difference in observed "date" outputs.
+Testing... yes, both.
 
->From this I'll assume that
+> It would be useful to check your 2.6.17 boot logs, see if we can work out
+> what 2.6.17 was using for a clock source.
+> 
+That's easy:
 
-- CPU0 and CPU1 share a TSC and CPU2 and CPU3 share another TSC.
+2.6.17    -Using pmtmr for high-res timesource
+2.6.18git +Time: tsc clocksource has been installed.
 
-- write_tsc() simply doesn't work on this machine.
+I missed those two lines, as in the boot logs they're not really
+adjacent, so they got lost in the jumble of other differences.
 
-- Earlier kernels weren't able to modify the TSC either.
+Interestingly, CPU0/1 gets 6000 bogomips while CPU2/3 only reaches 5600 ..?
+(That happens with both kernels.) I do wonder why, and whether this has any
+bearing on the current problem.
 
-- Earlier kernels didn't use the TSC as a time source whereas this one
-  does, hence the problems which you're observing.
-
-
-Some or all of the below might be wrong, but I don't think so:
-
-
-I assume that booting with clock=pit or clock=pmtmr fixes it?
-
-It would be useful to check your 2.6.17 boot logs, see if we can work out
-what 2.6.17 was using for a clock source.
-
-We need to fix that "fixed it up" message because it just ain't so.
-
-The new clocksouce code needs to detect this and to mark the TSC source as
-unstable, or otherwise unusable.
-
-We _could_ fix the TSC skew up, by adjusting the rdtsc output by the
-tsc_values[] entry wherever we read the TSC.
-
-It would of course be better to make write_tsc() work.  I wonder why it
-doesn't?
-
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+BEANS ARE NEITHER FRUIT NOR MUSICAL
+		-- Bart Simpson on chalkboard in episode 1F22

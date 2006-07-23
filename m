@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWGWQNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWGWQ0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWGWQNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 12:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWGWQNq
+	id S1751248AbWGWQ0z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 12:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751252AbWGWQ0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 12:13:46 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:41188
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751249AbWGWQNp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 12:13:45 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: ricknu-0@student.ltu.se
-Subject: Re: [RFC][PATCH] A generic boolean (version 4)
-Date: Sun, 23 Jul 2006 18:13:21 +0200
-User-Agent: KMail/1.9.1
-References: <1153341500.44be983ca1407@portal.student.luth.se> <1153669750.44c39a7607a30@portal.student.luth.se>
-In-Reply-To: <1153669750.44c39a7607a30@portal.student.luth.se>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       linux-kernel@vger.kernel.org
+	Sun, 23 Jul 2006 12:26:55 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:48258 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751248AbWGWQ0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 12:26:54 -0400
+Date: Sun, 23 Jul 2006 18:24:27 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [patch] slab: always follow arch requested alignments
+Message-ID: <20060723162427.GA10553@osiris.ibm.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com> <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607231813.21813.mb@bu3sch.de>
+In-Reply-To: <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 July 2006 17:49, ricknu-0@student.ltu.se wrote:
-> And here comes lucky number four.
-
-> diff --git a/include/asm-i386/types.h b/include/asm-i386/types.h
-> index 4b4b295..3cb84ac 100644
-> --- a/include/asm-i386/types.h
-> +++ b/include/asm-i386/types.h
-> @@ -1,6 +1,8 @@
->  #ifndef _I386_TYPES_H
->  #define _I386_TYPES_H
+On Sun, Jul 23, 2006 at 06:03:09AM -0700, Christoph Lameter wrote:
+> On Sun, 23 Jul 2006, Heiko Carstens wrote:
+> > > See kmem_cache_create():
+> > >       /* 2) arch mandated alignment: disables debug if necessary */
+> > >         if (ralign < ARCH_SLAB_MINALIGN) {
+> > >                 ralign = ARCH_SLAB_MINALIGN;
+> > >                 if (ralign > BYTES_PER_WORD)
+> > >                         flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
+> > >         }
+> > 
+> > That is because if kmem_cache_create gets called with SLAB_HWCACHE_ALIGN set
+> > in flags then ralign will be greater or equal to ARCH_SLAB_MINALIGN:
+> > 
+> >         /* 1) arch recommendation: can be overridden for debug */ 
+> >         if (flags & SLAB_HWCACHE_ALIGN) { 
+> > 	        [...]
+> >                 ralign = cache_line_size(); 
+> > 	        [...]
+> 
+> Ok. Then you do not have a problem because ralign is greater than
+> ARCH_SLAB_MINALIGN.
 >  
-> +typedef _Bool bool;
-> +
->  #ifndef __ASSEMBLY__
+> > Therefore the test above will be passed and SLAB_RED_ZONE and SLAB_STORE_USER
+> > will stay in flags.
+> > cache_line_size() will return 256 on s390.
+> 
+> Looks as if you would have the correct alignment then. I still do not 
+> understand where the problem is since you want to align on an 8 byte 
+> boundary.
 
-I'd say that typedef must go into the !__ASSEMBLY__ section here,
-like the other typedefs in that header.
+CONFIG_DEBUG_SLAB is on. In step 4) we have align = ralign.
+Still ok.
+Next thing:
 
--- 
-Greetings Michael.
+	if (flags & SLAB_RED_ZONE) {
+		/* redzoning only works with word aligned caches */
+		align = BYTES_PER_WORD;
+
+Result: align is less than ARCH_SLAB_MINALIGN -> busted.
+Same is true if SLAB_STORE_USER is set.
+Therefore I masked them both out in my patch.

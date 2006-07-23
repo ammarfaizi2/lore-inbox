@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWGWW1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWGWW6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWGWW1q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 18:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWGWW1q
+	id S1751363AbWGWW6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 18:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWGWW6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 18:27:46 -0400
-Received: from dvhart.com ([64.146.134.43]:42169 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751358AbWGWW1p (ORCPT
+	Sun, 23 Jul 2006 18:58:06 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40167 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751363AbWGWW6F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 18:27:45 -0400
-From: Vernon Mauery <vernux@us.ibm.com>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: what is necessary for directory hard links
-Date: Sun, 23 Jul 2006 15:27:23 -0700
-User-Agent: KMail/1.9.1
-References: <200607230219.k6N2JMHI021999@laptop13.inf.utfsm.cl>
-In-Reply-To: <200607230219.k6N2JMHI021999@laptop13.inf.utfsm.cl>
-MIME-Version: 1.0
+	Sun, 23 Jul 2006 18:58:05 -0400
+Date: Mon, 24 Jul 2006 08:57:01 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       James Morris <jmorris@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: include/linux/xattr.h: how much userpace visible?
+Message-ID: <20060724085701.B2083275@wobbly.melbourne.sgi.com>
+References: <20060723184343.GA25367@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607231527.23484.vernux@us.ibm.com>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060723184343.GA25367@stusta.de>; from bunk@stusta.de on Sun, Jul 23, 2006 at 08:43:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 July 2006 19:19, you wrote:
-> Bodo Eggert <7eggert@elstempel.de> wrote:
-> > Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
-> > > Joshua Hudson <joshudson@gmail.com> wrote:
-> > >> This patch is the sum total of all that I had to change in the kernel
-> > >> VFS layer to support hard links to directories
-> > >
-> > > Can't be done, as it creates the possibility of loops.
-> >
-> > Don't do that then?
->
-> Stop /everything/ to make sure no concurrent activity creates a loop, while
-> checking the current mkdir(2) doesn't create one?
+On Sun, Jul 23, 2006 at 08:43:43PM +0200, Adrian Bunk wrote:
+> Hi,
+> 
+> how much of include/linux/xattr.h has to be part of the userspace kernel 
+> headers?
 
-This doesn't seem that big of an issue for people to be up in arms about.  You 
-wouldn't have to stop /everything/, would you, just have an in kernel mutex 
-in vfs_mkdir.  It's not the most commonly used system call in the book -- 
-meaning serializing the checking/creating of new directories would not really 
-hamper your system /that/ much.
+None, I think.
 
-Personally, I don't think hard linked directories are necessary or even that 
-interesting, but they certainly aren't impossible to do.  I suppose there 
-might be some specialty filesystem that might like to do hardlinked 
-directories and I don't think the vfs core should make it difficult.  
+> The function prototypes should no longer be visible in userspace.
+> But how much of the rest of this file is usable for userspace?
 
---Vernon
+The attr package has its own distinct copy of this file, which has
+no kernel pieces - I'm not sure whether libc ended up copying this
+or doing its own thing though.
 
-> > > The "only files can
-> > > be hardlinked" idea makes garbage collection (== deleting of
-> > > unreachable objects) simple: Just check the number of references.
-> > >
-> > > Detecting unconnected subgraphs uses a /lot/ of memory; and much worse,
-> > > you have to stop (almost) all filesystem activity while doing it.
-> >
-> > In order to disconnect a directory, you'd have to empty it first, and
-> > after emptying a directory, it won't be part of a loop. Maybe emtying is
-> > the problem ...
->
-> What does "emptying a directory" mean if there might be loops?
->
-> > This feature was implemented,
->
-> Never in my memory of any Unix (and lookalike) system in real use (I've
-> seen a few).
->
-> >                               and I asume it was removed for a reason.
-> > Can somebody remember?
->
-> See my objections.
+cheers.
+
+-- 
+Nathan

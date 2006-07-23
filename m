@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWGWI3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWGWJMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWGWI3s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 04:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWGWI3s
+	id S1751165AbWGWJMy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 05:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWGWJMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 04:29:48 -0400
-Received: from [216.208.38.107] ([216.208.38.107]:13708 "EHLO
-	OTTLS.pngxnet.com") by vger.kernel.org with ESMTP id S1751157AbWGWI3r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 04:29:47 -0400
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, ashok.raj@intel.com,
-       linux-kernel@vger.kernel.org, davej@redhat.com,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060722223425.c94a858e.akpm@osdl.org>
-References: <20060722194018.GA28924@redhat.com>
-	 <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
-	 <20060722180602.ac0d36f5.akpm@osdl.org>
-	 <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
-	 <20060722223425.c94a858e.akpm@osdl.org>
-Content-Type: text/plain
+	Sun, 23 Jul 2006 05:12:54 -0400
+Received: from anubis.lpbproductions.com ([38.119.36.60]:49322 "EHLO
+	anubis.lpbproductions.com") by vger.kernel.org with ESMTP
+	id S1751165AbWGWJMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 05:12:54 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Date: Sun, 23 Jul 2006 02:12:54 -0700
+User-Agent: KMail/1.9.1
+Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com>
+In-Reply-To: <44C32348.8020704@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Sun, 23 Jul 2006 10:29:40 +0200
-Message-Id: <1153643380.7359.24.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200607230212.55293.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 23 July 2006 12:20 am, Hans Reiser wrote:
+> I just got an email from the programmer who wrote the MythTV bug saying
+> that he is just too busy to bother fixing the bug in his code.....  so
+> my response is that a Namesys programmer is going to fix it on Monday.
 
-Hi,
+The way you wrote this, makes it sound like a userspace issue, and _not_ a 
+problem with reiserfs.
 
-> > Well, I just got Ashok's trial patches which turns the thing into a rwsem 
-> > as I outlined earlier.
-> 
-> Mark my words ;)
-> 
-> > I'll try them out. If they don't work, we should just delete the lock and 
-> > go totally back to square 1.
-> 
-> rwsem conversion has the potential to merely hide the problem.  Ingo, does
-> lockdep detect recursive down_read()?
+> And look at how Linus abandoned 2.4!  Users of 2.4 needed so many
+> features that were put into 2.6 instead, and they were just abandoned
+> and neglected and....  Do you think he will abandon 2.6.18 also?
 
-lockdep detects and warns about those.
+Not entirely true, he did not abandon the 2.4 kernel branch, he passed on 
+maintainership to Marcelo. Similar to how he passed the torch on the 2.2 
+kernel branch to Alan Cox. Also on a side note, many new features ( and a ton 
+of bug fixes !! ) were added to the 2.4 series _after_ Linus started working 
+on the 2.5 branch.
 
-I think we're about equally skeptical about this; I'm extremely hesitant
-about any place in the kernel that uses rwsems for anything other than a
-performance tweak. I've ended up with a mental model of rwsems that
-basically comes down to "you need to be able to replace it with a mutex
-without breaking correctness". Now of course that model is somewhat of
-an oversimplification, but not by that much...
 
-Greetings,
-   Arjan van de Ven
+
+
+
+
+

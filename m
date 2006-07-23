@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWGWSTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWGWSZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWGWSTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 14:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWGWSTS
+	id S1751172AbWGWSZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 14:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWGWSZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 14:19:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21401 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751143AbWGWSTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 14:19:18 -0400
-Date: Sun, 23 Jul 2006 11:12:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       davej@redhat.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-In-Reply-To: <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
-References: <20060722194018.GA28924@redhat.com>  <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
-  <20060722180602.ac0d36f5.akpm@osdl.org>  <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
- <1153627754.7359.17.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org>
+	Sun, 23 Jul 2006 14:25:04 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:10148
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751172AbWGWSZC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 14:25:02 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Tomasz =?utf-8?q?K=C5=82oczko?= <kloczek@rudy.mif.pg.gda.pl>
+Subject: Re: [PATCH] drivers: Conversions from kmalloc+memset to k(z|c)alloc.
+Date: Sun, 23 Jul 2006 20:24:43 +0200
+User-Agent: KMail/1.9.1
+References: <44C099D2.5030300@s5r6.in-berlin.de> <20060723112005.GA6815@martell.zuzino.mipt.ru> <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl>
+In-Reply-To: <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl>
+Cc: linux-kernel@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200607232024.43237.mb@bu3sch.de>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 23 Jul 2006, Linus Torvalds wrote:
+On Sunday 23 July 2006 19:55, Tomasz Kłoczko wrote:
+> On Sun, 23 Jul 2006, Alexey Dobriyan wrote:
+> [..]
+> >> Again: using indent mainly will mean only one time massive changes.
+> >
+> > True, 180M(!) of them.
 > 
-> Does this work? Hey, it works for me once. It's pretty simple, and had 
-> better not have any recursion issues.
+> ~160M.
+> And this is so huge now because seems there is no obligation use common 
+> format .. all is formated using hands/mind/difftent editors autoformaters.
+> 
+> >> After
+> >> this ident can be runed for example by Linus just before make release
+> >> and/or partial release.
+> >
+> > ~4M per run.
+> 
+> If patch submmitter will use formating tool and it will add it will statr 
+> work on formated source tree it will be 0M per run.
+> 
+> >>> scripts/Lindent exists and gets used, but it is not perfect.
+> >
+> > Correction: GNU indent exists and gets used, but it is not perfect.
+> 
+> Yes .. and produce by Lindent ~160MB patch it excelent proof how offent is 
+> is used now :>
+> (please stop this crap "argumentation" :>)
 
-GAAH!!
+Yeah, please stop it.
+Did you actually _look_ at what indent does to code sometimes?
+It sometimes (often?) renders perfectly readable code into a
+huge blob of crap.
 
-What kind of _crap_ is this cpufreq thing?
+Face reality. The linux kernel is following the general codingstyle
+very well already. I don't think there is need to improve the current
+codebase for non-existent codingstyle issues. And we already review
+new code for codingstyle issues, so the codebase remains clean.
 
-Lookie here:
+Look at other projects with horrible codingstyle problems
+and suggest solutions to their _real_ issues. *cough*kde*cough*
 
-	S06cpuspeed   D DD94A324  2180 10241  10215                     (NOTLB)
-	Call Trace:
-	 [<c03c411d>] __mutex_lock_slowpath+0x4d/0x7b
-	 [<c03c415a>] .text.lock.mutex+0xf/0x14
-	 [<c0137651>] lock_cpu_hotplug+0xd/0xf
-	 [<c012f9df>] __create_workqueue+0x52/0x11f
-	 [<df0cd336>] cpufreq_governor_dbs+0x9e/0x2c5 [cpufreq_ondemand]
-	 [<c0305d2a>] __cpufreq_governor+0x57/0xd8
-	 [<c0305ee8>] __cpufreq_set_policy+0x13d/0x1a9
-	 [<c03060e4>] store_scaling_governor+0x12d/0x155
-	 [<c03057a5>] store+0x34/0x45
-	 [<c0199a6c>] sysfs_write_file+0x99/0xbf
-	 [<c0164ac3>] vfs_write+0xab/0x157
-	 [<c01650fc>] sys_write+0x3b/0x60
-	 [<c0102d41>] sysenter_past_esp+0x56/0x79
-
-where it takes the cpu_hotplug lock in "store_scaling_governor()", and 
-then calls __cpufreq_set_policy(), and then that ondemand thing WILL TAKE 
-IT AGAIN!
-
-What a piece of crap. Why, why, why?
-
-[ Linus bangs his head against the wall until tears of blood course down 
-  his face ]
-
-I will here-by re-introduce the recursion thing for lock_cpu_hotplug, but 
-I will make it say some very rude things about idiots who create code like 
-this. 
-
-cpufreq (or at least ondemand) must DIE! And the people who wrote that 
-crap should have red-hot pokers jammed into some very uncomfortable 
-places.
-
-		Linus
+-- 
+Greetings Michael.

@@ -1,33 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWGWNeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWGWNq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWGWNeB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 09:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWGWNeB
+	id S1751215AbWGWNq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 09:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGWNq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 09:34:01 -0400
-Received: from [125.92.55.146] ([125.92.55.146]:23567 "HELO 209.132.176.167")
-	by vger.kernel.org with SMTP id S1750790AbWGWNeA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 09:34:00 -0400
-Date: Sun, 23 Jul 2006 18:26:30 +0400
-Message-Id: <22451130090241.CFB4309DE@chao.starnetusa.net>
-From: "Jacob Romo" <SAROQJFBOMY@equalitynow.org>
-To: linux-admin@vger.kernel.org
-Subject: Razor Inc Customer Receipt/Purchase Confirmation
+	Sun, 23 Jul 2006 09:46:58 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:1409 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1751215AbWGWNq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 09:46:58 -0400
+Message-ID: <44C37DCF.2080205@bootc.net>
+Date: Sun, 23 Jul 2006 14:46:55 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: Eric Lammerts <eric@lammerts.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
+Subject: Re: [RFC][PATCH] LED Class support for Soekris net48xx
+References: <44AF7B00.9060108@bootc.net> <44C2EB45.1050302@lammerts.org>
+In-Reply-To: <44C2EB45.1050302@lammerts.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Icrease Your S''exual Desire and S''perm volume by 500%
-L'onger o''rgasms - The longest most intense o''rgasms of your life
-Multiple o''rgasms - Cum again and again
-S'PUR-M is The Newest and The Safest Way
-100% N''atural and No Side Effects - in contrast to well-known brands.
-Experience three times longer o''rgasms
-World Wide shipping within 24 hours
- 
- Clisk here http://www.horsetackonlinestore.info
+Eric Lammerts wrote:
+> Chris Boot wrote:
+>> I'd love to find a way of detecting a Soekris net48xx device
+>  > but there is no DMI or any Soekris-specific PCI devices.
+> 
+> You could do ugly things like this:
+> 
+>         int i;
+>         char *bios = __va(0xf0000);
+> 
+>         for(i = 0; i < 0x10000 - 19; i++) {
+>                 if(memcmp(bios + i, "Soekris Engineering", 19) == 0) {
+>                         printk("soekris string found at 0x%x\n", i);
+>                 }
+>         }
+> 
+> The string "net4801" is also in there (although I'm using a 4826).
+> 
+> If anyone knows a better way, I'd like to know it too.
 
+Hmm, very ugly indeed! Where did you dig those offsets up from? Are they likely 
+to work properly in non-Soekris devices? I think just relying on people not 
+loading the module when not in the correct hardware is probably the best option 
+at the moment...
 
+Chris
 
-chrysolite epstein grimm gullet necklace vacuum backstitch archenemy
-speakeasy helsinki khmer billfold dwindle politicking smirk glean
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

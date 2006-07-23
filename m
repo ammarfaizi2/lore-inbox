@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWGWNq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWGWOUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWGWNq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 09:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGWNq6
+	id S1751102AbWGWOUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 10:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWGWOUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 09:46:58 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:1409 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1751215AbWGWNq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 09:46:58 -0400
-Message-ID: <44C37DCF.2080205@bootc.net>
-Date: Sun, 23 Jul 2006 14:46:55 +0100
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+	Sun, 23 Jul 2006 10:20:51 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:674 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1751102AbWGWOUu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 10:20:50 -0400
+Date: Sun, 23 Jul 2006 16:20:44 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: "Brown, Len" <len.brown@intel.com>
+cc: linux-acpi <linux-acpi@intel.com>, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] ACPI - change GFP_ATOMIC to GFP_KERNEL for non-atomic
+ allocation
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6010912DB@hdsmsx411.amr.corp.intel.com>
+Message-ID: <Pine.LNX.4.58.0607231615410.30557@twin.jikos.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6010912DB@hdsmsx411.amr.corp.intel.com>
 MIME-Version: 1.0
-To: Eric Lammerts <eric@lammerts.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
-Subject: Re: [RFC][PATCH] LED Class support for Soekris net48xx
-References: <44AF7B00.9060108@bootc.net> <44C2EB45.1050302@lammerts.org>
-In-Reply-To: <44C2EB45.1050302@lammerts.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Lammerts wrote:
-> Chris Boot wrote:
->> I'd love to find a way of detecting a Soekris net48xx device
->  > but there is no DMI or any Soekris-specific PCI devices.
-> 
-> You could do ugly things like this:
-> 
->         int i;
->         char *bios = __va(0xf0000);
-> 
->         for(i = 0; i < 0x10000 - 19; i++) {
->                 if(memcmp(bios + i, "Soekris Engineering", 19) == 0) {
->                         printk("soekris string found at 0x%x\n", i);
->                 }
->         }
-> 
-> The string "net4801" is also in there (although I'm using a 4826).
-> 
-> If anyone knows a better way, I'd like to know it too.
+On Sat, 22 Jul 2006, Brown, Len wrote:
 
-Hmm, very ugly indeed! Where did you dig those offsets up from? Are they likely 
-to work properly in non-Soekris devices? I think just relying on people not 
-loading the module when not in the correct hardware is probably the best option 
-at the moment...
+> > drivers/acpi/pci_link.c::acpi_pci_link_set() sets the GFP_ATOMIC for
+> > kmalloc() allocation for no first-sight obvious reason; as far as I
+> > can see this is always called outside the atomic/interrupt context, so
+> > GFP_KERNEL allocation should be used instead.
+> this would oops on a resume from suspend -- when it is called with
+> interrupts off.
 
-Chris
+But in such a case I guess the following callchain has a problem:
+
+acpi_pci_link_resume -> acpi_pci_link_set -> acpi_set_current_resources ->
+acpi_rs_set_srs_method_data -> acpi_ut_create_internal_object_dbg ->
+acpi_ut_allocate_object_desc_dbg -> acpi_os_acquire_object ->
+kmem_cache_alloc with GFP_KERNEL flag.
+
+What about the following patch to handle both cases without oopsing? (I am 
+not using the acpi_in_resume flag, as it is makred for removal)
+
+
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+
+--- drivers/acpi/osl.c.orig	2006-07-15 21:00:43.000000000 +0200
++++ drivers/acpi/osl.c	2006-07-23 16:03:08.000000000 +0200
+@@ -1141,7 +1141,13 @@ acpi_status acpi_os_release_object(acpi_
+ 
+ void *acpi_os_acquire_object(acpi_cache_t * cache)
+ {
+-	void *object = kmem_cache_alloc(cache, GFP_KERNEL);
++	void *object;
++
++	/* irqs could be disabled when resuming from suspend */
++	if (irqs_disabled())
++		object = kmem_cache_alloc(cache, GFP_ATOMIC);
++	else
++		object = kmem_cache_alloc(cache, GFP_KERNEL);
+ 	WARN_ON(!object);
+ 	return object;
+ }
+--- drivers/acpi/pci_link.c.orig	2006-07-15 21:00:43.000000000 +0200
++++ drivers/acpi/pci_link.c	2006-07-23 16:01:42.000000000 +0200
+@@ -318,7 +318,12 @@ static int acpi_pci_link_set(struct acpi
+ 	if (!link || !irq)
+ 		return_VALUE(-EINVAL);
+ 
+-	resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
++	/* irqs could be disabled when resuming from suspend */
++	if (irqs_disabled())
++		resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
++	else
++		resource = kmalloc(sizeof(*resource) + 1, GFP_KERNEL);
++	
+ 	if (!resource)
+ 		return_VALUE(-ENOMEM);
+ 
 
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+JiKos.

@@ -1,380 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWGWASI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWGWARz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWGWASI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 20:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWGWASI
+	id S1750769AbWGWARz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 20:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWGWARz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 20:18:08 -0400
+	Sat, 22 Jul 2006 20:17:55 -0400
 Received: from nf-out-0910.google.com ([64.233.182.187]:7399 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750778AbWGWASC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 20:18:02 -0400
+	id S1750769AbWGWARy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 20:17:54 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=googlemail.com;
         h=received:date:from:x-x-sender:to:subject:message-id:references:mime-version:content-type;
-        b=mf0m1lUjjNoMB6Gc56MbQz+Qk6ZBIqzvsMAGAVDPTyMRtjaDR7fYfmdNDf2ImYxvDUyIpjDZQxIHXEGEjvc3bN/TF61T+pTRyBzS+I3iAAajsDTFnf/YbDx7jfUFKTsjRYfNjiEYWG2cy0eZgJAdOv1snOoE/GvHVah/H71eOrg=
-Date: Sun, 23 Jul 2006 02:18:27 +0100 (BST)
+        b=V8PlCPpPkhGrPV1qp0QadMwVwDWuCintN2bQgO1N8EYpSqoT+Z+TlEEIZd9r9IaNF84iTNCP2ej1gSOaJnGJZ0GvExyrjJCtBSZ/gBkuOR9ztyDJh7cPa4rFp4KaT8dy2vPyx8AlaMir1jn9HS15aHGMIIG3DDmXJZLM8J3r48g=
+Date: Sun, 23 Jul 2006 02:18:19 +0100 (BST)
 From: Esben Nielsen <nielsen.esben@googlemail.com>
 X-X-Sender: simlo@localhost.localdomain
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
        Steven Rostedt <rostedt@goodmis.org>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [patch 2/3] [-rt] Fixes the timeout-bug in the rtmutex/PI-futex.
-Message-ID: <Pine.LNX.4.64.0607230217170.11861@localhost.localdomain>
+Subject: [patch 1/3] [-rt] Fixes the timeout-bug in the rtmutex/PI-futex.
+Message-ID: <Pine.LNX.4.64.0607230216470.11861@localhost.localdomain>
 References: <20060723005210.973833000@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is based on and almost identical to the one Thomas Gleixner sent out 
-earlier. His description was:
+This patch adds a new interface to the scheduler: A task can be scheduled in 
+LIFO order for a while instead of the usual FIFO order. This is more or less 
+equivalent to raising it's priority by 1/2.
 
-Make test suite setscheduler calls asynchronously. Remove the waits in the test
-cases and add a new testcase to verify the correctness of the setscheduler
-priority propagation
+This property is now needed by the rtmutexes to solve the last few issues, but
+I can imagine it can be usefull for other subsystems too.
 
-  kernel/rtmutex-tester.c                               |   31 +--
-  scripts/rt-tester/check-all.sh                        |    2
-  scripts/rt-tester/reset-tester.py                     |   18 +
-  scripts/rt-tester/t2-l1-signal.tst                    |    3
-  scripts/rt-tester/t3-l1-pi-signal.tst                 |    3
-  scripts/rt-tester/t4-l2-pi-deboost.tst                |    2
-  scripts/rt-tester/t5-l4-pi-boost-deboost-setsched.tst |  182 ++++++++++++++++++
-  scripts/rt-tester/t5-l4-pi-boost-deboost.tst          |    2
-  8 files changed, 228 insertions(+), 15 deletions(-)
+  include/linux/init_task.h |    1
+  include/linux/sched.h     |   62 ++++++++++++++++++++++++++++++++++++++++++++++
+  kernel/sched.c            |   29 +++++++++++++++++----
+  3 files changed, 87 insertions(+), 5 deletions(-)
 
-Index: linux-2.6.17-rt7/kernel/rtmutex-tester.c
+Index: linux-2.6.17-rt7/include/linux/sched.h
 ===================================================================
---- linux-2.6.17-rt7.orig/kernel/rtmutex-tester.c
-+++ linux-2.6.17-rt7/kernel/rtmutex-tester.c
-@@ -55,7 +55,6 @@ enum test_opcodes {
+--- linux-2.6.17-rt7.orig/include/linux/sched.h
++++ linux-2.6.17-rt7/include/linux/sched.h
+@@ -853,6 +853,7 @@ struct task_struct {
+  	int prio, static_prio, normal_prio;
+  	struct list_head run_list;
+  	prio_array_t *array;
++	int sched_lifo;
 
-  static int handle_op(struct test_thread_data *td, int lockwakeup)
+  	unsigned short ioprio;
+  	unsigned int btrace_seq;
+@@ -1233,6 +1234,67 @@ extern task_t *idle_task(int cpu);
+  extern task_t *curr_task(int cpu);
+  extern void set_curr_task(int cpu, task_t *p);
+
++/*
++ * sched_lifo: A task can be sched-lifo mode and be sure to be scheduled before
++ * any other task with the same or lower priority - except for later arriving
++ * tasks with the sched_lifo property set.
++ *
++ * It is supposed to work similar to irq-flags:
++ *
++ *          int old_sched_lifo;
++ *          ...
++ *          old_sched_lifo = enter_sched_lifo();
++ *          ...
++ *          leave_sched_lifo(old_sched_lifo);
++ *
++ * The purpose is that the sched-lifo sections can be easily nested.
++ *
++ * With the get/enter/leave_sched_lifo_other() the lifo status on another task
++ * can be manipulated, The status is neither atomic, nor protected by any lock.
++ * Therefore it is up to the user of those function to ensure that the
++ * operations a properly serialized. The easiest will be not to use
++ * *_sched_lifo_other() functions.
++ */
++
++static inline int get_sched_lifo_other(struct task_struct *task)
++{
++	return task->sched_lifo;
++}
++
++static inline int get_sched_lifo(void)
++{
++	return get_sched_lifo_other(current);
++}
++
++static inline int enter_sched_lifo_other(struct task_struct *task)
++{
++	int old = task->sched_lifo;
++	task->sched_lifo = 1;
++	return old;
++}
++
++static inline int enter_sched_lifo(void)
++{
++	return enter_sched_lifo_other(current);
++}
++
++
++static inline void leave_sched_lifo_other(struct task_struct *task,
++					  int old_value)
++{
++	task->sched_lifo = old_value;
++  /*
++   * if sched_lifo == 0 should we move to the tail of the runqueue ?
++   * what if we never sleeped while in sched_lifo  ?
++   */
++}
++
++static inline void leave_sched_lifo(int old_value)
++{
++	leave_sched_lifo_other(current, old_value);
++}
++
++
+  void yield(void);
+  void __yield(void);
+
+Index: linux-2.6.17-rt7/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rt7.orig/kernel/sched.c
++++ linux-2.6.17-rt7/kernel/sched.c
+@@ -162,8 +162,8 @@
+  	(JIFFIES_TO_NS(MAX_SLEEP_AVG * \
+  		(MAX_BONUS / 2 + DELTA((p)) + 1) / MAX_BONUS - 1))
+
+-#define TASK_PREEMPTS_CURR(p, rq) \
+-	((p)->prio < (rq)->curr->prio)
++#define TASK_PREEMPTS(p,q) task_preempts(p,q)
++#define TASK_PREEMPTS_CURR(p, rq)  TASK_PREEMPTS(p,(rq)->curr)
+
+  /*
+   * task_timeslice() scales user-nice values [ -20 ... 0 ... 19 ]
+@@ -646,6 +646,17 @@ static inline void sched_info_switch(tas
+  #define sched_info_switch(t, next)	do { } while (0)
+  #endif /* CONFIG_SCHEDSTATS */
+
++int task_preempts(struct task_struct *p, struct task_struct *q)
++{
++	if (p->prio < q->prio)
++		return 1;
++
++	if (p->prio > q->prio)
++		return 0;
++
++	return p->sched_lifo;
++}
++
+  static __cacheline_aligned_in_smp atomic_t rt_overload;
+
+  static inline void inc_rt_tasks(task_t *p, runqueue_t *rq)
+@@ -710,7 +721,12 @@ static void enqueue_task(struct task_str
+  		dump_stack();
+  	}
+  	sched_info_queued(p);
+-	list_add_tail(&p->run_list, array->queue + p->prio);
++
++	if (p->sched_lifo)
++		list_add(&p->run_list, array->queue + p->prio);
++	else
++		list_add_tail(&p->run_list, array->queue + p->prio);
++
+  	__set_bit(p->prio, array->bitmap);
+  	array->nr_active++;
+  	p->array = array;
+@@ -723,7 +739,10 @@ static void enqueue_task(struct task_str
+   */
+  static void requeue_task(struct task_struct *p, prio_array_t *array)
   {
--	struct sched_param schedpar;
-  	int i, id, ret = -EINVAL;
+-	list_move_tail(&p->run_list, array->queue + p->prio);
++	if (p->sched_lifo)
++		list_move(&p->run_list, array->queue + p->prio);
++	else
++		list_move_tail(&p->run_list, array->queue + p->prio);
+  }
 
-  	switch(td->opcode) {
-@@ -63,17 +62,6 @@ static int handle_op(struct test_thread_
-  	case RTTEST_NOP:
-  		return 0;
-
--	case RTTEST_SCHEDOT:
--		schedpar.sched_priority = 0;
--		ret = sched_setscheduler(current, SCHED_NORMAL, &schedpar);
--		if (!ret)
--			set_user_nice(current, 0);
--		return ret;
--
--	case RTTEST_SCHEDRT:
--		schedpar.sched_priority = td->opdata;
--		return sched_setscheduler(current, SCHED_FIFO, &schedpar);
--
-  	case RTTEST_LOCKCONT:
-  		td->mutexes[td->opdata] = 1;
-  		td->event = atomic_add_return(1, &rttest_event);
-@@ -310,9 +298,10 @@ static int test_func(void *data)
-  static ssize_t sysfs_test_command(struct sys_device *dev, const char *buf,
-  				  size_t count)
-  {
-+	struct sched_param schedpar;
-  	struct test_thread_data *td;
-  	char cmdbuf[32];
--	int op, dat, tid;
-+	int op, dat, tid, ret;
-
-  	td = container_of(dev, struct test_thread_data, sysdev);
-  	tid = td->sysdev.id;
-@@ -334,6 +323,22 @@ static ssize_t sysfs_test_command(struct
-  		return -EINVAL;
-
-  	switch (op) {
-+	case RTTEST_SCHEDOT:
-+		schedpar.sched_priority = 0;
-+		ret = sched_setscheduler(threads[tid], SCHED_NORMAL,
-+					 &schedpar);
-+		if (ret)
-+			return ret;
-+		set_user_nice(current, 0);
-+		break;
-+
-+	case RTTEST_SCHEDRT:
-+		schedpar.sched_priority = dat;
-+		ret = sched_setscheduler(threads[tid], SCHED_FIFO, &schedpar);
-+		if (ret)
-+			return ret;
-+		break;
-+
-  	case RTTEST_SIGNAL:
-  		send_sig(SIGHUP, threads[tid], 0);
-  		break;
-Index: linux-2.6.17-rt7/scripts/rt-tester/reset-tester.py
+  static inline void enqueue_task_head(struct task_struct *p, prio_array_t *array)
+@@ -1313,7 +1332,7 @@ static void balance_rt_tasks(runqueue_t
+  		 * Do we have an RT task that preempts
+  		 * the to-be-scheduled task?
+  		 */
+-		if (p && (p->prio < next->prio)) {
++		if (p && TASK_PREEMPTS(p,next)) {
+  			WARN_ON(p == src_rq->curr);
+  			WARN_ON(!p->array);
+  			schedstat_inc(this_rq, rto_pulled);
+Index: linux-2.6.17-rt7/include/linux/init_task.h
 ===================================================================
---- /dev/null
-+++ linux-2.6.17-rt7/scripts/rt-tester/reset-tester.py
-@@ -0,0 +1,18 @@
-+#!/usr/bin/env python
-+
-+sysfsprefix = "/sys/devices/system/rttest/rttest"
-+statusfile = "/status"
-+commandfile = "/command"
-+
-+for i in range(0,8):
-+    cmdstr = "%s:%s" %("99", "0")
-+    fname = "%s%d%s" %(sysfsprefix, i, commandfile)
-+
-+    try:
-+        fcmd = open(fname, 'w')
-+        fcmd.write(cmdstr)
-+        fcmd.close()
-+    except Exception,ex:
-+        print i
-+        print ex
-+
-Index: linux-2.6.17-rt7/scripts/rt-tester/t2-l1-signal.tst
-===================================================================
---- linux-2.6.17-rt7.orig/scripts/rt-tester/t2-l1-signal.tst
-+++ linux-2.6.17-rt7/scripts/rt-tester/t2-l1-signal.tst
-@@ -77,3 +77,6 @@ T: opcodeeq:		1:	-4
-  # Unlock and exit
-  C: unlock:		0: 	0
-  W: unlocked:		0: 	0
-+
-+# Reset the -4 opcode from the signal
-+C: reset:               1:      0
-\ No newline at end of file
-Index: linux-2.6.17-rt7/scripts/rt-tester/t3-l1-pi-signal.tst
-===================================================================
---- linux-2.6.17-rt7.orig/scripts/rt-tester/t3-l1-pi-signal.tst
-+++ linux-2.6.17-rt7/scripts/rt-tester/t3-l1-pi-signal.tst
-@@ -98,4 +98,5 @@ C: unlock:		1: 	0
-  W: unlocked:		1: 	0
-
-
--
-+# Reset the -4 opcode from the signal
-+C: reset:               2:      0
-\ No newline at end of file
-Index: linux-2.6.17-rt7/scripts/rt-tester/t4-l2-pi-deboost.tst
-===================================================================
---- linux-2.6.17-rt7.orig/scripts/rt-tester/t4-l2-pi-deboost.tst
-+++ linux-2.6.17-rt7/scripts/rt-tester/t4-l2-pi-deboost.tst
-@@ -125,3 +125,5 @@ W: unlocked:		2:	1
-  C: unlock:		0:	0
-  W: unlocked:		0:	0
-
-+# Reset the -4 opcode from the signal
-+C: reset:               3:      0
-\ No newline at end of file
-Index: linux-2.6.17-rt7/scripts/rt-tester/t5-l4-pi-boost-deboost-setsched.tst
-===================================================================
---- /dev/null
-+++ linux-2.6.17-rt7/scripts/rt-tester/t5-l4-pi-boost-deboost-setsched.tst
-@@ -0,0 +1,182 @@
-+#
-+# rt-mutex test
-+#
-+# Op: C(ommand)/T(est)/W(ait)
-+# |  opcode
-+# |  |     threadid: 0-7
-+# |  |     |  opcode argument
-+# |  |     |  |
-+# C: lock: 0: 0
-+#
-+# Commands
-+#
-+# opcode	opcode argument
-+# schedother	nice value
-+# schedfifo	priority
-+# lock		lock nr (0-7)
-+# locknowait	lock nr (0-7)
-+# lockint	lock nr (0-7)
-+# lockintnowait	lock nr (0-7)
-+# lockcont	lock nr (0-7)
-+# unlock	lock nr (0-7)
-+# lockbkl	lock nr (0-7)
-+# unlockbkl	lock nr (0-7)
-+# signal	thread to signal (0-7)
-+# reset		0
-+# resetevent	0
-+#
-+# Tests / Wait
-+#
-+# opcode	opcode argument
-+#
-+# prioeq	priority
-+# priolt	priority
-+# priogt	priority
-+# nprioeq	normal priority
-+# npriolt	normal priority
-+# npriogt	normal priority
-+# locked	lock nr (0-7)
-+# blocked	lock nr (0-7)
-+# blockedwake	lock nr (0-7)
-+# unlocked	lock nr (0-7)
-+# lockedbkl	dont care
-+# blockedbkl	dont care
-+# unlockedbkl	dont care
-+# opcodeeq	command opcode or number
-+# opcodelt	number
-+# opcodegt	number
-+# eventeq	number
-+# eventgt	number
-+# eventlt	number
-+
-+#
-+# 5 threads 4 lock PI - modify priority of blocked threads
-+#
-+C: resetevent:		0: 	0
-+W: opcodeeq:		0: 	0
-+
-+# Set schedulers
-+C: schedother:		0: 	0
-+C: schedfifo:		1: 	81
-+C: schedfifo:		2: 	82
-+C: schedfifo:		3: 	83
-+C: schedfifo:		4: 	84
-+
-+# T0 lock L0
-+C: locknowait:		0: 	0
-+W: locked:		0: 	0
-+
-+# T1 lock L1
-+C: locknowait:		1: 	1
-+W: locked:		1: 	1
-+
-+# T1 lock L0
-+C: lockintnowait:	1: 	0
-+W: blocked:		1: 	0
-+T: prioeq:		0: 	81
-+
-+# T2 lock L2
-+C: locknowait:		2: 	2
-+W: locked:		2: 	2
-+
-+# T2 lock L1
-+C: lockintnowait:	2: 	1
-+W: blocked:		2: 	1
-+T: prioeq:		0: 	82
-+T: prioeq:		1:	82
-+
-+# T3 lock L3
-+C: locknowait:		3: 	3
-+W: locked:		3: 	3
-+
-+# T3 lock L2
-+C: lockintnowait:	3: 	2
-+W: blocked:		3: 	2
-+T: prioeq:		0: 	83
-+T: prioeq:		1:	83
-+T: prioeq:		2:	83
-+
-+# T4 lock L3
-+C: lockintnowait:	4:	3
-+W: blocked:		4: 	3
-+T: prioeq:		0: 	84
-+T: prioeq:		1:	84
-+T: prioeq:		2:	84
-+T: prioeq:		3:	84
-+
-+# Reduce prio of T4
-+C: schedfifo:		4: 	80
-+T: prioeq:		0: 	83
-+T: prioeq:		1:	83
-+T: prioeq:		2:	83
-+T: prioeq:		3:	83
-+T: prioeq:		4:	80
-+
-+# Increase prio of T4
-+C: schedfifo:		4: 	84
-+T: prioeq:		0: 	84
-+T: prioeq:		1:	84
-+T: prioeq:		2:	84
-+T: prioeq:		3:	84
-+T: prioeq:		4:	84
-+
-+# Reduce prio of T3
-+C: schedfifo:		3: 	80
-+T: prioeq:		0: 	84
-+T: prioeq:		1:	84
-+T: prioeq:		2:	84
-+T: prioeq:		3:	84
-+T: prioeq:		4:	84
-+
-+# Increase prio of T3
-+C: schedfifo:		3: 	85
-+T: prioeq:		0: 	85
-+T: prioeq:		1:	85
-+T: prioeq:		2:	85
-+T: prioeq:		3:	85
-+T: prioeq:		4:	84
-+
-+# Reduce prio of T3
-+C: schedfifo:		3: 	83
-+T: prioeq:		0: 	84
-+T: prioeq:		1:	84
-+T: prioeq:		2:	84
-+T: prioeq:		3:	84
-+T: prioeq:		4:	84
-+
-+# Signal T4
-+C: signal:		4: 	0
-+W: unlocked:		4: 	3
-+T: prioeq:		0: 	83
-+T: prioeq:		1:	83
-+T: prioeq:		2:	83
-+T: prioeq:		3:	83
-+
-+# Signal T3
-+C: signal:		3: 	0
-+W: unlocked:		3: 	2
-+T: prioeq:		0: 	82
-+T: prioeq:		1:	82
-+T: prioeq:		2:	82
-+
-+# Signal T2
-+C: signal:		2: 	0
-+W: unlocked:		2: 	1
-+T: prioeq:		0: 	81
-+T: prioeq:		1:	81
-+
-+# Signal T1
-+C: signal:		1: 	0
-+W: unlocked:		1: 	0
-+T: priolt:		0: 	1
-+
-+# Unlock and exit
-+C: unlock:		3:	3
-+C: unlock:		2:	2
-+C: unlock:		1:	1
-+C: unlock:		0:	0
-+
-+W: unlocked:		3:	3
-+W: unlocked:		2:	2
-+W: unlocked:		1:	1
-+W: unlocked:		0:	0
-Index: linux-2.6.17-rt7/scripts/rt-tester/t5-l4-pi-boost-deboost.tst
-===================================================================
---- linux-2.6.17-rt7.orig/scripts/rt-tester/t5-l4-pi-boost-deboost.tst
-+++ linux-2.6.17-rt7/scripts/rt-tester/t5-l4-pi-boost-deboost.tst
-@@ -146,3 +146,5 @@ W: unlocked:		2:	2
-  W: unlocked:		1:	1
-  W: unlocked:		0:	0
-
-+# Reset the -4 opcode from the signal
-+C: reset:               4:      0
-\ No newline at end of file
-Index: linux-2.6.17-rt7/scripts/rt-tester/check-all.sh
-===================================================================
---- linux-2.6.17-rt7.orig/scripts/rt-tester/check-all.sh
-+++ linux-2.6.17-rt7/scripts/rt-tester/check-all.sh
-@@ -18,4 +18,4 @@ testit t3-l1-pi-steal.tst
-  testit t3-l2-pi.tst
-  testit t4-l2-pi-deboost.tst
-  testit t5-l4-pi-boost-deboost.tst
--
-+testit t5-l4-pi-boost-deboost-setsched.tst
-\ No newline at end of file
+--- linux-2.6.17-rt7.orig/include/linux/init_task.h
++++ linux-2.6.17-rt7/include/linux/init_task.h
+@@ -89,6 +89,7 @@ extern struct group_info init_groups;
+  	.prio		= MAX_PRIO-20,					\
+  	.static_prio	= MAX_PRIO-20,					\
+  	.normal_prio	= MAX_PRIO-20,					\
++        .sched_lifo     = 0,						\
+  	.policy		= SCHED_NORMAL,					\
+  	.cpus_allowed	= CPU_MASK_ALL,					\
+  	.mm		= NULL,						\
 
 --

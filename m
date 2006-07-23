@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWGWPZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWGWPny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWGWPZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 11:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGWPZ4
+	id S1751228AbWGWPny (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 11:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWGWPny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 11:25:56 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:34684 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751229AbWGWPZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 11:25:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ZV3SMmcYKHd3A6zb3SH5L3EDbxEBku6pSmw2BU6I6cSXvnQfdT9Ncx7JU5oV6MM/cDaFo4sVJ788Yn7p2PO61de2Yws2UG2snkT1LCRt4oYn8B/1+vBwJUGAQ6OIMns6MFPr5mSH7X2yvjCSsPOsBXy7sm42nKjqWRkkgLWLWz8=
-Date: Sun, 23 Jul 2006 19:25:51 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
-Subject: Re: Graphic: userspace headers interdependencies
-Message-ID: <20060723152551.GA6816@martell.zuzino.mipt.ru>
-References: <20060723101523.GS25367@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060723101523.GS25367@stusta.de>
-User-Agent: Mutt/1.5.11
+	Sun, 23 Jul 2006 11:43:54 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:2013 "EHLO gepetto.dc.ltu.se")
+	by vger.kernel.org with ESMTP id S1751228AbWGWPnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 11:43:52 -0400
+Message-ID: <1153669426.44c39932c2156@portal.student.luth.se>
+Date: Sun, 23 Jul 2006 17:43:46 +0200
+From: ricknu-0@student.ltu.se
+To: =?ISO-8859-1?B?TGFycyBHdWxsaWsgQmr4bm5lcw==?= <larsbj@gullik.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] A generic boolean (version 3)
+References: <1153341500.44be983ca1407@portal.student.luth.se> <1153524422.44c162c65c21b@portal.student.luth.se> <m3mzb2c6bt.fsf@tyfon.gullik.net>
+In-Reply-To: <m3mzb2c6bt.fsf@tyfon.gullik.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 23, 2006 at 12:15:23PM +0200, Adrian Bunk wrote:
-> I've written a quick'n'dirty script for visualizing the
-> interdependencies of the i386 userspace headers in 2.6.18-rc2.
->
-> In case anyone is interested, it's at [1] (warning: it's big).
->
-> The graphic also shows some problems like headers including not exported
-> headers. I'm currently working on fixing such issues in my hdrcleanup
-> tree.
+Citerar Lars Gullik Bjønnes <larsbj@gullik.net>:
 
-[PATCH] mqueue.h: don't include linux/types.h
+> ricknu-0@student.ltu.se writes:
+> 
+> | --- a/include/asm-i386/types.h
+> | +++ b/include/asm-i386/types.h
+> | @@ -1,6 +1,13 @@
+> |  #ifndef _I386_TYPES_H
+> |  #define _I386_TYPES_H
+> |  
+> | +#if __GNUC__ >= 3
+> | +typedef _Bool bool;
+> | +#else
+> | +#warning You compiler doesn't seem to support boolean types, will set
+> 'bool' as
+> | an 'unsigned int'
+> | +typedef unsigned int bool;
+> | +#endif
+> | +
+> 
+> What does C99 say about sizeof(_Bool)?
+> 
+> At least with gcc 4 it is 1. Can that pose a problem? gcc < 3 giving a
+> different size for bool?
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Well, it might. I don't see it other then when someone uses a variable of
+another type and the "boolean" variable (now an int) is of a larger value then
+that variable. But then that is a bug and should be fixed.
 
---- a/include/linux/mqueue.h
-+++ b/include/linux/mqueue.h
-@@ -18,8 +18,6 @@
- #ifndef _LINUX_MQUEUE_H
- #define _LINUX_MQUEUE_H
- 
--#include <linux/types.h>
--
- #define MQ_PRIO_MAX 	32768
- /* per-uid limit of kernel memory used by mqueue, in bytes */
- #define MQ_BYTES_MAX	819200
+But rest easy, bool will only be _Bool from now on. :)
+
+> -- 
+> 	Lgb
+
+Richard Knutsson
 

@@ -1,362 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWGWAaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWGWAko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWGWAaD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jul 2006 20:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWGWAaD
+	id S1751018AbWGWAko (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jul 2006 20:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWGWAko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jul 2006 20:30:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:31241 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750791AbWGWAaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jul 2006 20:30:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent:from;
-        b=L0P7Uet1Un6uW2ssWarPk2/IiPYHEEGQ18gu1egV0auWYjRLfCiamxHbyNob/Krk1rrqJJb1naFNKrAxqJZBb9o3wZQ7il2zFjZkWQbqcZyZPbh0UXS+SIKGAH8lJMpf4aQp35CBHesiI8TRET4zCYmsWGVYfTuGs0yKqKdd5vY=
-Date: Sun, 23 Jul 2006 02:29:07 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/acpi/battery.c cleanups
-Message-ID: <20060723002907.GA8886@leiferikson.gentoo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+	Sat, 22 Jul 2006 20:40:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750995AbWGWAkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jul 2006 20:40:43 -0400
+Date: Sat, 22 Jul 2006 17:36:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com, torvalds@osdl.org,
+       bunk@stusta.de, lethal@linux-sh.org, hirofumi@mail.parknet.co.jp
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+Message-Id: <20060722173649.952f909f.akpm@osdl.org>
+In-Reply-To: <20060722233638.GC27566@kiste.smurf.noris.de>
+References: <20060722233638.GC27566@kiste.smurf.noris.de>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 23 Jul 2006 01:36:38 +0200
+Matthias Urlichs <smurf@smurf.noris.de> wrote:
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi,
+> 
+> the change 5d0cf410e94b1f1ff852c3f210d22cc6c5a27ffa
+>     [PATCH] Time: i386 Clocksource Drivers
+> 
+>     Implement the time sources for i386 (acpi_pm, cyclone, hpet, pit, and tsc).
+>     With this patch, the conversion of the i386 arch to the generic timekeeping
+>     code should be complete.
+> 
+>     The patch should be fairly straight forward, only adding the new clocksources.
+> 
+> causes the clocks of the two CPUs in my dual-Xeon server to lose
+> (or, maybe, never gain) sync.
+> 
+> Before this change, they're in sync; afterwards, they're not.
+> 
+> This is a problem because, as soon as the system decides to switch CPUs
+> while a program is sleeping (which happens quite early during boot-up),
+> that sleep takes a *long* time. :-/
+> 
+> Checked by simply running "date" repeatedly. Thanks to Linux' superb
+> scheduler, this command reliably runs on alternate CPUs, thereby
+> demonstrating the problem, and I didn't have to resort to "taskset".
+> 
+> 
+> Boot log:
+> 
+> Linux version 2.6.17-test-1.29 (root@kiste) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #1 SMP PREEMPT Sun Jul 23 01:05:35 CEST 2006
+
+What is 2.6.17-test-1.29?
+
+How do you know that 5d0cf410e94b1f1ff852c3f210d22cc6c5a27ffa caused this?
+
+> checking TSC synchronization across 4 CPUs: 
+
+That code's a bit sick.  But nothing much has changed in there.
+
+> Time: tsc clocksource has been installed.
+
+OK.
+
+Are you able to test the below?  It should fix up the reporting.
+
+Are you able to compare the present bootlog with the 2.6.17 bootlog?
+
+AFAICT the "fixed it up" claim is simply untrue.  Odd.
 
 
-Removed assignment casts, substituted kmalloc+memset with kzalloc, made
-functions void if they never return a value. Style adjustments.
+--- a/arch/i386/kernel/smpboot.c~synchronize_tsc-fixes
++++ a/arch/i386/kernel/smpboot.c
+@@ -215,7 +215,7 @@ valid_k7:
+ static atomic_t tsc_start_flag = ATOMIC_INIT(0);
+ static atomic_t tsc_count_start = ATOMIC_INIT(0);
+ static atomic_t tsc_count_stop = ATOMIC_INIT(0);
+-static unsigned long long tsc_values[NR_CPUS];
++static unsigned long long __initdata tsc_values[NR_CPUS];
+ 
+ #define NR_LOOPS 5
+ 
+@@ -286,7 +286,6 @@ static void __init synchronize_tsc_bp (v
+ 	avg = sum;
+ 	do_div(avg, num_booting_cpus());
+ 
+-	sum = 0;
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		if (!cpu_isset(i, cpu_callout_map))
+ 			continue;
+@@ -297,7 +296,8 @@ static void __init synchronize_tsc_bp (v
+ 		 * We report bigger than 2 microseconds clock differences.
+ 		 */
+ 		if (delta > 2*one_usec) {
+-			long realdelta;
++			long long realdelta;
++
+ 			if (!buggy) {
+ 				buggy = 1;
+ 				printk("\n");
+@@ -307,12 +307,10 @@ static void __init synchronize_tsc_bp (v
+ 			if (tsc_values[i] < avg)
+ 				realdelta = -realdelta;
+ 
+-			if (realdelta > 0)
+-				printk(KERN_INFO "CPU#%d had %ld usecs TSC "
++			if (realdelta)
++				printk(KERN_INFO "CPU#%d had %Ld usecs TSC "
+ 					"skew, fixed it up.\n", i, realdelta);
+ 		}
+-
+-		sum += delta;
+ 	}
+ 	if (!buggy)
+ 		printk("passed.\n");
+_
 
-Signed-off-by: Johannes Weiner <hnazfoo@gmail.com>
-
----
-
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="acpi_battery_cleanups.patch"
-
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 6e52217..85f6a23 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -147,7 +147,7 @@ acpi_battery_get_info(struct acpi_batter
- 		return -ENODEV;
- 	}
- 
--	package = (union acpi_object *)buffer.pointer;
-+	package = buffer.pointer;
- 
- 	/* Extract Package Data */
- 
-@@ -158,12 +158,11 @@ acpi_battery_get_info(struct acpi_batter
- 		goto end;
- 	}
- 
--	data.pointer = kmalloc(data.length, GFP_KERNEL);
-+	data.pointer = kzalloc(data.length, GFP_KERNEL);
- 	if (!data.pointer) {
- 		result = -ENOMEM;
- 		goto end;
- 	}
--	memset(data.pointer, 0, data.length);
- 
- 	status = acpi_extract_package(package, &format, &data);
- 	if (ACPI_FAILURE(status)) {
-@@ -173,11 +172,11 @@ acpi_battery_get_info(struct acpi_batter
- 		goto end;
- 	}
- 
--      end:
-+end:
- 	kfree(buffer.pointer);
- 
- 	if (!result)
--		(*bif) = (struct acpi_battery_info *)data.pointer;
-+		(*bif) = data.pointer;
- 
- 	return result;
- }
-@@ -207,7 +206,7 @@ acpi_battery_get_status(struct acpi_batt
- 		return -ENODEV;
- 	}
- 
--	package = (union acpi_object *)buffer.pointer;
-+	package = buffer.pointer;
- 
- 	/* Extract Package Data */
- 
-@@ -218,12 +217,11 @@ acpi_battery_get_status(struct acpi_batt
- 		goto end;
- 	}
- 
--	data.pointer = kmalloc(data.length, GFP_KERNEL);
-+	data.pointer = kzalloc(data.length, GFP_KERNEL);
- 	if (!data.pointer) {
- 		result = -ENOMEM;
- 		goto end;
- 	}
--	memset(data.pointer, 0, data.length);
- 
- 	status = acpi_extract_package(package, &format, &data);
- 	if (ACPI_FAILURE(status)) {
-@@ -233,11 +231,11 @@ acpi_battery_get_status(struct acpi_batt
- 		goto end;
- 	}
- 
--      end:
-+end:
- 	kfree(buffer.pointer);
- 
- 	if (!result)
--		(*bst) = (struct acpi_battery_status *)data.pointer;
-+		(*bst) = data.pointer;
- 
- 	return result;
- }
-@@ -329,22 +327,22 @@ static int acpi_battery_check(struct acp
-    -------------------------------------------------------------------------- */
- 
- static struct proc_dir_entry *acpi_battery_dir;
--static int acpi_battery_read_info(struct seq_file *seq, void *offset)
-+static void acpi_battery_read_info(struct seq_file *seq, void *offset)
- {
- 	int result = 0;
--	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
-+	struct acpi_battery *battery = seq->private;
- 	struct acpi_battery_info *bif = NULL;
- 	char *units = "?";
- 
- 
- 	if (!battery)
--		goto end;
-+		return;
- 
- 	if (battery->flags.present)
- 		seq_printf(seq, "present:                 yes\n");
- 	else {
- 		seq_printf(seq, "present:                 no\n");
--		goto end;
-+		return;
- 	}
- 
- 	/* Battery Info (_BIF) */
-@@ -402,10 +400,8 @@ static int acpi_battery_read_info(struct
- 	seq_printf(seq, "battery type:            %s\n", bif->battery_type);
- 	seq_printf(seq, "OEM info:                %s\n", bif->oem_info);
- 
--      end:
-+end:
- 	kfree(bif);
--
--	return 0;
- }
- 
- static int acpi_battery_info_open_fs(struct inode *inode, struct file *file)
-@@ -413,22 +409,22 @@ static int acpi_battery_info_open_fs(str
- 	return single_open(file, acpi_battery_read_info, PDE(inode)->data);
- }
- 
--static int acpi_battery_read_state(struct seq_file *seq, void *offset)
-+static void acpi_battery_read_state(struct seq_file *seq, void *offset)
- {
- 	int result = 0;
--	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
-+	struct acpi_battery *battery = seq->private;
- 	struct acpi_battery_status *bst = NULL;
- 	char *units = "?";
- 
- 
- 	if (!battery)
--		goto end;
-+		return;
- 
- 	if (battery->flags.present)
- 		seq_printf(seq, "present:                 yes\n");
- 	else {
- 		seq_printf(seq, "present:                 no\n");
--		goto end;
-+		return;
- 	}
- 
- 	/* Battery Units */
-@@ -450,16 +446,15 @@ static int acpi_battery_read_state(struc
- 	else
- 		seq_printf(seq, "capacity state:          critical\n");
- 
--	if ((bst->state & 0x01) && (bst->state & 0x02)) {
-+	if ((bst->state & 0x01) && (bst->state & 0x02))
- 		seq_printf(seq,
- 			   "charging state:          charging/discharging\n");
--	} else if (bst->state & 0x01)
-+	else if (bst->state & 0x01)
- 		seq_printf(seq, "charging state:          discharging\n");
- 	else if (bst->state & 0x02)
- 		seq_printf(seq, "charging state:          charging\n");
--	else {
-+	else
- 		seq_printf(seq, "charging state:          charged\n");
--	}
- 
- 	if (bst->present_rate == ACPI_BATTERY_VALUE_UNKNOWN)
- 		seq_printf(seq, "present rate:            unknown\n");
-@@ -479,10 +474,8 @@ static int acpi_battery_read_state(struc
- 		seq_printf(seq, "present voltage:         %d mV\n",
- 			   (u32) bst->present_voltage);
- 
--      end:
-+end:
- 	kfree(bst);
--
--	return 0;
- }
- 
- static int acpi_battery_state_open_fs(struct inode *inode, struct file *file)
-@@ -490,18 +483,18 @@ static int acpi_battery_state_open_fs(st
- 	return single_open(file, acpi_battery_read_state, PDE(inode)->data);
- }
- 
--static int acpi_battery_read_alarm(struct seq_file *seq, void *offset)
-+static void acpi_battery_read_alarm(struct seq_file *seq, void *offset)
- {
--	struct acpi_battery *battery = (struct acpi_battery *)seq->private;
-+	struct acpi_battery *battery = seq->private;
- 	char *units = "?";
- 
- 
- 	if (!battery)
--		goto end;
-+		return;
- 
- 	if (!battery->flags.present) {
- 		seq_printf(seq, "present:                 no\n");
--		goto end;
-+		return;
- 	}
- 
- 	/* Battery Units */
-@@ -517,9 +510,6 @@ static int acpi_battery_read_alarm(struc
- 		seq_printf(seq, "unsupported\n");
- 	else
- 		seq_printf(seq, "%d %sh\n", (u32) battery->alarm, units);
--
--      end:
--	return 0;
- }
- 
- static ssize_t
-@@ -529,8 +519,8 @@ acpi_battery_write_alarm(struct file *fi
- {
- 	int result = 0;
- 	char alarm_string[12] = { '\0' };
--	struct seq_file *m = (struct seq_file *)file->private_data;
--	struct acpi_battery *battery = (struct acpi_battery *)m->private;
-+	struct seq_file *m = file->private_data;
-+	struct acpi_battery *battery = m->private;
- 
- 
- 	if (!battery || (count > sizeof(alarm_string) - 1))
-@@ -632,22 +622,20 @@ static int acpi_battery_add_fs(struct ac
- 	return 0;
- }
- 
--static int acpi_battery_remove_fs(struct acpi_device *device)
-+static void acpi_battery_remove_fs(struct acpi_device *device)
- {
-+	if (!acpi_device_dir(device))
-+		return;
- 
--	if (acpi_device_dir(device)) {
--		remove_proc_entry(ACPI_BATTERY_FILE_ALARM,
--				  acpi_device_dir(device));
--		remove_proc_entry(ACPI_BATTERY_FILE_STATUS,
--				  acpi_device_dir(device));
--		remove_proc_entry(ACPI_BATTERY_FILE_INFO,
--				  acpi_device_dir(device));
--
--		remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
--		acpi_device_dir(device) = NULL;
--	}
-+	remove_proc_entry(ACPI_BATTERY_FILE_ALARM,
-+			  acpi_device_dir(device));
-+	remove_proc_entry(ACPI_BATTERY_FILE_STATUS,
-+			  acpi_device_dir(device));
-+	remove_proc_entry(ACPI_BATTERY_FILE_INFO,
-+			  acpi_device_dir(device));
- 
--	return 0;
-+	remove_proc_entry(acpi_device_bid(device), acpi_battery_dir);
-+	acpi_device_dir(device) = NULL;
- }
- 
- /* --------------------------------------------------------------------------
-@@ -656,7 +644,7 @@ static int acpi_battery_remove_fs(struct
- 
- static void acpi_battery_notify(acpi_handle handle, u32 event, void *data)
- {
--	struct acpi_battery *battery = (struct acpi_battery *)data;
-+	struct acpi_battery *battery = data;
- 	struct acpi_device *device = NULL;
- 
- 
-@@ -678,8 +666,6 @@ static void acpi_battery_notify(acpi_han
- 				  "Unsupported event [0x%x]\n", event));
- 		break;
- 	}
--
--	return;
- }
- 
- static int acpi_battery_add(struct acpi_device *device)
-@@ -692,10 +678,9 @@ static int acpi_battery_add(struct acpi_
- 	if (!device)
- 		return -EINVAL;
- 
--	battery = kmalloc(sizeof(struct acpi_battery), GFP_KERNEL);
-+	battery = kzalloc(sizeof(*battery), GFP_KERNEL);
- 	if (!battery)
- 		return -ENOMEM;
--	memset(battery, 0, sizeof(struct acpi_battery));
- 
- 	battery->device = device;
- 	strcpy(acpi_device_name(device), ACPI_BATTERY_DEVICE_NAME);
-@@ -722,7 +707,7 @@ static int acpi_battery_add(struct acpi_
- 	       ACPI_BATTERY_DEVICE_NAME, acpi_device_bid(device),
- 	       device->status.battery_present ? "present" : "absent");
- 
--      end:
-+end:
- 	if (result) {
- 		acpi_battery_remove_fs(device);
- 		kfree(battery);
-@@ -740,7 +725,7 @@ static int acpi_battery_remove(struct ac
- 	if (!device || !acpi_driver_data(device))
- 		return -EINVAL;
- 
--	battery = (struct acpi_battery *)acpi_driver_data(device);
-+	battery = acpi_driver_data(device);
- 
- 	status = acpi_remove_notify_handler(device->handle,
- 					    ACPI_ALL_NOTIFY,
-@@ -772,12 +757,8 @@ static int __init acpi_battery_init(void
- 
- static void __exit acpi_battery_exit(void)
- {
--
- 	acpi_bus_unregister_driver(&acpi_battery_driver);
--
- 	acpi_unlock_battery_dir(acpi_battery_dir);
--
--	return;
- }
- 
- module_init(acpi_battery_init);
-
---/04w6evG8XlLl3ft--

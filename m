@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWGWSNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWGWSTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWGWSNL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 14:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWGWSNL
+	id S1751143AbWGWSTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 14:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWGWSTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 14:13:11 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:54958 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751142AbWGWSNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 14:13:10 -0400
-Date: Sun, 23 Jul 2006 11:12:43 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, dino@in.ibm.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
-       ashok.raj@intel.com
-Subject: Re: [PATCH] Cpuset: fix ABBA deadlock with cpu hotplug lock
-Message-Id: <20060723111243.d1373616.pj@sgi.com>
-In-Reply-To: <20060714095434.24283.5979.sendpatchset@jackhammer.engr.sgi.com>
-References: <20060714095434.24283.5979.sendpatchset@jackhammer.engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Jul 2006 14:19:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21401 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751143AbWGWSTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jul 2006 14:19:18 -0400
+Date: Sun, 23 Jul 2006 11:12:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       davej@redhat.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+In-Reply-To: <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
+References: <20060722194018.GA28924@redhat.com>  <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
+  <20060722180602.ac0d36f5.akpm@osdl.org>  <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
+ <1153627754.7359.17.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I added the CC list from the "remove cpu hotplug bustification" thread. -pj]
 
-Nine days ago, I offered this patch to fix a particular instance of
-ABBA deadlock we were seeing on a single customer machine, between the
-cpu hotplug lock and one of the cpuset locks.  In this case, the patch
-was simple enough - reorder a couple of operations to avoid the risk of
-taking these locks in the wrong order.
 
-pj wrote:
-> This fix appears right from inspection, but it will take a few
-> more days running it on that customers workload to be confident
-> we nailed it.  We don't have any other reproducible test case.
+On Sun, 23 Jul 2006, Linus Torvalds wrote:
+> 
+> Does this work? Hey, it works for me once. It's pretty simple, and had 
+> better not have any recursion issues.
 
-We now have enough exposure running this fix on that customers workload
-to be confident this fix works.  We should have seen at least ten of
-these crashes by now.  We've seen zero.
+GAAH!!
 
-If the upcoming 2.6.18 is still open for non-critical fixes please
-consider this patch.  In this case, it is non-critical because few
-systems (exactly one system, world wide, so far) hit it.  It is quite
-fatal when hit.
+What kind of _crap_ is this cpufreq thing?
 
-On the other hand, if you decide to nuke the cpu hotplug lock for
-2.6.18, then just forget this patch, as it would no longer apply.
+Lookie here:
 
-There's no need of trimming the patients ingrown toenail if you
-amputate the leg.
+	S06cpuspeed   D DD94A324  2180 10241  10215                     (NOTLB)
+	Call Trace:
+	 [<c03c411d>] __mutex_lock_slowpath+0x4d/0x7b
+	 [<c03c415a>] .text.lock.mutex+0xf/0x14
+	 [<c0137651>] lock_cpu_hotplug+0xd/0xf
+	 [<c012f9df>] __create_workqueue+0x52/0x11f
+	 [<df0cd336>] cpufreq_governor_dbs+0x9e/0x2c5 [cpufreq_ondemand]
+	 [<c0305d2a>] __cpufreq_governor+0x57/0xd8
+	 [<c0305ee8>] __cpufreq_set_policy+0x13d/0x1a9
+	 [<c03060e4>] store_scaling_governor+0x12d/0x155
+	 [<c03057a5>] store+0x34/0x45
+	 [<c0199a6c>] sysfs_write_file+0x99/0xbf
+	 [<c0164ac3>] vfs_write+0xab/0x157
+	 [<c01650fc>] sys_write+0x3b/0x60
+	 [<c0102d41>] sysenter_past_esp+0x56/0x79
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+where it takes the cpu_hotplug lock in "store_scaling_governor()", and 
+then calls __cpufreq_set_policy(), and then that ondemand thing WILL TAKE 
+IT AGAIN!
+
+What a piece of crap. Why, why, why?
+
+[ Linus bangs his head against the wall until tears of blood course down 
+  his face ]
+
+I will here-by re-introduce the recursion thing for lock_cpu_hotplug, but 
+I will make it say some very rude things about idiots who create code like 
+this. 
+
+cpufreq (or at least ondemand) must DIE! And the people who wrote that 
+crap should have red-hot pokers jammed into some very uncomfortable 
+places.
+
+		Linus

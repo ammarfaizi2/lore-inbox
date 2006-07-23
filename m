@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWGWFlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWGWFrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWGWFlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jul 2006 01:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWGWFlL
+	id S1750781AbWGWFrK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jul 2006 01:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWGWFrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jul 2006 01:41:11 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36327 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750742AbWGWFlK (ORCPT
+	Sun, 23 Jul 2006 01:47:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11399 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750781AbWGWFrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jul 2006 01:41:10 -0400
-Date: Sat, 22 Jul 2006 22:34:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, ashok.raj@intel.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-Message-Id: <20060722223425.c94a858e.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
-References: <20060722194018.GA28924@redhat.com>
-	<Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
-	<20060722180602.ac0d36f5.akpm@osdl.org>
-	<Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.19; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Jul 2006 01:47:08 -0400
+Message-ID: <44C30E33.2090402@redhat.com>
+Date: Sun, 23 Jul 2006 01:50:43 -0400
+From: Rik van Riel <riel@redhat.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: inactive-clean list
+References: <1153167857.31891.78.camel@lappy>
+In-Reply-To: <1153167857.31891.78.camel@lappy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Jul 2006 18:15:32 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+Peter Zijlstra wrote:
+> This patch implements the inactive_clean list spoken of during the VM summit.
+> The LRU tail pages will be unmapped and ready to free, but not freeed.
+> This gives reclaim an extra chance.
 
-> 
-> 
-> On Sat, 22 Jul 2006, Andrew Morton wrote:
-> > 
-> > It was just wrong in conception.  We should not and probably cannot fix it.
-> > Let's just delete it all, then implement version 2.
-> 
-> Well, I just got Ashok's trial patches which turns the thing into a rwsem 
-> as I outlined earlier.
+This patch makes it possible to implement Martin Schwidefsky's
+hypervisor-based fast page reclaiming for architectures without
+millicode - ie. Xen, UML and all other non-s390 architectures.
 
-Mark my words ;)
+That could be a big help in heavily loaded virtualized environments.
 
-> I'll try them out. If they don't work, we should just delete the lock and 
-> go totally back to square 1.
+The fact that it helps prevent the iSCSI memory deadlock is a
+huge bonus too, of course :)
 
-rwsem conversion has the potential to merely hide the problem.  Ingo, does
-lockdep detect recursive down_read()?
+-- 
+The answer is 42.  What is *your* question?

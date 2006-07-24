@@ -1,104 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWGXUsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWGXUyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWGXUsF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 16:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWGXUsF
+	id S932178AbWGXUyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 16:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWGXUyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 16:48:05 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:44268 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751441AbWGXUsD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 16:48:03 -0400
-Date: Mon, 24 Jul 2006 15:48:01 -0500
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-Subject: Re: [PATCH 1/5] PCI-Express AER implemetation: aer howto document
-Message-ID: <20060724204801.GE7448@austin.ibm.com>
-References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com> <1152854749.28493.286.camel@ymzhang-perf.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1152854749.28493.286.camel@ymzhang-perf.sh.intel.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Mon, 24 Jul 2006 16:54:08 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:32689 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932178AbWGXUyH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 16:54:07 -0400
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Matthias Urlichs <smurf@smurf.noris.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, bunk@stusta.de,
+       lethal@linux-sh.org, hirofumi@mail.parknet.co.jp,
+       asit.k.mallick@intel.com
+In-Reply-To: <20060724175150.GD50320@muc.de>
+References: <20060722233638.GC27566@kiste.smurf.noris.de>
+	 <20060722173649.952f909f.akpm@osdl.org>
+	 <20060723081604.GD27566@kiste.smurf.noris.de>
+	 <20060723044637.3857d428.akpm@osdl.org>
+	 <20060723120829.GA7776@kiste.smurf.noris.de>
+	 <20060723053755.0aaf9ce0.akpm@osdl.org>
+	 <1153756738.9440.14.camel@localhost>
+	 <20060724171711.GA3662@kiste.smurf.noris.de>
+	 <20060724175150.GD50320@muc.de>
+Content-Type: text/plain
+Date: Mon, 24 Jul 2006 13:54:03 -0700
+Message-Id: <1153774443.12836.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-07-24 at 19:51 +0200, Andi Kleen wrote:
+> On Mon, Jul 24, 2006 at 07:17:11PM +0200, Matthias Urlichs wrote:
+> > You can probably assume that they're synced on systems with no more
+> > than one dual-core / hyperthreaded CPU.
+> > 
+> > My system obviously has two of those.
+> 
+> According to Intel on all of their chipsets/motherboard reference
+> designs all the sockets run from a single clock crystal.
+> 
+> I've confirmed this for a long time on 64bit and even to some
+> extent on 32bit on distro kernels.
 
-More late commentary ...
+Andi: Which 32bit distro patch are you referring to here?
 
-On Fri, Jul 14, 2006 at 01:25:49PM +0800, Zhang, Yanmin wrote:
-> --- linux-2.6.17/Documentation/pcieaer-howto.txt	1970-01-01 08:00:00.000000000 +0800
-> +++ linux-2.6.17_aer/Documentation/pcieaer-howto.txt	2006-07-14 11:09:37.000000000 +0800
-> +6.1. Configuring the AER capability structure
-> +
-> +AER aware drivers of PCI Express component need change the device
-> +control registers to enable AER. They also could change AER registers,
-> +including mask and severity registers.
+> Maybe you got a broken BIOS or similar though.
+> 
+> > > Matthias: "clock=pmtmr" is probably the best workaround in the short
+> > > term. Could you send me your dmesg and dmidecode output? We'll try to
+> > > find something to key off of so it will mark the tsc as unstable by
+> > > default on your system.
+> > > 
+> > I'd assume that finding (and, possibly, being unable to correct) TSC skew 
+> 
+> The BIOS normally guarantee it at boot. However maybe you got a broken one.
+> 
+> We used to do TSC sync correction at boot on Intel, but stopped doing 
+> that when we found out that the TSC sync code adds an error
+> To an already perfectly synchronized system.
+> 
+> Actually I think i386 still does it, just x86-64 stopped 
 
-Hmm. Why not just enable error reporting for everything? Why make 
-the device driver jump through this extra hoop?
+Indeed i386 still does it. I knew x86-64 had a new ia64 inspired
+algorithm, but I didn't realize that they didn't even try to call it in
+most cases.
 
-If there is some really good reason not to enable reporting by default,
-(which I cannot think of at the moment), then there's another
-possiblity: enable error reporting if and only if the device
-driver has struct pci_driver -> err_handler != NULL.
-
-> +6.2. Provide PCI error-recovery callbacks
-> +
-> +If an error message indicates a non-fatal error, performing link reset
-> +at upstream is not required. The AER driver calls error_detected(dev,
-> +pci_channel_io_normal) to all drivers associated within a hierarchy in
-
-Hmm. I would rather extend enum pci_channel_state to include a non-fatal 
-error notification. That is, add pci_channel_io_nonfatal_error=4; to the enum.  
-
-> +If an error message indicates a fatal error, kernel will broadcast
-> +error_detected(dev, pci_channel_io_frozen) to all drivers within
-> +a hierarchy in question. 
-
-"The hierarchy in question" -- does that meen all drivers attached to
-the root port?  Or only drivers that aree using some particular link?
-You don't want to notify/reset every PCI slot in the system (that would
-hurt!); ideally one rests only the one PCI slot that was affected.
-
-> +As different kinds of devices might use different approaches
-> +to reset link, AER port service driver is required to provide the
-> +function to reset link. Firstly, kernel looks for if the upstream
-> +component has an aer driver. If it has, kernel uses the reset_link
-> +callback of the aer driver. 
-
-I don't yet entirely understand link reset. However, the original
-pci error recovery spec was written by assuming that it would be 
-the aer root port driver that performs the link reset. The callback
-link_reset() was to notify the device driver that the link was reset.
-
-> +8. Frequent Asked Questions
-> +
-> +Q: What happens if a PCI Express device driver does not provide an
-> +error recovery handle?
-
-What's an "error recovery handle"? Does this refer to the 
-struct pci_driver {
-   struct pci_error_handlers *err_handler;
-}
-
-pointer?  I think it does, but at first this is unclear. 
-
-> +Q: How does this infrastructure deal with driver that is not PCI
-> +Express aware?
-> +
-> +A: This infrastructure calls the error callback functions of the
-> +driver when an error happens. But if the driver is not aware of
-> +PCI Express, the device might not report its own errors to root
-> +port.
-
-Which is a good reason to enable eror reporting by default, or at 
-least, to enable error reporting when 
-struct pci_driver->err_handler != NULL
+The (untested) patch below will disable it on i386. Matthias, mind
+trying it out to see if the TSC sync code is causing the problem?
 
 
---linas
+> My first assumption would be that you hit a bug somewhere in the new
+> clock code. What happens when you boot an older kernel (like 2.6.17)
+> with clock=tsc ? 
+
+Yes, that would be good to confirm the issue. :)
+
+thanks
+-john
+
+
+Hack out the i386 TSC sync code.
+
+
+diff --git a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+index 6f5fea0..cd28914 100644
+--- a/arch/i386/kernel/smpboot.c
++++ b/arch/i386/kernel/smpboot.c
+@@ -435,7 +435,7 @@ static void __devinit smp_callin(void)
+ 	/*
+ 	 *      Synchronize the TSC with the BP
+ 	 */
+-	if (cpu_has_tsc && cpu_khz && !tsc_sync_disabled)
++	if (0 && cpu_has_tsc && cpu_khz && !tsc_sync_disabled)
+ 		synchronize_tsc_ap();
+ }
+ 
+@@ -1305,7 +1305,7 @@ static void __init smp_boot_cpus(unsigne
+ 	/*
+ 	 * Synchronize the TSC with the AP
+ 	 */
+-	if (cpu_has_tsc && cpucount && cpu_khz)
++	if (0 && cpu_has_tsc && cpucount && cpu_khz)
+ 		synchronize_tsc_bp();
+ }
+ 
+
+

@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWGXSaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWGXSmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWGXSaP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWGXSaO
+	id S1751356AbWGXSmu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWGXSmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:30:14 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17322 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751378AbWGXSaM (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:30:12 -0400
-Message-Id: <200607241828.k6OISdHq014568@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Mike Benoit <ipso@snappymail.ca>, Hans Reiser <reiser@namesys.com>,
-       lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-In-Reply-To: Your message of "Mon, 24 Jul 2006 19:35:24 +0200."
-             <44C504DC.6080907@gmx.de>
-From: Valdis.Kletnieks@vt.edu
-References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org> <44C4813E.2030907@namesys.com> <20060724102508.GA26553@merlin.emma.line.org> <1153760245.5735.47.camel@ipso.snappymail.ca>
-            <44C504DC.6080907@gmx.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153765719_3460P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 24 Jul 2006 14:42:50 -0400
+Received: from mx1.suse.de ([195.135.220.2]:52921 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751356AbWGXSmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 14:42:49 -0400
+Date: Mon, 24 Jul 2006 20:42:48 +0200
+From: "Andi Kleen" <ak@suse.de>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH for 2.6.18rc2] [1/7] i386/x86-64: Don't randomize stack
+ top when no randomization personality is set
+Message-ID: <44c514a8.6HlRR82y133O2bd0%ak@suse.de>
+User-Agent: nail 11.25 7/29/05
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Jul 2006 14:28:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153765719_3460P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 24 Jul 2006 19:35:24 +0200, Matthias Andree said:
-> Mike Benoit wrote:
-> 
-> > I've been bitten by running out of inodes on several occasions, and by
-> > switching to ReiserFS it saved one company I worked for over $250,000
-> > because they didn't need to buy a totally new piece of software.
-> 
-> ext3fs's inode density is configurable, reiserfs's hash overflow chain
-> length is not, and it doesn't show in df -i either.
+Based on patch from Frank van Maarseveen <frankvm@frankvm.com>, but
+extended.
 
-Equally important - you can usually *see* "out of inodes" coming on a 'df -i'
-long before a reiser3 filesystem hits the wall on a hash issue.
+Signed-off-by: Andi Kleen <ak@suse.de>
 
---==_Exmh_1153765719_3460P
-Content-Type: application/pgp-signature
+---
+ arch/i386/kernel/process.c   |    3 ++-
+ arch/x86_64/kernel/process.c |    2 +-
+ fs/binfmt_elf.c              |    3 ++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFExRFXcC3lWbTT17ARAuFrAKCZMgezkVvb0c9PWOmUJDaOEZO9gQCdGE1/
-UwKKZ8n+RS27xTBde0kL6qk=
-=R2kD
------END PGP SIGNATURE-----
-
---==_Exmh_1153765719_3460P--
+Index: linux/arch/x86_64/kernel/process.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/process.c
++++ linux/arch/x86_64/kernel/process.c
+@@ -845,7 +845,7 @@ int dump_task_regs(struct task_struct *t
+ 
+ unsigned long arch_align_stack(unsigned long sp)
+ {
+-	if (randomize_va_space)
++	if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
+ 		sp -= get_random_int() % 8192;
+ 	return sp & ~0xf;
+ }
+Index: linux/arch/i386/kernel/process.c
+===================================================================
+--- linux.orig/arch/i386/kernel/process.c
++++ linux/arch/i386/kernel/process.c
+@@ -37,6 +37,7 @@
+ #include <linux/kallsyms.h>
+ #include <linux/ptrace.h>
+ #include <linux/random.h>
++#include <linux/personality.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -905,7 +906,7 @@ asmlinkage int sys_get_thread_area(struc
+ 
+ unsigned long arch_align_stack(unsigned long sp)
+ {
+-	if (randomize_va_space)
++	if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
+ 		sp -= get_random_int() % 8192;
+ 	return sp & ~0xf;
+ }
+Index: linux/fs/binfmt_elf.c
+===================================================================
+--- linux.orig/fs/binfmt_elf.c
++++ linux/fs/binfmt_elf.c
+@@ -515,7 +515,8 @@ static unsigned long randomize_stack_top
+ {
+ 	unsigned int random_variable = 0;
+ 
+-	if (current->flags & PF_RANDOMIZE) {
++	if ((current->flags & PF_RANDOMIZE) &&
++		!(current->personality & ADDR_NO_RANDOMIZE)) {
+ 		random_variable = get_random_int() & STACK_RND_MASK;
+ 		random_variable <<= PAGE_SHIFT;
+ 	}

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWGXFrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWGXGTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWGXFrq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 01:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWGXFrq
+	id S1751409AbWGXGTU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 02:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWGXGTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 01:47:46 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:32491 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751408AbWGXFrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 01:47:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=G6Lbf0vKaR64HhLaSjRgTnD8PLdSxbrYl+1ktsz6K0dEA7FzUPabQhfFafqqxY9yAOBOd/8XIq5wldiww9CsNwhHtZ4SXbfiaz1BJsytnfO5NxBNAtFJYg2fRbfxLqXbRk7LPbb7R3LN2Eq/W3QddskOlxABL+9zt+dVvWImwkM=
-Date: Mon, 24 Jul 2006 07:46:55 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent usage of uninitialized variable in transmeta cpu driver
-Message-ID: <20060724054655.GA7213@leiferikson.gentoo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060723214834.GA1484@leiferikson.gentoo> <44C40CD3.80000@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C40CD3.80000@gmail.com>
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+	Mon, 24 Jul 2006 02:19:20 -0400
+Received: from xenotime.net ([66.160.160.81]:19380 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751409AbWGXGTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 02:19:20 -0400
+Date: Sun, 23 Jul 2006 23:22:00 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Richard Gooch <rgooch@safe-mbox.com>
+Cc: bunk@stusta.de, kernel1@cyberdogtech.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel FAQ maintenance
+Message-Id: <20060723232200.2fb3bc30.rdunlap@xenotime.net>
+In-Reply-To: <17603.46703.810585.59906@mobilix.safe-mbox.com>
+References: <1153607759.28263@shark.he.net>
+	<20060723170838.GW25367@stusta.de>
+	<17603.46703.810585.59906@mobilix.safe-mbox.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 23 Jul 2006 13:48:31 -0400 Richard Gooch wrote:
 
-On Mon, Jul 24, 2006 at 01:56:44AM +0159, Jiri Slaby wrote:
-> Johannes Weiner napsal(a):
-> > This patch fixes a gcc-`uninitialized' warning in
-> > arch/i386/kernel/cpu/transmeta.c.
+> Adrian Bunk writes:
+> > On Sat, Jul 22, 2006 at 03:35:59PM -0700, Randy Dunlap wrote:
+> > > 
+> > > Touche.  :)
+> > > 
+> > > The FAQ needs to be updated.  Last I heard, Richard Gooch wasn't
+> > > ready to hand it off to anyone else, but he wasn't updating it either.
+> > > Time for a change IMO.
 > 
-> NACK.
+> Bollocks. I've updated it when people send me patches.
 > 
-> Gcc bug, don't hide it (I don't really know, why cpu_rev is zeroed).
+> > Sounds reasonable.
+> > 
+> > Do you want to become the new maintainer?
+> > Otherwise, I could try to get it updated.
+> 
+> How about actually sending patches to me rather than just aimed at the
+> list?
 
-Ok. This GCC release I'm running (4.1.1) shows really a lot more of
-them then the prior. Should have wondered and thought about it before ;)
+I sent you a patch sometime (2-3 years ago) and you replied that
+you weren't updating the FAQ (maybe "at that time").  I have no
+physical record of that patch or your reply now.  However, I'll be
+glad to send FAQ patches to you in the future.
 
-Hannes
-
--- 
-#include <stdio.h>
-char *love[] = { "this", "language" };
-#define gimme(s) #s, 0[s], 0[s+1]
-int main(void) { printf("%s %s %s\n", gimme(love)); return 0; }
+---
+~Randy

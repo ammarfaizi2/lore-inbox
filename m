@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWGXKZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWGXKan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWGXKZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 06:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWGXKZY
+	id S932105AbWGXKan (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 06:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWGXKan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 06:25:24 -0400
-Received: from mail.gmx.de ([213.165.64.21]:62875 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932102AbWGXKZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 06:25:24 -0400
-X-Authenticated: #428038
-Date: Mon, 24 Jul 2006 12:25:08 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>, lkml@lpbproductions.com,
-       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Mon, 24 Jul 2006 06:30:43 -0400
+Received: from thunk.org ([69.25.196.29]:49115 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932105AbWGXKam (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 06:30:42 -0400
+Date: Mon, 24 Jul 2006 06:30:23 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: Steve Lord <lord@xfs.org>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
 Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060724102508.GA26553@merlin.emma.line.org>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
-	Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-	LKML <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org> <44C4813E.2030907@namesys.com>
+Message-ID: <20060724103023.GA7615@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Nikita Danilov <nikita@clusterfs.com>, Steve Lord <lord@xfs.org>,
+	Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C42B92.40507@xfs.org> <17604.31844.765717.375423@gargle.gargle.HOWL>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44C4813E.2030907@namesys.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+In-Reply-To: <17604.31844.765717.375423@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006, Hans Reiser wrote:
+On Mon, Jul 24, 2006 at 11:53:08AM +0400, Nikita Danilov wrote:
+> 
+> I believe the (mis-)reference is to a famous data-base person, co-author
+> of "Transaction Processing". He is with Microsoft now
+> (http://research.microsoft.com/~Gray/JimGrayHomePageSummary.htm).
+> 
 
-> >and that's the end
-> >of the story for me. There's nothing wrong about focusing on newer code,
-> >but the old code needs to be cared for, too, to fix remaining issues
-> >such as the "can only have N files with the same hash value". 
->
-> Requires a disk format change, in a filesystem without plugins, to fix it.
+That's what I thought when I saw the name Jim Gray, but as far as I
+knew he never worked on XFS and never left the Linux community
+dejected because Linux kernel coding standards requirements before
+changes were allowed to be merged, when Hans did his name dropping
+thing.
 
-You see, I don't care a iota about "plugins" or other implementation details.
+(I mean geez, if you want really high standards before new code is
+accepted, take a look at Open Solaris; they have *such* a heavyweight
+process, with two mandatory signoffs by core Solaris engineers who
+both have to do a line-by-line review, and with a promise of on-disk
+and ABI compatibility *forever* ---- that we do more commits in a week
+than they do in a year....)
 
-The bottom line is reiserfs 3.6 imposes practial limits that ext3fs
-doesn't impose and that's reason enough for an administrator not to
-install reiserfs 3.6. Sorry.
-
--- 
-Matthias Andree
+						- Ted

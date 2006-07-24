@@ -1,56 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWGXRtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWGXRuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWGXRtx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWGXRtx
+	id S932245AbWGXRuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWGXRuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:49:53 -0400
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:17216 "EHLO
-	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932238AbWGXRtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:49:52 -0400
-Message-ID: <44C50A04.5020002@gentoo.org>
-Date: Mon, 24 Jul 2006 18:57:24 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Mon, 24 Jul 2006 13:50:35 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:50111 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932248AbWGXRue (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 13:50:34 -0400
+Message-ID: <44C50865.3000403@us.ibm.com>
+Date: Mon, 24 Jul 2006 10:50:29 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-To: Todd Showalter <tshowalter@silverbirchstudios.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Problems with sky2 driver.
-References: <20060724133829.49bf7979@akemi>
-In-Reply-To: <20060724133829.49bf7979@akemi>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org, hch@lst.de, miklos@szeredi.hu, nathans@sgi.com,
+       reiser@namesys.com, swhiteho@redhat.com, vs@namesys.com
+Subject: [PATCH -mm only] Pass IO size to batch_write() address space operation
+References: <200607091208.k69C8umv021827@shell0.pdx.osdl.net>
+In-Reply-To: <200607091208.k69C8umv021827@shell0.pdx.osdl.net>
+Content-Type: multipart/mixed;
+ boundary="------------060905060007010400090506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todd Showalter wrote:
->     I've been having trouble with the sky2 driver.  It appears to work
-> most of the time, but it will quite often wedge during transfers.  The
-> 2.6.17.* kernels actually seem worse than 2.6.16.19, but none of them
-> work perfectly.
-> 
->     What typically happens is that after working perfectly for a while,
-> existing net connections hang, and subsequent net connections don't
-> seem to start at all.  firefox gets stuck with a bunch of half-loaded
-> pages, for instance, and I've watched an scp of a large file to a
-> colleague's machine stall and remain stalled.
+This is a multi-part message in MIME format.
+--------------060905060007010400090506
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please test with the very latest git snapshot. A critical fix was 
-applied after 2.6.18-rc2 was released.
+Hi,
 
->     Once the machine is behaving this way, a reboot is the only way I
-> have found of recovering it.
-> 
->     We have two identical machines here that are both behaving this
-> way, so I'm assuming it's not a hardware problem per se.  The machines
-> are Intel Pentium D 940 (3GHz) processors.  They have ASUS P5LD2
-> motherboards, with builtin Marvell PCIe 88E8053 gigabit ethernet
-> controllers.
-> 
->     I'm not running any binary modules; it's an untainted kernel.  I'm
-> running a Gentoo system, but I'm using the vanilla-sources kernel (ie:
-> a pure kernel.org release, not the Gentoo-specific patched version).
-> 
->     What can I do to help solve this?
+Here is the patch to pass size of the remaining IO to batch_write() 
+interface.
+I would like to use it ext3/ext4 to allocate in chunks. Currently its 
+passing
+only the size of the current buffer (in the vector entry).
+
+Comments ? Flames ? Looks reasonable ?
+
+Thanks,
+Badari
+
+
+
+--------------060905060007010400090506
+Content-Type: text/plain;
+ name="pass_io_size_to_batch_write.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pass_io_size_to_batch_write.patch"
+
+Pass remaining size of this IO to batch_write(). This
+way filesystems could choose to allocate for the entire IO,
+instead of current buffer size.
+
+I would like to use this for setting ext3 reservation window
+or allocating entire extent (ext4).
+
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+
+---
+ include/linux/fs.h |    2 ++
+ mm/filemap.c       |    1 +
+ 2 files changed, 3 insertions(+)
+
+Index: linux-2.6.18-rc1/include/linux/fs.h
+===================================================================
+--- linux-2.6.18-rc1.orig/include/linux/fs.h	2006-07-24 10:12:18.000000000 -0700
++++ linux-2.6.18-rc1/include/linux/fs.h	2006-07-24 10:35:51.000000000 -0700
+@@ -356,6 +356,7 @@ struct writeback_control;
+  * struct write_descriptor - set of write arguments
+  * @pos: offset from the start of the file to write to
+  * @count: number of bytes to write
++ * @iosize: remaining number of bytes in the IO
+  * @buf: pointer to data to be written
+  * @lru_pvec: multipage container to batch adding pages to LRU list
+  * @cached_page: allocated but not used on previous call
+@@ -366,6 +367,7 @@ struct writeback_control;
+ struct write_descriptor {
+ 	loff_t pos;
+ 	size_t count;
++	size_t iosize;
+ 	char __user *buf;
+ 	struct page *cached_page;
+ 	struct pagevec *lru_pvec;
+Index: linux-2.6.18-rc1/mm/filemap.c
+===================================================================
+--- linux-2.6.18-rc1.orig/mm/filemap.c	2006-07-24 10:12:20.000000000 -0700
++++ linux-2.6.18-rc1/mm/filemap.c	2006-07-24 10:36:44.000000000 -0700
+@@ -2278,6 +2278,7 @@ generic_file_buffered_write(struct kiocb
+ 	do {
+ 		/* do not walk over current segment */
+ 		desc.buf = cur_iov->iov_base + iov_base;
++		desc.iosize = count;
+ 		desc.count = min(count, cur_iov->iov_len - iov_base);
+ 		if (desc.count > 0)
+ 			status = (*batch_write)(file, &desc, &copied);
+
+--------------060905060007010400090506--
 

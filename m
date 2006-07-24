@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWGXWmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWGXWnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWGXWmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 18:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWGXWmR
+	id S932308AbWGXWnI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 18:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWGXWnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 18:42:17 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2209 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932308AbWGXWmQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 18:42:16 -0400
-Subject: vxfs_readdir locking incorrect: add lock_kernel() or remove
-	unlock_kernel()?
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 15:42:17 -0700
-Message-Id: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 24 Jul 2006 18:43:07 -0400
+Received: from imo-m19.mx.aol.com ([64.12.137.11]:18325 "EHLO
+	imo-m19.mx.aol.com") by vger.kernel.org with ESMTP id S932309AbWGXWnG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 18:43:06 -0400
 Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Jul 2006 18:43:00 -0400
+From: daveflinux@aim.com
+Message-Id: <8C87D89A6C9AC58-1FD4-1F71@mblk-d16.sysops.aol.com>
+X-MB-Message-Source: WebUI
+X-MB-Message-Type: User
+X-Mailer: AIM WebMail 18735
+Subject: What is the difference between sk_wmem_queued & sk_wmem_alloc ?
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+X-AOL-IP: 205.188.149.8
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Commit 7b2fd697427e73c81d5fa659efd91bd07d303b0e in the historical GIT
-tree stopped calling the readdir member of a file_operations struct with
-the big kernel lock held, and fixed up all the readdir functions to do
-their own locking.  However, that change added calls to unlock_kernel()
-in vxfs_readdir (fs/freevxfs/vxfs_lookup.c), but no call to
-lock_kernel().  Should vxfs_readdir call lock_kernel(), or should the
-calls to unlock_kernel() go away?
+ In the sock structure (include/net/sock.h),
+ can anybody tell me the difference between
+ sk_wmem_queued (persistent transmit queue size)
+ & sk_wmem_alloc (transmit queue bytes commited).
+ Both appear to serve the same function.
 
-- Josh Triplett
-
+ thanks
+ Dave
+________________________________________________________________________
+Check Out the new free AIM(R) Mail -- 2 GB of storage and 
+industry-leading spam and email virus protection.
 

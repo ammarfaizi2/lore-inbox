@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWGXRgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWGXRiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWGXRgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWGXRgb
+	id S932231AbWGXRiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWGXRiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:36:31 -0400
-Received: from colin.muc.de ([193.149.48.1]:50693 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932231AbWGXRgb (ORCPT
+	Mon, 24 Jul 2006 13:38:11 -0400
+Received: from mail.silverbirchstudios.com ([207.176.159.130]:39647 "EHLO mail")
+	by vger.kernel.org with ESMTP id S932231AbWGXRiK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:36:31 -0400
-Date: 24 Jul 2006 19:36:29 +0200
-Date: Mon, 24 Jul 2006 19:36:29 +0200
-From: Andi Kleen <ak@muc.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 5/6] Begin abstraction of sensitive instructions: asm files
-Message-ID: <20060724173629.GB50320@muc.de>
-References: <200607212326_MC3-1-C5B8-F9ED@compuserve.com> <1153575288.13198.16.camel@localhost.localdomain>
+	Mon, 24 Jul 2006 13:38:10 -0400
+Date: Mon, 24 Jul 2006 13:38:29 -0400
+From: Todd Showalter <tshowalter@silverbirchstudios.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with sky2 driver.
+Message-ID: <20060724133829.49bf7979@akemi>
+Organization: Silverbirch Studios
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153575288.13198.16.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 22, 2006 at 11:34:48PM +1000, Rusty Russell wrote:
-> On Fri, 2006-07-21 at 23:23 -0400, Chuck Ebbert wrote:
-> > In-Reply-To:<1153527274.13699.36.camel@localhost.localdomain>
-> > 
-> > On Sat, 22 Jul 2006 10:14:34 +1000, Rusty Russell wrote:
-> > > +#define GET_CR0                      movl %cr0, %eax
-> >  
-> > Could you change GET_CR0 to MOV_CR0_EAX?  GET_CR0 seems like it's
-> > taking a reference or something.
-> 
-> Hi Chuck,
-> 
-> 	Agreed: certainly eax should be mentioned.  GET_CR0_INTO_EAX?  MOV is a
-> bit close to describing how it's happening (which, on paravirt it might
-> not be) so it might lead the reader to unwarranted assumptions.
-> 
-> ===
-> Abstract sensitive instructions in assembler code, replacing them with
-> macros (which currently are #defined to the native versions).  We use
-> long names: assembler is case-insensitive, so if something goes wrong
-> and macros do not expand, it would assemble anyway.
-> 
-> Resulting object files are exactly the same as before.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> Index: working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/entry.S
-> ===================================================================
-> --- working-2.6.18-rc2-hg-paravirt.orig/arch/i386/kernel/entry.S	2006-07-21 21:09:22.000000000 +1000
-> +++ working-2.6.18-rc2-hg-paravirt/arch/i386/kernel/entry.S	2006-07-22 04:32:25.000000000 +1000
-> @@ -76,8 +76,15 @@
->  NT_MASK		= 0x00004000
->  VM_MASK		= 0x00020000
->  
-> +/* These are replaces for paravirtualization */
-> +#define DISABLE_INTERRUPTS		cli
-> +#define ENABLE_INTERRUPTS		sti
-> +#define ENABLE_INTERRUPTS_SYSEXIT	sti; sysexit
-> +#define INTERRUPT_RETURN		iret
-> +#define GET_CR0_INTO_EAX		movl %cr0, %eax
+    I've been having trouble with the sky2 driver.  It appears to work
+most of the time, but it will quite often wedge during transfers.  The
+2.6.17.* kernels actually seem worse than 2.6.16.19, but none of them
+work perfectly.
 
-I would rather pass the register to the macro? If you start to
-clobber registers you would need to pass in the tmp registers
-too I guess.
+    What typically happens is that after working perfectly for a while,
+existing net connections hang, and subsequent net connections don't
+seem to start at all.  firefox gets stuck with a bunch of half-loaded
+pages, for instance, and I've watched an scp of a large file to a
+colleague's machine stall and remain stalled.
 
--Andi
+    Once the machine is behaving this way, a reboot is the only way I
+have found of recovering it.
 
+    We have two identical machines here that are both behaving this
+way, so I'm assuming it's not a hardware problem per se.  The machines
+are Intel Pentium D 940 (3GHz) processors.  They have ASUS P5LD2
+motherboards, with builtin Marvell PCIe 88E8053 gigabit ethernet
+controllers.
+
+    I'm not running any binary modules; it's an untainted kernel.  I'm
+running a Gentoo system, but I'm using the vanilla-sources kernel (ie:
+a pure kernel.org release, not the Gentoo-specific patched version).
+
+    What can I do to help solve this?
+
+						Todd.
+
+--
+  Todd Showalter,
+  Silverbirch Studios.
+
+    

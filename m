@@ -1,41 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWGXMti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWGXNB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWGXMti (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 08:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWGXMti
+	id S932142AbWGXNB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 09:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWGXNB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 08:49:38 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:20492 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932138AbWGXMti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 08:49:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=eJDa3e6DyNnhb6CfSM1u0Gz1uyn3awsCT0bdpOdUPwz9W5Rfy+j8tUKNLQNyMKm7bEk7Q4ebIK/HLNJpux/2Vk3VpUNPMc5Zu60Ukjk6xWZy05dqXz89e510P+lz5yL6FYeAH4LKmo0iZdB/e4URDLpmXfUiWfoUgRWwVw21Zdc=
-Message-ID: <44C4C1CE.2030704@gmail.com>
-Date: Mon, 24 Jul 2006 20:49:18 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+	Mon, 24 Jul 2006 09:01:29 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:29318 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S932137AbWGXNB2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 09:01:28 -0400
+Message-ID: <44C4BD93.40804@nachtwindheim.de>
+Date: Mon, 24 Jul 2006 14:31:15 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-To: Guido Guenther <agx@sigxcpu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] rivafb/nvidiafb: race between register_framebuffer and
- *_bl_init
-References: <20060722162821.GA4791@bogon.ms20.nix> <20060722163657.GA5699@bogon.ms20.nix> <44C411A2.4030904@gmail.com> <20060724121552.GA19600@bogon.ms20.nix>
-In-Reply-To: <20060724121552.GA19600@bogon.ms20.nix>
+To: jgarzik@pobox.com
+Cc: kernel-janitors@lists.osdl.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [NET] initialisation cleanup for ULI526x-net-driver
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guido Guenther wrote:
-> On Mon, Jul 24, 2006 at 08:17:38AM +0800, Antonino A. Daplas wrote:
->> Guido Guenther wrote:
->>
->> Please add your Signed-off-by:
-> It's at the very bottom of the patch already.
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-Okay, my script missed it.  This line should be after the changelog text.
+[NET] initialisation cleanup for ULI526x-net-driver
 
-Tony
+removes the unneeded local variable rc
+replace pci_module_init() with pci_register_driver()
+two coding style issues on switch
+
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+
+---
+
+diff -ruN linux-2.6.18-rc2-git2/drivers/net/tulip/uli526x.c linux/drivers/net/tulip/uli526x.c
+--- linux-2.6.18-rc2-git2/drivers/net/tulip/uli526x.c	2006-07-24 13:58:05.000000000 +0200
++++ linux/drivers/net/tulip/uli526x.c	2006-07-24 14:21:43.000000000 +0200
+@@ -1702,7 +1702,6 @@
+ 
+ static int __init uli526x_init_module(void)
+ {
+-	int rc;
+ 
+ 	printk(version);
+ 	printed_version = 1;
+@@ -1714,22 +1713,19 @@
+ 	if (cr6set)
+ 		uli526x_cr6_user_set = cr6set;
+ 
+- 	switch(mode) {
++ 	switch (mode) {
+    	case ULI526X_10MHF:
+ 	case ULI526X_100MHF:
+ 	case ULI526X_10MFD:
+ 	case ULI526X_100MFD:
+ 		uli526x_media_mode = mode;
+ 		break;
+-	default:uli526x_media_mode = ULI526X_AUTO;
++	default:
++		uli526x_media_mode = ULI526X_AUTO;
+ 		break;
+ 	}
+ 
+-	rc = pci_module_init(&uli526x_driver);
+-	if (rc < 0)
+-		return rc;
+-
+-	return 0;
++	return pci_register_driver(&uli526x_driver);
+ }
+ 
+ 

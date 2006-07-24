@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGXWUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWGXWZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWGXWUq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 18:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWGXWUq
+	id S932288AbWGXWZo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 18:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWGXWZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 18:20:46 -0400
-Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:27581
-	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S932278AbWGXWUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 18:20:45 -0400
-Message-ID: <44C547B0.1090304@lsrfire.ath.cx>
-Date: Tue, 25 Jul 2006 00:20:32 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Mon, 24 Jul 2006 18:25:44 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10930 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932288AbWGXWZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 18:25:44 -0400
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 2.6.18-rc1-git] rtc-acpi, with wakeup support
+Date: Tue, 25 Jul 2006 08:25:38 +1000
+User-Agent: KMail/1.9.3
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>, len.brown@intel.com
+References: <200607151240.51192.david-b@pacbell.net> <200607241244.36574.david-b@pacbell.net>
+In-Reply-To: <200607241244.36574.david-b@pacbell.net>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Wolfgang Draxinger <Wolfgang.Draxinger@campus.lmu.de>,
-       Bodo Eggert <7eggert@gmx.de>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [RFC][PATCH] procfs: add privacy options
-References: <44C50A2B.3040203@lsrfire.ath.cx> <m18xmiogp3.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m18xmiogp3.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed;
+  boundary="nextPart1570006.PExKOsAZMk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607250825.42928.ncunningham@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman schrieb:
-> I don't really like filesystem magic options as kernel boot time options.
-> Mount time or runtime options are probably more interesting.
-> 
-> How is it expected that users will use this?
+--nextPart1570006.PExKOsAZMk
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I don't expect admins to switch "privacy" on and off very often.  Once
-would be enough, I hope.
+Hi David.
 
-Mount options would be easier to use, I agree, but I doubt the added
-complexity is worth it.  Kernel options for procfs are not _that_
-magical because the kernel mounts it internally, so it's a kernel part,
-not a real filesystem ;-)
+On Tuesday 25 July 2006 05:44, David Brownell wrote:
+> Hmm, so -- any comments?  This applies just fine to RC2 of course
+> (it came out minutes before RC2 "shipped").  Seems to me this would
+> be appropriate for the next MM release.
 
-One question I couldn't find a good answer for regarding remount
-options: what to do with processes that have cd'd into a /proc/<pid> dir
-belonging to another user when the privacy option is being turned on?
-Letting them keep their access is counter-intuitive and taking it away
-would need quite invasive changes compared to my patch, I think.
+Didn't notice it before now. I'll forward your message to suspend2-devel (w=
+e=20
+have people there who might be interested), and try it myself.
 
-> A lot of the privacy you are talking about is provided by the may_ptrace
-> checks in the more sensitive parts of proc so we may want to extend
-> that.
+> Also, given some mechanism to tell whether this alarm woke the system,
+> this would seem to be the kind of infrastructure needed to make the
+> "deepening suspend" work correctly.  That is, idle system enters the
+> light weight "standby" powersave mode, then if it stays idle for long
+> enough for the timer to wake it could enter suspend-to-RAM (or that
+> new "suspend-to-both" mode).  There's certainly enough idle time on
+> most laptops for such mechanisms to help save significant amounts of
+> battery power, and it's best if such things don't explicitly depend
+> on features like ACPI.
 
-You mean using ptrace_may_attach() and/or MAY_PTRACE() for determining
-access to all (or at least more) files in /proc/<pid> instead of my
-proposed "chmod 500"?  What are the advantages?
+Yes. I'll look at it with a view to seeing if we can use it in Suspend2. I =
+get=20
+requests for it from time to time, and it would be good to finally be able =
+to=20
+do it.
 
-Thanks,
-René
+Regards,
+
+Nigel
+
+=2D-=20
+Nigel, Michelle and Alisdair Cunningham
+5 Mitchell Street
+Cobden 3266
+Victoria, Australia
+
+--nextPart1570006.PExKOsAZMk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBExUjmN0y+n1M3mo0RAt9cAKCtS5VAtntakv5r5LhDN5m4iZWgIwCfcLsn
+D5xP52mAuTIeFKkeNeT6vbI=
+=flRa
+-----END PGP SIGNATURE-----
+
+--nextPart1570006.PExKOsAZMk--

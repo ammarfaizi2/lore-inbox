@@ -1,68 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWGXVvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWGXVwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWGXVvr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 17:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWGXVvr
+	id S932262AbWGXVwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 17:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWGXVwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 17:51:47 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:17937 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S932261AbWGXVvq (ORCPT
+	Mon, 24 Jul 2006 17:52:13 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:6785 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932262AbWGXVwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 17:51:46 -0400
-From: Ondrej Zary <linux@rainbow-software.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: Debugging APM - cat /proc/apm produces oops
-Date: Mon, 24 Jul 2006 23:51:37 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607231630.53968.linux@rainbow-software.org> <20060724010658.687e78be.sfr@canb.auug.org.au>
-In-Reply-To: <20060724010658.687e78be.sfr@canb.auug.org.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607242351.37578.linux@rainbow-software.org>
+	Mon, 24 Jul 2006 17:52:11 -0400
+Message-Id: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl>
+To: Mike Benoit <ipso@snappymail.ca>
+cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
+       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion 
+In-Reply-To: Message from Mike Benoit <ipso@snappymail.ca> 
+   of "Mon, 24 Jul 2006 13:37:13 MST." <1153773433.5735.85.camel@ipso.snappymail.ca> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 24 Jul 2006 17:51:13 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 24 Jul 2006 17:51:15 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 July 2006 17:06, Stephen Rothwell wrote:
-> On Sun, 23 Jul 2006 16:30:53 +0200 Ondrej Zary <linux@rainbow-software.org> 
-wrote:
+Mike Benoit <ipso@snappymail.ca> wrote:
+> On Mon, 2006-07-24 at 14:06 -0400, Horst H. von Brand wrote:
+> > > And EXT3 imposes practical limits that ReiserFS doesn't as well. The big
+> > > one being a fixed number of inodes that can't be adjusted on the fly,
 
-> >  printing eip:
-> > 00002f9d
-> > *pre = 00000000
-> > Oops: 0002 [#4]
-> > Modules linked in:
-> > CPU:    0
-> > EIP:    00c0:[<00002f9d>]    Not tainted VLI
->
->           ^^^^
-> This is the APM BIOS 16 bit code segment.
+> > Right. Plan ahead.
 
-Looking at BIOS disassembly:
-2F97: push bp
-2F98: mov bp,sp
-2F9A: add sp,-2
-2F9D: mov [bp][-2],bx    <-- it oopses here
+> That is great in theory. But back to reality, when your working for a
+> company that is growing by leaps and bounds that isn't always possible.
+> Why would I want to intentionally limit myself to a set number of inodes
+> when I can get a performance increase and not have to worry about it by
+> simply using ReiserFS? 
 
-I realized that I can modify the BIOS easily as it's stored in shadow RAM. So 
-I replaced the offending MOV with three NOPs and tested again. This time it 
-oopsed at 0x2FAD:
-2FAD: cmp w,[bp][-2],1
-2FB1: je 2FCB
+Place your filesystems on LVN, when they grow the number of inodes grows to
+match. Or did you run out of inodes and not of diskspace? Only ever
+happened to me on (static) /dev, or (wrong configured) newsspools...
 
-that jump was taken during my single stepping, so I NOPped out the CMP and 
-replaced JE with JMPS. Then booted Linux and APM seems to work fine - battery 
-percentage and remaining time is there as well as AC power status.
-There seems to be 4 these operations:
-mov [bp][-2],bx
-cmp w,[bp][-2],1
-cmp w,[bp][-2],8002
-cmp w,[bp][-2],8001
-but I've hit only the first two of them. I wonder what's that for (especially 
-when it works without that).
+> It all boils down to using the right tool for the job, ReiserFS was the
+> right tool for this job. 
 
--- 
-Ondrej Zary
+/One/ tool that did the job. Not "the" right one, perhaps not even the best
+one.
+
+> > > I've been bitten by running out of inodes on several occasions,
+
+> > Me too. It was rather painful each time, but fixable (and in hindsight,
+> > dumb user (setup) error).
+
+> > >                                                                 and by
+> > > switching to ReiserFS it saved one company I worked for over $250,000
+> > > because they didn't need to buy a totally new piece of software.
+
+> > How can a filesystem (which by basic requirements and design is almost
+> > transparent to applications) make such a difference?!
+
+> Very easily, the backup software the company had spent ~$75,000 on
+> before I started working there used tiny little files as its "database".
+
+If you know that, you configure your filesystem like a newsspool or some
+such.
+
+> Once the inodes ran out the entire system pretty much came to a
+> screeching halt.
+
+Get a clue by for, apply to the vendor (for the design, or at the very
+least for not warning unsuspecting users)?
+
+>                  We basically had two options, use ReiserFS, or find
+> another piece of software that didn't use tiny little files as its
+> database.
+
+Or reconfigure the filesystem with more inodes (you were willing to rebuild
+the filesystem in any case, so...)
+
+>           If I recall correctly the database went from about 2million
+> files to over 40 million in the span of just a few months. No one could
+> have predicted that. I believe this database was on an 18GB SCSI drive,
+> so even using 1K blocks wouldn't have worked. According to the mke2fs
+> man page:
+
+> "-i bytes-per-inode
+> This value generally shouldn't be smaller than the blocksize  of
+> the filesystem,  since  then  too many inodes will be made."
+
+18GiB = 18 million KiB, you do have a point there. But 40 million files on
+that, with some space to spare, just doesn't add up.
+
+> The only other option at that time was to purchase Veritas backup
+
+... or a larger disk...
+
+>                                                                   and
+> its not cheap. We ended up switching to ReiserFS, it increased our
+> backup/restore time immensely and also bought us about 1year before the
+> system finally outgrew itself for good. By that time the company could
+> afford to drop $250,000 on high end backup software so we could grow
+> past 10TB.

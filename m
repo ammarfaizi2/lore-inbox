@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWGXVX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWGXV0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWGXVX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 17:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWGXVX7
+	id S1751456AbWGXV0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 17:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWGXV0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 17:23:59 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:20913 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751452AbWGXVX5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 17:23:57 -0400
-Subject: [PATCH] [coda] Remove incorrect unlock_kernel from allocation
-	failure path in coda_open
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       coda@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 14:23:58 -0700
-Message-Id: <1153776238.4931.11.camel@josh-work.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 24 Jul 2006 17:26:24 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:37059 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751456AbWGXV0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 17:26:23 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ondrej Zary <linux@rainbow-software.org>
+Subject: Re: [patch] [resend] Fix swsusp with PNP BIOS
+Date: Mon, 24 Jul 2006 23:25:50 +0200
+User-Agent: KMail/1.9.3
+Cc: Linux List <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200607242028.01666.linux@rainbow-software.org>
+In-Reply-To: <200607242028.01666.linux@rainbow-software.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607242325.50229.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Commit 398c53a757702e1e3a7a2c24860c7ad26acb53ed (in the historical GIT tree)
-moved the lock_kernel() in coda_open after the allocation of a coda_file_info
-struct, but left an unlock_kernel() in the allocation failure error path;
-remove it.
+Hi,
 
-Signed-off-by: Josh Triplett <josh@freedesktop.org>
----
- fs/coda/file.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+On Monday 24 July 2006 20:28, Ondrej Zary wrote:
+> Hello,
+> swsusp is unable to suspend my machine (DTK FortisPro TOP-5A notebook) with 
+> kernel 2.6.17.5 because it's unable to suspend PNP device 00:16 (mouse).
+> 
+> The problem is in PNP BIOS. pnp_bus_suspend() calls pnp_stop_dev() for the 
+> device if the device can be disabled according to pnp_can_disable(). The 
+> problem is that pnpbios_disable_resources() returns -EPERM if the device is 
+> not dynamic (!pnpbios_is_dynamic()) but insert_device() happily sets 
+> PNP_DISABLE capability/flag even if the device is not dynamic. So we try to 
+> disable non-dynamic devices which will fail. 
+> This patch prevents insert_device() from setting PNP_DISABLE if the device is 
+> not dynamic and fixes suspend on my system.
 
-diff --git a/fs/coda/file.c b/fs/coda/file.c
-index cc66c68..dbfbcfa 100644
---- a/fs/coda/file.c
-+++ b/fs/coda/file.c
-@@ -136,10 +136,8 @@ int coda_open(struct inode *coda_inode, 
- 	coda_vfs_stat.open++;
- 
- 	cfi = kmalloc(sizeof(struct coda_file_info), GFP_KERNEL);
--	if (!cfi) {
--		unlock_kernel();
-+	if (!cfi)
- 		return -ENOMEM;
--	}
- 
- 	lock_kernel();
- 
+Thanks for the patch.
+
+Pavel, what do you think?
 
 
+> Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+> 
+> --- linux-2.6.17.5-orig/drivers/pnp/pnpbios/core.c	2006-07-15 04:38:43.000000000 +0200
+> +++ linux-2.6.17.5/drivers/pnp/pnpbios/core.c	2006-07-22 18:44:36.000000000 +0200
+> @@ -346,7 +346,7 @@
+>  	dev->flags = node->flags;
+>  	if (!(dev->flags & PNPBIOS_NO_CONFIG))
+>  		dev->capabilities |= PNP_CONFIGURABLE;
+> -	if (!(dev->flags & PNPBIOS_NO_DISABLE))
+> +	if (!(dev->flags & PNPBIOS_NO_DISABLE) && pnpbios_is_dynamic(dev))
+>  		dev->capabilities |= PNP_DISABLE;
+>  	dev->capabilities |= PNP_READ;
+>  	if (pnpbios_is_dynamic(dev))
+> 

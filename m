@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWGXJNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWGXJOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWGXJNp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 05:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWGXJNp
+	id S1751092AbWGXJOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 05:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWGXJOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 05:13:45 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:32441 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751080AbWGXJNo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 05:13:44 -0400
-Message-ID: <44C4813E.2030907@namesys.com>
-Date: Mon, 24 Jul 2006 02:13:50 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Mon, 24 Jul 2006 05:14:30 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:46925 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751092AbWGXJO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 05:14:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=bB/ZV6U0nqE1fPrsniMBIOGxzgqTTpg05hNaGTrn84tQ3dCQm4ZOyMaDD+I6G4UIjYraX0OpIwOY9kEAXFZjwFHpFCKiYJjimPaTbeKpFUH/w4NmpFoeKFSiN8FcUpSrEvRwLoenumbz7ZkRAET8MiXBF62FQyVIYpmSRN+kEvI=
+Date: Mon, 24 Jul 2006 11:13:40 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can't clone Linus tree
+Message-ID: <20060724091340.GA596@leiferikson.gentoo>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060724080752.GA8716@irc.pl>
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org>
-In-Reply-To: <20060724085455.GD24299@merlin.emma.line.org>
-X-Enigmail-Version: 0.93.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060724080752.GA8716@irc.pl>
+User-Agent: mutt-ng/devel-r804 (GNU/Linux)
+From: Johannes Weiner <hnazfoo@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
+Hi,
 
-> The father declared his child unsupported, 
->
-I never did that.
+On Mon, Jul 24, 2006 at 10:07:52AM +0200, Tomasz Torcz wrote:
+>  Errors occur constantly since yesterday. They of course appear after
+> downloading several megabytes of data, which is unpleasant on my 128kbps
+> connection.
 
->and that's the end
->of the story for me. There's nothing wrong about focusing on newer code,
->but the old code needs to be cared for, too, to fix remaining issues
->such as the "can only have N files with the same hash value". 
->
-Requires a disk format change, in a filesystem without plugins, to fix it.
+I am on ISDN here and i'm using rsync transfer since having problems
+with other protocols too. Just replace the git:// with rsync:// in your
+URI and try again.
 
->(I am well
->aware this is exploiting worst-case behavior in a malicious sense but I
->simply cannot risk such nonsense on a 270 GB RAID5 if users have shared
->work directories.)
->
->  
->
->
-
+Hannes

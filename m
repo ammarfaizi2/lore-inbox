@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWGXPli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWGXP4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWGXPli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 11:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWGXPli
+	id S1751300AbWGXP4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 11:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWGXP4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 11:41:38 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:51675 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751164AbWGXPli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 11:41:38 -0400
-Subject: [RT] rt priority losing
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       "Duetsch, Thomas LDE1" <thomas.duetsch@siemens.com>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 11:41:00 -0400
-Message-Id: <1153755660.4002.137.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 24 Jul 2006 11:56:32 -0400
+Received: from [212.70.63.67] ([212.70.63.67]:7687 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751213AbWGXP4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 11:56:23 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+Date: Mon, 24 Jul 2006 18:57:52 +0300
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200607241857.52389.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo or Tglx,
+Peter Williams wrote:
+>
+> This version removes the hard/soft CPU rate caps from the SPA schedulers.
+>
+> A patch for 2.6.18-rc2 is available at:
+>
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.4-for-2.6.18-rc2.pat
+>ch?download>
+>
+> Very Brief Documentation:
+>
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+>
+> cpusched=<scheduler>
 
-It has come to my attention that the dynamic hrtimer softirq can lose a
-boosted priority.  That is, if a softirq is running while a timeout
-happens, and the call back is of lower priority than the currently
-running hrtimer softirq, the timer interrupt will still lower the
-hrtimer softirq.
+Any reason dynsched couldn't be merged with plugsched?
 
-Here's the problem code:
+> to the boot command line where <scheduler> is one of: ingosched,
+> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
+> or zaphod.  If you don't change the default when you build the kernel
+> the default scheduler will be ingosched (which is the normal scheduler).
+>
+> The scheduler in force on a running system can be determined by the
+> contents of:
+>
+> /proc/scheduler
 
-static void wakeup_softirqd_prio(int softirq, int prio)
-{
-	/* Interrupts are disabled: no need to stop preemption */
-	struct task_struct *tsk = __get_cpu_var(ksoftirqd[softirq].tsk);
+It may be really great, to allow schedulers perPid parent, thus allowing the 
+stacking of different scheduler semantics.  This could aid flexibility a 
+lot.
 
-	if (tsk) {
-		if (tsk->normal_prio != prio) {
-			struct sched_param param;
+Worth a try, and should be easy to implement.
 
-			param.sched_priority = MAX_RT_PRIO-1 - prio;
-			setscheduler(tsk, -1, SCHED_FIFO, &param);
-		}
-		if(tsk->state != TASK_RUNNING)
-			wake_up_process(tsk);
-	}
-}
+> Control parameters for the scheduler can be read/set via files in:
+>
+> /sys/cpusched/<scheduler>/
 
+Thanks for the most important out-of-tree patch that makes 2.6 reasonable.
 
-So, tsk could be softirqd-hrmono and we lower the priority. (only
-normal_prio is checked versus prio).
-
-So this can be a problem, if the softirq function holds a lock of a high
-priority task, and is running boosted.  If another timer goes off with a
-lower priority, we can lower the priority of the softirqd and lose the
-inherited priority that it was running at.
-
--- Steve
+--
+Al
 

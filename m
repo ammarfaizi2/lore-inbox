@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWGXNMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWGXNNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWGXNMR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 09:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWGXNMR
+	id S932149AbWGXNNz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 09:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWGXNNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 09:12:17 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:14005 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S932145AbWGXNMQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 09:12:16 -0400
-Message-ID: <44C4C019.70603@nachtwindheim.de>
-Date: Mon, 24 Jul 2006 14:42:01 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+	Mon, 24 Jul 2006 09:13:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:37016 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932149AbWGXNNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 09:13:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=c7RJ2HEsqtpnDl7g8qXDsSpVArKcfFZGDt3WJCADB4S4RlwY0ihzDuus+7pE3TGs1tt44DHyzNGdATHI5c14C5PW7YChDV/nKqn5jDa0PECsCrGfkpf4h7G1YzXErqEsdDwODWC3+JdPkfTVk7BWmHToLgl9d5w0tHWXmWsbNeY=
+Message-ID: <4d8e3fd30607240613m7f0e47cl39e8fadf90519e95@mail.gmail.com>
+Date: Mon, 24 Jul 2006 15:13:52 +0200
+From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: GIT users survey
 MIME-Version: 1.0
-To: jgarzik@pobox.com
-Cc: peer.chen@uli.com.tw, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [NET] initialisation cleanup for ULI526x-net-driver 2nd(mailer issue)
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Hi all,
+We would like to ask you a few questions about your use of the GIT
+version control system. This survey is mainly to understand who is
+using GIT, how and why.
 
-[NET] initialisation cleanup for ULI526x-net-driver
+The results will be published in the the git wiki and discussed on the git
+mailing list.
 
-removes the unneeded local variable rc
-replace pci_module_init() with pci_register_driver()
-two coding style issues on switch
+We'll close the survey on the 6th of August.
 
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+Please devote a few minutes of your time to fill this simple
+questionnaire, it will help a lot the git community to understand your
+needs, what you like of git and of course what you don't like  of it.
 
----
-
-diff -ruN linux-2.6.18-rc2-git2/drivers/net/tulip/uli526x.c linux/drivers/net/tulip/uli526x.c
---- linux-2.6.18-rc2-git2/drivers/net/tulip/uli526x.c	2006-07-24 13:58:05.000000000 +0200
-+++ linux/drivers/net/tulip/uli526x.c	2006-07-24 14:21:43.000000000 +0200
-@@ -1702,7 +1702,6 @@
- 
- static int __init uli526x_init_module(void)
- {
--	int rc;
- 
- 	printk(version);
- 	printed_version = 1;
-@@ -1714,22 +1713,19 @@
- 	if (cr6set)
- 		uli526x_cr6_user_set = cr6set;
- 
-- 	switch(mode) {
-+ 	switch (mode) {
-    	case ULI526X_10MHF:
- 	case ULI526X_100MHF:
- 	case ULI526X_10MFD:
- 	case ULI526X_100MFD:
- 		uli526x_media_mode = mode;
- 		break;
--	default:uli526x_media_mode = ULI526X_AUTO;
-+	default:
-+		uli526x_media_mode = ULI526X_AUTO;
- 		break;
- 	}
- 
--	rc = pci_module_init(&uli526x_driver);
--	if (rc < 0)
--		return rc;
--
--	return 0;
-+	return pci_register_driver(&uli526x_driver);
- }
- 
- 
+The survey can be found here:
+http://www.survey.net.nz/survey.php?b5659bb2a599d0649871f56b59819c50
 
 
+Kind regards,
+
+-- 
+Paolo
+http://paolo.ciarrocchi.googlepages.com
+http://picasaweb.google.com/paolo.ciarrocchi

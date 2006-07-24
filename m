@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWGYQ2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWGYQhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWGYQ2p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 12:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWGYQ2p
+	id S964791AbWGYQhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 12:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWGYQhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 12:28:45 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:32964 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S964785AbWGYQ2o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 12:28:44 -0400
-Message-ID: <44C646E5.30608@cs.wisc.edu>
-Date: Tue, 25 Jul 2006 11:29:25 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] blk request timeout handler: mv scsi timer code to
-  block layer
-References: <1153820377.4166.22.camel@max> <20060725092400.GK4044@suse.de>
-In-Reply-To: <20060725092400.GK4044@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jul 2006 12:37:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46056 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S964791AbWGYQhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 12:37:03 -0400
+Subject: Re: tighten ATA kconfig dependancies
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060715053418.GA5557@redhat.com>
+References: <20060715053418.GA5557@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Jul 2006 04:05:02 +0100
+Message-Id: <1153710303.2380.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Jul 25 2006, Mike Christie wrote:
->> For the request based multipath I thought I would need to run some code
->> when a command times out. I did not want to duplicate the scsi code, so
->> I did the following patches which move the scsi timer code to the block
->> layer then convert scsi.
->>
->> I have tested the scsi_error.c and normal paths with iscsi. And, I have
->> tested the normal IO paths with libata. Since libata uses the strategy
->> handler it needs to be tested a lot more. Some of the drivers that were
->> touching the timeout_per_command field need to be compile tested still
->> too. I converted them, but I think some still need a "#include
->> blkdev.h".
->>
->> The patches only move the scsi timer code to the block layer and hook it
->> in so others can use it. I have not started on the abort, reset and
->> quiesce code since it is not really needed for multipath. I wanted to
->> see if the timer code move was ok on its own without the rest of the
->> scsi eh move because I do not want to manage the patches out of tree
->> with the other request multipath patches. I also wanted to check if the
->> scsi timer code was ok in general. Maybe scsi got it wrong and needed to
->> be rewritten :)
-> 
-> Excellent, one item off my TODO list :-). I had pending code, but not
-> completed yet.
-> 
-> I had intended to make the timer addition/deletion implicit from the
-> activate/deactive rq paths, both to have it happen automatically and
-> from a cleanliness POV. That makes the timer only active when the
-> request is in the driver, and should also make the deletion implicit for
-> when the request gets requeued.
-> 
+On Sad, 2006-07-15 at 01:34 -0400, Dave Jones wrote:
+> A lot of prehistoric junk shows up on x86-64 configs.
 
-Ok I did that, almost. For the normal request_fn/dequeue, requeue, and
-blk softiriq completion paths the block layer handles all the timer
-addition, deletion and restarting. There is one nasty path in the scsi,
-where we need to requeue the command only if the timer has not expired
-and for that I cheated and allowed scsi to do the blk_delete_timer() so
-it could check the return value. I will work on fixing that case for the
-next resend of the patches.
+This is the old IDE layer, this isn't a bugfix or urgent so it isnt
+appropriate for merging. It also makes testing and building more awkward
+for maintainers.
 
+This is the same policy we follow elsewhere in the kernel, filter stuff
+that can't compile not general PCI stuff.
+
+NAK
 
 

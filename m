@@ -1,182 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWGXRxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWGXRzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWGXRxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWGXRwx
+	id S932250AbWGXRzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWGXRzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:52:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:64986 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932263AbWGXRva
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:51:30 -0400
-Subject: [RFC][PATCH 5/6] SLIM: make and config stuff
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>
-Cc: Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 10:51:43 -0700
-Message-Id: <1153763503.5171.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jul 2006 13:55:25 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:42189 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932250AbWGXRzX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 13:55:23 -0400
+Message-Id: <200607241755.k6OHtJuo006253@laptop13.inf.utfsm.cl>
+To: "Joshua Hudson" <joshudson@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: what is necessary for directory hard links 
+In-Reply-To: Message from "Joshua Hudson" <joshudson@gmail.com> 
+   of "Mon, 24 Jul 2006 09:21:04 MST." <bda6d13a0607240921x78049eefraae775e4c6c0ba5c@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 24 Jul 2006 13:55:19 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 24 Jul 2006 13:55:19 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the Makefile, Kconfig and .h files for SLIM.
+Joshua Hudson <joshudson@gmail.com> wrote:
+> On 7/24/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> > On Mon, 24 Jul 2006 10:45:45 +0400, Nikita Danilov said:
+> > > Joshua Hudson writes:
+> > >  > In my filesystem, any attempt to create a loop of hard links
+> > >  > is detected and cancelled.
+> > >
+> > > Can you elaborate a bit on this exciting mechanism? Obviously an ability
+> > > to efficiently detect loops would be a break-through in a
+> > > reference-counted garbage collection, somehow missed for last 40
 
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
-security/Kconfig       |    1
-security/Makefile      |    1
-security/slim/Kconfig  |    6 ++
-security/slim/Makefile |    6 ++
-security/slim/slim.h   |  102 +++++++++++++++++++++++++++++++++++++++
-5 files changed, 116 insertions(+)
+> > It's actually pretty trivial to do if it's a toy filesystem and all the
+> > relevant inodes are in-memory already.  The hard-to-solve part is getting
+> > around the (apparent) need to walk across essentially the entire tree
+> > structure making sure that you aren't creating a loop.  This can get
+> > rather performance piggy - even /home on my laptop has some 400K
+> > inodes on it, and a 'find /home -type d' takes 28 seconds.  That's a *long*
+> > time to lock and freeze a filesystem.
 
---- linux-2.6.17/security/slim/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17/security/slim/Makefile	2006-07-06 14:24:00.000000000 -0700
-@@ -0,0 +1,6 @@
-+#
-+# Makefile for building the SLIM module as part of the kernel tree.
-+#
-+
-+obj-$(CONFIG_SECURITY_SLIM) += slim.o
-+slim-y 	:= slm_main.o slm_secfs.o
---- linux-2.6.17/security/slim/Kconfig	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17/security/slim/Kconfig	2006-07-05 09:23:11.000000000 -0700
-@@ -0,0 +1,6 @@
-+config SECURITY_SLIM
-+	tristate "SLIM support"
-+	depends on SECURITY && SECURITY_NETWORK
-+	help
-+	  The Simple Linux Integrity Module implements a modified low water-mark
-+	  mandatory access control integrity model.
---- linux-2.6.17/security/Makefile	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17/security/Makefile	2006-07-05 11:51:35.000000000 -0700
-@@ -3,6 +3,7 @@
- #
- 
- obj-$(CONFIG_KEYS)			+= keys/
-+obj-$(CONFIG_SECURITY_SLIM)		+= slim/
- subdir-$(CONFIG_SECURITY_SELINUX)	+= selinux
- 
- # if we don't select a security model, use the default capabilities
---- linux-2.6.17/security/Kconfig	2006-04-26 19:19:25.000000000 -0700
-+++ linux-2.6.17/security/Kconfig	2006-07-05 09:23:11.000000000 -0700
-@@ -101,5 +101,6 @@ config SECURITY_SECLVL
- 
- source security/selinux/Kconfig
- 
-+source security/slim/Kconfig
- endmenu
- 
---- linux-2.6.17/security/slim/slim.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.17/security/slim/slim.h	2006-07-13 16:23:05.000000000 -0700
-@@ -0,0 +1,102 @@
-+/*
-+ * slim.h - simple linux integrity module
-+ *
-+ * SLIM's specific model is:
-+ *
-+ *  All objects are labeled with exteded attributes to indicate:
-+ *      Integrity Access Class (IAC)
-+ *      Secrecy Access Class (SAC)
-+ *
-+ *  All processes inherit from their parents:
-+ *      Integrity Read Access Class (IRAC)
-+ *      Integrity Write/Execute Access Class (IWXAC)
-+ *      Secrecy Write Access Class (SWAC)
-+ *      Secrecy Read/Execute Access Class (SRXAC)
-+ *
-+ *  SLIM enforces the following Mandatory Access Control Rules:
-+ *      Read:
-+ *          IRAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+ *      Write:
-+ *          IWXAC(process) >= IAC(object)
-+ *          SWAC(process) <= SAC(process)
-+ *      Execute:
-+ *          IWXAC(process) <= IAC(object)
-+ *          SRXAC(process) >= SAC(object)
-+*/
-+
-+#include <linux/security.h>
-+#include <linux/version.h>
-+#include <linux/spinlock_types.h>
-+
-+struct xattr_data {
-+	char *name;
-+	void *value;
-+	size_t len;
-+};
-+
-+ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer,
-+			 size_t size);
-+ssize_t generic_listxattr(struct dentry *dentry, char *buffer,
-+			  size_t buffer_size);
-+int generic_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		     size_t size, int flags);
-+enum slm_iac_level {		/* integrity access class */
-+	SLM_IAC_ERROR = -2,
-+	SLM_IAC_EXEMPT = -1, 
-+	SLM_IAC_NOTDEFINED = 0, 
-+	SLM_IAC_UNTRUSTED,
-+	SLM_IAC_USER, 
-+	SLM_IAC_SYSTEM, 
-+	SLM_IAC_HIGHEST
-+};
-+extern char *slm_iac_str[];
-+
-+enum slm_sac_level {		/* secrecy access class */
-+	SLM_SAC_ERROR = -2,
-+	SLM_SAC_EXEMPT = -1, 
-+	SLM_SAC_NOTDEFINED = 0,
-+	SLM_SAC_PUBLIC, 
-+	SLM_SAC_USER,
-+	SLM_SAC_USER_SENSITIVE, 
-+	SLM_SAC_SYSTEM_SENSITIVE, 
-+	SLM_SAC_HIGHEST
-+};
-+
-+struct slm_tsec_data {		/* task security data (process info) */
-+	enum slm_iac_level iac_r;	/* read low integrity files */
-+	enum slm_iac_level iac_wx;	/* ability to write/execute higher */
-+	enum slm_sac_level sac_w;	/* ability to write low secrecy files */
-+	enum slm_sac_level sac_rx;	/* read/execute high secrecy files */
-+	int unlimited;		/* unlimited guard process */
-+	struct dentry *script_dentry;	/* used when filename != interp */
-+	spinlock_t lock;
-+};
-+
-+struct slm_file_xattr {		/* file extended attributes */
-+	enum slm_iac_level iac_level;	/* integrity */
-+	enum slm_sac_level sac_level;	/* secrecy */
-+	struct slm_tsec_data guard;	/* guard process information */
-+};
-+
-+#define SLM_LSM_ID 0x999
-+extern int slm_idx;
-+
-+struct slm_isec_data {
-+	struct slm_file_xattr level;
-+	spinlock_t lock;
-+};
-+
-+static inline int is_kernel_thread(struct task_struct *tsk)
-+{
-+	return (!tsk->mm) ? 1 : 0;
-+}
-+
-+extern struct slm_xattr_config *slm_parse_config(char *data,
-+						 unsigned long datalen,
-+						 int *datasize);
-+
-+extern int slm_init_config(void);
-+
-+extern __init int slm_init_secfs(void);
-+extern __exit void slm_cleanup_secfs(void);
+> Actually, I walk from the source inode down to try to find the
+> target inode. If not found, this is not attempting to create a loop.
+> Should be obvious that the average case is much less than the
+> whole tree.
 
+You have to consider the worst case... and /that/ one is very bad. 
+
+> > Where it gets *really* messy is that it isn't just mkdir that's the
+> > problem - once you let there be more than one path from the fs root to
+> > a given directory, it gets *really* hard to make sure that any given
+> > 'mv' command isn't going to to screw things up (is 'mv a/b/c/d
+> > ../../w/z/b' safe? How do you know, without examining a *lot* of stuff
+> > under a/ and ../../w/?
+
+> mv /a/b/c/d ../../w/z/b is implemented as this in the filesystem:
+> ln /a/b/c/d ../../w/z/b && rm /a/b/c/d
+> 
+> So what it's going to do is try to find z under /a/b/c/d.
+
+What if the ln(1) creates a loop, that the rm(1) then breaks? I.e., move a
+directory nearer to the root?
+
+Also note that with your idea '..' becomes ambiguous, as w might have
+/lots/ of parents here.
+
+> Oh, and Nakita's right about the NFS server stuff. Actually, I think
+> the current filesystem I use for this is totally incompatible with
+> NFS (cannot call d_splice_alias on directory dnodes) so that
+> doesn't concern me.
+
+Anything that isn't even NFS-capable is almost useless, IMVHO. Unless you
+come up with a successor to NFS in tandem, that is.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

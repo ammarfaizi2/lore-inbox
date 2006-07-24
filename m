@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWGXSqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWGXSq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWGXSqO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWGXSqO
+	id S1751419AbWGXSq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWGXSq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:46:14 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:65492 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751346AbWGXSqN (ORCPT
+	Mon, 24 Jul 2006 14:46:58 -0400
+Received: from hera.kernel.org ([140.211.167.34]:45024 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751419AbWGXSq6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:46:13 -0400
-Date: Mon, 24 Jul 2006 20:45:34 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Gruenbacher <a.gruenbacher@computer.org>
-Cc: Nathan Scott <nathans@sgi.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: include/linux/xattr.h: how much userpace visible?
-Message-ID: <20060724184534.GA26842@mars.ravnborg.org>
-References: <20060723184343.GA25367@stusta.de> <20060724085701.B2083275@wobbly.melbourne.sgi.com> <200607242031.11815.a.gruenbacher@computer.org>
+	Mon, 24 Jul 2006 14:46:58 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+Date: Mon, 24 Jul 2006 11:46:30 -0700 (PDT)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <ea34i6$185$1@terminus.zytor.com>
+References: <200607241857.38889.a1426z@gawab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607242031.11815.a.gruenbacher@computer.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1153766790 1286 127.0.0.1 (24 Jul 2006 18:46:30 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 24 Jul 2006 18:46:30 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24, 2006 at 08:31:11PM +0200, Andreas Gruenbacher wrote:
-> On Monday, 24 July 2006 00:57, Nathan Scott wrote:
-> > On Sun, Jul 23, 2006 at 08:43:43PM +0200, Adrian Bunk wrote:
-> > > Hi,
-> > >
-> > > how much of include/linux/xattr.h has to be part of the userspace kernel
-> > > headers?
-> >
-> > None, I think.
+Followup to:  <200607241857.38889.a1426z@gawab.com>
+By author:    Al Boldi <a1426z@gawab.com>
+In newsgroup: linux.dev.kernel
 > 
-> None, indeed. The attr package comes with it own version of xattr.h that also 
-> includes definitions of XATTR_CREATE and XATTR_REPLACE.
-The userspace headers are supposed to hold the part of the kernel
-definitions that glibc (and mayby the attr package) uses. If they happen
-to have their own copy now should not impct the decision what is part of
-the userspace interface for the kernel. So actual usage does not decide
-what is part of the userspace kernel headers but what definitionas are
-definitions the userspace <-> kernel interface.
+> Respect what?  The process or the content?
+> 
+> Rejecting content due to disrespect for process guidelines would be rather 
+> sad.
+> 
 
-	Sam
+No, it's not.  That's what you have to do to keep the kernel maintainable.
+
+> If the content is worth its salt, it should be accepted w/o delay, then 
+> modified to comply with the process guidelines as necessary.  It's what the 
+> GPL allows, afterall.
+
+Uhm, no.  That's basically "throw it over the fence and let someone
+else fix the crap."  Fix it first, then it can go in.
+
+	-hpa

@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWGXRmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWGXRnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWGXRmY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWGXRmY
+	id S932237AbWGXRnq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWGXRnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:42:24 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:47857 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932235AbWGXRmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:42:23 -0400
-Subject: Re: [PATCH] Add maintainer for memory management
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Christoph Lameter <clameter@SGI.com>
-Cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.64.0607240923290.24181@schroedinger.engr.sgi.com>
-References: <1153713707.4002.43.camel@localhost.localdomain>
-	 <200607241413.52064.ak@suse.de>
-	 <1153744263.4002.75.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0607240923290.24181@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 13:42:06 -0400
-Message-Id: <1153762926.11295.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jul 2006 13:43:46 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:14796 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932237AbWGXRnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 13:43:45 -0400
+Message-Id: <200607241743.k6OHhZUp006153@laptop13.inf.utfsm.cl>
+To: Al Boldi <a1426z@gawab.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org 
+In-Reply-To: Message from Al Boldi <a1426z@gawab.com> 
+   of "Mon, 24 Jul 2006 18:57:38 +0300." <200607241857.38889.a1426z@gawab.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 24 Jul 2006 13:43:35 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 24 Jul 2006 13:43:40 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-24 at 09:28 -0700, Christoph Lameter wrote:
-> On Mon, 24 Jul 2006, Steven Rostedt wrote:
-> 
-> > OK, is there an actual maintainer for the mm code?  Andrew Morton might
-> > be the best person to ask this to.  Perhaps if someone would like the
-> > job and that person is capable, we can choose an official maintainer for
-> > the mm part of the kernel.
-> 
-> We all have specialities and Andrew is the Czar over all of this. I 
-> always though that the mm tree is there and named that way because Andrew 
-> *is* in effect the mm maintainer although he seem to keep getting 
-> distracted by lots of other stuff.
+Al Boldi <a1426z@gawab.com> wrote:
+> Jeff Garzik wrote:
+> > Hans Reiser wrote:
+> > > As the other poster mentioned, they went off to startups, and did not
+> > > become part of our community.  How much of that was because their
+> > > contributions were more hassled than welcomed, I cannot say with
+> > > certainty, I can only say that they were discouraged by the difficulty
+> > > of getting their stuff in, and this was not as it should have been.
+> > > They were more knowledgeable than we were on the topics they spoke on,
+> > > and this was not recognized and acknowledged.
+> > >
+> > > Outsiders are not respected by the kernel community.  This means we miss
+> > > a lot.
 
-I knew Andrew started the -mm branch for the memory management, but I
-just thought he grew to general Linux Maintainer, so I didn't even think
-of Andrew as such.  That title would probably be a demotion for him
-now ;)
+> > Anyone who fails to respect the kernel development process, the process
+> > of building consensus, is turn not respected, flamed, and/or ignored.
+> >
+> > If you don't respect us, why should we respect you?
 
--- Steve
+> Respect what?  The process or the content?
 
+> Rejecting content due to disrespect for process guidelines would be rather 
+> sad.
+
+But necessary, as the available manpower sadly isn't infinite.
+
+> If the content is worth its salt, it should be accepted w/o delay,
+
+Ideally...
+
+>                                                                    then 
+> modified to comply with the process guidelines as necessary.
+
+... and pray who is going to do that, while making sure that the needed
+cleanup and adjustments don't break it? Surely the original author is in
+the best position to do this, moreover by writing directly in the accepted
+way even to avoid needless work.
+
+>                                                               It's what the 
+> GPL allows, afterall.
+
+No. The GPL allows you to branch the kernel and create your own kernel with
+Reiser 4 included, it doesn't say that you have the right to get your
+patches into Linus' tree. [Thankfully. I've seen such a mass of junk
+proposed here over the years...]
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

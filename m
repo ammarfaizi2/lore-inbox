@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWGXSq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWGXSys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWGXSq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWGXSq6
+	id S932290AbWGXSys (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWGXSys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:46:58 -0400
-Received: from hera.kernel.org ([140.211.167.34]:45024 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751419AbWGXSq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:46:58 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-Date: Mon, 24 Jul 2006 11:46:30 -0700 (PDT)
-Organization: Mostly alphabetical, except Q, with we do not fancy
-Message-ID: <ea34i6$185$1@terminus.zytor.com>
-References: <200607241857.38889.a1426z@gawab.com>
+	Mon, 24 Jul 2006 14:54:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21475
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932290AbWGXSyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 14:54:47 -0400
+Date: Mon, 24 Jul 2006 11:54:56 -0700 (PDT)
+Message-Id: <20060724.115456.17862176.davem@davemloft.net>
+To: vonbrand@inf.utfsm.cl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc2 () on SPARC64: Compile failure
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607241325.k6ODPnTW003266@laptop13.inf.utfsm.cl>
+References: <200607241325.k6ODPnTW003266@laptop13.inf.utfsm.cl>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1153766790 1286 127.0.0.1 (24 Jul 2006 18:46:30 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 24 Jul 2006 18:46:30 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200607241857.38889.a1426z@gawab.com>
-By author:    Al Boldi <a1426z@gawab.com>
-In newsgroup: linux.dev.kernel
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+Date: Mon, 24 Jul 2006 09:25:49 -0400
+
+> I'm getting:
 > 
-> Respect what?  The process or the content?
-> 
-> Rejecting content due to disrespect for process guidelines would be rather 
-> sad.
-> 
+>   CC [M]  drivers/scsi/esp.o
+>   drivers/scsi/esp.c: In function `esp_should_clear_sync':
+>   drivers/scsi/esp.c:2758: error: structure has no member named `data_cmnd'
+>   make[2]: *** [drivers/scsi/esp.o] Error 1
+>   make[1]: *** [drivers/scsi] Error 2
+>   make: *** [drivers] Error 2
 
-No, it's not.  That's what you have to do to keep the kernel maintainable.
-
-> If the content is worth its salt, it should be accepted w/o delay, then 
-> modified to comply with the process guidelines as necessary.  It's what the 
-> GPL allows, afterall.
-
-Uhm, no.  That's basically "throw it over the fence and let someone
-else fix the crap."  Fix it first, then it can go in.
-
-	-hpa
+Known problem, the scsi maintainers removed a member from a
+common structure and this broke the build of a few drivers.

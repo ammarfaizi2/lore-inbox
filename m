@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWGXOl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWGXOod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWGXOl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 10:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWGXOl1
+	id S932196AbWGXOod (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 10:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWGXOod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 10:41:27 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:3717 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932195AbWGXOl0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 10:41:26 -0400
-Subject: Re: [PATCH] fs: Memory allocation cleanups
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: takis@issaris.org
-Cc: linux-kernel@vger.kernel.org, rathamahata@php4.ru, sfrench@samba.org,
-       jffs-dev@axis.com, neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no,
-       reiserfs-dev@namesys.com, raven@themaw.net
-In-Reply-To: <20060721115055.GA12329@issaris.org>
-References: <20060721115055.GA12329@issaris.org>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 09:41:19 -0500
-Message-Id: <1153752079.10822.6.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jul 2006 10:44:33 -0400
+Received: from web36414.mail.mud.yahoo.com ([209.191.85.149]:60817 "HELO
+	web36414.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932196AbWGXOod (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 10:44:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=OhepMig1JPzDwGMS+ZhJ4D9EHyVeNWFT86af1Txkl8Fxa86ghoCQ4NG7s1C7Fc3p5bfBZmdhLMSp7Q37bpKd+8vq/Llyfh6rqruy5gFuBU9ablQFWP4zsunGQYeOdJWv49wL7XzeF4ax8JIoDhCHZZEVlESdQyzKFXT/0ZAdj5E=  ;
+Message-ID: <20060724144432.35332.qmail@web36414.mail.mud.yahoo.com>
+Date: Mon, 24 Jul 2006 07:44:32 -0700 (PDT)
+From: Dennis Jacob <dennis_jacob_78@yahoo.com>
+Subject: DSP software for ixp board
+To: Linux-Kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-21 at 13:50 +0200, takis@issaris.org wrote:
-> From: Panagiotis Issaris <takis@issaris.org>
-> 
-> - Remove useless casts from k(m|z)alloc and vmallocs
-> - One conversion of kmalloc+memset to kzalloc
-> 
-> Signed-off-by: Panagiotis Issaris <takis@issaris.org>
+Hello,
 
-Acked-by: Dave Kleikamp <shaggy@austin.ibm.com>
+     I want to port an application to intel ixp with
+snapgear 2.4.31. For SLIC / SLAC support in the board,
+I want to use the DSP software from intel and the
+version now available from intel site is
+DSR2.6.2Release. But I am using intel ixp libs V2.0
+and the doccumentation with the DSP s/w tells to use
+ixp libs 1.4v. 
 
-The jfs part looks good.
+    May be because of that, when I am  making the
+kernel I am getting some compilation errors
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+  Can anybody tell me whether there is any version of
+DSR s/w which complys with ixp libs v2.0?
 
+Thanks
+Dennis
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

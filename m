@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWGXTTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWGXTVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWGXTTs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 15:19:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGXTTs
+	id S1751355AbWGXTVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 15:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGXTVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 15:19:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:7402 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751289AbWGXTTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 15:19:47 -0400
-Date: Mon, 24 Jul 2006 21:14:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       John McCutchan <john@johnmccutchan.com>, Andrew Morton <akpm@osdl.org>,
-       rml@novell.com, viro@zeniv.linux.org.uk
-Subject: Re: [patch] inotify: fix deadlock found by lockdep
-Message-ID: <20060724191400.GA14809@elte.hu>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org> <44C2C90B.6090108@reub.net> <1153761671.3043.89.camel@laptopd505.fenrus.org>
+	Mon, 24 Jul 2006 15:21:45 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:60683 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751355AbWGXTVo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 15:21:44 -0400
+Date: Mon, 24 Jul 2006 21:21:46 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Re: [GIT PATCH] I2C and hwmon fixes for 2.6.18-rc1
+Message-Id: <20060724212146.498d184b.khali@linux-fr.org>
+In-Reply-To: <20060712232359.GA22679@kroah.com>
+References: <20060712232359.GA22679@kroah.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153761671.3043.89.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5001]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Arjan van de Ven <arjan@linux.intel.com> wrote:
-
-> Subject: [patch] inotify: fix deadlock found by lockdep
-> From: Arjan van de Ven <arjan@linux.intel.com>
+> Here are some i2c and hwmon fixes for 2.6.18-rc1.  They fix quite a few
+> bugs and update the documentation.
 > 
-> This is a real deadlock, a nice complex one:
-> (warning: long explanation follows so that Andrew can have a complete
-> patch description)
+> They all have been in the -mm tree for a while.
 > 
-> it's an ABCDA deadlock:
+> Please pull from:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+> or from:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
+> if it isn't synced up yet.
 > 
-> A iprune_mutex 
-> B inode->inotify_mutex
-> C ih->mutex
-> D dev->ev_mutex
+> The full patch series will sent to the sensors mailing list, if anyone
+> wants to see them.
 
-wow!
+Which is quite unfortunate because we now have a new mailing list
+dedicated to i2c [1], where the i2c patches would fit better. Is it
+possible to send the i2c patches to the i2c list next time? And the
+hwmon patches to the sensors list as before.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+[1] http://lists.lm-sensors.org/mailman/listinfo/i2c
 
-	Ingo
+Thanks,
+-- 
+Jean Delvare

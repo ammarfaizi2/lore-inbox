@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWGXV4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWGXWGB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWGXV4i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 17:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWGXV4i
+	id S932272AbWGXWGB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 18:06:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWGXWGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 17:56:38 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:30131 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932269AbWGXV4h
+	Mon, 24 Jul 2006 18:06:01 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:11713 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932272AbWGXWGA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 17:56:37 -0400
-Subject: [PATCH] [efs] Remove incorrect unlock_kernel from failure path in
-	efs_symlink_readpage
+	Mon, 24 Jul 2006 18:06:00 -0400
+Subject: [PATCH] [efs] Add entry for EFS filesystem to MAINTAINERS as Orphan
 From: Josh Triplett <josht@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 24 Jul 2006 14:56:38 -0700
-Message-Id: <1153778198.4931.19.camel@josh-work.beaverton.ibm.com>
+Date: Mon, 24 Jul 2006 15:06:01 -0700
+Message-Id: <1153778761.31581.0.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If efs_symlink_readpage hits the -ENAMETOOLONG error path, it will call
-unlock_kernel without ever having called lock_kernel(); fix this by creating
-and jumping to a new label fail_notlocked rather than the fail label used
-after calling lock_kernel().
+The EFS filesystem does not have an entry in MAINTAINERS; add one, giving the
+EFS filesystem and listing the status as Orphan, per the note on that page
+saying "I'm no longer actively maintaining EFS".
 
 Signed-off-by: Josh Triplett <josh@freedesktop.org>
 ---
-This bug exists in the 2.4 kernel series as far back as 2.4.0, and this
-patch should apply there as well.
+ MAINTAINERS |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
- fs/efs/symlink.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/fs/efs/symlink.c b/fs/efs/symlink.c
-index e249cf7..1d30d2f 100644
---- a/fs/efs/symlink.c
-+++ b/fs/efs/symlink.c
-@@ -22,7 +22,7 @@ static int efs_symlink_readpage(struct f
-   
- 	err = -ENAMETOOLONG;
- 	if (size > 2 * EFS_BLOCKSIZE)
--		goto fail;
-+		goto fail_notlocked;
-   
- 	lock_kernel();
- 	/* read first 512 bytes of link target */
-@@ -47,6 +47,7 @@ static int efs_symlink_readpage(struct f
- 	return 0;
- fail:
- 	unlock_kernel();
-+fail_notlocked:
- 	SetPageError(page);
- 	kunmap(page);
- 	unlock_page(page);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b2afc7a..126a4df 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -968,6 +968,10 @@ P:	Andrey V. Savochkin
+ M:	saw@saw.sw.com.sg
+ S:	Maintained
+ 
++EFS FILESYSTEM
++W:	http://aeschi.ch.eu.org/efs/
++S:	Orphan
++
+ EMU10K1 SOUND DRIVER
+ P:	James Courtier-Dutton
+ M:	James@superbug.demon.co.uk
 
 

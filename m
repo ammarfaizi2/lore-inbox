@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWGXM20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWGXMbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWGXM20 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 08:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWGXM20
+	id S932131AbWGXMbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 08:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWGXMbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 08:28:26 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:49610 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932130AbWGXM2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 08:28:25 -0400
-Date: Mon, 24 Jul 2006 14:28:24 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/3] kconfig/lxdialog: add bluetitle color scheme
-In-Reply-To: <20060724113914.GD22806@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0607241425440.6762@scrub.home>
-References: <20060724113641.GA22806@mars.ravnborg.org>
- <20060724113914.GD22806@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Jul 2006 08:31:22 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:55939 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932131AbWGXMbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 08:31:21 -0400
+Subject: Re: [PATCH] Add maintainer for memory management
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <clameter@sgi.com>, linux-mm@kvack.org
+In-Reply-To: <200607241413.52064.ak@suse.de>
+References: <1153713707.4002.43.camel@localhost.localdomain>
+	 <200607241413.52064.ak@suse.de>
+Content-Type: text/plain
+Date: Mon, 24 Jul 2006 08:31:03 -0400
+Message-Id: <1153744263.4002.75.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2006-07-24 at 14:13 +0200, Andi Kleen wrote:
+> > Note: If someone else is more likely the person than Christoph, don't be
+> > offended that I didn't choose you.  It's just that Christoph has
+> > responded the most whenever I mention anything about memory. So I chose
+> > that as my criteria, than looking at who submits the most memory
+> > patches.
+> 	
+> You can't just someone give a maintainer job until they agree first.
+> Adding just the mailing list without "maintained" should be ok though.
 
-On Mon, 24 Jul 2006, Sam Ravnborg wrote:
+You're right, and I probably went about it wrong.  I had no intention of
+putting Christoph in the spot, but I figured this would bring attention
+to MM missing from maintainers list.  I was just going to add the
+linux-mm list without a maintainer, but I thought that alone wouldn't
+still get a maintainer.
 
-> +static void set_bluetitle_theme(void)
-> +{
-> +	DLG_MODIFY(title, COLOR_BLUE, COLOR_WHITE,  true);
-> +	DLG_MODIFY(button_label_active, COLOR_BLUE, COLOR_BLUE,   true);
-> +	DLG_MODIFY(searchbox_title,     COLOR_BLUE, COLOR_WHITE,  true);
-> +	DLG_MODIFY(position_indicator,  COLOR_BLUE, COLOR_WHITE,  true);
-> +	DLG_MODIFY(tag,                 COLOR_BLUE, COLOR_WHITE,  true);
-> +	DLG_MODIFY(tag_selected,        COLOR_BLUE, COLOR_BLUE,   true);
-> +	DLG_MODIFY(tag_key,             COLOR_BLUE, COLOR_WHITE,  true);
-> +	DLG_MODIFY(tag_key_selected,    COLOR_BLUE, COLOR_BLUE,   true);
-> +}
+OK, is there an actual maintainer for the mm code?  Andrew Morton might
+be the best person to ask this to.  Perhaps if someone would like the
+job and that person is capable, we can choose an official maintainer for
+the mm part of the kernel.
 
-In general I would like to see this one become the default, as yellow on 
-white is really terrible, but this one needs fixing too - blue on blue is 
-not really readable either. :)
+-- Steve
 
-bye, Roman
+P.S. I once referred to anyone working in MM as a sadomasochist, and
+that was because to work in the world of memory management, one must
+really enjoy pain. So I can see if no one actually would want the title
+of the MM maintainer. Would just the linux-mm be good enough for now?
+

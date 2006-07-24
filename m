@@ -1,43 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWGXS2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWGXS23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWGXS2A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWGXS2A
+	id S1751416AbWGXS23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWGXS22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:28:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:12984 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751412AbWGXS2A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:28:00 -0400
-From: Andreas Gruenbacher <a.gruenbacher@computer.org>
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: include/linux/xattr.h: how much userpace visible?
-Date: Mon, 24 Jul 2006 20:31:11 +0200
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@redhat.com>,
-       David Woodhouse <dwmw2@infradead.org>
-References: <20060723184343.GA25367@stusta.de> <20060724085701.B2083275@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060724085701.B2083275@wobbly.melbourne.sgi.com>
+	Mon, 24 Jul 2006 14:28:28 -0400
+Received: from h-64-105-146-214.chcgilgm.covad.net ([64.105.146.214]:273 "HELO
+	h-64-105-146-214.chcgilgm.covad.net") by vger.kernel.org with SMTP
+	id S1751416AbWGXS21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 14:28:27 -0400
+Reply-To: "Jim Doyle" <bubbasopdo@personalcomputer.net>
+From: "Jim" <bubbasopdo@personalcomputer.net>
+Message-ID: <0779384604.20060724133759@zkpfift>
+Date: Mon, 24 Jul 2006 13:37:59 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: G S J A C Bukkake Hoes
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607242031.11815.a.gruenbacher@computer.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 24 July 2006 00:57, Nathan Scott wrote:
-> On Sun, Jul 23, 2006 at 08:43:43PM +0200, Adrian Bunk wrote:
-> > Hi,
-> >
-> > how much of include/linux/xattr.h has to be part of the userspace kernel
-> > headers?
->
-> None, I think.
 
-None, indeed. The attr package comes with it own version of xattr.h that also 
-includes definitions of XATTR_CREATE and XATTR_REPLACE.
+Toil, feel, think, hope you will be sure to dream enough before you die, without arranging for it.Good luck needs no explanation.
 
-Andreas
+Unbelievable :)
+http://loose.typorled.com/?right 
+Great BukkakeBukkake Dolls Porn
+
+

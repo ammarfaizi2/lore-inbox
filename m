@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWGXV0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWGXVaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWGXV0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 17:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWGXV0Y
+	id S1751457AbWGXVaM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 17:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWGXVaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 17:26:24 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:37059 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751456AbWGXV0X (ORCPT
+	Mon, 24 Jul 2006 17:30:12 -0400
+Received: from main.gmane.org ([80.91.229.2]:41961 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751457AbWGXVaL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 17:26:23 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ondrej Zary <linux@rainbow-software.org>
-Subject: Re: [patch] [resend] Fix swsusp with PNP BIOS
-Date: Mon, 24 Jul 2006 23:25:50 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux List <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-References: <200607242028.01666.linux@rainbow-software.org>
-In-Reply-To: <200607242028.01666.linux@rainbow-software.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 24 Jul 2006 17:30:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Johannes Engel <j-engel@gmx.de>
+Subject: Re: [PATCH] Integrate asus_acpi LED's with new LED subsystem
+Date: Mon, 24 Jul 2006 23:24:53 +0200
+Message-ID: <ea3dr9$q5t$1@sea.gmane.org>
+References: <20060706193157.GC14043@phoenix> <20060706154930.1a8fbad5.akpm@osdl.org> <20060707012025.GB8900@phoenix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607242325.50229.rjw@sisk.pl>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dslb-084-060-106-177.pools.arcor-ip.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+In-Reply-To: <20060707012025.GB8900@phoenix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday 24 July 2006 20:28, Ondrej Zary wrote:
-> Hello,
-> swsusp is unable to suspend my machine (DTK FortisPro TOP-5A notebook) with 
-> kernel 2.6.17.5 because it's unable to suspend PNP device 00:16 (mouse).
+Thomas Tuttle schrieb:
+> Here is a patch to the asus_acpi driver that links the Asus laptop LED's
+> into the new LED subsystem.  It creates LED class devices named
+> asus:mail, asus:wireless, and asus:touchpad, depending on if the laptop
+> supports the mled, wled, and tled LED's.
 > 
-> The problem is in PNP BIOS. pnp_bus_suspend() calls pnp_stop_dev() for the 
-> device if the device can be disabled according to pnp_can_disable(). The 
-> problem is that pnpbios_disable_resources() returns -EPERM if the device is 
-> not dynamic (!pnpbios_is_dynamic()) but insert_device() happily sets 
-> PNP_DISABLE capability/flag even if the device is not dynamic. So we try to 
-> disable non-dynamic devices which will fail. 
-> This patch prevents insert_device() from setting PNP_DISABLE if the device is 
-> not dynamic and fixes suspend on my system.
-
-Thanks for the patch.
-
-Pavel, what do you think?
-
-
-> Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+> Since it's so new, I added a config option to turn it on and off.  It's
+> worked for me, though I have an Asus M2N, which only has the mail and
+> wireless LED's.
 > 
-> --- linux-2.6.17.5-orig/drivers/pnp/pnpbios/core.c	2006-07-15 04:38:43.000000000 +0200
-> +++ linux-2.6.17.5/drivers/pnp/pnpbios/core.c	2006-07-22 18:44:36.000000000 +0200
-> @@ -346,7 +346,7 @@
->  	dev->flags = node->flags;
->  	if (!(dev->flags & PNPBIOS_NO_CONFIG))
->  		dev->capabilities |= PNP_CONFIGURABLE;
-> -	if (!(dev->flags & PNPBIOS_NO_DISABLE))
-> +	if (!(dev->flags & PNPBIOS_NO_DISABLE) && pnpbios_is_dynamic(dev))
->  		dev->capabilities |= PNP_DISABLE;
->  	dev->capabilities |= PNP_READ;
->  	if (pnpbios_is_dynamic(dev))
+> Signed-off-by: Thomas Tuttle <thinkinginbinary@gmail.com>
 > 
+> 
+> I believe I've fixed everything you asked about, plus a few things
+> Richard Purdie (the LED subsystem guy) suggested.
+> 
+Thanks, Thomas, for your patch. It works well for me (ASUS V6V).
+There is only one thing I want to remark: Since the most recent BIOS
+ASUS changed the behaviour of the touchpad LED, it is inverted now.
+Until now I got around this in userspace (adapting the handler script).
+But with the new led class it seems to me, we will have to deal with
+that in the kernel module.
+My suggestion is a new flag (tled_inv) which has to be set for every
+model (always use most recent BIOS). What do you think about this?
+
+Greetings, Johannes
+

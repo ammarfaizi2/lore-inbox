@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWGXL4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWGXMDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWGXL4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 07:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWGXL4o
+	id S932123AbWGXMDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 08:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWGXMDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 07:56:44 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:14530 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932119AbWGXL4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 07:56:43 -0400
-Subject: Re: [PATCH] Add maintainer for memory management
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, clameter@sgi.com,
-       linux-mm@kvack.org
-In-Reply-To: <20060724001128.6d513d20.rdunlap@xenotime.net>
-References: <1153713707.4002.43.camel@localhost.localdomain>
-	 <20060724001128.6d513d20.rdunlap@xenotime.net>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 07:56:33 -0400
-Message-Id: <1153742193.4002.48.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jul 2006 08:03:48 -0400
+Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:37900 "EHLO
+	tuxland.pl") by vger.kernel.org with ESMTP id S932123AbWGXMDr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 08:03:47 -0400
+From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+Organization: tuxland
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can't clone Linus tree
+Date: Mon, 24 Jul 2006 14:03:45 +0200
+User-Agent: KMail/1.9.1
+References: <20060724080752.GA8716@irc.pl>
+In-Reply-To: <20060724080752.GA8716@irc.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607241403.45177.m.kozlowski@tuxland.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-24 at 00:11 -0700, Randy.Dunlap wrote:
+Witam, 
 
-> Christoph L. is very NUMA & big-iron focused.  He also breaks
-> things (at least builds if not working code) a bit too often IMO.
+>  yesterdat I wanted to bisect my kernel problem, but failed at first step:
+> cloning Linus' tree. Today I tried it on other system and also failed.
+>
 
-Like I said, the criteria was who responded the most. I actually don't
-keep track of the mm work and someone else is probably better at
-deciding this. But since it doesn't exist _at_all_ in MAINTAINERS I
-figured that if I post this, it will soon be added.
+[cut]
 
-> 
-> Andrew, Nick, Peter Zijlstra, Pekka, Manfred, Hugh Dickins
-> are all a better choice IMO.  However, if Andrew & Linus want
-> to merge that one...
+>
+>  Errors occur constantly since yesterday. They of course appear after
+> downloading several megabytes of data, which is unpleasant on my 128kbps
+> connection.
 
-Even if Christoph is not chosen, please do add a MEMORY MANAGEMENT in
-the MAINTAINERS.  I don't want to keep looking back in my email logs to
-remember what that mm email list was called again.
+I saw that as well many times with both git vesrion 1.2.4 and 1.4.1:
 
-Also, I would like to see linux-arch mentioned in the MAINTAINERS file
-since before I new about it, I just emailed every arch maintainer that I
-could find in the list separately, when making a change that all archs
-needed.
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git 
+linux-2.6
+Generating pack...
+Done counting 293611 objects.
+Deltifying 293611 objects.
+ 100% (293611/293611) done
+fatal: unexpected EOF)      
+fatal: packfile '/home/me/linux/linux-2.6/.git/objects/pack/tmp-FtdxDS' SHA1 
+mismatch
+error: git-fetch-pack: unable to read from git-index-pack
+error: git-index-pack died with error code 128
+fetch-pack from 
+'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git' 
+failed.
 
--- Steve
+Each time it fails after downloading approx. 60MB of data. Reported to vger 
+git list with no response.
 
+Regards,
+
+	Mariusz Koz³owski

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWGXKgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWGXKwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWGXKgI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 06:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWGXKgI
+	id S932115AbWGXKwo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 06:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWGXKwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 06:36:08 -0400
-Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:18564
-	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S932110AbWGXKgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 06:36:07 -0400
-Message-ID: <44C4A293.8090207@lsrfire.ath.cx>
-Date: Mon, 24 Jul 2006 12:36:03 +0200
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: Tomasz Torcz <zdzichu@irc.pl>
-CC: linux-kernel@vger.kernel.org, git@vger.kernel.org,
-       Junio C Hamano <junkio@cox.net>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Can't clone Linus tree
-References: <20060724080752.GA8716@irc.pl> <44C4992E.3070706@lsrfire.ath.cx>
-In-Reply-To: <44C4992E.3070706@lsrfire.ath.cx>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	Mon, 24 Jul 2006 06:52:44 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:34762 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S932115AbWGXKwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 06:52:44 -0400
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+       davej@redhat.com, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
+References: <20060722194018.GA28924@redhat.com>
+	 <Pine.LNX.4.64.0607221707400.29649@g5.osdl.org>
+	 <20060722180602.ac0d36f5.akpm@osdl.org>
+	 <Pine.LNX.4.64.0607221813020.29649@g5.osdl.org>
+	 <1153627754.7359.17.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0607230955130.29649@g5.osdl.org>
+	 <Pine.LNX.4.64.0607231107510.29649@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Jul 2006 12:52:05 +0200
+Message-Id: <1153738326.3043.13.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tomasz Torcz schrieb:
->> %  git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-git
->> fatal: packfile '/home/zdzichu/linux-git/.git/objects/pack/tmp-1jI4AH' SHA1 mismatch
->> error: git-fetch-pack: unable to read from git-index-pack
->> error: git-index-pack died with error code 128
->> fetch-pack from 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git' failed.
+On Sun, 2006-07-23 at 11:12 -0700, Linus Torvalds wrote:
+> 
+> On Sun, 23 Jul 2006, Linus Torvalds wrote:
+> > 
+> > Does this work? Hey, it works for me once. It's pretty simple, and had 
+> > better not have any recursion issues.
+> 
+> GAAH!!
+> 
+> What kind of _crap_ is this cpufreq thing?
 
-Ah, I just saw this is a known problem and there's a patch by
-Matthias Lederhofer, which Junio just accepted, I think (the
-mail with subject "[PATCH] upload-pack: fix timeout in
-create_pack_file)" on the git mailing list.
 
-The problem is apparently that the server expects you (wrongly)
-to finish your download session within ten minutes.  Until the
-server is fixed you can use rsync:// for the initial clone and
-git:// for smaller updates.
-
-René
+this is why lockdep got highly upset with it, and why Davej proposed to
+remove the locking entirely for now until it can be put back in a
+correct way....

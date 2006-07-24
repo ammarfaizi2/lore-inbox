@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWGXN2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWGXNhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWGXN2H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 09:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWGXN2H
+	id S932186AbWGXNhX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 09:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWGXNhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 09:28:07 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:60346 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932153AbWGXN2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 09:28:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=BC1OD5jpbxoEWJAWuh5tB76whvQFUJLDx1dKWDACGWSkmk0dPbvIuGGeiLX6PSx7MDmap/P8krV70E8pFY8mrmlt+hOiq7B/i4jZBET81440oEXTo5LWD96WZzwiO923/CFhBNj5EiZhvoXbalMDmtpkk/J117XnsQtl4QHyN5Q=
-Message-ID: <b0943d9e0607240628n115deac4x3befe5d39037248f@mail.gmail.com>
-Date: Mon, 24 Jul 2006 14:28:03 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [PATCH 2.6.17-rc6 7/9] Remove some of the kmemleak false positives
-Cc: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       "Arjan van de Ven" <arjan@infradead.org>
-In-Reply-To: <20060724111554.GA5286@elte.hu>
+	Mon, 24 Jul 2006 09:37:23 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:46283 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932186AbWGXNhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 09:37:22 -0400
+Date: Mon, 24 Jul 2006 15:37:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/3] kconfig/lxdialog: add bluetitle color scheme
+In-Reply-To: <20060724131528.GB23210@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0607241529280.6761@scrub.home>
+References: <20060724113641.GA22806@mars.ravnborg.org>
+ <20060724113914.GD22806@mars.ravnborg.org> <Pine.LNX.4.64.0607241425440.6762@scrub.home>
+ <20060724131528.GB23210@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_156_13927091.1153747683975"
-References: <20060611111815.8641.7879.stgit@localhost.localdomain>
-	 <20060611112156.8641.94787.stgit@localhost.localdomain>
-	 <84144f020606112219m445a3ccas7a95c7339ca5fa10@mail.gmail.com>
-	 <b0943d9e0606240320h1727639cv36a4fe399dddd767@mail.gmail.com>
-	 <20060624102248.GA23277@elte.hu> <20060724111554.GA5286@elte.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_156_13927091.1153747683975
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi,
 
-On 24/07/06, Ingo Molnar <mingo@elte.hu> wrote:
-> update: there's also a neat gcc extension trick suggested by Arjan:
-> __builtin_classify_type(). This converts types into integers!
+On Mon, 24 Jul 2006, Sam Ravnborg wrote:
 
-It's not really reliable as it doesn't distinguish well between types.
-All the structures, no matter what they contain, have the same id
-(which I think only refers to the fact that it is built-in type,
-pointer or structure, without differentiation).
+> I blindly replaced yellow with blue.
+> New version looks like this:
+> static void set_bluetitle_theme(void)
+> {
+>         DLG_MODIFY(title,   COLOR_BLUE, COLOR_WHITE,  true);
+>         DLG_MODIFY(tag,     COLOR_BLUE, COLOR_WHITE,  true);
+>         DLG_MODIFY(tag_key, COLOR_BLUE, COLOR_WHITE,  true);
+> }
 
-The attached code gives the following results:
+The theme below should be a bit better and more consistent, selected text
+is always white on blue with a yellow key character.
 
-typeof(a) = 12, sizeof(a) = 136
-typeof(b) = 12, sizeof(b) = 8
-typeof(c) = 1, sizeof(c) = 4
-typeof(d) = 1, sizeof(d) = 4
-typeof(e) = 1, sizeof(e) = 4
-typeof(f) = 1, sizeof(f) = 1
-typeof(g) = 5, sizeof(g) = 4
-typeof(h) = 5, sizeof(h) = 4
+> The classic color scheme is quite readable on my display.
 
--- 
-Catalin
+On mnay displays (especially lcd's) the difference between yellow and 
+white is very small, so that the text almost disappears.
 
-------=_Part_156_13927091.1153747683975
-Content-Type: text/x-csrc; name=builtin_classify_type.c; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eq0vin63
-Content-Disposition: attachment; filename="builtin_classify_type.c"
+bye, Roman
 
-I2luY2x1ZGUgPHN0ZGlvLmg+CgpzdHJ1Y3QgQSB7Cgl2b2lkICphOwoJbG9uZyBiOwoJY2hhciBj
-WzEyOF07Cn07CgpzdHJ1Y3QgQiB7Cglsb25nIGE7Cgl2b2lkICpiOwp9OwoKZW51bSBDIHsKCWEs
-CgliCn07CgojZGVmaW5lIFBSSU5UX1RZUEUodmFsKQkJCQkJCQlcCglwcmludGYoInR5cGVvZigi
-ICN2YWwgIikgPSAlZCwgc2l6ZW9mKCIgI3ZhbCAiKSA9ICVkXG4iLAlcCgkJCV9fYnVpbHRpbl9j
-bGFzc2lmeV90eXBlKHZhbCksCQkJXAoJCQlzaXplb2YodmFsKSkKCmludCBtYWluKCkKewoJc3Ry
-dWN0IEEgYTsKCXN0cnVjdCBCIGI7CgllbnVtIEMgYzsKCWludCBkOwoJbG9uZyBlOwoJY2hhciBm
-OwoJaW50ICpnOwoJY2hhciAqaDsKCglQUklOVF9UWVBFKGEpOwoJUFJJTlRfVFlQRShiKTsKCVBS
-SU5UX1RZUEUoYyk7CglQUklOVF9UWVBFKGQpOwoJUFJJTlRfVFlQRShlKTsKCVBSSU5UX1RZUEUo
-Zik7CglQUklOVF9UWVBFKGcpOwoJUFJJTlRfVFlQRShoKTsKCglyZXR1cm4gMDsKfQo=
-------=_Part_156_13927091.1153747683975--
+---
+ scripts/kconfig/lxdialog/util.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+Index: linux-2.6-git/scripts/kconfig/lxdialog/util.c
+===================================================================
+--- linux-2.6-git.orig/scripts/kconfig/lxdialog/util.c	2006-07-24 15:00:16.000000000 +0200
++++ linux-2.6-git/scripts/kconfig/lxdialog/util.c	2006-07-24 15:27:20.000000000 +0200
+@@ -104,14 +104,13 @@ static void set_blackbg_theme(void)
+ 
+ static void set_bluetitle_theme(void)
+ {
+-	DLG_MODIFY(title, COLOR_BLUE, COLOR_WHITE,  true);
+-	DLG_MODIFY(button_label_active, COLOR_BLUE, COLOR_BLUE,   true);
+-	DLG_MODIFY(searchbox_title,     COLOR_BLUE, COLOR_WHITE,  true);
+-	DLG_MODIFY(position_indicator,  COLOR_BLUE, COLOR_WHITE,  true);
+-	DLG_MODIFY(tag,                 COLOR_BLUE, COLOR_WHITE,  true);
+-	DLG_MODIFY(tag_selected,        COLOR_BLUE, COLOR_BLUE,   true);
+-	DLG_MODIFY(tag_key,             COLOR_BLUE, COLOR_WHITE,  true);
+-	DLG_MODIFY(tag_key_selected,    COLOR_BLUE, COLOR_BLUE,   true);
++	DLG_MODIFY(title, 		COLOR_BLUE,   COLOR_WHITE,  true);
++	DLG_MODIFY(button_key_active,	COLOR_YELLOW, COLOR_BLUE,   true);
++	DLG_MODIFY(button_label_active,	COLOR_WHITE,  COLOR_BLUE,   true);
++	DLG_MODIFY(searchbox_title,	COLOR_BLUE,   COLOR_WHITE,  true);
++	DLG_MODIFY(position_indicator,	COLOR_BLUE,   COLOR_WHITE,  true);
++	DLG_MODIFY(tag,			COLOR_BLUE,   COLOR_WHITE,  true);
++	DLG_MODIFY(tag_key,		COLOR_BLUE,   COLOR_WHITE,  true);
+ }
+ 
+ static void init_one_color(struct dialog_color *color)

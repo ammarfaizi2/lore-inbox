@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWGXIwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWGXI4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWGXIwL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 04:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWGXIwL
+	id S1751025AbWGXI4w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 04:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWGXI4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 04:52:11 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:63935 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S1750800AbWGXIwK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 04:52:10 -0400
-Date: Mon, 24 Jul 2006 10:52:04 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Michael Buesch <mb@bu3sch.de>, linux-kernel@vger.kernel.org,
-       Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: Lindent cleanup (was Re: [PATCH] drivers: Conversions from
- kmalloc+memset to k(z|c)alloc.)
-In-Reply-To: <44C47ECF.5090500@s5r6.in-berlin.de>
-Message-ID: <Pine.BSO.4.63.0607241012140.10018@rudy.mif.pg.gda.pl>
-References: <44C099D2.5030300@s5r6.in-berlin.de> <20060723112005.GA6815@martell.zuzino.mipt.ru>
- <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl> <200607232024.43237.mb@bu3sch.de>
- <Pine.BSO.4.63.0607240116020.10018@rudy.mif.pg.gda.pl>
- <Pine.BSO.4.63.0607240237030.10018@rudy.mif.pg.gda.pl> <44C47ECF.5090500@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1752661355-1153731124=:10018"
+	Mon, 24 Jul 2006 04:56:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:60891 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751017AbWGXI4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 04:56:51 -0400
+Date: Mon, 24 Jul 2006 01:55:49 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       jeff@garzik.org, adobriyan@gmail.com, vlobanov@speakeasy.net,
+       getshorty_@hotmail.com, pwil3058@bigpond.net.au, mb@bu3sch.de,
+       penberg@cs.helsinki.fi, stefanr@s5r6.in-berlin.de, larsbj@gullik.net
+Subject: Re: [RFC][PATCH] A generic boolean (version 4)
+Message-Id: <20060724015549.c4294b05.pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	<1153669750.44c39a7607a30@portal.student.luth.se>
+	<Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Jan wrote:
+> Can someone please tell me what advantage 'define true true' is going to
+> bring, besides than being able to '#ifdef true'?
 
---0-1752661355-1153731124=:10018
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+I think Jeff's replies to this are a tad confusing.  He seems
+to be answering in part with the broader point of the value of
+increased type checking using enums, and not focusing on the
+specific reason these two defines of true and false are there.
 
-On Mon, 24 Jul 2006, Stefan Richter wrote:
-[..]
->> IMO it is sill possible add general rule "allways use Lindent" because
->> indent can be dissabled/enabled aroud code inccorectly formated by add
->> control comments like:
->>
->> /* *INDENT-OFF* */
->> /* *INDENT-ON* */
->>
->> If it will be widely used probably it will allow better identify some
->> indent problems.
->
-> IMHO: Write code for cpp, cc, as --- but not for any other
-> processor-de-jour. All those processors (formatters, checkers etc.) are
-> fine to *inspect* code for formal or semantic problems. But this should
-> not lead to thousands more or less obscure processor keywords sprinkled
-> all over the sources --- bloating them and making them confusing.
+As best as I can tell, these two odd looking defines are just to
+suppress #define alternative's to our enum based false and true
+constructs, in the likely case that the alternatives are guarded
+with the usual #ifndef logic.
 
-*If* it will be allowed by some kind of coding style rules IMO use indent 
-control comments will be good use *only* for files (not for piece of 
-files) for mark by subsystem maintainer "don't touch this using formaters 
-without inform me". IMO allow formating only below main level Linux kernel 
-developers (read: below Linus & close co. :) will only make this process 
-longer (read: less effective). Time neccessary for make progress from 
-current ~10% to ~90% is in this case very importand (will allow cut amount
-of flames ;).
+In other words, their advantage is basically what you said, being
+able to '#ifdef true' (or #ifndef).
 
-Finally probably best will be good add point in release procedure 
-something like: "use on whole tree Lindent and commit changes before bump 
-to final release". Only first this kind patch will be very huge. All other
-will be small or very small.
+As I recommend in another subthread, these two defines need a comment.
 
-IMO for good start for above will be send to all Linux maintainers kind 
-plain message for try review changes produced by Lindent (by add to 
-announce message small comment about this). Only after this IMO it will be 
-possible good disscuss on current indend rules.
+And since there is only one "#ifndef true" left in the entire kernel
+source tree, in drivers/media/video/cpia2/cpia2.h, I would think it
+would be better to just remove those lines from cpia2.h, and drop
+these two odd looking defines.
 
-Anyway .. disscuss on subject without this people will be pointless.
-
-I'll try to monitor diffstat for each next release and generate
-kind of "status: using Lindent on curent Linux tree". Probably 
-this can help on using indent on Linux tree.
-
-kloczek
 -- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---0-1752661355-1153731124=:10018--
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

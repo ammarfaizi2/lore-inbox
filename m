@@ -1,75 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWGXIzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWGXIwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWGXIzG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 04:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWGXIzG
+	id S1750996AbWGXIwL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 04:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWGXIwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 04:55:06 -0400
-Received: from mail.gmx.de ([213.165.64.21]:11949 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750993AbWGXIzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 04:55:04 -0400
-X-Authenticated: #428038
-Date: Mon, 24 Jul 2006 10:54:55 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060724085455.GD24299@merlin.emma.line.org>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
-	Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-	LKML <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com>
+	Mon, 24 Jul 2006 04:52:11 -0400
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:63935 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S1750800AbWGXIwK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 04:52:10 -0400
+Date: Mon, 24 Jul 2006 10:52:04 +0200 (CEST)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+cc: Michael Buesch <mb@bu3sch.de>, linux-kernel@vger.kernel.org,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: Lindent cleanup (was Re: [PATCH] drivers: Conversions from
+ kmalloc+memset to k(z|c)alloc.)
+In-Reply-To: <44C47ECF.5090500@s5r6.in-berlin.de>
+Message-ID: <Pine.BSO.4.63.0607241012140.10018@rudy.mif.pg.gda.pl>
+References: <44C099D2.5030300@s5r6.in-berlin.de> <20060723112005.GA6815@martell.zuzino.mipt.ru>
+ <Pine.BSO.4.63.0607231929350.10018@rudy.mif.pg.gda.pl> <200607232024.43237.mb@bu3sch.de>
+ <Pine.BSO.4.63.0607240116020.10018@rudy.mif.pg.gda.pl>
+ <Pine.BSO.4.63.0607240237030.10018@rudy.mif.pg.gda.pl> <44C47ECF.5090500@s5r6.in-berlin.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C44622.9050504@namesys.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1752661355-1153731124=:10018"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jul 2006, Hans Reiser wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> I want reiserfs to be the filesystem that professional system
-> administrators view as the one with both the fastest technological pace,
-> and the most conservative release management.
+--0-1752661355-1153731124=:10018
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-Well, I, with the administrator hat on, phased out all reiserfs file
-systems and replaced them by ext3. This got me rid of silent
-corruptions, immature reiserfsprogs and hash collision chain limits.
+On Mon, 24 Jul 2006, Stefan Richter wrote:
+[..]
+>> IMO it is sill possible add general rule "allways use Lindent" because
+>> indent can be dissabled/enabled aroud code inccorectly formated by add
+>> control comments like:
+>>
+>> /* *INDENT-OFF* */
+>> /* *INDENT-ON* */
+>>
+>> If it will be widely used probably it will allow better identify some
+>> indent problems.
+>
+> IMHO: Write code for cpp, cc, as --- but not for any other
+> processor-de-jour. All those processors (formatters, checkers etc.) are
+> fine to *inspect* code for formal or semantic problems. But this should
+> not lead to thousands more or less obscure processor keywords sprinkled
+> all over the sources --- bloating them and making them confusing.
 
-> I apologize to users  that the technology required a 5 year gap between
-> releases.   It just did, an outsider may not realize how deep the
-> changes we made were.  Things like per node locking based on a whole new
-> approach to tree locking that goes bottom up instead of the usual top
-> down are big tasks.    Dancing trees are a big change, getting rid of
-> blobs is a big change, wandering logs.....  We did a lot of things like
-> that, and got very fortunate with them.  If we had tried to add such
-> changes to V3, the code would have been unstable the whole 5 years, and
-> would not have come out right.
+*If* it will be allowed by some kind of coding style rules IMO use indent 
+control comments will be good use *only* for files (not for piece of 
+files) for mark by subsystem maintainer "don't touch this using formaters 
+without inform me". IMO allow formating only below main level Linux kernel 
+developers (read: below Linus & close co. :) will only make this process 
+longer (read: less effective). Time neccessary for make progress from 
+current ~10% to ~90% is in this case very importand (will allow cut amount
+of flames ;).
 
-And that is something that an administrator does not care the least
-about. It must simply work, and the tools must simply work. Once I hit
-issues like "xfs_check believes / were mounted R/W (not ignoring rootfs)
-and refuses the R/O check", "reiserfsck can't fix a R/O file system"
-(I believed this one got fixed before 3.6.19) or particularly silent
-corruptions that show up later in a routine fsck --check after a kernel
-update, the filesystem and its tools appear in a bad light. I've never
-had such troubles with ext2fs or ext3fs or FreeBSD's or Solaris's ufs.
+Finally probably best will be good add point in release procedure 
+something like: "use on whole tree Lindent and commit changes before bump 
+to final release". Only first this kind patch will be very huge. All other
+will be small or very small.
 
-I'm not sure what patches Chris added to SUSE's reiserfs, nor do I care
-any more. The father declared his child unsupported, and that's the end
-of the story for me. There's nothing wrong about focusing on newer code,
-but the old code needs to be cared for, too, to fix remaining issues
-such as the "can only have N files with the same hash value". (I am well
-aware this is exploiting worst-case behavior in a malicious sense but I
-simply cannot risk such nonsense on a 270 GB RAID5 if users have shared
-work directories.)
+IMO for good start for above will be send to all Linux maintainers kind 
+plain message for try review changes produced by Lindent (by add to 
+announce message small comment about this). Only after this IMO it will be 
+possible good disscuss on current indend rules.
 
+Anyway .. disscuss on subject without this people will be pointless.
+
+I'll try to monitor diffstat for each next release and generate
+kind of "status: using Lindent on curent Linux tree". Probably 
+this can help on using indent on Linux tree.
+
+kloczek
 -- 
-Matthias Andree
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--0-1752661355-1153731124=:10018--

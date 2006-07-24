@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWGXNFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWGXNH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWGXNFT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 09:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWGXNFT
+	id S932139AbWGXNH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 09:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWGXNH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 09:05:19 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:59589 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932141AbWGXNFS (ORCPT
+	Mon, 24 Jul 2006 09:07:29 -0400
+Received: from sophia.inria.fr ([138.96.64.20]:23714 "EHLO sophia.inria.fr")
+	by vger.kernel.org with ESMTP id S932139AbWGXNH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 09:05:18 -0400
-Date: Mon, 24 Jul 2006 15:04:58 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/3] kconfig/lxdialog: add support for color themes and add blackbg theme
-Message-ID: <20060724130458.GA23210@mars.ravnborg.org>
-References: <20060724113641.GA22806@mars.ravnborg.org> <20060724113833.GC22806@mars.ravnborg.org> <Pine.LNX.4.64.0607241424360.6762@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607241424360.6762@scrub.home>
-User-Agent: Mutt/1.5.11
+	Mon, 24 Jul 2006 09:07:28 -0400
+Message-ID: <44C4C559.4090101@yahoo.fr>
+Date: Mon, 24 Jul 2006 15:04:25 +0200
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Proposal and plan for ext2/3 future development work
+References: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+In-Reply-To: <E1Fvjsh-0008Uw-85@candygram.thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (sophia.inria.fr [138.96.64.20]); Mon, 24 Jul 2006 15:04:26 +0200 (MEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24, 2006 at 02:25:32PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 24 Jul 2006, Sam Ravnborg wrote:
-> 
-> > +static int set_color_theme(const char *theme)
-> > +{
-> > +	int use_color = 1;
-> > +	if (!strncasecmp (theme, "blackbg", sizeof("blackbg")))
-> > +		set_blackbg_theme();
-> > +	else if (!strncasecmp(theme, "mono", sizeof("mono")))
-> > +		use_color = 0;
-> > +	return use_color;
-> > +}
-> 
-> This segfaults if MENUCONFIG_COLOR isn't set.
-Thanks - will fix. I expected str* to be NULL safe...
+Theodore Ts'o wrote:
+> 3) The ext4 code base will continue to mount older ext3 filesystems,
 
-	Sam
+Everybody seems enthusiastic about this plan so I must have missed 
+something, but
+how will this compatibility prevent the ext4 code from looking like: 'if 
+(ext4) { ... } else { /* ext3 */ ... }'?
+
+Regards.
+
+-- 
+Guillaume
+

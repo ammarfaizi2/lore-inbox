@@ -1,190 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWGXSNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWGXSWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWGXSNU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWGXSNU
+	id S932259AbWGXSWV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWGXSWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:13:20 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:24493 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932284AbWGXSNS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:13:18 -0400
-Date: Mon, 24 Jul 2006 11:13:09 -0700
-From: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-To: akpm@osdl.org
-Cc: achirica@gmail.com, hch@infradead.org, linville@tuxdriver.com,
-       "David C. Hansen" <haveblue@us.ibm.com>, serue@us.ibm.com,
-       clr@fr.ibm.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread: airo.c
-Message-ID: <20060724181309.GA23938@us.ibm.com>
-References: <20060713205319.GA23594@us.ibm.com>
+	Mon, 24 Jul 2006 14:22:21 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:41117 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932259AbWGXSWU (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 14:22:20 -0400
+Message-Id: <200607241822.k6OIMJcY014229@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what is necessary for directory hard links
+In-Reply-To: Your message of "Mon, 24 Jul 2006 09:21:04 PDT."
+             <bda6d13a0607240921x78049eefraae775e4c6c0ba5c@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <6ARGK-19L-5@gated-at.bofh.it> <6B8og-1iB-17@gated-at.bofh.it> <E1G4Kpi-0001Os-AK@be1.lrz> <bda6d13a0607221113s7e583492x783651eb9613b87f@mail.gmail.com> <17604.27801.796726.164279@gargle.gargle.HOWL> <200607240725.k6O7PTp1012347@turing-police.cc.vt.edu>
+            <bda6d13a0607240921x78049eefraae775e4c6c0ba5c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060713205319.GA23594@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Type: multipart/signed; boundary="==_Exmh_1153765339_3460P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Jul 2006 14:22:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sukadev Bhattiprolu [sukadev@us.ibm.com] wrote:
+--==_Exmh_1153765339_3460P
+Content-Type: text/plain; charset=us-ascii
 
-| Andrew,
-| 
-| Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
-| took a look at this patch, and doesn't have any problems with it. It doesn't
-| fix any bugs and is just a cleanup, so it certainly isn't a candidate
-| for this mainline cycle
+On Mon, 24 Jul 2006 09:21:04 PDT, Joshua Hudson said:
+> On 7/24/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
 
-Here is the same patch, merged up to 2.6.18-rc2. Christoph's patch (see
-http://lkml.org/lkml/2006/7/13/332) still applies cleanly on top of this.
+> Actually, I walk from the source inode down to try to find the
+> target inode. If not found, this is not attempting to create a loop.
 
------
-The airo driver is currently caching a pid for later use, but with the
-implementation of containers, pids themselves do not uniquely identify
-a task. The driver is also using kernel_thread() which is deprecated in
-drivers.
+The problem is that the "target inode" may not be the one obviously causing the
+loop - you may be trying to link a directory into a/b/c, while the loop
+is caused by a link from a/b/c/d/e/f/g back up to someplace.
 
-This patch essentially replaces the kernel_thread() with kthread_create().
-It also stores the task_struct of the airo_thread rather than its pid.
-Since this introduces a second task_struct in struct airo_info, the patch
-renames airo_info.task to airo_info.list_bss_task.
+Consider:
 
-As an extension of these changes, the patch further:
+function mkdir_tree(foo) {
+for i=1,3 do
+  for j=1,3 do
+   for k=1,3 do
+	mkdir ${foo}/a${i}/b${j}/c${k}
+}
 
-         - replaces kill_proc() with kthread_stop()
-         - replaces signal_pending() with kthread_should_stop()
-	 - removes thread completion synchronisation which is handled by
-	   kthread_stop().
+mkdir_tree(x)
+mkdir_tree(y)
+mkdir_tree(z)
 
-Signed-off-by: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: Javier Achirica <achirica@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: John Linville <linville@tuxdriver.com>
+ln x/a2/b3/c3/d1 y
+ln x/a1/b3/c3/d2 y
+ln y/a1/b1/c3/d1 z
+ln y/a1/b1/c2/d2 z
+ln y/a1/b2/c1/d3 z
 
- drivers/net/wireless/airo.c |   38 +++++++++++++++-----------------------
- 1 files changed, 15 insertions(+), 23 deletions(-)
+Now - ln z/a3/b1/c3/d1 x - how many directories do you need to
+examine to tell if this is a loop?  Is it still a loop if I rm z/d1 first?
+or z/d2? or do I need to remove z/d1 through z/d3 to prevent a loop?
+Can I leave z/d1 there but remove y/a1/b2/c3/d1 instead?
+Does your answer change if somebody did 'ln y/a1/b2/c4 z/a1/b3/d7'?
 
-Index: linux-2.6.18-rc1-mm2/drivers/net/wireless/airo.c
-===================================================================
---- linux-2.6.18-rc1-mm2.orig/drivers/net/wireless/airo.c	2006-07-14 14:04:01.000000000 -0700
-+++ linux-2.6.18-rc1-mm2/drivers/net/wireless/airo.c	2006-07-20 19:44:50.000000000 -0700
-@@ -47,6 +47,7 @@
- #include <linux/pci.h>
- #include <asm/uaccess.h>
- #include <net/ieee80211.h>
-+#include <linux/kthread.h>
- 
- #include "airo.h"
- 
-@@ -1187,11 +1188,10 @@ struct airo_info {
- 			int whichbap);
- 	unsigned short *flash;
- 	tdsRssiEntry *rssi;
--	struct task_struct *task;
-+	struct task_struct *list_bss_task;
-+	struct task_struct *airo_thread_task;
- 	struct semaphore sem;
--	pid_t thr_pid;
- 	wait_queue_head_t thr_wait;
--	struct completion thr_exited;
- 	unsigned long expires;
- 	struct {
- 		struct sk_buff *skb;
-@@ -1736,9 +1736,9 @@ static int readBSSListRid(struct airo_in
- 		issuecommand(ai, &cmd, &rsp);
- 		up(&ai->sem);
- 		/* Let the command take effect */
--		ai->task = current;
-+		ai->list_bss_task = current;
- 		ssleep(3);
--		ai->task = NULL;
-+		ai->list_bss_task = NULL;
- 	}
- 	rc = PC4500_readrid(ai, first ? ai->bssListFirst : ai->bssListNext,
- 			    list, ai->bssListRidLen, 1);
-@@ -2400,8 +2400,7 @@ void stop_airo_card( struct net_device *
- 		clear_bit(FLAG_REGISTERED, &ai->flags);
- 	}
- 	set_bit(JOB_DIE, &ai->jobs);
--	kill_proc(ai->thr_pid, SIGTERM, 1);
--	wait_for_completion(&ai->thr_exited);
-+	kthread_stop(ai->airo_thread_task);
- 
- 	/*
- 	 * Clean out tx queue
-@@ -2811,9 +2810,8 @@ static struct net_device *_init_airo_car
- 	ai->config.len = 0;
- 	ai->pci = pci;
- 	init_waitqueue_head (&ai->thr_wait);
--	init_completion (&ai->thr_exited);
--	ai->thr_pid = kernel_thread(airo_thread, dev, CLONE_FS | CLONE_FILES);
--	if (ai->thr_pid < 0)
-+	ai->airo_thread_task = kthread_run(airo_thread, dev, dev->name);
-+	if (IS_ERR(ai->airo_thread_task))
- 		goto err_out_free;
- 	ai->tfm = NULL;
- 	rc = add_airo_dev( dev );
-@@ -2930,8 +2928,7 @@ err_out_unlink:
- 	del_airo_dev(dev);
- err_out_thr:
- 	set_bit(JOB_DIE, &ai->jobs);
--	kill_proc(ai->thr_pid, SIGTERM, 1);
--	wait_for_completion(&ai->thr_exited);
-+	kthread_stop(ai->airo_thread_task);
- err_out_free:
- 	free_netdev(dev);
- 	return NULL;
-@@ -3063,13 +3060,7 @@ static int airo_thread(void *data) {
- 	struct airo_info *ai = dev->priv;
- 	int locked;
- 	
--	daemonize("%s", dev->name);
--	allow_signal(SIGTERM);
--
- 	while(1) {
--		if (signal_pending(current))
--			flush_signals(current);
--
- 		/* make swsusp happy with our thread */
- 		try_to_freeze();
- 
-@@ -3097,7 +3088,7 @@ static int airo_thread(void *data) {
- 						set_bit(JOB_AUTOWEP, &ai->jobs);
- 						break;
- 					}
--					if (!signal_pending(current)) {
-+					if (!kthread_should_stop()) {
- 						unsigned long wake_at;
- 						if (!ai->expires || !ai->scan_timeout) {
- 							wake_at = max(ai->expires,
-@@ -3109,7 +3100,7 @@ static int airo_thread(void *data) {
- 						schedule_timeout(wake_at - jiffies);
- 						continue;
- 					}
--				} else if (!signal_pending(current)) {
-+				} else if (!kthread_should_stop()) {
- 					schedule();
- 					continue;
- 				}
-@@ -3154,7 +3145,8 @@ static int airo_thread(void *data) {
- 		else  /* Shouldn't get here, but we make sure to unlock */
- 			up(&ai->sem);
- 	}
--	complete_and_exit (&ai->thr_exited, 0);
-+
-+	return 0;
- }
- 
- static irqreturn_t airo_interrupt ( int irq, void* dev_id, struct pt_regs *regs) {
-@@ -3235,8 +3227,8 @@ static irqreturn_t airo_interrupt ( int 
- 			if(newStatus == ASSOCIATED || newStatus == REASSOCIATED) {
- 				if (auto_wep)
- 					apriv->expires = 0;
--				if (apriv->task)
--					wake_up_process (apriv->task);
-+				if (apriv->list_bss_task)
-+					wake_up_process(apriv->list_bss_task);
- 				set_bit(FLAG_UPDATE_UNI, &apriv->flags);
- 				set_bit(FLAG_UPDATE_MULTI, &apriv->flags);
- 
+How many places would you have to look if I didn't give you a cheat sheet
+of the ln commands I had done?  Yes, you have to search *every* directory
+under x, y, and z.  All 120 of them.  And this is an artificially small
+directory tree.  Think about a /usr/src/ that has 4 or 5 linux-kernel
+trees in it, with some 1,650 directories per tree...
+
+> Should be obvious that the average case is much less than the
+> whole tree.
+
+"The average case" is the one where the feature isn't used.  When you
+actually *use* it, you get "not average case" behavior - not a good sign.
+
+> > to screw things up (is 'mv a/b/c/d ../../w/z/b' safe? How do you know, without
+> > examining a *lot* of stuff under a/ and ../../w/?
+> 
+> mv /a/b/c/d ../../w/z/b is implemented as this in the filesystem:
+> ln /a/b/c/d ../../w/z/b && rm /a/b/c/d
+> 
+> So what it's going to do is try to find z under /a/b/c/d.
+
+Even if that's sufficient (which it isn't), it's going to be painful to lock
+the filesystem for 20 or 30 seconds while you walk everything to make sure
+there's no problem.  
+
+
+--==_Exmh_1153765339_3460P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFExQ/bcC3lWbTT17ARAvXOAKCsB7YB8nSbE0HaGNKkQB6eA4oEdwCdEcD4
+O6TAZN3lE/+By00RhYH71KY=
+=8NMz
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153765339_3460P--

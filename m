@@ -1,69 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWGXRIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWGXRPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWGXRIH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWGXRIH
+	id S932222AbWGXRPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWGXRPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:08:07 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:43214 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932221AbWGXRIG
+	Mon, 24 Jul 2006 13:15:13 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:3200 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932222AbWGXRPL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:08:06 -0400
-Date: Mon, 24 Jul 2006 07:55:15 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: yunfeng zhang <zyf.zeroos@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Improvement on memory subsystem
-In-Reply-To: <4df04b840607240201l19f95f8cu12dca42de71dba69@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0607240752050.8221@qynat.qvtvafvgr.pbz>
-References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
- <4df04b840607240201l19f95f8cu12dca42de71dba69@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 24 Jul 2006 13:15:11 -0400
+Subject: Re: [Patch] statistics infrastructure - update 10
+From: Martin Peschke <mp3@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060713074306.22e13848.akpm@osdl.org>
+References: <1152707259.3028.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	 <20060712091024.c5bd19c7.akpm@osdl.org>
+	 <1152722709.3028.28.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+	 <20060713010004.63215f02.akpm@osdl.org> <44B62A9B.7000707@de.ibm.com>
+	 <20060713074306.22e13848.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 24 Jul 2006 19:15:04 +0200
+Message-Id: <1153761304.2986.130.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006, yunfeng zhang wrote:
+On Thu, 2006-07-13 at 07:43 -0700, Andrew Morton wrote:
+> On Thu, 13 Jul 2006 13:12:27 +0200
+> Martin Peschke <mp3@de.ibm.com> wrote:
+> 
+> > > I'd suggest that you:
+> > > 
+> > > - Create a new __alloc_percpu_mask(size_t size, cpumask_t cpus)
+> > > 
+> > > - Make that function use your newly added
+> > > 
+> > > 	percpu_data_populate(struct percpu_data *p, int cpu, size_t size, gfp_t gfp);
+> > > 
+> > > 	(maybe put `size' into 'struct percpu_data'?)
+> > > 
+> > > - implement __alloc_percpu() as __alloc_percpu_mask(size, cpu_possible_map)
+> > 
+> > Getting at the root of the problem. I will have a shot at it.
+> > (It will take til next week, though - pretty warm outside...)
+> > 
+> > A question:
+> > For symmetry's sake, should I add __free_percpu_mask(), which would
+> > put NULL where __alloc_percpu_mask() has put a valid address earlier?
+> > Otherwise, per_cpu_ptr() would return !NULL for an object released
+> > during cpu hotunplug handling.
+> > Or, is this not an issue because some cpu mask indicates that the cpu
+> > is offline anyway, and that the contents of the pointer is not valid.
+> 
+> Sure, we need a way of freeing a cpu's storage and of zapping that CPU's
+> slot.  Whether that's mask-based or just operates on a single CPU is
+> debatable.  Probably the latter, given the do-it-at-hotplug-time usage
+> model.
 
-> How to let memory subsystem allocate bigger consecutive memory pages? In 
-> current
-> Linux, to driver programmer it's always failed to issue a request to 
-> alloc_pages
-> with a enough larger order parameter, or it's diffult to allocate a bigger
-> consecutive physical memory block.
->
-> The reason causing the problem, I think, are the items listed below
-> 1) Core space has a static mapping relationship with physical memory pages. 
-> So
-> once a core page is allocated, its core address is also fixed, it prevents 
-> the
-> physical pages around it to conglomerate together.
-> 2) Current physical page management arithmetic is buddy arithmetic. The main
-> advantage of its is that pages managed by it is always aligned by 2 power. 
-> But,
-> is it necessary or there is any hardware which need physical memory pages
-> aligned by 2 or more power?
->
-> The solution is
-> 1) Using dynamic page mapping on core space. So we can move all core pages
-> freely anytime to conglomerate bigger consecutive memory pages, a new 
-> background
-> daemon thread -- RemapDaemon can do conglomeration periodly.
+My initial patch provides both (cpu-based and mask-based). I will remove
+one method if feedback seconds this assumption.
 
-this gets discussed periodicly, however the performance hit of doing the mapping 
-for all core memory accesses is something that the developers have not been 
-willing to accept.
+> It could be argued that the whole idea is wrong - that we're putting
+> restrictions upon the implementation of alloc_percpu().  After all, an
+> implementation at present could do
+> 
+> alloc_percpu(size):
+> 	size = roundup(size, L1_CACHE_SIZE);
+> 	ret = kmalloc(size*NR_CPUS + sizeof(int));
+> 	*(int *)ret = size;
+> 
+> per_cpu_ptr(ptr, cpu):
+> 	(void *)((int *)ptr + (*((int *)ptr) * cpu))
+> 
+> or whatever.  The API additions which are being proposed here make that
+> impossible.  Or at least, more complex and slower.
 
-> 2) Using another page management arithmetic instead of buddy, the minimum 
-> unit
-> of new arithmetic should be page. In fact, I think dlmalloc arithmetic is a 
-> good
-> candidate, it's also page conglomeration-affinity.
+I don't think so.
 
-experiment, if it's as good as you think it will be post the numbers an you will 
-get a lot of attention. quite a few people are working on the memory allocation 
-for various things, therea re a lot of useage patterns to balance (and avaid 
-pathalogical problems with).
+> Is it reasonable to assume that all implementations will, for all time,
+> include at least one layer of indirection?  After all, the above would be a
+> feasible implementation for non-NUMA SMP.  It's just as many derefs though.
 
-David Lang
+An enhanced API doesn't need to expose how per-cpu data is actually
+organised, i.e. struct percpu_data. That is, archs are still free to
+implement per-cpu data in different ways.
+
+The patch allows to make the dynamic allocation, or removal,
+respectively, of per-cpu data a two-stage process:
+
+a1) initial (partial) allocation
+a2) further population as needed (i.e. when CPU is coming online)
+
+b1) (partial) depopulation as needed (i.e. when CPU is going offline)
+b2) final removal
+
+If some arch-optimisation hindered changing objects at run time, well,
+a2) and b1 would be just NOPs, leaving all the work to a1) and b2). The
+performance of per_cpu_ptr() won't be affected, anyway.
+
+Does this address your qualms?
+
+> hmm.  1k of memory isn't much.  How much memory will all this _really_ save?
+
+1k for a single (sample) object doesn't sound that much.
+But how big will (statistic) ojects really be? I can't tell.
+And how many objects will be there? I don't know.
+
+'grep -r CPU_UP_PREPARE' indicates that there are people who are worried
+about memory consumption of (unused) per-cpu data.
+

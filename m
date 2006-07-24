@@ -1,38 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWGXQ2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWGXQ3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWGXQ2r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 12:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWGXQ2r
+	id S1751394AbWGXQ3u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 12:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWGXQ3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 12:28:47 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25521 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751394AbWGXQ2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 12:28:47 -0400
-Date: Mon, 24 Jul 2006 09:28:33 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] Add maintainer for memory management
-In-Reply-To: <1153744263.4002.75.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607240923290.24181@schroedinger.engr.sgi.com>
-References: <1153713707.4002.43.camel@localhost.localdomain> 
- <200607241413.52064.ak@suse.de> <1153744263.4002.75.camel@localhost.localdomain>
+	Mon, 24 Jul 2006 12:29:50 -0400
+Received: from lucidpixels.com ([66.45.37.187]:27349 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751394AbWGXQ3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 12:29:49 -0400
+Date: Mon, 24 Jul 2006 12:29:48 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34.internal.lan
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.17.[1-6] XFS Filesystem Corruption, Where is 2.6.17.7?
+Message-ID: <Pine.LNX.4.64.0607241224010.10896@p34.internal.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006, Steven Rostedt wrote:
+Beginning at 2.6.17 to 2.6.17.6, there is a serious XFS bug that results 
+in filesystem corruption, there was a 1 line bugfix patch that was 
+released recently and I was wondering when 2.6.17.7 would be released with 
+that patch?  It affected ALL my Linux machines (x86) running XFS and many 
+people on the XFS mailing list who upgraded to 2.6.17.  I understand when 
+there is a root exploit or DoS bug, the kernel is naturally patched by the 
+-stable team and a new version is released immediately.  Does filesystem 
+corruption not constitute an immediate new -stable release of the kernel?
 
-> OK, is there an actual maintainer for the mm code?  Andrew Morton might
-> be the best person to ask this to.  Perhaps if someone would like the
-> job and that person is capable, we can choose an official maintainer for
-> the mm part of the kernel.
-
-We all have specialities and Andrew is the Czar over all of this. I 
-always though that the mm tree is there and named that way because Andrew 
-*is* in effect the mm maintainer although he seem to keep getting 
-distracted by lots of other stuff.
 

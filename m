@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWGXKcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWGXKgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWGXKcy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 06:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWGXKcy
+	id S932113AbWGXKgI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 06:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWGXKgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 06:32:54 -0400
-Received: from mail.gmx.de ([213.165.64.21]:43992 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932104AbWGXKcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 06:32:53 -0400
-X-Authenticated: #428038
-Date: Mon, 24 Jul 2006 12:32:50 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060724103250.GB26553@merlin.emma.line.org>
-Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
-	Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org> <20060724084133.GC24299@merlin.emma.line.org> <44C48043.7010708@namesys.com>
+	Mon, 24 Jul 2006 06:36:08 -0400
+Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:18564
+	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S932110AbWGXKgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 06:36:07 -0400
+Message-ID: <44C4A293.8090207@lsrfire.ath.cx>
+Date: Mon, 24 Jul 2006 12:36:03 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C48043.7010708@namesys.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+To: Tomasz Torcz <zdzichu@irc.pl>
+CC: linux-kernel@vger.kernel.org, git@vger.kernel.org,
+       Junio C Hamano <junkio@cox.net>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Can't clone Linus tree
+References: <20060724080752.GA8716@irc.pl> <44C4992E.3070706@lsrfire.ath.cx>
+In-Reply-To: <44C4992E.3070706@lsrfire.ath.cx>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006, Hans Reiser wrote:
+> Tomasz Torcz schrieb:
+>> %  git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git linux-git
+>> fatal: packfile '/home/zdzichu/linux-git/.git/objects/pack/tmp-1jI4AH' SHA1 mismatch
+>> error: git-fetch-pack: unable to read from git-index-pack
+>> error: git-index-pack died with error code 128
+>> fetch-pack from 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git' failed.
 
-> I mean, god, sometimes I think users are like little children waiting
-> for the pie that is in the oven and who want to take it out now before
-> it finishes cooking so they can eat it, and they are very angry about
-> it, and I should just understand that and not try to reason with it (but
-> also not give them the pie before it finishes cooking either).   Someone
-> please tell me I don't understand the users and it all makes more sense
-> than that, please....
+Ah, I just saw this is a known problem and there's a patch by
+Matthias Lederhofer, which Junio just accepted, I think (the
+mail with subject "[PATCH] upload-pack: fix timeout in
+create_pack_file)" on the git mailing list.
 
-namesys.com doesn't list reiserfs 3.6 hash collision limits in an easy
-to find place (which would be the same place that boasts about 100,000
-files per directory if it wants to be honest).
+The problem is apparently that the server expects you (wrongly)
+to finish your download session within ten minutes.  Until the
+server is fixed you can use rsync:// for the initial clone and
+git:// for smaller updates.
 
-> No code before its time.  No features in stable branches.  Wait for it. 
-> Stop complaining about how you are abandoned, we are working hard.  It's
-> going to be the best pie ever.  Wait for it.
-
-I'm not going to eat it while it's still steaming and fogging my glasses.
-
-You're now making the same noise about how good reiser4 is that was made
-when reiserfs 3.5 was a patch for Linux 2.2 and that wedged local access
-when NFS exported, and 3.6 didn't fix the hash collision issue (but
-required a format change, too, right).
-
--- 
-Matthias Andree
+René

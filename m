@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWGXVaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWGXVvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWGXVaM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 17:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWGXVaM
+	id S932261AbWGXVvr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 17:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWGXVvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 17:30:12 -0400
-Received: from main.gmane.org ([80.91.229.2]:41961 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751457AbWGXVaL (ORCPT
+	Mon, 24 Jul 2006 17:51:47 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:17937 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S932261AbWGXVvq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 17:30:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Johannes Engel <j-engel@gmx.de>
-Subject: Re: [PATCH] Integrate asus_acpi LED's with new LED subsystem
-Date: Mon, 24 Jul 2006 23:24:53 +0200
-Message-ID: <ea3dr9$q5t$1@sea.gmane.org>
-References: <20060706193157.GC14043@phoenix> <20060706154930.1a8fbad5.akpm@osdl.org> <20060707012025.GB8900@phoenix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+	Mon, 24 Jul 2006 17:51:46 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: Debugging APM - cat /proc/apm produces oops
+Date: Mon, 24 Jul 2006 23:51:37 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <200607231630.53968.linux@rainbow-software.org> <20060724010658.687e78be.sfr@canb.auug.org.au>
+In-Reply-To: <20060724010658.687e78be.sfr@canb.auug.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dslb-084-060-106-177.pools.arcor-ip.net
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
-In-Reply-To: <20060707012025.GB8900@phoenix>
+Content-Disposition: inline
+Message-Id: <200607242351.37578.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Tuttle schrieb:
-> Here is a patch to the asus_acpi driver that links the Asus laptop LED's
-> into the new LED subsystem.  It creates LED class devices named
-> asus:mail, asus:wireless, and asus:touchpad, depending on if the laptop
-> supports the mled, wled, and tled LED's.
-> 
-> Since it's so new, I added a config option to turn it on and off.  It's
-> worked for me, though I have an Asus M2N, which only has the mail and
-> wireless LED's.
-> 
-> Signed-off-by: Thomas Tuttle <thinkinginbinary@gmail.com>
-> 
-> 
-> I believe I've fixed everything you asked about, plus a few things
-> Richard Purdie (the LED subsystem guy) suggested.
-> 
-Thanks, Thomas, for your patch. It works well for me (ASUS V6V).
-There is only one thing I want to remark: Since the most recent BIOS
-ASUS changed the behaviour of the touchpad LED, it is inverted now.
-Until now I got around this in userspace (adapting the handler script).
-But with the new led class it seems to me, we will have to deal with
-that in the kernel module.
-My suggestion is a new flag (tled_inv) which has to be set for every
-model (always use most recent BIOS). What do you think about this?
+On Sunday 23 July 2006 17:06, Stephen Rothwell wrote:
+> On Sun, 23 Jul 2006 16:30:53 +0200 Ondrej Zary <linux@rainbow-software.org> 
+wrote:
 
-Greetings, Johannes
+> >  printing eip:
+> > 00002f9d
+> > *pre = 00000000
+> > Oops: 0002 [#4]
+> > Modules linked in:
+> > CPU:    0
+> > EIP:    00c0:[<00002f9d>]    Not tainted VLI
+>
+>           ^^^^
+> This is the APM BIOS 16 bit code segment.
 
+Looking at BIOS disassembly:
+2F97: push bp
+2F98: mov bp,sp
+2F9A: add sp,-2
+2F9D: mov [bp][-2],bx    <-- it oopses here
+
+I realized that I can modify the BIOS easily as it's stored in shadow RAM. So 
+I replaced the offending MOV with three NOPs and tested again. This time it 
+oopsed at 0x2FAD:
+2FAD: cmp w,[bp][-2],1
+2FB1: je 2FCB
+
+that jump was taken during my single stepping, so I NOPped out the CMP and 
+replaced JE with JMPS. Then booted Linux and APM seems to work fine - battery 
+percentage and remaining time is there as well as AC power status.
+There seems to be 4 these operations:
+mov [bp][-2],bx
+cmp w,[bp][-2],1
+cmp w,[bp][-2],8002
+cmp w,[bp][-2],8001
+but I've hit only the first two of them. I wonder what's that for (especially 
+when it works without that).
+
+-- 
+Ondrej Zary

@@ -1,114 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWGXRPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWGXRPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWGXRPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWGXRPN
+	id S932223AbWGXRPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWGXRPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:15:13 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:3200 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932222AbWGXRPL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:15:11 -0400
-Subject: Re: [Patch] statistics infrastructure - update 10
-From: Martin Peschke <mp3@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060713074306.22e13848.akpm@osdl.org>
-References: <1152707259.3028.7.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	 <20060712091024.c5bd19c7.akpm@osdl.org>
-	 <1152722709.3028.28.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
-	 <20060713010004.63215f02.akpm@osdl.org> <44B62A9B.7000707@de.ibm.com>
-	 <20060713074306.22e13848.akpm@osdl.org>
+	Mon, 24 Jul 2006 13:15:30 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:8073 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932223AbWGXRP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 13:15:28 -0400
+Subject: [PATCH -rt] Don't let raise_softirq_prio lower the prio (was: [RT]
+	rt priority losing)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <nielsen.esben@googlemail.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Duetsch, Thomas LDE1" <thomas.duetsch@siemens.com>
+In-Reply-To: <Pine.LNX.4.64.0607241854360.10471@localhost.localdomain>
+References: <1153755660.4002.137.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607241758420.10471@localhost.localdomain>
+	 <1153759042.11295.10.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607241854360.10471@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 24 Jul 2006 19:15:04 +0200
-Message-Id: <1153761304.2986.130.camel@dyn-9-152-230-71.boeblingen.de.ibm.com>
+Date: Mon, 24 Jul 2006 13:15:01 -0400
+Message-Id: <1153761301.11295.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-13 at 07:43 -0700, Andrew Morton wrote:
-> On Thu, 13 Jul 2006 13:12:27 +0200
-> Martin Peschke <mp3@de.ibm.com> wrote:
+On Mon, 2006-07-24 at 18:54 +0100, Esben Nielsen wrote:
+
+> >
+> > OK, you are right about this.  The PI chain should not be affected.  But
+> > this could still be a problem if the softirq was running at a high prio
+> > for a task when a lower prio callback needs to be made.  It looks like
+> > timer is removed from the base before the function runs.  So when the
+> > interrupt looks at the base to determine the priority to set it at, it
+> > might actually lower the priority of a running hrtimer thread.
+> >
 > 
-> > > I'd suggest that you:
-> > > 
-> > > - Create a new __alloc_percpu_mask(size_t size, cpumask_t cpus)
-> > > 
-> > > - Make that function use your newly added
-> > > 
-> > > 	percpu_data_populate(struct percpu_data *p, int cpu, size_t size, gfp_t gfp);
-> > > 
-> > > 	(maybe put `size' into 'struct percpu_data'?)
-> > > 
-> > > - implement __alloc_percpu() as __alloc_percpu_mask(size, cpu_possible_map)
-> > 
-> > Getting at the root of the problem. I will have a shot at it.
-> > (It will take til next week, though - pretty warm outside...)
-> > 
-> > A question:
-> > For symmetry's sake, should I add __free_percpu_mask(), which would
-> > put NULL where __alloc_percpu_mask() has put a valid address earlier?
-> > Otherwise, per_cpu_ptr() would return !NULL for an object released
-> > during cpu hotunplug handling.
-> > Or, is this not an issue because some cpu mask indicates that the cpu
-> > is offline anyway, and that the contents of the pointer is not valid.
-> 
-> Sure, we need a way of freeing a cpu's storage and of zapping that CPU's
-> slot.  Whether that's mask-based or just operates on a single CPU is
-> debatable.  Probably the latter, given the do-it-at-hotplug-time usage
-> model.
+> That is a simple bug which ought to be simple fixable.
 
-My initial patch provides both (cpu-based and mask-based). I will remove
-one method if feedback seconds this assumption.
+I guess the simple fix is not to allow the interrupt to lower the
+priority. But simple fixes do not always handle all the cases.
 
-> It could be argued that the whole idea is wrong - that we're putting
-> restrictions upon the implementation of alloc_percpu().  After all, an
-> implementation at present could do
-> 
-> alloc_percpu(size):
-> 	size = roundup(size, L1_CACHE_SIZE);
-> 	ret = kmalloc(size*NR_CPUS + sizeof(int));
-> 	*(int *)ret = size;
-> 
-> per_cpu_ptr(ptr, cpu):
-> 	(void *)((int *)ptr + (*((int *)ptr) * cpu))
-> 
-> or whatever.  The API additions which are being proposed here make that
-> impossible.  Or at least, more complex and slower.
+Thomas G., see any side effects with this patch?
 
-I don't think so.
+-- Steve
 
-> Is it reasonable to assume that all implementations will, for all time,
-> include at least one layer of indirection?  After all, the above would be a
-> feasible implementation for non-NUMA SMP.  It's just as many derefs though.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-An enhanced API doesn't need to expose how per-cpu data is actually
-organised, i.e. struct percpu_data. That is, archs are still free to
-implement per-cpu data in different ways.
+Index: linux-2.6.17-rt7/kernel/softirq.c
+===================================================================
+--- linux-2.6.17-rt7.orig/kernel/softirq.c	2006-07-24 13:08:53.000000000 -0400
++++ linux-2.6.17-rt7/kernel/softirq.c	2006-07-24 13:10:13.000000000 -0400
+@@ -108,7 +108,12 @@ static void wakeup_softirqd_prio(int sof
+ 	struct task_struct *tsk = __get_cpu_var(ksoftirqd[softirq].tsk);
+ 
+ 	if (tsk) {
+-		if (tsk->normal_prio != prio) {
++		/*
++		 * The lower the prio, the higher the priority.
++		 * This can only raise the priority but it can
++		 * not lower it.
++		 */
++		if (tsk->normal_prio > prio) {
+ 			struct sched_param param;
+ 
+ 			param.sched_priority = MAX_RT_PRIO-1 - prio;
 
-The patch allows to make the dynamic allocation, or removal,
-respectively, of per-cpu data a two-stage process:
-
-a1) initial (partial) allocation
-a2) further population as needed (i.e. when CPU is coming online)
-
-b1) (partial) depopulation as needed (i.e. when CPU is going offline)
-b2) final removal
-
-If some arch-optimisation hindered changing objects at run time, well,
-a2) and b1 would be just NOPs, leaving all the work to a1) and b2). The
-performance of per_cpu_ptr() won't be affected, anyway.
-
-Does this address your qualms?
-
-> hmm.  1k of memory isn't much.  How much memory will all this _really_ save?
-
-1k for a single (sample) object doesn't sound that much.
-But how big will (statistic) ojects really be? I can't tell.
-And how many objects will be there? I don't know.
-
-'grep -r CPU_UP_PREPARE' indicates that there are people who are worried
-about memory consumption of (unused) per-cpu data.
 

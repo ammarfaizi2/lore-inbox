@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWGXIIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWGXIJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWGXIIA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 04:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWGXIIA
+	id S932092AbWGXIJV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 04:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWGXIJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 04:08:00 -0400
-Received: from nsm.pl ([195.34.211.229]:45832 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S932091AbWGXIH7 (ORCPT
+	Mon, 24 Jul 2006 04:09:21 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:18617 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932093AbWGXIJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 04:07:59 -0400
-Date: Mon, 24 Jul 2006 10:07:52 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Can't clone Linus tree
-Message-ID: <20060724080752.GA8716@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 24 Jul 2006 04:09:20 -0400
+Message-ID: <44C48010.40603@sw.ru>
+Date: Mon, 24 Jul 2006 12:08:48 +0400
+From: Vasily Averin <vvs@sw.ru>
+Organization: SW-soft
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+CC: James.Bottomley@SteelEye.com, akpm@osdl.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Patro, Sumant" <Sumant.Patro@lsil.com>,
+       yang.bo@lsil.com
+Subject: Re: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capability
+ checker
+References: <890BF3111FB9484E9526987D912B261902CDA9@NAMAIL3.ad.lsil.com>
+In-Reply-To: <890BF3111FB9484E9526987D912B261902CDA9@NAMAIL3.ad.lsil.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ju, Seokmann wrote:
+> Hi,
+> With patch, the driver access PCIconfiguration space with dedicated 
+> offset to read a signature. If the signature read, it means that the 
+> controller has capability to handle 64-bit DMA. 
+> Without this patch, the driver blindly claimed 64-bit DMA capability
+> without checking with controller.
+> The issue has been reported by Vasily Averin. 
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> +	if (((magic64 == HBA_SIGNATURE_64_BIT) &&
+> +		(adapter->pdev->subsystem_device !=
+> +		PCI_SUBSYS_ID_MEGARAID_SATA_150_6)) ||
 
+I would note that I've reported about issue on SATA_150_4 device. I can also
+accept that similar patch fixes this issue.
 
- Hi,
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC && 
+> +		adapter->pdev->device == PCI_DEVICE_ID_VERDE) || 
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC && 
+> +		adapter->pdev->device == PCI_DEVICE_ID_DOBSON) || 
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_LSI_LOGIC && 
+> +		adapter->pdev->device == PCI_DEVICE_ID_LINDSAY) || 
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL && 
+> +		adapter->pdev->device == PCI_DEVICE_ID_PERC4_DI_EVERGLADES) || 
+> +		(adapter->pdev->vendor == PCI_VENDOR_ID_DELL && 
+> +		adapter->pdev->device == PCI_DEVICE_ID_PERC4E_DI_KOBUK)) {
 
- yesterdat I wanted to bisect my kernel problem, but failed at first step:
-cloning Linus' tree. Today I tried it on other system and also failed.
+Thank you,
+	Vasily Averin
 
- This is git-1.4.0 on Slackware, i586:
-
-%  git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2=
-=2E6.git linux-git
-fatal: packfile '/home/zdzichu/linux-git/.git/objects/pack/tmp-1jI4AH' SHA1=
- mismatch
-error: git-fetch-pack: unable to read from git-index-pack
-error: git-index-pack died with error code 128
-fetch-pack from 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/lin=
-ux-2.6.git' failed.
-
- And this is 1.4.0-1.fc5 on FC5, x86_64:
-% git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.=
-6.git linux-git
-fatal: packfile '/home/tomek/linux-git/.git/objects/pack/tmp-BxIcIC' SHA1 m=
-ismatch
-error: git-fetch-pack: unable to read from git-index-pack
-error: git-index-pack died with error code 128
-fetch-pack from 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/lin=
-ux-2.6.git' failed.
-
- Errors occur constantly since yesterday. They of course appear after
-downloading several megabytes of data, which is unpleasant on my 128kbps
-connection.
-
---=20
-Tomasz Torcz                 "God, root, what's the difference?"
-zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
-
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFExH/YThhlKowQALQRAgwdAKCz+I1zR6YCQK1p1oZqV0SVC8HJYACfZSu6
-NdcV//zigPrEOsKv7b2lXBk=
-=ioDu
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+SWsoft Virtuozzo/OpenVZ Linux kernel team

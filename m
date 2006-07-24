@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWGXO4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWGXPMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWGXO4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 10:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWGXO4b
+	id S1750944AbWGXPMF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 11:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWGXPMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 10:56:31 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:3760 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932199AbWGXO4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 10:56:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JHFGkCnroE4zI6lhBDqEnxf6X4PMCA3rHpuijSJQmlFwgw54cdVOjjfGcBnjlzTY7e7Y2xIWHYcYN3BgfPpyopvdArN5RcvoAJh0wlVJCIVEV3itvhHOwUvbcH9oaENAfoefHb7X2ijS7qWaiSDZSGpRz7MhRZLFFfUcpuYK3g8=
-Message-ID: <9a8748490607240756k75c3ceeepc110cdf216dd3e52@mail.gmail.com>
-Date: Mon, 24 Jul 2006 16:56:27 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Subject: Re: [PATCH] Add linux-mm mailing list for memory management in MAINTAINERS file
-Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Christoph Lameter" <clameter@sgi.com>, linux-mm@kvack.org,
-       "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-In-Reply-To: <1153751558.4002.112.camel@localhost.localdomain>
+	Mon, 24 Jul 2006 11:12:05 -0400
+Received: from amnesiac.heapspace.net ([195.54.228.42]:43015 "EHLO
+	amnesiac.heapspace.net") by vger.kernel.org with ESMTP
+	id S1750944AbWGXPME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 11:12:04 -0400
+Date: Mon, 24 Jul 2006 18:11:59 +0300
+From: Daniel Stone <daniel@fooishbar.org>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Magnus =?iso-8859-1?Q?Vigerl=F6f?= <wigge@bigfoot.com>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
+Message-ID: <20060724151159.GA5082@fooishbar.org>
+References: <20060721211341.5366.93270.sendpatchset@pipe> <200607212209.05254.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
 Content-Disposition: inline
-References: <1153713707.4002.43.camel@localhost.localdomain>
-	 <1153749795.23798.19.camel@lappy>
-	 <1153751558.4002.112.camel@localhost.localdomain>
+In-Reply-To: <200607212209.05254.dtor@insightbb.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24/07/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> Since I didn't know about the linux-mm mailing list until I spammed all
-> those that had their names anywhere in the mm directory, I'm sending
-> this patch to add the linux-mm mailing list to the MAINTAINERS file.
->
-> Also, since mm is so broad, it doesn't have a single person to maintain
-> it, and thus no maintainer is listed.  I also left the status as
-> Maintained, since it obviously is.
->
 
-How about having both the linux-mm list and linux-kernel listed?
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +MEMORY MANAGEMENT
-> +L:     linux-mm@kvack.org
-+L:     linux-kernel@vger.kernel.org
-> +S:     Maintained
-> +
+On Fri, Jul 21, 2006 at 10:09:04PM -0400, Dmitry Torokhov wrote:
+> On Friday 21 July 2006 17:13, Magnus Vigerl=F6f wrote:
+> > I'd appreciate whether you think this is a viable idea to make it as a
+> > generic driver instead or should I continue with the Wacom-specific
+> > one. I know the 'right' thing would be to make X truly hot-plug aware,
+> > but this driver is something that would be possible to use in current
+> > systems without any problems.
+> >=20
+>=20
+> Yes, I think fixing X would ultimately be time better spent.=20
 
+It's already mostly done, and should hopefully land for 7.2.  It's a
+neat concept, along the lines of /dev/input/mice, but the time for that
+kind of pathological braindamage is long gone.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Cheers,
+Daniel
+
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFExOM+RkzMgPKxYGwRArZyAJ0UHhjdbJeTWjDkdM2iGbjb09gRgQCfRaVH
+MrOBGRELyhscY2AWZ0lc+7g=
+=scxB
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--

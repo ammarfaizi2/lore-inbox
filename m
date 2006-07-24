@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWGXI4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWGXJBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWGXI4w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 04:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWGXI4w
+	id S1751029AbWGXJBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 05:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWGXJBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 04:56:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:60891 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751017AbWGXI4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 04:56:51 -0400
-Date: Mon, 24 Jul 2006 01:55:49 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       jeff@garzik.org, adobriyan@gmail.com, vlobanov@speakeasy.net,
-       getshorty_@hotmail.com, pwil3058@bigpond.net.au, mb@bu3sch.de,
-       penberg@cs.helsinki.fi, stefanr@s5r6.in-berlin.de, larsbj@gullik.net
-Subject: Re: [RFC][PATCH] A generic boolean (version 4)
-Message-Id: <20060724015549.c4294b05.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-	<1153669750.44c39a7607a30@portal.student.luth.se>
-	<Pine.LNX.4.61.0607231805210.26413@yvahk01.tjqt.qr>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 24 Jul 2006 05:01:54 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:50488 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751029AbWGXJBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 05:01:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g1tFDlPeDMHwsamZa+Zbf6DVxPAiHvA+ASFNtGEoFZThzc5zKI+Hnx0WW5OqARwiJ6QGey0p8j0Jy3EjdfmS3HZmFLG6Mc3+yJM7reXIvnnPp5D+ZjgySlLsCWWBRFBt6ZKVtQsuDXYHZf/7TtelXmllAQlvfeqmpQWj9E1qInY=
+Message-ID: <4df04b840607240201l19f95f8cu12dca42de71dba69@mail.gmail.com>
+Date: Mon, 24 Jul 2006 17:01:53 +0800
+From: "yunfeng zhang" <zyf.zeroos@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Improvement on memory subsystem
+In-Reply-To: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4df04b840607180303i3d8c8bd0o4d2a24752ec2e150@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan wrote:
-> Can someone please tell me what advantage 'define true true' is going to
-> bring, besides than being able to '#ifdef true'?
+How to let memory subsystem allocate bigger consecutive memory pages? In current
+Linux, to driver programmer it's always failed to issue a request to alloc_pages
+with a enough larger order parameter, or it's diffult to allocate a bigger
+consecutive physical memory block.
 
-I think Jeff's replies to this are a tad confusing.  He seems
-to be answering in part with the broader point of the value of
-increased type checking using enums, and not focusing on the
-specific reason these two defines of true and false are there.
+The reason causing the problem, I think, are the items listed below
+1) Core space has a static mapping relationship with physical memory pages. So
+once a core page is allocated, its core address is also fixed, it prevents the
+physical pages around it to conglomerate together.
+2) Current physical page management arithmetic is buddy arithmetic. The main
+advantage of its is that pages managed by it is always aligned by 2 power. But,
+is it necessary or there is any hardware which need physical memory pages
+aligned by 2 or more power?
 
-As best as I can tell, these two odd looking defines are just to
-suppress #define alternative's to our enum based false and true
-constructs, in the likely case that the alternatives are guarded
-with the usual #ifndef logic.
-
-In other words, their advantage is basically what you said, being
-able to '#ifdef true' (or #ifndef).
-
-As I recommend in another subthread, these two defines need a comment.
-
-And since there is only one "#ifndef true" left in the entire kernel
-source tree, in drivers/media/video/cpia2/cpia2.h, I would think it
-would be better to just remove those lines from cpia2.h, and drop
-these two odd looking defines.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+The solution is
+1) Using dynamic page mapping on core space. So we can move all core pages
+freely anytime to conglomerate bigger consecutive memory pages, a new background
+daemon thread -- RemapDaemon can do conglomeration periodly.
+2) Using another page management arithmetic instead of buddy, the minimum unit
+of new arithmetic should be page. In fact, I think dlmalloc arithmetic is a good
+candidate, it's also page conglomeration-affinity.

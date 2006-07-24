@@ -1,118 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWGXRWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWGXRWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWGXRWP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 13:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWGXRWO
+	id S932240AbWGXRWy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 13:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWGXRWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 13:22:14 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:11908 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932231AbWGXRWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 13:22:11 -0400
-Subject: [patch] inotify: fix deadlock found by lockdep
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       John McCutchan <john@johnmccutchan.com>, Andrew Morton <akpm@osdl.org>,
-       rml@novell.com, viro@zeniv.linux.org.uk
-In-Reply-To: <44C2C90B.6090108@reub.net>
-References: <20060713224800.6cbdbf5d.akpm@osdl.org>
-	 <44C2C90B.6090108@reub.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Jul 2006 19:21:10 +0200
-Message-Id: <1153761671.3043.89.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 24 Jul 2006 13:22:53 -0400
+Received: from outbound-fra.frontbridge.com ([62.209.45.174]:58518 "EHLO
+	outbound2-fra-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S932240AbWGXRWv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 13:22:51 -0400
+X-BigFish: V
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+Subject: [PATCH 4/4] [PATCH] gxfb: Add timings for the OLPC LCD
+Date: Mon, 24 Jul 2006 10:56:07 -0600
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
+       blizzard@redhat.com, dwmw2@redhat.com
+Message-ID: <20060724165607.18822.38609.stgit@cosmic.amd.com>
+In-Reply-To: <20060724165454.18822.30310.stgit@cosmic.amd.com>
+References: <20060724165454.18822.30310.stgit@cosmic.amd.com>
+User-Agent: StGIT/0.9
+X-OriginalArrivalTime: 24 Jul 2006 16:52:04.0704 (UTC)
+ FILETIME=[7DECBE00:01C6AF41]
+MIME-Version: 1.0
+X-WSS-ID: 68DA253E1NW73666-01-01
+Content-Type: text/plain;
+ charset=utf-8;
+ format=fixed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch] inotify: fix deadlock found by lockdep
-From: Arjan van de Ven <arjan@linux.intel.com>
+From: Jordan Crouse <jordan.crouse@amd.com>
 
-This is a real deadlock, a nice complex one:
-(warning: long explanation follows so that Andrew can have a complete
-patch description)
+Add a mode for the OLPC LCD.
 
-it's an ABCDA deadlock:
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
+---
 
-A iprune_mutex 
-B inode->inotify_mutex
-C ih->mutex
-D dev->ev_mutex
+ drivers/video/geode/gxfb_core.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-
-The AB relationship comes straight from invalidate_inodes()
+diff --git a/drivers/video/geode/gxfb_core.c b/drivers/video/geode/gxfb_core.c
+index 1e0d47e..75c7fd9 100644
+--- a/drivers/video/geode/gxfb_core.c
++++ b/drivers/video/geode/gxfb_core.c
+@@ -103,6 +103,9 @@ static const struct fb_videomode __initd
+ 	{ NULL, 85, 1600, 1200, 4357, 304, 64, 46, 1, 192, 3,
+ 	  FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+ 	  FB_VMODE_NONINTERLACED, FB_MODE_IS_VESA },
++	{ "OLPC-1", 50, 1200, 900, 17460, 24, 8, 4, 5, 8, 3,
++	  FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++	  FB_VMODE_NONINTERLACED, 0 }
+ };
  
-int invalidate_inodes(struct super_block * sb)
-{
-        int busy;
-        LIST_HEAD(throw_away);
-
-        mutex_lock(&iprune_mutex);
-        spin_lock(&inode_lock);
-        inotify_unmount_inodes(&sb->s_inodes);
-
-where inotify_umount_inodes() takes the 
-                mutex_lock(&inode->inotify_mutex);
-
-The BC relationship comes directly from inotify_find_update_watch():
-s32 inotify_find_update_watch(struct inotify_handle *ih, struct inode *inode,
-                              u32 mask)
-{
-   ...
-        mutex_lock(&inode->inotify_mutex);
-        mutex_lock(&ih->mutex);
-
-
-The CD relationship comes from inotify_rm_wd:
-inotify_rm_wd does
-        mutex_lock(&inode->inotify_mutex);
-        mutex_lock(&ih->mutex)
-and then calls inotify_remove_watch_locked() which calls
-notify_dev_queue_event() which does
-	        mutex_lock(&dev->ev_mutex);
-
-(this strictly is a BCD relationship)
-
-
-The DA relationship comes from the most interesting part:
-
-  [<ffffffff8022d9f2>] shrink_icache_memory+0x42/0x270
-  [<ffffffff80240dc4>] shrink_slab+0x11d/0x1c9
-  [<ffffffff802b5104>] try_to_free_pages+0x187/0x244
-  [<ffffffff8020efed>] __alloc_pages+0x1cd/0x2e0
-  [<ffffffff8025e1f8>] cache_alloc_refill+0x3f8/0x821
-  [<ffffffff8020a5e5>] kmem_cache_alloc+0x85/0xcb
-  [<ffffffff802db027>] kernel_event+0x2e/0x122
-  [<ffffffff8021d61c>] inotify_dev_queue_event+0xcc/0x140
-
-inotify_dev_queue_event schedules a kernel_event which does a
-kmem_cache_alloc( , GFP_KERNEL) which may try to shrink slabs, including
-the inode cache .. which then takes iprune_mutex. 
-
-And voila, there is an AB, a BC, a CD relationship (even a direct BCD),
-and also now a DA relationship -> a circular type AB-BA deadlock but
-involving 4 locks.
-
-The solution is simple: kernel_event() is NOT allowed to use GFP_KERNEL,
-but must use GFP_NOFS to not cause recursion into the VFS.
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-
-Index: linux-2.6.18-rc1/fs/inotify_user.c
-===================================================================
---- linux-2.6.18-rc1.orig/fs/inotify_user.c
-+++ linux-2.6.18-rc1/fs/inotify_user.c
-@@ -187,7 +187,7 @@ static struct inotify_kernel_event * ker
- {
- 	struct inotify_kernel_event *kevent;
- 
--	kevent = kmem_cache_alloc(event_cachep, GFP_KERNEL);
-+	kevent = kmem_cache_alloc(event_cachep, GFP_NOFS);
- 	if (unlikely(!kevent))
- 		return NULL;
- 
-
+ static int gxfb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 
 

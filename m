@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWGXWRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWGXWUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWGXWRn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 18:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWGXWRn
+	id S932278AbWGXWUq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 18:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWGXWUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 18:17:43 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39915 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932271AbWGXWRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 18:17:42 -0400
-Date: Mon, 24 Jul 2006 15:17:34 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-Message-Id: <20060724151734.14959617.pj@sgi.com>
-In-Reply-To: <44C12F0A.1010008@namesys.com>
-References: <44C12F0A.1010008@namesys.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Jul 2006 18:20:46 -0400
+Received: from static-ip-217-172-187-230.inaddr.intergenia.de ([217.172.187.230]:27581
+	"EHLO neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S932278AbWGXWUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 18:20:45 -0400
+Message-ID: <44C547B0.1090304@lsrfire.ath.cx>
+Date: Tue, 25 Jul 2006 00:20:32 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Wolfgang Draxinger <Wolfgang.Draxinger@campus.lmu.de>,
+       Bodo Eggert <7eggert@gmx.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [RFC][PATCH] procfs: add privacy options
+References: <44C50A2B.3040203@lsrfire.ath.cx> <m18xmiogp3.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m18xmiogp3.fsf@ebiederm.dsl.xmission.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans wrote:
-> Jim Grey
+Eric W. Biederman schrieb:
+> I don't really like filesystem magic options as kernel boot time options.
+> Mount time or runtime options are probably more interesting.
+> 
+> How is it expected that users will use this?
 
-Sounds like the name of Jim Gray, the famous database and transaction
-processing expert of IBM, Tandem, DEC and Microsoft.
+I don't expect admins to switch "privacy" on and off very often.  Once
+would be enough, I hope.
 
-Neither SGI nor XFS has had the honor of working with Jim Gray.
+Mount options would be easier to use, I agree, but I doubt the added
+complexity is worth it.  Kernel options for procfs are not _that_
+magical because the kernel mounts it internally, so it's a kernel part,
+not a real filesystem ;-)
 
-The original XFS developers and designers include Geoff Peck, Jeff
-Glover, Adam Sweeney and Doug Doucette, from what I can see from my
-notes dating back to 1993/1994 on this.
+One question I couldn't find a good answer for regarding remount
+options: what to do with processes that have cd'd into a /proc/<pid> dir
+belonging to another user when the privacy option is being turned on?
+Letting them keep their access is counter-intuitive and taking it away
+would need quite invasive changes compared to my patch, I think.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> A lot of the privacy you are talking about is provided by the may_ptrace
+> checks in the more sensitive parts of proc so we may want to extend
+> that.
+
+You mean using ptrace_may_attach() and/or MAY_PTRACE() for determining
+access to all (or at least more) files in /proc/<pid> instead of my
+proposed "chmod 500"?  What are the advantages?
+
+Thanks,
+René

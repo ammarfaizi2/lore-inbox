@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWGXSnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWGXSqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWGXSnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 14:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWGXSnI
+	id S1751346AbWGXSqO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 14:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWGXSqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 14:43:08 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5760 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751419AbWGXSnH (ORCPT
+	Mon, 24 Jul 2006 14:46:14 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:65492 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751346AbWGXSqN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 14:43:07 -0400
-Date: Mon, 24 Jul 2006 20:43:06 +0200
-From: "Andi Kleen" <ak@suse.de>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH for 2.6.18rc2] [7/7] i386: Do backtrace fallback too
-Message-ID: <44c514ba.6GbXonE6omfZ61e2%ak@suse.de>
-User-Agent: nail 11.25 7/29/05
-MIME-Version: 1.0
+	Mon, 24 Jul 2006 14:46:13 -0400
+Date: Mon, 24 Jul 2006 20:45:34 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andreas Gruenbacher <a.gruenbacher@computer.org>
+Cc: Nathan Scott <nathans@sgi.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: include/linux/xattr.h: how much userpace visible?
+Message-ID: <20060724184534.GA26842@mars.ravnborg.org>
+References: <20060723184343.GA25367@stusta.de> <20060724085701.B2083275@wobbly.melbourne.sgi.com> <200607242031.11815.a.gruenbacher@computer.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200607242031.11815.a.gruenbacher@computer.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 24, 2006 at 08:31:11PM +0200, Andreas Gruenbacher wrote:
+> On Monday, 24 July 2006 00:57, Nathan Scott wrote:
+> > On Sun, Jul 23, 2006 at 08:43:43PM +0200, Adrian Bunk wrote:
+> > > Hi,
+> > >
+> > > how much of include/linux/xattr.h has to be part of the userspace kernel
+> > > headers?
+> >
+> > None, I think.
+> 
+> None, indeed. The attr package comes with it own version of xattr.h that also 
+> includes definitions of XATTR_CREATE and XATTR_REPLACE.
+The userspace headers are supposed to hold the part of the kernel
+definitions that glibc (and mayby the attr package) uses. If they happen
+to have their own copy now should not impct the decision what is part of
+the userspace interface for the kernel. So actual usage does not decide
+what is part of the userspace kernel headers but what definitionas are
+definitions the userspace <-> kernel interface.
 
-Similar patch to earlier x86-64 patch. When the dwarf2 unwinder fails
-dump the left over stack with the old unwinder.
-
-Also some clarifications in the headers.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/i386/kernel/traps.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
-
-Index: linux/arch/i386/kernel/traps.c
-===================================================================
---- linux.orig/arch/i386/kernel/traps.c
-+++ linux/arch/i386/kernel/traps.c
-@@ -187,10 +187,21 @@ static void show_trace_log_lvl(struct ta
- 			if (unwind_init_blocked(&info, task) == 0)
- 				unw_ret = show_trace_unwind(&info, log_lvl);
- 		}
--		if (unw_ret > 0) {
--			if (call_trace > 0)
-+		if (unw_ret > 0 && !arch_unw_user_mode(&info)) {
-+#ifdef CONFIG_STACK_UNWIND
-+			print_symbol("DWARF2 unwinder stuck at %s\n",
-+				     UNW_PC(info.regs));
-+			if (call_trace == 1) {
-+				printk("Leftover inexact backtrace:\n");
-+				if (UNW_SP(info.regs))
-+					stack = (void *)UNW_SP(info.regs);
-+			} else if (call_trace > 1)
- 				return;
--			printk("%sLegacy call trace:\n", log_lvl);
-+			else
-+				printk("Full inexact backtrace again:\n");
-+#else
-+			printk("Inexact backtrace:\n");
-+#endif
- 		}
- 	}
- 
+	Sam

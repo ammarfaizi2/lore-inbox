@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWGXHhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWGXHxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWGXHhD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 03:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWGXHhD
+	id S932077AbWGXHxx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 03:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWGXHxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 03:37:03 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:17142 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751439AbWGXHhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 03:37:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Wq2SMP4m8xB6Q9uxh+qrszWgmQufbefrkGSGzfqNyKI+0XwiZ5+JeSmHFo3d02aex1066P6GWYmIoxFlyXsSO+/gSEyTqNw5mLzSzc2Yjrpe3sbUrbZ4BuiNdUuv7aXPdbRcIfCyy5QsFXyazP3ALszOI+UwQ/nTN12PmfpQ/rw=
-Message-ID: <84144f020607240036k4276a373i18d3490d9925344@mail.gmail.com>
-Date: Mon, 24 Jul 2006 10:36:59 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Greg Scott" <GregScott@infrasupportetc.com>
-Subject: Re: 2.6.17.2 kernel bug?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <925A849792280C4E80C5461017A4B8A206F83F@mail733.InfraSupportEtc.com>
+	Mon, 24 Jul 2006 03:53:53 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:37558 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932077AbWGXHxw
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 24 Jul 2006 03:53:52 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <925A849792280C4E80C5461017A4B8A206F83F@mail733.InfraSupportEtc.com>
-X-Google-Sender-Auth: a3af9a3b5a92743b
+Message-ID: <17604.31639.213450.987415@gargle.gargle.HOWL>
+Date: Mon, 24 Jul 2006 11:49:43 +0400
+To: Rene Rebe <rene@exactcode.de>
+Cc: Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <200607230920.04129.rene@exactcode.de>
+References: <44C12F0A.1010008@namesys.com>
+	<20060722130219.GB7321@thunk.org>
+	<200607230920.04129.rene@exactcode.de>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-SystemSpamProbe: GOOD 0.0000020 cdb8def4db8712d43d056eb120d37694
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Rene Rebe writes:
+ > Hi,
+ > 
+ > On Saturday 22 July 2006 15:02, Theodore Tso wrote:
+ > > > The code isn't even written, benchmarked, or tested yet,
+ > >
+ > > Actually, the first bits that we plan to merge have already been
+ > > written and in use by hundreds of clusterfs customers, posted to LKML
+ > > for comments (and we don't attack our reviewers, we thank them for
+ > > their comments), and in fact they were written about at last year's
+ > > OLS complete with benchmarks and graphs.
+ > > (http://ext2.sourceforge.net/2005-ols/2005-ols-ext3.html)
+ > 
+ > However I would estimate that Reiser4 is used by more people than yet
+ > aother ext2 patchups.
 
-On 7/24/06, Greg Scott <GregScott@infrasupportetc.com> wrote:
-> This may be a hardware problem but I thought I should tell somebody.
-> It's running on a Dell Optiplex GX110, p3 733mhz, 256MB.
+Any data backing up that estimation? Just to give an example, that
+"patchup" is used by (tens of) thousands of computers in governmental
+laboratories the US "national security" depends upon.
 
-Have you ran memtest on this machine?
+ > 
+ > Yours,
 
-On 7/24/06, Greg Scott <GregScott@infrasupportetc.com> wrote:
-> Jul 23 16:26:37 lakeville-fw kernel: ------------[ cut here
-> ]------------
-> Jul 23 16:26:37 lakeville-fw kernel: kernel BUG at mm/swapfile.c:352!
-> Jul 23 16:26:37 lakeville-fw kernel: invalid opcode: 0000 [#1]
+Nikita.
 
-[snip]
-
-> Jul 23 16:26:37 lakeville-fw kernel: EIP is at
-> remove_exclusive_swap_page+0xb/0xe3
-
-[snip]
-
-> Jul 23 16:26:37 lakeville-fw kernel: Call Trace:
-> Jul 23 16:26:37 lakeville-fw kernel:  <c0149109>
-> free_page_and_swap_cache+0x1b/0x2a  <c0142645> unmap_vmas+0x297/0x490
-> Jul 23 16:26:37 lakeville-fw kernel:  <c0144ddd> exit_mmap+0x50/0xbc
-> <c011814e> mmput+0x1f/0x76
-> Jul 23 16:26:37 lakeville-fw kernel:  <c011c5d7> do_exit+0x18a/0x6ca
-> <c011cb84> sys_exit_group+0x0/0xd
-
-The page was locked before entering remove_exclusive_swap_page() in
-free_swap_cache() so fault RAM seems more likely.
-
-                                               Pekka

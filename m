@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWGXQht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWGXQiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWGXQht (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 12:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWGXQht
+	id S932206AbWGXQiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 12:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWGXQiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 12:37:49 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:23444 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932204AbWGXQht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 12:37:49 -0400
-Subject: Re: [RT] rt priority losing
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Duetsch, Thomas LDE1" <thomas.duetsch@siemens.com>
-In-Reply-To: <Pine.LNX.4.64.0607241758420.10471@localhost.localdomain>
-References: <1153755660.4002.137.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0607241758420.10471@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 12:37:22 -0400
-Message-Id: <1153759042.11295.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 24 Jul 2006 12:38:25 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:52420 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S932206AbWGXQiY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 12:38:24 -0400
+From: Magnus =?utf-8?q?Vigerl=C3=B6f?= <wigge@bigfoot.com>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
+Date: Mon, 24 Jul 2006 18:28:32 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <20060721211341.5366.93270.sendpatchset@pipe> <200607221200.51700.wigge@bigfoot.com> <200607230124.56094.dtor@insightbb.com>
+In-Reply-To: <200607230124.56094.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200607241828.32356.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-24 at 18:00 +0100, Esben Nielsen wrote:
-> On Mon, 24 Jul 2006, Steven Rostedt wrote:
-> 
-> > Ingo or Tglx,
-> >
-> > It has come to my attention that the dynamic hrtimer softirq can lose a
-> > boosted priority.  That is, if a softirq is running while a timeout
-> > happens, and the call back is of lower priority than the currently
-> > running hrtimer softirq, the timer interrupt will still lower the
-> > hrtimer softirq.
-> >
-> > Here's the problem code:
-> >
-> > static void wakeup_softirqd_prio(int softirq, int prio)
-> > {
-> > 	/* Interrupts are disabled: no need to stop preemption */
-> > 	struct task_struct *tsk = __get_cpu_var(ksoftirqd[softirq].tsk);
-> >
-> > 	if (tsk) {
-> > 		if (tsk->normal_prio != prio) {
-> > 			struct sched_param param;
-> >
-> > 			param.sched_priority = MAX_RT_PRIO-1 - prio;
-> > 			setscheduler(tsk, -1, SCHED_FIFO, &param);
-> > 		}
-> > 		if(tsk->state != TASK_RUNNING)
-> > 			wake_up_process(tsk);
-> > 	}
-> > }
-> >
-> >
-> > So, tsk could be softirqd-hrmono and we lower the priority. (only
-> > normal_prio is checked versus prio).
-> >
-> > So this can be a problem, if the softirq function holds a lock of a high
-> > priority task, and is running boosted.  If another timer goes off with a
-> > lower priority, we can lower the priority of the softirqd and lose the
-> > inherited priority that it was running at.
-> 
-> There is a check for that inside setscheduler():
->  	p->prio = rt_mutex_getprio(p);
+On Sunday 23 July 2006 07:24, Dmitry Torokhov wrote:
+[...]
+> No, I was not talking about FUSD, just uinput driver that is in kernel
+> proper. Take a look at this:
+>
+> 	http://svn.navi.cx/misc/trunk/inputpipe/
+>
+> It allows making input devices "network-transparent" and for example
+> use joystick physically connected to one box to play game on another.
+> Hmm, actually it is almost what you need, you just need modify server
+> to multiplex events into single device instead of creating separate
+> input devices.
 
-OK, you are right about this.  The PI chain should not be affected.  But
-this could still be a problem if the softirq was running at a high prio
-for a task when a lower prio callback needs to be made.  It looks like
-timer is removed from the base before the function runs.  So when the
-interrupt looks at the base to determine the priority to set it at, it
-might actually lower the priority of a running hrtimer thread.
+Interesting.. This might be handy for other projects. However, implementing 
+the same module again, but in userspace, for something that really should be 
+handled in the X-server (and will in time), nah.. I think I'll see what the 
+X-guys are up to and see how long they've come instead. Maybe I can contribute 
+there in some way.
 
--- Steve
+> > So.. Are the locking issues in evdev something that is about to be fixed
+> > soon or should I contribute? Or do you think the issue will be completely
+> > irrelevant for a user-space driver?
+>
+> No, I think you will still have the same issues with locking, unfortunately
+> I can't commint on a specific date when they will be resolved. Patches are
+> always welcome of course.
 
+Just wanted to know if you had something ongoing regarding this.. I'll see 
+what I can come up with.
 
+ /Magnus

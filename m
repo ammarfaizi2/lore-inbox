@@ -1,33 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWGXMTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWGXMZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWGXMTC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 08:19:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWGXMTB
+	id S932127AbWGXMZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 08:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWGXMZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 08:19:01 -0400
-Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:52453 "EHLO
-	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id S932130AbWGXMTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 08:19:00 -0400
-Date: Mon, 24 Jul 2006 14:15:52 +0200
-From: Guido Guenther <agx@sigxcpu.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] rivafb/nvidiafb: race between register_framebuffer and *_bl_init
-Message-ID: <20060724121552.GA19600@bogon.ms20.nix>
-References: <20060722162821.GA4791@bogon.ms20.nix> <20060722163657.GA5699@bogon.ms20.nix> <44C411A2.4030904@gmail.com>
+	Mon, 24 Jul 2006 08:25:35 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:48842 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932127AbWGXMZe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 08:25:34 -0400
+Date: Mon, 24 Jul 2006 14:25:32 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] kconfig/lxdialog: add support for color themes and
+ add blackbg theme
+In-Reply-To: <20060724113833.GC22806@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0607241424360.6762@scrub.home>
+References: <20060724113641.GA22806@mars.ravnborg.org>
+ <20060724113833.GC22806@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C411A2.4030904@gmail.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24, 2006 at 08:17:38AM +0800, Antonino A. Daplas wrote:
-> Guido Guenther wrote:
-> 
-> Please add your Signed-off-by:
-It's at the very bottom of the patch already.
-Cheers,
- -- Guido
+Hi,
+
+On Mon, 24 Jul 2006, Sam Ravnborg wrote:
+
+> +static int set_color_theme(const char *theme)
+> +{
+> +	int use_color = 1;
+> +	if (!strncasecmp (theme, "blackbg", sizeof("blackbg")))
+> +		set_blackbg_theme();
+> +	else if (!strncasecmp(theme, "mono", sizeof("mono")))
+> +		use_color = 0;
+> +	return use_color;
+> +}
+
+This segfaults if MENUCONFIG_COLOR isn't set.
+
+bye, Roman

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWGXUR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWGXUc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWGXUR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 16:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWGXUR2
+	id S1751277AbWGXUc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 16:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWGXUc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 16:17:28 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:50662 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751435AbWGXUR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 16:17:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=Un/aXhUc2NrbpRDKnHBdMWekT9SkpIzxChlz1+OZOWVxABJNQuVZo9HcUnLoKV8UDGZr/r5LIwnCTYsC0jJqJ9Y3N25kkkxH7vFqoPJOQj+wiG+6s/1QmdPii590093/n7xcP/hUmX3AZS1fEw02QfJiEZPI9ZS613Ks+OWLuzk=
-Date: Mon, 24 Jul 2006 22:17:11 +0200
-From: Janos Farkas <chexum+dev@gmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: c-otto@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: NFS errors
-Message-ID: <priv$8d118c145696$638ed99e23@200607.chexum.gmail.com>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	c-otto@gmx.de, linux-kernel@vger.kernel.org
-References: <20060724191540.GD19902@server.c-otto.de> <1153770408.5723.4.camel@localhost>
+	Mon, 24 Jul 2006 16:32:28 -0400
+Received: from cpe-74-70-38-78.nycap.res.rr.com ([74.70.38.78]:39175 "EHLO
+	mail.cyberdogtech.com") by vger.kernel.org with ESMTP
+	id S1751277AbWGXUc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 16:32:28 -0400
+Date: Mon, 24 Jul 2006 16:31:45 -0400
+From: Matt LaPlante <kernel1@cyberdogtech.com>
+To: linux-kernel@vger.kernel.org
+Subject: Question about Git tree methodology.
+Message-Id: <20060724163145.5819ce7d.kernel1@cyberdogtech.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153770408.5723.4.camel@localhost>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Processed: mail.cyberdogtech.com, Mon, 24 Jul 2006 16:31:54 -0400
+	(not processed: message from valid local sender)
+X-Return-Path: kernel1@cyberdogtech.com
+X-Envelope-From: kernel1@cyberdogtech.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-MDAV-Processed: mail.cyberdogtech.com, Mon, 24 Jul 2006 16:31:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi all,
+  I've been playing around with setting up a personal git tree for kernel patches.  I've followed Jeff Garzik's guide, as well as some of the kernel.org docs.  I have no problem setting it up, however I have a question about which method to use for my tree.  Basically I just want to use it as a method of tracking my own trivial patches (and perhaps give maintainers easier access to them).  I've looked through some of the trees on kernel.org for guidance.  
+  My issue is, if I do a git clone, I wind up with all the history from the kernel git.  This seems excessive and useless for just tracking my own work.  I could alternatively download the source and init a new tree, but I believe it would make keeping up to date with the kernel.org git more complicated.  
+  What method is used by the various trees on kernel.org to deal with this?  Is there a way to use the kernel.org git as a base, but only track my own changes?  
 
-On 2006-07-24 at 15:46:48, Trond Myklebust wrote:
-> Have you set 'no_subtree_check' in your export options on the server? If
-> not, please try doing so.
+Thanks.
 
-Oh.  But Neil almost told me that :)  That seems to fix a similar
-problem for me at least:
+-- 
+Matt LaPlante
+CCNP, CCDP, A+, Linux+, CQS
+kernel1@cyberdogtech.com
 
-http://thread.gmane.org/gmane.linux.kernel/426931
-
-Now I'm not seeing any weirdness between two 2.6.18-rc2 hosts.  (No
-spurious "Reducing readahead size to 28/4/0K" either).  I still don't
-get how that patch that Neil mentioned did not affect 2.6.17 (which had
-that), but does effect any 2.6.18-rcX.
-
-Janos

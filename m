@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWGYXIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWGYXKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWGYXIc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWGYXIb
+	id S1030244AbWGYXKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWGYXKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:08:31 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:46749 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030240AbWGYXIa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:08:30 -0400
-Date: Tue, 25 Jul 2006 18:07:41 -0500
-From: Jon Mason <jdmason@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [PATCH 0 of 7] x86-64: Calgary IOMMU updates
-Message-ID: <20060725230740.GF23966@us.ibm.com>
-References: <patchbomb.1153846590@rhun.haifa.ibm.com> <200607260025.56903.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607260025.56903.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Tue, 25 Jul 2006 19:10:16 -0400
+Received: from thing.hostingexpert.com ([67.15.235.34]:46806 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1030244AbWGYXKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 19:10:14 -0400
+Message-ID: <44C6A4CA.8040609@linuxtv.org>
+Date: Tue, 25 Jul 2006 19:10:02 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: Edgar Toernig <froese@gmx.de>
+CC: mchehab@infradead.org, akpm@osdl.org, video4linux-list@redhat.com,
+       linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@osdl.org,
+       linux-dvb-maintainer@linuxtv.org
+Subject: Re: [v4l-dvb-maintainer] Re: [PATCH 00/23] V4L/DVB fixes
+References: <20060725180311.PS54604900000@infradead.org> <20060726004127.6eab5a9f.froese@gmx.de>
+In-Reply-To: <20060726004127.6eab5a9f.froese@gmx.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 12:25:56AM +0200, Andi Kleen wrote:
-> On Tuesday 25 July 2006 18:56, Muli Ben-Yehuda wrote:
-> > Hi Andi,
-> > 
-> > This patchset contains a few Calgary bug fixes (mostly in the error
-> > handling) and a few harmless associated cleanups (e.g., rearranging
-> > structures for better alignment). It would be good to get these,
-> > especially the bug fixes, into 2.6.18.
+Edgar Toernig wrote:
+> mchehab@infradead.org wrote:
+>> It contains the following stuff:
+>> [...]
 > 
-> How do these patches relate to the two earlier patches that Jon sent?
-
-These patches are ontop of the patches I sent (and which Muli resent a
-few days afterward).  Those patches fix a major problem and need to make
-it into 2.6.18.
-
+> I'm still missing the VBI_OFFSET fix.  See:
 > 
-> 2.6.18 is closed for anything but bug fixes for serious bugs.
-
-This is mostly error path bugs and clean-up/code re-org (to save memory
-and make things more cache friendly).  The changes are mostly minor.
-If you are uncomfortable with applying them, we can separate patches 3,
-4, and 5 (which are the bug fixes) from the rest and send those to you.
-Is that more acceptable?
-
-Thanks,
-Jon
-
-> -Andi
+>   http://marc.theaimsgroup.com/?m=114710558215044
 > 
+> Could you consider that patch for the next update and
+> IMHO also for 2.6.16.x and 2.6.17.x?  
+
+Please read Documentation/SubmittingPatches
+
+Patches without a sign-off will not be included into the kernel.

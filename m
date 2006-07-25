@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWGYFMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWGYFSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbWGYFMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 01:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGYFMY
+	id S932461AbWGYFSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 01:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGYFSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 01:12:24 -0400
-Received: from xenotime.net ([66.160.160.81]:60837 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932464AbWGYFMX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 01:12:23 -0400
-Date: Mon, 24 Jul 2006 22:15:05 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Matt LaPlante <kernel1@cyberdogtech.com>
-Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 18-rc2] Fix typos in /Documentation : 'H'-'M'
-Message-Id: <20060724221505.c1e927ba.rdunlap@xenotime.net>
-In-Reply-To: <20060725010315.816b40e9.kernel1@cyberdogtech.com>
-References: <20060724192747.da3a9235.kernel1@cyberdogtech.com>
-	<20060724204605.f239956b.rdunlap@xenotime.net>
-	<20060725010315.816b40e9.kernel1@cyberdogtech.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jul 2006 01:18:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62941 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932461AbWGYFST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 01:18:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Edgar Hucek <hostmaster@ed-soft.at>, torvalds@osdl.org, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Add efi e820 memory mapping on x86 [try #1]
+References: <44A04F5F.8030405@ed-soft.at>
+	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+	<44A0CCEA.7030309@ed-soft.at>
+	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+	<44A304C1.2050304@zytor.com>
+	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+	<44A8058D.3030905@zytor.com>
+	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+	<44AB8878.7010203@ed-soft.at>
+	<m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+	<44B6BF2F.6030401@ed-soft.at>
+	<Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+	<44B73791.9080601@ed-soft.at>
+	<Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
+	<44B9FF02.3020600@ed-soft.at> <20060724212911.32dd3bc0.akpm@osdl.org>
+Date: Mon, 24 Jul 2006 23:17:07 -0600
+In-Reply-To: <20060724212911.32dd3bc0.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 24 Jul 2006 21:29:11 -0700")
+Message-ID: <m18xmimffw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006 01:03:15 -0400 Matt LaPlante wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> On Mon, 24 Jul 2006 20:46:05 -0700
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> 
-> > >  
-> > >  If your hardware supports more than one io address, and your driver can
-> > >  choose which one program the hardware to, starting from the more exotic
-> >                    ^insert: to
-> > 
-> > >  
-> > > -the core of the new scheduler are the following mechanizms:
-> > > +The core of the new scheduler are the following mechanisms:
-> > 
-> > s/are/contains/
-> > 
-> > >   - *two*, priority-ordered 'priority arrays' per CPU. There is an 'active'
-> > 
-> > drop comma
-> > 
-> > >  	opinion still after having already compiled the kernel.
-> > > -     Q: Why I cannot find the IBM MCA SCSI support in the config menue?
-> > > +     Q: Why I cannot find the IBM MCA SCSI support in the config menu?
-> > 
-> >         Q: Why can I not find ...?
-> > or
-> >         Q: Why can't I find ...?
-> > 
-> > >       A: You have to activate MCA bus support, first.
-> > >       Q: Where can I find the latest info about this driver?
-> > >       A: See the file MAINTAINERS for the current WWW-address, which offers
-> > 
-> > Rest look good to me.
-> > 
-> 
-> Edited patch below.
+> On Sun, 16 Jul 2006 10:55:30 +0200
+> Edgar Hucek <hostmaster@ed-soft.at> wrote:
+>
+>> This Patch add an efi e820 memory mapping.
+>> 
+>
+> Why?
 
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+The x86 architecture needs a way to represent the firmware supplied
+memory map in a way that later code can query what is in the map.  The
+easiest way to do this is simply to convert the efi memory map into
+an e820 memory map.
 
-Thanks.
----
-~Randy
+Eric

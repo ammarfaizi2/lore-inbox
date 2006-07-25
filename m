@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751600AbWGYWnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWGYWqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751600AbWGYWnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWGYWnJ
+	id S1030201AbWGYWqw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWGYWqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:43:09 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:46986 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751603AbWGYWnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:43:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bt01TK/xwdlfukfLAN2jdeTk03TQuaTHJEpvMBVYxVFyeCgcULU9hLTPjOg0RE5ej/YkWqD21oStWdX8049yBPHrUYIKZlATYQeZvUJMXKkbTpaCmj4Wb0SMiQyqXPw3DPa7PQd7vfk8bgVquKzxqrZLVDgPm/8NblmDodO5NOQ=
-Message-ID: <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
-Date: Wed, 26 Jul 2006 00:43:06 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
-Cc: "Andrew Morton" <akpm@osdl.org>, "Mike Miller" <mike.miller@hp.com>,
-       iss_storagedev@hp.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200607251636.42765.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 25 Jul 2006 18:46:52 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62694 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030201AbWGYWqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 18:46:51 -0400
+Subject: Re: [PATCH 2/4] [PATCH] gxfb: Fixups for the AMD Geode GX
+	framebuffer driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jordan Crouse <jordan.crouse@amd.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net, blizzard@redhat.com,
+       dwmw2@redhat.com
+In-Reply-To: <20060724165602.18822.56823.stgit@cosmic.amd.com>
+References: <20060724165454.18822.30310.stgit@cosmic.amd.com>
+	 <20060724165602.18822.56823.stgit@cosmic.amd.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200607251636.42765.bjorn.helgaas@hp.com>
+Date: Wed, 26 Jul 2006 00:48:10 +0100
+Message-Id: <1153871290.7559.21.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> If we don't find any devices, we shouldn't print anything.
->
-I disagree.
-I find it quite nice to be able to see that the driver loaded even if
-it finds nothing. At least then when there's a problem, I can quickly
-see that at least it is not because I didn't forget to load the
-driver, it's something else. Saves time since I can start looking for
-reasons why the driver didn't find anything without first spending
-additional time checking if I failed to cause it to load for some
-reason.
+On Llu, 2006-07-24 at 10:56 -0600, Jordan Crouse wrote:
+
+> +#ifdef CONFIG_FB_GEODE_GX_SET_FBSIZE
+> +unsigned int gx_frame_buffer_size(void) {
+> +	return CONFIG_FB_GEODE_GX_FBSIZE;
+> +}
+> +#else
+>  unsigned int gx_frame_buffer_size(void)
+>  {
+>  	unsigned int val;
+> @@ -35,6 +40,7 @@ unsigned int gx_frame_buffer_size(void)
+>  	val = (unsigned int)(inw(0xAC1E)) & 0xFFl;
+>  	return (val << 19);
+>  }
+> +#endif
+
+GAK, please fix your firmware to follow your own docs 8). I mean while
+VGA emulation is hard honouring the frame buffer size query is trivial
+to stick in the GPL'd VSA firmware and belongs there.
 
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+

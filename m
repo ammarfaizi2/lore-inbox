@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWGYCcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWGYCd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWGYCcH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 22:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGYCcH
+	id S932414AbWGYCd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 22:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGYCd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 22:32:07 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:61145 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932412AbWGYCcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 22:32:06 -0400
-Date: Tue, 25 Jul 2006 11:34:46 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com
+	Mon, 24 Jul 2006 22:33:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51681 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932414AbWGYCd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 22:33:26 -0400
+Date: Mon, 24 Jul 2006 19:33:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org, ebiederm@xmission.com
 Subject: Re: [RFC] ps command race fix
-Message-Id: <20060725113446.09eda7bb.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060724190626.75b71d02.akpm@osdl.org>
+Message-Id: <20060724193318.d57983c1.akpm@osdl.org>
+In-Reply-To: <20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
 References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
 	<20060724182000.2ab0364a.akpm@osdl.org>
-	<20060725105339.e8c25775.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724190626.75b71d02.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	<20060724184847.3ff6be7d.pj@sgi.com>
+	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006 19:06:26 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-> > but it was not very good because 
-> > proc_pid_readdir() has to traverse all pids, not tgids.
-> 
-> You mean "all tgids, not pids".
-> 
-Ah, sorry. Precisely, traverse all pids and choose tgids from them because
-pid_hash[] remembers all pids.
+On Tue, 25 Jul 2006 11:08:35 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
+> > Then the seek and read and such semantics are nice and stable and
+> > simple.
+> > 
+> yes...
+> I think snapshot at open() is okay.
 
-> > So, I had to access
-> > task_struct of the pid. I wanted to avoid to access task struct itself,
-> 
-> Why do you wish to avoid accessing the task_struct?
-> 
-I thought accessing all task struct at random is heavy work and have to
-up and down rcu_read_lock thousands of times.
-I'm sorry if my thought is not problem.
+We cannot do a single kmalloc() like cpuset does.
 
-Thanks,
--Kame
+The kernel presently kind-of guarantees that a 32k kmalloc() will work,
+although the VM might have to do very large amounts of work to achieve it.
 
+But 32k is only 8192 processes, so a snapshot will need multiple
+allocations and a list and trouble dropping and retaking tasklist_lock to
+allocate memory and keeping things stable while doing that.  I suspect
+it'll end up ugly.
+
+And it permits userspace to pin rather a lot of memory.

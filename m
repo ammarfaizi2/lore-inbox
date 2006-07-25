@@ -1,124 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWGYPWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWGYP07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWGYPWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWGYPWT
+	id S964781AbWGYP07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWGYP07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:22:19 -0400
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:39100
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S964777AbWGYPWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:22:19 -0400
-Message-ID: <44C63727.0@ed-soft.at>
-Date: Tue, 25 Jul 2006 17:22:15 +0200
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Michael Krufky <mkrufky@linuxtv.org>
-CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 07/45] v4l/dvb: Fix CI on old KNC1 DVBC cards
-References: <20060717160652.408007000@blue.kroah.org> <20060717162617.GH4829@kroah.com> <44C61616.7060203@ed-soft.at> <44C6358D.4040502@linuxtv.org>
-In-Reply-To: <44C6358D.4040502@linuxtv.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jul 2006 11:26:59 -0400
+Received: from mga01.intel.com ([192.55.52.88]:46889 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964777AbWGYP06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 11:26:58 -0400
+X-IronPort-AV: i="4.07,180,1151910000"; 
+   d="scan'208"; a="103858755:sNHT18199685"
+Date: Tue, 25 Jul 2006 08:17:37 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: George Nychis <gnychis@cmu.edu>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, akpm@osdl.org
+Subject: Re: ACPI bombing, ACPI Exception (acpi_bus-0071): AE_NOT_FOUND
+Message-Id: <20060725081737.edb715c6.kristen.c.accardi@intel.com>
+In-Reply-To: <44C13563.4010307@cmu.edu>
+References: <44C13563.4010307@cmu.edu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't own such a dvb card. I only saw it when trying to compile kernel 2.6.17.7.
+On Fri, 21 Jul 2006 16:13:23 -0400
+George Nychis <gnychis@cmu.edu> wrote:
 
-cu
+> Hey guys,
+> 
+> I am running a 2.6.18-rc1-git7 kernel on my IBM Thinkpad x60s, with
+> CONFIG_ACPI_DOCK=y
+> 
+> Whenever the computer is inserted into the dock, ACPI seems to bomb:
+> http://rafb.net/paste/results/GW5E8747.html
+> 
+> I was wondering if anyone could help me solve this problem, I believe it
+> is keeping me from using my cdrom drive on the dock since it does not
+> show up in /dev.  I have also contacted Kristen Accardi about it, who I
+> believe wrote the dock code... but I wasn't sure if this is a further
+> problem in ACPI somewhere.
+> 
+> Here is my full config:
+> http://rafb.net/paste/results/o2gSVu90.html
+> 
+> Thanks!
+> George
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Edgar (gimli) Hucek
+Hello everyone,
+I am working on getting an x60 to duplicate the cdrom issue this week.  However, I was wondering if there was anything we could do about these AE_NOT_FOUND messages.  A lot of people believe that they are errors, but in fact they are normal for hotplugging.  Would it be ok if I just get rid of that error message?  It generates unneccessary consternation.
 
-Michael Krufky schrieb:
-> Edgar Hucek wrote:
->> Hi.
->>
->> This fix does not compile on 2.6.17.7.
->> philips_cu1216_tuner_set_params is nowhere defined in the kernel tree.
->>
->> cu
->>
->> Edgar (gimli) Hucek
-> 
-> Yikes!
-> 
-> The patch description explains the blunder... Sorry about this.
-> 
-> We've got a fix, but would you mind testing it, Edgar, before I request
-> that this gets added to the stable queue?
-> 
-> Thanks for reporting,
-> 
-> -Mike
-> 
-> From: Andrew de Quincey <adq_dvb@lidskialf.net>
-> 
-> [2.6.17.7 PATCH] Fix budget-av compile failure
-> 
-> Currently I am doing lots of refactoring work in the dvb tree. This
-> bugfix became necessary to fix 2.6.17 whilst I was in the middle of this
-> work. Unfortunately after I tested the original code for the patch, I
-> generated the diff against the wrong tree (I accidentally used a tree
-> with part of the refactoring code in it). This resulted in the reported
-> compile errors because that tree (a) was incomplete, and (b) used
-> features which are simply not in the mainline kernel yet.
-> 
-> Many apologies for the error and problems this has caused. :(
-> 
-> Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
-> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> 
-> diff -Naur linux-2.6.17.7.orig/drivers/media/dvb/ttpci/budget-av.c
-> linux-2.6.17.7/drivers/media/dvb/ttpci/budget-av.c
-> --- linux-2.6.17.7.orig/drivers/media/dvb/ttpci/budget-av.c	2006-07-25
-> 14:53:19.000000000 +0100
-> +++ linux-2.6.17.7/drivers/media/dvb/ttpci/budget-av.c	2006-07-25
-> 15:25:32.000000000 +0100
-> @@ -58,6 +58,7 @@
->  	struct tasklet_struct ciintf_irq_tasklet;
->  	int slot_status;
->  	struct dvb_ca_en50221 ca;
-> +	u8 reinitialise_demod:1;
->  };
-> 
->  /* GPIO Connections:
-> @@ -214,8 +215,9 @@
->  	while (--timeout > 0 && ciintf_read_attribute_mem(ca, slot, 0) != 0x1d)
->  		msleep(100);
-> 
-> -	/* reinitialise the frontend */
-> -	dvb_frontend_reinitialise(budget_av->budget.dvb_frontend);
-> +	/* reinitialise the frontend if necessary */
-> +	if (budget_av->reinitialise_demod)
-> +		dvb_frontend_reinitialise(budget_av->budget.dvb_frontend);
-> 
->  	if (timeout <= 0)
->  	{
-> @@ -1064,12 +1066,10 @@
->  		fe = tda10021_attach(&philips_cu1216_config,
->  				     &budget_av->budget.i2c_adap,
->  				     read_pwm(budget_av));
-> -		if (fe) {
-> -			fe->ops.tuner_ops.set_params = philips_cu1216_tuner_set_params;
-> -		}
->  		break;
-> 
->  	case SUBID_DVBC_KNC1_PLUS:
-> +		budget_av->reinitialise_demod = 1;
->  		fe = tda10021_attach(&philips_cu1216_config,
->  				     &budget_av->budget.i2c_adap,
->  				     read_pwm(budget_av));
-> 
-> 
-
+Kristen

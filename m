@@ -1,249 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWGYGDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWGYGHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWGYGDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWGYGDq
+	id S1751437AbWGYGHy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWGYGHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:03:46 -0400
-Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:40108 "EHLO
-	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751400AbWGYGDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:03:45 -0400
-Date: Mon, 24 Jul 2006 22:54:39 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: linux-kernel@vger.kernel.org
-Cc: Stephane Eranian <eranian@hpl.hp.com>
-Subject: Re: [PATCH] i386 TIF flags for debug regs and io bitmap in ctxsw (v2)
-Message-ID: <20060725055439.GA18053@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060704072939.GC5902@frankl.hpl.hp.com> <20060705115406.GA8294@frankl.hpl.hp.com>
+	Tue, 25 Jul 2006 02:07:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:57754 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751442AbWGYGHx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:07:53 -0400
+Date: Mon, 24 Jul 2006 23:07:32 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com, mtosatti@redhat.com
+Subject: Re: Bug with USB proc_bulk in 2.4 kernel
+Message-Id: <20060724230732.4fdf2bf4.zaitcev@redhat.com>
+In-Reply-To: <200607201044.00739.benjamin.cherian.kernel@gmail.com>
+References: <mailman.1152332281.24203.linux-kernel2news@redhat.com>
+	<200607181004.55191.benjamin.cherian.kernel@gmail.com>
+	<20060718183313.e8e5a5b2.zaitcev@redhat.com>
+	<200607201044.00739.benjamin.cherian.kernel@gmail.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060705115406.GA8294@frankl.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 20 Jul 2006 10:43:59 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
 
-I would like to follow-up the TIF flags and especially on the
-rules of inheritance. It appears the TIF flags are copied from
-parent to child task systematically on copy_process.
-Then they are adjusted in copy_threads() or sub-functions.
+> > Although I am starting to think about creating a custom locking
+> > scheme in devio.c after all. It seems like less work.
 
-The TIF_IO_BITMAP is checked in copy_threads() with the following code:
+> What's your timeframe for this? Good luck with it.
 
-int copy_thread(int nr, unsigned long clone_flags, unsigned long esp,
-	unsigned long unused,
-	struct task_struct * p, struct pt_regs * regs)
-{
-	....
-	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
-		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
-		if (!p->thread.io_bitmap_ptr) {
-			p->thread.io_bitmap_max = 0;
-			return -ENOMEM;
-		}
-		memcpy(p->thread.io_bitmap_ptr, tsk->thread.io_bitmap_ptr,
-			IO_BITMAP_BYTES);
-		set_tsk_thread_flag(p, TIF_IO_BITMAP);
-	}
+OK, now I hate my life, I hate you, I hate Stuart, but most of all
+I hate the anonymous Japanese who wrote the microcode for TEAC CD-210PU.
+Anyway, please test the attached patch. Does it do what you want?
 
-I would think that the set_tsk_thread_flag() is extraneous.
+-- Pete
 
-As for TIF_DEBUG, my patch is not clearing it. I don't think you can
-have HW breakpoints be inherited from one task to the other.
-
-Any comments on this?
-
-
-On Wed, Jul 05, 2006 at 04:54:06AM -0700, Stephane Eranian wrote:
-> Hello,
-> 
-> Here is the second version of my TIF flag patch for i386.
-> This version incoporates the changes suggested by Chuck. 
-> 
-> This patch is against mainline.
-> 
-> This patch covers the i386 modifications.
->  
-> Changelog:
-> 	- add TIF_DEBUG to track when debug registers are active
->  	- add TIF_IO_BITMAP to track when I/O bitmap is used
->  	- modify __switch_to() to use the new TIF flags
->  
-> <signed-off-by>: eranian@hpl.hp.com
-> 
-> diff --git a/arch/i386/kernel/ioport.c b/arch/i386/kernel/ioport.c
-> --- a/arch/i386/kernel/ioport.c
-> +++ b/arch/i386/kernel/ioport.c
-> @@ -79,6 +79,7 @@ asmlinkage long sys_ioperm(unsigned long
->  
->  		memset(bitmap, 0xff, IO_BITMAP_BYTES);
->  		t->io_bitmap_ptr = bitmap;
-> +		set_thread_flag(TIF_IO_BITMAP);
->  	}
->  
->  	/*
-> diff --git a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
-> --- a/arch/i386/kernel/process.c
-> +++ b/arch/i386/kernel/process.c
-> @@ -359,16 +359,16 @@ EXPORT_SYMBOL(kernel_thread);
->   */
->  void exit_thread(void)
->  {
-> -	struct task_struct *tsk = current;
-> -	struct thread_struct *t = &tsk->thread;
-> -
->  	/* The process may have allocated an io port bitmap... nuke it. */
-> -	if (unlikely(NULL != t->io_bitmap_ptr)) {
-> +	if (unlikely(test_thread_flag(TIF_IO_BITMAP))) {
-> +		struct task_struct *tsk = current;
-> +		struct thread_struct *t = &tsk->thread;
->  		int cpu = get_cpu();
->  		struct tss_struct *tss = &per_cpu(init_tss, cpu);
->  
->  		kfree(t->io_bitmap_ptr);
->  		t->io_bitmap_ptr = NULL;
-> +		clear_thread_flag(TIF_IO_BITMAP);
->  		/*
->  		 * Careful, clear this in the TSS too:
->  		 */
-> @@ -387,6 +387,7 @@ void flush_thread(void)
->  
->  	memset(tsk->thread.debugreg, 0, sizeof(unsigned long)*8);
->  	memset(tsk->thread.tls_array, 0, sizeof(tsk->thread.tls_array));	
-> +	clear_tsk_thread_flag(tsk, TIF_DEBUG);
->  	/*
->  	 * Forget coprocessor state..
->  	 */
-> @@ -431,7 +432,7 @@ int copy_thread(int nr, unsigned long cl
->  	savesegment(gs,p->thread.gs);
->  
->  	tsk = current;
-> -	if (unlikely(NULL != tsk->thread.io_bitmap_ptr)) {
-> +	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
->  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
->  		if (!p->thread.io_bitmap_ptr) {
->  			p->thread.io_bitmap_max = 0;
-> @@ -439,6 +440,7 @@ int copy_thread(int nr, unsigned long cl
->  		}
->  		memcpy(p->thread.io_bitmap_ptr, tsk->thread.io_bitmap_ptr,
->  			IO_BITMAP_BYTES);
-> +		set_tsk_thread_flag(p, TIF_IO_BITMAP);
->  	}
->  
->  	/*
-> @@ -533,10 +535,24 @@ int dump_task_regs(struct task_struct *t
->  	return 1;
->  }
->  
-> -static inline void
-> -handle_io_bitmap(struct thread_struct *next, struct tss_struct *tss)
-> +static inline void __switch_to_xtra(struct task_struct *next_p,
-> +				    struct tss_struct *tss)
->  {
-> -	if (!next->io_bitmap_ptr) {
-> +	struct thread_struct *next;
-> +
-> +	next = &next_p->thread;
-> +
-> +	if (test_tsk_thread_flag(next_p, TIF_DEBUG)) {
-> +		set_debugreg(next->debugreg[0], 0);
-> +		set_debugreg(next->debugreg[1], 1);
-> +		set_debugreg(next->debugreg[2], 2);
-> +		set_debugreg(next->debugreg[3], 3);
-> +		/* no 4 and 5 */
-> +		set_debugreg(next->debugreg[6], 6);
-> +		set_debugreg(next->debugreg[7], 7);
-> +	}
-> +
-> +	if (!test_tsk_thread_flag(next_p, TIF_IO_BITMAP)) {
->  		/*
->  		 * Disable the bitmap via an invalid offset. We still cache
->  		 * the previous bitmap owner and the IO bitmap contents:
-> @@ -544,6 +560,7 @@ handle_io_bitmap(struct thread_struct *n
->  		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
->  		return;
->  	}
-> +
->  	if (likely(next == tss->io_bitmap_owner)) {
->  		/*
->  		 * Previous owner of the bitmap (hence the bitmap content)
-> @@ -673,18 +690,9 @@ struct task_struct fastcall * __switch_t
->  	/*
->  	 * Now maybe reload the debug registers
->  	 */
-> -	if (unlikely(next->debugreg[7])) {
-> -		set_debugreg(next->debugreg[0], 0);
-> -		set_debugreg(next->debugreg[1], 1);
-> -		set_debugreg(next->debugreg[2], 2);
-> -		set_debugreg(next->debugreg[3], 3);
-> -		/* no 4 and 5 */
-> -		set_debugreg(next->debugreg[6], 6);
-> -		set_debugreg(next->debugreg[7], 7);
-> -	}
-> -
-> -	if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
-> -		handle_io_bitmap(next, tss);
-> +	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
-> +	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-> +		__switch_to_xtra(next_p, tss);
->  
->  	disable_tsc(prev_p, next_p);
->  
-> diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
-> --- a/arch/i386/kernel/ptrace.c
-> +++ b/arch/i386/kernel/ptrace.c
-> @@ -468,8 +468,11 @@ long arch_ptrace(struct task_struct *chi
->  				  for(i=0; i<4; i++)
->  					  if ((0x5f54 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
->  						  goto out_tsk;
-> +				  if (data)
-> +					  set_tsk_thread_flag(child, TIF_DEBUG);
-> +				  else
-> +					  clear_tsk_thread_flag(child, TIF_DEBUG);
->  			  }
-> -
->  			  addr -= (long) &dummy->u_debugreg;
->  			  addr = addr >> 2;
->  			  child->thread.debugreg[addr] = data;
-> diff --git a/include/asm-i386/thread_info.h b/include/asm-i386/thread_info.h
-> --- a/include/asm-i386/thread_info.h
-> +++ b/include/asm-i386/thread_info.h
-> @@ -140,6 +140,8 @@ static inline struct thread_info *curren
->  #define TIF_SECCOMP		8	/* secure computing */
->  #define TIF_RESTORE_SIGMASK	9	/* restore signal mask in do_signal() */
->  #define TIF_MEMDIE		16
-> +#define TIF_DEBUG		17	/* uses debug registers */
-> +#define TIF_IO_BITMAP		18	/* uses I/O bitmap */
->  
->  #define _TIF_SYSCALL_TRACE	(1<<TIF_SYSCALL_TRACE)
->  #define _TIF_NOTIFY_RESUME	(1<<TIF_NOTIFY_RESUME)
-> @@ -151,6 +153,8 @@ static inline struct thread_info *curren
->  #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
->  #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
->  #define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
-> +#define _TIF_DEBUG		(1<<TIF_DEBUG)
-> +#define _TIF_IO_BITMAP		(1<<TIF_IO_BITMAP)
->  
->  /* work to do on interrupt/exception return */
->  #define _TIF_WORK_MASK \
-> @@ -159,6 +163,9 @@ static inline struct thread_info *curren
->  /* work to do on any return to u-space */
->  #define _TIF_ALLWORK_MASK	(0x0000FFFF & ~_TIF_SECCOMP)
->  
-> +/* flags to check in __switch_to() */
-> +#define _TIF_WORK_CTXSW (_TIF_DEBUG|_TIF_IO_BITMAP)
-> +
->  /*
->   * Thread-synchronous status.
->   *
-
--- 
-
--Stephane
+diff -urp -X dontdiff linux-2.4.32/drivers/usb/devices.c linux-2.4.32-wk/drivers/usb/devices.c
+--- linux-2.4.32/drivers/usb/devices.c	2004-11-17 03:54:21.000000000 -0800
++++ linux-2.4.32-wk/drivers/usb/devices.c	2006-07-24 22:30:54.000000000 -0700
+@@ -392,7 +392,7 @@ static char *usb_dump_desc(char *start, 
+ 	 * Grab device's exclusive_access mutex to prevent its driver or
+ 	 * devio from using this device while we are accessing it.
+ 	 */
+-	down (&dev->exclusive_access);
++	usb_excl_lock(dev, 3, 0);
+ 
+ 	start = usb_dump_device_descriptor(start, end, &dev->descriptor);
+ 
+@@ -411,7 +411,7 @@ static char *usb_dump_desc(char *start, 
+ 	}
+ 
+ out:
+-	up (&dev->exclusive_access);
++	usb_excl_unlock(dev, 3);
+ 	return start;
+ }
+ 
+diff -urp -X dontdiff linux-2.4.32/drivers/usb/devio.c linux-2.4.32-wk/drivers/usb/devio.c
+--- linux-2.4.32/drivers/usb/devio.c	2006-04-13 19:02:30.000000000 -0700
++++ linux-2.4.32-wk/drivers/usb/devio.c	2006-07-24 22:39:32.000000000 -0700
+@@ -623,7 +623,12 @@ static int proc_bulk(struct dev_state *p
+ 			free_page((unsigned long)tbuf);
+ 			return -EINVAL;
+ 		}
++		if (usb_excl_lock(dev, 1, 1) != 0) {
++			free_page((unsigned long)tbuf);
++			return -ERESTARTSYS;
++		}
+ 		i = usb_bulk_msg(dev, pipe, tbuf, len1, &len2, tmo);
++		usb_excl_unlock(dev, 1);
+ 		if (!i && len2) {
+ 			if (copy_to_user(bulk.data, tbuf, len2)) {
+ 				free_page((unsigned long)tbuf);
+@@ -637,7 +642,12 @@ static int proc_bulk(struct dev_state *p
+ 				return -EFAULT;
+ 			}
+ 		}
++		if (usb_excl_lock(dev, 2, 1) != 0) {
++			free_page((unsigned long)tbuf);
++			return -ERESTARTSYS;
++		}
+ 		i = usb_bulk_msg(dev, pipe, tbuf, len1, &len2, tmo);
++		usb_excl_unlock(dev, 2);
+ 	}
+ 	free_page((unsigned long)tbuf);
+ 	if (i < 0) {
+@@ -1160,12 +1170,6 @@ static int usbdev_ioctl_exclusive(struct
+ 			inode->i_mtime = CURRENT_TIME;
+ 		break;
+ 
+-	case USBDEVFS_BULK:
+-		ret = proc_bulk(ps, (void *)arg);
+-		if (ret >= 0)
+-			inode->i_mtime = CURRENT_TIME;
+-		break;
+-
+ 	case USBDEVFS_RESETEP:
+ 		ret = proc_resetep(ps, (void *)arg);
+ 		if (ret >= 0)
+@@ -1259,8 +1263,13 @@ static int usbdev_ioctl(struct inode *in
+ 		ret = proc_disconnectsignal(ps, (void *)arg);
+ 		break;
+ 
+-	case USBDEVFS_CONTROL:
+ 	case USBDEVFS_BULK:
++		ret = proc_bulk(ps, (void *)arg);
++		if (ret >= 0)
++			inode->i_mtime = CURRENT_TIME;
++		break;
++
++	case USBDEVFS_CONTROL:
+ 	case USBDEVFS_RESETEP:
+ 	case USBDEVFS_RESET:
+ 	case USBDEVFS_CLEAR_HALT:
+@@ -1272,9 +1281,9 @@ static int usbdev_ioctl(struct inode *in
+ 	case USBDEVFS_RELEASEINTERFACE:
+ 	case USBDEVFS_IOCTL:
+ 		ret = -ERESTARTSYS;
+-		if (down_interruptible(&ps->dev->exclusive_access) == 0) {
++		if (usb_excl_lock(&ps->dev, 3, 1) == 0) {
+ 			ret = usbdev_ioctl_exclusive(ps, inode, cmd, arg);
+-			up(&ps->dev->exclusive_access);
++			usb_excl_unlock(&ps->dev, 3);
+ 		}
+ 		break;
+ 
+diff -urp -X dontdiff linux-2.4.32/drivers/usb/storage/transport.c linux-2.4.32-wk/drivers/usb/storage/transport.c
+--- linux-2.4.32/drivers/usb/storage/transport.c	2005-04-03 18:42:19.000000000 -0700
++++ linux-2.4.32-wk/drivers/usb/storage/transport.c	2006-07-24 22:58:58.000000000 -0700
+@@ -628,16 +628,16 @@ void usb_stor_invoke_transport(Scsi_Cmnd
+ 	int result;
+ 
+ 	/*
+-	 * Grab device's exclusive_access mutex to prevent libusb/usbfs from
++	 * Grab device's exclusive access lock to prevent libusb/usbfs from
+ 	 * sending out a command in the middle of ours (if libusb sends a
+ 	 * get_descriptor or something on pipe 0 after our CBW and before
+ 	 * our CSW, and then we get a stall, we have trouble).
+ 	 */
+-	down(&(us->pusb_dev->exclusive_access));
++	usb_excl_lock(us->pusb_dev, 3, 0);
+ 
+ 	/* send the command to the transport layer */
+ 	result = us->transport(srb, us);
+-	up(&(us->pusb_dev->exclusive_access));
++	usb_excl_unlock(us->pusb_dev, 3);
+ 
+ 	/* if the command gets aborted by the higher layers, we need to
+ 	 * short-circuit all other processing
+@@ -757,9 +757,9 @@ void usb_stor_invoke_transport(Scsi_Cmnd
+ 		srb->use_sg = 0;
+ 
+ 		/* issue the auto-sense command */
+-		down(&(us->pusb_dev->exclusive_access));
++		usb_excl_lock(us->pusb_dev, 3, 0);
+ 		temp_result = us->transport(us->srb, us);
+-		up(&(us->pusb_dev->exclusive_access));
++		usb_excl_unlock(us->pusb_dev, 3);
+ 
+ 		/* let's clean up right away */
+ 		srb->request_buffer = old_request_buffer;
+diff -urp -X dontdiff linux-2.4.32/drivers/usb/usb.c linux-2.4.32-wk/drivers/usb/usb.c
+--- linux-2.4.32/drivers/usb/usb.c	2004-11-17 03:54:21.000000000 -0800
++++ linux-2.4.32-wk/drivers/usb/usb.c	2006-07-24 22:41:19.000000000 -0700
+@@ -989,7 +989,8 @@ struct usb_device *usb_alloc_dev(struct 
+ 	INIT_LIST_HEAD(&dev->filelist);
+ 
+ 	init_MUTEX(&dev->serialize);
+-	init_MUTEX(&dev->exclusive_access);
++	spin_lock_init(&dev->excl_lock);
++	init_waitqueue_head(&dev->excl_wait);
+ 
+ 	dev->bus->op->allocate(dev);
+ 
+@@ -2380,6 +2381,59 @@ struct list_head *usb_bus_get_list(void)
+ }
+ #endif
+ 
++int usb_excl_lock(struct usb_device *dev, unsigned int type, int interruptible)
++{
++	DECLARE_WAITQUEUE(waita, current);
++
++	add_wait_queue(&dev->excl_wait, &waita);
++	if (interruptible)
++		set_current_state(TASK_INTERRUPTIBLE);
++	else
++		set_current_state(TASK_UNINTERRUPTIBLE);
++
++	for (;;) {
++		spin_lock_irq(&dev->excl_lock);
++		switch (type) {
++		case 1:		/* 1 - read */
++		case 2:		/* 2 - write */
++		case 3:		/* 3 - control: excludes both read and write */
++			if ((dev->excl_type & type) == 0) {
++				dev->excl_type |= type;
++				spin_unlock_irq(&dev->excl_lock);
++				set_current_state(TASK_RUNNING);
++				remove_wait_queue(&dev->excl_wait, &waita);
++				return 0;
++			}
++			break;
++		default:
++			spin_unlock_irq(&dev->excl_lock);
++			return -EINVAL;
++		}
++		spin_unlock_irq(&dev->excl_lock);
++
++		if (interruptible) {
++			schedule();
++			if (signal_pending(current)) {
++				remove_wait_queue(&dev->excl_wait, &waita);
++				return 1;
++			}
++			set_current_state(TASK_INTERRUPTIBLE);
++		} else {
++			schedule();
++			set_current_state(TASK_UNINTERRUPTIBLE);
++		}
++	}
++}
++
++void usb_excl_unlock(struct usb_device *dev, unsigned int type)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&dev->excl_lock, flags);
++	dev->excl_type &= ~type;
++	wake_up(&dev->excl_wait);
++	spin_unlock_irqrestore(&dev->excl_lock, flags);
++}
+ 
+ /*
+  * Init
+diff -urp -X dontdiff linux-2.4.32/include/linux/usb.h linux-2.4.32-wk/include/linux/usb.h
+--- linux-2.4.32/include/linux/usb.h	2005-12-22 17:08:01.000000000 -0800
++++ linux-2.4.32-wk/include/linux/usb.h	2006-07-24 22:30:02.000000000 -0700
+@@ -828,8 +828,19 @@ struct usb_device {
+ 
+ 	atomic_t refcnt;		/* Reference count */
+ 	struct semaphore serialize;
+-	struct semaphore exclusive_access; /* prevent driver & proc accesses  */
+-					   /* from overlapping cmds at device */
++
++	/*
++	 * This is our custom open-coded lock, similar to r/w locks in concept.
++	 * It prevents drivers and /proc access from simultaneous access.
++	 * Type:
++	 *   0 - unlocked
++	 *   1 - locked for reads
++	 *   2 - locked for writes
++	 *   3 - locked for everything
++	 */
++	wait_queue_head_t excl_wait;
++	spinlock_t excl_lock;
++	unsigned excl_type;
+ 
+ 	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
+ 	unsigned int halted[2];		/* endpoint halts; one bit per endpoint # & direction; */
+@@ -904,6 +915,8 @@ extern void usb_destroy_configuration(st
+ 
+ int usb_get_current_frame_number (struct usb_device *usb_dev);
+ 
++int usb_excl_lock(struct usb_device *dev, unsigned int type, int interruptible);
++void usb_excl_unlock(struct usb_device *dev, unsigned int type);
+ 
+ /**
+  * usb_make_path - returns stable device path in the usb tree

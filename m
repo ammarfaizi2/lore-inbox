@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWGYX31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWGYXaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWGYX31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWGYX31
+	id S1030256AbWGYXaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWGYXaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:29:27 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:32673 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1030252AbWGYX30
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:29:26 -0400
-Date: Tue, 25 Jul 2006 17:29:24 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hans Reiser <reiser@namesys.com>,
-       Alexander Viro <viro@zeniv.linux.org.uk>,
-       Al Viro <viro@ftp.linux.org.uk>, reiserfs-dev@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: possible recursive locking detected - while running fs operations in loops - 2.6.18-rc2-git5
-Message-ID: <20060725232924.GU6452@schatzie.adilger.int>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Hans Reiser <reiser@namesys.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Al Viro <viro@ftp.linux.org.uk>, reiserfs-dev@namesys.com,
-	reiserfs-list@namesys.com
-References: <9a8748490607251516j1433306ek9c64cc84c0838f7b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490607251516j1433306ek9c64cc84c0838f7b@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 25 Jul 2006 19:30:16 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:3503 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1030256AbWGYXaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 19:30:15 -0400
+Date: Tue, 25 Jul 2006 16:29:27 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Neil Horman <nhorman@tuxdriver.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+In-Reply-To: <20060725231043.GA4661@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0607251625400.9159@qynat.qvtvafvgr.pbz>
+References: <44C66C91.8090700@zytor.com>  <20060725192138.GI4608@hmsreliant.homelinux.net>
+  <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> 
+ <20060725194733.GJ4608@hmsreliant.homelinux.net> 
+ <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> 
+ <44C67E1A.7050105@zytor.com>  <20060725204736.GK4608@hmsreliant.homelinux.net>
+  <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain>
+  <44C69C2E.7000609@zytor.com> <20060725231043.GA4661@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 26, 2006  00:16 +0200, Jesper Juhl wrote:
-> What I did to provoke it was to run 6 different xterms (with a bash
-> shell) with the following loops in them in a test directory that was
-> initially empty :
-> 
-> xterm1:   while true; do mkdir a; done
-> xterm2:   while true; do rmdir a; done
-> xterm3:   while true; do touch a/foo; done
-> xterm4:   while true; do find .; done
-> xterm5:   while true; do sync; sleep 1; done
-> xterm6:   while true; do rm -r a; done
+On Tue, 25 Jul 2006, Neil Horman wrote:
 
-See racer test at ftp.lustre.org/pub/benchmarks/racer-lustre.tar.gz
+>>
+>> Quick hacks are frowned upon in the Linux universe.  The kernel-user
+>> space interface is supposed to be stable, and thus a hack like this has
+>> to be maintained indefinitely.
+>>
+>> Putting temporary hacks like this in is not a good idea.
+>>
+> Only if you make the mental leap that this is a hack; its not.  Its a new
+> feature for a driver.  mmap on device drivers is a well known and understood
+> interface.  There is nothing hackish about it.  And there is no need for it to
+> be temporary either.  Why shouldn't the rtc driver be able to export a monotonic
+> counter via the mmap interface? mmtimer does it already, as do many other
+> drivers.  Theres nothing unstable about this interface, and it need not be short
+> lived.  It can live in perpituity, and applications can choose to use it, or
+> migrate away from it should something else more efficient become available (a
+> gettimeofday vsyscall).  More importantly, it can continue to be used in those
+> situations where a vsyscall is not feasable, or simply maps to the nominal slow
+> path kernel trap that one would find to heavy-weight to use in comparison to an
+> mmaped page.
 
-It does the above, but a bunch more things and is a truly pathalogical
-test script that does lots of "stupid user tricks", unlike normal tests
-which are only doing operations that expect to be successful.
+given that this won't go into 2.6.18 at this point, isn't there time to figure 
+out the gettimeofday vsyscall before the 2.6.19 merge window? (in a month or 
+so). even if you have to wait until 2.6.20 it's unlikly that any apps could be 
+released with an interface to /dev/rtc rather then waiting a little bit for the 
+better interface.
 
-PS - during the racer.sh test run "rm" is known to segfault after hitting
-     an internal assertion, nobody is sure why.
-PPS- I don't know who wrote this program, it was originally posted by
-     someone not the author to linux-fsdevel or something.
-
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-
+David Lang

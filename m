@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751485AbWGYSxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWGYS4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751485AbWGYSxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWGYSxS
+	id S1751489AbWGYS4i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWGYS4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:53:18 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54149 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751485AbWGYSxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:53:18 -0400
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Neil Horman <nhorman@tuxdriver.com>
+	Tue, 25 Jul 2006 14:56:38 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:1453 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751489AbWGYS4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 14:56:38 -0400
+In-Reply-To: <20060725182833.GE4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <857D7DE9-D1F6-4A66-91F2-BC4D9044D42C@kernel.crashing.org>
 Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-In-Reply-To: <20060725184328.GF4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-	 <1153850139.8932.40.camel@laptopd505.fenrus.org>
-	 <20060725182208.GD4608@hmsreliant.homelinux.net>
-	 <1153852375.8932.41.camel@laptopd505.fenrus.org>
-	 <20060725184328.GF4608@hmsreliant.homelinux.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 20:53:16 +0200
-Message-Id: <1153853596.8932.44.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Date: Tue, 25 Jul 2006 20:56:14 +0200
+To: Neil Horman <nhorman@tuxdriver.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 14:43 -0400, Neil Horman wrote:
-> On Tue, Jul 25, 2006 at 08:32:55PM +0200, Arjan van de Ven wrote:
-> > 
-> > > > 3) this will negate the power gain you get for tickless kernels, since
-> > > > now they need to start ticking again ;( )
-> > > > 
-> > > That is true, but only in the case where someone opens up /dev/rtc, and if they
-> > > open that driver and send it a UIE or PIE ioctl, it will start ticking
-> > > regardless of this patch (or that is at least my impression).
-> > 
-> > but.. if that's X like you said.. then it's basically "always"...
-> > 
-> Well, not always (considering the number of non-X embedded systems out there),
-> but I take your point.  So it really boils down to not having a tickless kernel,
-> or an X server that calls gettimeofday 1 million times per second (I think thats
-> the number that Dave threw out there).  Unless of course, you have a third
-> alternative, which, as I mentioned before I would be happy to take a crack at,
-> if you would elaborate on your idea a little more.
+>> Similar functionality is already available via VDSO on
+>> platforms that support it (currently PowerPC and AMD64?) --
+>> seems like a better way forward.
+>>
+> In general I agree, but that only works if you operate on a  
+> platform that
+> supports virtual syscalls, and has vdso configured.
 
-well the idea that has been tossed about a few times is using a vsyscall
-function that either calls into the kernel, or directly uses the hpet
-page (which can be user mapped) to get time information that way... 
-or even would use rdtsc in a way the kernel knows is safe (eg corrected
-for the local cpu's speed and offset etc etc).
+That's why I said "a better way forward", not "this already
+works everywhere".
+
+> I'm not overly familiar
+> with vdso, but I didn't think vdso could be supported on all  
+> platforms/arches.
+
+Oh?  Which can not, and why?
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Segher
 

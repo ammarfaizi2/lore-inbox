@@ -1,23 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWGYHv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWGYHxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWGYHv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 03:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWGYHv5
+	id S1751484AbWGYHxN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 03:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWGYHxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 03:51:57 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:993 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751395AbWGYHv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 03:51:57 -0400
-Date: Tue, 25 Jul 2006 03:46:39 -0400
+	Tue, 25 Jul 2006 03:53:13 -0400
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:43146 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751488AbWGYHxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 03:53:11 -0400
+Date: Tue, 25 Jul 2006 03:46:38 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH for 2.6.18rc2] [1/7] i386/x86-64: Don't randomize
-  stack top when...
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>
-Message-ID: <200607250348_MC3-1-C5FB-CC80@compuserve.com>
+Subject: Re: Debugging APM - cat /proc/apm produces oops
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Rothwell <sfr@canb.auug.org.au>
+Message-ID: <200607250348_MC3-1-C5FB-CC7F@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -26,39 +24,54 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <44c514a8.6HlRR82y133O2bd0%ak@suse.de>
+In-Reply-To: <200607242351.37578.linux@rainbow-software.org>
 
-On Mon, 24 Jul 2006 20:42:48 +0200, Andi Kleen wrote:
+On Mon, 24 Jul 2006 23:51:37 +0200, Ondrej Zary wrote:
+>
+> > >  printing eip:
+> > > 00002f9d
+> > > *pre = 00000000
+> > > Oops: 0002 [#4]
+> > > Modules linked in:
+> > > CPU:    0
+> > > EIP:    00c0:[<00002f9d>]    Not tainted VLI
+> >
+> >           ^^^^
+> > This is the APM BIOS 16 bit code segment.
+>
+> Looking at BIOS disassembly:
+> 2F97: push bp
+> 2F98: mov bp,sp
+> 2F9A: add sp,-2
+> 2F9D: mov [bp][-2],bx    <-- it oopses here
+
+That's expected.  You can push/pop/call/ret using the kernel stack
+because its 32-bit stack-size attribute controls how the stack is
+addressed, but using it like that makes it use 16 bits (the CS
+address size.)
+
+This could probably be fixed in the kernel but it doesn't look
+worth the trouble since the fix could be really ugly.
+
+> I realized that I can modify the BIOS easily as it's stored in shadow RAM. So 
+> I replaced the offending MOV with three NOPs and tested again. This time it 
+> oopsed at 0x2FAD:
+> 2FAD: cmp w,[bp][-2],1
+> 2FB1: je 2FCB
 > 
-> --- linux.orig/arch/i386/kernel/process.c
-> +++ linux/arch/i386/kernel/process.c
-> @@ -37,6 +37,7 @@
->  #include <linux/kallsyms.h>
->  #include <linux/ptrace.h>
->  #include <linux/random.h>
-> +#include <linux/personality.h>
->  
->  #include <asm/uaccess.h>
->  #include <asm/pgtable.h>
-> @@ -905,7 +906,7 @@ asmlinkage int sys_get_thread_area(struc
->  
->  unsigned long arch_align_stack(unsigned long sp)
->  {
-> -     if (randomize_va_space)
-> +     if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
->               sp -= get_random_int() % 8192;
->       return sp & ~0xf;
->  }
+> that jump was taken during my single stepping, so I NOPped out the CMP and 
+> replaced JE with JMPS. Then booted Linux and APM seems to work fine - battery 
+> percentage and remaining time is there as well as AC power status.
+> There seems to be 4 these operations:
+> mov [bp][-2],bx
+> cmp w,[bp][-2],1
+> cmp w,[bp][-2],8002
+> cmp w,[bp][-2],8001
+> but I've hit only the first two of them. I wonder what's that for (especially 
+> when it works without that).
 
-I think this needs to be done always, at least on P4.  It really isn't
-'randomization' at the same high level as the rest -- more like a small
-adjustment.  And the offset should be a multiple of 128 and < 7K (not
-8K.) Something like this:
-
-        unsigned int r = get_random_int();
-        sp &= ~0x7f;
-        sp -= 128 * ((r % 32) + (r / 32 % 16));
-        return sp;
+Something is calling this after pushing the arg to the function onto the
+stack.  I guess it's always calling it with a 1 if that's all you are seeing.
 
 -- 
 Chuck

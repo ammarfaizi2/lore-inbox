@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWGYUUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWGYUZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWGYUUd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWGYUUd
+	id S1030190AbWGYUZY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWGYUZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:20:33 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:8137 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750997AbWGYUUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:20:32 -0400
-Date: Tue, 25 Jul 2006 16:15:16 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: switch_to(): misplaced parentheses
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200607251616_MC3-1-C618-C015@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Tue, 25 Jul 2006 16:25:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:31679 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030190AbWGYUZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:25:23 -0400
+Date: Tue, 25 Jul 2006 13:21:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-stable: what's the plan?
+Message-ID: <20060725202101.GA19766@kroah.com>
+References: <200607251540_MC3-1-C616-72C1@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200607251540_MC3-1-C616-72C1@compuserve.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent changes in i386 __switch_to() have a misplaced closing
-parenthesis causing an unlikely() to terminate early.
+On Tue, Jul 25, 2006 at 03:37:44PM -0400, Chuck Ebbert wrote:
+> Any more information about how you're planning to maintain
+> 2.6.16?  Has the -stable team has done their final release?
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+The -stable team is suffering from travel lag right now (KS, OLS, and
+then OSCON), and are still working out the infrastructure issues right
+now.
 
---- 2.6.18-rc2-32.orig/arch/i386/kernel/process.c
-+++ 2.6.18-rc2-32/arch/i386/kernel/process.c
-@@ -690,8 +690,8 @@ struct task_struct fastcall * __switch_t
- 	/*
- 	 * Now maybe handle debug registers and/or IO bitmaps
- 	 */
--	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW))
--	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP))
-+	if (unlikely((task_thread_info(next_p)->flags & _TIF_WORK_CTXSW)
-+	    || test_tsk_thread_flag(prev_p, TIF_IO_BITMAP)))
- 		__switch_to_xtra(next_p, tss);
- 
- 	disable_tsc(prev_p, next_p);
--- 
-Chuck
+I think that the next .16-stable kernel will probably come from Adrian,
+but need to check my patch queue before I can be sure of this.
+
+Anyway, yes, it's still in the plans, but the conference season is
+slowing things down.  It should all be in place by next week.
+
+Thanks for your patience.
+
+greg k-h

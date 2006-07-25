@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWGYCol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWGYCrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWGYCol (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 22:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWGYCol
+	id S932415AbWGYCrX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 22:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWGYCrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 22:44:41 -0400
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:15338 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932384AbWGYCol (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 22:44:41 -0400
-Message-ID: <44C58596.8060005@bigpond.net.au>
-Date: Tue, 25 Jul 2006 12:44:38 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
-References: <200607241857.52389.a1426z@gawab.com>
-In-Reply-To: <200607241857.52389.a1426z@gawab.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 24 Jul 2006 22:47:23 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:19372 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932415AbWGYCrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 22:47:22 -0400
+Date: Tue, 25 Jul 2006 11:50:04 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org, ebiederm@xmission.com
+Subject: Re: [RFC] ps command race fix
+Message-Id: <20060725115004.a6c668ca.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060724193318.d57983c1.akpm@osdl.org>
+References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724182000.2ab0364a.akpm@osdl.org>
+	<20060724184847.3ff6be7d.pj@sgi.com>
+	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724193318.d57983c1.akpm@osdl.org>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 25 Jul 2006 02:44:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> This version removes the hard/soft CPU rate caps from the SPA schedulers.
->>
->> A patch for 2.6.18-rc2 is available at:
->>
->> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.4-for-2.6.18-rc2.pat
->> ch?download>
->>
->> Very Brief Documentation:
->>
->> You can select a default scheduler at kernel build time.  If you wish to
->> boot with a scheduler other than the default it can be selected at boot
->> time by adding:
->>
->> cpusched=<scheduler>
-> 
-> Any reason dynsched couldn't be merged with plugsched?
+On Mon, 24 Jul 2006 19:33:18 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-None that I know of (but I'm not familiar with dynsched).  Patches to 
-add it to the mix would be accepted and once in I would try to keep it 
-in step with kernel changes.
-
+> On Tue, 25 Jul 2006 11:08:35 +0900
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 > 
->> to the boot command line where <scheduler> is one of: ingosched,
->> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
->> or zaphod.  If you don't change the default when you build the kernel
->> the default scheduler will be ingosched (which is the normal scheduler).
->>
->> The scheduler in force on a running system can be determined by the
->> contents of:
->>
->> /proc/scheduler
+> > > Then the seek and read and such semantics are nice and stable and
+> > > simple.
+> > > 
+> > yes...
+> > I think snapshot at open() is okay.
 > 
-> It may be really great, to allow schedulers perPid parent, thus allowing the 
-> stacking of different scheduler semantics.  This could aid flexibility a 
-> lot.
-
-I'm don't understand what you mean here.  Could you elaborate?
-
+> We cannot do a single kmalloc() like cpuset does.
 > 
-> Worth a try, and should be easy to implement.
+> The kernel presently kind-of guarantees that a 32k kmalloc() will work,
+> although the VM might have to do very large amounts of work to achieve it.
 > 
->> Control parameters for the scheduler can be read/set via files in:
->>
->> /sys/cpusched/<scheduler>/
+> But 32k is only 8192 processes, so a snapshot will need multiple
+> allocations and a list and trouble dropping and retaking tasklist_lock to
+> allocate memory and keeping things stable while doing that.  I suspect
+> it'll end up ugly.
 > 
-> Thanks for the most important out-of-tree patch that makes 2.6 reasonable.
 
-My pleasure,
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Hm, how about using bitmap instead of table ? (we'll have many holes but...)
+Implementing
+- sytem-wide bitmap of used tgid which is updated only when /proc is opened
+seems not to be much problem. 32k kmalloc can store 256k pids.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+BTW, how large pids and how many proccess in a (heavy and big) system ?
+
+-Kame
+

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWGYMw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWGYMwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWGYMw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 08:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWGYMw0
+	id S1751245AbWGYMwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 08:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWGYMwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 08:52:26 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:23964 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1751392AbWGYMwY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 08:52:24 -0400
-Subject: Re: loopback blockdevice driver partition support
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Neil Brown <neilb@suse.de>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <17605.22477.933202.350306@cse.unsw.edu.au>
-References: <1153783192.11477.7.camel@localhost>
-	 <17605.22477.933202.350306@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Tue, 25 Jul 2006 14:52:21 +0200
-Message-Id: <1153831941.11477.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jul 2006 08:52:05 -0400
+Received: from mx01.qsc.de ([213.148.129.14]:19924 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S1751245AbWGYMwE convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 08:52:04 -0400
+From: Rene Rebe <rene@exactcode.de>
+Organization: ExactCODE
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Date: Tue, 25 Jul 2006 14:51:37 +0200
+User-Agent: KMail/1.9.3
+Cc: Nikita Danilov <nikita@clusterfs.com>, Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+References: <44C12F0A.1010008@namesys.com> <17604.31639.213450.987415@gargle.gargle.HOWL> <20060725123558.GA32243@opteron.random>
+In-Reply-To: <20060725123558.GA32243@opteron.random>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607251451.37821.rene@exactcode.de>
+X-Spam-Score: -101.4 (---------------------------------------------------)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, On Tuesday 25 July 2006 14:35, Andrea Arcangeli
+	wrote: ... > average of 5 minutes) they may not get logged in KLive.
+	OTOH this also > means that all computers showing reiser4 in the logs
+	had it mounted > since about the boot time (so if reiser4 would corrupt
+	memory badly by > just mounting nobody could reasonably hope to reach 20
+	days of > uptime). [...] 
+	Content analysis details:   (-101.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-100 USER_IN_WHITELIST      From: address is in the user's white-list
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 09:29 +1000, Neil Brown wrote:
-> On Tuesday July 25, lkml@metanurb.dk wrote:
-> > hello.. i was wondering if someone may have done some work to make the
-> > loopback driver support partitions..
-> > 
-> > i found that a guy had written a nice script that used sfdisk and
-> > dmsetup to use device mapper on a loopback image of an entire harddrive
-> > (using DOS partition table ofcourse) to create device mapper
-> > "partitions".
-> > 
-> > though this doesent quite meet my requirements, as i need to read an
-> > image of an amiga disk..
-> > 
-> > therefore it would seem like a good idea to make the loopback driver
-> > work with linux's partition table support, since it already supports
-> > this.
-> > 
-> > if anyone has done some work in this, please mail me, and possibly i can
-> > continue it if wanted. just want to know if anyone already has done
-> > something like it before i try at it myself..
-> > 
-> 
-> You could try wrapping an md/linear around it
->  
-> mkdir -p /dev/md
-> mdadm -Bf -c4 -l linear -n1 -ap /dev/md/d0 /dev/loop0
-> 
-> then look at partitions in /dev/md/d0pN
-Yeah, i ended up doing this, i found that md supports partitions, and
-linear was a perfect match for what i needed.
+Hi,
 
-> 
-> NeilBrown
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+On Tuesday 25 July 2006 14:35, Andrea Arcangeli wrote:
+...
+> average of 5 minutes) they may not get logged in KLive. OTOH this also
+> means that all computers showing reiser4 in the logs had it mounted
+> since about the boot time (so if reiser4 would corrupt memory badly by
+> just mounting nobody could reasonably hope to reach 20 days of
+> uptime).
 
+Well I tested Reiser4 on systems building our Linux flavour (based on the T2 
+framework) thus with excessive software compilation, a lot of tarball 
+extraction, compilation of fat packages such as linux, mozilla, openoffice 
+et.al. and huge per-package ccache directories -> zilions of small files and 
+did not encounter any abnormal behaviour aside the yet-to-be-fixed commit 
+storms. Performance was superiour over ext3, XFS*, JFS or Reiser3 in this 
+workload (that is less time "wasted" for FS housekeeping and the build 
+finished noticable earlier). Patchset was tested around 2.6.1{4,5]. But I do 
+not have the numbers around anymore and was basically waiting for Reiser4 to 
+make it into the kernel to schedule further testing.
+
+You can see I'm not a blind Reiser4 follower but would rather like to see a 
+fair chance for it.
+
+*) XFS oopsed so often in this test that I'll never touch it again ...
+
+Yours,
+
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+            http://exactcode.de | http://t2-project.org | http://rebe.name
+            +49 (0)30 / 255 897 45

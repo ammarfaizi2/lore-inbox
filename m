@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGYUO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWGYUQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWGYUO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWGYUOZ
+	id S1030188AbWGYUQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGYUQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:14:25 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:63920 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030187AbWGYUOX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:14:23 -0400
-In-Reply-To: <Pine.LNX.4.64.0607251104380.21352@d.namei>
-Subject: Re: [RFC][PATCH 2/6] Integrity Service API and dummy provider
-To: James Morris <jmorris@namei.org>
-Cc: David Safford <safford@us.ibm.com>, kjhall@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       linux-security-module-owner@vger.kernel.org,
-       Serge E Hallyn <sergeh@us.ibm.com>
-X-Mailer: Lotus Notes Release 7.0.1 Beta3NP May 09, 2006
-Message-ID: <OF6DA008AE.385E4929-ON852571B6.006D8515-852571B6.006F98E0@us.ibm.com>
-From: Mimi Zohar <zohar@us.ibm.com>
-Date: Tue, 25 Jul 2006 16:14:20 -0400
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
- 07/25/2006 16:14:22
+	Tue, 25 Jul 2006 16:16:53 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:39726 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964854AbWGYUQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:16:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=RBua6732UQECkOvyz7XdnTYTwhaHQFLZB77HfUgRuWagXSjomY3SRQXOVEg4wyTi7wnwcrFQ1SmPAIWOaBfAOpg2aNuWi2HPoKtGGwsK4aSQdM+MzZ1JXSHt/warKwd8l6ki7XIC6xtVir19b0aitQI5owITwX7RTOyt4devr30=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] update I/O sched Kconfig help texts - CFQ is now default, not AS.
+Date: Tue, 25 Jul 2006 22:18:01 +0200
+User-Agent: KMail/1.9.3
+Cc: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+       Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607252218.01663.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Change I/O scheduler description to correctly show CFQ as being the default
+scheduler and not the anticipatory scheduler that previously was default.
 
-On 07/25/2006 11:08:17 AM, James Morris wrote:
 
-> On Mon, 24 Jul 2006, Kylene Jo Hall wrote:
->
-> > + * @verify_data:
-> > + *   Verify the integrity of a dentry.
-> > + *   @dentry contains the dentry structure to be verified.
-> > + *   Possible return codes are: INTEGRITY_PASS, INTEGRITY_FAIL,
-> > + *       INTEGRITY_NOLABEL
-> > + *
-> > + * @verify_metadata:
-> > + *   Verify the integrity of a dentry's metadata; return the value
-> > + *    of the requested xattr_name and the verification result of the
-> > + *   dentry's metadata.
-> > + *   @dentry contains the dentry structure of the metadata to be
-verified.
-> > + *   @xattr_name, if not null, contains the name of the xattr
-> > + *       being requested.
-> > + *   @xattr_value, if not null, is a pointer for the xattr value.
-> > + *   @xattr_val_len will be set to the length of the xattr value.
-> > + *   @xattr_status is the result of the getxattr request for the
-xattr.
-> > + *   Possible return codes are: INTEGRITY_PASS, INTEGRITY_FAIL,
-> > + *      INTEGRITY_NOLABEL, -EOPNOTSUPP, -ENOMEM,
->
-> What I would suggest with these API calls is that they always only return
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-> errno values, and that you pass back the INTEGRITY_ values via a pointer.
->
-> This ensures that errno values are cleanly propagated throughout the
-> kernel and that 'system' errors are separated from higher level integrity
+ block/Kconfig.iosched |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-> service status values.
+--- linux-2.6.18-rc2-git5-orig/block/Kconfig.iosched	2006-07-18 18:46:18.000000000 +0200
++++ linux-2.6.18-rc2-git5/block/Kconfig.iosched	2006-07-25 22:12:08.000000000 +0200
+@@ -15,10 +15,10 @@ config IOSCHED_AS
+ 	tristate "Anticipatory I/O scheduler"
+ 	default y
+ 	---help---
+-	  The anticipatory I/O scheduler is the default disk scheduler. It is
+-	  generally a good choice for most environments, but is quite large and
+-	  complex when compared to the deadline I/O scheduler, it can also be
+-	  slower in some cases especially some database loads.
++	  The anticipatory I/O scheduler is generally a good choice for most
++	  environments, but is quite large and complex when compared to the
++	  deadline I/O scheduler, it can also be slower in some cases
++	  especially some database loads.
+ 
+ config IOSCHED_DEADLINE
+ 	tristate "Deadline I/O scheduler"
+@@ -37,6 +37,7 @@ config IOSCHED_CFQ
+ 	  The CFQ I/O scheduler tries to distribute bandwidth equally
+ 	  among all processes in the system. It should provide a fair
+ 	  working environment, suitable for desktop systems.
++	  This is the default I/O scheduler.
+ 
+ choice
+ 	prompt "Default I/O scheduler"
 
-Yes, that definitely would be cleaner.  We'll include this change in the
-next
-set of patches.
-
-Thank you.
-
-Mimi Zohar
 

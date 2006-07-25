@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWGYV6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWGYWAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWGYV6r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 17:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWGYV6m
+	id S1030200AbWGYWAb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWGYWAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 17:58:42 -0400
-Received: from cpe-69-204-205-148.stny.res.rr.com ([69.204.205.148]:15884 "EHLO
-	DENNIS-0JSN9Z77.uzhi.net") by vger.kernel.org with ESMTP
-	id S1030219AbWGYV6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 17:58:40 -0400
-Message-ID: <47632709859948.5B7E98A9A8@21PNZRAU>
-From: "Cotton" <altruismclaudio@rescueteam.com>
-To: <linux-laptop@vger.kernel.org>
-Subject: Nutritional substances can also stimulate thermogenesis. Thermogenesis, when not simply needed for routine food digestion and metabolism, is both a source of heat and when stimulated through appropriate dietary supplementation, a mechanism to increase metabolic rate. 
-Date: Tue, 25 Jul 2006 17:58:39 -0400
+	Tue, 25 Jul 2006 18:00:31 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:55446 "EHLO
+	asav04.manage.insightbb.com") by vger.kernel.org with ESMTP
+	id S1030200AbWGYWAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 18:00:30 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AT0KAPQvxkSBTw
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC PATCH] Multi-threaded device probing
+Date: Tue, 25 Jul 2006 18:00:24 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+References: <20060725203028.GA1270@kroah.com>
+In-Reply-To: <20060725203028.GA1270@kroah.com>
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: zAUOHj8zZU6sFDitJgXzfxNPX5ZhZXJ0YXZI
 Content-Type: text/plain;
-        charset="Windows-1252"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607251800.25328.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day to you Sir! 
+On Tuesday 25 July 2006 16:30, Greg KH wrote:
+> During the kernel summit, I was reminded by the wish by some people to
+> do device probing in parallel, so I created the following patch.  It
+> offers up the ability for the driver core to create a new thread for
+> every driver<->device probe call.  To enable this, the driver needs to
+> have the multithread_probe flag set to 1, otherwise the "traditional"
+> sequencial probe happens.
+> 
 
+Another option would be to have probing still serialized within a bus but
+serviced by a separate thread. The thread can die after let's say 1 minute
+inactivity timeout and respawned if needed.
 
- Supplement your life today! Join thousands of satisfied customers and experience for yourself the proven benefits of Fatblaster.  This allows you to loose weight naturally, without starving diet programs or excessive workouts. Its also an energy booster so you feel more alert.  Check up here: http://klopinta.com/gall/fb/ 
-
-
- Nah every crab hole get crab.	 Life is a mystery to be lived, not a problem to be solved For by means of a whorish woman a man is brought to a piece of bread: and the adultress will hunt for the precious life.
-
- One good turn deserves another. Every man has his price
-
+-- 
+Dmitry

@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWGYQ52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWGYQ6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWGYQ52 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 12:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWGYQ5B
+	id S964803AbWGYQ6B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 12:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGYQ5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 12:57:01 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:29727 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932479AbWGYQ46
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 12:56:58 -0400
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+	Tue, 25 Jul 2006 12:57:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42891 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932480AbWGYQ5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 12:57:30 -0400
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+In-Reply-To: <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
+References: <20060725034247.GA5837@kroah.com>
+	 <m33bcqdn5y.fsf@anduin.mandriva.com>
+	 <200607251123.40549.adq_dvb@lidskialf.net>
+	 <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 25 Jul 2006 18:56:58 +0200
+Message-Id: <1153846619.8932.36.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 4 of 7] [x86-64] Calgary IOMMU: fix error path memleak in
-	calgary_free_tar
-X-Mercurial-Node: 7b1cdbc92f2c618cb59feaf472c8b76df875743d
-Message-Id: <7b1cdbc92f2c618cb59f.1153846594@rhun.haifa.ibm.com>
-In-Reply-To: <patchbomb.1153846590@rhun.haifa.ibm.com>
-Date: Tue, 25 Jul 2006 19:56:34 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: ak@suse.de
-Cc: jdmason@us.ibm.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       muli@il.ibm.com
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1 files changed, 10 insertions(+), 2 deletions(-)
-arch/x86_64/kernel/pci-calgary.c |   12 ++++++++++--
+On Tue, 2006-07-25 at 09:47 -0700, David Lang wrote:
+> On Tue, 25 Jul 2006, Andrew de Quincey wrote:
+> 
+> > On Tuesday 25 July 2006 10:55, Arnaud Patard wrote:
+> >> Greg KH <gregkh@suse.de> writes:
+> >>
+> >> Hi,
+> >>
+> >>> We (the -stable team) are announcing the release of the 2.6.17.7 kernel.
+> >>
+> >> Sorry, but doesn't compile if DVB_BUDGET_AV is set :(
+> >>
+> >>> Andrew de Quincey:
+> >>>       v4l/dvb: Fix budget-av frontend detection
+> >
+> >
+> > In fact it is just this patch causing the problem:
+> <SNIP>
+> > Sorry, I had so much work going on in that area I must have diffed the wrong
+> > kernel when I created this patch. :(
+> 
+> is it reasonable to have an aotomated test figure out what config options are 
+> relavent to a patch (or patchset) and test compile all the combinations to catch 
+> this sort of mistake?
+
+well you can do such a thing withing statistical bounds; however... if
+the patch already is in -git (as is -stable policy normally).. it should
+have been found there already...
 
 
-# HG changeset patch
-# User Muli Ben-Yehuda <muli@il.ibm.com>
-# Date 1153737408 -10800
-# Node ID 7b1cdbc92f2c618cb59feaf472c8b76df875743d
-# Parent  4b8fbf25700873a70eff09264e52e9f6c6330c18
-[x86-64] Calgary IOMMU: fix error path memleak in calgary_free_tar
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 
-We were freeing the iommu_table and leaking the bitmap pages. Also
-rename it to calgary_free_bus, which is more accurate.
-
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
-
-diff -r 4b8fbf257008 -r 7b1cdbc92f2c arch/x86_64/kernel/pci-calgary.c
---- a/arch/x86_64/kernel/pci-calgary.c	Mon Jul 24 13:30:03 2006 +0300
-+++ b/arch/x86_64/kernel/pci-calgary.c	Mon Jul 24 13:36:48 2006 +0300
-@@ -658,11 +658,12 @@ static int __init calgary_setup_tar(stru
- 	return 0;
- }
- 
--static void __init calgary_free_tar(struct pci_dev *dev)
-+static void __init calgary_free_bus(struct pci_dev *dev)
- {
- 	u64 val64;
- 	struct iommu_table *tbl = dev->sysdata;
- 	void __iomem *target;
-+	unsigned int bitmapsz;
- 
- 	target = calgary_reg(tbl->bbar, tar_offset(dev->bus->number));
- 	val64 = be64_to_cpu(readq(target));
-@@ -670,8 +671,15 @@ static void __init calgary_free_tar(stru
- 	writeq(cpu_to_be64(val64), target);
- 	readq(target); /* flush */
- 
-+	bitmapsz = tbl->it_size / BITS_PER_BYTE;
-+	free_pages((unsigned long)tbl->it_map, get_order(bitmapsz));
-+	tbl->it_map = NULL;
-+
- 	kfree(tbl);
- 	dev->sysdata = NULL;
-+
-+	/* Can't free bootmem allocated memory after system is up :-( */
-+	bus_info[dev->bus->number].tce_space = NULL;
- }
- 
- static void calgary_watchdog(unsigned long data)
-@@ -853,7 +861,7 @@ error:
- 		if (!bus_info[dev->bus->number].tce_space && !translate_empty_slots)
- 			continue;
- 		calgary_disable_translation(dev);
--		calgary_free_tar(dev);
-+		calgary_free_bus(dev);
- 		pci_dev_put(dev);
- 	}
- 

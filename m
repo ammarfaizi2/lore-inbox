@@ -1,276 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWGYGHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWGYGKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWGYGHy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWGYGHy
+	id S1751432AbWGYGKW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWGYGKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:07:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57754 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751442AbWGYGHx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:07:53 -0400
-Date: Mon, 24 Jul 2006 23:07:32 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       zaitcev@redhat.com, mtosatti@redhat.com
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Message-Id: <20060724230732.4fdf2bf4.zaitcev@redhat.com>
-In-Reply-To: <200607201044.00739.benjamin.cherian.kernel@gmail.com>
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com>
-	<200607181004.55191.benjamin.cherian.kernel@gmail.com>
-	<20060718183313.e8e5a5b2.zaitcev@redhat.com>
-	<200607201044.00739.benjamin.cherian.kernel@gmail.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jul 2006 02:10:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65153 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751432AbWGYGKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:10:21 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ps command race fix
+References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724182000.2ab0364a.akpm@osdl.org>
+Date: Tue, 25 Jul 2006 00:09:17 -0600
+In-Reply-To: <20060724182000.2ab0364a.akpm@osdl.org> (Andrew Morton's message
+	of "Mon, 24 Jul 2006 18:20:00 -0700")
+Message-ID: <m13bcqmd0y.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jul 2006 10:43:59 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> > Although I am starting to think about creating a custom locking
-> > scheme in devio.c after all. It seems like less work.
+> So I think we're still seeking a solution to this.
+>
+> Options might be:
+>
+> a) Pin the most-recently-visited task in some manner, so that it is
+>    still on the global task list when we return.  That's fairly simple to
+>    do (defer the release_task()) but it affects task lifetime and visibility
+>    in rare and worrisome ways.
+>
+> b) Change proc_pid_readdir() so that it walks the pid_hash[] array
+>    instead of the task list.  Need to do something clever when traversing
+>    each bucket's list, but I'm not sure what ;) It's the same problem.
+>
+>    Possibly what we could do here is to permit the task which is walking
+>    /proc to pin a particular `struct pid': take a ref on it then when we
+>    next start walking one of the pid_hash[] chains, we _know_ that the
+>    `struct pid' which we're looking for will still be there.  Even if it
+>    now refers to a departed process.
+>
+> c) Nuke the pid_hash[], convert the whole thing to a radix-tree. 
+>    They're super-simple to traverse.  Not sure what we'd index it by
+>    though.
+>
+> I guess b) is best.
 
-> What's your timeframe for this? Good luck with it.
+The advantage with walking the task list is new entries are always added
+at the end.  Neither of the other two proposed orders does that.  So
+in fact I think the problem will get worse leaving more tasks skipped,
+because in those cases new tasks can be inserted before our cursor in
+the list.  The proposed snapshot implementation has a similar problem
+in that new process could get skipped.
 
-OK, now I hate my life, I hate you, I hate Stuart, but most of all
-I hate the anonymous Japanese who wrote the microcode for TEAC CD-210PU.
-Anyway, please test the attached patch. Does it do what you want?
+The simplest version I can think of is to place a cousin of the
+tasklist into struct pid.  Allowing us to use a very similar
+algorithm to what we use now.  But since we can pin struct pid we
+won't have the chance of our current position being deleted.
 
--- Pete
-
-diff -urp -X dontdiff linux-2.4.32/drivers/usb/devices.c linux-2.4.32-wk/drivers/usb/devices.c
---- linux-2.4.32/drivers/usb/devices.c	2004-11-17 03:54:21.000000000 -0800
-+++ linux-2.4.32-wk/drivers/usb/devices.c	2006-07-24 22:30:54.000000000 -0700
-@@ -392,7 +392,7 @@ static char *usb_dump_desc(char *start, 
- 	 * Grab device's exclusive_access mutex to prevent its driver or
- 	 * devio from using this device while we are accessing it.
- 	 */
--	down (&dev->exclusive_access);
-+	usb_excl_lock(dev, 3, 0);
- 
- 	start = usb_dump_device_descriptor(start, end, &dev->descriptor);
- 
-@@ -411,7 +411,7 @@ static char *usb_dump_desc(char *start, 
- 	}
- 
- out:
--	up (&dev->exclusive_access);
-+	usb_excl_unlock(dev, 3);
- 	return start;
- }
- 
-diff -urp -X dontdiff linux-2.4.32/drivers/usb/devio.c linux-2.4.32-wk/drivers/usb/devio.c
---- linux-2.4.32/drivers/usb/devio.c	2006-04-13 19:02:30.000000000 -0700
-+++ linux-2.4.32-wk/drivers/usb/devio.c	2006-07-24 22:39:32.000000000 -0700
-@@ -623,7 +623,12 @@ static int proc_bulk(struct dev_state *p
- 			free_page((unsigned long)tbuf);
- 			return -EINVAL;
- 		}
-+		if (usb_excl_lock(dev, 1, 1) != 0) {
-+			free_page((unsigned long)tbuf);
-+			return -ERESTARTSYS;
-+		}
- 		i = usb_bulk_msg(dev, pipe, tbuf, len1, &len2, tmo);
-+		usb_excl_unlock(dev, 1);
- 		if (!i && len2) {
- 			if (copy_to_user(bulk.data, tbuf, len2)) {
- 				free_page((unsigned long)tbuf);
-@@ -637,7 +642,12 @@ static int proc_bulk(struct dev_state *p
- 				return -EFAULT;
- 			}
- 		}
-+		if (usb_excl_lock(dev, 2, 1) != 0) {
-+			free_page((unsigned long)tbuf);
-+			return -ERESTARTSYS;
-+		}
- 		i = usb_bulk_msg(dev, pipe, tbuf, len1, &len2, tmo);
-+		usb_excl_unlock(dev, 2);
- 	}
- 	free_page((unsigned long)tbuf);
- 	if (i < 0) {
-@@ -1160,12 +1170,6 @@ static int usbdev_ioctl_exclusive(struct
- 			inode->i_mtime = CURRENT_TIME;
- 		break;
- 
--	case USBDEVFS_BULK:
--		ret = proc_bulk(ps, (void *)arg);
--		if (ret >= 0)
--			inode->i_mtime = CURRENT_TIME;
--		break;
--
- 	case USBDEVFS_RESETEP:
- 		ret = proc_resetep(ps, (void *)arg);
- 		if (ret >= 0)
-@@ -1259,8 +1263,13 @@ static int usbdev_ioctl(struct inode *in
- 		ret = proc_disconnectsignal(ps, (void *)arg);
- 		break;
- 
--	case USBDEVFS_CONTROL:
- 	case USBDEVFS_BULK:
-+		ret = proc_bulk(ps, (void *)arg);
-+		if (ret >= 0)
-+			inode->i_mtime = CURRENT_TIME;
-+		break;
-+
-+	case USBDEVFS_CONTROL:
- 	case USBDEVFS_RESETEP:
- 	case USBDEVFS_RESET:
- 	case USBDEVFS_CLEAR_HALT:
-@@ -1272,9 +1281,9 @@ static int usbdev_ioctl(struct inode *in
- 	case USBDEVFS_RELEASEINTERFACE:
- 	case USBDEVFS_IOCTL:
- 		ret = -ERESTARTSYS;
--		if (down_interruptible(&ps->dev->exclusive_access) == 0) {
-+		if (usb_excl_lock(&ps->dev, 3, 1) == 0) {
- 			ret = usbdev_ioctl_exclusive(ps, inode, cmd, arg);
--			up(&ps->dev->exclusive_access);
-+			usb_excl_unlock(&ps->dev, 3);
- 		}
- 		break;
- 
-diff -urp -X dontdiff linux-2.4.32/drivers/usb/storage/transport.c linux-2.4.32-wk/drivers/usb/storage/transport.c
---- linux-2.4.32/drivers/usb/storage/transport.c	2005-04-03 18:42:19.000000000 -0700
-+++ linux-2.4.32-wk/drivers/usb/storage/transport.c	2006-07-24 22:58:58.000000000 -0700
-@@ -628,16 +628,16 @@ void usb_stor_invoke_transport(Scsi_Cmnd
- 	int result;
- 
- 	/*
--	 * Grab device's exclusive_access mutex to prevent libusb/usbfs from
-+	 * Grab device's exclusive access lock to prevent libusb/usbfs from
- 	 * sending out a command in the middle of ours (if libusb sends a
- 	 * get_descriptor or something on pipe 0 after our CBW and before
- 	 * our CSW, and then we get a stall, we have trouble).
- 	 */
--	down(&(us->pusb_dev->exclusive_access));
-+	usb_excl_lock(us->pusb_dev, 3, 0);
- 
- 	/* send the command to the transport layer */
- 	result = us->transport(srb, us);
--	up(&(us->pusb_dev->exclusive_access));
-+	usb_excl_unlock(us->pusb_dev, 3);
- 
- 	/* if the command gets aborted by the higher layers, we need to
- 	 * short-circuit all other processing
-@@ -757,9 +757,9 @@ void usb_stor_invoke_transport(Scsi_Cmnd
- 		srb->use_sg = 0;
- 
- 		/* issue the auto-sense command */
--		down(&(us->pusb_dev->exclusive_access));
-+		usb_excl_lock(us->pusb_dev, 3, 0);
- 		temp_result = us->transport(us->srb, us);
--		up(&(us->pusb_dev->exclusive_access));
-+		usb_excl_unlock(us->pusb_dev, 3);
- 
- 		/* let's clean up right away */
- 		srb->request_buffer = old_request_buffer;
-diff -urp -X dontdiff linux-2.4.32/drivers/usb/usb.c linux-2.4.32-wk/drivers/usb/usb.c
---- linux-2.4.32/drivers/usb/usb.c	2004-11-17 03:54:21.000000000 -0800
-+++ linux-2.4.32-wk/drivers/usb/usb.c	2006-07-24 22:41:19.000000000 -0700
-@@ -989,7 +989,8 @@ struct usb_device *usb_alloc_dev(struct 
- 	INIT_LIST_HEAD(&dev->filelist);
- 
- 	init_MUTEX(&dev->serialize);
--	init_MUTEX(&dev->exclusive_access);
-+	spin_lock_init(&dev->excl_lock);
-+	init_waitqueue_head(&dev->excl_wait);
- 
- 	dev->bus->op->allocate(dev);
- 
-@@ -2380,6 +2381,59 @@ struct list_head *usb_bus_get_list(void)
- }
- #endif
- 
-+int usb_excl_lock(struct usb_device *dev, unsigned int type, int interruptible)
-+{
-+	DECLARE_WAITQUEUE(waita, current);
-+
-+	add_wait_queue(&dev->excl_wait, &waita);
-+	if (interruptible)
-+		set_current_state(TASK_INTERRUPTIBLE);
-+	else
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+
-+	for (;;) {
-+		spin_lock_irq(&dev->excl_lock);
-+		switch (type) {
-+		case 1:		/* 1 - read */
-+		case 2:		/* 2 - write */
-+		case 3:		/* 3 - control: excludes both read and write */
-+			if ((dev->excl_type & type) == 0) {
-+				dev->excl_type |= type;
-+				spin_unlock_irq(&dev->excl_lock);
-+				set_current_state(TASK_RUNNING);
-+				remove_wait_queue(&dev->excl_wait, &waita);
-+				return 0;
-+			}
-+			break;
-+		default:
-+			spin_unlock_irq(&dev->excl_lock);
-+			return -EINVAL;
-+		}
-+		spin_unlock_irq(&dev->excl_lock);
-+
-+		if (interruptible) {
-+			schedule();
-+			if (signal_pending(current)) {
-+				remove_wait_queue(&dev->excl_wait, &waita);
-+				return 1;
-+			}
-+			set_current_state(TASK_INTERRUPTIBLE);
-+		} else {
-+			schedule();
-+			set_current_state(TASK_UNINTERRUPTIBLE);
-+		}
-+	}
-+}
-+
-+void usb_excl_unlock(struct usb_device *dev, unsigned int type)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&dev->excl_lock, flags);
-+	dev->excl_type &= ~type;
-+	wake_up(&dev->excl_wait);
-+	spin_unlock_irqrestore(&dev->excl_lock, flags);
-+}
- 
- /*
-  * Init
-diff -urp -X dontdiff linux-2.4.32/include/linux/usb.h linux-2.4.32-wk/include/linux/usb.h
---- linux-2.4.32/include/linux/usb.h	2005-12-22 17:08:01.000000000 -0800
-+++ linux-2.4.32-wk/include/linux/usb.h	2006-07-24 22:30:02.000000000 -0700
-@@ -828,8 +828,19 @@ struct usb_device {
- 
- 	atomic_t refcnt;		/* Reference count */
- 	struct semaphore serialize;
--	struct semaphore exclusive_access; /* prevent driver & proc accesses  */
--					   /* from overlapping cmds at device */
-+
-+	/*
-+	 * This is our custom open-coded lock, similar to r/w locks in concept.
-+	 * It prevents drivers and /proc access from simultaneous access.
-+	 * Type:
-+	 *   0 - unlocked
-+	 *   1 - locked for reads
-+	 *   2 - locked for writes
-+	 *   3 - locked for everything
-+	 */
-+	wait_queue_head_t excl_wait;
-+	spinlock_t excl_lock;
-+	unsigned excl_type;
- 
- 	unsigned int toggle[2];		/* one bit for each endpoint ([0] = IN, [1] = OUT) */
- 	unsigned int halted[2];		/* endpoint halts; one bit per endpoint # & direction; */
-@@ -904,6 +915,8 @@ extern void usb_destroy_configuration(st
- 
- int usb_get_current_frame_number (struct usb_device *usb_dev);
- 
-+int usb_excl_lock(struct usb_device *dev, unsigned int type, int interruptible);
-+void usb_excl_unlock(struct usb_device *dev, unsigned int type);
- 
- /**
-  * usb_make_path - returns stable device path in the usb tree
+Eric

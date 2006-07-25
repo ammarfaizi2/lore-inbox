@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWGYNxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWGYODk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWGYNxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 09:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWGYNxG
+	id S932136AbWGYODk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 10:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWGYODk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 09:53:06 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:16586 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S932126AbWGYNxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 09:53:05 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: Where does kernel/resource.c.1 file come from?
-Date: Tue, 25 Jul 2006 15:54:45 +0200
-User-Agent: KMail/1.9.3
+	Tue, 25 Jul 2006 10:03:40 -0400
+Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:30598 "EHLO
+	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932136AbWGYODk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 10:03:40 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Tue, 25 Jul 2006 15:03:32 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+cc: aia21@cantab.net, akpm@osdl.irg, linux-kernel@vger.kernel.org
+Subject: Re: ntfs: remove unnecessary PG_uptodate check from ntfs_readpage
+In-Reply-To: <Pine.LNX.4.58.0607251542570.2665@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.64.0607251500480.2372@hermes-2.csi.cam.ac.uk>
+References: <Pine.LNX.4.58.0607251542570.2665@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1276482.usPy7boNxZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607251554.50484.eike-kernel@sf-tec.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1276482.usPy7boNxZ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Please do not apply this patch or you will see metadata corruption on 
+NTFS.
 
-Hi,
+Pekka, given there is a comment saying why this check is necessary, I 
+really do not understand how you can claim that it is not...
 
-I'm playing around with my local copy of linux-2.6 git tree. I'm building=20
-everything to a separate directory using O=3D to keep "git status" silent.
+Best regards,
 
-After building I sometimes find a file kernel/resource.c.1 in my git tree t=
-hat=20
-doesn't really belong there. Who is generating this file, for what reason a=
-nd=20
-why doesn't it get created in my output directory?
+	Anton
 
-Eike
+On Tue, 25 Jul 2006, Pekka J Enberg wrote:
 
---nextPart1276482.usPy7boNxZ
-Content-Type: application/pgp-signature
+> From: Pekka Enberg <penberg@cs.helsinki.fi>
+> 
+> The check is not needed because SetPageUptodate is called for locked pages
+> and callers of ->readpage either explicitly check for PageUptodate or pass
+> newly allocated pages (see read_cache_pages and page_cache_read).
+> 
+> Cc: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+> ---
+> 
+>  fs/ntfs/aops.c |    8 --------
+>  1 file changed, 8 deletions(-)
+> 
+> Index: 2.6/fs/ntfs/aops.c
+> ===================================================================
+> --- 2.6.orig/fs/ntfs/aops.c
+> +++ 2.6/fs/ntfs/aops.c
+> @@ -410,14 +410,6 @@ static int ntfs_readpage(struct file *fi
+>  
+>  retry_readpage:
+>  	BUG_ON(!PageLocked(page));
+> -	/*
+> -	 * This can potentially happen because we clear PageUptodate() during
+> -	 * ntfs_writepage() of MstProtected() attributes.
+> -	 */
+> -	if (PageUptodate(page)) {
+> -		unlock_page(page);
+> -		return 0;
+> -	}
+>  	vi = page->mapping->host;
+>  	ni = NTFS_I(vi);
+>  	/*
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Best regards,
 
-iD8DBQBExiKqXKSJPmm5/E4RAv9sAKClgviOMLOn8kjygWYzLmfaJwvOSwCdFAjX
-j3scHgDgeuKbg7Eeh+P60NA=
-=hIQI
------END PGP SIGNATURE-----
-
---nextPart1276482.usPy7boNxZ--
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer, http://www.linux-ntfs.org/

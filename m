@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGYTZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWGYTZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWGYTZP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGYTZP
+	id S964837AbWGYTZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWGYTZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:25:15 -0400
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:56723 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964836AbWGYTZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:25:14 -0400
-Date: Tue, 25 Jul 2006 15:19:49 -0400
+	Tue, 25 Jul 2006 15:25:45 -0400
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:36843 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964837AbWGYTZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:25:44 -0400
+Date: Tue, 25 Jul 2006 15:19:48 -0400
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] i386 TIF flags for debug regs and io bitmap in
-  ctxsw (v2)
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200607251522_MC3-1-C616-70EB@compuserve.com>
+Subject: Re: [stable] Success: tty_io flush_to_ldisc() error message
+  triggered
+To: Greg KH <greg@kroah.com>
+Cc: linux-stable <stable@kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200607251522_MC3-1-C616-70EA@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -25,45 +25,22 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060725055439.GA18053@frankl.hpl.hp.com>
+In-Reply-To: <20060725184158.GH9021@kroah.com>
 
-On Mon, 24 Jul 2006 22:54:39 -0700, Stephane Eranian wrote:
+On Tue, 25 Jul 2006 11:41:58 -0700, Greg KH wrote:
+> 
+> > > Is this simpler change (what I'm running but without the warning
+> > > messages) the preferred fix for -stable?
+> > 
+> > It fixes the problem.
 >
-> I would like to follow-up the TIF flags and especially on the
-> rules of inheritance. It appears the TIF flags are copied from
-> parent to child task systematically on copy_process.
-> Then they are adjusted in copy_threads() or sub-functions.
-> 
-> The TIF_IO_BITMAP is checked in copy_threads() with the following code:
-> 
-> int copy_thread(int nr, unsigned long clone_flags, unsigned long esp,
->       unsigned long unused,
->       struct task_struct * p, struct pt_regs * regs)
-> {
->       ....
->       if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
->               p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
->               if (!p->thread.io_bitmap_ptr) {
->                       p->thread.io_bitmap_max = 0;
->                       return -ENOMEM;
->               }
->               memcpy(p->thread.io_bitmap_ptr, tsk->thread.io_bitmap_ptr,
->                       IO_BITMAP_BYTES);
->               set_tsk_thread_flag(p, TIF_IO_BITMAP);
->       }
-> 
-> I would think that the set_tsk_thread_flag() is extraneous.
-> 
+> So do you feel this patch should be added to the -stable kernel tree?
 
-Yeah.  But harmless.
+I think it's the right fix.
 
-> As for TIF_DEBUG, my patch is not clearing it. I don't think you can
-> have HW breakpoints be inherited from one task to the other.
-
-Looks like the debug regs get copied on fork and only cleared on exec
-in flush_thread().  So this should be OK.  Please doublecheck.
-
-(The new TIF_DEBUG flag went into 2.8.18-rc, in case you didn't notice.)
+        1.  It fixes a real bug and that's been verified by testing.
+        2.  It's the simplest change that does so. (The fix in 2.6.18-rc
+            touches a lot of code.)
 
 -- 
 Chuck

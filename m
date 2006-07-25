@@ -1,97 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWGYPDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWGYPGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWGYPDp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:03:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYPDp
+	id S932403AbWGYPGL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:06:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWGYPGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:03:45 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:28092 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751171AbWGYPDo (ORCPT
+	Tue, 25 Jul 2006 11:06:11 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:59487 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932411AbWGYPGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:03:44 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Subject: Re: [PATCH 3/3] scsi : megaraid_{mm,mbox}: a fix on "kernel unaligned access address" issue
-Date: Tue, 25 Jul 2006 17:05:25 +0200
-User-Agent: KMail/1.9.3
-Cc: sakurai_hiro@soft.fujitsu.com, James.Bottomley@steeleye.com, akpm@osdl.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>
-References: <890BF3111FB9484E9526987D912B261932E2D1@NAMAIL3.ad.lsil.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261932E2D1@NAMAIL3.ad.lsil.com>
+	Tue, 25 Jul 2006 11:06:10 -0400
+Date: Tue, 25 Jul 2006 17:06:07 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Arjan van de Ven <arjan@linux.intel.com>,
+       Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+Message-ID: <20060725150606.GA8566@harddisk-recovery.com>
+References: <200607242023_MC3-1-C5FE-CADB@compuserve.com> <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1373950.GfavpgCPCk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607251705.26361.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1373950.GfavpgCPCk
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, Jul 24, 2006 at 05:59:23PM -0700, Linus Torvalds wrote:
+> On Mon, 24 Jul 2006, Chuck Ebbert wrote:
+> > 
+> > I thought just the 'ondemand' governor was a problem?
+> 
+> The ondemand governor seems to be singled out not because it has unique 
+> problems, but because it seems to be used by Fedora Core for some strange 
+> reason.
+> 
+> I would judge that any bugs in cpufreq_ondemand.c are likely equally 
+> evident in cpufreq_conservative.c, for example. I think the two have the 
+> same background, and seem to have the same broken locking.
 
-Ju, Seokmann wrote:
-> Hi,
->
-> This is a third patch which follows prevous two patches ([PATCH 1/3] and
-> [PATCH 2/3]).
+The "conservative" governor switches less often, so the locking
+condition just happens less often.
 
-Either use a [0/3] mail that describes the complete changeset or just send=
-=20
-each patch as a reply to the previous one. This way they are grouped togeth=
-er=20
-in the mail programs. That keeps the inbox clean and the relationsship is=20
-clearer.
+After some strange lockups with 2.6.18-rc* I switched from "ondemand"
+to "conservative" and now my laptop survives the night. Sheer luck, I
+guess. I'd rather switch to "powersave" or "performance".
 
-> Signed-Off By: Seokmann Ju <seokmann.ju@lsil.com>
-> ---
-> diff -Naur inqwithevpd/Documentation/scsi/ChangeLog.megaraid
-> unaligned/Documentation/scsi/ChangeLog.megaraid
-> --- inqwithevpd/Documentation/scsi/ChangeLog.megaraid	2006-07-24
-> 15:35:02.000000000 -0400
-> +++ unaligned/Documentation/scsi/ChangeLog.megaraid	2006-07-24
-> 15:41:49.000000000 -0400
-> @@ -66,6 +66,61 @@
->  	Fix: MegaRAID F/W has fixed the problem and being process of
-> release,
->  	soon. Meanwhile, driver will filter out the request.
->
-> +3.	One of member in the data structure of the driver leads unaligne
-                                                                ^^^^^^^^
-> +	issue on 64-bit platform.
-> +	Customer reporeted "kernel unaligned access addrss" issue when
-                                                   ^^^^^^
 
-Typos.
+Erik
 
-> +	> -----Original Message-----
-[...]
-
-This is IMHO too much data for an in-kernel changelog. I would vote for=20
-including this in your commit comments, then it will be available as git=20
-comment and not inflate the kernel tree itself with text that's useless for=
-=20
-most users. This is really only of interest if someone tries to find out=20
-something about the changes in this driver and then he's normally also=20
-interested in the diffs itself.
-
-Eike
-
---nextPart1373950.GfavpgCPCk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBExjM2XKSJPmm5/E4RAgCiAJ4qxf95e9bSKuriFyssFEgKT+5ZxACeNGps
-0+v4e1TqA/WPF0SO1Lay5eY=
-=WyO2
------END PGP SIGNATURE-----
-
---nextPart1373950.GfavpgCPCk--
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

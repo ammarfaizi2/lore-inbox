@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWGYT2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWGYTbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWGYT2w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWGYT2w
+	id S964843AbWGYTbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWGYTbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:28:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:52982 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964847AbWGYT2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:28:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kRGEKL+xaIBzsE+s5LpdlxAoxYw7/ZaMdb73g9A8r3p1jGO4cS8sJ/269LbQQZufgplAb2Ftjk/cuXnTNTzxJxZ5Yb/MGYOkmlOmLAjZeHm4jV0gYUXjzxbmremT7ATUVPeAIhjFI8D+YE9ya1ZJO5hZgfZRK4pan3GOpCY+13g=
-Message-ID: <f96157c40607251228t457f445qd12f80d4e6ee363b@mail.gmail.com>
-Date: Tue, 25 Jul 2006 21:28:48 +0200
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Subject: Re: Re: i686 hang on boot in userspace
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060725192138.GD4044@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 25 Jul 2006 15:31:42 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:58575 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964843AbWGYTbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:31:40 -0400
+In-Reply-To: <20060725192138.GI4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com>
-	 <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com>
-	 <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com>
-	 <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com>
-	 <20060725112955.GR4044@suse.de>
-	 <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com>
-	 <20060725125201.GT4044@suse.de>
-	 <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com>
-	 <f96157c40607251158x29f9632ey85d371a1a5a074b8@mail.gmail.com>
-	 <20060725192138.GD4044@suse.de>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Date: Tue, 25 Jul 2006 21:31:32 +0200
+To: Neil Horman <nhorman@tuxdriver.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> On Tue, Jul 25 2006, gmu 2k6 wrote:
-> > thanks Jens,
-> > 7b30f09245d0e6868819b946b2f6879e5d3d106b
-> > http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7b30f09245d0e6868819b946b2f6879e5d3d106b
-> > has fixed the problem (maybe together with the other 3 changes in HEAD
-> > as the 2nd patch in this thread did not work in the first place or maybe
-> > it is a little bit different, no time to check right now).
->
-> It's an identical change, so the one sent you should work as well.
-> Perhaps you botched that one test? These things happen, it's happened to
-> me as well :-)
->
-> The change definitely fixed it for me.
+>> Not really.  This introduces a potentially very difficult support
+>> user-visible interface.  Consider a tickless kernel -- you might  
+>> end up
+>> taking tick interrupts ONLY to update this page, since you don't have
+>> any way of knowing when userspace wants to look at it.
+>>
+> Well, you do actually know when they want to look at it.  The rtc  
+> driver only
+> unmasks its interrupt when a user space process has opened the  
+> device and sent
+> it a RTC_UIE ON or RTC_PIE_ON (or other shuch ioctl).  So if you  
+> open /dev/rtc,
+> and memory map the page, but never enable a timer method, then  
+> every read of the
+> page returns zero.  The only overhead this patch is currently  
+> adding, execution
+> time-wise is the extra time it takes to write to a the shared page  
+> variable.  If
+> the timer tick interrupt is executing, its because someone is  
+> reading tick data,
+> or plans to very soon.
 
-here too. right now I'm busy with trying to find out why /dev/hwrng is
-present but does not pass rngtest checks. I'll post about that soonish
-but it's a different issue of course.
+But userland cannot know if there is a more efficient option to
+use than this /dev/rtc way, without using VDSO/vsyscall.
 
-anyway, thanks a lot Jens.
+
+Segher
+

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWGYWhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWGYWlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751602AbWGYWhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWGYWhZ
+	id S1030197AbWGYWlc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:41:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWGYWlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:37:25 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:64934 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751602AbWGYWhY (ORCPT
+	Tue, 25 Jul 2006 18:41:32 -0400
+Received: from mail.gmx.net ([213.165.64.21]:65201 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932506AbWGYWlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:37:24 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] sonypi: Don't print driver version until we actually find a device
-Date: Tue, 25 Jul 2006 16:37:18 -0600
-User-Agent: KMail/1.8.3
-Cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 25 Jul 2006 18:41:32 -0400
+X-Authenticated: #271361
+Date: Wed, 26 Jul 2006 00:41:27 +0200
+From: Edgar Toernig <froese@gmx.de>
+To: mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, alan@redhat.com
+Subject: Re: [PATCH 00/23] V4L/DVB fixes
+Message-Id: <20060726004127.6eab5a9f.froese@gmx.de>
+In-Reply-To: <20060725180311.PS54604900000@infradead.org>
+References: <20060725180311.PS54604900000@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607251637.19017.bjorn.helgaas@hp.com>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If we don't find any devices, we shouldn't print anything.
+mchehab@infradead.org wrote:
+>
+> It contains the following stuff:
+>[...]
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+I'm still missing the VBI_OFFSET fix.  See:
 
-Index: work-mm2/drivers/char/sonypi.c
-===================================================================
---- work-mm2.orig/drivers/char/sonypi.c	2006-07-17 16:50:45.000000000 -0600
-+++ work-mm2/drivers/char/sonypi.c	2006-07-19 16:40:34.000000000 -0600
-@@ -1528,13 +1528,13 @@
- {
- 	int error;
- 
-+	if (!dmi_check_system(sonypi_dmi_table))
-+		return -ENODEV;
-+
- 	printk(KERN_INFO
- 		"sonypi: Sony Programmable I/O Controller Driver v%s.\n",
- 		SONYPI_DRIVER_VERSION);
- 
--	if (!dmi_check_system(sonypi_dmi_table))
--		return -ENODEV;
--
- 	error = platform_driver_register(&sonypi_driver);
- 	if (error)
- 		return error;
+  http://marc.theaimsgroup.com/?m=114710558215044
+
+Could you consider that patch for the next update and
+IMHO also for 2.6.16.x and 2.6.17.x?  
+
+Ciao, ET.

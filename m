@@ -1,103 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWGYS7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWGYTBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWGYS7o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWGYS7o
+	id S1750932AbWGYTBd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWGYTBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:59:44 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:12012 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932483AbWGYS7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:59:43 -0400
-Message-Id: <20060725180311.PS54604900000@infradead.org>
-Date: Tue, 25 Jul 2006 15:03:11 -0300
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org
-Subject: [PATCH 00/23] V4L/DVB fixes
+	Tue, 25 Jul 2006 15:01:33 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57910 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750932AbWGYTBc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:01:32 -0400
+Date: Tue, 25 Jul 2006 17:18:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: gmu 2k6 <gmu2006@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+Message-ID: <20060725151848.GX4044@suse.de>
+References: <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com> <20060725080807.GF4044@suse.de> <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com> <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com> <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com> <20060725112955.GR4044@suse.de> <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com> <20060725125201.GT4044@suse.de> <20060725125854.GU4044@suse.de> <f96157c40607250727o685b8195i67da8c68123728f@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f96157c40607250727o685b8195i67da8c68123728f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Tue, Jul 25 2006, gmu 2k6 wrote:
+> On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> >On Tue, Jul 25 2006, Jens Axboe wrote:
+> >> On Tue, Jul 25 2006, gmu 2k6 wrote:
+> >> > On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> >> > >On Tue, Jul 25 2006, gmu 2k6 wrote:
+> >> > >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
+> >> > >> compared to -git6
+> >> > >> which seems to have correctly booted by accident the lastime. timing
+> >> > >issues
+> >> > >> I guess.
+> >> > >
+> >> > >I will try and reproduce it here now. It seems to be in between commit
+> >> > >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
+> >> > >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could 
+> >also
+> >> > >be bad.
+> >> > >
+> >> > >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
+> >> > >good, so you can try and verify that
+> >> > >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
+> >> > >two. It's only about 6 commits, so should be quick enough to do.
+> >> >
+> >> > 1) no luck with remote serial console
+> >> > 2) netconsole does not work although connecting to the listener with 
+> >netcat
+> >> > and
+> >> > sending strings works
+> >> > I'm gonna try via physical rs232 9pins and see how that works.
+> >> > afterwards I will try to bisect the revisions you mentioned.
+> >> >
+> >> > btw, the issue seems to come and go as I managed to boot log into a 
+> >.17-git6
+> >> > kernel or is timing-dependent.
+> >>
+> >> I can reproduce it, you don't have to spend more time on bisecting or
+> >> testing. This should fix it:
+> >>
+> >> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> >> index 1c4df22..1eac041 100644
+> >> --- a/drivers/block/cciss.c
+> >> +++ b/drivers/block/cciss.c
+> >> @@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
+> >>       CommandList_struct *cmd = rq->completion_data;
+> >>       ctlr_info_t *h = hba[cmd->ctlr];
+> >>       unsigned long flags;
+> >> +     request_queue_t *q;
+> >>       u64bit temp64;
+> >>       int i, ddir;
+> >>
+> >> @@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
+> >>       printk("Done with %p\n", rq);
+> >>  #endif                               /* CCISS_DEBUG */
+> >>
+> >> +     q = rq->q;
+> >> +
+> >>       add_disk_randomness(rq->rq_disk);
+> >>       spin_lock_irqsave(&h->lock, flags);
+> >>       end_that_request_last(rq, rq->errors);
+> >>       cmd_free(h, cmd, 1);
+> >> +     blk_start_queue(q);
+> >>       spin_unlock_irqrestore(&h->lock, flags);
+> >>  }
+> >>
+> >>
+> >> A better fix would rework the start_queue logic entirely in the driver,
+> >> but the above should get you running for now. I'll take a further look.
+> >
+> >Something like this matches the current logic better. It's not very good
+> >from a cpu efficiency point of view, but it's better than what is there
+> >now since at least it's not in hard irq context.
+> >
+> >Not tested yet, will do so right now.
+> >
+> >diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> >index 1c4df22..a9e0510 100644
+> >--- a/drivers/block/cciss.c
+> >+++ b/drivers/block/cciss.c
+> >@@ -1233,6 +1233,50 @@ static inline void complete_buffers(stru
+> >        }
+> > }
+> >
+> >+static void cciss_check_queues(ctlr_info_t *h)
+> >+{
+> >+       int start_queue = h->next_to_run;
+> >+       int i;
+> >+
+> >+       /* check to see if we have maxed out the number of commands that 
+> >can
+> >+        * be placed on the queue.  If so then exit.  We do this check here
+> >+        * in case the interrupt we serviced was from an ioctl and did not
+> >+        * free any new commands.
+> >+        */
+> >+       if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
+> >+               return;
+> >+
+> >+       /* We have room on the queue for more commands.  Now we need to 
+> >queue
+> >+        * them up.  We will also keep track of the next queue to run so
+> >+        * that every queue gets a chance to be started first.
+> >+        */
+> >+       for (i = 0; i < h->highest_lun + 1; i++) {
+> >+               int curr_queue = (start_queue + i) % (h->highest_lun + 1);
+> >+               /* make sure the disk has been added and the drive is real
+> >+                * because this can be called from the middle of init_one.
+> >+                */
+> >+               if (!(h->drv[curr_queue].queue) || 
+> >!(h->drv[curr_queue].heads))
+> >+                       continue;
+> >+               blk_start_queue(h->gendisk[curr_queue]->queue);
+> >+
+> >+               /* check to see if we have maxed out the number of commands
+> >+                * that can be placed on the queue.
+> >+                */
+> >+               if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == 
+> >NR_CMDS) {
+> >+                       if (curr_queue == start_queue) {
+> >+                               h->next_to_run =
+> >+                                   (start_queue + 1) % (h->highest_lun + 
+> >1);
+> >+                               break;
+> >+                       } else {
+> >+                               h->next_to_run = curr_queue;
+> >+                               break;
+> >+                       }
+> >+               } else {
+> >+                       curr_queue = (curr_queue + 1) % (h->highest_lun + 
+> >1);
+> >+               }
+> >+       }
+> >+}
+> >+
+> > static void cciss_softirq_done(struct request *rq)
+> > {
+> >        CommandList_struct *cmd = rq->completion_data;
+> >@@ -1264,6 +1308,7 @@ #endif                            /* CCISS_DEBUG */
+> >        spin_lock_irqsave(&h->lock, flags);
+> >        end_that_request_last(rq, rq->errors);
+> >        cmd_free(h, cmd, 1);
+> >+       cciss_check_queues(h);
+> >        spin_unlock_irqrestore(&h->lock, flags);
+> > }
+> >
+> >@@ -2528,8 +2573,6 @@ static irqreturn_t do_cciss_intr(int irq
+> >        CommandList_struct *c;
+> >        unsigned long flags;
+> >        __u32 a, a1, a2;
+> >-       int j;
+> >-       int start_queue = h->next_to_run;
+> >
+> >        if (interrupt_not_for_us(h))
+> >                return IRQ_NONE;
+> >@@ -2588,45 +2631,6 @@ #                                endif
+> >                }
+> >        }
+> >
+> >-       /* check to see if we have maxed out the number of commands that 
+> >can
+> >-        * be placed on the queue.  If so then exit.  We do this check here
+> >-        * in case the interrupt we serviced was from an ioctl and did not
+> >-        * free any new commands.
+> >-        */
+> >-       if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
+> >-               goto cleanup;
+> >-
+> >-       /* We have room on the queue for more commands.  Now we need to 
+> >queue
+> >-        * them up.  We will also keep track of the next queue to run so
+> >-        * that every queue gets a chance to be started first.
+> >-        */
+> >-       for (j = 0; j < h->highest_lun + 1; j++) {
+> >-               int curr_queue = (start_queue + j) % (h->highest_lun + 1);
+> >-               /* make sure the disk has been added and the drive is real
+> >-                * because this can be called from the middle of init_one.
+> >-                */
+> >-               if (!(h->drv[curr_queue].queue) || 
+> >!(h->drv[curr_queue].heads))
+> >-                       continue;
+> >-               blk_start_queue(h->gendisk[curr_queue]->queue);
+> >-
+> >-               /* check to see if we have maxed out the number of commands
+> >-                * that can be placed on the queue.
+> >-                */
+> >-               if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == 
+> >NR_CMDS) {
+> >-                       if (curr_queue == start_queue) {
+> >-                               h->next_to_run =
+> >-                                   (start_queue + 1) % (h->highest_lun + 
+> >1);
+> >-                               goto cleanup;
+> >-                       } else {
+> >-                               h->next_to_run = curr_queue;
+> >-                               goto cleanup;
+> >-                       }
+> >-               } else {
+> >-                       curr_queue = (curr_queue + 1) % (h->highest_lun + 
+> >1);
+> >-               }
+> >-       }
+> >-
+> >-      cleanup:
+> >        spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
+> >        return IRQ_HANDLED;
+> > }
+> 
+> this makes the cciss init hang.
 
-Please pull those fixes from master branch at:
-        kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
+hmm strange, it works for me. sysrq-t for the hang, please. just note
+the top few functions, should be easy enough to write down manually.
 
-It contains the following stuff:
-
-   - Add dvbpll i2c device check.
-   - Fix DISEQC regression
-   - Fix unstable DISEQC behaviour on budget cards.
-   - Fix broken tda665x PLL definition.
-   - Fix typo in comment for TDA9819
-   - Remove stradis MODULE_DEVICE_INFO definition
-   - Check all __must_check warnings in bttv.
-   - Support non interlaced capture by default for saa713x
-   - Saa7134: rename dmasound_{init, exit}
-   - Bugfix for keycode calculation on NPG remotes
-   - Set the Auxiliary Byte when tuning LG H06xF in analog mode
-   - Check __must_check warnings
-   - [budget/budget-av/budget-ci/budget-patch drivers] fixed DMA start/stop code
-   - Refine dead code elimination in pvrusb2
-   - Fix possible dvb-pll oops
-   - Fix dvb-pll autoprobing
-   - VIDIOCSMICROCODE were missing on compat_ioctl32
-   - Fix ext_controls align on 64 bit architectures
-   - Fix for compilation without V4L1 or V4L1_COMPAT
-   - Fix broken dependencies on media Kconfig
-   - OVERLAY flag were enabled by mistake
-   - Videodev: Handle class_device related errors
-   - Bttv: use class_device_create_file and handle errors
-
-Cheers,
-Mauro.
-
-V4L/DVB development is hosted at http://linuxtv.org
----
-
- drivers/media/dvb/dvb-core/dvb_frontend.c    |   15 +++--
- drivers/media/dvb/frontends/dvb-pll.c        |   48 ++++++++++------
- drivers/media/dvb/ttpci/av7110.c             |    4 -
- drivers/media/dvb/ttpci/av7110_v4l.c         |   12 ++--
- drivers/media/dvb/ttpci/budget-av.c          |    3 +
- drivers/media/dvb/ttpci/budget-ci.c          |    2 
- drivers/media/dvb/ttpci/budget-core.c        |   57 ++++++++++++++-----
- drivers/media/dvb/ttpci/budget-patch.c       |    2 
- drivers/media/dvb/ttpci/budget.c             |    5 -
- drivers/media/dvb/ttpci/budget.h             |    7 +-
- drivers/media/video/Kconfig                  |    4 -
- drivers/media/video/bt8xx/Kconfig            |    2 
- drivers/media/video/bt8xx/bttv-driver.c      |   31 +++++++---
- drivers/media/video/compat_ioctl32.c         |   24 ++++++++
- drivers/media/video/cpia2/Kconfig            |    2 
- drivers/media/video/cx88/cx88-input.c        |    2 
- drivers/media/video/cx88/cx88-video.c        |    5 -
- drivers/media/video/msp3400-driver.c         |   10 +++
- drivers/media/video/pvrusb2/pvrusb2-hdw.c    |    8 ++
- drivers/media/video/pvrusb2/pvrusb2-io.c     |    9 ++-
- drivers/media/video/pvrusb2/pvrusb2-io.h     |    2 
- drivers/media/video/pvrusb2/pvrusb2-ioread.c |    5 +
- drivers/media/video/pvrusb2/pvrusb2-sysfs.c  |   33 +++++++++--
- drivers/media/video/saa7134/saa7134-alsa.c   |   10 +--
- drivers/media/video/saa7134/saa7134-core.c   |   16 ++---
- drivers/media/video/saa7134/saa7134-oss.c    |   10 +--
- drivers/media/video/saa7134/saa7134-video.c  |    6 +-
- drivers/media/video/saa7134/saa7134.h        |    4 -
- drivers/media/video/stradis.c                |    1 
- drivers/media/video/tuner-core.c             |   31 ++++------
- drivers/media/video/tuner-simple.c           |   19 +++++-
- drivers/media/video/usbvideo/Kconfig         |    8 +-
- drivers/media/video/v4l2-common.c            |   24 ++++----
- drivers/media/video/videodev.c               |   37 +++++++++---
- drivers/media/video/vivi.c                   |    4 -
- include/linux/videodev.h                     |    7 +-
- include/linux/videodev2.h                    |    2 
- include/media/v4l2-dev.h                     |    7 +-
- 38 files changed, 323 insertions(+), 155 deletions(-)
+-- 
+Jens Axboe
 

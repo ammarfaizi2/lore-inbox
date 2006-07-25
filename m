@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751576AbWGYUxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbWGYUzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751576AbWGYUxn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWGYUxn
+	id S1751577AbWGYUzR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWGYUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:53:43 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:61350 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751575AbWGYUxm
+	Tue, 25 Jul 2006 16:55:17 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:63663 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751577AbWGYUzP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:53:42 -0400
-Message-ID: <44C6842C.8020501@zytor.com>
-Date: Tue, 25 Jul 2006 13:50:52 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 25 Jul 2006 16:55:15 -0400
+From: Sergei Shtylylov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+To: jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: [PATCH] Stop calling phy_stop_interrupts() twice
+Date: Wed, 26 Jul 2006 00:53:53 +0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, afleming@freescale.com,
+       vbordug@ru.mvista.com, yshpilevsky@ru.mvista.com
 MIME-Version: 1.0
-To: Neil Horman <nhorman@tuxdriver.com>
-CC: Dave Airlie <airlied@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net>
-In-Reply-To: <20060725204736.GK4608@hmsreliant.homelinux.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200607260053.53390.sshtylyov@ru.mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman wrote:
-> 
-> Agreed.  How about we take the /dev/rtc patch now (since its an added feature
-> that doesn't hurt anything if its not used, as far as tickless kernels go), and
-> I'll start working on doing gettimeofday in vdso for arches other than x86_64.
-> That will give the X guys what they wanted until such time until all the other
-> arches have a gettimeofday alternative that doesn't require kernel traps.
-> 
+Prevent phylib from freeing PHY IRQ twice on closing an eth device:
+phy_disconnect() first calls phy_stop_interrupts(), then it calls 
+phy_stop_machine() which in turn calls phy_stop_interrupts() making the 
+kernel complain on each bootup...
 
-It hurts if it DOES get used.
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
-	-hpa
+Index: linux-2.6/drivers/net/phy/phy.c
+===================================================================
+--- linux-2.6.orig/drivers/net/phy/phy.c
++++ linux-2.6/drivers/net/phy/phy.c
+@@ -419,9 +419,8 @@ void phy_start_machine(struct phy_device
+ 
+ /* phy_stop_machine
+  *
+- * description: Stops the state machine timer, sets the state to
+- *   UP (unless it wasn't up yet), and then frees the interrupt,
+- *   if it is in use. This function must be called BEFORE
++ * description: Stops the state machine timer, sets the state to UP
++ *   (unless it wasn't up yet). This function must be called BEFORE
+  *   phy_detach.
+  */
+ void phy_stop_machine(struct phy_device *phydev)
+@@ -433,9 +432,6 @@ void phy_stop_machine(struct phy_device 
+ 		phydev->state = PHY_UP;
+ 	spin_unlock(&phydev->lock);
+ 
+-	if (phydev->irq != PHY_POLL)
+-		phy_stop_interrupts(phydev);
+-
+ 	phydev->adjust_state = NULL;
+ }
+ 
+

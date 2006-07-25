@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWGYTWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGYTZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWGYTWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWGYTWX
+	id S964836AbWGYTZP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGYTZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:22:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9675 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964832AbWGYTWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:22:21 -0400
-Message-ID: <44C66FC9.3050402@redhat.com>
-Date: Tue, 25 Jul 2006 12:23:53 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 25 Jul 2006 15:25:15 -0400
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:56723 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964836AbWGYTZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:25:14 -0400
+Date: Tue, 25 Jul 2006 15:19:49 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] i386 TIF flags for debug regs and io bitmap in
+  ctxsw (v2)
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200607251522_MC3-1-C616-70EB@compuserve.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: async network I/O, event channels, etc
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2668695AE66A8136A2AC2B2F"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2668695AE66A8136A2AC2B2F
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20060725055439.GA18053@frankl.hpl.hp.com>
 
-I was very much surprised by the reactions I got after my OLS talk.
-Lots of people declared interest and even agreed with the approach and
-asked me to do further ahead with all this.  For those who missed it,
-the paper and the slides are available on my home page:
+On Mon, 24 Jul 2006 22:54:39 -0700, Stephane Eranian wrote:
+>
+> I would like to follow-up the TIF flags and especially on the
+> rules of inheritance. It appears the TIF flags are copied from
+> parent to child task systematically on copy_process.
+> Then they are adjusted in copy_threads() or sub-functions.
+> 
+> The TIF_IO_BITMAP is checked in copy_threads() with the following code:
+> 
+> int copy_thread(int nr, unsigned long clone_flags, unsigned long esp,
+>       unsigned long unused,
+>       struct task_struct * p, struct pt_regs * regs)
+> {
+>       ....
+>       if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
+>               p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
+>               if (!p->thread.io_bitmap_ptr) {
+>                       p->thread.io_bitmap_max = 0;
+>                       return -ENOMEM;
+>               }
+>               memcpy(p->thread.io_bitmap_ptr, tsk->thread.io_bitmap_ptr,
+>                       IO_BITMAP_BYTES);
+>               set_tsk_thread_flag(p, TIF_IO_BITMAP);
+>       }
+> 
+> I would think that the set_tsk_thread_flag() is extraneous.
+> 
 
-http://people.redhat.com/drepper/
+Yeah.  But harmless.
 
+> As for TIF_DEBUG, my patch is not clearing it. I don't think you can
+> have HW breakpoints be inherited from one task to the other.
 
-As for the next steps I see a number of possible ways.  The discussions
-can be held on the usual mailing lists (i.e., lkml and netdev) but due
-to the raw nature of the current proposal I would imagine that would be
-mainly perceived as noise.
+Looks like the debug regs get copied on fork and only cleared on exec
+in flush_thread().  So this should be OK.  Please doublecheck.
 
-So the second proposal is the I can create an appropriate mailing list
-here.  Alternatively possibly two lists, one for the event channel stuff
-and one for the DMA/AIO part since the two parts are very much unrelated.=
+(The new TIF_DEBUG flag went into 2.8.18-rc, in case you didn't notice.)
 
+-- 
+Chuck
 
-I'd appreciate input from those who feel responsible for these lists.  I
-don't mind either way.  If there is strong interest right now (let me
-know, don't pollute the list) I can create mailing lists now and then if
-necessary close them down and redirect traffic to lkml/netdev.
-
-Waiting for input...
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enig2668695AE66A8136A2AC2B2F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFExm/J2ijCOnn/RHQRAr+0AJ9ATJxV9MkVDBTtB3q8xF98bYxxQACgwr3t
-f9YThdt9MvZP5wXijQNOCzo=
-=bQRW
------END PGP SIGNATURE-----
-
---------------enig2668695AE66A8136A2AC2B2F--

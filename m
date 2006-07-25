@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWGYTVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWGYTWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWGYTVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:21:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWGYTVt
+	id S964832AbWGYTWX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:22:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWGYTWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:21:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17224 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964826AbWGYTVs (ORCPT
+	Tue, 25 Jul 2006 15:22:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9675 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964832AbWGYTWV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:21:48 -0400
-Date: Tue, 25 Jul 2006 21:21:38 +0200
-From: Jens Axboe <axboe@suse.de>
-To: gmu 2k6 <gmu2006@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-Message-ID: <20060725192138.GD4044@suse.de>
-References: <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com> <20060725080807.GF4044@suse.de> <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com> <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com> <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com> <20060725112955.GR4044@suse.de> <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com> <20060725125201.GT4044@suse.de> <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com> <f96157c40607251158x29f9632ey85d371a1a5a074b8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f96157c40607251158x29f9632ey85d371a1a5a074b8@mail.gmail.com>
+	Tue, 25 Jul 2006 15:22:21 -0400
+Message-ID: <44C66FC9.3050402@redhat.com>
+Date: Tue, 25 Jul 2006 12:23:53 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: async network I/O, event channels, etc
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2668695AE66A8136A2AC2B2F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25 2006, gmu 2k6 wrote:
-> thanks Jens,
-> 7b30f09245d0e6868819b946b2f6879e5d3d106b
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7b30f09245d0e6868819b946b2f6879e5d3d106b
-> has fixed the problem (maybe together with the other 3 changes in HEAD
-> as the 2nd patch in this thread did not work in the first place or maybe
-> it is a little bit different, no time to check right now).
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2668695AE66A8136A2AC2B2F
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-It's an identical change, so the one sent you should work as well.
-Perhaps you botched that one test? These things happen, it's happened to
-me as well :-)
+I was very much surprised by the reactions I got after my OLS talk.
+Lots of people declared interest and even agreed with the approach and
+asked me to do further ahead with all this.  For those who missed it,
+the paper and the slides are available on my home page:
 
-The change definitely fixed it for me.
+http://people.redhat.com/drepper/
 
--- 
-Jens Axboe
 
+As for the next steps I see a number of possible ways.  The discussions
+can be held on the usual mailing lists (i.e., lkml and netdev) but due
+to the raw nature of the current proposal I would imagine that would be
+mainly perceived as noise.
+
+So the second proposal is the I can create an appropriate mailing list
+here.  Alternatively possibly two lists, one for the event channel stuff
+and one for the DMA/AIO part since the two parts are very much unrelated.=
+
+
+I'd appreciate input from those who feel responsible for these lists.  I
+don't mind either way.  If there is strong interest right now (let me
+know, don't pollute the list) I can create mailing lists now and then if
+necessary close them down and redirect traffic to lkml/netdev.
+
+Waiting for input...
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig2668695AE66A8136A2AC2B2F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFExm/J2ijCOnn/RHQRAr+0AJ9ATJxV9MkVDBTtB3q8xF98bYxxQACgwr3t
+f9YThdt9MvZP5wXijQNOCzo=
+=bQRW
+-----END PGP SIGNATURE-----
+
+--------------enig2668695AE66A8136A2AC2B2F--

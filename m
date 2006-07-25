@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWGYAR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWGYAX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWGYAR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 20:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWGYAR7
+	id S932346AbWGYAX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 20:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWGYAX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 20:17:59 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:5043 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932350AbWGYAR6 (ORCPT
+	Mon, 24 Jul 2006 20:23:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932346AbWGYAX6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 20:17:58 -0400
-Subject: [PATCH] [ufs] Remove incorrect unlock_kernel from failure path in
-	ufs_symlink
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Daniel Pirkl <daniel.pirkl@email.cz>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 17:17:59 -0700
-Message-Id: <1153786679.31581.27.camel@josh-work.beaverton.ibm.com>
+	Mon, 24 Jul 2006 20:23:58 -0400
+Date: Mon, 24 Jul 2006 17:20:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: vxfs_readdir locking incorrect: add lock_kernel() or remove
+ unlock_kernel()?
+Message-Id: <20060724172040.c177f173.akpm@osdl.org>
+In-Reply-To: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
+References: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ufs_symlink, in one of its error paths, calls unlock_kernel without ever
-having called lock_kernel(); fix this by creating and jumping to a new label
-out_notlocked rather than the out label used after calling lock_kernel().
+On Mon, 24 Jul 2006 15:42:17 -0700
+Josh Triplett <josht@us.ibm.com> wrote:
 
-Signed-off-by: Josh Triplett <josh@freedesktop.org>
----
- fs/ufs/namei.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+> Commit 7b2fd697427e73c81d5fa659efd91bd07d303b0e in the historical GIT
+> tree stopped calling the readdir member of a file_operations struct with
+> the big kernel lock held, and fixed up all the readdir functions to do
+> their own locking.  However, that change added calls to unlock_kernel()
+> in vxfs_readdir (fs/freevxfs/vxfs_lookup.c), but no call to
+> lock_kernel().
 
-diff --git a/fs/ufs/namei.c b/fs/ufs/namei.c
-index abd5f23..d344b41 100644
---- a/fs/ufs/namei.c
-+++ b/fs/ufs/namei.c
-@@ -129,7 +129,7 @@ static int ufs_symlink (struct inode * d
- 	struct inode * inode;
- 
- 	if (l > sb->s_blocksize)
--		goto out;
-+		goto out_notlocked;
- 
- 	lock_kernel();
- 	inode = ufs_new_inode(dir, S_IFLNK | S_IRWXUGO);
-@@ -155,6 +155,7 @@ static int ufs_symlink (struct inode * d
- 	err = ufs_add_nondir(dentry, inode);
- out:
- 	unlock_kernel();
-+out_notlocked:
- 	return err;
- 
- out_fail:
+That would appear to imply that nobody has used freevxfs in four years.
 
+>  Should vxfs_readdir call lock_kernel(), or should the
+> calls to unlock_kernel() go away?
 
+I don't see anything in there which needs the locking, apart from perhaps
+f_pos updates.  But it's probably best to add the lock_kernel() - this is a
+bugfixing exercise, not a remove-BKL-from-freevxfs exercise.

@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWGYTbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWGYTb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWGYTbz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWGYTbz
+	id S964842AbWGYTb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWGYTb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:31:55 -0400
-Received: from 1wt.eu ([62.212.114.60]:63756 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S964844AbWGYTby (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:31:54 -0400
-Date: Tue, 25 Jul 2006 21:31:40 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       mtosatti@redhat.com
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Message-ID: <20060725193140.GK2037@1wt.eu>
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200607181004.55191.benjamin.cherian.kernel@gmail.com> <20060718183313.e8e5a5b2.zaitcev@redhat.com> <200607201044.00739.benjamin.cherian.kernel@gmail.com> <20060724230732.4fdf2bf4.zaitcev@redhat.com>
+	Tue, 25 Jul 2006 15:31:27 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:4490 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S964842AbWGYTb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:31:26 -0400
+Subject: Re: remove cpu hotplug bustification in cpufreq.
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060725185449.GA8074@elte.hu>
+References: <200607242023_MC3-1-C5FE-CADB@compuserve.com>
+	 <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org>
+	 <20060725185449.GA8074@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jul 2006 21:30:44 +0200
+Message-Id: <1153855844.8932.56.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060724230732.4fdf2bf4.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete,
-
-On Mon, Jul 24, 2006 at 11:07:32PM -0700, Pete Zaitcev wrote:
-> On Thu, 20 Jul 2006 10:43:59 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
+On Tue, 2006-07-25 at 20:54 +0200, Ingo Molnar wrote:
+> * Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> > > Although I am starting to think about creating a custom locking
-> > > scheme in devio.c after all. It seems like less work.
+> > The current -git tree will complain about some of the more obvious 
+> > problems. If you see a "Lukewarm IQ" message, it's a sign of somebody 
+> > re-taking a cpu lock that is already held.
 > 
-> > What's your timeframe for this? Good luck with it.
+> testing on my latest-rawhide laptop (kernel-2.6.17-1.2445.fc6 and later 
+> rpms have this change) seems to have pushed the problem over to another 
+> lock:
 > 
-> OK, now I hate my life, I hate you, I hate Stuart, but most of all
-> I hate the anonymous Japanese who wrote the microcode for TEAC CD-210PU.
-> Anyway, please test the attached patch. Does it do what you want?
+>   S06cpuspeed/1580 is trying to acquire lock:
+>    (&policy->lock){--..}, at: [<c06075f9>] mutex_lock+0x21/0x24
+> 
+>   but task is already holding lock:
+>    (cpu_bitmask_lock){--..}, at: [<c06075f9>] mutex_lock+0x21/0x24
+> 
+>   which lock already depends on the new lock.
 
-I'm very glad that you're still maintaining 2.4 code so much actively. Do
-you think of any possible side effects that non-TEAC users might encounter ?
-If you feel more comfortable after some particular corner-case tests on other
-hardware, please ask.
 
-> -- Pete
+so cpufreq_set_policy() takes policy->lock, and then calls into the
+userspace governer code
+(__cpufreq_set_policy->cpufreq_governor->cpufreq_governor_userspace)
+which calls __cpufreq_driver_target... which does lock_cpu_hotplug().
 
-Cheers,
-Willy
+
+now on the other side:
+store_scaling_governor() has the following code:
+
+        lock_cpu_hotplug();
+
+        /* Do not use cpufreq_set_policy here or the user_policy.max
+           will be wrongly overridden */
+        mutex_lock(&policy->lock);
+
+so that's the entirely opposite lock order, and a classic AB-BA
+deadlock.
+
+Greetings,
+     Arjan -- who's just cleaned Linus' wall to prepare it for more head
+banging
+
 

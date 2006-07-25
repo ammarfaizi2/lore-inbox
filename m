@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWGYFpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWGYFpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWGYFpc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 01:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWGYFpb
+	id S932476AbWGYFpF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 01:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWGYFpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 01:45:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20456 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932473AbWGYFpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 01:45:30 -0400
-Subject: Re: [RFC][PATCH] procfs: add privacy options
-From: Arjan van de Ven <arjan@infradead.org>
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Wolfgang Draxinger <Wolfgang.Draxinger@campus.lmu.de>,
-       Bodo Eggert <7eggert@gmx.de>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <44C547B0.1090304@lsrfire.ath.cx>
-References: <44C50A2B.3040203@lsrfire.ath.cx>
-	 <m18xmiogp3.fsf@ebiederm.dsl.xmission.com>
-	 <44C547B0.1090304@lsrfire.ath.cx>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 07:45:06 +0200
-Message-Id: <1153806307.8932.9.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 25 Jul 2006 01:45:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59797 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932473AbWGYFpC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 01:45:02 -0400
+Date: Mon, 24 Jul 2006 22:44:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Andrew Morton <akpm@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Add efi e820 memory mapping on x86 [try #1]
+In-Reply-To: <44C5AD50.1020305@zytor.com>
+Message-ID: <Pine.LNX.4.64.0607242241390.29649@g5.osdl.org>
+References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+ <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+ <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+ <44A8058D.3030905@zytor.com> <m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+ <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+ <44B6BF2F.6030401@ed-soft.at> <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+ <44B73791.9080601@ed-soft.at> <Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
+ <44B9FF02.3020600@ed-soft.at> <20060724212911.32dd3bc0.akpm@osdl.org>
+ <Pine.LNX.4.64.0607242227340.29649@g5.osdl.org> <44C5AD50.1020305@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+
+On Mon, 24 Jul 2006, H. Peter Anvin wrote:
 > 
-> You mean using ptrace_may_attach() and/or MAY_PTRACE() for determining
-> access to all (or at least more) files in /proc/<pid> instead of my
-> proposed "chmod 500"?  What are the advantages?
+> You're forgetting PXE.
 
-Hi,
+I don't think I'm forgetting it as much as just repressing it. I don't 
+think it actually affects the kernel, does it? I assume the only reason 
+you care is that it might affect a bootloader?
 
-file permissions are simple, but too simplistic to express a full "am I
-allowed to see that guy" rules as general principle. Just think of
-SELinux or any other kind of role based access control mechanism where
-"root is not full root". But it goes beyond that really; applications
-that drop their ptrace capability because they KNOW they won't use it
-and by dropping the capability deny an exploit that takes over from
-using it. There's just too many such cases that file permissions don't
-capture where ptrace is a more detailed description of the permission
-check you want (idea being that if you can ptrace someone you own them).
-It's good general principle to at least try to not duplicate such
-permission checks; history shows that those will be gotten incorrect.
-
-Greetings,
-   Arjan van de Ven
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+		Linus

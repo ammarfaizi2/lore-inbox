@@ -1,91 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWGYNBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWGYNDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWGYNBO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 09:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWGYNBO
+	id S932093AbWGYNDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 09:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWGYNDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 09:01:14 -0400
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:10633
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S1751396AbWGYNBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 09:01:13 -0400
-Message-ID: <44C61616.7060203@ed-soft.at>
-Date: Tue, 25 Jul 2006 15:01:10 +0200
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Michael Krufky <mkrufky@linuxtv.org>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 07/45] v4l/dvb: Fix CI on old KNC1 DVBC cards
-References: <20060717160652.408007000@blue.kroah.org> <20060717162617.GH4829@kroah.com>
-In-Reply-To: <20060717162617.GH4829@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jul 2006 09:03:16 -0400
+Received: from ms-smtp-03.rdc-kc.rr.com ([24.94.166.129]:41681 "EHLO
+	ms-smtp-03.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S932093AbWGYNDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 09:03:15 -0400
+Subject: PROBLEM: PCI (?) trouble on Toshiba M400 notebook
+From: Elias Holman <eholman@holtones.com>
+Reply-To: eholman@holtones.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 25 Jul 2006 08:03:23 -0500
+Message-Id: <1153832603.3141.29.camel@parachute.holtones.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+I have a Toshiba Portege M400 tablet notebook that will not boot due to
+a null pointer dereference.  This problem appears to have been
+introduced between 2.6.17-rc1 and rc2.  I have tried many kernels since
+then with no better luck, up to 2.6.18-rc2.  I apologize if this issue
+has been addressed via a patch or otherwise and I have not seen it, but
+a search of the mailing list archives turned up nothing except that this
+problem was informally reported on June 21st by Herbert Rosmanith, but
+he chose not to submit a full report for whatever reason.  From his
+email:
 
-This fix does not compile on 2.6.17.7.
-philips_cu1216_tuner_set_params is nowhere defined in the kernel tree.
+"I just had to examine
+a notebook which had problems with our software: a
+"toshiba portege m400". 2.4 seems to work so far, as does 2.6.16.
+I also tried 2.6.17, but get a strange problem: it simply hangs
+after writing "PCI: probing hardware" (or similar). A closer look
+reveals that it hangs in drivers/pci/probe.c, in pci_read_bases. What's
+exactly going on, I don't know..."
 
-cu
+I have more or less confirmed that it stops in pci_read_bases by putting
+printk statements at different points in the code (I am really not a
+kernel hacker and so it was the only thing I knew to do).  It appears
+that the problem is in this block:
 
-Edgar (gimli) Hucek
- 
-Greg KH schrieb:
-> -stable review patch.  If anyone has any objections, please let us know.
-> 
-> ------------------
-> From: Andrew de Quincey <adq_dvb@lidskialf.net>
-> 
-> These cards do not need the tda10021 configuration change when data is
-> streamed through a CAM module. This disables it for these ones.
-> 
-> Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
-> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> ---
-> 
->  drivers/media/dvb/ttpci/budget-av.c |    9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> --- linux-2.6.17.3.orig/drivers/media/dvb/ttpci/budget-av.c
-> +++ linux-2.6.17.3/drivers/media/dvb/ttpci/budget-av.c
-> @@ -1060,6 +1060,15 @@ static void frontend_init(struct budget_
->  		break;
->  
->  	case SUBID_DVBC_KNC1:
-> +		budget_av->reinitialise_demod = 1;
-> +		fe = tda10021_attach(&philips_cu1216_config,
-> +				     &budget_av->budget.i2c_adap,
-> +				     read_pwm(budget_av));
-> +		if (fe) {
-> +			fe->ops.tuner_ops.set_params = philips_cu1216_tuner_set_params;
-> +		}
-> +		break;
-> +
->  	case SUBID_DVBC_KNC1_PLUS:
->  		fe = tda10021_attach(&philips_cu1216_config,
->  				     &budget_av->budget.i2c_adap,
-> 
-> --
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+for(pos=0; pos<howmany; pos = next) {
+.
+.
+.
+pci_read_config_dword(dev, reg, &l);
+pci_write_config_dword(dev, reg, ~0);
+pci_read_config_dword(dev, reg, &sz);
+pci_write_config_dword(dev, reg, l);
+
+It stops somewhere in the reading and writing block, although I haven't
+narrowed it down further.  It appears that the value of howmany is 6, so
+I assume this is being called from inside of pci_setup_device in the
+PCI_HEADER_TYPE_NORMAL case, where a call to pci_read_bases has a
+constant 6 passed in.  It appears to hang on the 3rd time through the
+loop, i.e. device number 2.  I don't really know how the output of lspci
+relates to that device number, but I am happy to provide the full
+verbose lspci output for an interested party.  It also appears to be the
+second call to pci_read_bases, with it being called from inside the
+PCI_HEADER_TYPE_BRIDGE case with no issue (I am basing this again on the
+value of howmany, which is 2 in that case).
+
+I can get further into the boot process by specifying pci=off, although
+then acpi has trouble.  If I specify pci=off and acpi=off, then it gets
+even further, but eventually has trouble mounting the root filesystem.
+
+I am currently running what appears to be a stable configuration on
+2.6.17-rc1 with no issue.  I am happy to provide any more debugging
+information that someone might need.
+-- 
+Eli
+
 

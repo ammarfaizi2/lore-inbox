@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWGYJuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWGYJu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWGYJuw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 05:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWGYJuw
+	id S1751543AbWGYJu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 05:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWGYJu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 05:50:52 -0400
-Received: from ezoffice.mandriva.com ([84.14.106.134]:50188 "EHLO
-	office.mandriva.com") by vger.kernel.org with ESMTP
-	id S1751542AbWGYJuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 05:50:51 -0400
-From: Arnaud Patard <apatard@mandriva.com>
-To: Greg KH <gregkh@suse.de>, Andrew de Quincey <adq_dvb@lidskialf.net>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Linux 2.6.17.7
-Organization: Mandriva
-References: <20060725034247.GA5837@kroah.com>
-Date: Tue, 25 Jul 2006 11:55:05 +0200
-In-Reply-To: <20060725034247.GA5837@kroah.com> (Greg KH's message of "Mon, 24
-	Jul 2006 20:42:47 -0700")
-Message-ID: <m33bcqdn5y.fsf@anduin.mandriva.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Tue, 25 Jul 2006 05:50:56 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:55490 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1751541AbWGYJuz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 05:50:55 -0400
+Message-ID: <44C5E98B.4040903@cs.wisc.edu>
+Date: Tue, 25 Jul 2006 05:51:07 -0400
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: [PATCH 0/2] blk request timeout handler
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <gregkh@suse.de> writes:
+Sorry if this is a duplicate, I had some trouble with my mailer in the
+middle if sending the patches.
 
-Hi,
+The following patches move the scsi command timeout code from the scsi
+layer to the block layer. I originally did them so request based
+multipath could reuse the code, but the code can be used by anyone so I
+thought I should send it seperately.
 
-> We (the -stable team) are announcing the release of the 2.6.17.7 kernel.
+I have tested the normal and error paths with iscsi and am in the middle
+of testing the libata error paths. The latter needs more care since it
+is the only strategy handler user. I have also converted all the
+timeout_per_command users but some of the LLDs still need a "#include
+blkdev.h".
 
-Sorry, but doesn't compile if DVB_BUDGET_AV is set :(
-
-
-> Andrew de Quincey:
->       v4l/dvb: Fix budget-av frontend detection
->       v4l/dvb: Fix CI on old KNC1 DVBC cards
-
-This patch is the culprit. With it, the build fails with the errors : 
-drivers/media/dvb/ttpci/budget-av.c: In function 'frontend_init':
-drivers/media/dvb/ttpci/budget-av.c:1063: error: 'struct budget_av' has no member named 'reinitialise_demod'
-drivers/media/dvb/ttpci/budget-av.c:1068: error: request for member tuner_ops' in something not a structure or union
-drivers/media/dvb/ttpci/budget-av.c:1068: error: 'philips_cu1216_tuner_set_params' undeclared (first use in this function)
-drivers/media/dvb/ttpci/budget-av.c:1068: error: (Each undeclared identifier is reported only once
-drivers/media/dvb/ttpci/budget-av.c:1068: error: for each function it appears in.)
-
-The needed changes were introduced post 2.6.17 :
-5c1208ba457a1668c81868060c08496a2d053be0
-7eef5dd6daecf3ee305116c9cf41ae7166270c4c
-e87d41c4952ceef7a9f760f38f9343d015279662
-
-This would be great to see this fixed for the next -stable release :)
-
-Regards,
-Arnaud Patard
-
+So the patches are not ready for mergingm but I wanted to get feedback
+on the scsi timer code and if it was accpetable or was it not so nice?
+And I wanted to see if these patches were ok alone or if all the scsi eh
+needed to be moved at the same time. These patches do not move the
+quiesce, abort or reset code.

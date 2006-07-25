@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWGYUEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWGYUFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWGYUEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWGYUEQ
+	id S964850AbWGYUFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWGYUFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:04:16 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:47181 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964847AbWGYUEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:04:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ktpdT3mBXZrCfRdJB/GancAka/l92+fNYTW8HWuIQvbj7MwT5MJ1O9o+JTjVVzec37iPPF2yzxGo/ZJX/Q3K7wvMxIYNzYHmCS4mg9dk6BvMd5oFdkZBFpMbfpX0x+Pa1gHt+a1IWmM+EASw+QSBAcE9FdwkBSuFRsRLI+2mkmI=
-Message-ID: <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>
-Date: Wed, 26 Jul 2006 06:04:14 +1000
-From: "Dave Airlie" <airlied@gmail.com>
-To: "Neil Horman" <nhorman@tuxdriver.com>
-Subject: Re: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Cc: "Segher Boessenkool" <segher@kernel.crashing.org>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       a.zummo@towertech.it, jg@freedesktop.org
-In-Reply-To: <20060725194733.GJ4608@hmsreliant.homelinux.net>
+	Tue, 25 Jul 2006 16:05:05 -0400
+Received: from smtp3.nextra.sk ([195.168.1.142]:53006 "EHLO mailhub3.nextra.sk")
+	by vger.kernel.org with ESMTP id S964850AbWGYUFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:05:04 -0400
+From: Ondrej Zary <linux@rainbow-software.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: Debugging APM - cat /proc/apm produces oops
+Date: Tue, 25 Jul 2006 22:04:57 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
+References: <200607231630.53968.linux@rainbow-software.org> <20060724010658.687e78be.sfr@canb.auug.org.au>
+In-Reply-To: <20060724010658.687e78be.sfr@canb.auug.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
-	 <20060725182833.GE4608@hmsreliant.homelinux.net>
-	 <44C66C91.8090700@zytor.com>
-	 <20060725192138.GI4608@hmsreliant.homelinux.net>
-	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
-	 <20060725194733.GJ4608@hmsreliant.homelinux.net>
+Message-Id: <200607252204.57795.linux@rainbow-software.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> > But userland cannot know if there is a more efficient option to
-> > use than this /dev/rtc way, without using VDSO/vsyscall.
-> >
-> Sure, but detecting if /dev/rtc via mmap is faster than gettimeofday is an
-> orthogonal issue to having the choice in the first place.  I say let the X guys
-> write code to determine at run time what is more efficient to get their job
-> done.  I really just wanted to give them the ability to avoid making a million
-> kernel traps a second for those arches where a userspace gettimeofday is not
-> yet implemented, or cannot be implemented.  It won't cost anything to add this
-> feature, and if the Xorg people can write code to use gettimeofday if its faster
-> than mmaped /dev/rtc (or even configured to do so at compile-time).  This patch
-> doesn't create any interrupts that wouldn't be generated already anyway by any
-> user using /dev/rtc, and even if X doesn't already use /dev/rtc, the added
-> interrupts are in trade for an equally fewer number of kernel traps, which I
-> think has to be a net savings.
->
-> I'm not saying we shouldn't implement a vsyscall on more platforms to provide a
-> speedup for this problem (in fact I'm interested to learn how, since I hadn't
-> previously considered that as a possibility), but I think offering the choice is
-> a smart thing to do until the latter solution gets propogated to other
-> arches/platforms besides x86_64
->
+This is my "fix" - patches BIOS in shadow RAM. Ugly but allows me to use APM battery status.
+Probably not worth including in the kernel but it might help someone...
 
-So far the requirements are pretty much not high resolution but is
-accurate and increasing. so like 10ms is fine, the current X timer is
-in the 20ms range.
+--- linux-2.6.17.5-orig/drivers/pci/quirks.c	2006-07-15 04:38:43.000000000 +0200
++++ linux-2.6.17.5/drivers/pci/quirks.c	2006-07-26 18:41:01.000000000 +0200
+@@ -1404,6 +1404,36 @@
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NCR, PCI_DEVICE_ID_NCR_53C810, fixup_rev1_53c810);
+ 
++#ifdef CONFIG_X86
++/* 
++ * Fix DTK FortisPro TOP-5A APM BIOS bug which causes oops on /proc/apm access
++ * Most probably works only with the latest BIOS rev 2.31
++ */
++static void __devinit quirk_dtk_top5a(struct pci_dev *dev)
++{
++	u8 *patch_addr_1 = __va(0xf2f9d);
++	u8 orig_1[] = { 0x89, 0x5e, 0xfe }; /* mov [bp-2],bx -> this causes oops */
++	u8 patch_1[] = { 0x90, 0x90, 0x90 }; /* 3x nop */
++	u8 *patch_addr_2 = __va(0xf2fad);
++	u8 orig_2[] = { 0x83, 0x7e, 0xfe, 0x01, /* cmp w,[bp-2],1 -> second oops */
++			0x74 }; 		/* je somewhere -> this must be changed to jmps */
++	u8 patch_2[] = { 0x90, 0x90, 0x90, 0x90, 0xeb }; /* 4x nop + jmps */
++	u8 shadow_cfg;
++
++	/* Check if it's the buggy BIOS */
++	if (memcmp(patch_addr_1, &orig_1[0], ARRAY_SIZE(orig_1)) ||
++	    memcmp(patch_addr_2, &orig_2[0], ARRAY_SIZE(orig_2)))
++		return;
++
++	printk(KERN_INFO "Fixing DTK FortisPro TOP-5A APM BIOS bug\n");
++	pci_read_config_byte(dev, 0x59, &shadow_cfg);
++	pci_write_config_byte(dev, 0x59, 0x20);	/* enable shadow BIOS writes */
++	memcpy(patch_addr_1, patch_1, ARRAY_SIZE(patch_1));
++	memcpy(patch_addr_2, patch_2, ARRAY_SIZE(patch_2));
++	pci_write_config_byte(dev, 0x59, shadow_cfg);
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82439TX,	quirk_dtk_top5a);
++#endif /* CONFIG_X86 */
+ 
+ static void pci_do_fixups(struct pci_dev *dev, struct pci_fixup *f, struct pci_fixup *end)
+ {
 
-I think an mmap'ed page with whatever cgt(CLOCK_MONOTONIC) returns
-would be very good, but it might be nice to implement some sort of new
-generic /dev that X can mmap and each arch can do what they want in
-it,
-
-I'm wondering why x86 doesn't have gettimeofday vDSO (does x86 have
-proper vDSO support at all apart from sysenter?),
-
-Dave.
+-- 
+Ondrej Zary

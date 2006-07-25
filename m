@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGYTHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWGYTIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWGYTHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGYTHE
+	id S964830AbWGYTIR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWGYTIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:07:04 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:65235 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964811AbWGYTHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:07:01 -0400
-In-Reply-To: <1153852204.5665.10.camel@basalt.austin.ibm.com>
-References: <20060718091807.467468000@sous-sol.org> <20060718091956.905130000@sous-sol.org> <1153852204.5665.10.camel@basalt.austin.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C39255BB-9E63-4EB6-BE9D-4CD32F830585@kernel.crashing.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, virtualization@lists.osdl.org,
-       Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com,
-       Ian Pratt <ian.pratt@xensource.com>,
-       xen-ppc-devel <xen-ppc-devel@lists.xensource.com>
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [RFC PATCH 28/33] Add Xen grant table support
-Date: Tue, 25 Jul 2006 21:06:51 +0200
-To: Hollis Blanchard <hollisb@us.ibm.com>
-X-Mailer: Apple Mail (2.750)
+	Tue, 25 Jul 2006 15:08:17 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:10248 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S964836AbWGYTIP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:08:15 -0400
+Date: Tue, 25 Jul 2006 15:07:48 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Neil Horman <nhorman@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Message-ID: <20060725190743.GB31334@tuxdriver.com>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net> <1153850139.8932.40.camel@laptopd505.fenrus.org> <20060725182208.GD4608@hmsreliant.homelinux.net> <1153852375.8932.41.camel@laptopd505.fenrus.org> <20060725184328.GF4608@hmsreliant.homelinux.net> <1153853596.8932.44.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153853596.8932.44.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I object to these uses of (synch_)cmpxchg on a uint16_t in common  
-> code.
-> Many architectures, including PowerPC, do not support 2-byte atomic
-> operations, but this code is common to all Xen architectures.
+On Tue, Jul 25, 2006 at 08:53:16PM +0200, Arjan van de Ven wrote:
+> On Tue, 2006-07-25 at 14:43 -0400, Neil Horman wrote:
 
-RMW operations you mean, I suppose.  On PowerPC, all (naturally
-aligned) halfword operations are atomic; there do not exist any
-RMW operations; but word and doubleword atomic RMW operations
-can be emulated.
+> > alternative, which, as I mentioned before I would be happy to take a crack at,
+> > if you would elaborate on your idea a little more.
+> 
+> well the idea that has been tossed about a few times is using a vsyscall
+> function that either calls into the kernel, or directly uses the hpet
+> page (which can be user mapped) to get time information that way... 
+> or even would use rdtsc in a way the kernel knows is safe (eg corrected
+> for the local cpu's speed and offset etc etc).
 
-Boils down to the same thing of course, but it isn't the same ;-)
+Aren't both of those examples x86(_64)-specific?  Wouldn't a generic
+solution be preferrable?
 
-
-Segher
-
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

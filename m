@@ -1,103 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWGYO3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWGYO3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWGYO3i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 10:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbWGYO3i
+	id S932362AbWGYO3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 10:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWGYO3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 10:29:38 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:53970 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S932363AbWGYO3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 10:29:37 -0400
-Message-ID: <44C62A08.5060203@s5r6.in-berlin.de>
-Date: Tue, 25 Jul 2006 16:26:16 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de, en
+	Tue, 25 Jul 2006 10:29:36 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:6107 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932362AbWGYO3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 10:29:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ONtVkWOckeWs4IpAQJabLz1MmBQQIFp/KbBWEypLfpqSpQBHn2uDj6pXoDrNhRrsJerKz/7zxpYrx9eVFkU3OG3izdCrIk6W1yk+z+ZkHMLKteQykdKZGUofQZEXbHs0eupzEnRL5UBoCdToM467gFb8bzM6QyiZEarysNlH/PM=
+Message-ID: <f96157c40607250729i6f29eab3xc9987931421bb483@mail.gmail.com>
+Date: Tue, 25 Jul 2006 14:29:33 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: Re: i686 hang on boot in userspace
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <f96157c40607250727o685b8195i67da8c68123728f@mail.gmail.com>
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Matt LaPlante <kernel1@cyberdogtech.com>, linux-kernel@vger.kernel.org
-Subject: Re: Question about Git tree methodology.
-References: <20060724163145.5819ce7d.kernel1@cyberdogtech.com> <44C53323.2030905@gentoo.org>
-In-Reply-To: <44C53323.2030905@gentoo.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <f96157c40607250120s2554cbc6qbd7c42972b70f6de@mail.gmail.com>
+	 <20060725080807.GF4044@suse.de>
+	 <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com>
+	 <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com>
+	 <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com>
+	 <20060725112955.GR4044@suse.de>
+	 <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com>
+	 <20060725125201.GT4044@suse.de> <20060725125854.GU4044@suse.de>
+	 <f96157c40607250727o685b8195i67da8c68123728f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Matt LaPlante wrote:
-[...]
->> Basically I just want to use it as a method of tracking my own
->> trivial patches (and perhaps give maintainers easier access to them).
-> 
-> Quilt is very good at doing this kind of thing.
-> http://savannah.nongnu.org/projects/quilt
+On 7/25/06, gmu 2k6 <gmu2006@gmail.com> wrote:
+> On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> > On Tue, Jul 25 2006, Jens Axboe wrote:
+> > > On Tue, Jul 25 2006, gmu 2k6 wrote:
+> > > > On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> > > > >On Tue, Jul 25 2006, gmu 2k6 wrote:
+> > > > >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
+> > > > >> compared to -git6
+> > > > >> which seems to have correctly booted by accident the lastime. timing
+> > > > >issues
+> > > > >> I guess.
+> > > > >
+> > > > >I will try and reproduce it here now. It seems to be in between commit
+> > > > >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
+> > > > >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could also
+> > > > >be bad.
+> > > > >
+> > > > >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
+> > > > >good, so you can try and verify that
+> > > > >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
+> > > > >two. It's only about 6 commits, so should be quick enough to do.
+> > > >
+> > > > 1) no luck with remote serial console
+> > > > 2) netconsole does not work although connecting to the listener with netcat
+> > > > and
+> > > > sending strings works
+> > > > I'm gonna try via physical rs232 9pins and see how that works.
+> > > > afterwards I will try to bisect the revisions you mentioned.
+> > > >
+> > > > btw, the issue seems to come and go as I managed to boot log into a .17-git6
+> > > > kernel or is timing-dependent.
+> > >
+> > > I can reproduce it, you don't have to spend more time on bisecting or
+> > > testing. This should fix it:
+> > >
+> > > diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> > > index 1c4df22..1eac041 100644
+> > > --- a/drivers/block/cciss.c
+> > > +++ b/drivers/block/cciss.c
+> > > @@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
+> > >       CommandList_struct *cmd = rq->completion_data;
+> > >       ctlr_info_t *h = hba[cmd->ctlr];
+> > >       unsigned long flags;
+> > > +     request_queue_t *q;
+> > >       u64bit temp64;
+> > >       int i, ddir;
+> > >
+> > > @@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
+> > >       printk("Done with %p\n", rq);
+> > >  #endif                               /* CCISS_DEBUG */
+> > >
+> > > +     q = rq->q;
+> > > +
+> > >       add_disk_randomness(rq->rq_disk);
+> > >       spin_lock_irqsave(&h->lock, flags);
+> > >       end_that_request_last(rq, rq->errors);
+> > >       cmd_free(h, cmd, 1);
+> > > +     blk_start_queue(q);
+> > >       spin_unlock_irqrestore(&h->lock, flags);
+> > >  }
+> > >
+> > >
+> > > A better fix would rework the start_queue logic entirely in the driver,
+> > > but the above should get you running for now. I'll take a further look.
+> >
+> > Something like this matches the current logic better. It's not very good
+> > from a cpu efficiency point of view, but it's better than what is there
+> > now since at least it's not in hard irq context.
+> >
+> > Not tested yet, will do so right now.
+> >
+> > diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> > index 1c4df22..a9e0510 100644
+> > --- a/drivers/block/cciss.c
+> > +++ b/drivers/block/cciss.c
+> > @@ -1233,6 +1233,50 @@ static inline void complete_buffers(stru
+> >         }
+> >  }
+> >
+> > +static void cciss_check_queues(ctlr_info_t *h)
+> > +{
+> > +       int start_queue = h->next_to_run;
+> > +       int i;
+> > +
+> > +       /* check to see if we have maxed out the number of commands that can
+> > +        * be placed on the queue.  If so then exit.  We do this check here
+> > +        * in case the interrupt we serviced was from an ioctl and did not
+> > +        * free any new commands.
+> > +        */
+> > +       if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
+> > +               return;
+> > +
+> > +       /* We have room on the queue for more commands.  Now we need to queue
+> > +        * them up.  We will also keep track of the next queue to run so
+> > +        * that every queue gets a chance to be started first.
+> > +        */
+> > +       for (i = 0; i < h->highest_lun + 1; i++) {
+> > +               int curr_queue = (start_queue + i) % (h->highest_lun + 1);
+> > +               /* make sure the disk has been added and the drive is real
+> > +                * because this can be called from the middle of init_one.
+> > +                */
+> > +               if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
+> > +                       continue;
+> > +               blk_start_queue(h->gendisk[curr_queue]->queue);
+> > +
+> > +               /* check to see if we have maxed out the number of commands
+> > +                * that can be placed on the queue.
+> > +                */
+> > +               if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS) {
+> > +                       if (curr_queue == start_queue) {
+> > +                               h->next_to_run =
+> > +                                   (start_queue + 1) % (h->highest_lun + 1);
+> > +                               break;
+> > +                       } else {
+> > +                               h->next_to_run = curr_queue;
+> > +                               break;
+> > +                       }
+> > +               } else {
+> > +                       curr_queue = (curr_queue + 1) % (h->highest_lun + 1);
+> > +               }
+> > +       }
+> > +}
+> > +
+> >  static void cciss_softirq_done(struct request *rq)
+> >  {
+> >         CommandList_struct *cmd = rq->completion_data;
+> > @@ -1264,6 +1308,7 @@ #endif                            /* CCISS_DEBUG */
+> >         spin_lock_irqsave(&h->lock, flags);
+> >         end_that_request_last(rq, rq->errors);
+> >         cmd_free(h, cmd, 1);
+> > +       cciss_check_queues(h);
+> >         spin_unlock_irqrestore(&h->lock, flags);
+> >  }
+> >
+> > @@ -2528,8 +2573,6 @@ static irqreturn_t do_cciss_intr(int irq
+> >         CommandList_struct *c;
+> >         unsigned long flags;
+> >         __u32 a, a1, a2;
+> > -       int j;
+> > -       int start_queue = h->next_to_run;
+> >
+> >         if (interrupt_not_for_us(h))
+> >                 return IRQ_NONE;
+> > @@ -2588,45 +2631,6 @@ #                                endif
+> >                 }
+> >         }
+> >
+> > -       /* check to see if we have maxed out the number of commands that can
+> > -        * be placed on the queue.  If so then exit.  We do this check here
+> > -        * in case the interrupt we serviced was from an ioctl and did not
+> > -        * free any new commands.
+> > -        */
+> > -       if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
+> > -               goto cleanup;
+> > -
+> > -       /* We have room on the queue for more commands.  Now we need to queue
+> > -        * them up.  We will also keep track of the next queue to run so
+> > -        * that every queue gets a chance to be started first.
+> > -        */
+> > -       for (j = 0; j < h->highest_lun + 1; j++) {
+> > -               int curr_queue = (start_queue + j) % (h->highest_lun + 1);
+> > -               /* make sure the disk has been added and the drive is real
+> > -                * because this can be called from the middle of init_one.
+> > -                */
+> > -               if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
+> > -                       continue;
+> > -               blk_start_queue(h->gendisk[curr_queue]->queue);
+> > -
+> > -               /* check to see if we have maxed out the number of commands
+> > -                * that can be placed on the queue.
+> > -                */
+> > -               if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS) {
+> > -                       if (curr_queue == start_queue) {
+> > -                               h->next_to_run =
+> > -                                   (start_queue + 1) % (h->highest_lun + 1);
+> > -                               goto cleanup;
+> > -                       } else {
+> > -                               h->next_to_run = curr_queue;
+> > -                               goto cleanup;
+> > -                       }
+> > -               } else {
+> > -                       curr_queue = (curr_queue + 1) % (h->highest_lun + 1);
+> > -               }
+> > -       }
+> > -
+> > -      cleanup:
+> >         spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
+> >         return IRQ_HANDLED;
+> >  }
+>
+> this makes the cciss init hang.
 
-Introductory documentation:
-http://cvs.savannah.nongnu.org/viewcvs/*checkout*/quilt/doc/quilt.pdf?root=quilt
-
-> It keeps all your patches in a "patches" subdirectory and makes going 
-> back and fixing previous patches very easy (git makes this quite hard). 
-> You can rsync your patches/ directory to any webserver, and anyone else 
-> can save them in a patches subdirectory and apply them in the same way 
-> (the equivalent of sharing your tree).
-
-Hi Matt,
-
-yes, Quilt is a good tool especially for maintenance of patch
-collections on top of evolving source trees. I for one use it to keep
-track of patches for the subsystem of my interest (ieee1394 drivers), to
-develop new patches asynchronously to mainline releases, and to publish
-'backports': http://me.in-berlin.de/~s5r6/linux1394/updates/
-
-The "patches" subdirectories at this site is what quilt itself is
-working on. Examples of basic tasks are
-$ quilt import   # add a foreign patchfile to quilt's collection
-$ quilt push     # apply next patch listed in patches/series
-$ quilt pop      # unapply current patch
-$ quilt refresh  # regenerate the diff of the current patch after the
-                   sources have been edited or otherwise changed
-
-To submit patches to maintainers, either post them with your usual mail
-user agent or let "quilt mail ..." prepare the postings or --- as Daniel
-wrote --- publish them on a server. In the latter case, take care to
-prepend mbox-like headers (especially a "From: " header to denote the
-patch's author) so that git users can import those patchfiles easily
-with "git am". (The patches on my site still lack those headers because
-I rarely forward patches from other authors.)
-
-There are things that Quilt does _not_ do for you:
- - update the underlying source tree from other repos
- - generate changelogs (I wrote a simple script around Quilt to generate
-   the changelogs at my site. But that script is quite slow if it has to
-   handle a bigger number of patches.)
- - certainly a few other things which Quilt wasn't intended for...
-
-If you plan to intensively interact with git trees, StGIT ("Stacked GIT"
- alias "stg") may also be worth a look: http://www.procode.org/stgit/
-I haven't tried StGIT myself yet. AFAICS it provides basically the same
-functions as Quilt with two apparent differences:
- - The three steps to update the underlying source tree "quilt pop -a;
-   git pull ...; quilt push -a" are available as a single command:
-   "stg pull ...". Big deal.
- - The steps to commit your patches into the underlying git tree are
-   easily performed by "stg commit".
-After a patch was committed to the git tree, you loose the ability to
-modify the patch as freely as you could while it was managed by quilt or
-StGIT.
-
-To summarize, Quilt or StGIT are a good choice if you plan to develop or
-maintain patches which you want to change (update, improve...) in a
-different rhythm than the underlying source tree. This is what many
-"upstream developers" as well as "downstream distributors" do. Upstream
-developers may need to update their patches sometimes a few times before
-final submission, e.g. based on change requests from reviewers, or
-because the order of patches is to be changed to submit newer critical
-patches before older but less critical patches. Downstream distributors
-maintain add-ons (e.g. out-of-tree feature patches, customizations,
-backported bug fixes) on top of a source tree from upstream.
--- 
-Stefan Richter
--=====-=-==- -=== ==---
-http://arcgraph.de/sr/
+I've patched Linus' trunk/HEAD with it, btw.

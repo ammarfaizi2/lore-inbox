@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWGYF1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWGYFca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWGYF1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 01:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWGYF1W
+	id S932471AbWGYFca (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 01:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWGYFca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 01:27:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5266 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932462AbWGYF1V (ORCPT
+	Tue, 25 Jul 2006 01:32:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38803 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932471AbWGYFc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 01:27:21 -0400
-Date: Mon, 24 Jul 2006 22:27:15 -0700 (PDT)
+	Tue, 25 Jul 2006 01:32:29 -0400
+Date: Mon, 24 Jul 2006 22:32:17 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
 cc: Edgar Hucek <hostmaster@ed-soft.at>, ebiederm@xmission.com, hpa@zytor.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Add force of use MMCONFIG [try #1]
-In-Reply-To: <20060724213339.2646435c.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0607242226200.29649@g5.osdl.org>
+Subject: Re: [PATCH 1/1] Add efi e820 memory mapping on x86 [try #1]
+In-Reply-To: <20060724212911.32dd3bc0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0607242227340.29649@g5.osdl.org>
 References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
  <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
  <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
@@ -24,7 +24,7 @@ References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.o
  <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
  <44B6BF2F.6030401@ed-soft.at> <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
  <44B73791.9080601@ed-soft.at> <Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
- <44BA0025.6020105@ed-soft.at> <20060724213339.2646435c.akpm@osdl.org>
+ <44B9FF02.3020600@ed-soft.at> <20060724212911.32dd3bc0.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,13 +34,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 24 Jul 2006, Andrew Morton wrote:
 > 
-> Why do we want to do this?  Are the ACPI-provided tables incorrect?  If so,
-> what problems are caused by this?
+> > This Patch add an efi e820 memory mapping.
+> > 
+> 
+> Why?
 
-The ACPI-provided tables are apparently correct, but we sanity-check them 
-by _also_ requiring that the mmconfig base address is marked "reserved" in 
-the e820 tables.
+EFI is this other Intel brain-damage (the first one being ACPI). It's 
+totally different from a normal BIOS, and was brought on by ia64, which 
+never had a BIOS, of course. 
 
-The EFI memory maps apparently don't do that "reserved" marking.
+Sadly, Apple bought into the whole "BIOS bad, EFI good" hype, so we now 
+have x86 machines with EFI as the native boot protocol.
+
+The original EFI code in the kernel basically duplicates all the BIOS 
+interfaces (ie everything that looks at a memory map comes in two 
+varieties: the normal and tested BIOS e820 variety, and the usually broken 
+and hacked-up EFI memory map variety).
+
+Translating the EFI memory map to e820 is very much the sane thing to do, 
+and should have been done by ia64 in the first place. Sadly, EFI people 
+(a) think that their stinking mess is better than a BIOS and (b) are 
+historically ia64-only, so they didn't do that, but went the "we'll just 
+duplicate everything using our inferior EFI interfaces" way.
+
+Edgars patch looks fine per se, I'd just wish we had more testers (or, 
+alternatively, people would just use bootcamp and make their Apple 
+machines look like PC's, but see (a) above).
 
 		Linus

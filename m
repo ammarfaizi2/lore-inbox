@@ -1,45 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWGYVh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWGYVjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWGYVh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 17:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964871AbWGYVh1
+	id S964872AbWGYVjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 17:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWGYVjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 17:37:27 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1718 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964870AbWGYVh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 17:37:26 -0400
-Message-ID: <44C68F0E.2050100@redhat.com>
-Date: Tue, 25 Jul 2006 17:37:18 -0400
-From: Rik van Riel <riel@redhat.com>
-Organization: Red Hat, Inc
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm: inactive-clean list
-References: <1153167857.31891.78.camel@lappy> <44C30E33.2090402@redhat.com> <Pine.LNX.4.64.0607241109190.25634@schroedinger.engr.sgi.com> <44C518D6.3090606@redhat.com> <Pine.LNX.4.64.0607251324140.30939@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0607251324140.30939@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 25 Jul 2006 17:39:10 -0400
+Received: from rwcrmhc14.comcast.net ([204.127.192.84]:4318 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S964872AbWGYVjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 17:39:09 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Jim Gettys <jg@laptop.org>
+Reply-To: jg@laptop.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org,
+       Keith Packard <keithp@keithp.com>
+In-Reply-To: <44C68AA8.6080702@zytor.com>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
+	 <20060725182833.GE4608@hmsreliant.homelinux.net>
+	 <44C66C91.8090700@zytor.com>
+	 <20060725192138.GI4608@hmsreliant.homelinux.net>
+	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
+	 <20060725194733.GJ4608@hmsreliant.homelinux.net>
+	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>
+	 <44C67E1A.7050105@zytor.com>
+	 <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <1153861094.1230.20.camel@localhost.localdomain>
+	 <44C6875F.4090300@zytor.com>
+	 <1153862087.1230.38.camel@localhost.localdomain>
+	 <44C68AA8.6080702@zytor.com>
+Content-Type: text/plain
+Organization: OLPC
+Date: Tue, 25 Jul 2006 17:39:01 -0400
+Message-Id: <1153863542.1230.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Mon, 24 Jul 2006, Rik van Riel wrote:
-> 
->>> I think there may be a way with less changes to the way the VM functions to
->>> get there:
->> That approach probably has way too many state changes going
->> between the guest OS and the hypervisor...
-> 
-> An increment of a VM counter causes a state change in the hypervisor?
+Keith's the expert (who wrote the smart scheduler): I'd take a wild ass
+guess that 10ms is good enough.
 
-Christoph, please read more than the first 5 words in each
-email before replying.
+Maybe people can keep him on the cc list this time...
+                             - Jim
 
+
+On Tue, 2006-07-25 at 14:18 -0700, H. Peter Anvin wrote:
+> Jim Gettys wrote:
+> > On Tue, 2006-07-25 at 14:04 -0700, H. Peter Anvin wrote:
+> > 
+> >> That's why I'm suggesting adding a cheap, possibly low-res, gettimeofday 
+> >> virtual system call in case there is no way for the kernel to provide 
+> >> userspace with a cheap full-resolution gettimeofday.  Obviously, if a 
+> >> high-quality gettimeofday is available, then they can be linked together 
+> >> by the kernel.
+> > 
+> > Low res is fine: X Timestamps are 1 millisecond values, and wrap after a
+> > few hundred days.  What we do care about is monotonically increasing
+> > values (until it wraps). On machines of the past, this was very
+> > convenient; we'd just store a 32 bit value for clients to read, and not
+> > bother with locking.  I guess these days, you'd at least have to protect
+> > the store with a memory barrier, maybe....
+> > 
+> > It was amusing years ago to find toolkit bugs after applications had
+> > been up for that long (32 bits of milliseconds)...  Yes, there are
+> > applications and machines that stay up that long, really there are....
+> > 
+> 
+> Do you need 1 ms resolution, or is 10 ms good enough?
+> 
+> 	-hpa
+> 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Jim Gettys
+One Laptop Per Child
+
+

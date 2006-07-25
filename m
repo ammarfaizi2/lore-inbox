@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWGYV31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWGYV32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWGYV31 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 17:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWGYV30
+	id S964866AbWGYV32 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 17:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWGYV32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 17:29:26 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:22447 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S964863AbWGYV30
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 17:29:26 -0400
-Date: Tue, 25 Jul 2006 14:28:34 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: automated test? (was Re: Linux 2.6.17.7)
-In-Reply-To: <20060725212001.GA5493@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.63.0607251420350.9159@qynat.qvtvafvgr.pbz>
-References: <20060725034247.GA5837@kroah.com>  <m33bcqdn5y.fsf@anduin.mandriva.com>
-  <200607251123.40549.adq_dvb@lidskialf.net>  <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
-  <1153846619.8932.36.camel@laptopd505.fenrus.org> <20060725212001.GA5493@merlin.emma.line.org>
+	Tue, 25 Jul 2006 17:29:28 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:54760 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964866AbWGYV31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 17:29:27 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 25 Jul 2006 23:28:29 +0200
+References: <6CcT1-1lH-39@gated-at.bofh.it> <6Cwov-5xl-5@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G5USP-0000fF-Sp@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+Subject: Re: what is necessary for directory hard links
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006, Matthias Andree wrote:
+Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Joshua Hudson <joshudson@gmail.com> wrote:
 
-> On Tue, 25 Jul 2006, Arjan van de Ven wrote:
->
->> well you can do such a thing withing statistical bounds; however... if
->> the patch already is in -git (as is -stable policy normally).. it should
->> have been found there already...
->
-> The sad facts I learned from Debian bug #212762 (not kernel related) that
-> culminated in CVE-2005-2335 (remote root exploit against older
-> fetchmail) and from various qmail bugs Guninski discovered:
->
-> - a bug need not necessarily be found soon after introduction
->
-> - a bug report may not convey the hint "look at this NOW, the shit
->  already hit the fan"
->  (sorry, I meant to write: look NOW, it's urgent and important)
->
-> - an automated test to catch non-trivial mistakes is non-trivial in
->  itself, and - what I've seen with another project I was involved with,
->  and more often than I found amusing - is that the test itself can be
->  buggy causing bogus results.
->
-> That doesn't mean I object to automated tests, but "it should have been
-> found by now" (because the source is open, someone could have tested it,
-> whatever) just doesn't work.
+> [...]
+> 
+>> Maybe someday I'll work out a system by which much less is locked.
+>> Conceptually, all that is requred to lock for the algorithm
+>> to work is creating hard-links to directories and renaming directories
+>> cross-directory.
+> 
+> Some 40 years of filesystem development without finding a solution to that
+> conundrum would make that quite unlikely, but you are certainly welcome to
+> try.
 
-what I was intending with my origional question was a series of simple 'does it 
-compile' tests that try all the config options that are affected by the patchset 
-in question. the purpose being to catch simple errors like the one here where 
-the patch was diffed against the wrong tree and the result doesn't compile
+There is a simple solution against loops: No directory may contain a directory
+with a lower inode number.
 
-i.e. if the change is the the e1000 driver, try compiling a kernel with it on, 
-off, and as a module
+Off cause this would interfere with normal operations, so you'll allocate all
+normal inodes above e.g. 0x800000 and don't test between those inodes.
 
-obviously such a test can't be done on the huge -rc patches (they would approach 
-an exhaustive test of all config permutations), but for -stable patches (or 
-better still the indivdual patches that form a -stable release)
+If you want to hardlink, you'll use a different (privileged) mkdir call
+that will allocate a choosen low inode number. This is also required for
+the parents of the hardlinked directories.
 
-so the first part of the question boils down to
+You can also use the generic solution: Allow root to shoot his feet, and
+make sure the gun works correctly.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
-1. Given a patch that modifies file X is it possible to know what config options 
-could be affected?
-
-and the second part would be
-
-2. would it make sense for the LTP or one of the big compile farms to do a 
-series of compiles prior to the release of a -stable kernel to catch mistakes 
-like this?
-
-David Lang
+http://david.woodhou.se/why-not-spf.html

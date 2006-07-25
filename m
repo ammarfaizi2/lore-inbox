@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWGYSqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWGYSqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWGYSqS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWGYSqS
+	id S1750890AbWGYSqI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWGYSqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:46:18 -0400
-Received: from ns2.suse.de ([195.135.220.15]:41649 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751470AbWGYSqR (ORCPT
+	Tue, 25 Jul 2006 14:46:08 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:476 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S1750890AbWGYSqG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:46:17 -0400
-Date: Tue, 25 Jul 2006 11:41:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-stable <stable@kernel.org>
-Subject: Re: [stable] Success: tty_io flush_to_ldisc() error message triggered
-Message-ID: <20060725184158.GH9021@kroah.com>
-References: <200607221209_MC3-1-C5CA-50EB@compuserve.com> <44C25548.5070307@microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C25548.5070307@microgate.com>
-User-Agent: Mutt/1.5.11
+	Tue, 25 Jul 2006 14:46:06 -0400
+In-Reply-To: <1153852204.5665.10.camel@basalt.austin.ibm.com>
+References: <20060718091807.467468000@sous-sol.org> <20060718091956.905130000@sous-sol.org> <1153852204.5665.10.camel@basalt.austin.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v624)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <af9f9eb1ed882cad53cbefdd1ae88c27@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
+       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       xen-ppc-devel <xen-ppc-devel@lists.xensource.com>,
+       Chris Wright <chrisw@sous-sol.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [RFC PATCH 28/33] Add Xen grant table support
+Date: Tue, 25 Jul 2006 19:45:51 +0100
+To: Hollis Blanchard <hollisb@us.ibm.com>
+X-Mailer: Apple Mail (2.624)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 22, 2006 at 11:41:44AM -0500, Paul Fulghum wrote:
-> Chuck Ebbert wrote:
-> > The cleaner fix looks more intrusive, though.
-> > 
-> > Is this simpler change (what I'm running but without the warning
-> > messages) the preferred fix for -stable?
-> 
-> It fixes the problem.
 
-So do you feel this patch should be added to the -stable kernel tree?
+On 25 Jul 2006, at 19:30, Hollis Blanchard wrote:
 
-thanks,
+> I object to these uses of (synch_)cmpxchg on a uint16_t in common code.
+> Many architectures, including PowerPC, do not support 2-byte atomic
+> operations, but this code is common to all Xen architectures.
 
-greg k-h
+We'll use synch_cmpxchg_subword() in the next iteration of these 
+patches. It's already been applied to our main Xen repository but 
+hadn't been applied to our merge repo when these patches were created.
+
+  -- Keir
+

@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWGYTiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWGYTjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWGYTiv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWGYTiv
+	id S964794AbWGYTjp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWGYTjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:38:51 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:59009 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751491AbWGYTis (ORCPT
+	Tue, 25 Jul 2006 15:39:45 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:19148 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964794AbWGYTjo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:38:48 -0400
-Message-ID: <44C12740.1040203@slaphack.com>
-Date: Fri, 21 Jul 2006 14:13:04 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060530)
+	Tue, 25 Jul 2006 15:39:44 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: swsusp status report
+Date: Tue, 25 Jul 2006 21:39:10 +0200
+User-Agent: KMail/1.9.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <200607251325.14747.rjw@sisk.pl> <20060725151145.GG14964@redhat.com>
+In-Reply-To: <20060725151145.GG14964@redhat.com>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>,
-       Alexander Zarochentcev <zam@namesys.com>, vs <vs@thebsh.namesys.com>
-Subject: Re: reiser4 status (correction)
-References: <44BFFCB1.4020009@namesys.com> <44C043B5.3070501@slaphack.com> <44C093D2.1040703@namesys.com>
-In-Reply-To: <44C093D2.1040703@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607252139.10356.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
+On Tuesday 25 July 2006 17:11, Dave Jones wrote:
+> On Tue, Jul 25, 2006 at 01:25:14PM +0200, Rafael J. Wysocki wrote:
+> 
+>  > V. Freeing memory
+>  > 
+>  > Step (3) of the suspend procedure is completed by calling the same
+>  > functions that are normally used by kswapd, but in a slightly different way.
+>  > The part of swsusp responsible for that is referred to as 'the memory
+>  > shrinker' and it may sometimes be called by the suspend-to-RAM code as well
+> 
+> This isn't actually necessary though is it ?
+> (Ie, it's a bug that needs fixing?)
 
-> I am not sure that putting the repacker after fsync is the right choice....
+Well, that depends on what FREE_PAGE_NUMBER, as defined in
+kernel/power/main.c, is for.  Someone probably knows.
+[I'm tempted to remove it, though. ;-) ]
 
-Does the repacker use fsync?  I wouldn't expect it to.
+> Good write-up btw, it may even be a nice addition to Documentation/power/  ?
 
-Does fsync benefit from a properly packed FS?  Probably.
+I'm going to update the existing docs soon, so it probably won't be needed.
+Still I think we can make it available from suspend.sf.net.
 
-Also, while I don't expect anyone else to be so bold, there is a way 
-around fsync performance:  Disable it.  Patch the kernel so that any 
-fsync call from userspace gets ignored, but lie and tell them it worked. 
-  Basically:
-
-  asmlinkage long sys_fsync(unsigned int fd)
-  {
--       return do_fsync(fd, 0);
-+       return 0;       // do_fsync(fd, 0);
-  }
-
-In order to make this sane, you should have backups and an Uninterrupted 
-Power Supply.  In the case of a loss of power, the box should notice and 
-immediately sync, then either shut down or software suspend.  Any UPS 
-battery should be able to handle the amount of time it takes to shut the 
-system off.
-
-Since anything mission critical should have backups and a UPS anyway, 
-the only problem left is what happens if the system crashes.  But system 
-crashes are something you have to plan for anyway.  Disks fail -- stuff 
-happens.  RAID won't save you -- the RAID controller itself will 
-eventually fail.
-
-So suppose you're running some very critical server -- for now, chances 
-are it's running some sort of database.  In this case, what you really 
-want is database replication.  Have at least two servers up and running, 
-and consider the transaction complete not when it hits the disk, but 
-when all running servers acknowledge the transaction.  The RAM of two 
-boxes should be safer than the disk of one.
-
-What about a repacker?  The best I can do to hack around that is to 
-restore the whole box from backup every now and then, but this requires 
-the box to be down for awhile -- it's a repacker, but not an online one. 
-  In this case, the solution would be to have the same two servers 
-(replicating databases), and bring first one down, and then the other.
-
-That would make me much more nervous than disabling fsync, though, 
-because now you only have the one server running, and if it goes down... 
-  And depending on the size of the data in question, this may not be 
-feasable.  It seems entirely possible that in some setups like this, the 
-only backup you'd be able to afford would be in the form of replication.
-
-In my own personal case, I'd prefer the repacker to tuning fsync.  But 
-arguments could be made for both.
+Rafael

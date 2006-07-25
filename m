@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWGYPPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWGYPSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWGYPPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWGYPPk
+	id S964772AbWGYPSp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWGYPSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:15:40 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:24557 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932426AbWGYPPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:15:39 -0400
-Date: Tue, 25 Jul 2006 17:15:20 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where does kernel/resource.c.1 file come from?
-Message-ID: <20060725151520.GA15681@mars.ravnborg.org>
-References: <200607251554.50484.eike-kernel@sf-tec.de>
+	Tue, 25 Jul 2006 11:18:45 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:17878 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964772AbWGYPSo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 11:18:44 -0400
+Subject: [PATCH] [jbd] Add lock annotation to jbd_sync_bh
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>,
+       ext2-devel@lists.sourceforge.net
+Content-Type: text/plain
+Date: Tue, 25 Jul 2006 08:18:44 -0700
+Message-Id: <1153840724.12517.6.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607251554.50484.eike-kernel@sf-tec.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 03:54:45PM +0200, Rolf Eike Beer wrote:
-> Hi,
-> 
-> I'm playing around with my local copy of linux-2.6 git tree. I'm building 
-> everything to a separate directory using O= to keep "git status" silent.
-> 
-> After building I sometimes find a file kernel/resource.c.1 in my git tree that 
-> doesn't really belong there. Who is generating this file, for what reason and 
-> why doesn't it get created in my output directory?
+jbd_sync_bh releases journal->j_list_lock.  Add a lock annotation to this
+function so that sparse can check callers for lock pairing, and so that sparse
+will not complain about this function since it intentionally uses the lock in
+this manner.
 
-I have never seen this myself so a bit puzzled???
-Is it only kernel/resource.c that generates the .1 file - or is it
-somethign that is general?
-Can you also try to make sure that this file is generated as part of the
-build process. git status before and after should do it.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ fs/jbd/checkpoint.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-If you can relaiably provoke it output of make V=1 would be usefull.
+diff --git a/fs/jbd/checkpoint.c b/fs/jbd/checkpoint.c
+index 47678a2..d068559 100644
+--- a/fs/jbd/checkpoint.c
++++ b/fs/jbd/checkpoint.c
+@@ -145,6 +145,7 @@ void __log_wait_for_space(journal_t *jou
+  * jbd_unlock_bh_state().
+  */
+ static void jbd_sync_bh(journal_t *journal, struct buffer_head *bh)
++	__releases(journal->j_list_lock)
+ {
+ 	get_bh(bh);
+ 	spin_unlock(&journal->j_list_lock);
 
-	Sam
+

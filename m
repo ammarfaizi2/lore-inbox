@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWGYFe5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWGYFoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWGYFe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 01:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWGYFe5
+	id S932465AbWGYFoi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 01:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWGYFoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 01:34:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28035 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932474AbWGYFe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 01:34:56 -0400
-Subject: Re: [patch] lockdep: annotate pktcdvd natural device hierarchy
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       petero2@telia.com, Laurent Riffard <laurent.riffard@free.fr>
-In-Reply-To: <20060724192718.547a836e.akpm@osdl.org>
-References: <448875D1.5080905@free.fr> <448D84C0.1070400@linux.intel.com>
-	 <m3sllxtfbf.fsf@telia.com> <1151000451.3120.56.camel@laptopd505.fenrus.org>
-	 <m3u05kqvla.fsf@telia.com> <1152884770.3159.37.camel@laptopd505.fenrus.org>
-	 <m3odvrc2vo.fsf@telia.com> <1152947098.3114.9.camel@laptopd505.fenrus.org>
-	 <44B8C506.1000009@free.fr> <m3ac7b6spp.fsf@telia.com>
-	 <44BA1609.9050305@free.fr>  <20060724192718.547a836e.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 07:34:44 +0200
-Message-Id: <1153805684.8932.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 25 Jul 2006 01:44:38 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:30153 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932465AbWGYFoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 01:44:38 -0400
+Message-ID: <44C5AFC3.4020405@bigpond.net.au>
+Date: Tue, 25 Jul 2006 15:44:35 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+References: <200607241857.52389.a1426z@gawab.com> <200607250757.10722.a1426z@gawab.com>
+In-Reply-To: <200607250757.10722.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 25 Jul 2006 05:44:36 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-24 at 19:27 -0700, Andrew Morton wrote:
-> On Sun, 16 Jul 2006 12:33:45 +0200
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Al Boldi wrote:
+>>> Peter Williams wrote:
+>>>> This version removes the hard/soft CPU rate caps from the SPA
+>>>> schedulers.
+>>>>
+>>>> A patch for 2.6.18-rc2 is available at:
+>>>>
+>>>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.4-for-2.6.18-rc2.
+>>>> pat ch?download>
+>>>>
+>>>> Very Brief Documentation:
+>>>>
+>>>> You can select a default scheduler at kernel build time.  If you wish
+>>>> to boot with a scheduler other than the default it can be selected at
+>>>> boot time by adding:
+>>>>
+>>>> cpusched=<scheduler>
+>>> Any reason dynsched couldn't be merged with plugsched?
+>> None that I know of (but I'm not familiar with dynsched).  Patches to
+>> add it to the mix would be accepted and once in I would try to keep it
+>> in step with kernel changes.
+> 
+> I thought dynsched patches against plugsched, what else is needed?
+>
 
-> Arjan, do we still need
-> lockdep-annotate-pktcdvd-natural-device-hierarchy.patch?
+Hopefully, nothing but it may be necessary to modify the plugsched 
+interface if dynsched can't be implemented against it "as is".  E.g. 
+both staircase and nicksched needed changes to what was required for 
+ingosched and the SPA schedulers.
 
-yes afaics
+>>>> to the boot command line where <scheduler> is one of: ingosched,
+>>>> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
+>>>> or zaphod.  If you don't change the default when you build the kernel
+>>>> the default scheduler will be ingosched (which is the normal
+>>>> scheduler).
+>>>>
+>>>> The scheduler in force on a running system can be determined by the
+>>>> contents of:
+>>>>
+>>>> /proc/scheduler
+>>> It may be really great, to allow schedulers perPid parent, thus allowing
+>>> the stacking of different scheduler semantics.  This could aid
+>>> flexibility a lot.
+>> I'm don't understand what you mean here.  Could you elaborate?
+> 
+> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
 
-> And could you please take a look at Peter's block_dev.c changes?  Closely,
-> please - it'd be nice to get this right one of these days ;)
+It's probably not a good idea to have different schedulers managing the 
+same resource.  The way to do different scheduling per process is to use 
+the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc. 
+(possibly extended) within each scheduler.  On the other hand, on an SMP 
+system, having a different scheduler on each run queue (or sub set of 
+queues) might be interesting :-).  The schedulers would probably have to 
+have a common idea of how the run queue works though and this would 
+restrict the choice of schedulers.
 
-I'm not too happy about them; they use the partition uglies for
-something which is not a partition; the uglyness should stop not
-spread... while the patch probably is effective in shutting lockdep up
-it's not really the right approach.
+I have no intentions (at the moment) of going down this path myself.
 
-Greetings,
-   Arjan van de Ven
+However, I am thinking about making it possible to switch between the 
+various SPA schedulers on a running system.  A extension to this could 
+be to attempt automatic selection of which scheduler to use possibly 
+based on which users are logged in.
 
-
+Peter
 -- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

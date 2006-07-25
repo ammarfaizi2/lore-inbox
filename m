@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWGYWP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWGYWZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWGYWP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWGYWP4
+	id S932500AbWGYWZq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWGYWZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:15:56 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:23055 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1030183AbWGYWPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:15:55 -0400
-Message-ID: <44C69819.8080908@superbug.co.uk>
-Date: Tue, 25 Jul 2006 23:15:53 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060609)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [RFC PATCH] Multi-threaded device probing
-References: <20060725203028.GA1270@kroah.com>
-In-Reply-To: <20060725203028.GA1270@kroah.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jul 2006 18:25:45 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:14527 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932500AbWGYWZo (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 18:25:44 -0400
+Message-Id: <200607252225.k6PMP4Sf029794@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: Josh Triplett <josht@us.ibm.com>, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: vxfs_readdir locking incorrect: add lock_kernel() or remove unlock_kernel()?
+In-Reply-To: Your message of "Mon, 24 Jul 2006 17:20:40 PDT."
+             <20060724172040.c177f173.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
+            <20060724172040.c177f173.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1153866304_3092P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jul 2006 18:25:04 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> During the kernel summit, I was reminded by the wish by some people to
-> do device probing in parallel, so I created the following patch.  It
-> offers up the ability for the driver core to create a new thread for
-> every driver<->device probe call.  To enable this, the driver needs to
-> have the multithread_probe flag set to 1, otherwise the "traditional"
-> sequencial probe happens.
-> 
-> Note that this patch does not actually enable the threaded probe for any
-> busses, as that's very dangerous at this point in time, without the
-> different bus authors trying it out and verifying that it does work
-> properly.
-> 
-> I did enable this for both USB and PCI and shaved .4 seconds off of the
-> boot time of my tiny little single processor laptop.  The savings of my
-> 4-way workstation is much greater, but things start to happen so fast we
-> miss the root disk, as init starts before the disks are finished being
-> initialized.  I have some hacks to work around this right now, but I'll
-> hold off on posting them before I make sure they work properly (breaking
-> booting of people's machines isn't the best way to get them to accept
-> new features...)
-> 
-> Anyway, have fun playing around with this if you want, I'll be adding
-> this to the next -mm, but you will have to enable the bit on your own if
-> you want to see any speedups.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+--==_Exmh_1153866304_3092P
+Content-Type: text/plain; charset=us-ascii
 
-What happens about the logging?
-Surely one would want the output from one probe to be output into the
-log as a block, and not mix the output from multiple simultaneous probes.
+On Mon, 24 Jul 2006 17:20:40 PDT, Andrew Morton said:
+> That would appear to imply that nobody has used freevxfs in four years.
 
-James
+Given that...
+
+> I don't see anything in there which needs the locking, apart from perhaps
+> f_pos updates.  But it's probably best to add the lock_kernel() - this is a
+> bugfixing exercise, not a remove-BKL-from-freevxfs exercise.
+
+Should we consider a remove-freevxfs-from-kernel exercise?
+
+--==_Exmh_1153866304_3092P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFExppAcC3lWbTT17ARAk+CAKCUQ/ySUYWXZP8IrOsaqmRqQgs3nACfZcOu
+tiCrRCP3dzWh6VpRUTfPwXM=
+=6XmS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153866304_3092P--

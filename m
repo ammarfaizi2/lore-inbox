@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWGYWqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWGYWsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWGYWqw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWGYWqw
+	id S1030206AbWGYWsH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbWGYWsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:46:52 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62694 "EHLO
-	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030201AbWGYWqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:46:51 -0400
-Subject: Re: [PATCH 2/4] [PATCH] gxfb: Fixups for the AMD Geode GX
-	framebuffer driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jordan Crouse <jordan.crouse@amd.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net, blizzard@redhat.com,
-       dwmw2@redhat.com
-In-Reply-To: <20060724165602.18822.56823.stgit@cosmic.amd.com>
-References: <20060724165454.18822.30310.stgit@cosmic.amd.com>
-	 <20060724165602.18822.56823.stgit@cosmic.amd.com>
+	Tue, 25 Jul 2006 18:48:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60553 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030206AbWGYWsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 18:48:05 -0400
+Subject: Re: [PATCH] CCISS: Don't print driver version until we actually
+	find a device
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       Mike Miller <mike.miller@hp.com>, iss_storagedev@hp.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
+References: <200607251636.42765.bjorn.helgaas@hp.com>
+	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Jul 2006 00:48:10 +0100
-Message-Id: <1153871290.7559.21.camel@localhost>
+Organization: Intel International BV
+Date: Wed, 26 Jul 2006 00:47:55 +0200
+Message-Id: <1153867675.8932.68.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-07-24 at 10:56 -0600, Jordan Crouse wrote:
+On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
+> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > If we don't find any devices, we shouldn't print anything.
+> >
+> I disagree.
+> I find it quite nice to be able to see that the driver loaded even if
+> it finds nothing. At least then when there's a problem, I can quickly
+> see that at least it is not because I didn't forget to load the
+> driver, it's something else. Saves time since I can start looking for
+> reasons why the driver didn't find anything without first spending
+> additional time checking if I failed to cause it to load for some
+> reason.
 
-> +#ifdef CONFIG_FB_GEODE_GX_SET_FBSIZE
-> +unsigned int gx_frame_buffer_size(void) {
-> +	return CONFIG_FB_GEODE_GX_FBSIZE;
-> +}
-> +#else
->  unsigned int gx_frame_buffer_size(void)
->  {
->  	unsigned int val;
-> @@ -35,6 +40,7 @@ unsigned int gx_frame_buffer_size(void)
->  	val = (unsigned int)(inw(0xAC1E)) & 0xFFl;
->  	return (val << 19);
->  }
-> +#endif
+I'll add a second reason: it is a REALLY nice property to be able to see
+which driver is started last in case of a crash/hang, so that the guilty
+party is more obvious..
 
-GAK, please fix your firmware to follow your own docs 8). I mean while
-VGA emulation is hard honouring the frame buffer size query is trivial
-to stick in the GPL'd VSA firmware and belongs there.
-
-
+> 
+> 
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

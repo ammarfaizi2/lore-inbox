@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWGYTTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWGYTUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWGYTTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWGYTTN
+	id S964827AbWGYTUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWGYTUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:19:13 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:46555
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S964826AbWGYTTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:19:11 -0400
-Message-ID: <44C66D1C.7010903@microgate.com>
-Date: Tue, 25 Jul 2006 14:12:28 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 25 Jul 2006 15:20:40 -0400
+Received: from vsmtp1.tin.it ([212.216.176.141]:12677 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S964827AbWGYTUj convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:20:39 -0400
+From: Francesco Biscani <biscani@pd.astro.it>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Date: Tue, 25 Jul 2006 21:20:12 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrea Arcangeli <andrea@suse.de>, Nikita Danilov <nikita@clusterfs.com>,
+       Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+References: <44C12F0A.1010008@namesys.com> <20060725123558.GA32243@opteron.random> <44C65931.6030207@namesys.com>
+In-Reply-To: <44C65931.6030207@namesys.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-stable <stable@kernel.org>
-Subject: Re: [stable] Success: tty_io flush_to_ldisc() error message triggered
-References: <200607221209_MC3-1-C5CA-50EB@compuserve.com> <44C25548.5070307@microgate.com> <20060725184158.GH9021@kroah.com>
-In-Reply-To: <20060725184158.GH9021@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607252120.14329.biscani@pd.astro.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sat, Jul 22, 2006 at 11:41:44AM -0500, Paul Fulghum wrote:
-> 
->>Chuck Ebbert wrote:
->>
->>>The cleaner fix looks more intrusive, though.
->>>
->>>Is this simpler change (what I'm running but without the warning
->>>messages) the preferred fix for -stable?
->>
->>It fixes the problem.
-> 
-> 
-> So do you feel this patch should be added to the -stable kernel tree?
+On Tuesday 25 July 2006 19:47, Hans Reiser wrote:
+> Wow, I would never have guessed our market share was that high as 1/5th
+> of ext3.  I mean, you can't even get a distro which allows you to
+> install onto reiser4 without hours of work so far as I know.  I guess
+> there are people who really do care about twice as fast.
+>
+> Hans
+>
 
-No. Now that I think about it, adding that extra
-macro is just wrong even if temporary.
+Yes, this was a pleasant surprise indeed :)
 
-The real fix is equally simple, but in 2.6.18-rc
-it is intertwined with other more intrusive changes.
+This useless mail from a mere user is just to testify that I've used reiser4 
+on my laptop since June 2004, and that, barring occasional hiccups, I never 
+had serious problems with it. In fact I haven't lost a single bit of data 
+despite crashes and cold shutdowns due to power outage.
 
-Let me make a new separate patch that does things
-the right way, which is simply removing the list
-head while processing the list so two instances
-to not trip over each other. I would have done so
-earlier, but I've been insanely busy with multiple
-work related deadlines (lame excuse I know).
+I don't know if this means something or if I've just been lucky, but it seems 
+to me that when reiser4 crashes (and sometimes it does, given its young age), 
+it behaves very very well. That's the thing that impressed me the most (and 
+it is really something, given for example the debacle of a mature filesystem 
+like XFS in 2.6.17). Oh, and performance, of course ;)
 
-I should post something tomorrow afternoon.
+I really hope that the technical difficulties that are preventing reiser4 from 
+entering mainline will be sorted out soon.
+
+Thanks,
+
+  Francesco (crawling back in the shadow)
 
 -- 
-Paul Fulghum
-Microgate Systems, Ltd.
+Dr. Francesco Biscani
+Dipartimento di Astronomia
+Università di Padova
+biscani@pd.astro.it

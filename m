@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWGYBly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWGYBsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWGYBly (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 21:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWGYBly
+	id S932386AbWGYBsz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 21:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWGYBsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 21:41:54 -0400
-Received: from colin.muc.de ([193.149.48.1]:40968 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751203AbWGYBlx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 21:41:53 -0400
-Date: 25 Jul 2006 03:41:51 +0200
-Date: Tue, 25 Jul 2006 03:41:51 +0200
-From: Andi Kleen <ak@muc.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>, Zachary Amsden <zach@vmware.com>,
-       Pratap <pratap@vmware.com>, Chris Wright <chrisw@sous-sol.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/6] cpuid neatening.
-Message-ID: <20060725014151.GB91138@muc.de>
-References: <1153526643.13699.18.camel@localhost.localdomain> <1153526798.13699.23.camel@localhost.localdomain> <1153527194.13699.34.camel@localhost.localdomain> <44C55E8F.2020200@zytor.com>
+	Mon, 24 Jul 2006 21:48:55 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5012 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932386AbWGYBsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 21:48:54 -0400
+Date: Mon, 24 Jul 2006 18:48:47 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: [RFC] ps command race fix
+Message-Id: <20060724184847.3ff6be7d.pj@sgi.com>
+In-Reply-To: <20060724182000.2ab0364a.akpm@osdl.org>
+References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060724182000.2ab0364a.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C55E8F.2020200@zytor.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24, 2006 at 04:58:07PM -0700, H. Peter Anvin wrote:
-> Rusty Russell wrote:
-> >Roll all the cpuid asm into one __cpuid call.  It's a little neater,
-> >and also means only one place to patch for paravirtualization.
-> 
-> The whole point of those is to avoid the unnecessary write to memory and 
-> pick it back up again.  This patch reintroduces that ugliness.
+Another possibility (perhaps a really stupid idea ;) would be to
+snapshot the list of pids on the open, and let the readdir() just
+access that fixed array.
 
-Modern gcc should optimize this when it is inlined. If it didn't
-most abstracted C++ code would be quite unhappy.
+The kernel/cpuset.c cpuset_tasks_open() routine that displays the
+pids of tasks in a cpuset (the per-cpuset 'tasks' file) does this.
 
-Also as far as I know there is only a single time critical CPUID
-in the code and it ignores all output arguments.
+Then the seek and read and such semantics are nice and stable and
+simple.
 
--Andi
+Throw out the snapshot on the last close.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWGYS2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWGYS2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751473AbWGYS2w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWGYS2v
+	id S964815AbWGYS2K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWGYS2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:28:51 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:15111 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751473AbWGYS2u (ORCPT
+	Tue, 25 Jul 2006 14:28:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33173 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751469AbWGYS2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:28:50 -0400
-Date: Tue, 25 Jul 2006 14:28:33 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725182833.GE4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 25 Jul 2006 14:28:08 -0400
+Message-ID: <44C66296.2010109@sandeen.net>
+Date: Tue, 25 Jul 2006 13:27:34 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>, jack@suse.cz,
+       20@madingley.org, marcel@holtmann.org, linux-kernel@vger.kernel.org,
+       sct@redhat.com, adilger@clusterfs.com
+Subject: Re: Bad ext3/nfs DoS bug
+References: <20060718145614.GA27788@circe.esc.cam.ac.uk>	<1153236136.10006.5.camel@localhost>	<20060718152341.GB27788@circe.esc.cam.ac.uk>	<1153253907.21024.25.camel@localhost>	<20060719092810.GA4347@circe.esc.cam.ac.uk>	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>	<17599.2754.962927.627515@cse.unsw.edu.au>	<20060720160639.GF25111@atrey.karlin.mff.cuni.cz>	<17600.30372.397971.955987@cse.unsw.edu.au>	<20060721170627.4cbea27d.akpm@osdl.org>	<20060722131759.GC7321@thunk.org>	<20060724185604.9181714c.akpm@osdl.org> <17605.33733.51148.46400@cse.unsw.edu.au>
+In-Reply-To: <17605.33733.51148.46400@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 07:57:30PM +0200, Segher Boessenkool wrote:
-> >	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
-> >Geddys and some of the Xorg guys noted that they would be able to  
-> >stop using gettimeofday
-> >so frequently, if they had some other way to get a millisecond  
-> >resolution timer
-> >in userspace, one that they could perhaps read from a memory mapped  
-> >page.  I was
-> >right behind them and though that seemed like a reasonable  
-> >request,  so I've
-> >taken a stab at it.  This patch allows for a page to be mmaped  
-> >from /dev/rtc
-> >character interface, the first 4 bytes of which provide a regularly  
-> >increasing
-> >count, once every rtc interrupt.  The frequency is of course  
-> >controlled by the
-> >regular ioctls provided by the rtc driver. I've done some basic  
-> >testing on it,
-> >and it seems to work well.
-> 
-> Similar functionality is already available via VDSO on
-> platforms that support it (currently PowerPC and AMD64?) --
-> seems like a better way forward.
-> 
-In general I agree, but that only works if you operate on a platform that
-supports virtual syscalls, and has vdso configured.  I'm not overly familiar
-with vdso, but I didn't think vdso could be supported on all platforms/arches.
-This seems like it might be a nice addition in those cases.
+Neil Brown wrote:
 
-Neil
-
+> Putting it another way,
+>  ext3_get_dentry reject certain inums that are known to be a problem.
+>  ext2_get_dentry allows only those inums that could possibly be ok.
 > 
-> Segher
+> So if you (anyone) prefer one approach over the other, making the
+> change so they both fs take the same approach would be trivial.
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+I like the 2nd approach - seems simpler, takes care of everything in 
+->get_dentry, right?.  But I think your original patch is all that will 
+work for 2.4 kernels...
+
+-Eric

@@ -1,108 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWGYS00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWGYS2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWGYS00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWGYS00
+	id S1751468AbWGYS2R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWGYS2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:26:26 -0400
-Received: from [212.76.91.144] ([212.76.91.144]:56840 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751466AbWGYS0Z (ORCPT
+	Tue, 25 Jul 2006 14:28:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32917 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751468AbWGYS2P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:26:25 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
-Date: Tue, 25 Jul 2006 21:27:14 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200607241857.52389.a1426z@gawab.com> <200607250757.10722.a1426z@gawab.com> <44C5AFC3.4020405@bigpond.net.au>
-In-Reply-To: <44C5AFC3.4020405@bigpond.net.au>
+	Tue, 25 Jul 2006 14:28:15 -0400
+Date: Tue, 25 Jul 2006 11:27:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Albert Cahalan <acahalan@gmail.com>, arjan@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+Subject: Re: utrace vs. ptrace
+In-Reply-To: <1153853342.4725.21.camel@localhost>
+Message-ID: <Pine.LNX.4.64.0607251124080.29649@g5.osdl.org>
+References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> 
+ <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu> 
+ <200607131521.52505.ak@suse.de>  <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
+ <1153853342.4725.21.camel@localhost>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607252127.14024.a1426z@gawab.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Al Boldi wrote:
-> > Peter Williams wrote:
-> >> Al Boldi wrote:
-> >>> Peter Williams wrote:
-> >>>> This version removes the hard/soft CPU rate caps from the SPA
-> >>>> schedulers.
-> >>>>
-> >>>> A patch for 2.6.18-rc2 is available at:
-> >>>>
-> >>>> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.4-for-2.6.18-rc
-> >>>>2. pat ch?download>
-> >>>>
-> >>>> Very Brief Documentation:
-> >>>>
-> >>>> You can select a default scheduler at kernel build time.  If you wish
-> >>>> to boot with a scheduler other than the default it can be selected at
-> >>>> boot time by adding:
-> >>>>
-> >>>> cpusched=<scheduler>
-> >>>
-> >>> Any reason dynsched couldn't be merged with plugsched?
-> >>
-> >> None that I know of (but I'm not familiar with dynsched).  Patches to
-> >> add it to the mix would be accepted and once in I would try to keep it
-> >> in step with kernel changes.
-> >
-> > I thought dynsched patches against plugsched, what else is needed?
+
+
+On Tue, 25 Jul 2006, Alan Cox wrote:
 >
-> Hopefully, nothing but it may be necessary to modify the plugsched
-> interface if dynsched can't be implemented against it "as is".  E.g.
-> both staircase and nicksched needed changes to what was required for
-> ingosched and the SPA schedulers.
->
-> >>>> to the boot command line where <scheduler> is one of: ingosched,
-> >>>> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr,
-> >>>> spa_ebs or zaphod.  If you don't change the default when you build
-> >>>> the kernel the default scheduler will be ingosched (which is the
-> >>>> normal scheduler).
-> >>>>
-> >>>> The scheduler in force on a running system can be determined by the
-> >>>> contents of:
-> >>>>
-> >>>> /proc/scheduler
-> >>>
-> >>> It may be really great, to allow schedulers perPid parent, thus
-> >>> allowing the stacking of different scheduler semantics.  This could
-> >>> aid flexibility a lot.
-> >>
-> >> I'm don't understand what you mean here.  Could you elaborate?
-> >
-> > i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
->
-> It's probably not a good idea to have different schedulers managing the
-> same resource.  The way to do different scheduling per process is to use
-> the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc.
-> (possibly extended) within each scheduler.  On the other hand, on an SMP
-> system, having a different scheduler on each run queue (or sub set of
-> queues) might be interesting :-).  
+> On Iau, 2006-07-13 at 12:05 -0700, Linus Torvalds wrote:
+> > Doing core-dumping in user space would be insane. It doesn't give _any_ 
+> > advantages, only disadvantages.
+> 
+> It has a number of very real advantages in certain circumstances and the
+> only interface the kernel needs to provide is the debugger interface and
+> something to "kick" the debugger and reparent to it, or for that matter
+> it might even be viable just to pass the helper the fd of an anonymous
+> file holding the dump.
 
-What's wrong with multiple run-queues on UP?
+What you're talking about is not core-dumping, it's just an extended 
+debugging interface. And it eeds to be _damn_ careful, exactly because it 
+tends to be something very security-sensitive.
 
-> The schedulers would probably have to
-> have a common idea of how the run queue works though and this would
-> restrict the choice of schedulers.
+> Taking out the kernel core dump support would be insane.
 
-Probably.
+Indeed.
 
-> I have no intentions (at the moment) of going down this path myself.
->
-> However, I am thinking about making it possible to switch between the
-> various SPA schedulers on a running system.  A extension to this could
-> be to attempt automatic selection of which scheduler to use possibly
-> based on which users are logged in.
+> We get customers who like to collect/process/do clever stuff with core
+> dumps and failure cases. We also get people who want to dump a core that
+> excludes the 14GB shared mmap of the database file as another example
+> where it helps.
 
-Thanks a lot!
+"ptrace" certainly isn't wondeful.
 
---
-Al
+What you often want is not a core-dump at all, but a "stop the process" 
+thing. It's really irritating that the core-dump is generated and the 
+process is gone, when it would often be a lot nicer if instead of 
+core-dumping, the process was just stopped and then you could attach to it 
+with gdb, and get the whole damn information (including things like access 
+to open file descriptors etc).
 
+But again, that has nothing to do with core-dumping. 
+
+			Linus

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWGYW77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWGYXDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWGYW77 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWGYW77
+	id S1030213AbWGYXDv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWGYXDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:59:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:46052 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030234AbWGYW76 (ORCPT
+	Tue, 25 Jul 2006 19:03:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39353 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030213AbWGYXDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:59:58 -0400
-Date: Tue, 25 Jul 2006 15:59:17 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: device@lanana.org
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Typo in ub clause of devices.txt
-Message-Id: <20060725155917.f955dbcc.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jul 2006 19:03:50 -0400
+Date: Tue, 25 Jul 2006 16:03:36 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Rik van Riel <riel@redhat.com>
+cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: inactive-clean list
+In-Reply-To: <44C68F0E.2050100@redhat.com>
+Message-ID: <Pine.LNX.4.64.0607251600001.32387@schroedinger.engr.sgi.com>
+References: <1153167857.31891.78.camel@lappy> <44C30E33.2090402@redhat.com>
+ <Pine.LNX.4.64.0607241109190.25634@schroedinger.engr.sgi.com>
+ <44C518D6.3090606@redhat.com> <Pine.LNX.4.64.0607251324140.30939@schroedinger.engr.sgi.com>
+ <44C68F0E.2050100@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change "Thrid" into "Third", and realign similarly to other entries.
+On Tue, 25 Jul 2006, Rik van Riel wrote:
 
-Signed-Off-By: Pete Zaitcev <zaitcev@redhat.com>
+> > An increment of a VM counter causes a state change in the hypervisor?
+> 
+> Christoph, please read more than the first 5 words in each
+> email before replying.
 
-diff -urp -X dontdiff linux-2.6.18-rc1/Documentation/devices.txt linux-2.6.18-rc1-lem/Documentation/devices.txt
---- linux-2.6.18-rc1/Documentation/devices.txt	2006-07-09 17:53:25.000000000 -0700
-+++ linux-2.6.18-rc1-lem/Documentation/devices.txt	2006-07-09 20:12:03.000000000 -0700
-@@ -2565,10 +2565,10 @@ Your cooperation is appreciated.
- 		243 = /dev/usb/dabusb3	Fourth dabusb device
- 
- 180 block	USB block devices
--		0 = /dev/uba		First USB block device
--		8 = /dev/ubb		Second USB block device
--		16 = /dev/ubc		Thrid USB block device
--		...
-+		  0 = /dev/uba		First USB block device
-+		  8 = /dev/ubb		Second USB block device
-+		 16 = /dev/ubc		Third USB block device
-+		    ...
- 
- 181 char	Conrad Electronic parallel port radio clocks
- 		  0 = /dev/pcfclock0	First Conrad radio clock
+Well, I read the whole thing before I replied and I could not figure this 
+one out. Maybe I am too dumb to understand. Could you please explain 
+yourself in more detail
+
+I am also not sure why I should be running a hypervisor in the first place 
+and so I may not be up to date on the whole technology.
+
+
+

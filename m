@@ -1,282 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWGYRcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWGYRlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWGYRcn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYRcm
+	id S1750751AbWGYRlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWGYRlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:32:42 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:42667 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751280AbWGYRcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:32:42 -0400
-Subject: Re: VIA x86-64 bootlogs needed
-From: Nicholas Miell <nmiell@comcast.net>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200607251824.30504.ak@suse.de>
-References: <200607251824.30504.ak@suse.de>
-Content-Type: multipart/mixed; boundary="=-oCkOWWEWfULm3auO6rOM"
-Date: Tue, 25 Jul 2006 10:32:39 -0700
-Message-Id: <1153848759.2661.5.camel@entropy>
+	Tue, 25 Jul 2006 13:41:25 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:28934 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750751AbWGYRlZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:41:25 -0400
+Date: Tue, 25 Jul 2006 13:41:00 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: a.zummo@towertech.it, jg@freedesktop.org, nhorman@tuxdriver.com
+Subject: [PATCH] RTC: Add mmap method to rtc character driver
+Message-ID: <20060725174100.GA4608@hmsreliant.homelinux.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey-
+	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
+Geddys and some of the Xorg guys noted that they would be able to stop using gettimeofday
+so frequently, if they had some other way to get a millisecond resolution timer
+in userspace, one that they could perhaps read from a memory mapped page.  I was
+right behind them and though that seemed like a reasonable request,  so I've
+taken a stab at it.  This patch allows for a page to be mmaped from /dev/rtc
+character interface, the first 4 bytes of which provide a regularly increasing
+count, once every rtc interrupt.  The frequency is of course controlled by the
+regular ioctls provided by the rtc driver. I've done some basic testing on it,
+and it seems to work well.
 
---=-oCkOWWEWfULm3auO6rOM
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Thanks And Regards
+Neil
 
-On Tue, 2006-07-25 at 18:24 +0200, Andi Kleen wrote:
-> Hi,
-> 
-> For some APIC code rework I would like to collect some statistics on
-> VIA APIC setups.
-> 
-> If you have a system with VIA chipset running a recent (2.6.16+) x86-64 kernel 
-> please boot the system with apic=verbose on the kernel command and send me
-> 
-> - boot output (/var/log/boot.msg or dmesg -s100000000 output after boot)
-> - dmidecode output
-> - lspci  -v output
+Signed-off-by: Neil Horman
 
 
-MSI Master2-FAR with VIA K8T800, kernel-2.6.17-1.2157_FC5
+ 
+ rtc.c |   41 ++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 40 insertions(+), 1 deletion(-)
 
-With any luck, this APIC rework will fix this board's habit of
-spontaneously turning off interrupts at the IOAPIC level without the
-kernel's knowledge.
 
+diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
+index 6e6a7c7..4ed673e 100644
+--- a/drivers/char/rtc.c
++++ b/drivers/char/rtc.c
+@@ -48,9 +48,10 @@
+  *		CONFIG_HPET_EMULATE_RTC
+  *	1.12a	Maciej W. Rozycki: Handle memory-mapped chips properly.
+  *	1.12ac	Alan Cox: Allow read access to the day of week register
++ *	1.12b   Neil Horman: Allow memory mapping of /dev/rtc	
+  */
+ 
+-#define RTC_VERSION		"1.12ac"
++#define RTC_VERSION		"1.12b"
+ 
+ /*
+  *	Note that *all* calls to CMOS_READ and CMOS_WRITE are done with
+@@ -183,6 +184,8 @@ static int rtc_proc_open(struct inode *i
+  */
+ static unsigned long rtc_status = 0;	/* bitmapped status byte.	*/
+ static unsigned long rtc_freq = 0;	/* Current periodic IRQ rate	*/
++#define BUF_SIZE (PAGE_SIZE/sizeof(unsigned long))
++static unsigned long rtc_irq_buf[BUF_SIZE] __attribute__ ((aligned (PAGE_SIZE)));
+ static unsigned long rtc_irq_data = 0;	/* our output to the world	*/
+ static unsigned long rtc_max_user_freq = 64; /* > this, need CAP_SYS_RESOURCE */
+ 
+@@ -230,6 +233,7 @@ static inline unsigned char rtc_is_updat
+ 
+ irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
++	unsigned long *count_ptr = (unsigned long *)rtc_irq_buf;
+ 	/*
+ 	 *	Can be an alarm interrupt, update complete interrupt,
+ 	 *	or a periodic interrupt. We store the status in the
+@@ -265,6 +269,7 @@ irqreturn_t rtc_interrupt(int irq, void 
+ 
+ 	kill_fasync (&rtc_async_queue, SIGIO, POLL_IN);
+ 
++	*count_ptr = (*count_ptr)++;
+ 	return IRQ_HANDLED;
+ }
+ #endif
+@@ -389,6 +394,37 @@ static ssize_t rtc_read(struct file *fil
+ #endif
+ }
+ 
++static int rtc_mmap(struct file *file, struct vm_area_struct *vma)
++{
++        unsigned long rtc_addr;
++	unsigned long *count_ptr = rtc_irq_buf;
++
++        if (vma->vm_end - vma->vm_start != PAGE_SIZE)
++                return -EINVAL;
++
++        if (vma->vm_flags & VM_WRITE)
++                return -EPERM;
++
++        if (PAGE_SIZE > (1 << 16))
++                return -ENOSYS;
++
++        vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++
++        rtc_addr = __pa(rtc_irq_buf);
++        rtc_addr &= ~(PAGE_SIZE - 1);
++        rtc_addr &= -1;
++
++        if (remap_pfn_range(vma, vma->vm_start, rtc_addr >> PAGE_SHIFT,
++                                        PAGE_SIZE, vma->vm_page_prot)) {
++                printk(KERN_ERR "remap_pfn_range failed in rtc.c\n");
++                return -EAGAIN;
++        }
++
++	*count_ptr = 0;
++        return 0;
++
++}
++
+ static int rtc_do_ioctl(unsigned int cmd, unsigned long arg, int kernel)
+ {
+ 	struct rtc_time wtime; 
+@@ -890,6 +926,7 @@ static const struct file_operations rtc_
+ 	.owner		= THIS_MODULE,
+ 	.llseek		= no_llseek,
+ 	.read		= rtc_read,
++	.mmap		= rtc_mmap,
+ #ifdef RTC_IRQ
+ 	.poll		= rtc_poll,
+ #endif
+@@ -1082,6 +1119,8 @@ no_irq:
+ no_irq2:
+ #endif
+ 
++	memset(rtc_irq_buf,0,PAGE_SIZE);
++
+ 	(void) init_sysctl();
+ 
+ 	printk(KERN_INFO "Real Time Clock Driver v" RTC_VERSION "\n");
 -- 
-Nicholas Miell <nmiell@comcast.net>
-
---=-oCkOWWEWfULm3auO6rOM
-Content-Disposition: attachment; filename=dmesg-MSI_Master2-FAR.txt.bz2
-Content-Type: application/x-bzip; name=dmesg-MSI_Master2-FAR.txt.bz2
-Content-Transfer-Encoding: base64
-
-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
-
-
---=-oCkOWWEWfULm3auO6rOM
-Content-Disposition: attachment; filename=dmidecode-MSI_Master2-FAR.txt.bz2
-Content-Type: application/x-bzip; name=dmidecode-MSI_Master2-FAR.txt.bz2
-Content-Transfer-Encoding: base64
-
-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
-vr/8XckU4UJC0kgVlA==
-
-
---=-oCkOWWEWfULm3auO6rOM
-Content-Disposition: attachment; filename=lspci-MSI_Master2-FAR.txt.bz2
-Content-Type: application/x-bzip; name=lspci-MSI_Master2-FAR.txt.bz2
-Content-Transfer-Encoding: base64
-
-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
-/tlA
-
-
---=-oCkOWWEWfULm3auO6rOM--
-
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

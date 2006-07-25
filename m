@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWGYS3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWGYSc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbWGYS3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWGYS3W
+	id S1751471AbWGYSc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWGYSc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:29:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:29125 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751470AbWGYS3V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:29:21 -0400
-Subject: Re: [RFC PATCH 28/33] Add Xen grant table support
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       virtualization@lists.osdl.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       xen-devel@lists.xensource.com, Ian Pratt <ian.pratt@xensource.com>,
-       xen-ppc-devel <xen-ppc-devel@lists.xensource.com>
-In-Reply-To: <20060718091956.905130000@sous-sol.org>
-References: <20060718091807.467468000@sous-sol.org>
-	 <20060718091956.905130000@sous-sol.org>
+	Tue, 25 Jul 2006 14:32:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46310 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751471AbWGYSc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 14:32:57 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <20060725182208.GD4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <1153850139.8932.40.camel@laptopd505.fenrus.org>
+	 <20060725182208.GD4608@hmsreliant.homelinux.net>
 Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Tue, 25 Jul 2006 13:30:04 -0500
-Message-Id: <1153852204.5665.10.camel@basalt.austin.ibm.com>
+Organization: Intel International BV
+Date: Tue, 25 Jul 2006 20:32:55 +0200
+Message-Id: <1153852375.8932.41.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-18 at 00:00 -0700, Chris Wright wrote:
 
-> +int gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
-> +{
-> +	u16 flags, nflags;
-> +
-> +	nflags = shared[ref].flags;
-> +	do {
-> +		if ((flags = nflags) & (GTF_reading|GTF_writing)) {
-> +			printk(KERN_ALERT "WARNING: g.e. still in use!\n");
-> +			return 0;
-> +		}
-> +	} while ((nflags = synch_cmpxchg(&shared[ref].flags, flags, 0)) !=
-> +		 flags);
-> +
-> +	return 1;
-> +}
+> > 3) this will negate the power gain you get for tickless kernels, since
+> > now they need to start ticking again ;( )
+> > 
+> That is true, but only in the case where someone opens up /dev/rtc, and if they
+> open that driver and send it a UIE or PIE ioctl, it will start ticking
+> regardless of this patch (or that is at least my impression).
 
->From patch 06/33:
-+/*
-+ * A grant table comprises a packed array of grant entries in one or
-more
-+ * page frames shared between Xen and a guest.
-+ * [XEN]: This field is written by Xen and read by the sharing guest.
-+ * [GST]: This field is written by the guest and read by Xen.
-+ */
-+struct grant_entry {
-+    /* GTF_xxx: various type and flag information.  [XEN,GST] */
-+    uint16_t flags;
-+    /* The domain being granted foreign privileges. [GST] */
-+    domid_t  domid;
-+    /*
-+     * GTF_permit_access: Frame that @domid is allowed to map and
-access. [GST]
-+     * GTF_accept_transfer: Frame whose ownership transferred by
-@domid. [XEN]
-+     */
-+    uint32_t frame;
-+};
+but.. if that's X like you said.. then it's basically "always"...
 
-I object to these uses of (synch_)cmpxchg on a uint16_t in common code.
-Many architectures, including PowerPC, do not support 2-byte atomic
-operations, but this code is common to all Xen architectures.
 
 -- 
-Hollis Blanchard
-IBM Linux Technology Center
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

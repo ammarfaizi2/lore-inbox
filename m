@@ -1,76 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWGYRDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGYRFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWGYRDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWGYRDq
+	id S932365AbWGYRFN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWGYRFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:03:46 -0400
-Received: from mga01.intel.com ([192.55.52.88]:17984 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932101AbWGYRDp convert rfc822-to-8bit (ORCPT
+	Tue, 25 Jul 2006 13:05:13 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:61401 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S932365AbWGYRFL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:03:45 -0400
-X-IronPort-AV: i="4.07,180,1151910000"; 
-   d="scan'208"; a="103931750:sNHT2748013457"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ACPI bombing, ACPI Exception (acpi_bus-0071): AE_NOT_FOUND
-Date: Tue, 25 Jul 2006 12:44:06 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6010E42CF@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI bombing, ACPI Exception (acpi_bus-0071): AE_NOT_FOUND
-Thread-Index: Acav/z4VV0KohRxLTeW+cEPhpxkpgQAAdOcQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       "George Nychis" <gnychis@cmu.edu>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       <akpm@osdl.org>
-X-OriginalArrivalTime: 25 Jul 2006 16:44:08.0683 (UTC) FILETIME=[8C9B73B0:01C6B009]
+	Tue, 25 Jul 2006 13:05:11 -0400
+Date: Wed, 26 Jul 2006 02:04:52 +0900 (JST)
+Message-Id: <20060726.020452.132264896.jet@gyve.org>
+To: linux-kernel@vger.kernel.org, marcel@holtmann.org
+Subject: [PATCH] guarding bt_proto with rwlock
+From: Masatake YAMATO <jet@gyve.org>
+X-Mailer: Mew version 4.2.53 on Emacs 22.0.51 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->> Hey guys,
->> 
->> I am running a 2.6.18-rc1-git7 kernel on my IBM Thinkpad x60s, with
->> CONFIG_ACPI_DOCK=y
->> 
->> Whenever the computer is inserted into the dock, ACPI seems to bomb:
->> http://rafb.net/paste/results/GW5E8747.html
->> 
->> I was wondering if anyone could help me solve this problem, 
->I believe it
->> is keeping me from using my cdrom drive on the dock since it does not
->> show up in /dev.  I have also contacted Kristen Accardi 
->about it, who I
->> believe wrote the dock code... but I wasn't sure if this is a further
->> problem in ACPI somewhere.
->> 
->> Here is my full config:
->> http://rafb.net/paste/results/o2gSVu90.html
->> 
->> Thanks!
->> George
+I found that bt_proto manipulated in bt_sock_register is not guarded
+from race condition. 
 
->Hello everyone,
->I am working on getting an x60 to duplicate the cdrom issue 
->this week.  However, I was wondering if there was anything we 
->could do about these AE_NOT_FOUND messages.  A lot of people 
->believe that they are errors, but in fact they are normal for 
->hotplugging.  Would it be ok if I just get rid of that error 
->message?  It generates unneccessary consternation.
+Look at net/bluetooth/af_bluetooth.c:
 
-In 2.6.17, this was a DEBUG message.
-I'll return it to being a DEBUG message for 2.6.18.
+    static struct net_proto_family *bt_proto[BT_MAX_PROTO];
 
-BTW. I can't follow the URLs above, hopefully you can.
-stashing logs in a bugzilla entry is generally a better method,
-because "bugzilla never forgets".
+    int bt_sock_register(int proto, struct net_proto_family *ops)
+    {
+	    if (proto < 0 || proto >= BT_MAX_PROTO)
+		    return -EINVAL;
 
-thanks,
--Len
+	    if (bt_proto[proto])
+		    return -EEXIST;
+
+	    bt_proto[proto] = ops;
+	    return 0;
+    }
+
+Here bt_proto[proto] is set.
+
+In other hand,
+
+    static int bt_sock_create(struct socket *sock, int proto)
+    {
+	    int err = 0;
+
+	    if (proto < 0 || proto >= BT_MAX_PROTO)
+		    return -EINVAL;
+
+    #if defined(CONFIG_KMOD)
+	    if (!bt_proto[proto]) {
+		    request_module("bt-proto-%d", proto);
+	    }
+    #endif
+	    err = -EPROTONOSUPPORT;
+	    if (bt_proto[proto] && try_module_get(bt_proto[proto]->owner)) {
+		    err = bt_proto[proto]->create(sock, proto);
+		    module_put(bt_proto[proto]->owner);
+	    }
+	    return err; 
+    }
+
+bt_proto[proto] is referred.
+
+So I wrote a patch which guards bt_proto with rwlock.
+
+Signed-off-by: Masatake YAMATO <jet@gyve.org>
+
+diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
+index 469eda0..dff4514 100644
+--- a/net/bluetooth/af_bluetooth.c
++++ b/net/bluetooth/af_bluetooth.c
+@@ -27,6 +27,7 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ 
++#include <linux/spinlock.h>
+ #include <linux/types.h>
+ #include <linux/list.h>
+ #include <linux/errno.h>
+@@ -54,30 +55,44 @@
+ /* Bluetooth sockets */
+ #define BT_MAX_PROTO	8
+ static struct net_proto_family *bt_proto[BT_MAX_PROTO];
++static DEFINE_RWLOCK(bt_proto_rwlock);
+ 
+ int bt_sock_register(int proto, struct net_proto_family *ops)
+ {
++	int err;
++
+ 	if (proto < 0 || proto >= BT_MAX_PROTO)
+ 		return -EINVAL;
+ 
+-	if (bt_proto[proto])
+-		return -EEXIST;
+-
+-	bt_proto[proto] = ops;
+-	return 0;
++	err = -EEXIST;
++	
++	write_lock(&bt_proto_rwlock);
++	if (bt_proto[proto] == NULL) {
++		err = 0;
++		bt_proto[proto] = ops;
++	}
++	write_unlock(&bt_proto_rwlock);
++	
++	return err;
+ }
+ EXPORT_SYMBOL(bt_sock_register);
+ 
+ int bt_sock_unregister(int proto)
+ {
++	int err;
++
+ 	if (proto < 0 || proto >= BT_MAX_PROTO)
+ 		return -EINVAL;
+-
+-	if (!bt_proto[proto])
+-		return -ENOENT;
+-
+-	bt_proto[proto] = NULL;
+-	return 0;
++	
++	err = -ENOENT;
++	write_lock(&bt_proto_rwlock);
++	if (bt_proto[proto]) {
++		err = 0;
++		bt_proto[proto] = NULL;
++	}
++	write_unlock(&bt_proto_rwlock);
++	
++	return err;
+ }
+ EXPORT_SYMBOL(bt_sock_unregister);
+ 
+@@ -94,10 +109,12 @@ static int bt_sock_create(struct socket 
+ 	}
+ #endif
+ 	err = -EPROTONOSUPPORT;
++	read_lock(&bt_proto_rwlock);
+ 	if (bt_proto[proto] && try_module_get(bt_proto[proto]->owner)) {
+ 		err = bt_proto[proto]->create(sock, proto);
+ 		module_put(bt_proto[proto]->owner);
+ 	}
++	read_unlock(&bt_proto_rwlock);
+ 	return err; 
+ }
+ 
+

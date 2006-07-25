@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWGYXKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWGYXLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWGYXKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWGYXKQ
+	id S1030243AbWGYXLa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWGYXLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:10:16 -0400
-Received: from thing.hostingexpert.com ([67.15.235.34]:46806 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1030244AbWGYXKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:10:14 -0400
-Message-ID: <44C6A4CA.8040609@linuxtv.org>
-Date: Tue, 25 Jul 2006 19:10:02 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Edgar Toernig <froese@gmx.de>
-CC: mchehab@infradead.org, akpm@osdl.org, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@osdl.org,
-       linux-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH 00/23] V4L/DVB fixes
-References: <20060725180311.PS54604900000@infradead.org> <20060726004127.6eab5a9f.froese@gmx.de>
-In-Reply-To: <20060726004127.6eab5a9f.froese@gmx.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 25 Jul 2006 19:11:30 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:30890 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030243AbWGYXL3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 19:11:29 -0400
+Date: Tue, 25 Jul 2006 18:10:40 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: VIA x86-64 bootlogs needed
+Message-ID: <20060725231039.GA25240@us.ibm.com>
+References: <200607251824.30504.ak@suse.de> <200607252158.04254.bonganilinux@mweb.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607252158.04254.bonganilinux@mweb.co.za>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Toernig wrote:
-> mchehab@infradead.org wrote:
->> It contains the following stuff:
->> [...]
+On Tue, Jul 25, 2006 at 09:58:04PM +0200, Bongani Hlope wrote:
+> On Tuesday 25 July 2006 18:24, Andi Kleen wrote:
+> > Hi,
+> >
+> > For some APIC code rework I would like to collect some statistics on
+> > VIA APIC setups.
+> >
+> > If you have a system with VIA chipset running a recent (2.6.16+) x86-64
+> > kernel please boot the system with apic=verbose on the kernel command and
+> > send me
+> >
+> > - boot output (/var/log/boot.msg or dmesg -s100000000 output after boot)
+> > - dmidecode output
+> > - lspci  -v output
+> >
+> > Thanks,
+> >
+> >
 > 
-> I'm still missing the VBI_OFFSET fix.  See:
+> This is a MSI  K8T Master2 FAR with the  VIA? K8T800 + 8237 chipset, kernel 
+> 2.6.17-mm1
 > 
->   http://marc.theaimsgroup.com/?m=114710558215044
-> 
-> Could you consider that patch for the next update and
-> IMHO also for 2.6.16.x and 2.6.17.x?  
 
-Please read Documentation/SubmittingPatches
+I have the same mobo running latest 2.6.18.  Let me know if you need my
+info too.
 
-Patches without a sign-off will not be included into the kernel.
+Thanks,
+Jon

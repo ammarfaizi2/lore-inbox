@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWGYTSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWGYTTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWGYTSm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWGYTSm
+	id S964828AbWGYTTN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWGYTTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:18:42 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16061 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964822AbWGYTSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:18:41 -0400
-Date: Tue, 25 Jul 2006 21:12:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Olaf Hering <olh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andi Kleen <ak@suse.de>, Albert Cahalan <acahalan@gmail.com>,
-       arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: utrace vs. ptrace
-Message-ID: <20060725191221.GA10641@elte.hu>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu> <200607131521.52505.ak@suse.de> <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org> <1153853342.4725.21.camel@localhost> <Pine.LNX.4.64.0607251124080.29649@g5.osdl.org> <20060725185744.GA15844@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060725185744.GA15844@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 25 Jul 2006 15:19:13 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:46555
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S964826AbWGYTTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:19:11 -0400
+Message-ID: <44C66D1C.7010903@microgate.com>
+Date: Tue, 25 Jul 2006 14:12:28 -0500
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-stable <stable@kernel.org>
+Subject: Re: [stable] Success: tty_io flush_to_ldisc() error message triggered
+References: <200607221209_MC3-1-C5CA-50EB@compuserve.com> <44C25548.5070307@microgate.com> <20060725184158.GH9021@kroah.com>
+In-Reply-To: <20060725184158.GH9021@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Olaf Hering <olh@suse.de> wrote:
-
->  On Tue, Jul 25, Linus Torvalds wrote:
+Greg KH wrote:
+> On Sat, Jul 22, 2006 at 11:41:44AM -0500, Paul Fulghum wrote:
 > 
-> > What you often want is not a core-dump at all, but a "stop the process" 
-> > thing. It's really irritating that the core-dump is generated and the 
-> > process is gone, when it would often be a lot nicer if instead of 
-> > core-dumping, the process was just stopped and then you could attach to it 
-> > with gdb, and get the whole damn information (including things like access 
-> > to open file descriptors etc).
-> > 
-> > But again, that has nothing to do with core-dumping. 
+>>Chuck Ebbert wrote:
+>>
+>>>The cleaner fix looks more intrusive, though.
+>>>
+>>>Is this simpler change (what I'm running but without the warning
+>>>messages) the preferred fix for -stable?
+>>
+>>It fixes the problem.
 > 
-> It would be helpful to have that sort of functionality in mainline. 
-> Would a patch be acceptable that sends SIGSTOP instead of SIGSEGV or 
-> SIGILL if some knob was enabled, either global or per process?
+> 
+> So do you feel this patch should be added to the -stable kernel tree?
 
-FYI, the sample utrace module from Roland does precisely that, it stops 
-a task on crash... See more at:
+No. Now that I think about it, adding that extra
+macro is just wrong even if temporary.
 
-  http://people.redhat.com/roland/utrace/
+The real fix is equally simple, but in 2.6.18-rc
+it is intertwined with other more intrusive changes.
 
-- crash-suspend.c is the sample module.
+Let me make a new separate patch that does things
+the right way, which is simply removing the list
+head while processing the list so two instances
+to not trip over each other. I would have done so
+earlier, but I've been insanely busy with multiple
+work related deadlines (lame excuse I know).
 
-- ntrace-0.0.2.tar.bz2 is an extensive ptrace and utrace functionality 
-  testsuite.
+I should post something tomorrow afternoon.
 
-	Ingo
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

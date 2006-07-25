@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWGYUHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWGYUGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWGYUHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964852AbWGYUHV
+	id S964849AbWGYUGd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWGYUGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:07:21 -0400
-Received: from ozlabs.tip.net.au ([203.10.76.45]:55263 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964846AbWGYUHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:07:20 -0400
+	Tue, 25 Jul 2006 16:06:32 -0400
+Received: from ezoffice.mandriva.com ([84.14.106.134]:59659 "EHLO
+	office.mandriva.com") by vger.kernel.org with ESMTP id S964849AbWGYUGb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:06:31 -0400
+From: Arnaud Patard <apatard@mandriva.com>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Andrew de Quincey <adq_dvb@lidskialf.net>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+Organization: Mandriva
+References: <20060725034247.GA5837@kroah.com>
+	<m33bcqdn5y.fsf@anduin.mandriva.com>
+	<200607251123.40549.adq_dvb@lidskialf.net>
+	<Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
+Date: Tue, 25 Jul 2006 22:10:46 +0200
+In-Reply-To: <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz> (David
+	Lang's message of "Tue, 25 Jul 2006 09:47:43 -0700 (PDT)")
+Message-ID: <m3ac6xzbqx.fsf@anduin.mandriva.com>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17606.31023.273943.551848@cargo.ozlabs.ibm.com>
-Date: Wed, 26 Jul 2006 06:03:59 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-In-Reply-To: <44C66C91.8090700@zytor.com>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-	<03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
-	<20060725182833.GE4608@hmsreliant.homelinux.net>
-	<44C66C91.8090700@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
+David Lang <dlang@digitalinsight.com> writes:
 
-> Not really.  This introduces a potentially very difficult support 
-> user-visible interface.  Consider a tickless kernel -- you might end up 
-> taking tick interrupts ONLY to update this page, since you don't have 
-> any way of knowing when userspace wants to look at it.
+> On Tue, 25 Jul 2006, Andrew de Quincey wrote:
+>
+>> On Tuesday 25 July 2006 10:55, Arnaud Patard wrote:
+>>> Greg KH <gregkh@suse.de> writes:
+>>>
+>>> Hi,
+>>>
+>>>> We (the -stable team) are announcing the release of the 2.6.17.7 kernel.
+>>>
+>>> Sorry, but doesn't compile if DVB_BUDGET_AV is set :(
+>>>
+>>>> Andrew de Quincey:
+>>>>       v4l/dvb: Fix budget-av frontend detection
+>>
+>>
+>> In fact it is just this patch causing the problem:
+> <SNIP>
+>> Sorry, I had so much work going on in that area I must have diffed the wrong
+>> kernel when I created this patch. :(
+>
+> is it reasonable to have an aotomated test figure out what config options are 
+> relavent to a patch (or patchset) and test compile all the combinations to catch 
+> this sort of mistake?
 
-It's not that bad; if userspace is running, the cpu isn't idle, so
-there isn't the motivation to go tickless on that cpu.  In other
-words, if every cpu has suspended ticks, then no cpu can be running
-stuff that needs to look at this page.
+you'll probably need to find some heuristics which may be quite hard to
+do. It would be easier imho to use some scripts like this one :
+http://developer.osdl.org/~cherry/compile/ 
 
-Paul.
+It's often enough to catch compile failures
+
+
+Arnaud Patard
+
+>
+> David Lang
+

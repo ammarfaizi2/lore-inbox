@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWGYHW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWGYHdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWGYHW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 03:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWGYHW4
+	id S1751232AbWGYHdN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 03:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWGYHdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 03:22:56 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:14516 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751147AbWGYHWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 03:22:55 -0400
-Date: Tue, 25 Jul 2006 00:22:44 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       ebiederm@xmission.com, "Albert Cahalan" <acahalan@gmail.com>
-Subject: Re: [RFC] ps command race fix
-Message-Id: <20060725002244.af4d6e8d.pj@sgi.com>
-In-Reply-To: <20060724193318.d57983c1.akpm@osdl.org>
-References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724182000.2ab0364a.akpm@osdl.org>
-	<20060724184847.3ff6be7d.pj@sgi.com>
-	<20060725110835.59c13576.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724193318.d57983c1.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Tue, 25 Jul 2006 03:33:13 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:38175 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751232AbWGYHdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 03:33:12 -0400
+Date: Tue, 25 Jul 2006 09:32:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: gmu 2k6 <gmu2006@gmail.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+Message-ID: <20060725073208.GA10601@suse.de>
+References: <Pine.LNX.4.64.0607171605500.6761@scrub.home> <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com> <Pine.LNX.4.64.0607171718140.6762@scrub.home> <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com> <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com> <Pine.LNX.4.64.0607171902310.6762@scrub.home> <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com> <f96157c40607180238s1bfe0ca2te1d4d72dbe8626fd@mail.gmail.com> <f96157c40607190326t1071377bvb426e00d6f427660@mail.gmail.com> <f96157c40607240834i5ba3ca5cma51eec9fa34558bc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f96157c40607240834i5ba3ca5cma51eec9fa34558bc@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> We cannot do a single kmalloc() like cpuset does.
+On Mon, Jul 24 2006, gmu 2k6 wrote:
+> the problem I have with hangs is related to changes in CFQ and that
+> CFQ is now the default. 2.6.17-git12 had the problem but booting
+> it with elevator=deadline fixes the hang.
+> 
+> symptoms encountered during git-bisecting between v2.6.17 and v2.6.18-rc1:
+> A hang while starting network services
+> B hang while trying to login
+>   1 on remote console [not SSH] it hang after typing <uid><CR>
+>   1 via OpenSSH it hang after typing <pwd><CR> when doing slogin root@<IP>
+> 
+> A is the problem I got in the first place and this seems to be the
+> case since 2.6.17-git11 definitely although git-bisect pointed me at
+> the following
+> changeset which is included since 2.6.17-git12:
+> 
+> caaa5f9f0a75d1dc5e812e69afdbb8720e077fd3
+> by Jens Axboe
+> titled "[PATCH] cfq-iosched: many performance fixes"
+> 
+> strange enough it also hangs with 2.6.17-git11 which did not include that
+> one changeset yet.
 
-Ok ...
+So perhaps your bisect isn't 100% trust worthy? Can you do a manual
+-gitX bisect to see which 2.6.17-gitX introduced the problem?
 
-Well, since you're so impressed with the studliness of that idea
-<grin>, how about this:
-
-  Add a 'false link' to the .next task list.
-
-Each diropen on /proc and each open on a cpuset 'tasks' file would
-add one such 'false link' to the task list, representing that file
-descriptors current seek offset in the task list.
-
-A 'false link' would be a task_struct that was almost entirely unused,
-except to mark the offset in the task list of a file descriptor open
-on it (for /proc or cpuset 'tasks' files.)
-
-The 'normal' do_each_thread/while_each_thread and related macros would
-silently skip over these false links.
-
-The /proc and cpuset 'tasks' code would use special macros that could
-see the false link representing its current seek offset, and be able
-to implement read and seek operations relative to that position.
-
-Remove this 'false link' on the final close of the file descriptor
-holding it.
-
-This reduces the memory cost of an open on /proc or a 'tasks' file to
-the size of a single 'false link' task_struct.
-
-It -would- add another test and jump to the critical do_each_thread and
-while_each_thread macros, to skip over 'false links'.
+Also please put a serial console or similar on the machine, so you can
+log + store the sysrq+t output.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Jens Axboe
+

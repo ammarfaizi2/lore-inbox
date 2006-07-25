@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751595AbWGYVTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751598AbWGYVUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751595AbWGYVTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 17:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWGYVTM
+	id S1751598AbWGYVUa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 17:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWGYVUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 17:19:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40871 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751595AbWGYVTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 17:19:10 -0400
-Date: Tue, 25 Jul 2006 17:19:08 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: nfsd lockdep snafu
-Message-ID: <20060725211908.GA3694@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Tue, 25 Jul 2006 17:20:30 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:43191 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751598AbWGYVU3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 17:20:29 -0400
+Message-ID: <44C68AA8.6080702@zytor.com>
+Date: Tue, 25 Jul 2006 14:18:32 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: jg@laptop.org
+CC: Neil Horman <nhorman@tuxdriver.com>, Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>	 <20060725182833.GE4608@hmsreliant.homelinux.net>	 <44C66C91.8090700@zytor.com>	 <20060725192138.GI4608@hmsreliant.homelinux.net>	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>	 <20060725194733.GJ4608@hmsreliant.homelinux.net>	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>	 <44C67E1A.7050105@zytor.com>	 <20060725204736.GK4608@hmsreliant.homelinux.net>	 <1153861094.1230.20.camel@localhost.localdomain>	 <44C6875F.4090300@zytor.com> <1153862087.1230.38.camel@localhost.localdomain>
+In-Reply-To: <1153862087.1230.38.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From an rc2-git3 based kernel..
+Jim Gettys wrote:
+> On Tue, 2006-07-25 at 14:04 -0700, H. Peter Anvin wrote:
+> 
+>> That's why I'm suggesting adding a cheap, possibly low-res, gettimeofday 
+>> virtual system call in case there is no way for the kernel to provide 
+>> userspace with a cheap full-resolution gettimeofday.  Obviously, if a 
+>> high-quality gettimeofday is available, then they can be linked together 
+>> by the kernel.
+> 
+> Low res is fine: X Timestamps are 1 millisecond values, and wrap after a
+> few hundred days.  What we do care about is monotonically increasing
+> values (until it wraps). On machines of the past, this was very
+> convenient; we'd just store a 32 bit value for clients to read, and not
+> bother with locking.  I guess these days, you'd at least have to protect
+> the store with a memory barrier, maybe....
+> 
+> It was amusing years ago to find toolkit bugs after applications had
+> been up for that long (32 bits of milliseconds)...  Yes, there are
+> applications and machines that stay up that long, really there are....
+> 
 
-		Dave
+Do you need 1 ms resolution, or is 10 ms good enough?
 
-=============================================
-[ INFO: possible recursive locking detected ]
----------------------------------------------
-nfsd/1932 is trying to acquire lock:
- (&inode->i_mutex){--..}, at: [<c06075f9>] mutex_lock+0x21/0x24
+	-hpa
 
-but task is already holding lock:
- (&inode->i_mutex){--..}, at: [<c06075f9>] mutex_lock+0x21/0x24
-
-other info that might help us debug this:
-2 locks held by nfsd/1932:
- #0:  (hash_sem){----}, at: [<ccfc44e2>] exp_readlock+0xd/0xf [nfsd]
- #1:  (&inode->i_mutex){--..}, at: [<c06075f9>] mutex_lock+0x21/0x24
-
-stack backtrace:
- [<c04051ea>] show_trace_log_lvl+0x54/0xfd
- [<c04057a6>] show_trace+0xd/0x10
- [<c04058bf>] dump_stack+0x19/0x1b
- [<c043b7ae>] __lock_acquire+0x773/0x997
- [<c043bf43>] lock_acquire+0x4b/0x6c
- [<c060748a>] __mutex_lock_slowpath+0xbc/0x20a
- [<c06075f9>] mutex_lock+0x21/0x24
- [<ccfc1d57>] nfsd_setattr+0x2fb/0x4aa [nfsd]
- [<ccfc31e3>] nfsd_create_v3+0x31c/0x48c [nfsd]
- [<ccfc7e12>] nfsd3_proc_create+0x125/0x135 [nfsd]
- [<ccfbe0d4>] nfsd_dispatch+0xc0/0x178 [nfsd]
- [<ccf077c3>] svc_process+0x3a4/0x5ee [sunrpc]
- [<ccfbe5f6>] nfsd+0x197/0x2e1 [nfsd]
- [<c0402005>] kernel_thread_helper+0x5/0xb
-
-
--- 
-http://www.codemonkey.org.uk

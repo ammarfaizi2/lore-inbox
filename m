@@ -1,216 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWGYM7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWGYNBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWGYM7I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 08:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWGYM7I
+	id S1751396AbWGYNBO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 09:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWGYNBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 08:59:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:6414 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751321AbWGYM7H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 08:59:07 -0400
-Date: Tue, 25 Jul 2006 14:58:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: gmu 2k6 <gmu2006@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-Message-ID: <20060725125854.GU4044@suse.de>
-References: <f96157c40607250120s2554cbc6qbd7c42972b70f6de@mail.gmail.com> <20060725080002.GD4044@suse.de> <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com> <20060725080807.GF4044@suse.de> <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com> <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com> <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com> <20060725112955.GR4044@suse.de> <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com> <20060725125201.GT4044@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060725125201.GT4044@suse.de>
+	Tue, 25 Jul 2006 09:01:14 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:10633
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1751396AbWGYNBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 09:01:13 -0400
+Message-ID: <44C61616.7060203@ed-soft.at>
+Date: Tue, 25 Jul 2006 15:01:10 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Michael Krufky <mkrufky@linuxtv.org>,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: [patch 07/45] v4l/dvb: Fix CI on old KNC1 DVBC cards
+References: <20060717160652.408007000@blue.kroah.org> <20060717162617.GH4829@kroah.com>
+In-Reply-To: <20060717162617.GH4829@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25 2006, Jens Axboe wrote:
-> On Tue, Jul 25 2006, gmu 2k6 wrote:
-> > On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> > >On Tue, Jul 25 2006, gmu 2k6 wrote:
-> > >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
-> > >> compared to -git6
-> > >> which seems to have correctly booted by accident the lastime. timing 
-> > >issues
-> > >> I guess.
-> > >
-> > >I will try and reproduce it here now. It seems to be in between commit
-> > >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
-> > >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could also
-> > >be bad.
-> > >
-> > >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
-> > >good, so you can try and verify that
-> > >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
-> > >two. It's only about 6 commits, so should be quick enough to do.
-> > 
-> > 1) no luck with remote serial console
-> > 2) netconsole does not work although connecting to the listener with netcat 
-> > and
-> > sending strings works
-> > I'm gonna try via physical rs232 9pins and see how that works.
-> > afterwards I will try to bisect the revisions you mentioned.
-> > 
-> > btw, the issue seems to come and go as I managed to boot log into a .17-git6
-> > kernel or is timing-dependent.
+Hi.
+
+This fix does not compile on 2.6.17.7.
+philips_cu1216_tuner_set_params is nowhere defined in the kernel tree.
+
+cu
+
+Edgar (gimli) Hucek
+ 
+Greg KH schrieb:
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> I can reproduce it, you don't have to spend more time on bisecting or
-> testing. This should fix it:
+> ------------------
+> From: Andrew de Quincey <adq_dvb@lidskialf.net>
 > 
-> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-> index 1c4df22..1eac041 100644
-> --- a/drivers/block/cciss.c
-> +++ b/drivers/block/cciss.c
-> @@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
->  	CommandList_struct *cmd = rq->completion_data;
->  	ctlr_info_t *h = hba[cmd->ctlr];
->  	unsigned long flags;
-> +	request_queue_t *q;
->  	u64bit temp64;
->  	int i, ddir;
+> These cards do not need the tda10021 configuration change when data is
+> streamed through a CAM module. This disables it for these ones.
+> 
+> Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
+> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> ---
+> 
+>  drivers/media/dvb/ttpci/budget-av.c |    9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> --- linux-2.6.17.3.orig/drivers/media/dvb/ttpci/budget-av.c
+> +++ linux-2.6.17.3/drivers/media/dvb/ttpci/budget-av.c
+> @@ -1060,6 +1060,15 @@ static void frontend_init(struct budget_
+>  		break;
 >  
-> @@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
->  	printk("Done with %p\n", rq);
->  #endif				/* CCISS_DEBUG */
->  
-> +	q = rq->q;
+>  	case SUBID_DVBC_KNC1:
+> +		budget_av->reinitialise_demod = 1;
+> +		fe = tda10021_attach(&philips_cu1216_config,
+> +				     &budget_av->budget.i2c_adap,
+> +				     read_pwm(budget_av));
+> +		if (fe) {
+> +			fe->ops.tuner_ops.set_params = philips_cu1216_tuner_set_params;
+> +		}
+> +		break;
 > +
->  	add_disk_randomness(rq->rq_disk);
->  	spin_lock_irqsave(&h->lock, flags);
->  	end_that_request_last(rq, rq->errors);
->  	cmd_free(h, cmd, 1);
-> +	blk_start_queue(q);
->  	spin_unlock_irqrestore(&h->lock, flags);
->  }
->  
+>  	case SUBID_DVBC_KNC1_PLUS:
+>  		fe = tda10021_attach(&philips_cu1216_config,
+>  				     &budget_av->budget.i2c_adap,
 > 
-> A better fix would rework the start_queue logic entirely in the driver,
-> but the above should get you running for now. I'll take a further look.
-
-Something like this matches the current logic better. It's not very good
-from a cpu efficiency point of view, but it's better than what is there
-now since at least it's not in hard irq context.
-
-Not tested yet, will do so right now.
-
-diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-index 1c4df22..a9e0510 100644
---- a/drivers/block/cciss.c
-+++ b/drivers/block/cciss.c
-@@ -1233,6 +1233,50 @@ static inline void complete_buffers(stru
- 	}
- }
- 
-+static void cciss_check_queues(ctlr_info_t *h)
-+{
-+	int start_queue = h->next_to_run;
-+	int i;
-+
-+	/* check to see if we have maxed out the number of commands that can
-+	 * be placed on the queue.  If so then exit.  We do this check here
-+	 * in case the interrupt we serviced was from an ioctl and did not
-+	 * free any new commands.
-+	 */
-+	if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
-+		return;
-+
-+	/* We have room on the queue for more commands.  Now we need to queue
-+	 * them up.  We will also keep track of the next queue to run so
-+	 * that every queue gets a chance to be started first.
-+	 */
-+	for (i = 0; i < h->highest_lun + 1; i++) {
-+		int curr_queue = (start_queue + i) % (h->highest_lun + 1);
-+		/* make sure the disk has been added and the drive is real
-+		 * because this can be called from the middle of init_one.
-+		 */
-+		if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
-+			continue;
-+		blk_start_queue(h->gendisk[curr_queue]->queue);
-+
-+		/* check to see if we have maxed out the number of commands
-+		 * that can be placed on the queue.
-+		 */
-+		if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS) {
-+			if (curr_queue == start_queue) {
-+				h->next_to_run =
-+				    (start_queue + 1) % (h->highest_lun + 1);
-+				break;
-+			} else {
-+				h->next_to_run = curr_queue;
-+				break;
-+			}
-+		} else {
-+			curr_queue = (curr_queue + 1) % (h->highest_lun + 1);
-+		}
-+	}
-+}
-+
- static void cciss_softirq_done(struct request *rq)
- {
- 	CommandList_struct *cmd = rq->completion_data;
-@@ -1264,6 +1308,7 @@ #endif				/* CCISS_DEBUG */
- 	spin_lock_irqsave(&h->lock, flags);
- 	end_that_request_last(rq, rq->errors);
- 	cmd_free(h, cmd, 1);
-+	cciss_check_queues(h);
- 	spin_unlock_irqrestore(&h->lock, flags);
- }
- 
-@@ -2528,8 +2573,6 @@ static irqreturn_t do_cciss_intr(int irq
- 	CommandList_struct *c;
- 	unsigned long flags;
- 	__u32 a, a1, a2;
--	int j;
--	int start_queue = h->next_to_run;
- 
- 	if (interrupt_not_for_us(h))
- 		return IRQ_NONE;
-@@ -2588,45 +2631,6 @@ #				endif
- 		}
- 	}
- 
--	/* check to see if we have maxed out the number of commands that can
--	 * be placed on the queue.  If so then exit.  We do this check here
--	 * in case the interrupt we serviced was from an ioctl and did not
--	 * free any new commands.
--	 */
--	if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS)
--		goto cleanup;
--
--	/* We have room on the queue for more commands.  Now we need to queue
--	 * them up.  We will also keep track of the next queue to run so
--	 * that every queue gets a chance to be started first.
--	 */
--	for (j = 0; j < h->highest_lun + 1; j++) {
--		int curr_queue = (start_queue + j) % (h->highest_lun + 1);
--		/* make sure the disk has been added and the drive is real
--		 * because this can be called from the middle of init_one.
--		 */
--		if (!(h->drv[curr_queue].queue) || !(h->drv[curr_queue].heads))
--			continue;
--		blk_start_queue(h->gendisk[curr_queue]->queue);
--
--		/* check to see if we have maxed out the number of commands
--		 * that can be placed on the queue.
--		 */
--		if ((find_first_zero_bit(h->cmd_pool_bits, NR_CMDS)) == NR_CMDS) {
--			if (curr_queue == start_queue) {
--				h->next_to_run =
--				    (start_queue + 1) % (h->highest_lun + 1);
--				goto cleanup;
--			} else {
--				h->next_to_run = curr_queue;
--				goto cleanup;
--			}
--		} else {
--			curr_queue = (curr_queue + 1) % (h->highest_lun + 1);
--		}
--	}
--
--      cleanup:
- 	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
- 	return IRQ_HANDLED;
- }
-
--- 
-Jens Axboe
+> --
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

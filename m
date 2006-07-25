@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWGXXaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWGXXxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWGXXaA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 19:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWGXXaA
+	id S932337AbWGXXxU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 19:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWGXXxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 19:30:00 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:1424 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932331AbWGXX37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 19:29:59 -0400
-Subject: [PATCH] [nfs] Release dentry_lock in an error path of nfs_path
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain
-Date: Mon, 24 Jul 2006 16:30:00 -0700
-Message-Id: <1153783800.31581.21.camel@josh-work.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Mon, 24 Jul 2006 19:53:20 -0400
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:32523 "EHLO
+	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932334AbWGXXxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 19:53:19 -0400
+Message-ID: <44C55F36.5000701@gentoo.org>
+Date: Tue, 25 Jul 2006 01:00:54 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+MIME-Version: 1.0
+To: Tom Walter Dillig <tdillig@stanford.edu>
+CC: linux-kernel@vger.kernel.org, w@1wt.eul, kernel_org@digitalpeer.com,
+       security@kernel.org, Netdev list <netdev@vger.kernel.org>
+Subject: softmac possible null deref [was: Complete report of Null dereference
+ errors in kernel 2.6.17.1]
+References: <1153782637.44c5536e013a4@webmail>
+In-Reply-To: <1153782637.44c5536e013a4@webmail>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In one of the error paths of nfs_path, it may return with dentry_lock still
-held; fix this by adding and using a new error path Elong_unlock which unlocks
-dentry_lock.
+Tom Walter Dillig wrote:
+> [109]
+> 452 net/ieee80211/softmac/ieee80211softmac_io.c
+> Possible null dereference of variable "*pkt" in function call
+> (include/asm/string.h:__constant_c_and_count_memset) checked at
+> (453:net/ieee80211/softmac/ieee80211softmac_io.c)
 
-Signed-off-by: Josh Triplett <josh@freedesktop.org>
----
- fs/nfs/namespace.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+Either I'm misunderstanding, or this is bogus.
 
-diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
-index 19b98ca..86b3169 100644
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -51,7 +51,7 @@ char *nfs_path(const char *base, const s
- 		namelen = dentry->d_name.len;
- 		buflen -= namelen + 1;
- 		if (buflen < 0)
--			goto Elong;
-+			goto Elong_unlock;
- 		end -= namelen;
- 		memcpy(end, dentry->d_name.name, namelen);
- 		*--end = '/';
-@@ -68,6 +68,8 @@ char *nfs_path(const char *base, const s
- 	end -= namelen;
- 	memcpy(end, base, namelen);
- 	return end;
-+Elong_unlock:
-+	spin_unlock(&dcache_lock);
- Elong:
- 	return ERR_PTR(-ENAMETOOLONG);
- }
+when *pkt is allocated by the various child functions (e.g. 
+ieee80211softmac_disassoc_deauth), it is always checked for NULL.
 
+Finally, line 453 does another NULL check.
+
+What is the report trying to say?
+
+Daniel
 

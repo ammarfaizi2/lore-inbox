@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWGYWzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWGYW77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWGYWzP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 18:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWGYWzP
+	id S1030234AbWGYW77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 18:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWGYW77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 18:55:15 -0400
-Received: from sccrmhc11.comcast.net ([63.240.77.81]:52368 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1030220AbWGYWzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 18:55:13 -0400
-Subject: Re: async network I/O, event channels, etc
-From: Nicholas Miell <nmiell@comcast.net>
-To: David Miller <davem@davemloft.net>
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060725.150122.49854414.davem@davemloft.net>
-References: <44C66FC9.3050402@redhat.com>
-	 <20060725.150122.49854414.davem@davemloft.net>
-Content-Type: text/plain
-Date: Tue, 25 Jul 2006 15:55:10 -0700
-Message-Id: <1153868110.2661.10.camel@entropy>
+	Tue, 25 Jul 2006 18:59:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46052 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030234AbWGYW76 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 18:59:58 -0400
+Date: Tue, 25 Jul 2006 15:59:17 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: device@lanana.org
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Typo in ub clause of devices.txt
+Message-Id: <20060725155917.f955dbcc.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.17; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 15:01 -0700, David Miller wrote:
-> From: Ulrich Drepper <drepper@redhat.com>
-> Date: Tue, 25 Jul 2006 12:23:53 -0700
-> 
-> > I was very much surprised by the reactions I got after my OLS talk.
-> > Lots of people declared interest and even agreed with the approach and
-> > asked me to do further ahead with all this.  For those who missed it,
-> > the paper and the slides are available on my home page:
-> > 
-> > http://people.redhat.com/drepper/
-> > 
-> > As for the next steps I see a number of possible ways.  The discussions
-> > can be held on the usual mailing lists (i.e., lkml and netdev) but due
-> > to the raw nature of the current proposal I would imagine that would be
-> > mainly perceived as noise.
-> 
-> Since I gave a big thumbs up for Evgivny's kevent work yesterday
-> on linux-kernel, you might want to start by comparing your work
-> to his.  Because his has the advantage that 1) we have code now
-> and 2) he has written many test applications and performed many
-> benchmarks against his code which has flushed out most of the
-> major implementation issues.
-> 
-> I think most of the people who have encouraged your work are unaware
-> of Evgivny's kevent stuff, which is extremely unfortunate, the two
-> works are more similar than they are different.
-> 
-> I do not think discussing all of this on netdev would be perceived
-> as noise. :)
+Change "Thrid" into "Third", and realign similarly to other entries.
 
-While the comparing is going on, how does this compare to Solaris's
-ports interface? It's documented at
-http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrir?a=view
+Signed-Off-By: Pete Zaitcev <zaitcev@redhat.com>
 
-Also, since we're on the subject, why a whole new interface for event
-queuing instead of extending the existing io_getevents(2) and friends?
-
--- 
-Nicholas Miell <nmiell@comcast.net>
-
+diff -urp -X dontdiff linux-2.6.18-rc1/Documentation/devices.txt linux-2.6.18-rc1-lem/Documentation/devices.txt
+--- linux-2.6.18-rc1/Documentation/devices.txt	2006-07-09 17:53:25.000000000 -0700
++++ linux-2.6.18-rc1-lem/Documentation/devices.txt	2006-07-09 20:12:03.000000000 -0700
+@@ -2565,10 +2565,10 @@ Your cooperation is appreciated.
+ 		243 = /dev/usb/dabusb3	Fourth dabusb device
+ 
+ 180 block	USB block devices
+-		0 = /dev/uba		First USB block device
+-		8 = /dev/ubb		Second USB block device
+-		16 = /dev/ubc		Thrid USB block device
+-		...
++		  0 = /dev/uba		First USB block device
++		  8 = /dev/ubb		Second USB block device
++		 16 = /dev/ubc		Third USB block device
++		    ...
+ 
+ 181 char	Conrad Electronic parallel port radio clocks
+ 		  0 = /dev/pcfclock0	First Conrad radio clock

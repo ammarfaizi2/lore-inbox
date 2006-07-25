@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWGYHdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWGYHiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWGYHdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 03:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWGYHdN
+	id S1751387AbWGYHiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 03:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWGYHiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 03:33:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38175 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751232AbWGYHdM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 03:33:12 -0400
-Date: Tue, 25 Jul 2006 09:32:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: gmu 2k6 <gmu2006@gmail.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-Message-ID: <20060725073208.GA10601@suse.de>
-References: <Pine.LNX.4.64.0607171605500.6761@scrub.home> <f96157c40607170759p1ab37abdi88d178c3503fb2e1@mail.gmail.com> <Pine.LNX.4.64.0607171718140.6762@scrub.home> <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com> <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com> <Pine.LNX.4.64.0607171902310.6762@scrub.home> <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com> <f96157c40607180238s1bfe0ca2te1d4d72dbe8626fd@mail.gmail.com> <f96157c40607190326t1071377bvb426e00d6f427660@mail.gmail.com> <f96157c40607240834i5ba3ca5cma51eec9fa34558bc@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f96157c40607240834i5ba3ca5cma51eec9fa34558bc@mail.gmail.com>
+	Tue, 25 Jul 2006 03:38:08 -0400
+Received: from www262.sakura.ne.jp ([202.181.97.72]:4879 "EHLO
+	www262.sakura.ne.jp") by vger.kernel.org with ESMTP
+	id S1751387AbWGYHiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 03:38:07 -0400
+Message-Id: <200607250738.k6P7c67G089452@www262.sakura.ne.jp>
+Subject: [PATCH][IPv4/IPv6] Setting 0 for unused port field.
+From: from-linux-kernel@i-love.sakura.ne.jp
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jul 2006 16:38:05 +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24 2006, gmu 2k6 wrote:
-> the problem I have with hangs is related to changes in CFQ and that
-> CFQ is now the default. 2.6.17-git12 had the problem but booting
-> it with elevator=deadline fixes the hang.
-> 
-> symptoms encountered during git-bisecting between v2.6.17 and v2.6.18-rc1:
-> A hang while starting network services
-> B hang while trying to login
->   1 on remote console [not SSH] it hang after typing <uid><CR>
->   1 via OpenSSH it hang after typing <pwd><CR> when doing slogin root@<IP>
-> 
-> A is the problem I got in the first place and this seems to be the
-> case since 2.6.17-git11 definitely although git-bisect pointed me at
-> the following
-> changeset which is included since 2.6.17-git12:
-> 
-> caaa5f9f0a75d1dc5e812e69afdbb8720e077fd3
-> by Jens Axboe
-> titled "[PATCH] cfq-iosched: many performance fixes"
-> 
-> strange enough it also hangs with 2.6.17-git11 which did not include that
-> one changeset yet.
+Hello.
 
-So perhaps your bisect isn't 100% trust worthy? Can you do a manual
--gitX bisect to see which 2.6.17-gitX introduced the problem?
+The recvmsg() for raw socket seems to return random u16 value
+from the kernel stack memory since port field is not initialized.
+But I'm not sure this patch is correct.
+Does raw socket return any information stored in port field?
 
-Also please put a serial console or similar on the machine, so you can
-log + store the sysrq+t output.
+---------- Start of patch ----------
+diff -ur before/net/ipv4/raw.c after/net/ipv4/raw.c
+--- before/net/ipv4/raw.c       2006-06-18 10:49:35.000000000 +0900
++++ after/net/ipv4/raw.c        2006-07-25 16:15:26.000000000 +0900
+@@ -609,6 +609,7 @@
+        if (sin) {
+                sin->sin_family = AF_INET;
+                sin->sin_addr.s_addr = skb->nh.iph->saddr;
++               sin->sin_port = 0;
+                memset(&sin->sin_zero, 0, sizeof(sin->sin_zero));
+        }
+        if (inet->cmsg_flags)
+diff -ur before/net/ipv6/raw.c after/net/ipv6/raw.c
+--- before/net/ipv6/raw.c       2006-06-18 10:49:35.000000000 +0900
++++ after/net/ipv6/raw.c        2006-07-25 16:16:52.000000000 +0900
+@@ -411,6 +411,7 @@
+        /* Copy the address. */
+        if (sin6) {
+                sin6->sin6_family = AF_INET6;
++               sin6->sin6_port = 0;
+                ipv6_addr_copy(&sin6->sin6_addr, &skb->nh.ipv6h->saddr);
+                sin6->sin6_flowinfo = 0;
+                sin6->sin6_scope_id = 0;
+---------- End of patch ----------
 
--- 
-Jens Axboe
-
+Regards.

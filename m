@@ -1,156 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWGYRFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWGYRJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWGYRFN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWGYRFN
+	id S932470AbWGYRJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWGYRJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:05:13 -0400
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:61401 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S932365AbWGYRFL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:05:11 -0400
-Date: Wed, 26 Jul 2006 02:04:52 +0900 (JST)
-Message-Id: <20060726.020452.132264896.jet@gyve.org>
-To: linux-kernel@vger.kernel.org, marcel@holtmann.org
-Subject: [PATCH] guarding bt_proto with rwlock
-From: Masatake YAMATO <jet@gyve.org>
-X-Mailer: Mew version 4.2.53 on Emacs 22.0.51 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 25 Jul 2006 13:09:09 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:51134 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S932470AbWGYRJI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:09:08 -0400
+Message-ID: <44C64FC1.4060501@linuxtv.org>
+Date: Tue, 25 Jul 2006 13:07:13 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: David Lang <dlang@digitalinsight.com>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+References: <20060725034247.GA5837@kroah.com>	 <m33bcqdn5y.fsf@anduin.mandriva.com>	 <200607251123.40549.adq_dvb@lidskialf.net>	 <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz> <1153846619.8932.36.camel@laptopd505.fenrus.org>
+In-Reply-To: <1153846619.8932.36.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan van de Ven wrote:
+> On Tue, 2006-07-25 at 09:47 -0700, David Lang wrote:
+>> On Tue, 25 Jul 2006, Andrew de Quincey wrote:
+>>
+>>> On Tuesday 25 July 2006 10:55, Arnaud Patard wrote:
+>>>> Greg KH <gregkh@suse.de> writes:
+>>>>
+>>>> Hi,
+>>>>
+>>>>> We (the -stable team) are announcing the release of the 2.6.17.7 kernel.
+>>>> Sorry, but doesn't compile if DVB_BUDGET_AV is set :(
+>>>>
+>>>>> Andrew de Quincey:
+>>>>>       v4l/dvb: Fix budget-av frontend detection
+>>>
+>>> In fact it is just this patch causing the problem:
+>> <SNIP>
+>>> Sorry, I had so much work going on in that area I must have diffed the wrong
+>>> kernel when I created this patch. :(
+>> is it reasonable to have an aotomated test figure out what config options are 
+>> relavent to a patch (or patchset) and test compile all the combinations to catch 
+>> this sort of mistake?
+> 
+> well you can do such a thing withing statistical bounds; however... if
+> the patch already is in -git (as is -stable policy normally).. it should
+> have been found there already...
+> 
+> 
+In this case it isn't quite that simple...
 
-I found that bt_proto manipulated in bt_sock_register is not guarded
-from race condition. 
+The DVB tree is in the midst of tuner refactoring, and somehow the diff
+was generated against the wrong tree.
 
-Look at net/bluetooth/af_bluetooth.c:
+The fix can be found here... We'll need this queued up for 2.6.17.8 ...
+ I have already attached this inline in a prior email, not sure how many
+people have seen that yet...
 
-    static struct net_proto_family *bt_proto[BT_MAX_PROTO];
+You can also get it from here:
 
-    int bt_sock_register(int proto, struct net_proto_family *ops)
-    {
-	    if (proto < 0 || proto >= BT_MAX_PROTO)
-		    return -EINVAL;
+http://linuxtv.org/~mkrufky/stable/2.6.17.y/budget-av-compile-fix.patch
 
-	    if (bt_proto[proto])
-		    return -EEXIST;
+---
 
-	    bt_proto[proto] = ops;
-	    return 0;
-    }
+[PATCH 2.6.17.7] Fix budget-av compile failure
 
-Here bt_proto[proto] is set.
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
 
-In other hand,
+Currently I am doing lots of refactoring work in the dvb tree. This
+bugfix became necessary to fix 2.6.17 whilst I was in the middle of this
+work. Unfortunately after I tested the original code for the patch, I
+generated the diff against the wrong tree (I accidentally used a tree
+with part of the refactoring code in it). This resulted in the reported
+compile errors because that tree (a) was incomplete, and (b) used
+features which are simply not in the mainline kernel yet.
 
-    static int bt_sock_create(struct socket *sock, int proto)
-    {
-	    int err = 0;
+Many apologies for the error and problems this has caused. :(
 
-	    if (proto < 0 || proto >= BT_MAX_PROTO)
-		    return -EINVAL;
+Signed-off-by: Andrew de Quincey <adq_dvb@lidskialf.net>
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 
-    #if defined(CONFIG_KMOD)
-	    if (!bt_proto[proto]) {
-		    request_module("bt-proto-%d", proto);
-	    }
-    #endif
-	    err = -EPROTONOSUPPORT;
-	    if (bt_proto[proto] && try_module_get(bt_proto[proto]->owner)) {
-		    err = bt_proto[proto]->create(sock, proto);
-		    module_put(bt_proto[proto]->owner);
-	    }
-	    return err; 
-    }
+diff -Naur linux-2.6.17.7.orig/drivers/media/dvb/ttpci/budget-av.c
+linux-2.6.17.7/drivers/media/dvb/ttpci/budget-av.c
+--- linux-2.6.17.7.orig/drivers/media/dvb/ttpci/budget-av.c 2006-07-25
+14:53:19.000000000 +0100
++++ linux-2.6.17.7/drivers/media/dvb/ttpci/budget-av.c 2006-07-25
+15:25:32.000000000 +0100
+@@ -58,6 +58,7 @@
+ 	struct tasklet_struct ciintf_irq_tasklet;
+ 	int slot_status;
+ 	struct dvb_ca_en50221 ca;
++	u8 reinitialise_demod:1;
+ };
 
-bt_proto[proto] is referred.
+ /* GPIO Connections:
+@@ -214,8 +215,9 @@
+ 	while (--timeout > 0 && ciintf_read_attribute_mem(ca, slot, 0) != 0x1d)
+ 		msleep(100);
 
-So I wrote a patch which guards bt_proto with rwlock.
+-	/* reinitialise the frontend */
+-	dvb_frontend_reinitialise(budget_av->budget.dvb_frontend);
++	/* reinitialise the frontend if necessary */
++	if (budget_av->reinitialise_demod)
++		dvb_frontend_reinitialise(budget_av->budget.dvb_frontend);
 
-Signed-off-by: Masatake YAMATO <jet@gyve.org>
+ 	if (timeout <= 0)
+ 	{
+@@ -1064,12 +1066,10 @@
+ 		fe = tda10021_attach(&philips_cu1216_config,
+ 				     &budget_av->budget.i2c_adap,
+ 				     read_pwm(budget_av));
+-		if (fe) {
+-			fe->ops.tuner_ops.set_params = philips_cu1216_tuner_set_params;
+-		}
+ 		break;
 
-diff --git a/net/bluetooth/af_bluetooth.c b/net/bluetooth/af_bluetooth.c
-index 469eda0..dff4514 100644
---- a/net/bluetooth/af_bluetooth.c
-+++ b/net/bluetooth/af_bluetooth.c
-@@ -27,6 +27,7 @@
- #include <linux/config.h>
- #include <linux/module.h>
- 
-+#include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/list.h>
- #include <linux/errno.h>
-@@ -54,30 +55,44 @@
- /* Bluetooth sockets */
- #define BT_MAX_PROTO	8
- static struct net_proto_family *bt_proto[BT_MAX_PROTO];
-+static DEFINE_RWLOCK(bt_proto_rwlock);
- 
- int bt_sock_register(int proto, struct net_proto_family *ops)
- {
-+	int err;
-+
- 	if (proto < 0 || proto >= BT_MAX_PROTO)
- 		return -EINVAL;
- 
--	if (bt_proto[proto])
--		return -EEXIST;
--
--	bt_proto[proto] = ops;
--	return 0;
-+	err = -EEXIST;
-+	
-+	write_lock(&bt_proto_rwlock);
-+	if (bt_proto[proto] == NULL) {
-+		err = 0;
-+		bt_proto[proto] = ops;
-+	}
-+	write_unlock(&bt_proto_rwlock);
-+	
-+	return err;
- }
- EXPORT_SYMBOL(bt_sock_register);
- 
- int bt_sock_unregister(int proto)
- {
-+	int err;
-+
- 	if (proto < 0 || proto >= BT_MAX_PROTO)
- 		return -EINVAL;
--
--	if (!bt_proto[proto])
--		return -ENOENT;
--
--	bt_proto[proto] = NULL;
--	return 0;
-+	
-+	err = -ENOENT;
-+	write_lock(&bt_proto_rwlock);
-+	if (bt_proto[proto]) {
-+		err = 0;
-+		bt_proto[proto] = NULL;
-+	}
-+	write_unlock(&bt_proto_rwlock);
-+	
-+	return err;
- }
- EXPORT_SYMBOL(bt_sock_unregister);
- 
-@@ -94,10 +109,12 @@ static int bt_sock_create(struct socket 
- 	}
- #endif
- 	err = -EPROTONOSUPPORT;
-+	read_lock(&bt_proto_rwlock);
- 	if (bt_proto[proto] && try_module_get(bt_proto[proto]->owner)) {
- 		err = bt_proto[proto]->create(sock, proto);
- 		module_put(bt_proto[proto]->owner);
- 	}
-+	read_unlock(&bt_proto_rwlock);
- 	return err; 
- }
- 
+ 	case SUBID_DVBC_KNC1_PLUS:
++		budget_av->reinitialise_demod = 1;
+ 		fe = tda10021_attach(&philips_cu1216_config,
+ 				     &budget_av->budget.i2c_adap,
+ 				     read_pwm(budget_av));
+
+
+
+-- 
+Michael Krufky
 

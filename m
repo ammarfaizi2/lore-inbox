@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWGYTbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWGYTbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWGYTbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWGYTbm
+	id S964844AbWGYTbz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWGYTbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:31:42 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:58575 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964843AbWGYTbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:31:40 -0400
-In-Reply-To: <20060725192138.GI4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net>
-Mime-Version: 1.0 (Apple Message framework v750)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       a.zummo@towertech.it, jg@freedesktop.org
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Date: Tue, 25 Jul 2006 21:31:32 +0200
-To: Neil Horman <nhorman@tuxdriver.com>
-X-Mailer: Apple Mail (2.750)
+	Tue, 25 Jul 2006 15:31:55 -0400
+Received: from 1wt.eu ([62.212.114.60]:63756 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S964844AbWGYTby (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:31:54 -0400
+Date: Tue, 25 Jul 2006 21:31:40 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       mtosatti@redhat.com
+Subject: Re: Bug with USB proc_bulk in 2.4 kernel
+Message-ID: <20060725193140.GK2037@1wt.eu>
+References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200607181004.55191.benjamin.cherian.kernel@gmail.com> <20060718183313.e8e5a5b2.zaitcev@redhat.com> <200607201044.00739.benjamin.cherian.kernel@gmail.com> <20060724230732.4fdf2bf4.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060724230732.4fdf2bf4.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Not really.  This introduces a potentially very difficult support
->> user-visible interface.  Consider a tickless kernel -- you might  
->> end up
->> taking tick interrupts ONLY to update this page, since you don't have
->> any way of knowing when userspace wants to look at it.
->>
-> Well, you do actually know when they want to look at it.  The rtc  
-> driver only
-> unmasks its interrupt when a user space process has opened the  
-> device and sent
-> it a RTC_UIE ON or RTC_PIE_ON (or other shuch ioctl).  So if you  
-> open /dev/rtc,
-> and memory map the page, but never enable a timer method, then  
-> every read of the
-> page returns zero.  The only overhead this patch is currently  
-> adding, execution
-> time-wise is the extra time it takes to write to a the shared page  
-> variable.  If
-> the timer tick interrupt is executing, its because someone is  
-> reading tick data,
-> or plans to very soon.
+Hi Pete,
 
-But userland cannot know if there is a more efficient option to
-use than this /dev/rtc way, without using VDSO/vsyscall.
+On Mon, Jul 24, 2006 at 11:07:32PM -0700, Pete Zaitcev wrote:
+> On Thu, 20 Jul 2006 10:43:59 -0700, Benjamin Cherian <benjamin.cherian.kernel@gmail.com> wrote:
+> 
+> > > Although I am starting to think about creating a custom locking
+> > > scheme in devio.c after all. It seems like less work.
+> 
+> > What's your timeframe for this? Good luck with it.
+> 
+> OK, now I hate my life, I hate you, I hate Stuart, but most of all
+> I hate the anonymous Japanese who wrote the microcode for TEAC CD-210PU.
+> Anyway, please test the attached patch. Does it do what you want?
 
+I'm very glad that you're still maintaining 2.4 code so much actively. Do
+you think of any possible side effects that non-TEAC users might encounter ?
+If you feel more comfortable after some particular corner-case tests on other
+hardware, please ask.
 
-Segher
+> -- Pete
+
+Cheers,
+Willy
 

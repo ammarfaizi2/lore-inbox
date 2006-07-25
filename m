@@ -1,79 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWGYDyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWGYEGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWGYDyy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 23:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWGYDyy
+	id S932425AbWGYEGS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 00:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWGYEGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 23:54:54 -0400
-Received: from mail.windriver.com ([147.11.1.11]:24226 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S932289AbWGYDyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 23:54:53 -0400
-Message-ID: <44C595ED.7070209@windriver.com>
-Date: Tue, 25 Jul 2006 11:54:21 +0800
-From: Mark Zhan <rongkai.zhan@windriver.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+	Tue, 25 Jul 2006 00:06:18 -0400
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:2656 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932425AbWGYEGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 00:06:18 -0400
+Message-ID: <44C598F0.5030408@sbcglobal.net>
+Date: Mon, 24 Jul 2006 23:07:12 -0500
+From: Matthew Frost <artusemrys@sbcglobal.net>
+Reply-To: artusemrys@sbcglobal.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
 MIME-Version: 1.0
-To: linux-mtd@lists.infradead.org
+To: Al Boldi <a1426z@gawab.com>
 CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix the unlock addr lookup BUG in MTD JEDEC probe
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+References: <200607241857.38889.a1426z@gawab.com>
+In-Reply-To: <200607241857.38889.a1426z@gawab.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jul 2006 03:54:25.0432 (UTC) FILETIME=[053E9980:01C6AF9E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Al Boldi wrote:
+> Jeff Garzik wrote:
+>> Hans Reiser wrote:
+>>> As the other poster mentioned, they went off to startups, and did not
+>>> become part of our community.  How much of that was because their
+>>> contributions were more hassled than welcomed, I cannot say with
+>>> certainty, I can only say that they were discouraged by the difficulty
+>>> of getting their stuff in, and this was not as it should have been.
+>>> They were more knowledgeable than we were on the topics they spoke on,
+>>> and this was not recognized and acknowledged.
+>>>
+>>> Outsiders are not respected by the kernel community.  This means we miss
+>>> a lot.
+>> Anyone who fails to respect the kernel development process, the process
+>> of building consensus, is turn not respected, flamed, and/or ignored.
+>>
+>> If you don't respect us, why should we respect you?
+> 
+> Respect what?  The process or the content?
+> 
+> Rejecting content due to disrespect for process guidelines would be rather 
+> sad.
+> 
+> If the content is worth its salt, it should be accepted w/o delay, then 
+> modified to comply with the process guidelines as necessary.  It's what the 
+> GPL allows, afterall.
+> 
 
-This patch fixes a BUG in the function finfo_uaddr() in driver/mtd/chips/jedec_probe.c.
-This function will fetch the unlock addr type from the pre-defined flash chip info.
+I just love it when people try to ignore a longstanding social system 
+and butt right in, demanding to be heard and acted upon with all haste. 
+  Politeness and protocol are essential social lubricants for a system 
+that doesn't work that well to begin with.  You've seen this fortune 
+entry before.
 
-static inline __u8 finfo_uaddr(const struct amd_flash_info *finfo, int device_type)
-{
-	int uaddr_idx;
-	__u8 uaddr = MTD_UADDR_NOT_SUPPORTED;
+As a system administrator, how do you handle a process that repeatedly 
+violates system policy?  That repeatedly submits bad input and defies 
+correction?  A user that repeatedly attempts to circumvent priority and 
+management structures?    Is that content 'worth its salt' if it 
+violates the good order of the system?  Or do you attempt to fix the 
+program, or educate the user?  And when that fails, don't you kill that 
+process, or kick that user and revoke their privileges?
 
-	switch ( device_type ) {
-	case CFI_DEVICETYPE_X8:  uaddr_idx = 0; break;
-	case CFI_DEVICETYPE_X16: uaddr_idx = 1; break;
-	case CFI_DEVICETYPE_X32: uaddr_idx = 2; break;
-	default:
-		printk(KERN_NOTICE "MTD: %s(): unknown device_type %d\n",
-		       __func__, device_type);
-		goto uaddr_done;
-	}
+The kernel developers have done better than they had to for a repeated 
+violation of protocol, and an obnoxious attitude towards proper 
+procedure and politeness.  Yes, there were responses in kind, and flames 
+back and forth, but there were helpful suggestions and good advice, 
+mostly seen as affront to the 'importance' of this particular project. 
+The very attitude that "If it's good enough, it doesn't need to obey 
+protocol" is what has killed Reiser4.  Understand this, above all.
 
-	uaddr = finfo->uaddr[uaddr_idx];
+Submit output that can be taken as input by this system without 
+judicious additional parsing.  Be UNIX-like.  Do many separate things 
+separately, do them each well, and submit them to be executed 
+atomically.  If one fails, fix it and resubmit.  Reiser4 has not earned 
+privileges above any other user on this system.
 
-	if (uaddr != MTD_UADDR_NOT_SUPPORTED ) {
-		/* ASSERT("The unlock addresses for non-8-bit mode
-		   are bollocks. We don't really need an array."); */
-		uaddr = finfo->uaddr[0];
-	}
+> Thanks!
 
-  uaddr_done:
-	return uaddr;
-}
+Any time.
 
-However, the later 'if' sentence will force that the first unlock addr type is always returned.
-If a chip has two device types (x8 x16) and the chip works in x16 mode, this bug will result in
-that the chip can't be probed correctly because the unlock addr doesn't match.
+> --
+> Al
+> 
 
-This patch fixes this bug.
-
-Signed-off-by: Rongkai.Zhan <rongkai.zhan@windriver.com>
-
-----
-diff --git a/drivers/mtd/chips/jedec_probe.c b/drivers/mtd/chips/jedec_probe.c
-index 8f39d0a..a0ab0df 100644
---- a/drivers/mtd/chips/jedec_probe.c
-+++ b/drivers/mtd/chips/jedec_probe.c
-@@ -1804,7 +1804,7 @@ static inline __u8 finfo_uaddr(const str
-
-  	uaddr = finfo->uaddr[uaddr_idx];
-
--	if (uaddr != MTD_UADDR_NOT_SUPPORTED ) {
-+	if (uaddr == MTD_UADDR_NOT_SUPPORTED ) {
-  		/* ASSERT("The unlock addresses for non-8-bit mode
-  		   are bollocks. We don't really need an array."); */
-  		uaddr = finfo->uaddr[0];
+Matt

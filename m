@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWGYUZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWGYUYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWGYUZY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:25:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWGYUZY
+	id S932490AbWGYUYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWGYUYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:25:24 -0400
-Received: from mx2.suse.de ([195.135.220.15]:31679 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030190AbWGYUZX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:25:23 -0400
-Date: Tue, 25 Jul 2006 13:21:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16-stable: what's the plan?
-Message-ID: <20060725202101.GA19766@kroah.com>
-References: <200607251540_MC3-1-C616-72C1@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607251540_MC3-1-C616-72C1@compuserve.com>
-User-Agent: Mutt/1.5.11
+	Tue, 25 Jul 2006 16:24:41 -0400
+Received: from 201-67-61-193.cbace700.dsl.brasiltelecom.net.br ([201.67.61.193]:30405
+	"EHLO u6jlgg.ialu.optonline.net") by vger.kernel.org with ESMTP
+	id S932490AbWGYUYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:24:40 -0400
+Message-ID: <85257477767393.15C0816A4F@L2OH>
+From: "Lorrie" <abstracteraurelius@rome.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Brand new No more classes
+Date: Tue, 25 Jul 2006 17:24:03 -0200
+MIME-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: 6lNP9mDF5rfcVMEZmLRHl58swKdPiUv4VyKP
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 03:37:44PM -0400, Chuck Ebbert wrote:
-> Any more information about how you're planning to maintain
-> 2.6.16?  Has the -stable team has done their final release?
+Better degree - better pay
 
-The -stable team is suffering from travel lag right now (KS, OLS, and
-then OSCON), and are still working out the infrastructure issues right
-now.
+Fa st Tra ck Degr ee P rogram
 
-I think that the next .16-stable kernel will probably come from Adrian,
-but need to check my patch queue before I can be sure of this.
+Obtain the deg ree you deserve, based on your present knowledge and life
+experience. A prosperous future, money earning power, and the Admiration of all.
 
-Anyway, yes, it's still in the plans, but the conference season is
-slowing things down.  It should all be in place by next week.
+D egrees from an Established, Pr estigious, Leading Institution.
+Your degre e will show exactly what you really can do.
 
-Thanks for your patience.
+Get the Job, Promotion, Business Opportunity and Social Advancement you Desire!
+Eliminates classrooms and traveling.
 
-greg k-h
+Achieve your Bac helors, Mas ters, M BA, or P hD
+in the field of your expertise.
+
+Professional and affordable! Call now - your Graduat ion is a phone call away.
+
+Please call:
+ 1-206-309-01 01 
+Calls returned promptly
+
+
+
+Flies never visit an egg that has no crack  The more you get, the more you want And they lay wait for their own blood; they lurk privily for their own lives. Bad news travels fast Practice makes perfect and Nobody's perfect. Better one house spoiled than two
+
+
+
+
+

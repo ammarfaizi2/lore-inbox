@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWGYRr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWGYRzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWGYRr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYRr7
+	id S1750828AbWGYRzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYRzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:47:59 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:453 "EHLO
-	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750806AbWGYRr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:47:59 -0400
-Subject: Re: utrace vs. ptrace
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Albert Cahalan <acahalan@gmail.com>, arjan@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
-	 <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu>
-	 <200607131521.52505.ak@suse.de>
-	 <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
+	Tue, 25 Jul 2006 13:55:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51168 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750828AbWGYRzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:55:42 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <20060725174100.GA4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Jul 2006 19:49:02 +0100
-Message-Id: <1153853342.4725.21.camel@localhost>
+Organization: Intel International BV
+Date: Tue, 25 Jul 2006 19:55:39 +0200
+Message-Id: <1153850139.8932.40.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-07-13 at 12:05 -0700, Linus Torvalds wrote:
-> Doing core-dumping in user space would be insane. It doesn't give _any_ 
-> advantages, only disadvantages.
+> @@ -265,6 +269,7 @@ irqreturn_t rtc_interrupt(int irq, void 
+>  
+>  	kill_fasync (&rtc_async_queue, SIGIO, POLL_IN);
+>  
+> +	*count_ptr = (*count_ptr)++;
 
-It has a number of very real advantages in certain circumstances and the
-only interface the kernel needs to provide is the debugger interface and
-something to "kick" the debugger and reparent to it, or for that matter
-it might even be viable just to pass the helper the fd of an anonymous
-file holding the dump.
+Hi,
 
-Taking out the kernel core dump support would be insane.
+it's a cute idea, however 3 questions:
+1) you probably want to add a few memory barriers around this, right?
+2) why use the rtc and not the regular timer interrupt?
 
-We get customers who like to collect/process/do clever stuff with core
-dumps and failure cases. We also get people who want to dump a core that
-excludes the 14GB shared mmap of the database file as another example
-where it helps.
+(and 
+3) this will negate the power gain you get for tickless kernels, since
+now they need to start ticking again ;( )
 
-Alan
+Greetings,
+   Arjan van de Ven
 

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWGYR5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWGYR5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWGYR5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWGYR5s
+	id S1751349AbWGYR5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWGYR5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:57:48 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:38533 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751401AbWGYR5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:57:47 -0400
-Message-ID: <44C65B97.7010404@cmu.edu>
-Date: Tue, 25 Jul 2006 13:57:43 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc2-git4: BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 25 Jul 2006 13:57:35 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:13272 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751349AbWGYR5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:57:34 -0400
+In-Reply-To: <20060725174100.GA4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+Mime-Version: 1.0 (Apple Message framework v750)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
 Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Date: Tue, 25 Jul 2006 19:57:30 +0200
+To: Neil Horman <nhorman@tuxdriver.com>
+X-Mailer: Apple Mail (2.750)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey everyone,
+> 	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
+> Geddys and some of the Xorg guys noted that they would be able to  
+> stop using gettimeofday
+> so frequently, if they had some other way to get a millisecond  
+> resolution timer
+> in userspace, one that they could perhaps read from a memory mapped  
+> page.  I was
+> right behind them and though that seemed like a reasonable  
+> request,  so I've
+> taken a stab at it.  This patch allows for a page to be mmaped  
+> from /dev/rtc
+> character interface, the first 4 bytes of which provide a regularly  
+> increasing
+> count, once every rtc interrupt.  The frequency is of course  
+> controlled by the
+> regular ioctls provided by the rtc driver. I've done some basic  
+> testing on it,
+> and it seems to work well.
 
-I recently compiled a 2.6.18-rc2-git4 kernel and get this with cpu
-hotplug enabled:
-Lukewarm IQ detected in hotplug locking
-BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
- [<c0138635>] lock_cpu_hotplug+0x74/0x7d
- [<c012f815>] __create_workqueue+0x44/0x13c
- [<c0340df6>] cpufreq_stat_notifier_policy+0x22/0x1d2
- [<c03418c0>] cpufreq_governor_dbs+0x2c7/0x31d
- [<c033f5ff>] __cpufreq_governor+0x1d/0x150
- [<c033f7f3>] __cpufreq_set_policy+0xc1/0xf7
- [<c03403a7>] store_scaling_governor+0xa2/0x180
- [<c033fbd6>] handle_update+0x0/0x5
- [<c0222800>] kobject_cleanup+0x59/0x60
- [<c0340305>] store_scaling_governor+0x0/0x180
- [<c033fe79>] store+0x2e/0x3e
- [<c018ed8d>] sysfs_write_file+0x8b/0xc7
- [<c015dd9b>] vfs_write+0x87/0xf5
- [<c018ed02>] sysfs_write_file+0x0/0xc7
- [<c015e350>] sys_write+0x41/0x6a
- [<c0102f15>] sysenter_past_esp+0x56/0x79
-Lukewarm IQ detected in hotplug locking
-BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
- [<c0138635>] lock_cpu_hotplug+0x74/0x7d
- [<c0341697>] cpufreq_governor_dbs+0x9e/0x31d
- [<c033f5ff>] __cpufreq_governor+0x1d/0x150
- [<c033f803>] __cpufreq_set_policy+0xd1/0xf7
- [<c03403a7>] store_scaling_governor+0xa2/0x180
- [<c033fbd6>] handle_update+0x0/0x5
- [<c0222800>] kobject_cleanup+0x59/0x60
- [<c0340305>] store_scaling_governor+0x0/0x180
- [<c033fe79>] store+0x2e/0x3e
- [<c018ed8d>] sysfs_write_file+0x8b/0xc7
- [<c015dd9b>] vfs_write+0x87/0xf5
- [<c018ed02>] sysfs_write_file+0x0/0xc7
- [<c015e350>] sys_write+0x41/0x6a
- [<c0102f15>] sysenter_past_esp+0x56/0x79
+Similar functionality is already available via VDSO on
+platforms that support it (currently PowerPC and AMD64?) --
+seems like a better way forward.
 
-Just wanted to report this.
 
-Thanks!
-George
+Segher
+

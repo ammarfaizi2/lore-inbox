@@ -1,57 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWGYGVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWGYG0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWGYGVi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWGYGVi
+	id S1751458AbWGYG0o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWGYG0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:21:38 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:17900 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751442AbWGYGVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:21:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=t7YVoUayu1Pf/wcLYtP0lNeWzAn3ovzUor9nO0FlE5pf+P7aRExdqrNI6zPY1+Dxoevnke1soBS4qHC+x03d7+KKMjBYlf2rvll5zTPBJOk0c54klt2xclbH/tNej95X/Z3fNVJNSp+0A6ClInorUUI6OhcCb651IEDoN0ne6nk=
-Date: Tue, 25 Jul 2006 08:20:44 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: softmac possible null deref [was: Complete report of Null dereference errors in kernel 2.6.17.1]
-Message-ID: <20060725062044.GA3389@leiferikson.gentoo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1153782637.44c5536e013a4@webmail> <44C55F57.8040805@gentoo.org> <44C55F08.6060504@stanford.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Jul 2006 02:26:43 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:34227 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751446AbWGYG0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:26:42 -0400
+Date: Tue, 25 Jul 2006 10:26:29 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060725062625.GA29242@2ka.mipt.ru>
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <44C55F08.6060504@stanford.edu>
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+In-Reply-To: <20060724.231708.01289489.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 25 Jul 2006 10:26:33 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, Jul 24, 2006 at 05:00:08PM -0700, Thomas Dillig wrote:
-> At least in 2.6.17.1, the function looks as follows:
+On Mon, Jul 24, 2006 at 11:17:08PM -0700, David Miller (davem@davemloft.net) wrote:
+> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> Date: Sun, 9 Jul 2006 17:24:46 +0400
 > 
-> /* Create an rts/cts frame */
-> 445 static u32
-> 446 ieee80211softmac_rts_cts(struct ieee80211_hdr_2addr **pkt,
-> 447         struct ieee80211softmac_device *mac, struct ieee80211softmac_network *net,
-> 448         u32 type)
-> 449 {
-> 450         /* Allocate Packet */
-> 451         (*pkt) = kmalloc(IEEE80211_2ADDR_LEN, GFP_ATOMIC);     452         memset(*pkt, 0, IEEE80211_2ADDR_LEN); //*pkt is not checked for 
-> NULL
-> 453         if((*pkt) == NULL) //*pkt is checked for NULL
-> 454                 return 0;
-> 455         ieee80211softmac_hdr_2addr(mac, (*pkt), type, net->bssid);
-> 456         return IEEE80211_2ADDR_LEN;
-> 457 }
+> > This patch includes core kevent files:
+> >  - userspace controlling
+> >  - kernelspace interfaces
+> >  - initialisation
+> >  - notification state machines
+> > 
+> > It might also inlclude parts from other subsystem (like network related
+> > syscalls so it is possible that it will not compile without other
+> > patches applied).
+> > 
+> > Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> 
+> I like this work a lot, as I've stated before.  The data structures
+> look like they will scale well and it takes care of all the limitations
+> that networking in particular seems to have in this area.
+> 
+> I have to say that the user API is not the nicest in the world.  Yet,
+> at the same time, I cannot think of a better one :)
 
-The function does not exist anymore in my 2.6.18-rc2-gabb5a5c tree.
+Hi David. I see you have a day of backlog mails processing :)
 
-> The report is just trying to say that "*pkt" is dereferenced inside the call to "memset" and checked for being null one line later.
+> Please, remove some grot such as this:
+> 
+> > +	if (kevent_cache)
+> > +		k = kmem_cache_alloc(kevent_cache, mask);
+> > +	else
+> > +		k = kzalloc(sizeof(struct kevent), mask);
+>  ...
+> > +	if (kevent_cache)
+> > +		kmem_cache_free(kevent_cache, k);
+> > +	else
+> > +		kfree(k);
+> 
+> Instead, make this:
+> 
+> > +	kevent_cache = kmem_cache_create("kevent_cache", 
+> > +			sizeof(struct kevent), 0, 0, NULL, NULL);
+> > +	if (!kevent_cache)
+> > +		err = -ENOMEM;
+> 
+> panic().  This is consistent with how other core subsystems handle
+> SLAB cache creation failures.
 
-This is really odd :) One should have used kzalloc() anyway.
+Ok.
 
-Hannes
+> I also think that if we accept this work, it should be first class
+> citizen with no config options and no ifdefs scattered all over.
+> Either this is how we do network AIO or it is not.
+> 
+> I've looked only briefly at Ulrich Drepper's AIO proposal in his OLS
+> slides, although the DMA bits do not initially strike me as such a hot
+> idea.  I haven't wrapped my brain much around this new stuff, so I'm
+> not going to touch on it much more just yet.
+
+Yes, his idea of dma alloc is extremely good.
+I manage it with quite big overhead in kevent unfortunately.
+All other topics are fully covered with kevent (except nice userspace
+API of course :) )
+
+> The practical advantage kevent has over any new proposal is that 1)
+> implementation exists :) and 2) several types of test applications and
+> performance measurements have been made against it which usually
+> flushes out the worst design issues.
+
+I will clean code up and resubmit today.
+Thank you.
+
+-- 
+	Evgeniy Polyakov

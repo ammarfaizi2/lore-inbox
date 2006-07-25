@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWGYXTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWGYXXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWGYXTE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWGYXTD
+	id S1030249AbWGYXXU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWGYXXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:19:03 -0400
-Received: from mga02.intel.com ([134.134.136.20]:30510 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030247AbWGYXTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:19:01 -0400
-X-IronPort-AV: i="4.07,181,1151910000"; 
-   d="scan'208"; a="104263251:sNHT4214249256"
-Date: Tue, 25 Jul 2006 16:18:54 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: linux-acpi@vger.kernel.org
-Cc: len.brown@intel.com, akpm@osdl.org, zippel@linux-m68k.org,
-       rdunlap@xenotime.net, linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
-Message-Id: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jul 2006 19:23:20 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:17897 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030249AbWGYXXT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 19:23:19 -0400
+Message-ID: <44C6A7B7.8010604@zytor.com>
+Date: Tue, 25 Jul 2006 16:22:31 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Neil Horman <nhorman@tuxdriver.com>
+CC: Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+References: <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain> <44C69C2E.7000609@zytor.com> <20060725231043.GA4661@localhost.localdomain>
+In-Reply-To: <20060725231043.GA4661@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----
-the build options submitted for 2.6.18-rcX for acpiphp and the dock
-module are not quite right.  Can you please review this patch and 
-make sure this makes sense?  I'd like this pushed to Linus as 
-soon as possible.  
+Neil Horman wrote:
+>>>
+>> Quick hacks are frowned upon in the Linux universe.  The kernel-user 
+>> space interface is supposed to be stable, and thus a hack like this has 
+>> to be maintained indefinitely.
+>>
+>> Putting temporary hacks like this in is not a good idea.
+>>
+> Only if you make the mental leap that this is a hack; its not.  Its a new
+> feature for a driver.  mmap on device drivers is a well known and understood
+> interface.  There is nothing hackish about it.  And there is no need for it to
+> be temporary either.  Why shouldn't the rtc driver be able to export a monotonic
+> counter via the mmap interface? mmtimer does it already, as do many other
+> drivers.  Theres nothing unstable about this interface, and it need not be short
+> lived.  It can live in perpituity, and applications can choose to use it, or
+> migrate away from it should something else more efficient become available (a
+> gettimeofday vsyscall).  More importantly, it can continue to be used in those
+> situations where a vsyscall is not feasable, or simply maps to the nominal slow
+> path kernel trap that one would find to heavy-weight to use in comparison to an
+> mmaped page.
+> 
 
-Change the build options for acpiphp so that it may build without
-being dependent on the ACPI_DOCK option, but yet does not allow
-the option of acpiphp being built-in when dock is built as a 
-module.
+The reason it is a hack is because you're hard-coding the fact that 
+you're taking a global, periodic interrupt.  Yes, it can be dealt with 
+scheduler hacks in tickless case, but that seems really heavyweight.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
----
- drivers/pci/hotplug/Kconfig |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
---- 2.6-git.orig/drivers/pci/hotplug/Kconfig
-+++ 2.6-git/drivers/pci/hotplug/Kconfig
-@@ -74,9 +74,10 @@ config HOTPLUG_PCI_IBM
- 
- 	  When in doubt, say N.
- 
-+if ACPI_DOCK=n
- config HOTPLUG_PCI_ACPI
- 	tristate "ACPI PCI Hotplug driver"
--	depends on ACPI_DOCK && HOTPLUG_PCI
-+	depends on ACPI && HOTPLUG_PCI
- 	help
- 	  Say Y here if you have a system that supports PCI Hotplug using
- 	  ACPI.
-@@ -85,6 +86,20 @@ config HOTPLUG_PCI_ACPI
- 	  module will be called acpiphp.
- 
- 	  When in doubt, say N.
-+endif
-+if ACPI_DOCK!=n
-+config HOTPLUG_PCI_ACPI
-+	tristate "ACPI PCI Hotplug driver"
-+	depends on HOTPLUG_PCI && ACPI_DOCK
-+	help
-+	  Say Y here if you have a system that supports PCI Hotplug using
-+	  ACPI.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called acpiphp.
-+
-+	  When in doubt, say N.
-+endif
- 
- config HOTPLUG_PCI_ACPI_IBM
- 	tristate "ACPI PCI Hotplug driver IBM extensions"
+	-hpa

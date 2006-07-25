@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWGYU1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWGYU3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbWGYU1r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 16:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWGYU1q
+	id S1751517AbWGYU3h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 16:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751532AbWGYU3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 16:27:46 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:33710 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751562AbWGYU1p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 16:27:45 -0400
-Date: Tue, 25 Jul 2006 13:18:45 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] i386 TIF flags for debug regs and io bitmap in ctxsw (v2)
-Message-ID: <20060725201845.GH19928@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <200607251522_MC3-1-C616-70EB@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607251522_MC3-1-C616-70EB@compuserve.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Tue, 25 Jul 2006 16:29:37 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:19923 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751517AbWGYU3g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 16:29:36 -0400
+Message-ID: <44C67EB4.1030602@zytor.com>
+Date: Tue, 25 Jul 2006 13:27:32 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Typo in ub clause of devices.txt
+References: <20060725131759.14fdcd7e.zaitcev@redhat.com>
+In-Reply-To: <20060725131759.14fdcd7e.zaitcev@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck,
-
-On Tue, Jul 25, 2006 at 03:19:49PM -0400, Chuck Ebbert wrote:
+Pete Zaitcev wrote:
+> Replace "thrid" with "third".
 > 
-> > As for TIF_DEBUG, my patch is not clearing it. I don't think you can
-> > have HW breakpoints be inherited from one task to the other.
-> 
-> Looks like the debug regs get copied on fork and only cleared on exec
-> in flush_thread().  So this should be OK.  Please doublecheck.
-> 
-How is this supposed to work? You can set debug registers via ptrace().
-So A is ptracing B and sets up breakpoints in B. Now, if B forks C,
-C inherits the breakpoints of B. But what about the ptracing and re-parenting
-that is associated with this? If A does not know about C, I wonder how this
-could be work and be useful?
+> Signed-off-by: Pete Zaitcev
 
-> (The new TIF_DEBUG flag went into 2.8.18-rc, in case you didn't notice.)
+Please put device@lanana.org on the Cc: list for changes to devices.txt.
 
-I did not keep track but thanks or this update. That's great!
-
--- 
--Stephane
+	-hpa

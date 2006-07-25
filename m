@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWGYImV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWGYIqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWGYImV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 04:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWGYImV
+	id S932158AbWGYIqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 04:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWGYIqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 04:42:21 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:46983 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932140AbWGYImU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 04:42:20 -0400
-Date: Tue, 25 Jul 2006 01:42:19 -0700 (PDT)
-From: Trent Piepho <xyzzy@speakeasy.org>
-X-X-Sender: xyzzy@shell2.speakeasy.net
+	Tue, 25 Jul 2006 04:46:25 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:56389 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932158AbWGYIqY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 04:46:24 -0400
+Date: Tue, 25 Jul 2006 10:46:21 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: Mauro Carvalho Chehab <mchehab@infradead.org>, robfitz@273k.net,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       76306.1226@compuserve.com, fork0@t-online.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, rdunlap@xenotime.net,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       shemminger@osdl.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device
- corruption
-In-Reply-To: <20060724200855.603be3bb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0607250054410.18397@shell3.speakeasy.net>
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com> <20060713050541.GA31257@kroah.com>
- <20060712222407.d737129c.rdunlap@xenotime.net> <20060712224453.5faeea4a.akpm@osdl.org>
- <20060715230849.GA3385@localhost> <1153013464.4755.35.camel@praia>
- <20060724200855.603be3bb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [Patch] [mm] More driver core fixes for -mm
+Message-ID: <20060725104621.4bd0aa1a@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060725010852.75afe430.akpm@osdl.org>
+References: <20060720165911.42603374@gondolin.boeblingen.de.ibm.com>
+	<20060721152000.5a59813a@gondolin.boeblingen.de.ibm.com>
+	<20060725010852.75afe430.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006, Andrew Morton wrote:
-> On Sat, 15 Jul 2006 22:31:04 -0300
-> Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
->
-> > Em Sáb, 2006-07-15 às 23:08 +0000, Robert Fitzsimons escreveu:
-> > > The layout of struct video_device would change depending on whether
-> > > videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
-> > > the structure to get corrupted.
-> > Hmm... good point! However, I the proper solution would be to trust on
-> > CONFIG_VIDEO_V4L1_COMPAT or CONFIG_VIDEO_V4L1 instead. it makes no sense
-> > to keep a pointer to an unsupported callback, when V4L1 is not selected.
-> >
->
-> So I've lost the plot with all of this.  Does the current git-dvb contain
-> the desired fixes?
+On Tue, 25 Jul 2006 01:08:52 -0700,
+Andrew Morton <akpm@osdl.org> wrote:
 
-The problem was that the v4l code in general was not using
-CONFIG_VIDEO_V4L1* like it should, but was detecting V4L1 support based on
-whether on not the V4L1 header file had been included.
+> Removing symlinks seems like a good idea.  Leaving them around might cause
+> a subsequent driver load to fail due to EEXIST (assuming that the caller
+> checks error codes, as if).
+> 
+> I assume you're referring to error paths here?
 
-Some drivers didn't depend on V4L1 in Kconfig, and would include the V4L1
-header when V4L1 was off.  This caused some code to think V4L1 was off and
-some code to think it was on.
+Yes, that was my reasoning.
 
-This caused a serious bug with inconsistent defintions of struct
-video_device, as well as other problems.
+> But I made bus_attach_device() convert the positive return value to zero. 
+> See
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/hot-fixes/drivers-base-check-errors-fix.patch.
 
-I posted a patch that fixed the video_device problem, then Mauro made a
-comprehensive patch that incorporated this fix and well as all the other
-code that was using V4L1 when it shouldn't.  That patch is in the v4l-dvb
-Mercurial repository, but not moved on to git yet.
+Missed that, sorry.
 
-> Do we expect this will fix the various DVB crashes which people (including
-> Alex) have reported?
+> 
+> Is there a reason to propagate this irritating "1" back out of
+> bus_attach_device() as well?
 
-This problem would only appear if VIDEO_V4L1 was turned off.  If it was on,
-then all the code would agree it was on, and there would be no problems.
-If the crash is still there when VIDEO_V4L1 = y, then it's not related to
-this bug.
+Probably not. Nobody cares whether the device was bound to a driver or
+not.
 
-If VIDEO_V4L1 was turned off, then some drivers (one of which is bttv)
-would have a different struct video_device than the video core code.  This
-would break things so completely that it could crash just about anywhere.
+-- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

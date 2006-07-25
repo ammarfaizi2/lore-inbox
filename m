@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWGYTWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWGYTVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWGYTWA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWGYTV7
+	id S964826AbWGYTVt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWGYTVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:21:59 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:33032 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964829AbWGYTV7 (ORCPT
+	Tue, 25 Jul 2006 15:21:49 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17224 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964826AbWGYTVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:21:59 -0400
-Date: Tue, 25 Jul 2006 15:21:38 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725192138.GI4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com>
+	Tue, 25 Jul 2006 15:21:48 -0400
+Date: Tue, 25 Jul 2006 21:21:38 +0200
+From: Jens Axboe <axboe@suse.de>
+To: gmu 2k6 <gmu2006@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: i686 hang on boot in userspace
+Message-ID: <20060725192138.GD4044@suse.de>
+References: <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com> <20060725080807.GF4044@suse.de> <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com> <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com> <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com> <20060725112955.GR4044@suse.de> <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com> <20060725125201.GT4044@suse.de> <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com> <f96157c40607251158x29f9632ey85d371a1a5a074b8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44C66C91.8090700@zytor.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <f96157c40607251158x29f9632ey85d371a1a5a074b8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 12:10:09PM -0700, H. Peter Anvin wrote:
-> Neil Horman wrote:
-> >
-> >In general I agree, but that only works if you operate on a platform that
-> >supports virtual syscalls, and has vdso configured.  I'm not overly 
-> >familiar
-> >with vdso, but I didn't think vdso could be supported on all 
-> >platforms/arches.
-> >This seems like it might be a nice addition in those cases.
-> >
-> 
-> Not really.  This introduces a potentially very difficult support 
-> user-visible interface.  Consider a tickless kernel -- you might end up 
-> taking tick interrupts ONLY to update this page, since you don't have 
-> any way of knowing when userspace wants to look at it.
-> 
-Well, you do actually know when they want to look at it.  The rtc driver only
-unmasks its interrupt when a user space process has opened the device and sent
-it a RTC_UIE ON or RTC_PIE_ON (or other shuch ioctl).  So if you open /dev/rtc,
-and memory map the page, but never enable a timer method, then every read of the
-page returns zero.  The only overhead this patch is currently adding, execution
-time-wise is the extra time it takes to write to a the shared page variable.  If
-the timer tick interrupt is executing, its because someone is reading tick data,
-or plans to very soon.
+On Tue, Jul 25 2006, gmu 2k6 wrote:
+> thanks Jens,
+> 7b30f09245d0e6868819b946b2f6879e5d3d106b
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7b30f09245d0e6868819b946b2f6879e5d3d106b
+> has fixed the problem (maybe together with the other 3 changes in HEAD
+> as the 2nd patch in this thread did not work in the first place or maybe
+> it is a little bit different, no time to check right now).
 
-Neil
+It's an identical change, so the one sent you should work as well.
+Perhaps you botched that one test? These things happen, it's happened to
+me as well :-)
 
-> 	-hpa
+The change definitely fixed it for me.
 
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+Jens Axboe
+

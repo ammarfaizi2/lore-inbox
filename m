@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWGYPKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWGYPMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWGYPKx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGYPKw
+	id S932411AbWGYPMc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWGYPMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:10:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57262 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932410AbWGYPKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:10:52 -0400
-Subject: Re: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capability
-	checker
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Cc: vvs@sw.ru, James.Bottomley@SteelEye.com, akpm@osdl.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
-References: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 17:10:42 +0200
-Message-Id: <1153840242.8932.33.camel@laptopd505.fenrus.org>
+	Tue, 25 Jul 2006 11:12:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35798 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932411AbWGYPMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 11:12:31 -0400
+Date: Tue, 25 Jul 2006 11:11:45 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp status report
+Message-ID: <20060725151145.GG14964@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>,
+	LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
+	Pavel Machek <pavel@ucw.cz>
+References: <200607251325.14747.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607251325.14747.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 25, 2006 at 01:25:14PM +0200, Rafael J. Wysocki wrote:
 
-> +1.	Fixed a bug in megaraid_init_mbox().
-> +	Customer reported "garbage in file on x86_64 platform".
-> +	Root Cause: the driver registered controllers as 64-bit DMA
-> capable
-> +	for those which are not support it.
-> +	Fix: Made change in the function inserting identification
-> machanism
-> +	identifying 64-bit DMA capable controllers.
-> +
+ > V. Freeing memory
+ > 
+ > Step (3) of the suspend procedure is completed by calling the same
+ > functions that are normally used by kswapd, but in a slightly different way.
+ > The part of swsusp responsible for that is referred to as 'the memory
+ > shrinker' and it may sometimes be called by the suspend-to-RAM code as well
 
-Hi,
+This isn't actually necessary though is it ?
+(Ie, it's a bug that needs fixing?)
 
-unfortunately your patch has been corrupted by your email program,
-and as such can't be applied by the scsi maintainer. It might be 
-a good idea to fix your email program and then resend quickly before 
-James notices ;)
+Good write-up btw, it may even be a nice addition to Documentation/power/  ?
 
-Greetings,
-   Arjan van de Ven
+		Dave
 
+-- 
+http://www.codemonkey.org.uk

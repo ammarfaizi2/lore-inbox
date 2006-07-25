@@ -1,100 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWGYG0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWGYG03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751458AbWGYG0o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWGYG0n
+	id S1751444AbWGYG03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWGYG03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:26:43 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34227 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751446AbWGYG0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:26:42 -0400
-Date: Tue, 25 Jul 2006 10:26:29 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060725062625.GA29242@2ka.mipt.ru>
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060724.231708.01289489.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 25 Jul 2006 10:26:33 +0400 (MSD)
+	Tue, 25 Jul 2006 02:26:29 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:36241 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751444AbWGYG03
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:26:29 -0400
+Message-ID: <44C5B981.2050909@zytor.com>
+Date: Mon, 24 Jul 2006 23:26:09 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] Add efi e820 memory mapping on x86 [try #1]
+References: <44A04F5F.8030405@ed-soft.at> <Pine.LNX.4.64.0606261430430.3927@g5.osdl.org> <44A0CCEA.7030309@ed-soft.at> <Pine.LNX.4.64.0606262318341.3927@g5.osdl.org> <44A304C1.2050304@zytor.com> <m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com> <44A8058D.3030905@zytor.com> <m11wt3983j.fsf@ebiederm.dsl.xmission.com> <44AB8878.7010203@ed-soft.at> <m1lkr83v73.fsf@ebiederm.dsl.xmission.com> <44B6BF2F.6030401@ed-soft.at> <Pine.LNX.4.64.0607131507220.5623@g5.osdl.org> <44B73791.9080601@ed-soft.at> <Pine.LNX.4.64.0607140901200.5623@g5.osdl.org> <44B9FF02.3020600@ed-soft.at> <20060724212911.32dd3bc0.akpm@osdl.org> <Pine.LNX.4.64.0607242227340.29649@g5.osdl.org> <44C5AD50.1020305@zytor.com> <Pine.LNX.4.64.0607242241390.29649@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0607242241390.29649@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 24, 2006 at 11:17:08PM -0700, David Miller (davem@davemloft.net) wrote:
-> From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> Date: Sun, 9 Jul 2006 17:24:46 +0400
+Linus Torvalds wrote:
 > 
-> > This patch includes core kevent files:
-> >  - userspace controlling
-> >  - kernelspace interfaces
-> >  - initialisation
-> >  - notification state machines
-> > 
-> > It might also inlclude parts from other subsystem (like network related
-> > syscalls so it is possible that it will not compile without other
-> > patches applied).
-> > 
-> > Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> On Mon, 24 Jul 2006, H. Peter Anvin wrote:
+>> You're forgetting PXE.
 > 
-> I like this work a lot, as I've stated before.  The data structures
-> look like they will scale well and it takes care of all the limitations
-> that networking in particular seems to have in this area.
+> I don't think I'm forgetting it as much as just repressing it. I don't 
+> think it actually affects the kernel, does it? I assume the only reason 
+> you care is that it might affect a bootloader?
 > 
-> I have to say that the user API is not the nicest in the world.  Yet,
-> at the same time, I cannot think of a better one :)
 
-Hi David. I see you have a day of backlog mails processing :)
+Well, one could write an UNDI (PXE) network driver for Linux.  Whether 
+or not one would want to is another matter...
 
-> Please, remove some grot such as this:
-> 
-> > +	if (kevent_cache)
-> > +		k = kmem_cache_alloc(kevent_cache, mask);
-> > +	else
-> > +		k = kzalloc(sizeof(struct kevent), mask);
->  ...
-> > +	if (kevent_cache)
-> > +		kmem_cache_free(kevent_cache, k);
-> > +	else
-> > +		kfree(k);
-> 
-> Instead, make this:
-> 
-> > +	kevent_cache = kmem_cache_create("kevent_cache", 
-> > +			sizeof(struct kevent), 0, 0, NULL, NULL);
-> > +	if (!kevent_cache)
-> > +		err = -ENOMEM;
-> 
-> panic().  This is consistent with how other core subsystems handle
-> SLAB cache creation failures.
+It obviously affects the bootloader.
 
-Ok.
-
-> I also think that if we accept this work, it should be first class
-> citizen with no config options and no ifdefs scattered all over.
-> Either this is how we do network AIO or it is not.
-> 
-> I've looked only briefly at Ulrich Drepper's AIO proposal in his OLS
-> slides, although the DMA bits do not initially strike me as such a hot
-> idea.  I haven't wrapped my brain much around this new stuff, so I'm
-> not going to touch on it much more just yet.
-
-Yes, his idea of dma alloc is extremely good.
-I manage it with quite big overhead in kevent unfortunately.
-All other topics are fully covered with kevent (except nice userspace
-API of course :) )
-
-> The practical advantage kevent has over any new proposal is that 1)
-> implementation exists :) and 2) several types of test applications and
-> performance measurements have been made against it which usually
-> flushes out the worst design issues.
-
-I will clean code up and resubmit today.
-Thank you.
-
--- 
-	Evgeniy Polyakov
+	-hpa

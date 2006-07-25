@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWGYTIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWGYTKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbWGYTIK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWGYTII
+	id S964818AbWGYTKA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:10:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWGYTKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:08:08 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:9736 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S964830AbWGYTIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:08:06 -0400
-Date: Tue, 25 Jul 2006 15:07:47 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+	Tue, 25 Jul 2006 15:10:00 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:18073 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964818AbWGYTJ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:09:59 -0400
+Message-ID: <44C66C36.2010600@zytor.com>
+Date: Tue, 25 Jul 2006 12:08:38 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Neil Horman <nhorman@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
 Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725190747.GH4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <857D7DE9-D1F6-4A66-91F2-BC4D9044D42C@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <857D7DE9-D1F6-4A66-91F2-BC4D9044D42C@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>	 <1153850139.8932.40.camel@laptopd505.fenrus.org>	 <20060725182208.GD4608@hmsreliant.homelinux.net>	 <1153852375.8932.41.camel@laptopd505.fenrus.org>	 <20060725184328.GF4608@hmsreliant.homelinux.net> <1153853596.8932.44.camel@laptopd505.fenrus.org>
+In-Reply-To: <1153853596.8932.44.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 08:56:14PM +0200, Segher Boessenkool wrote:
-> >>Similar functionality is already available via VDSO on
-> >>platforms that support it (currently PowerPC and AMD64?) --
-> >>seems like a better way forward.
-> >>
-> >In general I agree, but that only works if you operate on a  
-> >platform that
-> >supports virtual syscalls, and has vdso configured.
+Arjan van de Ven wrote:
 > 
-> That's why I said "a better way forward", not "this already
-> works everywhere".
+> well the idea that has been tossed about a few times is using a vsyscall
+> function that either calls into the kernel, or directly uses the hpet
+> page (which can be user mapped) to get time information that way... 
+> or even would use rdtsc in a way the kernel knows is safe (eg corrected
+> for the local cpu's speed and offset etc etc).
 > 
-> >I'm not overly familiar
-> >with vdso, but I didn't think vdso could be supported on all  
-> >platforms/arches.
-> 
-> Oh?  Which can not, and why?
-> 
-I'm sorry, I shouldn't say that vdso itself can't be supported, but rather a
-vsyscall that doesn't just wind up trapping into the kernel anyway.  Older
-systems without a hpet timer to map into user space jump immediately to mind.
-Arjan had mentioned a calibration on rdtsc as another alternative, which I had
-not considered, so this may all be moot, but I was worried that a vdso solution
-wouldn't always give the X guys what they were really after.
 
-Regards
-Neil
+x86-64 already does that, IIRC.
 
-> 
-> Segher
+	-hpa
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/

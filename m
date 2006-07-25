@@ -1,60 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWGYOsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWGYOuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWGYOsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 10:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWGYOsA
+	id S932375AbWGYOuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 10:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWGYOuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 10:48:00 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:30698 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932367AbWGYOr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 10:47:59 -0400
-Message-Id: <200607251447.k6PElsf1004520@laptop13.inf.utfsm.cl>
-To: "Joshua Hudson" <joshudson@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: what is necessary for directory hard links 
-In-Reply-To: Message from "Joshua Hudson" <joshudson@gmail.com> 
-   of "Mon, 24 Jul 2006 21:49:01 MST." <bda6d13a0607242149j4f1492ag47bd8e3e1f0607da@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Tue, 25 Jul 2006 10:47:54 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 25 Jul 2006 10:47:55 -0400 (CLT)
+	Tue, 25 Jul 2006 10:50:19 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:10018 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932375AbWGYOuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 10:50:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nCXLt49dmoZyF47Gt7lXYvhXpaudv6liHt3e4auWAcL4F24LrVxMpMZKlK1s770OvBCZGuIwCmepq0sHt3PSSpbWo2Yr8fp7ucLSEMwzNvAUuEetKt2OltjMEy0hPRnA+N9ERNAlsC/1UY4ubB/uEQIN4/JwM+OJfZgtcVDDnZY=
+Message-ID: <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com>
+Date: Tue, 25 Jul 2006 14:50:15 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: Re: i686 hang on boot in userspace
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060725125201.GT4044@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060725074107.GA4044@suse.de> <20060725080002.GD4044@suse.de>
+	 <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com>
+	 <20060725080807.GF4044@suse.de>
+	 <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com>
+	 <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com>
+	 <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com>
+	 <20060725112955.GR4044@suse.de>
+	 <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com>
+	 <20060725125201.GT4044@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson <joshudson@gmail.com> wrote:
+On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> On Tue, Jul 25 2006, gmu 2k6 wrote:
+> > On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> > >On Tue, Jul 25 2006, gmu 2k6 wrote:
+> > >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
+> > >> compared to -git6
+> > >> which seems to have correctly booted by accident the lastime. timing
+> > >issues
+> > >> I guess.
+> > >
+> > >I will try and reproduce it here now. It seems to be in between commit
+> > >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
+> > >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could also
+> > >be bad.
+> > >
+> > >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
+> > >good, so you can try and verify that
+> > >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
+> > >two. It's only about 6 commits, so should be quick enough to do.
+> >
+> > 1) no luck with remote serial console
+> > 2) netconsole does not work although connecting to the listener with netcat
+> > and
+> > sending strings works
+> > I'm gonna try via physical rs232 9pins and see how that works.
+> > afterwards I will try to bisect the revisions you mentioned.
+> >
+> > btw, the issue seems to come and go as I managed to boot log into a .17-git6
+> > kernel or is timing-dependent.
+>
+> I can reproduce it, you don't have to spend more time on bisecting or
+> testing. This should fix it:
+>
+> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> index 1c4df22..1eac041 100644
+> --- a/drivers/block/cciss.c
+> +++ b/drivers/block/cciss.c
+> @@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
+>         CommandList_struct *cmd = rq->completion_data;
+>         ctlr_info_t *h = hba[cmd->ctlr];
+>         unsigned long flags;
+> +       request_queue_t *q;
+>         u64bit temp64;
+>         int i, ddir;
+>
+> @@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
+>         printk("Done with %p\n", rq);
+>  #endif                         /* CCISS_DEBUG */
+>
+> +       q = rq->q;
+> +
+>         add_disk_randomness(rq->rq_disk);
+>         spin_lock_irqsave(&h->lock, flags);
+>         end_that_request_last(rq, rq->errors);
+>         cmd_free(h, cmd, 1);
+> +       blk_start_queue(q);
+>         spin_unlock_irqrestore(&h->lock, flags);
+>  }
+>
+>
+> A better fix would rework the start_queue logic entirely in the driver,
+> but the above should get you running for now. I'll take a further look.
 
-[...]
+this four-liner seems to fix it:
+- I can boot
+- log in
+- git-status works
+- svn up works
 
-> Maybe someday I'll work out a system by which much less is locked.
-> Conceptually, all that is requred to lock for the algorithm
-> to work is creating hard-links to directories and renaming directories
-> cross-directory.
+as my last mail said the 2nd patch with the new function introduced
+did hang cciss
+on driver init before printing any drive info.
 
-Some 40 years of filesystem development without finding a solution to that
-conundrum would make that quite unlikely, but you are certainly welcome to
-try.
-
-> > (which it isn't)
-> Counterexample? I should swear that any cycle created by rename must
-> pass through the new parent into the victim and back to the new
-> parent.
-
-Right. The problem is that the fan-out can be humongous. In the worst case
-(which you /have/ to handle right!) you need to look over /all/ the
-directories in the filesystem. Meanwhile, you can't allow any operation
-that changes the graph. Have you run fsck(8) lately? That should give you
-an order-of-magnitude estimate for the time it could take...
-
-Yes, in the "avergage case" it will be much, much less, but that is little
-comfort for people who get bitten by "not so average" cases.
-
-Remember that one of the things that made Linus unhappy with Minix was
-exactly that the filesystem was single-threaded. Today's requirements for
-Linux filesystem performance are /much/ higer than the ones of a lone hobby
-user...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+btw, I assume you have systems with SmartArray 6* at your disposal to
+test, right?
+I mean SuSE should have some as a distro vendor.

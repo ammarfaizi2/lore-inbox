@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWGYXPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWGYXTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbWGYXPL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWGYXPK
+	id S1030247AbWGYXTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 19:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWGYXTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:15:10 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:57802 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030246AbWGYXPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:15:08 -0400
-From: Bodo Eggert <7eggert@elstempel.de>
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
-To: Jesper Juhl <jesper.juhl@gmail.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Andrew Morton <akpm@osdl.org>, Mike Miller <mike.miller@hp.com>,
-       iss_storagedev@hp.com, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 26 Jul 2006 01:14:23 +0200
-References: <6CDJo-8vC-31@gated-at.bofh.it> <6CDSZ-h7-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-X-Troll: Tanz
-Message-Id: <E1G5W6u-000133-Lo@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+	Tue, 25 Jul 2006 19:19:03 -0400
+Received: from mga02.intel.com ([134.134.136.20]:30510 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030247AbWGYXTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 19:19:01 -0400
+X-IronPort-AV: i="4.07,181,1151910000"; 
+   d="scan'208"; a="104263251:sNHT4214249256"
+Date: Tue, 25 Jul 2006 16:18:54 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: linux-acpi@vger.kernel.org
+Cc: len.brown@intel.com, akpm@osdl.org, zippel@linux-m68k.org,
+       rdunlap@xenotime.net, linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+Message-Id: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+---
+the build options submitted for 2.6.18-rcX for acpiphp and the dock
+module are not quite right.  Can you please review this patch and 
+make sure this makes sense?  I'd like this pushed to Linus as 
+soon as possible.  
 
->> If we don't find any devices, we shouldn't print anything.
->>
-> I disagree.
-> I find it quite nice to be able to see that the driver loaded even if
-> it finds nothing. At least then when there's a problem, I can quickly
-> see that at least it is not because I didn't forget to load the
-> driver, it's something else. Saves time since I can start looking for
-> reasons why the driver didn't find anything without first spending
-> additional time checking if I failed to cause it to load for some
-> reason.
+Change the build options for acpiphp so that it may build without
+being dependent on the ACPI_DOCK option, but yet does not allow
+the option of acpiphp being built-in when dock is built as a 
+module.
 
-I disagree differently: the driver version is a function of the kernel
-version, and the load status can easily be obtained. Therefore I suggest
-never printing the version number from in-kernel drivers.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+ drivers/pci/hotplug/Kconfig |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-Maybe adding a debug kernel parameter that will cause module loads to be more
-verbose for all modules is more reasonable.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
-
-http://david.woodhou.se/why-not-spf.html
+--- 2.6-git.orig/drivers/pci/hotplug/Kconfig
++++ 2.6-git/drivers/pci/hotplug/Kconfig
+@@ -74,9 +74,10 @@ config HOTPLUG_PCI_IBM
+ 
+ 	  When in doubt, say N.
+ 
++if ACPI_DOCK=n
+ config HOTPLUG_PCI_ACPI
+ 	tristate "ACPI PCI Hotplug driver"
+-	depends on ACPI_DOCK && HOTPLUG_PCI
++	depends on ACPI && HOTPLUG_PCI
+ 	help
+ 	  Say Y here if you have a system that supports PCI Hotplug using
+ 	  ACPI.
+@@ -85,6 +86,20 @@ config HOTPLUG_PCI_ACPI
+ 	  module will be called acpiphp.
+ 
+ 	  When in doubt, say N.
++endif
++if ACPI_DOCK!=n
++config HOTPLUG_PCI_ACPI
++	tristate "ACPI PCI Hotplug driver"
++	depends on HOTPLUG_PCI && ACPI_DOCK
++	help
++	  Say Y here if you have a system that supports PCI Hotplug using
++	  ACPI.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called acpiphp.
++
++	  When in doubt, say N.
++endif
+ 
+ config HOTPLUG_PCI_ACPI_IBM
+ 	tristate "ACPI PCI Hotplug driver IBM extensions"

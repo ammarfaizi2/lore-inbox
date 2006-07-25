@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWGYTOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbWGYTQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWGYTOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWGYTOL
+	id S964820AbWGYTQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWGYTQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:14:11 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:29078 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S964840AbWGYTOJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:14:09 -0400
-Subject: Re: [patch] [resend] Fix swsusp with PNP BIOS
-From: Adam Belay <abelay@novell.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Ondrej Zary <linux@rainbow-software.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux List <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200607250923.18678.ncunningham@linuxmail.org>
-References: <200607242028.01666.linux@rainbow-software.org>
-	 <200607242325.50229.rjw@sisk.pl>
-	 <200607250923.18678.ncunningham@linuxmail.org>
+	Tue, 25 Jul 2006 15:16:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39337 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964820AbWGYTQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:16:04 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <20060725190743.GB31334@tuxdriver.com>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <1153850139.8932.40.camel@laptopd505.fenrus.org>
+	 <20060725182208.GD4608@hmsreliant.homelinux.net>
+	 <1153852375.8932.41.camel@laptopd505.fenrus.org>
+	 <20060725184328.GF4608@hmsreliant.homelinux.net>
+	 <1153853596.8932.44.camel@laptopd505.fenrus.org>
+	 <20060725190743.GB31334@tuxdriver.com>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 15:17:35 -0400
-Message-Id: <1153855056.6508.24.camel@localhost.localdomain>
+Organization: Intel International BV
+Date: Tue, 25 Jul 2006 21:16:02 +0200
+Message-Id: <1153854962.8932.49.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 09:23 +1000, Nigel Cunningham wrote:
-> Hi.
+On Tue, 2006-07-25 at 15:07 -0400, John W. Linville wrote:
+> On Tue, Jul 25, 2006 at 08:53:16PM +0200, Arjan van de Ven wrote:
+> > On Tue, 2006-07-25 at 14:43 -0400, Neil Horman wrote:
 > 
-> On Tuesday 25 July 2006 07:25, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > On Monday 24 July 2006 20:28, Ondrej Zary wrote:
-> > > Hello,
-> > > swsusp is unable to suspend my machine (DTK FortisPro TOP-5A notebook)
-> > > with kernel 2.6.17.5 because it's unable to suspend PNP device 00:16
-> > > (mouse).
-> > >
-> > > The problem is in PNP BIOS. pnp_bus_suspend() calls pnp_stop_dev() for
-> > > the device if the device can be disabled according to pnp_can_disable().
-> > > The problem is that pnpbios_disable_resources() returns -EPERM if the
-> > > device is not dynamic (!pnpbios_is_dynamic()) but insert_device() happily
-> > > sets PNP_DISABLE capability/flag even if the device is not dynamic. So we
-> > > try to disable non-dynamic devices which will fail.
-> > > This patch prevents insert_device() from setting PNP_DISABLE if the
-> > > device is not dynamic and fixes suspend on my system.
-> >
-> > Thanks for the patch.
-> >
-> > Pavel, what do you think?
+> > > alternative, which, as I mentioned before I would be happy to take a crack at,
+> > > if you would elaborate on your idea a little more.
+> > 
+> > well the idea that has been tossed about a few times is using a vsyscall
+> > function that either calls into the kernel, or directly uses the hpet
+> > page (which can be user mapped) to get time information that way... 
+> > or even would use rdtsc in a way the kernel knows is safe (eg corrected
+> > for the local cpu's speed and offset etc etc).
 > 
-> Adam is probably a better person to ask. (Added to cc).
+> Aren't both of those examples x86(_64)-specific?  Wouldn't a generic
+> solution be preferrable?
 
-I appreciate it.
-
-> 
-> Regards,
-> 
-> Nigel
-
-The patch looks good.  Maybe we should even do this check for
-PNP_CONFIGURABLE.
-
-Thanks,
-Adam
+the implementation is; the interface.. not so. other platforms can
+implement their optimal solution obviously...
 
 

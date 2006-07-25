@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWGYBzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWGYBzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWGYBzH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 21:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWGYBzH
+	id S932388AbWGYBzE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 21:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWGYBzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 21:55:07 -0400
-Received: from ns2.suse.de ([195.135.220.15]:16043 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932389AbWGYBzG (ORCPT
+	Mon, 24 Jul 2006 21:55:04 -0400
+Received: from cantor.suse.de ([195.135.220.2]:2284 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932388AbWGYBzB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 21:55:06 -0400
+	Mon, 24 Jul 2006 21:55:01 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 25 Jul 2006 11:54:27 +1000
-Message-Id: <1060725015427.21909@suse.de>
+Date: Tue, 25 Jul 2006 11:54:21 +1000
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 9] knfsd: knfsd: Add some missing newlines in printks
-References: <20060725114207.21779.patches@notabene>
+Subject: [PATCH 000 of 9] knfsd: Introduction
+Message-ID: <20060725114207.21779.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Following are 9 patches for knfsd in 2.6-18-rc1-mm2
+They should be held for 2.6.19.
 
-From: Greg Banks <gnb@melbourne.sgi.com>
+They comprise
+ 3 trivial cleanups from Greg Banks
+ Some fixes/cleanups to socket/version selection code.
+ Adding a 'portlist' file to the 'nfsd' filesystem.
+  This can be used to open and close sockets used by the nfs server.
+  New sockets are created in user-space and passed down by writing
+   an 'fd' number.
+  Old sockets are closed by finding the appropriate name in 'portlist'
+  and writing it back to 'portlist' preceded by a '-'.
 
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
+nfs-utils-1.0.9 can work with 'portlist' to e.g. control which
+protocol (udp or tcp) is used.  However it has other problems:
+ rpc.nfsd 0
+will no longer stop all nfsd threads.  So there will be a 1.0.10 shortly.
 
-### Diffstat output
- ./fs/nfsd/export.c       |    2 +-
- ./fs/nfsd/nfs4callback.c |    2 +-
- ./fs/nfsd/nfs4proc.c     |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+NeilBrown
 
-diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
---- .prev/fs/nfsd/export.c	2006-07-24 14:33:06.000000000 +1000
-+++ ./fs/nfsd/export.c	2006-07-24 14:33:06.000000000 +1000
-@@ -370,7 +370,7 @@ static int check_export(struct inode *in
- 	 */
- 	if (!(inode->i_sb->s_type->fs_flags & FS_REQUIRES_DEV) &&
- 	    !(flags & NFSEXP_FSID)) {
--		dprintk("exp_export: export of non-dev fs without fsid");
-+		dprintk("exp_export: export of non-dev fs without fsid\n");
- 		return -EINVAL;
- 	}
- 	if (!inode->i_sb->s_export_op) {
-
-diff .prev/fs/nfsd/nfs4callback.c ./fs/nfsd/nfs4callback.c
---- .prev/fs/nfsd/nfs4callback.c	2006-07-24 14:33:06.000000000 +1000
-+++ ./fs/nfsd/nfs4callback.c	2006-07-24 14:33:06.000000000 +1000
-@@ -131,7 +131,7 @@ xdr_error:                              
- #define READ_BUF(nbytes)  do { \
- 	p = xdr_inline_decode(xdr, nbytes); \
- 	if (!p) { \
--		dprintk("NFSD: %s: reply buffer overflowed in line %d.", \
-+		dprintk("NFSD: %s: reply buffer overflowed in line %d.\n", \
- 			__FUNCTION__, __LINE__); \
- 		return -EIO; \
- 	} \
-
-diff .prev/fs/nfsd/nfs4proc.c ./fs/nfsd/nfs4proc.c
---- .prev/fs/nfsd/nfs4proc.c	2006-07-24 14:33:06.000000000 +1000
-+++ ./fs/nfsd/nfs4proc.c	2006-07-24 14:33:06.000000000 +1000
-@@ -600,7 +600,7 @@ nfsd4_setattr(struct svc_rqst *rqstp, st
- 			&setattr->sa_stateid, CHECK_FH | WR_STATE, NULL);
- 		nfs4_unlock_state();
- 		if (status) {
--			dprintk("NFSD: nfsd4_setattr: couldn't process stateid!");
-+			dprintk("NFSD: nfsd4_setattr: couldn't process stateid!\n");
- 			return status;
- 		}
- 	}
+ [PATCH 001 of 9] knfsd: knfsd: Add some missing newlines in printks
+ [PATCH 002 of 9] knfsd: knfsd: Remove an unused variable from e_show().
+ [PATCH 003 of 9] knfsd: knfsd: Remove an unused variable from auth_unix_lookup()
+ [PATCH 004 of 9] knfsd: Add a callback for when last rpc thread finishes.
+ [PATCH 005 of 9] knfsd: Be more selective in which sockets lockd listens on.
+ [PATCH 006 of 9] knfsd: Remove nfsd_versbits as intermediate storage for desired versions.
+ [PATCH 007 of 9] knfsd: Separate out some parts of nfsd_svc, which start nfs servers.
+ [PATCH 008 of 9] knfsd: Define new nfsdfs file: portlist - contains list of ports.
+ [PATCH 009 of 9] knfsd: Allow sockets to be passed to nfsd via 'portlist'

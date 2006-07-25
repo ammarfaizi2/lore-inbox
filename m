@@ -1,158 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWGYCV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWGYC12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWGYCV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 22:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWGYCV7
+	id S932409AbWGYC12 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 22:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWGYC12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 22:21:59 -0400
-Received: from ns.suse.de ([195.135.220.2]:39041 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932407AbWGYCV7 (ORCPT
+	Mon, 24 Jul 2006 22:27:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4321 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932409AbWGYC11 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 22:21:59 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 25 Jul 2006 12:21:01 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jul 2006 22:27:27 -0400
+Date: Mon, 24 Jul 2006 19:27:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: petero2@telia.com, arjan@linux.intel.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [patch] lockdep: annotate pktcdvd natural device hierarchy
+Message-Id: <20060724192718.547a836e.akpm@osdl.org>
+In-Reply-To: <44BA1609.9050305@free.fr>
+References: <448875D1.5080905@free.fr>
+	<448D84C0.1070400@linux.intel.com>
+	<m3sllxtfbf.fsf@telia.com>
+	<1151000451.3120.56.camel@laptopd505.fenrus.org>
+	<m3u05kqvla.fsf@telia.com>
+	<1152884770.3159.37.camel@laptopd505.fenrus.org>
+	<m3odvrc2vo.fsf@telia.com>
+	<1152947098.3114.9.camel@laptopd505.fenrus.org>
+	<44B8C506.1000009@free.fr>
+	<m3ac7b6spp.fsf@telia.com>
+	<44BA1609.9050305@free.fr>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17605.32781.909741.310735@cse.unsw.edu.au>
-Cc: Theodore Tso <tytso@mit.edu>, jack@suse.cz, 20@madingley.org,
-       marcel@holtmann.org, linux-kernel@vger.kernel.org, sct@redhat.com,
-       adilger@clusterfs.com
-Subject: Re: Bad ext3/nfs DoS bug
-In-Reply-To: message from Andrew Morton on Monday July 24
-References: <20060718145614.GA27788@circe.esc.cam.ac.uk>
-	<1153236136.10006.5.camel@localhost>
-	<20060718152341.GB27788@circe.esc.cam.ac.uk>
-	<1153253907.21024.25.camel@localhost>
-	<20060719092810.GA4347@circe.esc.cam.ac.uk>
-	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
-	<17599.2754.962927.627515@cse.unsw.edu.au>
-	<20060720160639.GF25111@atrey.karlin.mff.cuni.cz>
-	<17600.30372.397971.955987@cse.unsw.edu.au>
-	<20060721170627.4cbea27d.akpm@osdl.org>
-	<20060722131759.GC7321@thunk.org>
-	<20060724185604.9181714c.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday July 24, akpm@osdl.org wrote:
-> On Sat, 22 Jul 2006 09:17:59 -0400
-> Theodore Tso <tytso@mit.edu> wrote:
-> > The net of all of this is the inode validity test should be:
-> > 
-> >  	(ino >= EXT3_FIRST_INO(sb)) && (ino <= ...->s_inodes_count))
-> 
-> I agree; I made that change.
-> 
-
-Yeh, my bad.  I double checked the second comparison but not the first
-:-(
-
-> > However, I would suggest that we *not* allow remote NFS users to get
-> > access to the journal inode or the resize inode, please?  That's only
-> > going to cause mischief of the DoS attack kind.....  
-> 
-> <looks at Neil>
-
-See, I had a funny feeling that someone was watching me ....
-
-I doubt there is much room for a real problem here.  
-To get to the point of IO on any of these files, you would need root
-access to the whole filesystem anyway.
-
-The follow patch should do what is suggested though.
+On Sun, 16 Jul 2006 12:33:45 +0200
+Laurent Riffard <laurent.riffard@free.fr> wrote:
 
 > 
-> <then looks at ext2>
+> Thank you Peter, the above patch removed the "possible recursive 
+> locking detected" message. 
+> 
+> Now, I've got a new one (will this thread never end ?):
+> 
+> pktcdvd: writer pktcdvd0 mapped to hdc
+> INFO: trying to register non-static key.
+> the code is fine but needs lockdep annotation.
+> turning off the locking correctness validator.
+>  [<c0104db5>] show_trace+0xd/0x10
+>  [<c0104dd1>] dump_stack+0x19/0x1c
+>  [<c012c2e1>] __lock_acquire+0x10f/0x9a5
+>  [<c012cbd7>] lock_acquire+0x60/0x80
+>  [<c0292131>] _spin_lock_irq+0x1f/0x2e
+>  [<c028fe86>] wait_for_completion+0x29/0xe5
+>  [<e1136299>] pkt_generic_packet+0x1bb/0x1e8 [pktcdvd]
+>  [<e113671a>] pkt_get_disc_info+0x3d/0x77 [pktcdvd]
+>  [<e113836f>] pkt_open+0xc3/0xbf4 [pktcdvd]
+>  [<c0159c36>] do_open+0xa1/0x3bd
+>  [<c015a179>] blkdev_open+0x1f/0x48
+>  [<c0151c87>] __dentry_open+0xb8/0x186
+>  [<c0151dc3>] nameidata_to_filp+0x1c/0x2e
+>  [<c0151e03>] do_filp_open+0x2e/0x35
+>  [<c0152ce1>] do_sys_open+0x40/0xbb
+>  [<c0152d88>] sys_open+0x16/0x18
+>  [<c0102c2d>] sysenter_past_esp+0x56/0x8d
 
-Hmmm. are two looks allowed in the same email?
+I assume this:
 
-NeilBrown
-
-----------------------------
-Make ext3 reject filehandles referring to special files.
-
-Inodes earlier than the 'first' inode (e.g. journal,
-resize) should be rejected early - except the root inode.
-
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/exportfs/expfs.c |    4 +++-
- ./fs/ext3/super.c     |   15 +++++++++++++++
- ./include/linux/fs.h  |    2 ++
- 3 files changed, 20 insertions(+), 1 deletion(-)
-
-diff .prev/fs/exportfs/expfs.c ./fs/exportfs/expfs.c
---- .prev/fs/exportfs/expfs.c	2006-07-25 12:19:21.000000000 +1000
-+++ ./fs/exportfs/expfs.c	2006-07-25 12:16:12.000000000 +1000
-@@ -392,7 +392,8 @@ out:
- }
+--- a/drivers/block/pktcdvd.c~pktcdvd-lockdep-fixes-fix
++++ a/drivers/block/pktcdvd.c
+@@ -348,7 +348,7 @@ static int pkt_generic_packet(struct pkt
+ 	char sense[SCSI_SENSE_BUFFERSIZE];
+ 	request_queue_t *q;
+ 	struct request *rq;
+-	DECLARE_COMPLETION(wait);
++	DECLARE_COMPLETION_ONSTACK(wait);
+ 	int err = 0;
  
- 
--static struct dentry *export_iget(struct super_block *sb, unsigned long ino, __u32 generation)
-+struct dentry *export_iget(struct super_block *sb, unsigned long ino,
-+			   __u32 generation)
- {
- 
- 	/* iget isn't really right if the inode is currently unallocated!!
-@@ -434,6 +435,7 @@ static struct dentry *export_iget(struct
- 	}
- 	return result;
- }
-+EXPORT_SYMBOL_GPL(export_iget);
- 
- 
- static struct dentry *get_object(struct super_block *sb, void *vobjp)
+ 	q = bdev_get_queue(pd->bdev);
+_
 
-diff .prev/fs/ext3/super.c ./fs/ext3/super.c
---- .prev/fs/ext3/super.c	2006-07-25 12:19:21.000000000 +1000
-+++ ./fs/ext3/super.c	2006-07-25 12:19:43.000000000 +1000
-@@ -554,6 +554,20 @@ static int ext3_show_options(struct seq_
- 	return 0;
- }
- 
-+
-+static struct dentry *ext3_get_dentry(struct super_block *sb, void *vobjp)
-+{
-+	__u32 *objp = vobjp;
-+	unsigned long ino = objp[0];
-+	__u32 generation = objp[1];
-+
-+	if (ino != EXT3_ROOT_INO && ino < EXT3_FIRST_INO(sb))
-+		return ERR_PTR(-ESTALE);
-+
-+	return export_iget(sb, ino, generation);
-+}
-+
-+
- #ifdef CONFIG_QUOTA
- #define QTYPE2NAME(t) ((t)==USRQUOTA?"user":"group")
- #define QTYPE2MOPT(on, t) ((t)==USRQUOTA?((on)##USRJQUOTA):((on)##GRPJQUOTA))
-@@ -622,6 +636,7 @@ static struct super_operations ext3_sops
- 
- static struct export_operations ext3_export_ops = {
- 	.get_parent = ext3_get_parent,
-+	.get_dentry = ext3_get_dentry,
- };
- 
- enum {
+will shut that up.
 
-diff .prev/include/linux/fs.h ./include/linux/fs.h
---- .prev/include/linux/fs.h	2006-07-25 12:19:21.000000000 +1000
-+++ ./include/linux/fs.h	2006-07-25 12:15:32.000000000 +1000
-@@ -1381,6 +1381,8 @@ extern struct dentry *
- find_exported_dentry(struct super_block *sb, void *obj, void *parent,
- 		     int (*acceptable)(void *context, struct dentry *de),
- 		     void *context);
-+struct dentry *export_iget(struct super_block *sb, unsigned long ino,
-+			   __u32 generation);
- 
- struct file_system_type {
- 	const char *name;
+Arjan, do we still need
+lockdep-annotate-pktcdvd-natural-device-hierarchy.patch?
+
+And could you please take a look at Peter's block_dev.c changes?  Closely,
+please - it'd be nice to get this right one of these days ;)
+

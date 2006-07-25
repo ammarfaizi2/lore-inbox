@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWGYE3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWGYEcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbWGYE3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 00:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWGYE3T
+	id S932433AbWGYEcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 00:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWGYEcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 00:29:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932434AbWGYE3T (ORCPT
+	Tue, 25 Jul 2006 00:32:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4793 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932433AbWGYEco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 00:29:19 -0400
-Date: Mon, 24 Jul 2006 21:29:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Cc: torvalds@osdl.org, ebiederm@xmission.com, hpa@zytor.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] Add efi e820 memory mapping on x86 [try #1]
-Message-Id: <20060724212911.32dd3bc0.akpm@osdl.org>
-In-Reply-To: <44B9FF02.3020600@ed-soft.at>
-References: <44A04F5F.8030405@ed-soft.at>
-	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
-	<44A0CCEA.7030309@ed-soft.at>
-	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
-	<44A304C1.2050304@zytor.com>
-	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
-	<44A8058D.3030905@zytor.com>
-	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>
-	<44AB8878.7010203@ed-soft.at>
-	<m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
-	<44B6BF2F.6030401@ed-soft.at>
-	<Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
-	<44B73791.9080601@ed-soft.at>
-	<Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
-	<44B9FF02.3020600@ed-soft.at>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 25 Jul 2006 00:32:44 -0400
+Subject: Re: [NFS] [PATCH 002 of 9] knfsd: knfsd: Remove an unused variable
+	from e_show().
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, Andrew Morton <akpm@osdl.org>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <17605.39934.963857.665398@cse.unsw.edu.au>
+References: <20060725114207.21779.patches@notabene>
+	 <1060725015432.21921@suse.de>
+	 <20060725041059.GA13294@filer.fsl.cs.sunysb.edu>
+	 <17605.39934.963857.665398@cse.unsw.edu.au>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1153801950.1547.657.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 25 Jul 2006 14:32:30 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jul 2006 10:55:30 +0200
-Edgar Hucek <hostmaster@ed-soft.at> wrote:
-
-> This Patch add an efi e820 memory mapping.
+On Tue, 2006-07-25 at 14:20, Neil Brown wrote:
+> On Tuesday July 25, jsipek@fsl.cs.sunysb.edu wrote:
+> > On Tue, Jul 25, 2006 at 11:54:32AM +1000, NeilBrown wrote:
+> > ...
 > 
+> Probably.  We just need a pointer value that is definitely not a
+> pointer to a valid cache_head object, and is not NULL.
+> (void*)1 seems a reasonable choice, but maybe #defineing something
+> would help.
+> 
+> Patches welcome.
 
-Why?
+This trivial patch compiles.
+--
 
->  /*
-> + * Make a e820 memory map
-> + */
-> +void __init efi_init_e820_map(void)
-> +{
-> +    efi_memory_desc_t *md;
-> +    unsigned long long start = 0;
-> +    unsigned long long end = 0;
-> +    unsigned long long size = 0;
+knfsd: Use SEQ_START_TOKEN instead of hardcoded magic (void*)1.
 
-I guess these should have type resource_size_t, given that they ultimately
-get remembered via request_resource().  But that has a good chance of
-breaking something, so let's leave it alone.
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
+---
 
-> +            add_memory_region(md->phys_addr, md->num_pages <<
-> EFI_PAGE_SHIFT, E820_ACPI);
+ fs/nfsd/export.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-The patch is wordwrapped and will not apply.
+Index: linux/fs/nfsd/export.c
+===================================================================
+--- linux.orig/fs/nfsd/export.c	2006-07-25 14:28:03.000000000 +1000
++++ linux/fs/nfsd/export.c	2006-07-25 14:29:14.526574385 +1000
+@@ -1086,7 +1086,7 @@ static void *e_start(struct seq_file *m,
+ 	exp_readlock();
+ 	read_lock(&svc_export_cache.hash_lock);
+ 	if (!n--)
+-		return (void*)1;
++		return SEQ_START_TOKEN;
+ 	hash = n >> 32;
+ 	export = n & ((1LL<<32) - 1);
+ 
+@@ -1110,7 +1110,7 @@ static void *e_next(struct seq_file *m, 
+ 	struct cache_head *ch = p;
+ 	int hash = (*pos >> 32);
+ 
+-	if (p == (void*)1)
++	if (p == SEQ_START_TOKEN)
+ 		hash = 0;
+ 	else if (ch->next == NULL) {
+ 		hash++;
+@@ -1180,7 +1180,7 @@ static int e_show(struct seq_file *m, vo
+ 	struct svc_export *exp = container_of(cp, struct svc_export, h);
+ 	svc_client *clp;
+ 
+-	if (p == (void*)1) {
++	if (p == SEQ_START_TOKEN) {
+ 		seq_puts(m, "# Version 1.1\n");
+ 		seq_puts(m, "# Path Client(Flags) # IPs\n");
+ 		return 0;
+
+
+
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+

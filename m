@@ -1,81 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbWGYBu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWGYBzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbWGYBu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 21:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWGYBu4
+	id S932396AbWGYBzj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 21:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWGYBzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 21:50:56 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:10140 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932380AbWGYBu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 21:50:56 -0400
-Date: Tue, 25 Jul 2006 10:53:39 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+	Mon, 24 Jul 2006 21:55:39 -0400
+Received: from mail.suse.de ([195.135.220.2]:13548 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932395AbWGYBzg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 21:55:36 -0400
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ebiederm@xmission.com
-Subject: Re: [RFC] ps command race fix
-Message-Id: <20060725105339.e8c25775.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060724182000.2ab0364a.akpm@osdl.org>
-References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724182000.2ab0364a.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jul 2006 11:54:57 +1000
+Message-Id: <1060725015457.21981@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 007 of 9] knfsd: Separate out some parts of nfsd_svc, which start nfs servers.
+References: <20060725114207.21779.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006 18:20:00 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-> 
-> It allocates a potentially-significant amount of memory per-task, until
-> that tasks exits (we could release it earlier, but the problem remains) and
-> it adds yet another global lock in the process exit path.
-> 
-I see.
 
-> >  5 files changed, 138 insertions(+), 62 deletions(-)
-> 
-> And it adds complexity and code.
-> 
-> So I think we're still seeking a solution to this.
-> 
-> Options might be:
-> 
-> a) Pin the most-recently-visited task in some manner, so that it is
->    still on the global task list when we return.  That's fairly simple to
->    do (defer the release_task()) but it affects task lifetime and visibility
->    in rare and worrisome ways.
-> 
-> b) Change proc_pid_readdir() so that it walks the pid_hash[] array
->    instead of the task list.  Need to do something clever when traversing
->    each bucket's list, but I'm not sure what ;) It's the same problem.
-> 
->    Possibly what we could do here is to permit the task which is walking
->    /proc to pin a particular `struct pid': take a ref on it then when we
->    next start walking one of the pid_hash[] chains, we _know_ that the
->    `struct pid' which we're looking for will still be there.  Even if it
->    now refers to a departed process.
-> 
-> c) Nuke the pid_hash[], convert the whole thing to a radix-tree. 
->    They're super-simple to traverse.  Not sure what we'd index it by
->    though.
-> 
-> I guess b) is best.
-> 
+Separate out the code for creating a new service, and for creating
+initial sockets.
 
-I tried b) at the first place. but it was not very good because 
-proc_pid_readdir() has to traverse all pids, not tgids. So, I had to access
-task_struct of the pid. I wanted to avoid to access task struct itself,
-my patch implemented a table made only from tgids.
+Some of these new functions will have multiple callers soon.
 
-But as you say, my patch is much intrusive. 
-I'll dig this more. thank you for advise.
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Thanks,
--Kame
+### Diffstat output
+ ./fs/nfsd/nfssvc.c |   82 ++++++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 57 insertions(+), 25 deletions(-)
 
-
-
-
+diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
+--- .prev/fs/nfsd/nfssvc.c	2006-07-24 15:17:36.000000000 +1000
++++ ./fs/nfsd/nfssvc.c	2006-07-24 15:20:39.000000000 +1000
+@@ -195,6 +195,53 @@ void nfsd_reset_versions(void)
+ 	}
+ }
+ 
++
++static inline int nfsd_create_serv(void)
++{
++	int err = 0;
++	lock_kernel();
++	if (nfsd_serv) {
++		nfsd_serv->sv_nrthreads++;
++		unlock_kernel();
++		return 0;
++	}
++
++	atomic_set(&nfsd_busy, 0);
++	nfsd_serv = svc_create(&nfsd_program, NFSD_BUFSIZE,
++			       nfsd_last_thread);
++	if (nfsd_serv == NULL)
++		err = -ENOMEM;
++	else
++		nfsd_serv->sv_nrthreads++;
++	unlock_kernel();
++	do_gettimeofday(&nfssvc_boot);		/* record boot time */
++	return err;
++}
++
++static inline int nfsd_init_socks(int port)
++{
++	int error;
++	if (!list_empty(&nfsd_serv->sv_permsocks))
++		return 0;
++
++	error = svc_makesock(nfsd_serv, IPPROTO_UDP, port);
++	if (error < 0)
++		return error;
++	error = lockd_up(IPPROTO_UDP);
++	if (error < 0)
++		return error;
++
++#ifdef CONFIG_NFSD_TCP
++	error = svc_makesock(nfsd_serv, IPPROTO_TCP, port);
++	if (error < 0)
++		return error;
++	error = lockd_up(IPPROTO_TCP);
++	if (error < 0)
++		return error;
++#endif
++	return 0;
++}
++
+ int
+ nfsd_svc(unsigned short port, int nrservs)
+ {
+@@ -216,32 +263,17 @@ nfsd_svc(unsigned short port, int nrserv
+ 	error = nfs4_state_start();
+ 	if (error<0)
+ 		goto out;
+-	if (!nfsd_serv) {
+-		nfsd_reset_versions();
+ 
+-		atomic_set(&nfsd_busy, 0);
+-		error = -ENOMEM;
+-		nfsd_serv = svc_create(&nfsd_program, NFSD_BUFSIZE,
+-				       nfsd_last_thread);
+-		if (nfsd_serv == NULL)
+-			goto out;
+-		error = svc_makesock(nfsd_serv, IPPROTO_UDP, port);
+-		if (error < 0)
+-			goto failure;
+-		error = lockd_up(IPPROTO_UDP);
+-		if (error < 0)
+-			goto failure;
+-#ifdef CONFIG_NFSD_TCP
+-		error = svc_makesock(nfsd_serv, IPPROTO_TCP, port);
+-		if (error < 0)
+-			goto failure;
+-		error = lockd_up(IPPROTO_TCP);
+-		if (error < 0)
+-			goto failure;
+-#endif
+-		do_gettimeofday(&nfssvc_boot);		/* record boot time */
+-	} else
+-		nfsd_serv->sv_nrthreads++;
++	nfsd_reset_versions();
++
++	error = nfsd_create_serv();
++
++	if (error)
++		goto out;
++	error = nfsd_init_socks(port);
++	if (error)
++		goto failure;
++
+ 	nrservs -= (nfsd_serv->sv_nrthreads-1);
+ 	while (nrservs > 0) {
+ 		nrservs--;

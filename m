@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751598AbWGYVUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWGYVUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751598AbWGYVUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 17:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWGYVUa
+	id S964854AbWGYVUI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 17:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWGYVUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 17:20:30 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:43191 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751598AbWGYVU3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 17:20:29 -0400
-Message-ID: <44C68AA8.6080702@zytor.com>
-Date: Tue, 25 Jul 2006 14:18:32 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 25 Jul 2006 17:20:07 -0400
+Received: from mail.gmx.de ([213.165.64.21]:53164 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751597AbWGYVUF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 17:20:05 -0400
+X-Authenticated: #428038
+Date: Tue, 25 Jul 2006 23:20:01 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Lang <dlang@digitalinsight.com>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+Message-ID: <20060725212001.GA5493@merlin.emma.line.org>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	David Lang <dlang@digitalinsight.com>,
+	Andrew de Quincey <adq_dvb@lidskialf.net>,
+	Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org
+References: <20060725034247.GA5837@kroah.com> <m33bcqdn5y.fsf@anduin.mandriva.com> <200607251123.40549.adq_dvb@lidskialf.net> <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz> <1153846619.8932.36.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: jg@laptop.org
-CC: Neil Horman <nhorman@tuxdriver.com>, Dave Airlie <airlied@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>	 <20060725182833.GE4608@hmsreliant.homelinux.net>	 <44C66C91.8090700@zytor.com>	 <20060725192138.GI4608@hmsreliant.homelinux.net>	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>	 <20060725194733.GJ4608@hmsreliant.homelinux.net>	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>	 <44C67E1A.7050105@zytor.com>	 <20060725204736.GK4608@hmsreliant.homelinux.net>	 <1153861094.1230.20.camel@localhost.localdomain>	 <44C6875F.4090300@zytor.com> <1153862087.1230.38.camel@localhost.localdomain>
-In-Reply-To: <1153862087.1230.38.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153846619.8932.36.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-07-17)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Gettys wrote:
-> On Tue, 2006-07-25 at 14:04 -0700, H. Peter Anvin wrote:
-> 
->> That's why I'm suggesting adding a cheap, possibly low-res, gettimeofday 
->> virtual system call in case there is no way for the kernel to provide 
->> userspace with a cheap full-resolution gettimeofday.  Obviously, if a 
->> high-quality gettimeofday is available, then they can be linked together 
->> by the kernel.
-> 
-> Low res is fine: X Timestamps are 1 millisecond values, and wrap after a
-> few hundred days.  What we do care about is monotonically increasing
-> values (until it wraps). On machines of the past, this was very
-> convenient; we'd just store a 32 bit value for clients to read, and not
-> bother with locking.  I guess these days, you'd at least have to protect
-> the store with a memory barrier, maybe....
-> 
-> It was amusing years ago to find toolkit bugs after applications had
-> been up for that long (32 bits of milliseconds)...  Yes, there are
-> applications and machines that stay up that long, really there are....
-> 
+On Tue, 25 Jul 2006, Arjan van de Ven wrote:
 
-Do you need 1 ms resolution, or is 10 ms good enough?
+> well you can do such a thing withing statistical bounds; however... if
+> the patch already is in -git (as is -stable policy normally).. it should
+> have been found there already...
 
-	-hpa
+The sad facts I learned from Debian bug #212762 (not kernel related) that
+culminated in CVE-2005-2335 (remote root exploit against older
+fetchmail) and from various qmail bugs Guninski discovered:
 
+- a bug need not necessarily be found soon after introduction
+
+- a bug report may not convey the hint "look at this NOW, the shit
+  already hit the fan"
+  (sorry, I meant to write: look NOW, it's urgent and important)
+
+- an automated test to catch non-trivial mistakes is non-trivial in
+  itself, and - what I've seen with another project I was involved with,
+  and more often than I found amusing - is that the test itself can be
+  buggy causing bogus results.
+
+That doesn't mean I object to automated tests, but "it should have been
+found by now" (because the source is open, someone could have tested it,
+whatever) just doesn't work.
+
+-- 
+Matthias Andree

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWGYBzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWGYB4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWGYBzE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 21:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWGYBzE
+	id S932391AbWGYB4L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 21:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWGYBzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 21:55:04 -0400
-Received: from cantor.suse.de ([195.135.220.2]:2284 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932388AbWGYBzB (ORCPT
+	Mon, 24 Jul 2006 21:55:47 -0400
+Received: from cantor.suse.de ([195.135.220.2]:6636 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932391AbWGYBzP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 21:55:01 -0400
+	Mon, 24 Jul 2006 21:55:15 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 25 Jul 2006 11:54:21 +1000
+Date: Tue, 25 Jul 2006 11:54:37 +1000
+Message-Id: <1060725015437.21933@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 000 of 9] knfsd: Introduction
-Message-ID: <20060725114207.21779.patches@notabene>
+Subject: [PATCH 003 of 9] knfsd: knfsd: Remove an unused variable from auth_unix_lookup()
+References: <20060725114207.21779.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following are 9 patches for knfsd in 2.6-18-rc1-mm2
-They should be held for 2.6.19.
 
-They comprise
- 3 trivial cleanups from Greg Banks
- Some fixes/cleanups to socket/version selection code.
- Adding a 'portlist' file to the 'nfsd' filesystem.
-  This can be used to open and close sockets used by the nfs server.
-  New sockets are created in user-space and passed down by writing
-   an 'fd' number.
-  Old sockets are closed by finding the appropriate name in 'portlist'
-  and writing it back to 'portlist' preceded by a '-'.
+From: Greg Banks <gnb@melbourne.sgi.com>
 
-nfs-utils-1.0.9 can work with 'portlist' to e.g. control which
-protocol (udp or tcp) is used.  However it has other problems:
- rpc.nfsd 0
-will no longer stop all nfsd threads.  So there will be a 1.0.10 shortly.
+Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-NeilBrown
+### Diffstat output
+ ./net/sunrpc/svcauth_unix.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
- [PATCH 001 of 9] knfsd: knfsd: Add some missing newlines in printks
- [PATCH 002 of 9] knfsd: knfsd: Remove an unused variable from e_show().
- [PATCH 003 of 9] knfsd: knfsd: Remove an unused variable from auth_unix_lookup()
- [PATCH 004 of 9] knfsd: Add a callback for when last rpc thread finishes.
- [PATCH 005 of 9] knfsd: Be more selective in which sockets lockd listens on.
- [PATCH 006 of 9] knfsd: Remove nfsd_versbits as intermediate storage for desired versions.
- [PATCH 007 of 9] knfsd: Separate out some parts of nfsd_svc, which start nfs servers.
- [PATCH 008 of 9] knfsd: Define new nfsdfs file: portlist - contains list of ports.
- [PATCH 009 of 9] knfsd: Allow sockets to be passed to nfsd via 'portlist'
+diff .prev/net/sunrpc/svcauth_unix.c ./net/sunrpc/svcauth_unix.c
+--- .prev/net/sunrpc/svcauth_unix.c	2006-07-24 14:33:40.000000000 +1000
++++ ./net/sunrpc/svcauth_unix.c	2006-07-24 14:33:40.000000000 +1000
+@@ -348,12 +348,9 @@ int auth_unix_forget_old(struct auth_dom
+ 
+ struct auth_domain *auth_unix_lookup(struct in_addr addr)
+ {
+-	struct ip_map key, *ipm;
++	struct ip_map *ipm;
+ 	struct auth_domain *rv;
+ 
+-	strcpy(key.m_class, "nfsd");
+-	key.m_addr = addr;
+-
+ 	ipm = ip_map_lookup("nfsd", addr);
+ 
+ 	if (!ipm)

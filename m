@@ -1,114 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWGYOuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWGYPDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWGYOuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 10:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWGYOuT
+	id S932280AbWGYPDp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYPDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 10:50:19 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:10018 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932375AbWGYOuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 10:50:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nCXLt49dmoZyF47Gt7lXYvhXpaudv6liHt3e4auWAcL4F24LrVxMpMZKlK1s770OvBCZGuIwCmepq0sHt3PSSpbWo2Yr8fp7ucLSEMwzNvAUuEetKt2OltjMEy0hPRnA+N9ERNAlsC/1UY4ubB/uEQIN4/JwM+OJfZgtcVDDnZY=
-Message-ID: <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com>
-Date: Tue, 25 Jul 2006 14:50:15 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Jens Axboe" <axboe@suse.de>
-Subject: Re: Re: i686 hang on boot in userspace
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060725125201.GT4044@suse.de>
+	Tue, 25 Jul 2006 11:03:45 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:28092 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751171AbWGYPDo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 11:03:44 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Subject: Re: [PATCH 3/3] scsi : megaraid_{mm,mbox}: a fix on "kernel unaligned access address" issue
+Date: Tue, 25 Jul 2006 17:05:25 +0200
+User-Agent: KMail/1.9.3
+Cc: sakurai_hiro@soft.fujitsu.com, James.Bottomley@steeleye.com, akpm@osdl.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Patro, Sumant" <Sumant.Patro@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>
+References: <890BF3111FB9484E9526987D912B261932E2D1@NAMAIL3.ad.lsil.com>
+In-Reply-To: <890BF3111FB9484E9526987D912B261932E2D1@NAMAIL3.ad.lsil.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1373950.GfavpgCPCk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060725074107.GA4044@suse.de> <20060725080002.GD4044@suse.de>
-	 <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com>
-	 <20060725080807.GF4044@suse.de>
-	 <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com>
-	 <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com>
-	 <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com>
-	 <20060725112955.GR4044@suse.de>
-	 <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com>
-	 <20060725125201.GT4044@suse.de>
+Message-Id: <200607251705.26361.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> On Tue, Jul 25 2006, gmu 2k6 wrote:
-> > On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> > >On Tue, Jul 25 2006, gmu 2k6 wrote:
-> > >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
-> > >> compared to -git6
-> > >> which seems to have correctly booted by accident the lastime. timing
-> > >issues
-> > >> I guess.
-> > >
-> > >I will try and reproduce it here now. It seems to be in between commit
-> > >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
-> > >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could also
-> > >be bad.
-> > >
-> > >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
-> > >good, so you can try and verify that
-> > >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
-> > >two. It's only about 6 commits, so should be quick enough to do.
-> >
-> > 1) no luck with remote serial console
-> > 2) netconsole does not work although connecting to the listener with netcat
-> > and
-> > sending strings works
-> > I'm gonna try via physical rs232 9pins and see how that works.
-> > afterwards I will try to bisect the revisions you mentioned.
-> >
-> > btw, the issue seems to come and go as I managed to boot log into a .17-git6
-> > kernel or is timing-dependent.
->
-> I can reproduce it, you don't have to spend more time on bisecting or
-> testing. This should fix it:
->
-> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-> index 1c4df22..1eac041 100644
-> --- a/drivers/block/cciss.c
-> +++ b/drivers/block/cciss.c
-> @@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
->         CommandList_struct *cmd = rq->completion_data;
->         ctlr_info_t *h = hba[cmd->ctlr];
->         unsigned long flags;
-> +       request_queue_t *q;
->         u64bit temp64;
->         int i, ddir;
->
-> @@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
->         printk("Done with %p\n", rq);
->  #endif                         /* CCISS_DEBUG */
->
-> +       q = rq->q;
-> +
->         add_disk_randomness(rq->rq_disk);
->         spin_lock_irqsave(&h->lock, flags);
->         end_that_request_last(rq, rq->errors);
->         cmd_free(h, cmd, 1);
-> +       blk_start_queue(q);
->         spin_unlock_irqrestore(&h->lock, flags);
->  }
->
->
-> A better fix would rework the start_queue logic entirely in the driver,
-> but the above should get you running for now. I'll take a further look.
+--nextPart1373950.GfavpgCPCk
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-this four-liner seems to fix it:
-- I can boot
-- log in
-- git-status works
-- svn up works
+Ju, Seokmann wrote:
+> Hi,
+>
+> This is a third patch which follows prevous two patches ([PATCH 1/3] and
+> [PATCH 2/3]).
 
-as my last mail said the 2nd patch with the new function introduced
-did hang cciss
-on driver init before printing any drive info.
+Either use a [0/3] mail that describes the complete changeset or just send=
+=20
+each patch as a reply to the previous one. This way they are grouped togeth=
+er=20
+in the mail programs. That keeps the inbox clean and the relationsship is=20
+clearer.
 
-btw, I assume you have systems with SmartArray 6* at your disposal to
-test, right?
-I mean SuSE should have some as a distro vendor.
+> Signed-Off By: Seokmann Ju <seokmann.ju@lsil.com>
+> ---
+> diff -Naur inqwithevpd/Documentation/scsi/ChangeLog.megaraid
+> unaligned/Documentation/scsi/ChangeLog.megaraid
+> --- inqwithevpd/Documentation/scsi/ChangeLog.megaraid	2006-07-24
+> 15:35:02.000000000 -0400
+> +++ unaligned/Documentation/scsi/ChangeLog.megaraid	2006-07-24
+> 15:41:49.000000000 -0400
+> @@ -66,6 +66,61 @@
+>  	Fix: MegaRAID F/W has fixed the problem and being process of
+> release,
+>  	soon. Meanwhile, driver will filter out the request.
+>
+> +3.	One of member in the data structure of the driver leads unaligne
+                                                                ^^^^^^^^
+> +	issue on 64-bit platform.
+> +	Customer reporeted "kernel unaligned access addrss" issue when
+                                                   ^^^^^^
+
+Typos.
+
+> +	> -----Original Message-----
+[...]
+
+This is IMHO too much data for an in-kernel changelog. I would vote for=20
+including this in your commit comments, then it will be available as git=20
+comment and not inflate the kernel tree itself with text that's useless for=
+=20
+most users. This is really only of interest if someone tries to find out=20
+something about the changes in this driver and then he's normally also=20
+interested in the diffs itself.
+
+Eike
+
+--nextPart1373950.GfavpgCPCk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBExjM2XKSJPmm5/E4RAgCiAJ4qxf95e9bSKuriFyssFEgKT+5ZxACeNGps
+0+v4e1TqA/WPF0SO1Lay5eY=
+=WyO2
+-----END PGP SIGNATURE-----
+
+--nextPart1373950.GfavpgCPCk--

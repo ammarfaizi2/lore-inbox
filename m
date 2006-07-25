@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWGYPOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWGYPPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932413AbWGYPOo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWGYPOo
+	id S932426AbWGYPPk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 11:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWGYPPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:14:44 -0400
-Received: from main.gmane.org ([80.91.229.2]:41371 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932413AbWGYPOn (ORCPT
+	Tue, 25 Jul 2006 11:15:40 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:24557 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932426AbWGYPPj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:14:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Lexington Luthor <Lexington.Luthor@gmail.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-Date: Tue, 25 Jul 2006 16:14:09 +0100
-Message-ID: <ea5cg6$g6d$1@sea.gmane.org>
-References: <a1426z@gawab.com> <200607251435.k6PEZwh7004162@laptop13.inf.utfsm.cl>
+	Tue, 25 Jul 2006 11:15:39 -0400
+Date: Tue, 25 Jul 2006 17:15:20 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where does kernel/resource.c.1 file come from?
+Message-ID: <20060725151520.GA15681@mars.ravnborg.org>
+References: <200607251554.50484.eike-kernel@sf-tec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-In-Reply-To: <200607251435.k6PEZwh7004162@laptop13.inf.utfsm.cl>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607251554.50484.eike-kernel@sf-tec.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst H. von Brand wrote:
-> Reiser 4 has been accepted in principle, so this isn't an issue at
-> all. There have been /serious/ technical objections to its current state,
-> tho...
+On Tue, Jul 25, 2006 at 03:54:45PM +0200, Rolf Eike Beer wrote:
+> Hi,
 > 
+> I'm playing around with my local copy of linux-2.6 git tree. I'm building 
+> everything to a separate directory using O= to keep "git status" silent.
+> 
+> After building I sometimes find a file kernel/resource.c.1 in my git tree that 
+> doesn't really belong there. Who is generating this file, for what reason and 
+> why doesn't it get created in my output directory?
 
-Where can I find this list of issues relating to the current version of 
-reiser4?
+I have never seen this myself so a bit puzzled???
+Is it only kernel/resource.c that generates the .1 file - or is it
+somethign that is general?
+Can you also try to make sure that this file is generated as part of the
+build process. git status before and after should do it.
 
-Thanks,
-LL
+If you can relaiably provoke it output of make V=1 would be usefull.
 
+	Sam

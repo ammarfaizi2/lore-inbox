@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWGYQZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWGYQ2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWGYQZI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 12:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWGYQZH
+	id S964788AbWGYQ2p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 12:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWGYQ2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 12:25:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:23707 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932449AbWGYQZG (ORCPT
+	Tue, 25 Jul 2006 12:28:45 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:32964 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S964785AbWGYQ2o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 12:25:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: VIA x86-64 bootlogs needed
-Date: Tue, 25 Jul 2006 18:24:30 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
+	Tue, 25 Jul 2006 12:28:44 -0400
+Message-ID: <44C646E5.30608@cs.wisc.edu>
+Date: Tue, 25 Jul 2006 11:29:25 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jens Axboe <axboe@suse.de>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] blk request timeout handler: mv scsi timer code to
+  block layer
+References: <1153820377.4166.22.camel@max> <20060725092400.GK4044@suse.de>
+In-Reply-To: <20060725092400.GK4044@suse.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607251824.30504.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jens Axboe wrote:
+> On Tue, Jul 25 2006, Mike Christie wrote:
+>> For the request based multipath I thought I would need to run some code
+>> when a command times out. I did not want to duplicate the scsi code, so
+>> I did the following patches which move the scsi timer code to the block
+>> layer then convert scsi.
+>>
+>> I have tested the scsi_error.c and normal paths with iscsi. And, I have
+>> tested the normal IO paths with libata. Since libata uses the strategy
+>> handler it needs to be tested a lot more. Some of the drivers that were
+>> touching the timeout_per_command field need to be compile tested still
+>> too. I converted them, but I think some still need a "#include
+>> blkdev.h".
+>>
+>> The patches only move the scsi timer code to the block layer and hook it
+>> in so others can use it. I have not started on the abort, reset and
+>> quiesce code since it is not really needed for multipath. I wanted to
+>> see if the timer code move was ok on its own without the rest of the
+>> scsi eh move because I do not want to manage the patches out of tree
+>> with the other request multipath patches. I also wanted to check if the
+>> scsi timer code was ok in general. Maybe scsi got it wrong and needed to
+>> be rewritten :)
+> 
+> Excellent, one item off my TODO list :-). I had pending code, but not
+> completed yet.
+> 
+> I had intended to make the timer addition/deletion implicit from the
+> activate/deactive rq paths, both to have it happen automatically and
+> from a cleanliness POV. That makes the timer only active when the
+> request is in the driver, and should also make the deletion implicit for
+> when the request gets requeued.
+> 
 
-For some APIC code rework I would like to collect some statistics on
-VIA APIC setups.
+Ok I did that, almost. For the normal request_fn/dequeue, requeue, and
+blk softiriq completion paths the block layer handles all the timer
+addition, deletion and restarting. There is one nasty path in the scsi,
+where we need to requeue the command only if the timer has not expired
+and for that I cheated and allowed scsi to do the blk_delete_timer() so
+it could check the return value. I will work on fixing that case for the
+next resend of the patches.
 
-If you have a system with VIA chipset running a recent (2.6.16+) x86-64 kernel 
-please boot the system with apic=verbose on the kernel command and send me
 
-- boot output (/var/log/boot.msg or dmesg -s100000000 output after boot)
-- dmidecode output
-- lspci  -v output
 
-Thanks,
-
--Andi

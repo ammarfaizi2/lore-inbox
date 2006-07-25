@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751468AbWGYS2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWGYS2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751468AbWGYS2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 14:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWGYS2Q
+	id S1751473AbWGYS2w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 14:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWGYS2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 14:28:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32917 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751468AbWGYS2P (ORCPT
+	Tue, 25 Jul 2006 14:28:51 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:15111 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751473AbWGYS2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 14:28:15 -0400
-Date: Tue, 25 Jul 2006 11:27:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       Albert Cahalan <acahalan@gmail.com>, arjan@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
-Subject: Re: utrace vs. ptrace
-In-Reply-To: <1153853342.4725.21.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0607251124080.29649@g5.osdl.org>
-References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com> 
- <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu> 
- <200607131521.52505.ak@suse.de>  <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
- <1153853342.4725.21.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jul 2006 14:28:50 -0400
+Date: Tue, 25 Jul 2006 14:28:33 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Message-ID: <20060725182833.GE4608@hmsreliant.homelinux.net>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 25 Jul 2006, Alan Cox wrote:
->
-> On Iau, 2006-07-13 at 12:05 -0700, Linus Torvalds wrote:
-> > Doing core-dumping in user space would be insane. It doesn't give _any_ 
-> > advantages, only disadvantages.
+On Tue, Jul 25, 2006 at 07:57:30PM +0200, Segher Boessenkool wrote:
+> >	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
+> >Geddys and some of the Xorg guys noted that they would be able to  
+> >stop using gettimeofday
+> >so frequently, if they had some other way to get a millisecond  
+> >resolution timer
+> >in userspace, one that they could perhaps read from a memory mapped  
+> >page.  I was
+> >right behind them and though that seemed like a reasonable  
+> >request,  so I've
+> >taken a stab at it.  This patch allows for a page to be mmaped  
+> >from /dev/rtc
+> >character interface, the first 4 bytes of which provide a regularly  
+> >increasing
+> >count, once every rtc interrupt.  The frequency is of course  
+> >controlled by the
+> >regular ioctls provided by the rtc driver. I've done some basic  
+> >testing on it,
+> >and it seems to work well.
 > 
-> It has a number of very real advantages in certain circumstances and the
-> only interface the kernel needs to provide is the debugger interface and
-> something to "kick" the debugger and reparent to it, or for that matter
-> it might even be viable just to pass the helper the fd of an anonymous
-> file holding the dump.
+> Similar functionality is already available via VDSO on
+> platforms that support it (currently PowerPC and AMD64?) --
+> seems like a better way forward.
+> 
+In general I agree, but that only works if you operate on a platform that
+supports virtual syscalls, and has vdso configured.  I'm not overly familiar
+with vdso, but I didn't think vdso could be supported on all platforms/arches.
+This seems like it might be a nice addition in those cases.
 
-What you're talking about is not core-dumping, it's just an extended 
-debugging interface. And it eeds to be _damn_ careful, exactly because it 
-tends to be something very security-sensitive.
+Neil
 
-> Taking out the kernel core dump support would be insane.
+> 
+> Segher
 
-Indeed.
-
-> We get customers who like to collect/process/do clever stuff with core
-> dumps and failure cases. We also get people who want to dump a core that
-> excludes the 14GB shared mmap of the database file as another example
-> where it helps.
-
-"ptrace" certainly isn't wondeful.
-
-What you often want is not a core-dump at all, but a "stop the process" 
-thing. It's really irritating that the core-dump is generated and the 
-process is gone, when it would often be a lot nicer if instead of 
-core-dumping, the process was just stopped and then you could attach to it 
-with gdb, and get the whole damn information (including things like access 
-to open file descriptors etc).
-
-But again, that has nothing to do with core-dumping. 
-
-			Linus
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

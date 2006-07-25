@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWGYAX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWGYAYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932346AbWGYAX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 20:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWGYAX7
+	id S932351AbWGYAYS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 20:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWGYAYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 20:23:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26060 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932346AbWGYAX6 (ORCPT
+	Mon, 24 Jul 2006 20:24:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:2205 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932351AbWGYAYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 20:23:58 -0400
-Date: Mon, 24 Jul 2006 17:20:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Josh Triplett <josht@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: vxfs_readdir locking incorrect: add lock_kernel() or remove
- unlock_kernel()?
-Message-Id: <20060724172040.c177f173.akpm@osdl.org>
-In-Reply-To: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
-References: <1153780937.31581.13.camel@josh-work.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Mon, 24 Jul 2006 20:24:16 -0400
+Subject: [PATCH] [mtrr] Add lock annotations for prepare_set and post_set
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Richard Gooch <rgooch@atnf.csiro.au>
+Content-Type: text/plain
+Date: Mon, 24 Jul 2006 17:24:16 -0700
+Message-Id: <1153787057.31581.29.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006 15:42:17 -0700
-Josh Triplett <josht@us.ibm.com> wrote:
+The functions prepare_set and post_set in kernel/cpu/mtrr/generic.c wrap the
+spinlock set_atomicity_lock: prepare_set returns with the lock held, and
+post_set releases the lock without acquiring it.  Add lock annotations to
+these two functions so that sparse can check callers for lock pairing, and so
+that sparse will not complain about these functions since they intentionally
+use locks in this manner.
 
-> Commit 7b2fd697427e73c81d5fa659efd91bd07d303b0e in the historical GIT
-> tree stopped calling the readdir member of a file_operations struct with
-> the big kernel lock held, and fixed up all the readdir functions to do
-> their own locking.  However, that change added calls to unlock_kernel()
-> in vxfs_readdir (fs/freevxfs/vxfs_lookup.c), but no call to
-> lock_kernel().
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ arch/i386/kernel/cpu/mtrr/generic.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-That would appear to imply that nobody has used freevxfs in four years.
+diff --git a/arch/i386/kernel/cpu/mtrr/generic.c b/arch/i386/kernel/cpu/mtrr/generic.c
+index 169ac8e..0b61eed 100644
+--- a/arch/i386/kernel/cpu/mtrr/generic.c
++++ b/arch/i386/kernel/cpu/mtrr/generic.c
+@@ -243,7 +243,7 @@ static DEFINE_SPINLOCK(set_atomicity_loc
+  * has been called.
+  */
+ 
+-static void prepare_set(void)
++static void prepare_set(void) __acquires(set_atomicity_lock)
+ {
+ 	unsigned long cr0;
+ 
+@@ -274,7 +274,7 @@ static void prepare_set(void)
+ 	mtrr_wrmsr(MTRRdefType_MSR, deftype_lo & 0xf300UL, deftype_hi);
+ }
+ 
+-static void post_set(void)
++static void post_set(void) __releases(set_atomicity_lock)
+ {
+ 	/*  Flush TLBs (no need to flush caches - they are disabled)  */
+ 	__flush_tlb();
 
->  Should vxfs_readdir call lock_kernel(), or should the
-> calls to unlock_kernel() go away?
 
-I don't see anything in there which needs the locking, apart from perhaps
-f_pos updates.  But it's probably best to add the lock_kernel() - this is a
-bugfixing exercise, not a remove-BKL-from-freevxfs exercise.

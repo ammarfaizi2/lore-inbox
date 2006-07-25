@@ -1,149 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWGYRlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWGYRr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWGYRlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWGYRlZ
+	id S1750806AbWGYRr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYRr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:41:25 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:28934 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750751AbWGYRlZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:41:25 -0400
-Date: Tue, 25 Jul 2006 13:41:00 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: a.zummo@towertech.it, jg@freedesktop.org, nhorman@tuxdriver.com
-Subject: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	Tue, 25 Jul 2006 13:47:59 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:453 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750806AbWGYRr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:47:59 -0400
+Subject: Re: utrace vs. ptrace
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Albert Cahalan <acahalan@gmail.com>, arjan@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
+References: <787b0d920607122243g24f5a003p1f004c9a1779f75c@mail.gmail.com>
+	 <200607131437.28727.ak@suse.de> <20060713124316.GA18852@elte.hu>
+	 <200607131521.52505.ak@suse.de>
+	 <Pine.LNX.4.64.0607131203450.5623@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jul 2006 19:49:02 +0100
+Message-Id: <1153853342.4725.21.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey-
-	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
-Geddys and some of the Xorg guys noted that they would be able to stop using gettimeofday
-so frequently, if they had some other way to get a millisecond resolution timer
-in userspace, one that they could perhaps read from a memory mapped page.  I was
-right behind them and though that seemed like a reasonable request,  so I've
-taken a stab at it.  This patch allows for a page to be mmaped from /dev/rtc
-character interface, the first 4 bytes of which provide a regularly increasing
-count, once every rtc interrupt.  The frequency is of course controlled by the
-regular ioctls provided by the rtc driver. I've done some basic testing on it,
-and it seems to work well.
+On Iau, 2006-07-13 at 12:05 -0700, Linus Torvalds wrote:
+> Doing core-dumping in user space would be insane. It doesn't give _any_ 
+> advantages, only disadvantages.
 
-Thanks And Regards
-Neil
+It has a number of very real advantages in certain circumstances and the
+only interface the kernel needs to provide is the debugger interface and
+something to "kick" the debugger and reparent to it, or for that matter
+it might even be viable just to pass the helper the fd of an anonymous
+file holding the dump.
 
-Signed-off-by: Neil Horman
+Taking out the kernel core dump support would be insane.
 
+We get customers who like to collect/process/do clever stuff with core
+dumps and failure cases. We also get people who want to dump a core that
+excludes the 14GB shared mmap of the database file as another example
+where it helps.
 
- 
- rtc.c |   41 ++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 40 insertions(+), 1 deletion(-)
+Alan
 
-
-diff --git a/drivers/char/rtc.c b/drivers/char/rtc.c
-index 6e6a7c7..4ed673e 100644
---- a/drivers/char/rtc.c
-+++ b/drivers/char/rtc.c
-@@ -48,9 +48,10 @@
-  *		CONFIG_HPET_EMULATE_RTC
-  *	1.12a	Maciej W. Rozycki: Handle memory-mapped chips properly.
-  *	1.12ac	Alan Cox: Allow read access to the day of week register
-+ *	1.12b   Neil Horman: Allow memory mapping of /dev/rtc	
-  */
- 
--#define RTC_VERSION		"1.12ac"
-+#define RTC_VERSION		"1.12b"
- 
- /*
-  *	Note that *all* calls to CMOS_READ and CMOS_WRITE are done with
-@@ -183,6 +184,8 @@ static int rtc_proc_open(struct inode *i
-  */
- static unsigned long rtc_status = 0;	/* bitmapped status byte.	*/
- static unsigned long rtc_freq = 0;	/* Current periodic IRQ rate	*/
-+#define BUF_SIZE (PAGE_SIZE/sizeof(unsigned long))
-+static unsigned long rtc_irq_buf[BUF_SIZE] __attribute__ ((aligned (PAGE_SIZE)));
- static unsigned long rtc_irq_data = 0;	/* our output to the world	*/
- static unsigned long rtc_max_user_freq = 64; /* > this, need CAP_SYS_RESOURCE */
- 
-@@ -230,6 +233,7 @@ static inline unsigned char rtc_is_updat
- 
- irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-+	unsigned long *count_ptr = (unsigned long *)rtc_irq_buf;
- 	/*
- 	 *	Can be an alarm interrupt, update complete interrupt,
- 	 *	or a periodic interrupt. We store the status in the
-@@ -265,6 +269,7 @@ irqreturn_t rtc_interrupt(int irq, void 
- 
- 	kill_fasync (&rtc_async_queue, SIGIO, POLL_IN);
- 
-+	*count_ptr = (*count_ptr)++;
- 	return IRQ_HANDLED;
- }
- #endif
-@@ -389,6 +394,37 @@ static ssize_t rtc_read(struct file *fil
- #endif
- }
- 
-+static int rtc_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+        unsigned long rtc_addr;
-+	unsigned long *count_ptr = rtc_irq_buf;
-+
-+        if (vma->vm_end - vma->vm_start != PAGE_SIZE)
-+                return -EINVAL;
-+
-+        if (vma->vm_flags & VM_WRITE)
-+                return -EPERM;
-+
-+        if (PAGE_SIZE > (1 << 16))
-+                return -ENOSYS;
-+
-+        vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+
-+        rtc_addr = __pa(rtc_irq_buf);
-+        rtc_addr &= ~(PAGE_SIZE - 1);
-+        rtc_addr &= -1;
-+
-+        if (remap_pfn_range(vma, vma->vm_start, rtc_addr >> PAGE_SHIFT,
-+                                        PAGE_SIZE, vma->vm_page_prot)) {
-+                printk(KERN_ERR "remap_pfn_range failed in rtc.c\n");
-+                return -EAGAIN;
-+        }
-+
-+	*count_ptr = 0;
-+        return 0;
-+
-+}
-+
- static int rtc_do_ioctl(unsigned int cmd, unsigned long arg, int kernel)
- {
- 	struct rtc_time wtime; 
-@@ -890,6 +926,7 @@ static const struct file_operations rtc_
- 	.owner		= THIS_MODULE,
- 	.llseek		= no_llseek,
- 	.read		= rtc_read,
-+	.mmap		= rtc_mmap,
- #ifdef RTC_IRQ
- 	.poll		= rtc_poll,
- #endif
-@@ -1082,6 +1119,8 @@ no_irq:
- no_irq2:
- #endif
- 
-+	memset(rtc_irq_buf,0,PAGE_SIZE);
-+
- 	(void) init_sysctl();
- 
- 	printk(KERN_INFO "Real Time Clock Driver v" RTC_VERSION "\n");
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/

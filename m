@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWGXXxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWGXXxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWGXXxU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jul 2006 19:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWGXXxU
+	id S932335AbWGXXxy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jul 2006 19:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWGXXxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jul 2006 19:53:20 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:32523 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932334AbWGXXxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jul 2006 19:53:19 -0400
-Message-ID: <44C55F36.5000701@gentoo.org>
-Date: Tue, 25 Jul 2006 01:00:54 +0100
+	Mon, 24 Jul 2006 19:53:53 -0400
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:53758 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932335AbWGXXxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jul 2006 19:53:52 -0400
+Message-ID: <44C55F57.8040805@gentoo.org>
+Date: Tue, 25 Jul 2006 01:01:27 +0100
 From: Daniel Drake <dsd@gentoo.org>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
 MIME-Version: 1.0
@@ -36,9 +36,11 @@ Tom Walter Dillig wrote:
 Either I'm misunderstanding, or this is bogus.
 
 when *pkt is allocated by the various child functions (e.g. 
-ieee80211softmac_disassoc_deauth), it is always checked for NULL.
+ieee80211softmac_disassoc_deauth), it is always checked for NULL before 
+being used.
 
-Finally, line 453 does another NULL check.
+Finally, line 453 does another NULL check, so that any failures 
+generated above are handled appropriately.
 
 What is the report trying to say?
 

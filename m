@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWGYRzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWGYR5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWGYRzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 13:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWGYRzm
+	id S1751454AbWGYR5t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 13:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWGYR5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 13:55:42 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51168 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750828AbWGYRzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 13:55:42 -0400
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-In-Reply-To: <20060725174100.GA4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 19:55:39 +0200
-Message-Id: <1153850139.8932.40.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 25 Jul 2006 13:57:48 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:38533 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751401AbWGYR5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 13:57:47 -0400
+Message-ID: <44C65B97.7010404@cmu.edu>
+Date: Tue, 25 Jul 2006 13:57:43 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060612)
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.6.18-rc2-git4: BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> @@ -265,6 +269,7 @@ irqreturn_t rtc_interrupt(int irq, void 
->  
->  	kill_fasync (&rtc_async_queue, SIGIO, POLL_IN);
->  
-> +	*count_ptr = (*count_ptr)++;
+Hey everyone,
 
-Hi,
+I recently compiled a 2.6.18-rc2-git4 kernel and get this with cpu
+hotplug enabled:
+Lukewarm IQ detected in hotplug locking
+BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
+ [<c0138635>] lock_cpu_hotplug+0x74/0x7d
+ [<c012f815>] __create_workqueue+0x44/0x13c
+ [<c0340df6>] cpufreq_stat_notifier_policy+0x22/0x1d2
+ [<c03418c0>] cpufreq_governor_dbs+0x2c7/0x31d
+ [<c033f5ff>] __cpufreq_governor+0x1d/0x150
+ [<c033f7f3>] __cpufreq_set_policy+0xc1/0xf7
+ [<c03403a7>] store_scaling_governor+0xa2/0x180
+ [<c033fbd6>] handle_update+0x0/0x5
+ [<c0222800>] kobject_cleanup+0x59/0x60
+ [<c0340305>] store_scaling_governor+0x0/0x180
+ [<c033fe79>] store+0x2e/0x3e
+ [<c018ed8d>] sysfs_write_file+0x8b/0xc7
+ [<c015dd9b>] vfs_write+0x87/0xf5
+ [<c018ed02>] sysfs_write_file+0x0/0xc7
+ [<c015e350>] sys_write+0x41/0x6a
+ [<c0102f15>] sysenter_past_esp+0x56/0x79
+Lukewarm IQ detected in hotplug locking
+BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
+ [<c0138635>] lock_cpu_hotplug+0x74/0x7d
+ [<c0341697>] cpufreq_governor_dbs+0x9e/0x31d
+ [<c033f5ff>] __cpufreq_governor+0x1d/0x150
+ [<c033f803>] __cpufreq_set_policy+0xd1/0xf7
+ [<c03403a7>] store_scaling_governor+0xa2/0x180
+ [<c033fbd6>] handle_update+0x0/0x5
+ [<c0222800>] kobject_cleanup+0x59/0x60
+ [<c0340305>] store_scaling_governor+0x0/0x180
+ [<c033fe79>] store+0x2e/0x3e
+ [<c018ed8d>] sysfs_write_file+0x8b/0xc7
+ [<c015dd9b>] vfs_write+0x87/0xf5
+ [<c018ed02>] sysfs_write_file+0x0/0xc7
+ [<c015e350>] sys_write+0x41/0x6a
+ [<c0102f15>] sysenter_past_esp+0x56/0x79
 
-it's a cute idea, however 3 questions:
-1) you probably want to add a few memory barriers around this, right?
-2) why use the rtc and not the regular timer interrupt?
+Just wanted to report this.
 
-(and 
-3) this will negate the power gain you get for tickless kernels, since
-now they need to start ticking again ;( )
-
-Greetings,
-   Arjan van de Ven
-
+Thanks!
+George

@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWGYTrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWGYTwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWGYTrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWGYTrz
+	id S932349AbWGYTwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWGYTwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:47:55 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:65032 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932121AbWGYTrz (ORCPT
+	Tue, 25 Jul 2006 15:52:51 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:28108 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932349AbWGYTwv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:47:55 -0400
-Date: Tue, 25 Jul 2006 15:47:33 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725194733.GJ4608@hmsreliant.homelinux.net>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Jul 2006 15:52:51 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Adam Belay <abelay@novell.com>
+Subject: Re: [patch] [resend] Fix swsusp with PNP BIOS
+Date: Tue, 25 Jul 2006 21:52:09 +0200
+User-Agent: KMail/1.9.3
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Ondrej Zary <linux@rainbow-software.org>,
+       Linux List <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+References: <200607242028.01666.linux@rainbow-software.org> <200607250923.18678.ncunningham@linuxmail.org> <1153855056.6508.24.camel@localhost.localdomain>
+In-Reply-To: <1153855056.6508.24.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200607252152.09421.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 09:31:32PM +0200, Segher Boessenkool wrote:
-> >>Not really.  This introduces a potentially very difficult support
-> >>user-visible interface.  Consider a tickless kernel -- you might  
-> >>end up
-> >>taking tick interrupts ONLY to update this page, since you don't have
-> >>any way of knowing when userspace wants to look at it.
-> >>
-> >Well, you do actually know when they want to look at it.  The rtc  
-> >driver only
-> >unmasks its interrupt when a user space process has opened the  
-> >device and sent
-> >it a RTC_UIE ON or RTC_PIE_ON (or other shuch ioctl).  So if you  
-> >open /dev/rtc,
-> >and memory map the page, but never enable a timer method, then  
-> >every read of the
-> >page returns zero.  The only overhead this patch is currently  
-> >adding, execution
-> >time-wise is the extra time it takes to write to a the shared page  
-> >variable.  If
-> >the timer tick interrupt is executing, its because someone is  
-> >reading tick data,
-> >or plans to very soon.
+On Tuesday 25 July 2006 21:17, Adam Belay wrote:
+> On Tue, 2006-07-25 at 09:23 +1000, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Tuesday 25 July 2006 07:25, Rafael J. Wysocki wrote:
+> > > Hi,
+> > >
+> > > On Monday 24 July 2006 20:28, Ondrej Zary wrote:
+> > > > Hello,
+> > > > swsusp is unable to suspend my machine (DTK FortisPro TOP-5A notebook)
+> > > > with kernel 2.6.17.5 because it's unable to suspend PNP device 00:16
+> > > > (mouse).
+> > > >
+> > > > The problem is in PNP BIOS. pnp_bus_suspend() calls pnp_stop_dev() for
+> > > > the device if the device can be disabled according to pnp_can_disable().
+> > > > The problem is that pnpbios_disable_resources() returns -EPERM if the
+> > > > device is not dynamic (!pnpbios_is_dynamic()) but insert_device() happily
+> > > > sets PNP_DISABLE capability/flag even if the device is not dynamic. So we
+> > > > try to disable non-dynamic devices which will fail.
+> > > > This patch prevents insert_device() from setting PNP_DISABLE if the
+> > > > device is not dynamic and fixes suspend on my system.
+> > >
+> > > Thanks for the patch.
+> > >
+> > > Pavel, what do you think?
+> > 
+> > Adam is probably a better person to ask. (Added to cc).
 > 
-> But userland cannot know if there is a more efficient option to
-> use than this /dev/rtc way, without using VDSO/vsyscall.
+> I appreciate it.
 > 
-Sure, but detecting if /dev/rtc via mmap is faster than gettimeofday is an
-orthogonal issue to having the choice in the first place.  I say let the X guys
-write code to determine at run time what is more efficient to get their job
-done.  I really just wanted to give them the ability to avoid making a million
-kernel traps a second for those arches where a userspace gettimeofday is not
-yet implemented, or cannot be implemented.  It won't cost anything to add this
-feature, and if the Xorg people can write code to use gettimeofday if its faster
-than mmaped /dev/rtc (or even configured to do so at compile-time).  This patch
-doesn't create any interrupts that wouldn't be generated already anyway by any
-user using /dev/rtc, and even if X doesn't already use /dev/rtc, the added
-interrupts are in trade for an equally fewer number of kernel traps, which I
-think has to be a net savings.
-
-I'm not saying we shouldn't implement a vsyscall on more platforms to provide a
-speedup for this problem (in fact I'm interested to learn how, since I hadn't
-previously considered that as a possibility), but I think offering the choice is
-a smart thing to do until the latter solution gets propogated to other
-arches/platforms besides x86_64
-
-Regards
-Neil
-
- 
+> > 
+> > Regards,
+> > 
+> > Nigel
 > 
-> Segher
+> The patch looks good.
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+I'll send it to Andrew then.  I assume I can place your ACK on it?
+
+Rafael

@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWGYTNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWGYTOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbWGYTNj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWGYTNj
+	id S964840AbWGYTOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWGYTOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:13:39 -0400
-Received: from cattelan-host201.dsl.visi.com ([208.42.117.201]:40951 "EHLO
-	slurp.thebarn.com") by vger.kernel.org with ESMTP id S964819AbWGYTNi
+	Tue, 25 Jul 2006 15:14:11 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:29078 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S964840AbWGYTOJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:13:38 -0400
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-	regarding reiser4 inclusion
-From: Russell Cattelan <cattelan@thebarn.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <44C32348.8020704@namesys.com>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org>
-	 <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org>
-	 <44C32348.8020704@namesys.com>
+	Tue, 25 Jul 2006 15:14:09 -0400
+Subject: Re: [patch] [resend] Fix swsusp with PNP BIOS
+From: Adam Belay <abelay@novell.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Ondrej Zary <linux@rainbow-software.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux List <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200607250923.18678.ncunningham@linuxmail.org>
+References: <200607242028.01666.linux@rainbow-software.org>
+	 <200607242325.50229.rjw@sisk.pl>
+	 <200607250923.18678.ncunningham@linuxmail.org>
 Content-Type: text/plain
-Date: Tue, 25 Jul 2006 14:13:01 -0500
-Message-Id: <1153854781.5893.5.camel@xenon.msp.redhat.com>
+Date: Tue, 25 Jul 2006 15:17:35 -0400
+Message-Id: <1153855056.6508.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-23 at 01:20 -0600, Hans Reiser wrote:
-> Jeff, I think that a large part of what is going on is that any patch
-> that can be read in 15 minutes gets reviewed immediately, and any patch
-> that is worked on for 5 years and then takes a week to read gets
-> neglected.  This is true even if line for line the 1 week to read patch
-> is more valuable.    What is more is that people know this is
-> irrational, but aren't able to cure it in themselves.  Even I have a
-> problem of paying too much attention to endless 5 minute emails when I
-> know I should instead, say, read the compression plugin from beginning
-> to end.
+On Tue, 2006-07-25 at 09:23 +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> There is nothing about small patches that makes them better code.  There
-> is no reason we should favor them, if the developers are willing to work
-> on something for 5 years to escape a local optimum, that is often the
-> RIGHT thing to do.
+> On Tuesday 25 July 2006 07:25, Rafael J. Wysocki wrote:
+> > Hi,
+> >
+> > On Monday 24 July 2006 20:28, Ondrej Zary wrote:
+> > > Hello,
+> > > swsusp is unable to suspend my machine (DTK FortisPro TOP-5A notebook)
+> > > with kernel 2.6.17.5 because it's unable to suspend PNP device 00:16
+> > > (mouse).
+> > >
+> > > The problem is in PNP BIOS. pnp_bus_suspend() calls pnp_stop_dev() for
+> > > the device if the device can be disabled according to pnp_can_disable().
+> > > The problem is that pnpbios_disable_resources() returns -EPERM if the
+> > > device is not dynamic (!pnpbios_is_dynamic()) but insert_device() happily
+> > > sets PNP_DISABLE capability/flag even if the device is not dynamic. So we
+> > > try to disable non-dynamic devices which will fail.
+> > > This patch prevents insert_device() from setting PNP_DISABLE if the
+> > > device is not dynamic and fixes suspend on my system.
+> >
+> > Thanks for the patch.
+> >
+> > Pavel, what do you think?
 > 
-> It is importand that we embrace our diversity, and be happy for the
-> strength it gives us.  Some of us are good at small patches that evolve,
-> and some are good at escaping local optimums.  We all have value, both
-> trees and grass have their place in the world.
+> Adam is probably a better person to ask. (Added to cc).
+
+I appreciate it.
+
 > 
-Which is summed up quite well by:
-http://en.wikipedia.org/wiki/Color_of_the_bikeshed
+> Regards,
+> 
+> Nigel
 
-It seem to be a well know tendency for people to want to
-be involved in some way, thus keeping to much of the development
-cycle internal tends to generate friction.
+The patch looks good.  Maybe we should even do this check for
+PNP_CONFIGURABLE.
 
+Thanks,
+Adam
 
--Russell Cattelan
-cattelan@xfs.org
 

@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWGYQ6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWGYQ5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWGYQ6B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 12:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWGYQ5g
+	id S932481AbWGYQ5d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 12:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWGYQ5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 12:57:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42891 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932480AbWGYQ5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 12:57:30 -0400
-Subject: Re: automated test? (was Re: Linux 2.6.17.7)
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-In-Reply-To: <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
-References: <20060725034247.GA5837@kroah.com>
-	 <m33bcqdn5y.fsf@anduin.mandriva.com>
-	 <200607251123.40549.adq_dvb@lidskialf.net>
-	 <Pine.LNX.4.63.0607250945400.9159@qynat.qvtvafvgr.pbz>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 25 Jul 2006 18:56:58 +0200
-Message-Id: <1153846619.8932.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 25 Jul 2006 12:57:33 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:30495 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932481AbWGYQ5A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 12:57:00 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Subject: [PATCH 7 of 7] [x86-64] Calgary IOMMU: save a bit of space in bus_info
+X-Mercurial-Node: 8f45fff682d3bf9aea2328b1ded97745285be538
+Message-Id: <8f45fff682d3bf9aea23.1153846597@rhun.haifa.ibm.com>
+In-Reply-To: <patchbomb.1153846590@rhun.haifa.ibm.com>
+Date: Tue, 25 Jul 2006 19:56:37 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: ak@suse.de
+Cc: jdmason@us.ibm.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       muli@il.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 09:47 -0700, David Lang wrote:
-> On Tue, 25 Jul 2006, Andrew de Quincey wrote:
-> 
-> > On Tuesday 25 July 2006 10:55, Arnaud Patard wrote:
-> >> Greg KH <gregkh@suse.de> writes:
-> >>
-> >> Hi,
-> >>
-> >>> We (the -stable team) are announcing the release of the 2.6.17.7 kernel.
-> >>
-> >> Sorry, but doesn't compile if DVB_BUDGET_AV is set :(
-> >>
-> >>> Andrew de Quincey:
-> >>>       v4l/dvb: Fix budget-av frontend detection
-> >
-> >
-> > In fact it is just this patch causing the problem:
-> <SNIP>
-> > Sorry, I had so much work going on in that area I must have diffed the wrong
-> > kernel when I created this patch. :(
-> 
-> is it reasonable to have an aotomated test figure out what config options are 
-> relavent to a patch (or patchset) and test compile all the combinations to catch 
-> this sort of mistake?
-
-well you can do such a thing withing statistical bounds; however... if
-the patch already is in -git (as is -stable policy normally).. it should
-have been found there already...
+1 files changed, 1 insertion(+), 1 deletion(-)
+arch/x86_64/kernel/pci-calgary.c |    2 +-
 
 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+# HG changeset patch
+# User Muli Ben-Yehuda <muli@il.ibm.com>
+# Date 1153781666 -10800
+# Node ID 8f45fff682d3bf9aea2328b1ded97745285be538
+# Parent  529b8e81c7603717ddd3782899d3b0159d225b5b
+[x86-64] Calgary IOMMU: save a bit of space in bus_info
 
+Make translation_disabled a uchar rather than an int
+
+Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+
+diff -r 529b8e81c760 -r 8f45fff682d3 arch/x86_64/kernel/pci-calgary.c
+--- a/arch/x86_64/kernel/pci-calgary.c	Mon Jul 24 13:50:18 2006 +0300
++++ b/arch/x86_64/kernel/pci-calgary.c	Tue Jul 25 01:54:26 2006 +0300
+@@ -117,7 +117,7 @@ static int calgary_detected __read_mostl
+ 
+ struct calgary_bus_info {
+ 	void *tce_space;
+-	int translation_disabled;
++	unsigned char translation_disabled;
+ 	signed char phbid;
+ };
+ 

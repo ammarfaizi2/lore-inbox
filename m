@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWGYH5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWGYIAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWGYH5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 03:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWGYH5V
+	id S1751495AbWGYIAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 04:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWGYIAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 03:57:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:37147 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751402AbWGYH5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 03:57:21 -0400
+	Tue, 25 Jul 2006 04:00:05 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:17838 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751495AbWGYIAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 04:00:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=s7z1W+Bh45EM6hQqrFsgfrtYGDQyIsI1kho/LPwoiLllLDRgAgf+d11/QbuuJQlzFGCjj7+nliSw93ZzP3wVQK025Wp96jp8rvDQk9gqniuAbbHKacHWmzlfyKYNHB0fl5LTjde56eXwUoEL/zUjzjnKzXi8XkDoG50ZsbslySI=
-Message-ID: <44C5CED7.4000801@gmail.com>
-Date: Tue, 25 Jul 2006 11:57:11 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PmmwwRIjM1GZDmdCSp2YT10VaaaFC1pCWxXrBKNIODFRUJqOwlerPdW2ueIY3lQe7AGOKecyAT36KWrFnhUkjsdzC7qCVD6QR9KK2/4U8Cqed96q1j6EiKED84UbkPEwcXKw7T7bDEBAC4fyoFDsAkHXVVogKhjCY8H7KoBu/Pw=
+Message-ID: <f96157c40607250100x3850ffb7g1d2ed300529661f1@mail.gmail.com>
+Date: Tue, 25 Jul 2006 08:00:01 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: Re: i686 hang on boot in userspace
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060725073208.GA10601@suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mauro Carvalho Chehab <mchehab@infradead.org>, robfitz@273k.net,
-       video4linux-list@redhat.com, 76306.1226@compuserve.com,
-       fork0@t-online.de, greg@kroah.com, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net, v4l-dvb-maintainer@linuxtv.org,
-       shemminger@osdl.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device corruption
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com>	<20060713050541.GA31257@kroah.com>	<20060712222407.d737129c.rdunlap@xenotime.net>	<20060712224453.5faeea4a.akpm@osdl.org>	<20060715230849.GA3385@localhost> <1153013464.4755.35.camel@praia> <20060724200855.603be3bb.akpm@osdl.org>
-In-Reply-To: <20060724200855.603be3bb.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0607171605500.6761@scrub.home>
+	 <Pine.LNX.4.64.0607171718140.6762@scrub.home>
+	 <f96157c40607170858o567abe24r5d9bdd4895a906c9@mail.gmail.com>
+	 <f96157c40607170902l47849e42qc4f1c64087a236d8@mail.gmail.com>
+	 <Pine.LNX.4.64.0607171902310.6762@scrub.home>
+	 <f96157c40607171115r4acccb00r3f6d93e3477a3a13@mail.gmail.com>
+	 <f96157c40607180238s1bfe0ca2te1d4d72dbe8626fd@mail.gmail.com>
+	 <f96157c40607190326t1071377bvb426e00d6f427660@mail.gmail.com>
+	 <f96157c40607240834i5ba3ca5cma51eec9fa34558bc@mail.gmail.com>
+	 <20060725073208.GA10601@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Sat, 15 Jul 2006 22:31:04 -0300
-> Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> 
->> Em Sáb, 2006-07-15 às 23:08 +0000, Robert Fitzsimons escreveu:
->>> The layout of struct video_device would change depending on whether
->>> videodev.h (V4L1) was include or not before v4l2-dev.h, which caused
->>> the structure to get corrupted.  
->> Hmm... good point! However, I the proper solution would be to trust on
->> CONFIG_VIDEO_V4L1_COMPAT or CONFIG_VIDEO_V4L1 instead. it makes no sense
->> to keep a pointer to an unsupported callback, when V4L1 is not selected.
->>
-> 
-> So I've lost the plot with all of this.  Does the current git-dvb contain
-> the desired fixes?
-> 
-> Do we expect this will fix the various DVB crashes which people (including
-> Alex) have reported?
+On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
+> On Mon, Jul 24 2006, gmu 2k6 wrote:
+> > the problem I have with hangs is related to changes in CFQ and that
+> > CFQ is now the default. 2.6.17-git12 had the problem but booting
+> > it with elevator=deadline fixes the hang.
+> >
+> > symptoms encountered during git-bisecting between v2.6.17 and v2.6.18-rc1:
+> > A hang while starting network services
+> > B hang while trying to login
+> >   1 on remote console [not SSH] it hang after typing <uid><CR>
+> >   1 via OpenSSH it hang after typing <pwd><CR> when doing slogin root@<IP>
+> >
+> > A is the problem I got in the first place and this seems to be the
+> > case since 2.6.17-git11 definitely although git-bisect pointed me at
+> > the following
+> > changeset which is included since 2.6.17-git12:
+> >
+> > caaa5f9f0a75d1dc5e812e69afdbb8720e077fd3
+> > by Jens Axboe
+> > titled "[PATCH] cfq-iosched: many performance fixes"
+> >
+> > strange enough it also hangs with 2.6.17-git11 which did not include that
+> > one changeset yet.
+>
+> So perhaps your bisect isn't 100% trust worthy? Can you do a manual
+> -gitX bisect to see which 2.6.17-gitX introduced the problem?
+>
+> Also please put a serial console or similar on the machine, so you can
+> log + store the sysrq+t output.
 
-I believe you are referring to the "oops in bttv" thread.
-
-As i understood, the case that Alex reported in was a null pointer issue 
-due to which modprobe bttv crashes, rather than a DVB issue.
-
-Call Trace:
-  [<c018763c>] sysfs_create_file+0x26/0x28
-  [<c0220cc3>] class_device_create_file+0x14/0x1a
-  [<f9bc3073>] bttv_register_video+0x8c/0x147 [bttv]
-  [<f9bc35de>] bttv_probe+0x4ab/0x593 [bttv]
-
-
-Therefore the V4L fixes should probably fix the same as well.
-
-
-Regards,
-Manu
+well I didn't say that caa....fd3 is the exact change which broke it,
+just that it's related to 1) CFQ changes and 2) CFQ being the default
+now.
+I have a Remote Serial Console via HP's integrated Lights-Out Java
+Applet but am not sure how to enable serial console via kernel boot
+params (will try to find out).
+I will first try to find the 2.6.17-git* revision working before
+bisecting it against -git11 or git12.

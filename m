@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWGYGb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWGYGrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWGYGb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWGYGb6
+	id S1751465AbWGYGrU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWGYGrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:31:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18081 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751463AbWGYGb5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:31:57 -0400
-Date: Mon, 24 Jul 2006 23:31:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       petero2@telia.com, laurent.riffard@free.fr
-Subject: Re: [patch] lockdep: annotate pktcdvd natural device hierarchy
-Message-Id: <20060724233131.d76a7f60.akpm@osdl.org>
-In-Reply-To: <1153805684.8932.3.camel@laptopd505.fenrus.org>
-References: <448875D1.5080905@free.fr>
-	<448D84C0.1070400@linux.intel.com>
-	<m3sllxtfbf.fsf@telia.com>
-	<1151000451.3120.56.camel@laptopd505.fenrus.org>
-	<m3u05kqvla.fsf@telia.com>
-	<1152884770.3159.37.camel@laptopd505.fenrus.org>
-	<m3odvrc2vo.fsf@telia.com>
-	<1152947098.3114.9.camel@laptopd505.fenrus.org>
-	<44B8C506.1000009@free.fr>
-	<m3ac7b6spp.fsf@telia.com>
-	<44BA1609.9050305@free.fr>
-	<20060724192718.547a836e.akpm@osdl.org>
-	<1153805684.8932.3.camel@laptopd505.fenrus.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jul 2006 02:47:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:3894 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751465AbWGYGrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:47:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=G/ONuJ2w2khvOCUENBB3Y56mtx/0ovmLGR+s02OxklcL3eJw9aKq6aOLsA1kblPPYikTNh4ZMIoZj5D/VU/DY8sfVSRtV/dymYfVI1yjsadQp4vLdapNcuUFUDmD2iP8oQaKpIfT7NMGuQV2MBOBjpoHBmMpVwh+tPPDUb2a3YU=
+Message-ID: <787b0d920607242347r3fabe43fr66adf2d53cd7aa11@mail.gmail.com>
+Date: Tue, 25 Jul 2006 02:47:18 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com, pj@sgi.com, akpm@osdl.org
+Subject: Re: [RFC] ps command race fix
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006 07:34:44 +0200
-Arjan van de Ven <arjan@infradead.org> wrote:
+Andrew Morton writes:
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-> On Mon, 2006-07-24 at 19:27 -0700, Andrew Morton wrote:
-> > On Sun, 16 Jul 2006 12:33:45 +0200
-> 
-> > Arjan, do we still need
-> > lockdep-annotate-pktcdvd-natural-device-hierarchy.patch?
-> 
-> yes afaics
-> 
-> > And could you please take a look at Peter's block_dev.c changes?  Closely,
-> > please - it'd be nice to get this right one of these days ;)
-> 
-> I'm not too happy about them; they use the partition uglies for
-> something which is not a partition; the uglyness should stop not
-> spread... while the patch probably is effective in shutting lockdep up
-> it's not really the right approach.
-> 
+>> Hi, this is an experimental patch for the probelm
+>>      - "ps command can miss some pid occationally"
+...
+> So I think we're still seeking a solution to this.
 
-OK, I dropped them again.
+We have a solution, subject to some bit rot I'm sure.
+The cookie/cursor hack should have been rejected.
+I'm still wondering why that ever got accepted.
+
+Hugh had a patch set containing a tree-based replacement
+for the PID handling. It worked perfectly, letting /proc
+look up the lowest-not-under PID for any given PID.
+
+(can anybody find the patch set?)
+
+BTW, here's a WONTFIX resolved bug that places the date
+for the patch set as being prior to 2005-05-21.
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=158277
+
+> Options might be:
+>
+> a) Pin the most-recently-visited task in some manner, so that it is
+>    still on the global task list when we return.  That's fairly simple to
+>    do (defer the release_task()) but it affects task lifetime and visibility
+>    in rare and worrisome ways.
+
+In state X perhaps?
+
+> b) Change proc_pid_readdir() so that it walks the pid_hash[] array
+>    instead of the task list.  Need to do something clever when traversing
+>    each bucket's list, but I'm not sure what ;) It's the same problem.
+>
+>    Possibly what we could do here is to permit the task which is walking
+>    /proc to pin a particular 'struct pid': take a ref on it then when we
+>    next start walking one of the pid_hash[] chains, we _know_ that the
+>    'struct pid' which we're looking for will still be there.  Even if it
+>    now refers to a departed process.
+
+Well, we have to pin something if we don't use a tree.
+
+If I remember right the cookie/cursor thing was mostly intended
+to solve real-time problems. Obviously it fails at this too.
+(not that attackable hashes are acceptable for real-time!)
+
+> c) Nuke the pid_hash[], convert the whole thing to a radix-tree.
+>    They're super-simple to traverse.  Not sure what we'd index it by
+>    though.
+
+With the right kind of tree, you just look up by PID and get
+back the nearest result which is not less than the desired one.
+This is what the older patch set did.
+
+I like trees. They have nice cache properties. Decent trees are
+immune to being turned into linked lists via hash function attacks.
+The non-crypto hashes in the kernel ought to worry people.

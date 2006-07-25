@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWGYGKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWGYGRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWGYGKW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 02:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWGYGKW
+	id S1751436AbWGYGRI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 02:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWGYGRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 02:10:22 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65153 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751432AbWGYGKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 02:10:21 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ps command race fix
-References: <20060714203939.ddbc4918.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060724182000.2ab0364a.akpm@osdl.org>
-Date: Tue, 25 Jul 2006 00:09:17 -0600
-In-Reply-To: <20060724182000.2ab0364a.akpm@osdl.org> (Andrew Morton's message
-	of "Mon, 24 Jul 2006 18:20:00 -0700")
-Message-ID: <m13bcqmd0y.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Jul 2006 02:17:08 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16517
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751436AbWGYGRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 02:17:07 -0400
+Date: Mon, 24 Jul 2006 23:17:08 -0700 (PDT)
+Message-Id: <20060724.231708.01289489.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060709132446.GB29435@2ka.mipt.ru>
+References: <20060709132446.GB29435@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Sun, 9 Jul 2006 17:24:46 +0400
 
-> So I think we're still seeking a solution to this.
->
-> Options might be:
->
-> a) Pin the most-recently-visited task in some manner, so that it is
->    still on the global task list when we return.  That's fairly simple to
->    do (defer the release_task()) but it affects task lifetime and visibility
->    in rare and worrisome ways.
->
-> b) Change proc_pid_readdir() so that it walks the pid_hash[] array
->    instead of the task list.  Need to do something clever when traversing
->    each bucket's list, but I'm not sure what ;) It's the same problem.
->
->    Possibly what we could do here is to permit the task which is walking
->    /proc to pin a particular `struct pid': take a ref on it then when we
->    next start walking one of the pid_hash[] chains, we _know_ that the
->    `struct pid' which we're looking for will still be there.  Even if it
->    now refers to a departed process.
->
-> c) Nuke the pid_hash[], convert the whole thing to a radix-tree. 
->    They're super-simple to traverse.  Not sure what we'd index it by
->    though.
->
-> I guess b) is best.
+> This patch includes core kevent files:
+>  - userspace controlling
+>  - kernelspace interfaces
+>  - initialisation
+>  - notification state machines
+> 
+> It might also inlclude parts from other subsystem (like network related
+> syscalls so it is possible that it will not compile without other
+> patches applied).
+> 
+> Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-The advantage with walking the task list is new entries are always added
-at the end.  Neither of the other two proposed orders does that.  So
-in fact I think the problem will get worse leaving more tasks skipped,
-because in those cases new tasks can be inserted before our cursor in
-the list.  The proposed snapshot implementation has a similar problem
-in that new process could get skipped.
+I like this work a lot, as I've stated before.  The data structures
+look like they will scale well and it takes care of all the limitations
+that networking in particular seems to have in this area.
 
-The simplest version I can think of is to place a cousin of the
-tasklist into struct pid.  Allowing us to use a very similar
-algorithm to what we use now.  But since we can pin struct pid we
-won't have the chance of our current position being deleted.
+I have to say that the user API is not the nicest in the world.  Yet,
+at the same time, I cannot think of a better one :)
 
-Eric
+Please, remove some grot such as this:
+
+> +	if (kevent_cache)
+> +		k = kmem_cache_alloc(kevent_cache, mask);
+> +	else
+> +		k = kzalloc(sizeof(struct kevent), mask);
+ ...
+> +	if (kevent_cache)
+> +		kmem_cache_free(kevent_cache, k);
+> +	else
+> +		kfree(k);
+
+Instead, make this:
+
+> +	kevent_cache = kmem_cache_create("kevent_cache", 
+> +			sizeof(struct kevent), 0, 0, NULL, NULL);
+> +	if (!kevent_cache)
+> +		err = -ENOMEM;
+
+panic().  This is consistent with how other core subsystems handle
+SLAB cache creation failures.
+
+I also think that if we accept this work, it should be first class
+citizen with no config options and no ifdefs scattered all over.
+Either this is how we do network AIO or it is not.
+
+I've looked only briefly at Ulrich Drepper's AIO proposal in his OLS
+slides, although the DMA bits do not initially strike me as such a hot
+idea.  I haven't wrapped my brain much around this new stuff, so I'm
+not going to touch on it much more just yet.
+
+The practical advantage kevent has over any new proposal is that 1)
+implementation exists :) and 2) several types of test applications and
+performance measurements have been made against it which usually
+flushes out the worst design issues.

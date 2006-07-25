@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWGYTjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWGYTlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWGYTjp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 15:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWGYTjp
+	id S932159AbWGYTlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 15:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWGYTlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 15:39:45 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:19148 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964794AbWGYTjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 15:39:44 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: swsusp status report
-Date: Tue, 25 Jul 2006 21:39:10 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200607251325.14747.rjw@sisk.pl> <20060725151145.GG14964@redhat.com>
-In-Reply-To: <20060725151145.GG14964@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 25 Jul 2006 15:41:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:56717 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932159AbWGYTlA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 15:41:00 -0400
+Message-Id: <200607251940.k6PJeWbu023928@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Al Boldi <a1426z@gawab.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+In-Reply-To: Your message of "Tue, 25 Jul 2006 21:27:14 +0300."
+             <200607252127.14024.a1426z@gawab.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200607241857.52389.a1426z@gawab.com> <200607250757.10722.a1426z@gawab.com> <44C5AFC3.4020405@bigpond.net.au>
+            <200607252127.14024.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1153856431_3092P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607252139.10356.rjw@sisk.pl>
+Date: Tue, 25 Jul 2006 15:40:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 July 2006 17:11, Dave Jones wrote:
-> On Tue, Jul 25, 2006 at 01:25:14PM +0200, Rafael J. Wysocki wrote:
+--==_Exmh_1153856431_3092P
+Content-Type: text/plain; charset=us-ascii
+
+On Tue, 25 Jul 2006 21:27:14 +0300, Al Boldi said:
+> Peter Williams wrote:
+
+> > It's probably not a good idea to have different schedulers managing the
+> > same resource.  The way to do different scheduling per process is to use
+> > the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc.
+> > (possibly extended) within each scheduler.  On the other hand, on an SMP
+> > system, having a different scheduler on each run queue (or sub set of
+> > queues) might be interesting :-).  
 > 
->  > V. Freeing memory
->  > 
->  > Step (3) of the suspend procedure is completed by calling the same
->  > functions that are normally used by kswapd, but in a slightly different way.
->  > The part of swsusp responsible for that is referred to as 'the memory
->  > shrinker' and it may sometimes be called by the suspend-to-RAM code as well
-> 
-> This isn't actually necessary though is it ?
-> (Ie, it's a bug that needs fixing?)
+> What's wrong with multiple run-queues on UP?
 
-Well, that depends on what FREE_PAGE_NUMBER, as defined in
-kernel/power/main.c, is for.  Someone probably knows.
-[I'm tempted to remove it, though. ;-) ]
+On an SMP system, you can have one CPU doing one class of scheduling (long
+timeslice for computational, for example), while another CPU is dedicated
+to doing RT scheduling, and so on.  It's not clear to me that "different
+classes per CPU" makes any real sense on a UP....
 
-> Good write-up btw, it may even be a nice addition to Documentation/power/  ?
+--==_Exmh_1153856431_3092P
+Content-Type: application/pgp-signature
 
-I'm going to update the existing docs soon, so it probably won't be needed.
-Still I think we can make it available from suspend.sf.net.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Rafael
+iD8DBQFExnOvcC3lWbTT17ARAtEvAKDuTAQcmfndqCwGHi0PRQlp2Qn2oACeO+61
+Jnkvw2SK7LbGTGqTLcR6x6I=
+=An9W
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153856431_3092P--

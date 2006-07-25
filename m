@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWGYJHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWGYJLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWGYJHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 05:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWGYJHW
+	id S1751505AbWGYJLp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 05:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWGYJLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 05:07:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15305 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751493AbWGYJHU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 05:07:20 -0400
-Date: Tue, 25 Jul 2006 02:06:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: mchehab@infradead.org, robfitz@273k.net, video4linux-list@redhat.com,
-       76306.1226@compuserve.com, fork0@t-online.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, rdunlap@xenotime.net,
-       v4l-dvb-maintainer@linuxtv.org, shemminger@osdl.org
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH] V4L: struct video_device
- corruption
-Message-Id: <20060725020650.52865543.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0607250054410.18397@shell3.speakeasy.net>
-References: <200607130047_MC3-1-C4D3-43D6@compuserve.com>
-	<20060713050541.GA31257@kroah.com>
-	<20060712222407.d737129c.rdunlap@xenotime.net>
-	<20060712224453.5faeea4a.akpm@osdl.org>
-	<20060715230849.GA3385@localhost>
-	<1153013464.4755.35.camel@praia>
-	<20060724200855.603be3bb.akpm@osdl.org>
-	<Pine.LNX.4.58.0607250054410.18397@shell3.speakeasy.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jul 2006 05:11:45 -0400
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:6030 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751505AbWGYJLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 05:11:44 -0400
+Date: Tue, 25 Jul 2006 05:06:07 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH for 2.6.18rc2] [1/7] i386/x86-64: Don't randomize
+  stack top when...
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200607250508_MC3-1-C604-C1C9@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006 01:42:19 -0700 (PDT)
-Trent Piepho <xyzzy@speakeasy.org> wrote:
+In-Reply-To: <1153815124.8932.15.camel@laptopd505.fenrus.org>
 
-> > Do we expect this will fix the various DVB crashes which people (including
-> > Alex) have reported?
+On Tue, 25 Jul 2006 10:12:04 +0200, Arjan van de Ven wrote:
+> > >  unsigned long arch_align_stack(unsigned long sp)
+> > >  {
+> > > -     if (randomize_va_space)
+> > > +     if (!(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
+> > >               sp -= get_random_int() % 8192;
+> > >       return sp & ~0xf;
+> > >  }
+> > 
+> > I think this needs to be done always, at least on P4.  It really isn't
+> > 'randomization' at the same high level as the rest -- more like a small
+> > adjustment.  And the offset should be a multiple of 128 and < 7K (not
+> > 8K.) Something like this:
 > 
-> This problem would only appear if VIDEO_V4L1 was turned off.  If it was on,
-> then all the code would agree it was on, and there would be no problems.
-> If the crash is still there when VIDEO_V4L1 = y, then it's not related to
-> this bug.
-> 
-> If VIDEO_V4L1 was turned off, then some drivers (one of which is bttv)
-> would have a different struct video_device than the video core code.  This
-> would break things so completely that it could crash just about anywhere.
+> the 8K was what Intel proposed for 2.4 quite a while ago and has been in
+> use in linux for years and years... Can you explain why you are saying
+> 7Kb? throwing away that 1Kb of cache associativity is unfortunate and
+> shouldn't be done unless there's a good reason, so I'm quite interested
+> in finding out your reason ;)
 
-OK, thanks.  Alex had
+Well that's what the Intel IA-32 optimization manual says:
 
-# CONFIG_VIDEO_V4L1 is not set
-# CONFIG_VIDEO_V4L1_COMPAT is not set
-CONFIG_VIDEO_V4L2=y
+        To establish a suitable stack offset for two instances of the same
+        application running on two logical processors in the same physical
+        processor package, the stack pointer can be adjusted in the entry
+        function of the application using the technique shown in Example 7-5.
+
+        Example 7-5 Adding a Pseudo-random Offset to the Stack Pointer
+        in the Entry Function
+
+        void main()
+        {
+        char * pPrivate = NULL;
+        long myOffset = GetMod7Krandom128X()
+        // A pseudo-random number that is a multiple
+        // of 128 and less than 7K.
+        // Use runtime library routine to reposition.
+        _alloca(myOffset); // The stack pointer.
+        }
+
+        IA-32 Intel Architecture Optimization Reference Manual, Ch. 7
+        June 2005
+-- 
+Chuck
 

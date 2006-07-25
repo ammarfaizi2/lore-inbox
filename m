@@ -1,80 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWGYPby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWGYQCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWGYPby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 11:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWGYPby
+	id S932443AbWGYQCg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 12:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWGYQCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 11:31:54 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:33701 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S964782AbWGYPbx (ORCPT
+	Tue, 25 Jul 2006 12:02:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31379 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932440AbWGYQCf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 11:31:53 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Where does kernel/resource.c.1 file come from?
-Date: Tue, 25 Jul 2006 17:33:33 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607251554.50484.eike-kernel@sf-tec.de> <20060725151520.GA15681@mars.ravnborg.org>
-In-Reply-To: <20060725151520.GA15681@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6462534.826o7Uupq0";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607251733.38467.eike-kernel@sf-tec.de>
+	Tue, 25 Jul 2006 12:02:35 -0400
+Date: Tue, 25 Jul 2006 12:02:07 -0400
+From: Alan Cox <alan@redhat.com>
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: sshtylyov@ru.mvista.com, alan@redhat.com, albertcc@tw.ibm.com,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: libata pata_pdc2027x success on sparc64
+Message-ID: <20060725160207.GB12318@devserv.devel.redhat.com>
+References: <200607190029.k6J0TxrV021572@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607190029.k6J0TxrV021572@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6462534.826o7Uupq0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Jul 19, 2006 at 02:29:59AM +0200, Mikael Pettersson wrote:
+> Thank you for these links. After fixing up whitespace damage in
+> these four messages the patches applied OK and more importantly
+> eliminated _all_ misbehaviour from pdc202xx_new on both my sparc64
+> and my PowerMac.
+> 
+> These fixes belong in Linus' kernel, not some semi-obscure
+> mailing list archive.
 
-Am Dienstag, 25. Juli 2006 17:15 schrieb Sam Ravnborg:
-> On Tue, Jul 25, 2006 at 03:54:45PM +0200, Rolf Eike Beer wrote:
-> > Hi,
-> >
-> > I'm playing around with my local copy of linux-2.6 git tree. I'm buildi=
-ng
-> > everything to a separate directory using O=3D to keep "git status" sile=
-nt.
-> >
-> > After building I sometimes find a file kernel/resource.c.1 in my git tr=
-ee
-> > that doesn't really belong there. Who is generating this file, for what
-> > reason and why doesn't it get created in my output directory?
->
-> I have never seen this myself so a bit puzzled???
-> Is it only kernel/resource.c that generates the .1 file - or is it
-> somethign that is general?
-
-No, it is always kernel/resource.c.1
-
-> Can you also try to make sure that this file is generated as part of the
-> build process. git status before and after should do it.
-
-I've never seen anything but this file beside my local changes, which don't=
-=20
-affect the build process at all.
-
-> If you can relaiably provoke it output of make V=3D1 would be usefull.
-
-I'll try. Will probably take until tomorrow.
-
-Eike
-
---nextPart6462534.826o7Uupq0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBExjnSXKSJPmm5/E4RAsquAJ9adY4Tj1dUKRfxxJ+hB2KRJcc7jwCePLHP
-W3MjqbQp3j8DG06Sg8RFSvc=
-=nE/A
------END PGP SIGNATURE-----
-
---nextPart6462534.826o7Uupq0--
+We've not had an IDE maintainer for some time unfortunately so stuff
+got badly lost. I think these and the hpt ones both belong in -mm even if the
+longer term goal is to exterminate drivers/ide

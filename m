@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbWGYX5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWGZAAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030273AbWGYX5T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 19:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWGYX5T
+	id S1030274AbWGZAAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWGZAAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 19:57:19 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:5911 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030273AbWGYX5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 19:57:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=lOS7G/YjUMUxOHR+FvaZDQRhCZ0fqRgfZK/YlYXbp5SM3S3a/Y+AXkn/W72DlFlHxIf0IT/ciuU3zctNHF3v5JlLRhb2IAq7eLfG+uzFiTD797SQW0QMhw16CPkmKtbJIHd8evp22hAS4fb7pTJpRvdlnh8NLqPe4C1CpQg995Y=
-Message-ID: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
-Date: Wed, 26 Jul 2006 01:57:17 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: [2.6.18-rc2-gabb5a5cc BUG] Lukewarm IQ detected in hotplug locking
-Cc: "Linus Torvalds" <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jul 2006 20:00:34 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:20237 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1030274AbWGZAAd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:00:33 -0400
+Date: Tue, 25 Jul 2006 19:56:44 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+Message-ID: <20060725235644.GA5147@localhost.localdomain>
+References: <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain> <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jul 26, 2006 at 01:29:25AM +0200, Segher Boessenkool wrote:
+> >Yes, but if its in trade for something thats being used currently  
+> >which hurts
+> >more (case in point being the X server), using this solution is a  
+> >net gain.
+> 
+> ...in the short term.
+> 
+And for any arch that isn't able to leverage a speedup via a vdso implementation
+of a simmilar functionality in the long term
 
-This looks like an abb5a5cc6bba1516403146c5b79036fe843beb70 commit
-(I'm not sure, I'll check this "tomorrow").
+> >I'm not arguing with you that adding a low res gettimeofday  
+> >vsyscall is a better
+> >long term solution, but doing that requires potentially several  
+> >implementations
+> >in the C library accross a range of architectures, some of which  
+> >may not be able
+> >to provide a time solution any better than what the gettimeofday  
+> >syscall
+> >provides today.  The /dev/rtc solution is easy, available right  
+> >now, and applies
+> >to all arches.
+> 
+> "All"?
+> 
+It there any arch for which the rtc driver doesn't function?
+Neil
 
-Jul 24 20:46:50 ltg01-fedora kernel: Lukewarm IQ detected in hotplug locking
-Jul 24 20:46:50 ltg01-fedora kernel: BUG: warning at
-/usr/src/linux-git/kernel/cpu.c:38/lock_cpu_hotplug()
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c0132891>] lock_cpu_hotplug+0x40/0x63
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026a364>]
-__cpufreq_driver_target+0xf/0x48
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026affb>]
-cpufreq_governor_performance+0x17/0x1c
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026992e>] __cpufreq_governor+0x63/0x114
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c0269abe>]
-__cpufreq_set_policy+0xdf/0xe6
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026a58a>]
-store_scaling_governor+0x11d/0x148
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c0269e27>] handle_update+0x0/0x5
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026a46d>]
-store_scaling_governor+0x0/0x148
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c026a0c0>] store+0x2e/0x3e
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c018c801>] sysfs_write_file+0x8c/0xb4
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c018c775>] sysfs_write_file+0x0/0xb4
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c015be27>] vfs_write+0xa1/0x143
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c015c417>] sys_write+0x3c/0x63
-Jul 24 20:46:50 ltg01-fedora kernel:  [<c0102d51>] sysenter_past_esp+0x56/0x79
-
-Here is a config file
-http://www.stardust.webpages.pl/files/2.6-git/18-rc2/git-config
-
-Here is dmesg http://www.stardust.webpages.pl/files/2.6-git/18-rc2/git-dmesg
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+> 
+> Segher

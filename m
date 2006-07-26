@@ -1,91 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWGZAhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWGZAh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbWGZAhY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWGZAhX
+	id S932511AbWGZAh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWGZAh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:37:23 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:25597 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932509AbWGZAhX
+	Tue, 25 Jul 2006 20:37:57 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:53416 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932511AbWGZAh4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:37:23 -0400
-Date: Tue, 25 Jul 2006 17:36:12 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: David Masover <ninja@slaphack.com>
-cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Mike Benoit <ipso@snappymail.ca>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
-       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-In-Reply-To: <44C6B784.5050507@slaphack.com>
-Message-ID: <Pine.LNX.4.63.0607251732001.9159@qynat.qvtvafvgr.pbz>
-References: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl>
- <44C6B784.5050507@slaphack.com>
+	Tue, 25 Jul 2006 20:37:56 -0400
+Message-ID: <44C6B925.8040606@zytor.com>
+Date: Tue, 25 Jul 2006 17:36:53 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Neil Horman <nhorman@tuxdriver.com>
+CC: Segher Boessenkool <segher@kernel.crashing.org>,
+       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+References: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain> <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org> <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com> <20060726002043.GA5192@localhost.localdomain>
+In-Reply-To: <20060726002043.GA5192@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006, David Masover wrote:
+Neil Horman wrote:
+>>>>
+>>> It there any arch for which the rtc driver doesn't function?
+>> Yes, there are plenty of systems which don't have an RTC, or have an RTC 
+>> which can't generate interrupts.
+>>
+> Ok, for those implementations which don't have an RTC that the rtc driver can
+> drive, the mmap functionality will not work, but at that point what interface
+> are you left with at all for obtaining periodic time?
 
-> Horst H. von Brand wrote:
->
->> 18GiB = 18 million KiB, you do have a point there. But 40 million files on
->> that, with some space to spare, just doesn't add up.
+Depends completely on the hardware.  Some hardware will rely on cycle 
+counters, some may rely on I/O devices which may or may not be mappable 
+into user space, and some will have to enter the kernel.
 
-if you have 18 million KiB and each file is a single block (512 Bytes = 0.5 Kib) 
-then assuming zero overhead you could fit 18 Million KiB / 0.5 KiB = 36 Million 
-files on the drive.
+These aren't compatible with your programming model.
 
-thus being scheptical about 40 million files on a 18G drive.
-
-this is only possible if you are abel to have multiple files per 512 byte block.
-
-David Lang
-
-> Right, ok...
->
-> Here's a quick check of my box.  I've explicitly stated which root-level
-> directories to search, to avoid nfs mounts, chrooted OSes, and virtual
-> filesystems like /proc and /sys.
->
-> elite ~ # find /bin/ /boot/ /dev/ /emul/ /etc/ /home /lib32 /lib64 /opt
-> /root /sbin /tmp /usr /var -type f -size 1 | wc -l
-> 246127
->
-> According to the "find" manpage:
->
-> -size n[bckw]
->      File uses n units of space.  The units are  512-byte  blocks  by
->      default  or  if `b' follows n, bytes if `c' follows n, kilobytes
->      if `k' follows n, or 2-byte words if `w' follows  n.   The  size
->      does  not  count  indirect  blocks,  but it does count blocks in
->      sparse files that are not actually allocated.
->
->
-> And I certainly didn't plan it that way.  And this is my desktop box,
-> and I'm just one user.  Most of the space is taken up by movies.
->
-> And yet, I have almost 250k files at the moment whose size is less than
-> 512 bytes.  And this is a normal usage pattern.  It's not hard to
-> imagine something prone to creating lots of tiny files, combined with
-> thousands of users, easily hitting some 40 mil files -- and since none
-> of them are movies, it could fit in 18 gigs.
->
-> I mean, just for fun:
->
-> elite ~ # find /bin/ /boot/ /dev/ /emul/ /etc/ /home /lib32 /lib64 /opt
-> /root /sbin /tmp /usr /var | wc -l
-> 866160
->
-> It may not be a good idea, but it's possible.  And one of the larger
-> reasons it's not a good idea is that most filesystems can't handle it.
-> Kind of like how BitTorrent is a very bad idea on dialup, but a very
-> good idea on broadband.
->
->
+	-hpa

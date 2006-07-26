@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWGZAY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWGZA0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWGZAY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWGZAY2
+	id S932508AbWGZA0q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWGZA0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:24:28 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:56333 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932506AbWGZAY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:24:28 -0400
-Date: Tue, 25 Jul 2006 20:20:43 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>,
-       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
-       a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060726002043.GA5192@localhost.localdomain>
-References: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain> <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org> <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com>
+	Tue, 25 Jul 2006 20:26:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9689 "EHLO
+	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S932508AbWGZA0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:26:45 -0400
+Subject: Re: Rescan IDE interface when no IDE devices are present
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel De Graaf <danieldegraaf@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+References: <427c54c0607161212m714f4faew60b8615e06ac885a@mail.gmail.com>
+	 <1153077903.5905.35.camel@localhost.localdomain>
+	 <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 26 Jul 2006 02:28:24 +0100
+Message-Id: <1153877304.7559.44.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C6B117.80300@zytor.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 05:02:31PM -0700, H. Peter Anvin wrote:
-> Neil Horman wrote:
-> >On Wed, Jul 26, 2006 at 01:29:25AM +0200, Segher Boessenkool wrote:
-> >>>Yes, but if its in trade for something thats being used currently  
-> >>>which hurts
-> >>>more (case in point being the X server), using this solution is a  
-> >>>net gain.
-> >>...in the short term.
-> >>
-> >And for any arch that isn't able to leverage a speedup via a vdso 
-> >implementation
-> >of a simmilar functionality in the long term
+On Sul, 2006-07-16 at 15:03 -0500, Daniel De Graaf wrote:
+> On 7/16/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > If you have ide1, you have both hdc and hdd (slave of hdc) unles sit's
+> > not really IDE ...
+> >
+> > Ben.
 > 
-> If they can't, then they can't use your driver either.
-> 
-Whats your reasoning here?
+> Yes, I have /dev/hdd, but no device is ever present there. I also have
+> /dev/sda for the SATA hard disk, but do not think it is useful for
+> HDIO_SCAN_HWIF or HWIO_UNREGISTER_HWIF ioctls.
 
-> >>>I'm not arguing with you that adding a low res gettimeofday  
-> >>>vsyscall is a better
-> >>>long term solution, but doing that requires potentially several  
-> >>>implementations
-> >>>in the C library accross a range of architectures, some of which  
-> >>>may not be able
-> >>>to provide a time solution any better than what the gettimeofday  
-> >>>syscall
-> >>>provides today.  The /dev/rtc solution is easy, available right  
-> >>>now, and applies
-> >>>to all arches.
-> >>"All"?
-> >>
-> >It there any arch for which the rtc driver doesn't function?
-> 
-> Yes, there are plenty of systems which don't have an RTC, or have an RTC 
-> which can't generate interrupts.
-> 
-Ok, for those implementations which don't have an RTC that the rtc driver can
-drive, the mmap functionality will not work, but at that point what interface
-are you left with at all for obtaining periodic time?
-Neil
+There isn't. Feel free to write a module to do it (see how the ioctl
+handles it and follow the same logic). Its at best a hack. libata is
+trying to add proper hotplug for ATA/SATA.
 
-> 	-hpa
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alan

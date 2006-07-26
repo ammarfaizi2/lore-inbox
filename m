@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWGZQYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751683AbWGZQZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751700AbWGZQYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWGZQYx
+	id S1751683AbWGZQZa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWGZQZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:24:53 -0400
-Received: from mx1.suse.de ([195.135.220.2]:63461 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751699AbWGZQYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:24:53 -0400
-Date: Wed, 26 Jul 2006 09:20:07 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: restore missing PCI registers after reset
-Message-ID: <20060726162007.GA9871@suse.de>
-References: <20060717162531.GC4829@kroah.com> <20060726102944.GA9411@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726102944.GA9411@mellanox.co.il>
-User-Agent: Mutt/1.5.11
+	Wed, 26 Jul 2006 12:25:30 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:35530 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751683AbWGZQZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:25:28 -0400
+Date: Wed, 26 Jul 2006 09:25:08 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <84144f020607260843i15247ddai7f447f0d9422fec5@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607260916110.5962@schroedinger.engr.sgi.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com> 
+ <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com> 
+ <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260823160.5647@schroedinger.engr.sgi.com>
+ <84144f020607260843i15247ddai7f447f0d9422fec5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:29:44PM +0300, Michael S. Tsirkin wrote:
-> Quoting r. Greg KH <gregkh@suse.de>:
-> > Subject: [patch 02/45] IB/mthca: restore missing PCI registers after reset
-> > ------------------
-> > mthca does not restore the following PCI-X/PCI Express registers after reset:
-> >   PCI-X device: PCI-X command register
-> >   PCI-X bridge: upstream and downstream split transaction registers
-> >   PCI Express : PCI Express device control and link control registers
-> > 
-> > This causes instability and/or bad performance on systems where one of
-> > these registers is set to a non-default value by BIOS.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+On Wed, 26 Jul 2006, Pekka Enberg wrote:
+
+> On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
+> > We intentionally discard the caller mandated alignment for debugging
+> > purposes.
 > 
-> By the way, Greg, this code is completely generic, and the same seems to apply
-> to all PCI-X/PCI-Express devices - should not pci_restore_state and
-> friends really know about these registers, as well?
+> Disagreed. The caller mandated alignment is not a hint. It is the
+> required minimum alignment for objects.
+
+This has been with the slab for a long time. Lots of alignments are now
+ignored for the debugging case without a problem. Manfred intentionally
+put that in. Alignments passed to kmem_cache_create are there for
+performance reasons and not because unaligned object break the arch code.
+ 
+> On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
+> > And it changes the basic way that slab debugging works.
 > 
-> What do you think?
+> Look at kmem_cache_create, we turn off debugging for both caller and
+> architecture mandated alignments already and the only reason we are
+> not doing it for Heiko is because the architecture recommended default
+> alignment is so large.
 
-I think pci_restore_state() already restores the msi and msix state,
-take a look at the latest kernel version :)
+We discard alignment for FORCED_DEBUG unless
 
-thanks,
+1. object size > 4096
 
-greg k-h
+2. If the object size would increase unreasonably.
+
+I simply added another case. That preseves the discarding of alignment for 
+the FORCED_DEBUG case but allows an override if operations would be 
+impossible for not correctly aligned objects for certain caches (like in 
+the S/390 case).

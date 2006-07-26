@@ -1,129 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWGZOV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWGZOWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWGZOV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 10:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWGZOV4
+	id S1750737AbWGZOWw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 10:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWGZOWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 10:21:56 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:1516 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750733AbWGZOV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 10:21:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iZH9R2qf2OTc/C0eA+kZyVxl43b3t5IAlBbpsJN6aee66o28oQn8hxzR+JhGekCdlDSpzzQtlwYF6BKCP5CBZBatffBHDMQCz5mZ71v1tK+4r4kGOWGaw6ym/rvNinHjdioWrmWjDIacF0h5hbNvNADACHYBG+CrrAEGm77kIyQ=
-Message-ID: <f96157c40607260721s43837f9er810da838ed56cf1b@mail.gmail.com>
-Date: Wed, 26 Jul 2006 14:21:53 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Michael Buesch" <mb@bu3sch.de>
-Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200607261544.39532.mb@bu3sch.de>
+	Wed, 26 Jul 2006 10:22:52 -0400
+Received: from ccerelbas02.cce.hp.com ([161.114.21.105]:6025 "EHLO
+	ccerelbas02.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1750737AbWGZOWv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 10:22:51 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060725222209.0048ed15.akpm@osdl.org>
-	 <200607261544.39532.mb@bu3sch.de>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] CCISS: Don't print driver version until we actually find a device
+Date: Wed, 26 Jul 2006 09:22:14 -0500
+Message-ID: <E717642AF17E744CA95C070CA815AE553882D2@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <200607251636.42765.bjorn.helgaas@hp.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] CCISS: Don't print driver version until we actually find a device
+Thread-Index: AcawOtC0bFBGX4zLRluvtRN3Yw8cHwAg/FDQ
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Helgaas, Bjorn" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>
+Cc: "ISS StorageDev" <iss_storagedev@hp.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2006 14:22:15.0930 (UTC) FILETIME=[E5062DA0:01C6B0BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/06, Michael Buesch <mb@bu3sch.de> wrote:
-> On Wednesday 26 July 2006 07:22, Andrew Morton wrote:
-> > with latest HEAD of Linus' tree I got /dev/hwrng but although the device
-> > exists rngtest does not pass as if hwrng does not work correctly.
-> > actually this case is documented in the README supplied by Debian
-> > but I'm surprised to hit the problem.
-> >
-> > I'm just curious whether there's a bug in the driver, the hwrng is bad
-> > or if it is falsely detected and made accessible via /dev/hwrng.
-> >
-> > rngtest 2-unofficial-mt.10
-> > Copyright (c) 2004 by Henrique de Moraes Holschuh
-> > This is free software; see the source for copying conditions.  There
-> > is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
-> > PARTICULAR PURPOSE.
-> >
-> > rngtest: starting FIPS tests...
-> > rngtest: bits received from input: 200032
-> > rngtest: FIPS 140-2 successes: 0
-> > rngtest: FIPS 140-2 failures: 10
-> > rngtest: FIPS 140-2(2001-10-10) Monobit: 10
-> > rngtest: FIPS 140-2(2001-10-10) Poker: 10
-> > rngtest: FIPS 140-2(2001-10-10) Runs: 10
-> > rngtest: FIPS 140-2(2001-10-10) Long run: 10
-> > rngtest: FIPS 140-2(2001-10-10) Continuous run: 10
-> > rngtest: input channel speed: (min=1.132; avg=2.157; max=2.794)Mibits/s
-> > rngtest: FIPS tests speed: (min=202.909; avg=206.647; max=211.928)Mibits/s
-> > rngtest: Program run time: 89804 microseconds
-> >
-> >
-> > lspci
-> > 00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
-> > 00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev
-> > 0c)
-> > 00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c)
-> > 00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-> > oller #1 (rev 02)
-> > 00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-> > oller #2 (rev 02)
-> > 00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-> > oller #3 (rev 02)
-> > 00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
-> > oller #4 (rev 02)
-> > 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Cont
-> > roller (rev 02)
-> > 00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
-> > 00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Brid
-> > ge (rev 02)
-> > 00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller
-> > (rev 02)
-> > 01:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-> > 01:04.0 System peripheral: Compaq Computer Corporation Integrated Lights Out Con
-> > troller (rev 01)
-> > 01:04.2 System peripheral: Compaq Computer Corporation Integrated Lights Out  Pr
-> > ocessor (rev 01)
-> > 02:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
-> > 9)
-> > 02:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
-> > 9)
-> > 03:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
-> > rnet (rev 10)
-> > 03:01.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
-> > rnet (rev 10)
-> > 04:03.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
-> > 1)
-> > 05:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
-> > 9)
-> > 05:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
-> > 9)
-> > 0a:01.0 PCI bridge: IBM PCI-X to PCI-X Bridge (rev 03)
-> > 0b:04.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
-> > 1)
->
->
-> I guess you are running the Intel ICH RNG, right?
-> As the FIPS test is a hardware test, I would simply say it's
-> failing hardware. But let's not do this. :) Let's check what
-> actually comes out of the RNG.
-> Could you do a
-> hexdump /dev/hwrng
-> So we can see what actually comes ot of the device. Let's see
-> if it's all zeros or something.
->
-> Does the RNG work, if you use 2.6.17 or earlier?
+ 
 
-it just outputs this and stops with 2.6.18-rc2-HEAD (see dmesg for hashcode or
-whatever that is which is appended as localversion)
+> -----Original Message-----
+> From: Helgaas, Bjorn 
+> Sent: Tuesday, July 25, 2006 5:37 PM
+> To: Andrew Morton
+> Cc: Miller, Mike (OS Dev); ISS StorageDev; 
+> linux-kernel@vger.kernel.org
+> Subject: [PATCH] CCISS: Don't print driver version until we 
+> actually find a device
+> 
+> If we don't find any devices, we shouldn't print anything.
+> 
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-svn:~# hexdump /dev/hwrng
-0000000 ffff ffff ffff ffff ffff ffff ffff ffff
-*
+Acked-by: Mike Miller <mike.miller@hp.com>
 
-with 2.6.17.6:
-svn:~# hexdump /dev/hwrng
-0000000 ffff ffff ffff ffff ffff ffff ffff ffff
-*
-
-this was without any rng-tools installed and no rngd running of course.
+> 
+> Index: work-mm2/drivers/block/cciss.c
+> ===================================================================
+> --- work-mm2.orig/drivers/block/cciss.c	2006-07-20 
+> 16:27:34.000000000 -0600
+> +++ work-mm2/drivers/block/cciss.c	2006-07-25 
+> 16:16:27.000000000 -0600
+> @@ -3109,12 +3109,16 @@
+>  static int __devinit cciss_init_one(struct pci_dev *pdev,
+>  				    const struct pci_device_id *ent)  {
+> +	static int cciss_version_printed = 0;
+>  	request_queue_t *q;
+>  	int i;
+>  	int j;
+>  	int rc;
+>  	int dac;
+>  
+> +	if (cciss_version_printed++ == 0)
+> +		printk(KERN_INFO DRIVER_NAME "\n");
+> +
+>  	i = alloc_cciss_hba();
+>  	if (i < 0)
+>  		return -1;
+> @@ -3370,9 +3374,6 @@
+>   */
+>  static int __init cciss_init(void)
+>  {
+> -	printk(KERN_INFO DRIVER_NAME "\n");
+> -
+> -	/* Register for our PCI devices */
+>  	return pci_register_driver(&cciss_pci_driver);
+>  }
+>  
+> 

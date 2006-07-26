@@ -1,42 +1,431 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751777AbWGZUIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGZUI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751777AbWGZUIX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 16:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWGZUIX
+	id S1751140AbWGZUI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWGZUI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 16:08:23 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:24278 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751777AbWGZUIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 16:08:23 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: swsusp hangs on headless resume-from-ram
-Date: Wed, 26 Jul 2006 22:07:46 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <200607262206.48801.a1426z@gawab.com>
-In-Reply-To: <200607262206.48801.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jul 2006 16:08:27 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:38370 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1751140AbWGZUIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:08:25 -0400
+Date: Wed, 26 Jul 2006 16:19:16 -0400
+From: Catherine Zhang <cxzhang@watson.ibm.com>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jmorris@namei.org,
+       sds@tycho.nsa.gov, davem@davemloft.net
+Cc: catalin.marinas@gmail.com, michal.k.k.piotrowski@gmail.com,
+       czhang.us@gmail.com
+Subject: RFC: kernel memory leak fix for af_unix datagram getpeersec
+Message-ID: <20060726201916.GA32505@jiayuguan.watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607262207.46773.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 July 2006 21:06, Al Boldi wrote:
-> 
-> swsusp is really great, most of the time.  But sometimes it hangs after 
-> coming out of STR.  I suspect it's got something to do with display access, 
-> as this problem seems hw related.  So I removed the display card, and it 
-> positively does not resume from ram on 2.6.16+.
-> 
-> Any easy fix for this?
+Hi, all,
 
-I have one idea, but you'll need a patch to test.  I'll try to prepare it tomorrow.
+Enclosed please find the new fix for the memory leak problem, incorporating
+suggestions from Stephen and James.
 
-I guess your box is an i386?
+thanks all for your help!
+Catherine
 
-Rafael
+--
+
+
+From: cxzhang@watson.ibm.com
+
+This patch implements a cleaner fix for the memory leak problem of the original 
+unix datagram getpeersec patch.  Instead of creating a security context each
+time a unix datagram is sent, we only create the security context when the
+receiver requests it.
+
+This new design requires modification of the current unix_getsecpeer_dgram
+LSM hook and addition of two new hooks, namely, sid_to_secctx and
+release_secctx.  The former retrieves the security context and the latter
+releases it.  A hook is required for releasing the security context because
+it is up to the security module to decide how that's done.  In the case of
+Selinux, it's a simple kfree operation.
+
+
+---
+
+ include/linux/security.h |   41 +++++++++++++++++++++++++++++++++++------
+ include/net/af_unix.h    |    6 ++----
+ include/net/scm.h        |   29 +++++++++++++++++++++++++----
+ net/ipv4/ip_sockglue.c   |    9 +++++++--
+ net/unix/af_unix.c       |   33 ++++++---------------------------
+ security/dummy.c         |   14 ++++++++++++--
+ security/selinux/hooks.c |   34 ++++++++++++++++++++++------------
+ 7 files changed, 109 insertions(+), 57 deletions(-)
+
+diff -puN include/net/scm.h~af_unix-datagram-getpeersec-ml-fix include/net/scm.h
+--- linux-2.6.18-rc2/include/net/scm.h~af_unix-datagram-getpeersec-ml-fix	2006-07-22 21:28:21.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/include/net/scm.h	2006-07-24 11:19:54.000000000 -0400
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/limits.h>
+ #include <linux/net.h>
++#include <linux/security.h>
+ 
+ /* Well, we should have at least one descriptor open
+  * to accept passed FDs 8)
+@@ -20,8 +21,7 @@ struct scm_cookie
+ 	struct ucred		creds;		/* Skb credentials	*/
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	char			*secdata;	/* Security context	*/
+-	u32			seclen;		/* Security length	*/
++	u32			sid;		/* Passed security ID 	*/
+ #endif
+ 	unsigned long		seq;		/* Connection seqno	*/
+ };
+@@ -32,6 +32,16 @@ extern int __scm_send(struct socket *soc
+ extern void __scm_destroy(struct scm_cookie *scm);
+ extern struct scm_fp_list * scm_fp_dup(struct scm_fp_list *fpl);
+ 
++#ifdef CONFIG_SECURITY_NETWORK
++static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
++{
++	security_socket_getpeersec_dgram(sock, NULL, &scm->sid);
++}
++#else
++static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
++{ }
++#endif /* CONFIG_SECURITY_NETWORK */
++
+ static __inline__ void scm_destroy(struct scm_cookie *scm)
+ {
+ 	if (scm && scm->fp)
+@@ -47,6 +57,7 @@ static __inline__ int scm_send(struct so
+ 	scm->creds.pid = p->tgid;
+ 	scm->fp = NULL;
+ 	scm->seq = 0;
++	unix_get_peersec_dgram(sock, scm);
+ 	if (msg->msg_controllen <= 0)
+ 		return 0;
+ 	return __scm_send(sock, msg, scm);
+@@ -55,8 +66,18 @@ static __inline__ int scm_send(struct so
+ #ifdef CONFIG_SECURITY_NETWORK
+ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
+ {
+-	if (test_bit(SOCK_PASSSEC, &sock->flags) && scm->secdata != NULL)
+-		put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, scm->seclen, scm->secdata);
++	char *secdata;
++	u32 seclen;
++	int err;
++
++	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
++		err = security_sid_to_secctx(scm->sid, &secdata, &seclen);
++
++		if (!err) {
++			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
++			security_release_secctx(secdata, seclen);
++		}
++	}
+ }
+ #else
+ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
+diff -puN net/unix/af_unix.c~af_unix-datagram-getpeersec-ml-fix net/unix/af_unix.c
+--- linux-2.6.18-rc2/net/unix/af_unix.c~af_unix-datagram-getpeersec-ml-fix	2006-07-22 23:01:26.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/net/unix/af_unix.c	2006-07-22 23:14:15.000000000 -0400
+@@ -127,30 +127,6 @@ static atomic_t unix_nr_socks = ATOMIC_I
+ 
+ #define UNIX_ABSTRACT(sk)	(unix_sk(sk)->addr->hash != UNIX_HASH_SIZE)
+ 
+-#ifdef CONFIG_SECURITY_NETWORK
+-static void unix_get_peersec_dgram(struct sk_buff *skb)
+-{
+-	int err;
+-
+-	err = security_socket_getpeersec_dgram(skb, UNIXSECDATA(skb),
+-					       UNIXSECLEN(skb));
+-	if (err)
+-		*(UNIXSECDATA(skb)) = NULL;
+-}
+-
+-static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+-{
+-	scm->secdata = *UNIXSECDATA(skb);
+-	scm->seclen = *UNIXSECLEN(skb);
+-}
+-#else
+-static inline void unix_get_peersec_dgram(struct sk_buff *skb)
+-{ }
+-
+-static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+-{ }
+-#endif /* CONFIG_SECURITY_NETWORK */
+-
+ /*
+  *  SMP locking strategy:
+  *    hash table is protected with spinlock unix_table_lock
+@@ -1323,8 +1299,9 @@ static int unix_dgram_sendmsg(struct kio
+ 	memcpy(UNIXCREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
+ 	if (siocb->scm->fp)
+ 		unix_attach_fds(siocb->scm, skb);
+-
+-	unix_get_peersec_dgram(skb);
++#ifdef CONFIG_SECURITY_NETWORK
++	memcpy(UNIXSID(skb), &siocb->scm->sid, sizeof(u32));
++#endif /* CONFIG_SECURITY_NETWORK */
+ 
+ 	skb->h.raw = skb->data;
+ 	err = memcpy_fromiovec(skb_put(skb,len), msg->msg_iov, len);
+@@ -1605,7 +1582,9 @@ static int unix_dgram_recvmsg(struct kio
+ 		memset(&tmp_scm, 0, sizeof(tmp_scm));
+ 	}
+ 	siocb->scm->creds = *UNIXCREDS(skb);
+-	unix_set_secdata(siocb->scm, skb);
++#ifdef CONFIG_SECURITY_NETWORK
++	siocb->scm->sid   = *UNIXSID(skb);
++#endif /* CONFIG_SECURITY_NETWORK */
+ 
+ 	if (!(flags & MSG_PEEK))
+ 	{
+diff -puN include/net/af_unix.h~af_unix-datagram-getpeersec-ml-fix include/net/af_unix.h
+--- linux-2.6.18-rc2/include/net/af_unix.h~af_unix-datagram-getpeersec-ml-fix	2006-07-22 23:41:05.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/include/net/af_unix.h	2006-07-22 23:43:26.000000000 -0400
+@@ -54,15 +54,13 @@ struct unix_skb_parms {
+ 	struct ucred		creds;		/* Skb credentials	*/
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	char			*secdata;	/* Security context	*/
+-	u32			seclen;		/* Security length	*/
++	u32			sid;		/* Security ID		*/
+ #endif
+ };
+ 
+ #define UNIXCB(skb) 	(*(struct unix_skb_parms*)&((skb)->cb))
+ #define UNIXCREDS(skb)	(&UNIXCB((skb)).creds)
+-#define UNIXSECDATA(skb)	(&UNIXCB((skb)).secdata)
+-#define UNIXSECLEN(skb)		(&UNIXCB((skb)).seclen)
++#define UNIXSID(skb)	(&UNIXCB((skb)).sid)
+ 
+ #define unix_state_rlock(s)	spin_lock(&unix_sk(s)->lock)
+ #define unix_state_runlock(s)	spin_unlock(&unix_sk(s)->lock)
+diff -puN include/linux/security.h~af_unix-datagram-getpeersec-ml-fix include/linux/security.h
+--- linux-2.6.18-rc2/include/linux/security.h~af_unix-datagram-getpeersec-ml-fix	2006-07-23 17:49:18.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/include/linux/security.h	2006-07-24 11:16:54.000000000 -0400
+@@ -1109,6 +1109,16 @@ struct swap_info_struct;
+  *	@name contains the name of the security module being unstacked.
+  *	@ops contains a pointer to the struct security_operations of the module to unstack.
+  * 
++ * @sid_to_secctx:
++ *	Convert sid to security context.
++ *	@sid contains the security ID.
++ *	@secdata contains the pointer that stores the converted security context.
++ *
++ * @release_secctx:
++ *	Release the security context.
++ *	@secdata contains the security context.
++ *	@seclen contains the length of the security context.
++ *
+  * This is the main security structure.
+  */
+ struct security_operations {
+@@ -1289,6 +1299,8 @@ struct security_operations {
+ 
+  	int (*getprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
++	int (*sid_to_secctx)(u32 sid, char **secdata, u32 *seclen);
++	void (*release_secctx)(char *secdata, u32 seclen);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	int (*unix_stream_connect) (struct socket * sock,
+@@ -1317,7 +1329,7 @@ struct security_operations {
+ 	int (*socket_shutdown) (struct socket * sock, int how);
+ 	int (*socket_sock_rcv_skb) (struct sock * sk, struct sk_buff * skb);
+ 	int (*socket_getpeersec_stream) (struct socket *sock, char __user *optval, int __user *optlen, unsigned len);
+-	int (*socket_getpeersec_dgram) (struct sk_buff *skb, char **secdata, u32 *seclen);
++	int (*socket_getpeersec_dgram) (struct socket *sock, struct sk_buff *skb, u32 *sid);
+ 	int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority);
+ 	void (*sk_free_security) (struct sock *sk);
+ 	unsigned int (*sk_getsid) (struct sock *sk, struct flowi *fl, u8 dir);
+@@ -2059,6 +2071,16 @@ static inline int security_netlink_recv(
+ 	return security_ops->netlink_recv(skb, cap);
+ }
+ 
++static inline int security_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
++{
++	return security_ops->sid_to_secctx(sid, secdata, seclen);
++}
++
++static inline void security_release_secctx(char *secdata, u32 seclen)
++{
++	return security_ops->release_secctx(secdata, seclen);
++}
++
+ /* prototypes */
+ extern int security_init	(void);
+ extern int register_security	(struct security_operations *ops);
+@@ -2725,6 +2747,15 @@ static inline void securityfs_remove(str
+ {
+ }
+ 
++static inline int security_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
++{
++	return -EOPNOTSUPP;
++}
++
++static inline void security_release_secctx(char *secdata, u32 seclen)
++{
++	return -EOPNOTSUPP;
++}
+ #endif	/* CONFIG_SECURITY */
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -2840,10 +2871,9 @@ static inline int security_socket_getpee
+ 	return security_ops->socket_getpeersec_stream(sock, optval, optlen, len);
+ }
+ 
+-static inline int security_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
+-						   u32 *seclen)
++static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
+ {
+-	return security_ops->socket_getpeersec_dgram(skb, secdata, seclen);
++	return security_ops->socket_getpeersec_dgram(sock, skb, sid);
+ }
+ 
+ static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
+@@ -2968,8 +2998,7 @@ static inline int security_socket_getpee
+ 	return -ENOPROTOOPT;
+ }
+ 
+-static inline int security_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
+-						   u32 *seclen)
++static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
+ {
+ 	return -ENOPROTOOPT;
+ }
+diff -puN security/selinux/hooks.c~af_unix-datagram-getpeersec-ml-fix security/selinux/hooks.c
+--- linux-2.6.18-rc2/security/selinux/hooks.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 00:55:21.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/security/selinux/hooks.c	2006-07-24 23:28:05.000000000 -0400
+@@ -3524,25 +3524,21 @@ out:	
+ 	return err;
+ }
+ 
+-static int selinux_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata, u32 *seclen)
++static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
+ {
++	u32 peer_sid = SECSID_NULL;
+ 	int err = 0;
+-	u32 peer_sid;
+ 
+-	if (skb->sk->sk_family == PF_UNIX)
+-		selinux_get_inode_sid(SOCK_INODE(skb->sk->sk_socket),
+-				      &peer_sid);
+-	else
++	if (sock && (sock->sk->sk_family == PF_UNIX))
++		selinux_get_inode_sid(SOCK_INODE(sock), &peer_sid);
++	else if (skb)
+ 		peer_sid = selinux_socket_getpeer_dgram(skb);
+ 
+ 	if (peer_sid == SECSID_NULL)
+-		return -EINVAL;
+-
+-	err = security_sid_to_context(peer_sid, secdata, seclen);
+-	if (err)
+-		return err;
++		err = -EINVAL;
++	*sid = peer_sid;
+ 
+-	return 0;
++	return err;
+ }
+ 
+ static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+@@ -4407,6 +4403,17 @@ static int selinux_setprocattr(struct ta
+ 	return size;
+ }
+ 
++static int selinux_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
++{
++	return security_sid_to_context(sid, secdata, seclen);
++}
++
++static void selinux_release_secctx(char *secdata, u32 seclen)
++{
++	if (secdata)
++		kfree(secdata);
++}
++
+ #ifdef CONFIG_KEYS
+ 
+ static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
+@@ -4587,6 +4594,9 @@ static struct security_operations selinu
+ 	.getprocattr =                  selinux_getprocattr,
+ 	.setprocattr =                  selinux_setprocattr,
+ 
++	.sid_to_secctx =		selinux_sid_to_secctx,
++	.release_secctx =		selinux_release_secctx,
++
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+ 	.unix_may_send =		selinux_socket_unix_may_send,
+ 
+diff -puN security/dummy.c~af_unix-datagram-getpeersec-ml-fix security/dummy.c
+--- linux-2.6.18-rc2/security/dummy.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 01:01:07.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/security/dummy.c	2006-07-24 11:30:36.000000000 -0400
+@@ -791,8 +791,7 @@ static int dummy_socket_getpeersec_strea
+ 	return -ENOPROTOOPT;
+ }
+ 
+-static int dummy_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
+-					 u32 *seclen)
++static int dummy_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
+ {
+ 	return -ENOPROTOOPT;
+ }
+@@ -876,6 +875,15 @@ static int dummy_setprocattr(struct task
+ 	return -EINVAL;
+ }
+ 
++static int dummy_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
++{
++	return -EOPNOTSUPP;
++}
++
++static void dummy_release_secctx(char *secdata, u32 seclen)
++{
++}
++
+ #ifdef CONFIG_KEYS
+ static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx,
+ 				  unsigned long flags)
+@@ -1028,6 +1036,8 @@ void security_fixup_ops (struct security
+ 	set_to_dummy_if_null(ops, d_instantiate);
+  	set_to_dummy_if_null(ops, getprocattr);
+  	set_to_dummy_if_null(ops, setprocattr);
++ 	set_to_dummy_if_null(ops, sid_to_secctx);
++ 	set_to_dummy_if_null(ops, release_secctx);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+ 	set_to_dummy_if_null(ops, unix_may_send);
+diff -puN net/ipv4/ip_sockglue.c~af_unix-datagram-getpeersec-ml-fix net/ipv4/ip_sockglue.c
+--- linux-2.6.18-rc2/net/ipv4/ip_sockglue.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 18:42:18.000000000 -0400
++++ linux-2.6.18-rc2-cxzhang/net/ipv4/ip_sockglue.c	2006-07-24 18:42:25.000000000 -0400
+@@ -112,14 +112,19 @@ static void ip_cmsg_recv_retopts(struct 
+ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+ {
+ 	char *secdata;
+-	u32 seclen;
++	u32 seclen, sid;
+ 	int err;
+ 
+-	err = security_socket_getpeersec_dgram(skb, &secdata, &seclen);
++	err = security_socket_getpeersec_dgram(NULL, skb, &sid);
++	if (err)
++		return;
++
++	err = security_sid_to_secctx(sid, &secdata, &seclen);
+ 	if (err)
+ 		return;
+ 
+ 	put_cmsg(msg, SOL_IP, SCM_SECURITY, seclen, secdata);
++	security_release_secctx(secdata, seclen);
+ }
+ 
+ 
+_

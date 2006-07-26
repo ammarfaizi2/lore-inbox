@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWGZKMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWGZKN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWGZKMp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWGZKMp
+	id S932095AbWGZKN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWGZKN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:12:45 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8346
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751334AbWGZKMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:12:44 -0400
-Date: Wed, 26 Jul 2006 03:12:47 -0700 (PDT)
-Message-Id: <20060726.031247.98341392.davem@davemloft.net>
-To: hch@infradead.org
-Cc: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, drepper@redhat.com,
-       netdev@vger.kernel.org
+	Wed, 26 Jul 2006 06:13:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2961 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932086AbWGZKN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:13:57 -0400
+Date: Wed, 26 Jul 2006 11:13:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       netdev <netdev@vger.kernel.org>
 Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060726100431.GA7518@infradead.org>
-References: <1153905495613@2ka.mipt.ru>
-	<11539054952574@2ka.mipt.ru>
-	<20060726100431.GA7518@infradead.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Message-ID: <20060726101356.GA8443@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	lkml <linux-kernel@vger.kernel.org>,
+	David Miller <davem@davemloft.net>,
+	Ulrich Drepper <drepper@redhat.com>,
+	netdev <netdev@vger.kernel.org>
+References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100013.GA7126@infradead.org> <20060726100848.GA2715@2ka.mipt.ru>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726100848.GA2715@2ka.mipt.ru>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Hellwig <hch@infradead.org>
-Date: Wed, 26 Jul 2006 11:04:31 +0100
+On Wed, Jul 26, 2006 at 02:08:49PM +0400, Evgeniy Polyakov wrote:
+> On Wed, Jul 26, 2006 at 11:00:13AM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> > >  struct address_space_operations ext2_aops = {
+> > > +	.get_block		= ext2_get_block,
+> > 
+> > No way in hell.  For whatever you do please provide a interface at
+> > the readpage/writepage/sendfile/etc abstraction layer.  get_block is
+> > nothing that can be exposed to the common code.
+> 
+> Compare this with sync read methods - all they do is exactly the same
+> operations with low-level blocks, which are combined into nice exported
+> function, so there is _no_ readpage layer - it calls only one function
+> which works with blocks.
 
-> And to be honest, I don't think adding all this code is acceptable
-> if it can't replace the existing aio code while keeping the
-> interface.  So while you interface looks pretty sane the
-> implementation needs a lot of work still :)
+No.  The abtraction layer there is ->readpage(s).  _A_ common implementation
+works with a get_block callback from the filesystem, but there are various
+others.  We've been there before, up to mid-2.3.x we had a get_block inode
+operation and we got rid of it because it is the wrong abstraction.
 
-Networking and disk AIO have significantly different needs.
+> So it is not a technical problem, but political one.
 
-Therefore, I really don't see it as reasonable to expect
-a merge of these two things.  It doesn't make any sense.
-
-I do agree that this stuff needs to be cleaned up, all the get_block
-etc. hacks have to be pulled out and abstracted properly.  That part
-of the kevent changes are indeed still crap :)
+It's a technical problem, and it's called get you abstractions right.  And
+ontop of that a political one and that's called get your abstraction coherent.
+If you managed to argue all of us into accept that get_block is the right
+abstraction (and as I mentioned above that's technically not true) you'd
+still have the burden to update everything to use the same abstraction.

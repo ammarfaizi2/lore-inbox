@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWGZPXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWGZPY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWGZPXp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWGZPXp
+	id S1750926AbWGZPY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWGZPY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:23:45 -0400
-Received: from ns2.suse.de ([195.135.220.15]:25291 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751210AbWGZPXp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:23:45 -0400
-To: "Marco Berizzi" <pupilla@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp + acpi
-References: <BAY103-F3153494B351109F93D7986B25B0@phx.gbl>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Jul 2006 17:23:43 +0200
-In-Reply-To: <BAY103-F3153494B351109F93D7986B25B0@phx.gbl>
-Message-ID: <p733bco5r0g.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 26 Jul 2006 11:24:29 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:29367 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751540AbWGZPY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 11:24:27 -0400
+Date: Wed, 26 Jul 2006 08:24:15 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.64.0607260823160.5647@schroedinger.engr.sgi.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com>  <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+  <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com>
+ <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com>
+ <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marco Berizzi" <pupilla@hotmail.com> writes:
+On Wed, 26 Jul 2006, Pekka J Enberg wrote:
 
-> Since 2.6.15 smp doesn't work anymore without ACPI
-> May be possible to have a note in "Symmetric multi processing
-> support" help dialog? Or is it possible to enable ACPI when
-> SMP is selected?
+> On Wed, 26 Jul 2006, Christoph Lameter wrote:
+> > The following patch adds an option SLAB_DEBUG_OVERRIDE to switch off
+> > debugging if its on by default. S390 would have to set ARCH_KMALLOC_FLAGS
+> > to SLAB_DEBUG_OVERRIDE. The flag will then be passed in 
+> > kmem_cache_init to kmem_cache_create(). This approach also preserves the 
+> > existing slab behavior for all other archs.
+> 
+> Please read my patch again. The rules are simple: we must disable 
+> debugging if architecture OR caller mandated alignment is greater than 
+> BYTES_PER_WORD. Note: for kmem_cache_init() the caller mandated alignment 
+> _is_ ARCH_KMALLOC_MINALIGN.
 
-It's probably specific to your system, nothing general.
+We intentionally discard the caller mandated alignment for debugging 
+purposes. 
+ 
+> My patch takes care of _both_ ARCH_KMALLOC_MINALIGN and 
+> ARCH_SLAB_MINALIGN.
 
--Andi
+And it changes the basic way that slab debugging works. 

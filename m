@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWGZX7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWG0AAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751824AbWGZX7t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 19:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbWGZX7s
+	id S1751827AbWG0AAa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 20:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWG0AAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 19:59:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61098 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751824AbWGZX7s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 19:59:48 -0400
-Date: Wed, 26 Jul 2006 19:59:31 -0400
-From: Dave Jones <davej@redhat.com>
+	Wed, 26 Jul 2006 20:00:30 -0400
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:3539 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1751827AbWG0AA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 20:00:29 -0400
+Date: Thu, 27 Jul 2006 00:59:44 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
 To: Dave Airlie <airlied@linux.ie>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: [PATCH] vm/agp: remove private page protection map
-Message-ID: <20060726235931.GA5687@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Dave Airlie <airlied@linux.ie>, Hugh Dickins <hugh@veritas.com>,
-	Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie> <Pine.LNX.4.64.0607262135440.11629@blonde.wat.veritas.com> <Pine.LNX.4.64.0607270023120.23571@skynet.skynet.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.64.0607270023120.23571@skynet.skynet.ie>
-User-Agent: Mutt/1.4.2.2i
+Message-ID: <Pine.LNX.4.64.0607270059220.17518@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
+ <Pine.LNX.4.64.0607262135440.11629@blonde.wat.veritas.com>
+ <Pine.LNX.4.64.0607270023120.23571@skynet.skynet.ie>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 27 Jul 2006 00:00:14.0992 (UTC) FILETIME=[A35B1900:01C6B10F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 12:24:27AM +0100, Dave Airlie wrote:
- > >
- > >I'm happy with the intent of your vm_get_page_prot() patch (and would
- > >like to extend it to other places after, minimizing references to the
- > >protection_map[]).  But there's a few aspects which distress me - the
- > >u8 type nowhere else in mm, the requirement that caller mask the arg,
- > >agp_convert_mmap_flags still using its own conversion from PROT_ to VM_
- > >while there's an inline in mm.h (though why someone thought to optimize
- > >and so obscure that version puzzles me!).  Would you be happy to insert
- > >your Sign-off in the replacement below?
- > 
- > No worries, I think davej can drop my one from his tree as well and take 
- > this..
+On Thu, 27 Jul 2006, Dave Airlie wrote:
+> > agp_convert_mmap_flags still using its own conversion from PROT_ to VM_
+> > while there's an inline in mm.h (though why someone thought to optimize
 
-Done, and pushed out to agpgart.git
+My mistake: calc_vm_prot_bits() is actually in include/linux/mman.h
+(which you are already #including, so no problem).
 
-Thanks,
+> > AGP keeps its own copy of the protection_map, upcoming DRM changes will
+> > also require access to this map from modules.
+> >
+> > Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> 
+> Signed-of-by: Dave Airlie <airlied@linux.ie>
 
-		Dave
+Thanks.  By the way, I hope you noticed that some architectures
+(arm, m68k, sparc, sparc64) may adjust protection_map[] at startup:
+so the old agp_convert_mmap_flags would supply the compiled in prot,
+whereas the new agp_convert_mmap_flags supplies the adjusted prot.
 
--- 
-http://www.codemonkey.org.uk
+I assume this is either irrelevant to you (no AGP on some arches?)
+or an improvement (the adjusted prot more appropriate); but if you
+weren't aware of it, please do check that those do what you want.
+
+Hugh

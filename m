@@ -1,174 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWGZMHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWGZMMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWGZMHY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWGZMHY
+	id S1751310AbWGZMMB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWGZMMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:07:24 -0400
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:62604 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750958AbWGZMHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:07:23 -0400
-Message-Id: <1153915645.13952.266906206@webmail.messagingengine.com>
-X-Sasl-Enc: /Wcuq1PUob2jFQUq1P+PIdKbbTd+LLnk/4atRihZSt1a 1153915645
-From: "Komal Shah" <komal_shah802003@yahoo.com>
-To: akpm@osdl.org, juha.yrjola@solidboot.com, tony@atomide.com,
-       ext-timo.teras@nokia.com
-Cc: r-woodruff2@ti.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net,
-       kjh@hilman.org
-Content-Transfer-Encoding: 7bit
-Content-Type: multipart/mixed; boundary="_----------=_1153915645139521"; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Subject: [PATCH 2/2] OMAP: Update OMAP1/2 boards to give keymapsize.
-Date: Wed, 26 Jul 2006 05:07:25 -0700
+	Wed, 26 Jul 2006 08:12:00 -0400
+Received: from mga06.intel.com ([134.134.136.21]:53258 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750719AbWGZML7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 08:11:59 -0400
+X-IronPort-AV: i="4.07,183,1151910000"; 
+   d="scan'208"; a="104792358:sNHT29333514"
+Date: Wed, 26 Jul 2006 05:02:17 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       linux-acpi@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+       akpm@osdl.org, zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
+       greg@kroah.com, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+Message-ID: <20060726050217.A20441@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com> <20060725164125.A15861@unix-os.sc.intel.com> <Pine.LNX.4.58.0607251711020.15622@shark.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0607251711020.15622@shark.he.net>; from rdunlap@xenotime.net on Tue, Jul 25, 2006 at 05:13:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, Jul 25, 2006 at 05:13:31PM -0700, Randy.Dunlap wrote:
+> On Tue, 25 Jul 2006, Keshavamurthy Anil S wrote:
+> 
+> > On Tue, Jul 25, 2006 at 04:18:54PM -0700, Kristen Carlson Accardi wrote:
+> > >     drivers/pci/hotplug/Kconfig |   17 ++++++++++++++++-
+> > >     1 file changed, 16 insertions(+), 1 deletion(-)
+> > Can;t this be done with just one line change?
+> 
+> The first attempted patch was something like:
+> 
+> 	depends on HOTPLUG_PCI && ACPI_DOCK!=n
+> 
+> but that is not legal kconfig language.
+> Did you have something else in mind?
 
---_----------=_1153915645139521
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Wed, 26 Jul 2006 12:07:25 UT
+Yup, already mentioned in my first email.
+Please see below which is just one line change
+and acheives the same as your 17 line change patch.
 
-Dmitry/Andrew/Tony,
+> > >    -       depends on ACPI_DOCK && HOTPLUG_PCI
+> > 	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || (ACPI_DOCK && HOTPLUG_PCI)
 
-Attached patch adds keymapsize in keypad platform data structure
-of all the related OMAP1/2 boards.
-
----Komal Shah
-http://komalshah.blogspot.com
-
--- 
-http://www.fastmail.fm - The way an email service should be
-
-
---_----------=_1153915645139521
-Content-Disposition: attachment; filename="0002-OMAP-Update-OMAP1-2-boards-to-give-keymapsize.patch"
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream; name="0002-OMAP-Update-OMAP1-2-boards-to-give-keymapsize.patch"
-MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-Date: Wed, 26 Jul 2006 12:07:25 UT
-
-RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
-bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBX
-ZWQsIDI2IEp1bCAyMDA2IDIyOjU1OjU5ICswNTMwClN1YmplY3Q6IFtQQVRD
-SCAyLzJdIE9NQVA6IFVwZGF0ZSBPTUFQMS8yIGJvYXJkcyB0byBnaXZlIGtl
-eW1hcHNpemUuCgpUaGlzIHBhdGNoIGFkZHMga2V5bWFwc2l6ZSBpbiB0aGUg
-a2V5cGFkIHBsYXRmb3JtIGRhdGEKZm9yIHZhcmlvdXMgVEkgT01BUDEvMiBi
-YXNlZCBib2FyZHMgbGlrZSBGLXNhbXBsZSwKSDIsIEgzLCBJbm5vdmF0b3Is
-IE5va2lhNzcwLCBPU0ssIFBlcnNldXMgYW5kIEg0LgoKU2lnbmVkLW9mZi1i
-eTogS29tYWwgU2hhaCA8a29tYWxfc2hhaDgwMjAwM0B5YWhvby5jb20+Cgot
-LS0KCiBhcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWZzYW1wbGUuYyAgIHwg
-ICAgNyArKysrLS0tCiBhcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgyLmMg
-ICAgICAgIHwgICAgOSArKysrKy0tLS0KIGFyY2gvYXJtL21hY2gtb21hcDEv
-Ym9hcmQtaDMuYyAgICAgICAgfCAgICA5ICsrKysrLS0tLQogYXJjaC9hcm0v
-bWFjaC1vbWFwMS9ib2FyZC1pbm5vdmF0b3IuYyB8ICAgIDcgKysrKy0tLQog
-YXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1ub2tpYTc3MC5jICB8ICAgIDcg
-KysrKy0tLQogYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1vc2suYyAgICAg
-ICB8ICAgIDcgKysrKy0tLQogYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1w
-ZXJzZXVzMi5jICB8ICAgIDcgKysrKy0tLQogYXJjaC9hcm0vbWFjaC1vbWFw
-Mi9ib2FyZC1oNC5jICAgICAgICB8ICAgIDEgKwogOCBmaWxlcyBjaGFuZ2Vk
-LCAzMSBpbnNlcnRpb25zKCspLCAyMyBkZWxldGlvbnMoLSkKCjNjMDVlZDQ2
-YzZmNDcyOTEyNzI3NDBkNDNhODA0ZTNlOGE5MDhiMDMKZGlmZiAtLWdpdCBh
-L2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtZnNhbXBsZS5jIGIvYXJjaC9h
-cm0vbWFjaC1vbWFwMS9ib2FyZC1mc2FtcGxlLmMKaW5kZXggYzc1M2EzYy4u
-NDcyYTk0OSAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2Fy
-ZC1mc2FtcGxlLmMKKysrIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1m
-c2FtcGxlLmMKQEAgLTE3Miw5ICsxNzIsMTAgQEAgc3RhdGljIHN0cnVjdCBy
-ZXNvdXJjZSBrcF9yZXNvdXJjZXNbXSA9IAogfTsKIAogc3RhdGljIHN0cnVj
-dCBvbWFwX2twX3BsYXRmb3JtX2RhdGEga3BfZGF0YSA9IHsKLQkucm93cwk9
-IDgsCi0JLmNvbHMJPSA4LAotCS5rZXltYXAgPSBmc2FtcGxlX2tleW1hcCwK
-Kwkucm93cwkJPSA4LAorCS5jb2xzCQk9IDgsCisJLmtleW1hcAkJPSBmc2Ft
-cGxlX2tleW1hcCwKKwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUoZnNhbXBs
-ZV9rZXltYXApLAogfTsKIAogc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZp
-Y2Uga3BfZGV2aWNlID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1v
-bWFwMS9ib2FyZC1oMi5jIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1o
-Mi5jCmluZGV4IGNkM2EwNmQuLjNhOTMzOWUgMTAwNjQ0Ci0tLSBhL2FyY2gv
-YXJtL21hY2gtb21hcDEvYm9hcmQtaDIuYworKysgYi9hcmNoL2FybS9tYWNo
-LW9tYXAxL2JvYXJkLWgyLmMKQEAgLTE2NywxMCArMTY3LDExIEBAIHN0YXRp
-YyBzdHJ1Y3QgcmVzb3VyY2UgaDJfa3BfcmVzb3VyY2VzW10KIH07CiAKIHN0
-YXRpYyBzdHJ1Y3Qgb21hcF9rcF9wbGF0Zm9ybV9kYXRhIGgyX2twX2RhdGEg
-PSB7Ci0JLnJvd3MJPSA4LAotCS5jb2xzCT0gOCwKLQkua2V5bWFwID0gaDJf
-a2V5bWFwLAotCS5yZXAJPSAxLAorCS5yb3dzCQk9IDgsCisJLmNvbHMJCT0g
-OCwKKwkua2V5bWFwCQk9IGgyX2tleW1hcCwKKwkua2V5bWFwc2l6ZQk9IEFS
-UkFZX1NJWkUoaDJfa2V5bWFwKSwKKwkucmVwCQk9IDEsCiB9OwogCiBzdGF0
-aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSBoMl9rcF9kZXZpY2UgPSB7CmRp
-ZmYgLS1naXQgYS9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgzLmMgYi9h
-cmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgzLmMKaW5kZXggN2IyMDYxMS4u
-ZDEyZjA3MCAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2Fy
-ZC1oMy5jCisrKyBiL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtaDMuYwpA
-QCAtMjQ3LDEwICsyNDcsMTEgQEAgc3RhdGljIHN0cnVjdCByZXNvdXJjZSBo
-M19rcF9yZXNvdXJjZXNbXQogfTsKIAogc3RhdGljIHN0cnVjdCBvbWFwX2tw
-X3BsYXRmb3JtX2RhdGEgaDNfa3BfZGF0YSA9IHsKLQkucm93cwk9IDgsCi0J
-LmNvbHMJPSA4LAotCS5rZXltYXAgPSBoM19rZXltYXAsCi0JLnJlcAk9IDEs
-CisJLnJvd3MJCT0gOCwKKwkuY29scwkJPSA4LAorCS5rZXltYXAJCT0gaDNf
-a2V5bWFwLAorCS5rZXltYXBzaXplCT0gQVJSQVlfU0laRShoM19rZXltYXAp
-LAorCS5yZXAJCT0gMSwKIH07CiAKIHN0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1f
-ZGV2aWNlIGgzX2twX2RldmljZSA9IHsKZGlmZiAtLWdpdCBhL2FyY2gvYXJt
-L21hY2gtb21hcDEvYm9hcmQtaW5ub3ZhdG9yLmMgYi9hcmNoL2FybS9tYWNo
-LW9tYXAxL2JvYXJkLWlubm92YXRvci5jCmluZGV4IDRjYmM2MmQuLjJiMTMz
-Y2EgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtaW5u
-b3ZhdG9yLmMKKysrIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1pbm5v
-dmF0b3IuYwpAQCAtMTU5LDkgKzE1OSwxMCBAQCBzdGF0aWMgc3RydWN0IHJl
-c291cmNlIGlubm92YXRvcl9rcF9yZXNvCiB9OwogCiBzdGF0aWMgc3RydWN0
-IG9tYXBfa3BfcGxhdGZvcm1fZGF0YSBpbm5vdmF0b3Jfa3BfZGF0YSA9IHsK
-LQkucm93cwk9IDgsCi0JLmNvbHMJPSA4LAotCS5rZXltYXAgPSBpbm5vdmF0
-b3Jfa2V5bWFwLAorCS5yb3dzCQk9IDgsCisJLmNvbHMJCT0gOCwKKwkua2V5
-bWFwCQk9IGlubm92YXRvcl9rZXltYXAsCisJLmtleW1hcHNpemUJPSBBUlJB
-WV9TSVpFKGlubm92YXRvcl9rZXltYXApLAogfTsKIAogc3RhdGljIHN0cnVj
-dCBwbGF0Zm9ybV9kZXZpY2UgaW5ub3ZhdG9yX2twX2RldmljZSA9IHsKZGlm
-ZiAtLWdpdCBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtbm9raWE3NzAu
-YyBiL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtbm9raWE3NzAuYwppbmRl
-eCAwMmI5ODBkLi4yZjE0ZDMzIDEwMDY0NAotLS0gYS9hcmNoL2FybS9tYWNo
-LW9tYXAxL2JvYXJkLW5va2lhNzcwLmMKKysrIGIvYXJjaC9hcm0vbWFjaC1v
-bWFwMS9ib2FyZC1ub2tpYTc3MC5jCkBAIC03MSw5ICs3MSwxMCBAQCBzdGF0
-aWMgc3RydWN0IHJlc291cmNlIG5va2lhNzcwX2twX3Jlc291CiB9OwogCiBz
-dGF0aWMgc3RydWN0IG9tYXBfa3BfcGxhdGZvcm1fZGF0YSBub2tpYTc3MF9r
-cF9kYXRhID0gewotCS5yb3dzICAgPSA4LAotCS5jb2xzICAgPSA4LAotCS5r
-ZXltYXAgPSBub2tpYTc3MF9rZXltYXAKKwkucm93cwkJPSA4LAorCS5jb2xz
-CQk9IDgsCisJLmtleW1hcAkJPSBub2tpYTc3MF9rZXltYXAsCisJLmtleW1h
-cHNpemUJPSBBUlJBWV9TSVpFKG5va2lhNzcwX2tleW1hcCkKIH07CiAKIHN0
-YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlIG5va2lhNzcwX2twX2Rldmlj
-ZSA9IHsKZGlmZiAtLWdpdCBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQt
-b3NrLmMgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLW9zay5jCmluZGV4
-IGI3NDIyNjEuLjQzMDM0OWEgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gt
-b21hcDEvYm9hcmQtb3NrLmMKKysrIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9i
-b2FyZC1vc2suYwpAQCAtMjY2LDkgKzI2NiwxMCBAQCBzdGF0aWMgY29uc3Qg
-aW50IG9za19rZXltYXBbXSA9IHsKIH07CiAKIHN0YXRpYyBzdHJ1Y3Qgb21h
-cF9rcF9wbGF0Zm9ybV9kYXRhIG9za19rcF9kYXRhID0gewotCS5yb3dzCT0g
-OCwKLQkuY29scwk9IDgsCi0JLmtleW1hcCA9IChpbnQgKikgb3NrX2tleW1h
-cCwKKwkucm93cwkJPSA4LAorCS5jb2xzCQk9IDgsCisJLmtleW1hcAkJPSAo
-aW50ICopIG9za19rZXltYXAsCisJLmtleW1hcHNpemUJPSBBUlJBWV9TSVpF
-KG9za19rZXltYXApLAogfTsKIAogc3RhdGljIHN0cnVjdCByZXNvdXJjZSBv
-c2s1OTEyX2twX3Jlc291cmNlc1tdID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9h
-cm0vbWFjaC1vbWFwMS9ib2FyZC1wZXJzZXVzMi5jIGIvYXJjaC9hcm0vbWFj
-aC1vbWFwMS9ib2FyZC1wZXJzZXVzMi5jCmluZGV4IDY0YjQ1ZDguLjM4ZmRm
-ZTAgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtcGVy
-c2V1czIuYworKysgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLXBlcnNl
-dXMyLmMKQEAgLTE3MSw5ICsxNzEsMTAgQEAgc3RhdGljIHN0cnVjdCByZXNv
-dXJjZSBrcF9yZXNvdXJjZXNbXSA9IAogfTsKIAogc3RhdGljIHN0cnVjdCBv
-bWFwX2twX3BsYXRmb3JtX2RhdGEga3BfZGF0YSA9IHsKLQkucm93cwk9IDgs
-Ci0JLmNvbHMJPSA4LAotCS5rZXltYXAgPSBwMl9rZXltYXAsCisJLnJvd3MJ
-CT0gOCwKKwkuY29scwkJPSA4LAorCS5rZXltYXAJCT0gcDJfa2V5bWFwLAor
-CS5rZXltYXBzaXplCT0gQVJSQVlfU0laRShwMl9rZXltYXApLAogfTsKIAog
-c3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2Uga3BfZGV2aWNlID0gewpk
-aWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1vbWFwMi9ib2FyZC1oNC5jIGIv
-YXJjaC9hcm0vbWFjaC1vbWFwMi9ib2FyZC1oNC5jCmluZGV4IGZjOGM1NmEu
-LjlmMzQwMTEgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtb21hcDIvYm9h
-cmQtaDQuYworKysgYi9hcmNoL2FybS9tYWNoLW9tYXAyL2JvYXJkLWg0LmMK
-QEAgLTI1MSw2ICsyNTEsNyBAQCBzdGF0aWMgc3RydWN0IG9tYXBfa3BfcGxh
-dGZvcm1fZGF0YSBoNF9rCiAJLnJvd3MJCT0gNiwKIAkuY29scwkJPSA3LAog
-CS5rZXltYXAgCT0gaDRfa2V5bWFwLAorCS5rZXltYXBzaXplIAk9IEFSUkFZ
-X1NJWkUoaDRfa2V5bWFwKSwKIAkucmVwCQk9IDEsCiAJLnJvd19ncGlvcyAJ
-PSByb3dfZ3Bpb3MsCiAJLmNvbF9ncGlvcyAJPSBjb2xfZ3Bpb3MsCi0tIAox
-LjMuMwoK
-
---_----------=_1153915645139521--
-
+-Anil

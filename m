@@ -1,35 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWGZBOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWGZBeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWGZBOU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 21:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030308AbWGZBOU
+	id S1030317AbWGZBeG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 21:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWGZBeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 21:14:20 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:22458 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030298AbWGZBOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 21:14:20 -0400
-Date: Tue, 25 Jul 2006 18:14:15 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc2-gabb5a5cc BUG] Lukewarm IQ detected in hotplug
- locking
-Message-Id: <20060725181415.483838f5.pj@sgi.com>
-In-Reply-To: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
-References: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Jul 2006 21:34:06 -0400
+Received: from rialto-h50.host.net ([64.135.31.50]:17331 "EHLO
+	mail.ultrawaves.com") by vger.kernel.org with ESMTP
+	id S1030317AbWGZBeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 21:34:05 -0400
+Message-ID: <44C6C688.2080106@lammerts.org>
+Date: Tue, 25 Jul 2006 21:34:00 -0400
+From: Eric Lammerts <eric@lammerts.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+MIME-Version: 1.0
+To: Chris Boot <bootc@bootc.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>, soekris-tech@lists.soekris.com
+Subject: Re: [RFC][PATCH] LED Class support for Soekris net48xx
+References: <44AF7B00.9060108@bootc.net> <44C2EB45.1050302@lammerts.org> <44C37DCF.2080205@bootc.net>
+In-Reply-To: <44C37DCF.2080205@bootc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal - you addressed this to me.  This isn't my area.
-Hopefully someone else can handle this.  Good luck.
+Chris Boot wrote:
+> Eric Lammerts wrote:
+>>         char *bios = __va(0xf0000);
+>>
+>>         for(i = 0; i < 0x10000 - 19; i++) {
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> Hmm, very ugly indeed! Where did you dig those offsets up from? Are they 
+> likely to work properly in non-Soekris devices?
+
+That's where the standard PC BIOS ROM is located (0xf0000-0xfffff). I use 
+the same kernel on normal PC mainboards too and haven't seen any problems 
+so far.
+
+Eric

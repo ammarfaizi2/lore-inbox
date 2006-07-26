@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWGZL22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWGZL3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWGZL22 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWGZL22
+	id S1751357AbWGZL3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWGZL3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:28:28 -0400
-Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:37829
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751119AbWGZL21 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:28:27 -0400
-Message-Id: <200607261128.k6QBSJ4o020737@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Al Boldi <a1426z@gawab.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
-In-Reply-To: Your message of "Wed, 26 Jul 2006 07:45:33 +0300."
-             <200607260745.33264.a1426z@gawab.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200607241857.52389.a1426z@gawab.com> <200607252127.14024.a1426z@gawab.com> <200607251940.k6PJeWbu023928@turing-police.cc.vt.edu>
-            <200607260745.33264.a1426z@gawab.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1153913298_5911P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Jul 2006 07:28:19 -0400
+	Wed, 26 Jul 2006 07:29:18 -0400
+Received: from mtagate4.uk.ibm.com ([195.212.29.137]:17254 "EHLO
+	mtagate4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751357AbWGZL3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:29:17 -0400
+Date: Wed, 26 Jul 2006 13:26:58 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>, manfred@colorfullife.com
+Subject: Re: [patch 2/2] slab: always consider arch mandated alignment
+Message-ID: <20060726112658.GG9592@osiris.boeblingen.de.ibm.com>
+References: <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com> <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com> <20060723162427.GA10553@osiris.ibm.com> <20060726085113.GD9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI> <20060726101340.GE9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261325070.17986@sbz-30.cs.Helsinki.FI> <20060726105204.GF9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261411420.17986@sbz-30.cs.Helsinki.FI>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0607261411420.17986@sbz-30.cs.Helsinki.FI>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1153913298_5911P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 26 Jul 2006 07:45:33 +0300, Al Boldi said:
-> Valdis.Kletnieks@vt.edu wrote:
-
-> > On an SMP system, you can have one CPU doing one class of scheduling (long
-> > timeslice for computational, for example), while another CPU is dedicated
-> > to doing RT scheduling, and so on.  It's not clear to me that "different
-> > classes per CPU" makes any real sense on a UP....
+On Wed, Jul 26, 2006 at 02:16:06PM +0300, Pekka J Enberg wrote:
+> On Wed, 26 Jul 2006, Heiko Carstens wrote:
+> > We only specify ARCH_KMALLOC_MINALIGN, since that aligns only the kmalloc
+> > caches, but it doesn't disable debugging on other caches that are created
+> > via kmem_cache_create() where an alignment of e.g. 0 is specified.
+> > 
+> > The point of the first patch is: why should the slab cache be allowed to chose
+> > an aligment that is less than what the caller specified? This does very likely
+> > break things.
 > 
-> Conceptually there should be no difference between UP and MP.
-> 
-> Think HyperThreading.
+> Ah, yes, you are absolutely right. We need to respect caller mandated 
+> alignment too. How about this?
 
-Which is why a UP kernel can schedule on both sides of an HT core.
-
-Yeah, I got it now. ;)
-
-An HT core still *has* "the other instruction stream" it can schedule
-differetly.  You can't say "We'll schedule this one this way and that other
-one that way" when there *is* no "that other one".
-
-(And if you look at the current code, you'll realize that HT is conceptually
-different from both UP *and* MP - go look at the places where the *current*
-scheduler is HT-aware, and how that was a big win over when it thought each
-HT was a fully capable MP......)
-
---==_Exmh_1153913298_5911P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEx1HScC3lWbTT17ARAqlrAJ90jqZGl9A/ZnHoDuc5WpCVSp3vAQCeIJTt
-En3vKM1KzQCNsnXB+dZF/yo=
-=CYkY
------END PGP SIGNATURE-----
-
---==_Exmh_1153913298_5911P--
+Works fine and looks much better than my two patches. Thanks!

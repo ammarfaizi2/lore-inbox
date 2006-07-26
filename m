@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbWGZEla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWGZEoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbWGZEla (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 00:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWGZEla
+	id S1030377AbWGZEoY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 00:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWGZEoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 00:41:30 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:3726 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030380AbWGZEl3 (ORCPT
+	Wed, 26 Jul 2006 00:44:24 -0400
+Received: from [213.184.169.84] ([213.184.169.84]:42505 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1030377AbWGZEoX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 00:41:29 -0400
-Message-ID: <44C6F26C.2080203@garzik.org>
-Date: Wed, 26 Jul 2006 00:41:16 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 26 Jul 2006 00:44:23 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+Date: Wed, 26 Jul 2006 07:45:45 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200607241857.52389.a1426z@gawab.com> <200607252127.14024.a1426z@gawab.com> <44C6BC76.8010808@bigpond.net.au>
+In-Reply-To: <44C6BC76.8010808@bigpond.net.au>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Jesper Juhl <jesper.juhl@gmail.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Andrew Morton <akpm@osdl.org>, Mike Miller <mike.miller@hp.com>,
-       iss_storagedev@hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually	find
- a device
-References: <200607251636.42765.bjorn.helgaas@hp.com>	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com> <1153867675.8932.68.camel@laptopd505.fenrus.org>
-In-Reply-To: <1153867675.8932.68.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-Id: <200607260745.45156.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
->> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
->>> If we don't find any devices, we shouldn't print anything.
->>>
->> I disagree.
->> I find it quite nice to be able to see that the driver loaded even if
->> it finds nothing. At least then when there's a problem, I can quickly
->> see that at least it is not because I didn't forget to load the
->> driver, it's something else. Saves time since I can start looking for
->> reasons why the driver didn't find anything without first spending
->> additional time checking if I failed to cause it to load for some
->> reason.
-> 
-> I'll add a second reason: it is a REALLY nice property to be able to see
-> which driver is started last in case of a crash/hang, so that the guilty
-> party is more obvious..
+Peter Williams wrote:
+> Al Boldi wrote:
+> > Peter Williams wrote:
+> >> Al Boldi wrote:
+> >>> Peter Williams wrote:
+> >>>> Al Boldi wrote:
+>
+> [bits deleted]
+>
+> >>>>> It may be really great, to allow schedulers perPid parent, thus
+> >>>>> allowing the stacking of different scheduler semantics.  This could
+> >>>>> aid flexibility a lot.
+> >>>>
+> >>>> I'm don't understand what you mean here.  Could you elaborate?
+> >>>
+> >>> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
+> >>
+> >> It's probably not a good idea to have different schedulers managing the
+> >> same resource.  The way to do different scheduling per process is to
+> >> use the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc.
+> >> (possibly extended) within each scheduler.  On the other hand, on an
+> >> SMP system, having a different scheduler on each run queue (or sub set
+> >> of queues) might be interesting :-).
+> >
+> > What's wrong with multiple run-queues on UP?
+>
+> A really high likelihood of starvation of some tasks.
 
-OTOH, it is not a property that scales well at all.
+Maybe you are thinking of running independent run-queues, in which case it 
+would probably be unwise to run multiple RQs on a single CPU.
 
-When you build extra drivers into the kernel, or distros load drivers 
-you don't need (_every_ distro does this), you wind up with a bunch of 
-version strings for drivers for hardware you don't have.
-
-	Jeff
+But I was more thinking of a run-queue of run-queues, with the masterRQ 
+scheduling slaveRQs, each RQ possible running its own scheduling semantic.
 
 
+Thanks!
+
+--
+Al
 

@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWGZRTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbWGZRVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751713AbWGZRTU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWGZRTU
+	id S1751717AbWGZRVG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbWGZRVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:19:20 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:33684
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1751711AbWGZRTT (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 26 Jul 2006 13:19:19 -0400
-Date: Wed, 26 Jul 2006 19:20:29 +0200
-From: andrea@cpushare.com
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060726172029.GS32243@opteron.random>
-References: <17604.31639.213450.987415@gargle.gargle.HOWL> <20060725123558.GA32243@opteron.random> <44C65931.6030207@namesys.com> <20060726124557.GB23701@stusta.de> <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 Jul 2006 13:21:05 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:42153 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751722AbWGZRVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:21:05 -0400
+Date: Wed, 26 Jul 2006 13:15:41 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Arnaud Patard <apatard@mandriva.com>,
+       David Lang <dlang@digitalinsight.com>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>, Greg KH <greg@kroah.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-stable <stable@kernel.org>
+Message-ID: <200607261318_MC3-1-C623-96BB@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060726170236.GD31172@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:02:36PM -0400, J. Bruce Fields wrote:
-> On Wed, Jul 26, 2006 at 06:06:04PM +0200, andrea@cpushare.com wrote:
-> > JFYI: all statistics only take a sample of the larger space, the whole
-> > point of having a statistic is because you can't measure the total.
-> > The smaller the sample compared to the total, the less the stats are
-> > accurate
-> 
-> Definitely not true in general.  If I wanted to know the gender ratio at
-> the latest OLS I'd take the results from a sample of a dozen chosen
-> randomly over the results from a sample of hundreds all taken from the
-> men's room.
+In-Reply-To: <20060726142932.GE23701@stusta.de>
 
-Well, your example is perhaps the worst one since you wouldn't be
-decreasing the quality of your stats very much by only doing the
-sample in the men's room ;). I guess you meant the woman's room.
+On Wed, 26 Jul 2006 16:29:32 +0200, Adrian Bunk wrote:
 
-> For exactly the same quality of sampling, yes, the larger the better,
-> but the point of diminishing returns comes pretty quickly.  So given
-> limited resources it's probably more important to work on the quality of
-> the sample rather than on its size....
+> The real problem is:
+> How do we get some testing coverage of -stable kernels by users to catch 
+> issues?
+> And compile errors are the least of my worries.
 
-No matter how you see it, the larger the better (in the worst case it
-won't make a difference). Certainly if I could work on the quality,
-that would be more important than adding 1 more user. But I can't work
-on the quality.
+The problem with the current method of releasing patch candidates is
+that it's too hard to test them.  I would suggest:
+
+        1.  In addition to posting all the patches separately to L-K,
+            post a combined patch.  Have it change the makefile so it
+            says 2.6.X.Y-rcZ; that way if an oops gets posted we know
+            what the codebase was.  If the patch is too big, put it
+            on a website.
+
+        2.  Make the separate patches available on a website in Quilt
+            format like Andrew does with -mm.  (Just like (1) above,
+            make sure it changes the kernel version.)  This makes it
+            easier for testers to fix individual patches.
+
+        3.  Keep posting -rc's until nobody reports problems.
+
+It's easy to generate (1) from (2):
+
+        a.      Untar the quilt patchset into the new directory.
+                Make sure the old and new dirs are subdirectories
+                of some common directory, are identical and they
+                are dist-clean.
+        b.      mv broken-out patches
+        c.      quilt push -a -q
+        d.      cd ..
+        e.      diff -uprN -X ignorefiles old new >old.new.patch
+                -- ignorefiles contains two lines:
+                        .pc
+                        patches
+
+-- 
+Chuck
+

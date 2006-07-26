@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWGZPP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWGZPRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWGZPP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWGZPP2
+	id S1750789AbWGZPRL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWGZPRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:15:28 -0400
-Received: from mga02.intel.com ([134.134.136.20]:52373 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750750AbWGZPP1 convert rfc822-to-8bit (ORCPT
+	Wed, 26 Jul 2006 11:17:11 -0400
+Received: from mx2.suse.de ([195.135.220.15]:41162 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750789AbWGZPRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:15:27 -0400
-X-IronPort-AV: i="4.07,185,1151910000"; 
-   d="scan'208"; a="104944196:sNHT30015692"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 26 Jul 2006 11:17:10 -0400
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: a.zummo@towertech.it, jg@freedesktop.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Jul 2006 17:16:53 +0200
+In-Reply-To: <20060725174100.GA4608@hmsreliant.homelinux.net>
+Message-ID: <p73bqrc5rbu.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: A better interface, perhaps: a timed signal flag
-Date: Wed, 26 Jul 2006 11:15:16 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB601124E60@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: A better interface, perhaps: a timed signal flag
-Thread-Index: AcawwonOoyefTB6FQ9y4QC8K3QRiGgAAGZQw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Neil Horman" <nhorman@tuxdriver.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-       "Segher Boessenkool" <segher@kernel.crashing.org>,
-       "Dave Airlie" <airlied@gmail.com>, <linux-kernel@vger.kernel.org>,
-       <a.zummo@towertech.it>, <jg@freedesktop.org>
-X-OriginalArrivalTime: 26 Jul 2006 15:15:18.0533 (UTC) FILETIME=[4E00DB50:01C6B0C6]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->if the application doesn't need to
->know exactly how many microseconds have gone by, but just whether or
->not 150us has ellapsed, why calculate the necessary time?  (Especially
->if it requires using some ACPI interface...)
+Neil Horman <nhorman@tuxdriver.com> writes:
 
-Yes, ACPI is involved in the boot-time enumeration of various timers
-and counters.  But at run-time; the use of any and all of them
-(including the PM_TIMER supplied by ACPI hardware itself) could/should
-appear generic to kernel users, who should not have to directly call
-any routine with an "acpi" in it.
+> 	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
+> Geddys and some of the Xorg guys noted that they would be able to stop using gettimeofday
+> so frequently, if they had some other way to get a millisecond resolution timer
+> in userspace,
 
-I believe that this is true today, and can/should stay true.
+No, no, it's wrong. They should use gettimeofday and the kernel's job
+is to make it fast enough that they can. 
 
--Len
+Or rather they likely shouldn't use gettimeofday, but clock_gettime()
+with CLOCK_MONOTONIC instead to be independent of someone setting the
+clock back.
+
+Memory mapped counters are generally not flexible enough and there
+are lots of reasons why the kernel might need to do special things
+for time keeping. Don't expose them.
+
+-Andi

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWGZQrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWGZQue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWGZQrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWGZQrJ
+	id S932251AbWGZQue (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWGZQue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:47:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52969 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932190AbWGZQrI (ORCPT
+	Wed, 26 Jul 2006 12:50:34 -0400
+Received: from ns.suse.de ([195.135.220.2]:36074 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932251AbWGZQud (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:47:08 -0400
-Date: Wed, 26 Jul 2006 09:42:46 -0700
+	Wed, 26 Jul 2006 12:50:33 -0400
+Date: Wed, 26 Jul 2006 09:46:20 -0700
 From: Greg KH <gregkh@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: restore missing PCI registers after reset
-Message-ID: <20060726164246.GE9871@suse.de>
-References: <20060726162007.GA9871@suse.de> <20060726163226.GG9411@mellanox.co.il>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <greg@kroah.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] Multi-threaded device probing
+Message-ID: <20060726164620.GF9871@suse.de>
+References: <20060725203028.GA1270@kroah.com> <44C6B881.7030901@s5r6.in-berlin.de> <20060726073132.GE6249@suse.de> <20060726112948.GA13490@parisc-linux.org> <20060726161647.GA9675@kroah.com> <20060726164235.GH22822@parisc-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060726163226.GG9411@mellanox.co.il>
+In-Reply-To: <20060726164235.GH22822@parisc-linux.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 07:32:26PM +0300, Michael S. Tsirkin wrote:
-> Quoting r. Greg KH <gregkh@suse.de>:
-> > I think pci_restore_state() already restores the msi and msix state,
-> > take a look at the latest kernel version :)
+On Wed, Jul 26, 2006 at 10:42:36AM -0600, Matthew Wilcox wrote:
+> On Wed, Jul 26, 2006 at 09:16:47AM -0700, Greg KH wrote:
+> > > I still think we need a method of renaming block devices, but haven't
+> > > looked into it in enough detail yet.
+> > 
+> > That could get "interesting"...
+> > 
+> > But now that we all are using /dev/disk/ and it has persistant device
+> > names for block devices, I really don't think it's that big of a deal.
 > 
-> Yes, I know :)
-> but I am not talking abotu MSI/MSI-X, I am talking about the following:
-> > > >   PCI-X device: PCI-X command register
-> > > >   PCI-X bridge: upstream and downstream split transaction registers
-> > > >   PCI Express : PCI Express device control and link control registers
+> Actually, that's exactly why it's a big deal.  The kernel spits out
+> messages like:
 > 
-> these register values include maxumum MTU for PCI express and other vital
-> data.
+>                 printk(KERN_DEBUG "%s: Mode Sense: %02x %02x %02x %02x\n",
+>                        diskname, buffer[0], buffer[1], buffer[2], buffer[3]);
+> 
+> where diskname is something like sda.  Now the user has to figure out
+> what sda means in terms of /dev/disk/ and in terms of scsi h:c:t:l and
+> in terms of which sticky label is on which drive.  If we let userspace
+> change the gendev's disk_name, that printk can be meaningful to the user
+> in at least one of those senses.
 
-Make up a patch that shows how you would save these in a generic way and
-we can discuss it.  I know people have talked about saving the extended
-PCI config space for devices that need it, so that might be all you
-need to do here.
+No, this comes up all the time.  Userspace has at least 3 different
+mappings to /dev/sda in /dev/disk right now.  Which one do you want the
+kernel to use?:
+
+	$ tree /dev/disk/ | grep sda1
+	|   |-- scsi-SATA_Maxtor_7L250S0_L59FRPQH_L59FRPQH-part1 -> ../../sda1
+	|   |-- boot -> ../../sda1
+	    `-- 9c0ef40c-6de9-46f6-ac79-32296c667cf1 -> ../../sda1
+
+Userspace should be doing the reverse mapping if it wants to, the kernel
+should not care about this at all.
 
 thanks,
 

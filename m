@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWGZKN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWGZKQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWGZKN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWGZKN6
+	id S932099AbWGZKQF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWGZKQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:13:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2961 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932086AbWGZKN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:13:57 -0400
-Date: Wed, 26 Jul 2006 11:13:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-Message-ID: <20060726101356.GA8443@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	lkml <linux-kernel@vger.kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Ulrich Drepper <drepper@redhat.com>,
-	netdev <netdev@vger.kernel.org>
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100013.GA7126@infradead.org> <20060726100848.GA2715@2ka.mipt.ru>
-Mime-Version: 1.0
+	Wed, 26 Jul 2006 06:16:05 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:29770 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932099AbWGZKQA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:16:00 -0400
+Date: Wed, 26 Jul 2006 12:13:40 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [patch 2/2] slab: always consider arch mandated alignment
+Message-ID: <20060726101340.GE9592@osiris.boeblingen.de.ibm.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com> <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com> <20060723162427.GA10553@osiris.ibm.com> <20060726085113.GD9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060726100848.GA2715@2ka.mipt.ru>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 02:08:49PM +0400, Evgeniy Polyakov wrote:
-> On Wed, Jul 26, 2006 at 11:00:13AM +0100, Christoph Hellwig (hch@infradead.org) wrote:
-> > >  struct address_space_operations ext2_aops = {
-> > > +	.get_block		= ext2_get_block,
-> > 
-> > No way in hell.  For whatever you do please provide a interface at
-> > the readpage/writepage/sendfile/etc abstraction layer.  get_block is
-> > nothing that can be exposed to the common code.
+On Wed, Jul 26, 2006 at 01:05:43PM +0300, Pekka J Enberg wrote:
+> On Wed, 26 Jul 2006, Heiko Carstens wrote:
+> > Since ARCH_KMALLOC_MINALIGN didn't work on s390 I tried ARCH_SLAB_MINALIGN
+> > instead, just to find out that it didn't work too.
+> > In case of CONFIG_DEBUG_SLAB kmem_cache_create() creates caches with an
+> > alignment lesser than ARCH_SLAB_MINALIGN, which it shouldn't according to
+> > this comment in mm/slab.c :
 > 
-> Compare this with sync read methods - all they do is exactly the same
-> operations with low-level blocks, which are combined into nice exported
-> function, so there is _no_ readpage layer - it calls only one function
-> which works with blocks.
+> [snip]
+> 
+> > Index: linux-2.6/mm/slab.c
+> > ===================================================================
+> > --- linux-2.6.orig/mm/slab.c	2006-07-26 09:55:54.000000000 +0200
+> > +++ linux-2.6/mm/slab.c	2006-07-26 09:57:07.000000000 +0200
+> > @@ -2103,6 +2103,9 @@
+> >  		if (ralign > BYTES_PER_WORD)
+> >  			flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
+> >  	}
+> > +	if (BYTES_PER_WORD < ARCH_SLAB_MINALIGN)
+> > +		flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
+> > +
+> >  	/* 3) caller mandated alignment: disables debug if necessary */
+> >  	if (ralign < align) {
+> >  		ralign = align;
+> 
+> This is similar to my patch and should be enough to fix the problem. The 
+> first patch seems bogus and I don't really understand why you would need 
+> it.
 
-No.  The abtraction layer there is ->readpage(s).  _A_ common implementation
-works with a get_block callback from the filesystem, but there are various
-others.  We've been there before, up to mid-2.3.x we had a get_block inode
-operation and we got rid of it because it is the wrong abstraction.
-
-> So it is not a technical problem, but political one.
-
-It's a technical problem, and it's called get you abstractions right.  And
-ontop of that a political one and that's called get your abstraction coherent.
-If you managed to argue all of us into accept that get_block is the right
-abstraction (and as I mentioned above that's technically not true) you'd
-still have the burden to update everything to use the same abstraction.
+It's enough to fix the ARCH_SLAB_MINALIGN problem. But it does _not_ fix the
+ARCH_KMALLOC_MINALIGN problem. s390 currently only uses ARCH_KMALLOC_MINALIGN
+since that should be good enough and it doesn't disable as much debugging
+as ARCH_SLAB_MINALIGN does.
+What exactly isn't clear from the description of the first patch? Or why do
+you consider it bogus?

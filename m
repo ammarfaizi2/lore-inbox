@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWGZQ5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWGZQ63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWGZQ5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGZQ5m
+	id S932201AbWGZQ63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWGZQ63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:57:42 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:32602 "EHLO
-	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030195AbWGZQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:57:41 -0400
-Date: Wed, 26 Jul 2006 10:57:02 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: smp + acpi
-In-reply-to: <fa.qBnHwLitfu7Jux0cIbFxbbRJ5m8@ifi.uio.no>
-To: Marco Berizzi <pupilla@hotmail.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Message-id: <44C79EDE.7060008@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.55NzOEnhAyNTd6rw92/YGAb9CaI@ifi.uio.no>
- <fa.qBnHwLitfu7Jux0cIbFxbbRJ5m8@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Wed, 26 Jul 2006 12:58:29 -0400
+Received: from mail.suse.de ([195.135.220.2]:8428 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932201AbWGZQ63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:58:29 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+Subject: Re: [discuss] Re: [PATCH] Allow all Opteron processors to change pstate at same time
+Date: Wed, 26 Jul 2006 18:54:20 +0200
+User-Agent: KMail/1.9.3
+Cc: "Gulam, Nagib" <nagib.gulam@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+References: <84EA05E2CA77634C82730353CBE3A84303218F04@SAUSEXMB1.amd.com>
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A84303218F04@SAUSEXMB1.amd.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607261854.20670.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Berizzi wrote:
-> Andi Kleen wrote:
-> 
->> "Marco Berizzi" <pupilla@hotmail.com> writes:
->>
->> > Since 2.6.15 smp doesn't work anymore without ACPI
->> > May be possible to have a note in "Symmetric multi processing
->> > support" help dialog? Or is it possible to enable ACPI when
->> > SMP is selected?
->>
->> It's probably specific to your system, nothing general.
-> 
-> Hi Andi,
-> 
-> Thanks for the reply. I'm compiling linux on a pentinum
-> 4 HT 3GHz. 2.6.14 did detect both processor, but all
-> kernels > 2.6.15 did not. (at least till 2.6.17.7)
 
-Are you sure you are really using the same configuration? HyperThreading 
-has never worked without some amount of ACPI enabled.
+> AMD Opteron(tm) Processor 838 stepping 01
+> CPU 3: Syncing TSC to CPU 0.
+> CPU 3: synchronized TSC with CPU 0 (last diff -109 cycles, maxerr 1024
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Hmm, indeed  - i would have expected higher max errors too.
+It should have worked in theory. No explanation currently.
 
+> cycles)
+> powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x6
+> powernow-k8:    1 : fid 0xc (2000 MHz), vid 0x8
+> powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xa
+> powernow-k8:    3 : fid 0x2 (1000 MHz), vid 0x12
+> 
+> Is there a better test we can be using?
+
+I don't know of any. Ok I guess it would be possible to write
+something in user space, but it would likely look similar to
+the algorithm the kernel uses.
+
+-Andi

@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751689AbWGZVMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWGZVQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751689AbWGZVMs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 17:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWGZVMs
+	id S1751160AbWGZVQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 17:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWGZVQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 17:12:48 -0400
-Received: from mga01.intel.com ([192.55.52.88]:40240 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751204AbWGZVMr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 17:12:47 -0400
-X-IronPort-AV: i="4.07,185,1151910000"; 
-   d="scan'208"; a="105260820:sNHT44292680404"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] add Dock Station driver to MAINTAINERS
-Date: Wed, 26 Jul 2006 16:56:46 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6011253ED@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] add Dock Station driver to MAINTAINERS
-Thread-Index: Acaw3csqB0bIR32kTmmVVlQNw7XMkAAGC9Aw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2006 20:56:49.0562 (UTC) FILETIME=[039BBFA0:01C6B0F6]
+	Wed, 26 Jul 2006 17:16:27 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:1208
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1751160AbWGZVQ0 (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 26 Jul 2006 17:16:26 -0400
+Date: Wed, 26 Jul 2006 23:17:41 +0200
+From: andrea@cpushare.com
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Hans Reiser <reiser@namesys.com>,
+       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060726211741.GU32243@opteron.random>
+References: <44C65931.6030207@namesys.com> <20060726124557.GB23701@stusta.de> <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726205022.GI23701@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Applied.
-
-thanks,
--Len 
-
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Kristen Carlson Accardi
->Sent: Wednesday, July 26, 2006 1:59 PM
->To: Brown, Len
->Cc: linux-kernel@vger.kernel.org; linux-acpi@vger.kernel.org
->Subject: [patch] add Dock Station driver to MAINTAINERS
->
->Add the Dock driver to the MAINTAINERS file
->
->Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
->
->---
-> MAINTAINERS |    6 ++++++
-> 1 file changed, 6 insertions(+)
->
->--- 2.6-git.orig/MAINTAINERS
->+++ 2.6-git/MAINTAINERS
->@@ -882,6 +882,12 @@ M:	rdunlap@xenotime.net
-> T:	git http://tali.admingilde.org/git/linux-docbook.git
-> S:	Maintained
+On Wed, Jul 26, 2006 at 10:50:22PM +0200, Adrian Bunk wrote:
+> But depending on the nature of the error, the worst case might be the 
+> common case (as I've already explained in another email).
 > 
->+DOCKING STATION DRIVER
->+P:	Kristen Carlson Accardi
->+M:	kristen.c.accardi@intel.com
->+L:	linux-acpi@vger.kernel.org
->+S:	Maintained
->+
-> DOUBLETALK DRIVER
-> P:	James R. Van Zandt
-> M:	jrv@vanzandt.mv.com
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+> If you can't ensure the quality of your data, please don't use this data 
+> to wrongly draw any conclusions from them [1].
+
+Please read the footer of the KLive pages:
+
+"The use of the information and of the software in this website is at
+ your own risk.  KLive probably doesn't represent a reliable sample of
+ the real usage of the Linux Kernel."
+
+Said that pretending that KLive data has absolutely no significance at
+all and that you can't draw any conclusion at all from it, to me seems
+as wrong as pretending it to perfect.

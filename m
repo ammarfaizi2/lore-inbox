@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWGZQyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWGZQ5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWGZQyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWGZQyr
+	id S1030195AbWGZQ5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGZQ5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:54:47 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28544 "EHLO
+	Wed, 26 Jul 2006 12:57:42 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:32602 "EHLO
 	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030215AbWGZQyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:54:46 -0400
-Date: Wed, 26 Jul 2006 10:54:46 -0600
+	id S1030195AbWGZQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:57:41 -0400
+Date: Wed, 26 Jul 2006 10:57:02 -0600
 From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: BIOS detects 4 GB RAM, but kernel does not
-In-reply-to: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
-To: ravibt@gmail.com, linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <44C79E56.2040603@shaw.ca>
+Subject: Re: smp + acpi
+In-reply-to: <fa.qBnHwLitfu7Jux0cIbFxbbRJ5m8@ifi.uio.no>
+To: Marco Berizzi <pupilla@hotmail.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Message-id: <44C79EDE.7060008@shaw.ca>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Content-transfer-encoding: 7bit
-References: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
+References: <fa.55NzOEnhAyNTd6rw92/YGAb9CaI@ifi.uio.no>
+ <fa.qBnHwLitfu7Jux0cIbFxbbRJ5m8@ifi.uio.no>
 User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ravibt@gmail.com wrote:
-> Hello,
+Marco Berizzi wrote:
+> Andi Kleen wrote:
 > 
->  On a dual core Pentium 4 EM64T machine (Intel Desktop Board D915GAV),
-> we used four 1GB RAM (DDR 400) modules. The BIOS (EV91510A.86A.0444)
-> detected all the four 1 GB modules, but once the OS is booted, only
-> ~3.1GB is available for usage (from dmesg: "Memory: 3210516k/3267772k
-> available"; see below). The kernel used is version 2.6.9-22.ELsmp
-> coming with 'CentOS release 4.2 Final'.
-> [The four RAM modules have been tested OK with the 'memtest'].
+>> "Marco Berizzi" <pupilla@hotmail.com> writes:
+>>
+>> > Since 2.6.15 smp doesn't work anymore without ACPI
+>> > May be possible to have a note in "Symmetric multi processing
+>> > support" help dialog? Or is it possible to enable ACPI when
+>> > SMP is selected?
+>>
+>> It's probably specific to your system, nothing general.
 > 
->  Using "mem=4096m" while booting the kernel also did not help. Searched
-> through the old messages and it looks like in most of the cases
-> enabling some memory-hole related option in BIOS is suggested, but in
-> this case probably the BIOS is fine. Not sure if some kernel
-> configuration option is missing or if someother version of the kernel
-> needs to be used.
+> Hi Andi,
 > 
-> This being a 64 bit machine, we expected memory-remap to be happening.
-> Is there a way in which ~900 MB of RAM can be made usable?
-> Any pointers will be of great help.
-> 
-> Please let me know if more information is needed than the following
-> transcripts (/proc/iomem and dmesg):
+> Thanks for the reply. I'm compiling linux on a pentinum
+> 4 HT 3GHz. 2.6.14 did detect both processor, but all
+> kernels > 2.6.15 did not. (at least till 2.6.17.7)
 
-Essentially I don't think there is much you can do about this on this 
-board. The memory space starting at around 3.2GB is being used by the 
-memory-mapped IO regions for the PCI and PCI Express devices and 
-motherboard resources and therefore "covers up" the RAM in that part of 
-the address space. The solution to this is for the system to remap the 
-affected memory above the 4GB mark, which is possible with Athlon 
-64/Opteron CPUs and on some of the Intel server chipsets. However, I 
-don't think any Intel desktop chipsets support this for some 
-unfathomable reason.
+Are you sure you are really using the same configuration? HyperThreading 
+has never worked without some amount of ACPI enabled.
 
 -- 
 Robert Hancock      Saskatoon, SK, Canada

@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWGZMcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWGZMeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751496AbWGZMcV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWGZMcV
+	id S1751490AbWGZMeR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:34:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWGZMeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:32:21 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:34774 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751496AbWGZMcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:32:20 -0400
-Subject: [PATCH V2] reference rt-mutex-design in rtmutex.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <20060726081631.GC11604@elte.hu>
-References: <Pine.LNX.4.58.0607210942410.1190@gandalf.stny.rr.com>
-	 <20060726081631.GC11604@elte.hu>
-Content-Type: text/plain
-Date: Wed, 26 Jul 2006 08:30:47 -0400
-Message-Id: <1153917047.6270.15.camel@localhost.localdomain>
+	Wed, 26 Jul 2006 08:34:17 -0400
+Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:57797
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751490AbWGZMeQ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 08:34:16 -0400
+Message-Id: <200607261234.k6QCY7Eb022487@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Al Boldi <a1426z@gawab.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+In-Reply-To: Your message of "Wed, 26 Jul 2006 14:23:03 +0300."
+             <200607261423.03527.a1426z@gawab.com>
+From: Valdis.Kletnieks@vt.edu
+References: <200607241857.52389.a1426z@gawab.com> <200607260745.45156.a1426z@gawab.com> <44C6FA1A.1020709@bigpond.net.au>
+            <200607261423.03527.a1426z@gawab.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: multipart/signed; boundary="==_Exmh_1153917246_5911P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 26 Jul 2006 08:34:07 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[V2 - update per Ingo's request]
+--==_Exmh_1153917246_5911P
+Content-Type: text/plain; charset=us-ascii
 
-In order to prevent Doc Rot, this patch adds a reference to the design
-document for rtmutex.c in rtmutex.c.  So when someone needs to update or
-change the design of that file they will know that a document actually
-exists that explains the design (helping them change it), and hopefully
-that they will update the document if they too change the design.
+On Wed, 26 Jul 2006 14:23:03 +0300, Al Boldi said:
 
--- Steve
+> Running different scheds on a single RQ at the same time on the same resource
+> would be rather odd.  That's why independent RQs are necessary even on SMP.
+> OTOH, running independent RQs on UP doesn't make much sense, unless there is
+> a way to relate them.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Exactly..
 
-Index: linux-2.6.18-rc2/kernel/rtmutex.c
-===================================================================
---- linux-2.6.18-rc2.orig/kernel/rtmutex.c	2006-07-16 19:53:46.000000000 -0400
-+++ linux-2.6.18-rc2/kernel/rtmutex.c	2006-07-26 08:24:14.000000000 -0400
-@@ -7,6 +7,8 @@
-  *  Copyright (C) 2005-2006 Timesys Corp., Thomas Gleixner <tglx@timesys.com>
-  *  Copyright (C) 2005 Kihon Technologies Inc., Steven Rostedt
-  *  Copyright (C) 2006 Esben Nielsen
-+ *
-+ *  See Documentation/rt-mutex-design.txt for details.
-  */
- #include <linux/spinlock.h>
- #include <linux/module.h>
+(But now I'm confused why you said SMP and UP were conceptually the same a
+few notes back...)
 
+--==_Exmh_1153917246_5911P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEx2E+cC3lWbTT17ARAsVpAJ0bv1X+4UoSy/PnP+qos4sWoh7gSwCbBCdv
+A9LjvSEPbdnprYfQW5DRIJo=
+=jsKD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1153917246_5911P--

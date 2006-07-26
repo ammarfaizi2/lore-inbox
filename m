@@ -1,139 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWGZRHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWGZRIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWGZRHN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWGZRHN
+	id S1030284AbWGZRIz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWGZRIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:07:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31643 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751701AbWGZRHL (ORCPT
+	Wed, 26 Jul 2006 13:08:54 -0400
+Received: from mga02.intel.com ([134.134.136.20]:3407 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030345AbWGZRIx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:07:11 -0400
-Date: Wed, 26 Jul 2006 10:07:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Nasty git corruption problem
-In-Reply-To: <1153929715.13509.12.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607260945440.29649@g5.osdl.org>
-References: <1153929715.13509.12.camel@localhost.localdomain>
+	Wed, 26 Jul 2006 13:08:53 -0400
+X-IronPort-AV: i="4.07,185,1151910000"; 
+   d="scan'208"; a="105048772:sNHT1550372712"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: smp + acpi
+Date: Wed, 26 Jul 2006 13:07:42 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB60112506C@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: smp + acpi
+Thread-Index: AcawymM2wt98mf1ZRpiImDIzWImzXQACqVMQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Marco Berizzi" <pupilla@hotmail.com>, <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2006 17:07:47.0154 (UTC) FILETIME=[047EB320:01C6B0D6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> > Since 2.6.15 smp doesn't work anymore without ACPI
+>> > May be possible to have a note in "Symmetric multi processing
+>> > support" help dialog? Or is it possible to enable ACPI when
+>> > SMP is selected?
+>>
+>>It's probably specific to your system, nothing general.
+>
+>Hi Andi,
+>
+>Thanks for the reply. I'm compiling linux on a pentinum
+>4 HT 3GHz. 2.6.14 did detect both processor, but all
+>kernels > 2.6.15 did not. (at least till 2.6.17.7)
 
+CONFIG_ACPI=y is necessary to parse the ACPI tables
+and discover HT siblings.  Except for the rare BIOS
+that gives the option to enumerate HT via MPS
+(thus breaking some versions of Windows),
+enabling ACPI is the only way to enable HT.
 
-On Wed, 26 Jul 2006, Alan Cox wrote:
-> 
-> During a git rebase my machine crashed. Git claims that the rebase is 
-> complete but contains none of the outstanding 30 odd patches. There is 
-> no .dotest directory and git-fsck-objects produces some warnings about a 
-> few dangling objects, but these objects aren't the relevant ones (at 
-> least directly)
+Yes, in the distant past, CONFIG_ACPI=n did not remove
+all ACPI code from your kernel, and that was a bug.
 
-They definitely should be, unless you actually did a "git prune" (or a 
-"git repack -d").
-
-> CVS and SVN in crashes don't lose old stuff, though they are pretty good
-> at losing the last commit or two.
-
-And git should be even harder to get to lose old stuff, because it won't 
-even touch it. 
-
-> Doing
-> 
-> for i in *; do (cd $i; for j in *; do git-unpack-file $i$j; done; );
-> done
-> 
-> shows that lots of the changes are still somewhere in the object tree
-> but there seems to be no tool for fixing rather than moaning about
-> objects dangling, and also no obvious way to fix it.
-
-Well, the "dangling objects" really should be the fix. We could make it 
-even more obvious by creating links to the dangling objects in a 
-"lost+found" directory, but I usually just do it by hand.
-
-So the thing to do to recover any old stuff is
-
- - do "git-fsck-objects --full".
-
-   The "--full" is going to make it much slower, but it means that it will 
-   look _inside_ old packs too, and if you repacked the old stuff, that's 
-   what you want. Besides, if you actually had a real crash in the middle 
-   of a git op, you probably do want this anyway, although quite frankly, 
-   a truly corrupted pack is pretty damn unlikely (the only case I 
-   remember ever seing was due to actual hardware problems)
-
-   I _suspect_ you didn't do the "--full". By default, git-fsck-objects 
-   will only look at the unpacked objects, exactly because pack-files are 
-   so stable. So the only reason to use "--full" is if you're really anal 
-   and suspect hw issues, _or_ if you are looking for dangling work that 
-   may be older than your last repack.
-
- - take all the dangling objects, and either list them explicitly to 
-   "gitk" (or other visualizer), or you could save them off as
-
-	.git/refs/lost+found/<some-random-names-here>
-
-   and then do "gitk --all"
-
-In fact, if you want to play around with a git patch, this trivial one 
-should make git-fsck-objects create those lost-and-found entries 
-automatically if you give it the "--lost-n-found" flag.
-
-Anyway, I'm pretty sure that git is a hell of a lot _safer_ than either 
-CVS or SVN have ever been, or will ever be.
-
-		Linus
-
----
-diff --git a/fsck-objects.c b/fsck-objects.c
-index e167f41..fa50190 100644
---- a/fsck-objects.c
-+++ b/fsck-objects.c
-@@ -14,6 +14,7 @@ #include "tree-walk.h"
- #define REACHABLE 0x0001
- #define SEEN      0x0002
- 
-+static int lost_and_found = 0;
- static int show_root = 0;
- static int show_tags = 0;
- static int show_unreachable = 0;
-@@ -102,8 +103,23 @@ static void check_connectivity(void)
- 		}
- 
- 		if (!obj->used) {
--			printf("dangling %s %s\n", typename(obj->type),
--			       sha1_to_hex(obj->sha1));
-+			char *hex = sha1_to_hex(obj->sha1);
-+			printf("dangling %s %s\n", typename(obj->type), hex);
-+			if (lost_and_found) {
-+				int fd, ret;
-+				mkdir(git_path("refs/lost+found"), 0777);
-+				fd = open(git_path("refs/lost+found/%s", hex), O_CREAT | O_TRUNC | O_WRONLY, 0666);
-+				if (fd < 0) {
-+					perror("lost+found");
-+					continue;
-+				}
-+				hex[40] = '\n';
-+				ret = xwrite(fd, hex, 41);
-+				close(fd);
-+				if (ret != 41)
-+					error("unable to write to lost+found");
-+				continue;
-+			}
- 		}
- 	}
- }
-@@ -514,6 +530,10 @@ int main(int argc, char **argv)
- 			check_strict = 1;
- 			continue;
- 		}
-+		if (!strcmp(arg, "--lost-n-found")) {
-+			lost_and_found = 1;
-+			continue;
-+		}
- 		if (*arg == '-')
- 			usage("git-fsck-objects [--tags] [--root] [[--unreachable] [--cache] [--full] [--strict] <head-sha1>*]");
- 	}
+thanks,
+-Len

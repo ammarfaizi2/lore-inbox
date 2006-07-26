@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWGZQP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWGZQVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWGZQP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWGZQP5
+	id S1751057AbWGZQVO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWGZQVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:15:57 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:42209 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751057AbWGZQP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:15:57 -0400
-Message-ID: <44C79539.4040506@comcast.net>
-Date: Wed, 26 Jul 2006 12:15:53 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: gettimeofday(), clock_gettime(), timer_gettime()
-References: <44C6D8CD.4040604@comcast.net> <p737j205r2q.fsf@verdi.suse.de>
-In-Reply-To: <p737j205r2q.fsf@verdi.suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jul 2006 12:21:13 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:28114 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751057AbWGZQVN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:21:13 -0400
+Date: Wed, 26 Jul 2006 09:16:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <gregkh@suse.de>, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] Multi-threaded device probing
+Message-ID: <20060726161647.GA9675@kroah.com>
+References: <20060725203028.GA1270@kroah.com> <44C6B881.7030901@s5r6.in-berlin.de> <20060726073132.GE6249@suse.de> <20060726112948.GA13490@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726112948.GA13490@parisc-linux.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Andi Kleen wrote:
-> John Richard Moser <nigelenki@comcast.net> writes:
+On Wed, Jul 26, 2006 at 05:29:48AM -0600, Matthew Wilcox wrote:
+> On Wed, Jul 26, 2006 at 12:31:32AM -0700, Greg KH wrote:
+> > I don't know enough about SCSI to say if this driver core patch will
+> > help them out or not.  At first glance it does, but the device order
+> > gets all messed up from what users are traditionally used to, so perhaps
+> > the scsi core will just have to stick with their own changes.
 > 
->>  - gettimeofday() is slow, or so they say, needing several milliseconds
->> to execute.
-> 
-> It's not generally true, only sometimes. Please don't spread FUD.
-> 
+> Right.  Networking is in the same boat ... unless they're using udev
+> or some other tool which renames network interfaces.  I'm not entirely
+> comfortable with the kernel forcing you to use some other tool in order
+> to maintain stable device names on a static setup.
 
-http://lwn.net/Articles/192214/
+I agree.
 
-"X is a big offender, apparently because the gettimeofday() call is
-still too slow and maintaining time stamps with interval timers is faster."
+However, almost all distros now use persistant names for network devices
+due to the PCI Hotplug issue, so it isn't probably as bad as you might
+think.
 
-Or so they say.  I'm not the one spreading FUD; amusingly it takes me
-50uS to run gettimeofday().
+> Perhaps we need either a CONFIG option or a boot option to decide
+> whether to do parallel pci probes.
 
-> -Andi
-> 
+Oh yeah, it will be probably both of them :)
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+> I still think we need a method of renaming block devices, but haven't
+> looked into it in enough detail yet.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+That could get "interesting"...
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+But now that we all are using /dev/disk/ and it has persistant device
+names for block devices, I really don't think it's that big of a deal.
 
-iQIVAwUBRMeVNQs1xW0HCTEFAQImUg//eHXZfdTjazbLZFFUFVSoaCafunFzZyB5
-uVmEq7yDWwsWe2jWTj9g3L/CpTECaiIAbcErrOxo8tGjN9PvGjKhfBTO8QmQAw6P
-/InXa/DlPYN+ZhHAhXaNiS8CHMlVdSL6PT5NSMtugkepgRdQ4OhjOWe3MNgvSfdJ
-tmUdq/clqz7S1gnPg8UvGOjgtUAlh+1+/7F/mYHgJn84DnexC81apVhP99jqvQ3o
-u4dVyqxbfPIGkPDkZuorKY8HKeVLD6qettK8fK01pz2wgwSrjl1q+rZm2BGzuyMw
-AAFtgfL/Z1DlEroaNcjAPJI3C43D4idGxpmtut/+sDP7wqxZ5LafULzotQWNbwDl
-zi0MAfMbPkigPE8eUaQigHWTM7omvGFdadJhwx6Xd3ZmP2KTs6pCVU0X/A6i4ae/
-fO1VbSztcVtoSy3Bz2jRIp4TjW1xuucdchjsT5yskpdEeeMwToKRV0qBTu1tyCv9
-INQ4ovWNDsPgVLFx4l8EpcVlnYGelaJLNpzt+7bEFLsrW/q3thzCHFr440Cc5h4G
-7Ukvu5s/a4BbMa6vnVPbaek7S8tBCrcHixzttJcjiObnxicZxr2V81sviVDMlCmy
-zMuPeASzurgo2n3tDAmIwxICMUmsYB8l4oce7f1LLK9PFeOrVBhcLJymPCh8on4z
-HIreAI1tj+Q=
-=i75z
------END PGP SIGNATURE-----
+thanks,
+
+greg k-h

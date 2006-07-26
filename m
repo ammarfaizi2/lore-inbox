@@ -1,78 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWGZTrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWGZT6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWGZTrX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 15:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWGZTrX
+	id S1751767AbWGZT6i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 15:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWGZT6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 15:47:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55242 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751112AbWGZTrX (ORCPT
+	Wed, 26 Jul 2006 15:58:38 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:52373 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751767AbWGZT6h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 15:47:23 -0400
-Date: Wed, 26 Jul 2006 12:47:05 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Pekka J Enberg <penberg@cs.helsinki.fi>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 2/2] slab: always consider arch mandated alignment
-In-Reply-To: <44C7C46C.4090201@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0607261239170.7520@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com>
- <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com>
- <20060723162427.GA10553@osiris.ibm.com> <20060726085113.GD9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI>
- <20060726101340.GE9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261325070.17986@sbz-30.cs.Helsinki.FI>
- <20060726105204.GF9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261411420.17986@sbz-30.cs.Helsinki.FI>
- <44C7AF31.9000507@colorfullife.com> <Pine.LNX.4.64.0607261118001.6608@schroedinger.engr.sgi.com>
- <44C7B842.5060606@colorfullife.com> <Pine.LNX.4.64.0607261153220.6896@schroedinger.engr.sgi.com>
- <44C7C261.6050602@colorfullife.com> <Pine.LNX.4.64.0607261229430.7132@schroedinger.engr.sgi.com>
- <44C7C46C.4090201@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Jul 2006 15:58:37 -0400
+Date: Wed, 26 Jul 2006 12:58:35 -0700
+From: Zach Brown <zach.brown@oracle.com>
+To: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Cc: kenneth.w.chen@intel.com, suparna@in.ibm.com, pbadari@gmail.com
+Subject: [RFC][PATCH] Don't complete AIO file extension until i_size is updated
+Message-ID: <20060726195835.GB13233@tetsuo.zabbo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jul 2006, Manfred Spraul wrote:
+Don't complete AIO file extension until i_size is updated
 
-> Christoph Lameter wrote:
-> 
-> > A slab user is setting alignment in order to optimize performance not for
-> > correctness. Most users that I know of can live with misalignments. If that
-> > would not be the case then this code would never have worked.
-> >  
-> 
-> Which users do you know that set align and that can live with misalignments?
-> As I wrote, there are no such users in my (i386) kernel.
+AIO O_DIRECT file extension has a bug where the IO is completed before i_size
+is updated.  direct_io_worker() calls aio_complete() after performing the
+extension but before we get back up into generic_file_direct_write() which
+updates i_size.  Another thread in io_getevents() can catch the completion and
+stat() the file before i_size is updated.
 
-The users of SLAB_HWCACHE_ALIGN can live with that.
+Previously the direct write path would always call aio_complete() and return
+-EIOCBQUEUED.  This fixes the bug by returning the bytes written in the sync
+aio case which lets the aio core call aio_complete() after i_size has been
+written.  Now the only time -EIOCBQUEUED is returned and aio_complete() is
+called is when bios are still in flight at the time direct_io_worker() returns.
 
-Systems running with slab debugging on must be very buggy at this point or 
-we were very lucky:
+Signed-off-by: Zach Brown <zach.brown@oracle.com> 
+---
 
-The list is a bit strange:
+This fixes the bug reported (with a test case!) in
 
->* the pmd structure (4096: hardware requirement)
+  http://bugzilla.kernel.org/show_bug.cgi?id=6831
 
-It is already exempted from debug since the size is 4096.
+light aio-stress runs work after the change but we all know that fs/direct-io.c
+is incredibly fragile.  Can you guys review this?  Has anyone packaged the
+tests at http://developer.osdl.org/daniel/AIO/ in a way that can be used to
+check for regressions?
 
->* the pgd structure (32 bytes: hardware requirement)
+ fs/direct-io.c |   15 ++++-----------
+ mm/filemap.c   |    2 --
+ 2 files changed, 4 insertions(+), 13 deletions(-)
 
-We were lucky on that one in the past? This should break.
-
->* the task structure (16 byte. fxsave)
-
-Would only break if floating point is used I think.
-
->* sigqueue, pid: both request 4 byte alignment (based on __alignof__()). 
->Doesn't affect debugging.
-So also not relevant.
-
-
-We now want to say that SLAB_HWCACHE_ALIGN is only a suggestion to be 
-disposed of if debug is on whereas an explicitly specified alignment must be enforced?
-
+Index: 2.6.18-rc1-mm2-odirextend/fs/direct-io.c
+===================================================================
+--- 2.6.18-rc1-mm2-odirextend.orig/fs/direct-io.c
++++ 2.6.18-rc1-mm2-odirextend/fs/direct-io.c
+@@ -1094,8 +1094,6 @@ direct_io_worker(int rw, struct kiocb *i
+ 			dio->waiter = current;
+ 			should_wait = 1;
+ 		}
+-		if (ret == 0)
+-			ret = dio->result;
+ 		finished_one_bio(dio);		/* This can free the dio */
+ 		blk_run_address_space(inode->i_mapping);
+ 		if (should_wait) {
+@@ -1117,7 +1115,10 @@ direct_io_worker(int rw, struct kiocb *i
+ 			spin_unlock_irqrestore(&dio->bio_lock, flags);
+ 			set_current_state(TASK_RUNNING);
+ 			kfree(dio);
+-		}
++			if (ret == 0)
++				ret = dio->result;
++		} else
++			ret = -EIOCBQUEUED;
+ 	} else {
+ 		ssize_t transferred = 0;
+ 
+@@ -1142,14 +1143,6 @@ direct_io_worker(int rw, struct kiocb *i
+ 		if (ret == 0)
+ 			ret = transferred;
+ 
+-		/* We could have also come here on an AIO file extend */
+-		if (!is_sync_kiocb(iocb) && (rw & WRITE) &&
+-		    ret >= 0 && dio->result == dio->size)
+-			/*
+-			 * For AIO writes where we have completed the
+-			 * i/o, we have to mark the the aio complete.
+-			 */
+-			aio_complete(iocb, ret, 0);
+ 		kfree(dio);
+ 	}
+ 	return ret;
+Index: 2.6.18-rc1-mm2-odirextend/mm/filemap.c
+===================================================================
+--- 2.6.18-rc1-mm2-odirextend.orig/mm/filemap.c
++++ 2.6.18-rc1-mm2-odirextend/mm/filemap.c
+@@ -2129,8 +2129,6 @@ generic_file_direct_write(struct kiocb *
+ 		if (err < 0)
+ 			written = err;
+ 	}
+-	if (written == count && !is_sync_kiocb(iocb))
+-		written = -EIOCBQUEUED;
+ 	return written;
+ }
+ EXPORT_SYMBOL(generic_file_direct_write);

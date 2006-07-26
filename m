@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWGZPB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWGZPFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751691AbWGZPB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWGZPB2
+	id S1751694AbWGZPFM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWGZPFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:01:28 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:42428 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751688AbWGZPB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:01:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fJXaeb5P8FohruTNhtMAsNW5RJNVq8BngbGfUQ5gr+dA1P68j/UYOAMIFivUc0hM85txXSEy93ZmAyjUDldZCAXFV2FK0KFW4R/xd/jFxr11eoySPza/64cNhOLaQW0I+PBfKvwGMcsOLzdV+kXmIzcI5Rai8d/LqgAxGwa4fkk=
-Message-ID: <6bffcb0e0607260801s73cdee9avd207984712011c80@mail.gmail.com>
-Date: Wed, 26 Jul 2006 17:01:26 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: torvalds@osdl.org
-Subject: Re: [2.6.18-rc2-gabb5a5cc BUG] Lukewarm IQ detected in hotplug locking
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0607260151i6065457g6acf9f4d9b2a6d50@mail.gmail.com>
+	Wed, 26 Jul 2006 11:05:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:58312 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750789AbWGZPFK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 11:05:10 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Edgar Hucek <hostmaster@ed-soft.at>, ebiederm@xmission.com, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, gregkh@suse.de, akpm@osdl.org
+Subject: Re: [PATCH 1/1] Add force of use MMCONFIG [try #1]
+References: <44A04F5F.8030405@ed-soft.at>
+	<Pine.LNX.4.64.0606261430430.3927@g5.osdl.org>
+	<44A0CCEA.7030309@ed-soft.at>
+	<Pine.LNX.4.64.0606262318341.3927@g5.osdl.org>
+	<44A304C1.2050304@zytor.com>
+	<m1ac7r9a9n.fsf@ebiederm.dsl.xmission.com>
+	<44A8058D.3030905@zytor.com>
+	<m11wt3983j.fsf@ebiederm.dsl.xmission.com>
+	<44AB8878.7010203@ed-soft.at>
+	<m1lkr83v73.fsf@ebiederm.dsl.xmission.com>
+	<44B6BF2F.6030401@ed-soft.at>
+	<Pine.LNX.4.64.0607131507220.5623@g5.osdl.org>
+	<44B73791.9080601@ed-soft.at>
+	<Pine.LNX.4.64.0607140901200.5623@g5.osdl.org>
+	<44BA0025.6020105@ed-soft.at> <20060724213339.2646435c.akpm@osdl.org>
+	<Pine.LNX.4.64.0607242226200.29649@g5.osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Jul 2006 17:05:00 +0200
+In-Reply-To: <Pine.LNX.4.64.0607242226200.29649@g5.osdl.org>
+Message-ID: <p73k6605rvn.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
-	 <20060725181415.483838f5.pj@sgi.com>
-	 <6bffcb0e0607260151i6065457g6acf9f4d9b2a6d50@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> Here is the bad commit
->
-> aa95387774039096c11803c04011f1aa42d85758 is first bad commit
-> commit aa95387774039096c11803c04011f1aa42d85758
-> Author: Linus Torvalds <torvalds@macmini.osdl.org>
-> Date:   Sun Jul 23 12:12:16 2006 -0700
->
->     cpu hotplug: simplify and hopefully fix locking
->
->     The CPU hotplug locking was quite messy, with a recursive lock to
->     handle the fact that both the actual up/down sequence wanted to
->     protect itself from being re-entered, but the callbacks that it
->     called also tended to want to protect themselves from CPU events.
->
->     This splits the lock into two (one to serialize the whole hotplug
->     sequence, the other to protect against the CPU present bitmaps
->     changing). The latter still allows recursive usage because some
->     subsystems (ondemand policy for cpufreq at least) had already gotten
->     too used to the lax locking, but the locking mistakes are hopefully
->     now less fundamental, and we now warn about recursive lock usage
->     when we see it, in the hope that it can be fixed.
->
->     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
->
-> :040000 040000 9189d56fe28f6823287e9d1e79976e68074da5db
-> 266b4ea87d2ac441bc02ad2c
-> 4ba2c4f332c7c0ce M      include
-> :040000 040000 3dfe69afef86aef8e6472d6d543ba965833e201b
-> bfb64b2824c1e23f0629e976
-> 2526fd11b789d51e M      kernel
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Sorry for the noise.
+> On Mon, 24 Jul 2006, Andrew Morton wrote:
+> > 
+> > Why do we want to do this?  Are the ACPI-provided tables incorrect?  If so,
+> > what problems are caused by this?
+> 
+> The ACPI-provided tables are apparently correct, but we sanity-check them 
+> by _also_ requiring that the mmconfig base address is marked "reserved" in 
+> the e820 tables.
+> 
+> The EFI memory maps apparently don't do that "reserved" marking.
 
-The bug is fixed in latest git tree.
+We were planning to remove that heuristic anyways because it produced
+far too many false positivies. In fact I think Greg has already 
+done it. Then that patch should be obsolete.
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+-Andi

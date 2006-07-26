@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWGZArf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWGZAvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWGZArf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:47:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbWGZArf
+	id S1030300AbWGZAvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWGZAvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:47:35 -0400
-Received: from 63-162-81-169.lisco.net ([63.162.81.169]:48560 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1030297AbWGZAre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:47:34 -0400
-Message-ID: <44C6BBA5.3050704@slaphack.com>
-Date: Tue, 25 Jul 2006 19:47:33 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060708)
+	Tue, 25 Jul 2006 20:51:09 -0400
+Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:45748 "EHLO
+	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030300AbWGZAvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:51:08 -0400
+Message-ID: <44C6BC76.8010808@bigpond.net.au>
+Date: Wed, 26 Jul 2006 10:51:02 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: David Lang <dlang@digitalinsight.com>
-CC: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Mike Benoit <ipso@snappymail.ca>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
-       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl> <44C6B784.5050507@slaphack.com> <Pine.LNX.4.63.0607251732001.9159@qynat.qvtvafvgr.pbz>
-In-Reply-To: <Pine.LNX.4.63.0607251732001.9159@qynat.qvtvafvgr.pbz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="------------enigB330AB0C700B0888B0BC2F22"
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+References: <200607241857.52389.a1426z@gawab.com> <200607250757.10722.a1426z@gawab.com> <44C5AFC3.4020405@bigpond.net.au> <200607252127.14024.a1426z@gawab.com>
+In-Reply-To: <200607252127.14024.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 26 Jul 2006 00:51:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB330AB0C700B0888B0BC2F22
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Al Boldi wrote:
+>>> Peter Williams wrote:
+>>>> Al Boldi wrote:
+[bits deleted]
+>>>>> It may be really great, to allow schedulers perPid parent, thus
+>>>>> allowing the stacking of different scheduler semantics.  This could
+>>>>> aid flexibility a lot.
+>>>> I'm don't understand what you mean here.  Could you elaborate?
+>>> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
+>> It's probably not a good idea to have different schedulers managing the
+>> same resource.  The way to do different scheduling per process is to use
+>> the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc.
+>> (possibly extended) within each scheduler.  On the other hand, on an SMP
+>> system, having a different scheduler on each run queue (or sub set of
+>> queues) might be interesting :-).  
+> 
+> What's wrong with multiple run-queues on UP?
 
-David Lang wrote:
-> On Tue, 25 Jul 2006, David Masover wrote:
->=20
->> Horst H. von Brand wrote:
->>
->>> 18GiB =3D 18 million KiB, you do have a point there. But 40 million
->>> files on
->>> that, with some space to spare, just doesn't add up.
->=20
-> if you have 18 million KiB and each file is a single block (512 Bytes =3D=
+A really high likelihood of starvation of some tasks.
 
-> 0.5 Kib) then assuming zero overhead you could fit 18 Million KiB / 0.5=
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> KiB =3D 36 Million files on the drive.
->=20
-> thus being scheptical about 40 million files on a 18G drive.
->=20
-> this is only possible if you are abel to have multiple files per 512
-> byte block.
-
-I believe Reiser4 does this.  Does ext3?  I know I heard somewhere in
-this thread that you can't set the blocksize lower than 1k...
-
-
---------------enigB330AB0C700B0888B0BC2F22
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRMa7pXgHNmZLgCUhAQoFSw//RjP2QZv13yH8jJ66biGd0FE/HkezJTGV
-iXIk87bzPPPVjBrr5d3qrOERpnH90+J0lBZK1KGA4Kka14dy4WAchzNofszik/cC
-y5F/blSlf9fFWX4tnM/gab+AuUM0eE4LxYuU7l6gacDA+LvwUgm350ONULUl6Bs+
-KO2t5h3jHzQ8PiVesv8ZI9DQoM7AGi7MmTnm4oHNehDZhxjn0p7X8AIfIjteZXYP
-pCJE8NuRncK2psH+bigHbjWtkg+OAraSzlIDJWNq8wK26GYFG1mb/cgAGk0K/HLA
-p3qQkRQJhpdPGC/fowqIdKHe06cx1sDNicqMwA9o5FCGaxOZqT1uoJGOf6rOuMIA
-0RhF5h/2JR+aiZNRw5Ipv/ec0Cm8Uyq3cAmksD6LJqlpYyYQ2D69QYAfovpgLsz9
-9I7zGISViDmDz/SbsJDdFrUsv3pRyM9j89SlGrMEYlyGZa25ITf9FJkwH9H2Ji2G
-y60CPlZzECUFsOg5VdtKEAZeoc/NfGMtxFch4PLjdNPkknsDc31tV6jphhSsJKk1
-WhBQZ1VVfEAu1V3F/Thd3gddlG3tBxwlPgtRyfAcUapjOOhIAvHEQnwWXeu92BAJ
-iqZnhWm3itKDPzcZJnC6hC+3lZmHo/TRqIZIbU1RkqW0gFI9ChtoLhvx75BuQC4t
-aXWxVDwIrUQ=
-=esNy
------END PGP SIGNATURE-----
-
---------------enigB330AB0C700B0888B0BC2F22--
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

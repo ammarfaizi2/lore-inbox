@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWGZQWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWGZQYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751682AbWGZQWg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751683AbWGZQWg
+	id S1751700AbWGZQYx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWGZQYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:22:36 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:58255 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751664AbWGZQWf (ORCPT
+	Wed, 26 Jul 2006 12:24:53 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63461 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751699AbWGZQYx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:22:35 -0400
-Message-ID: <44C796C3.9030404@us.ibm.com>
-Date: Wed, 26 Jul 2006 09:22:27 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru> <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>
-In-Reply-To: <44C77C23.7000803@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jul 2006 12:24:53 -0400
+Date: Wed, 26 Jul 2006 09:20:07 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: restore missing PCI registers after reset
+Message-ID: <20060726162007.GA9871@suse.de>
+References: <20060717162531.GC4829@kroah.com> <20060726102944.GA9411@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726102944.GA9411@mellanox.co.il>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Christoph Hellwig wrote:
->   
->>> My personal opinion on existing AIO is that it is not the right design.
->>> Benjamin LaHaise agree with me (if I understood him right),
->>>       
->> I completely agree with that aswell.
->>     
->
-> I agree, too, but the current code is not the last of the line.  Suparna
-> has a st of patches which make the current kernel aio code work much
-> better and especially make it really usable to implement POSIX AIO.
->
-> In Ottawa we were talking about submitting it and Suparna will.  We just
-> thought about a little longer timeframe.  I guess it could be
-> accelerated since he mostly has the patch done.  But I don't know her
-> schedule.
->
-> Important here is, don't base any decision on the current aio
-> implementation.
->   
-Ulrich,
+On Wed, Jul 26, 2006 at 01:29:44PM +0300, Michael S. Tsirkin wrote:
+> Quoting r. Greg KH <gregkh@suse.de>:
+> > Subject: [patch 02/45] IB/mthca: restore missing PCI registers after reset
+> > ------------------
+> > mthca does not restore the following PCI-X/PCI Express registers after reset:
+> >   PCI-X device: PCI-X command register
+> >   PCI-X bridge: upstream and downstream split transaction registers
+> >   PCI Express : PCI Express device control and link control registers
+> > 
+> > This causes instability and/or bad performance on systems where one of
+> > these registers is set to a non-default value by BIOS.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+> > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> By the way, Greg, this code is completely generic, and the same seems to apply
+> to all PCI-X/PCI-Express devices - should not pci_restore_state and
+> friends really know about these registers, as well?
+> 
+> What do you think?
 
-Suparna mentioned your interest in making POSIX glibc aio work with 
-kernel-aio at OLS.
-We thought taking a re-look at the (kernel side) work BULL did, would be 
-a nice starting
-point. I re-based those patches to 2.6.18-rc2 and sent it to Zach Brown 
-for review before
-sending them out to list.
+I think pci_restore_state() already restores the msi and msix state,
+take a look at the latest kernel version :)
 
-These patches does NOT make AIO any cleaner. All they do is add 
-functionality to support
-POSIX AIO easier. These are
+thanks,
 
-[ PATCH 1/3 ]  Adding signal notification for event completion
-
-[ PATCH 2/3 ]  lio (listio) completion semantics
-
-[ PATCH 3/3 ] cancel_fd support
-
-Suparna explained these in the following article:
-
-http://lwn.net/Articles/148755/
-
-If you think, this is a reasonable direction/approach for the kernel and 
-you would take care
-of glibc side of things - I can spend time on these patches, getting 
-them to reasonable shape
-and push for inclusion.
-
-Please let us know.
-
-Thanks,
-Badari
-
-
+greg k-h

@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWGZXl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751820AbWGZXyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751814AbWGZXl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 19:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751818AbWGZXl6
+	id S1751820AbWGZXyM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 19:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWGZXyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 19:41:58 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:19369 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751814AbWGZXl6 convert rfc822-to-8bit (ORCPT
+	Wed, 26 Jul 2006 19:54:12 -0400
+Received: from ns1.suse.de ([195.135.220.2]:33460 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751820AbWGZXyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 19:41:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p0MdMOrDoqUYR4rur1HAM5v42U2lUlReMd4ks+LzJ9iKtpjF6/upy8s03rwLQFDkSONWgIdZNbaluDOF9/I9QyfeUZsfSi/zrCY2pD53C01HFSJ586dtckR8itcNBKuA+7+8msjR/sz4zljZyDqBRPC/DTHd5dqi7a/QPaycFkk=
-Message-ID: <c526a04b0607261641n7f09242h86025282153e4c91@mail.gmail.com>
-Date: Thu, 27 Jul 2006 00:41:56 +0100
-From: "Adam Henley" <adamazing@gmail.com>
-To: "=?ISO-8859-1?Q?S=E9bastien_Bernard?=" <seb@frankengul.org>
-Subject: Re: Weird kernel 2.6.17.[67] behaviour
-Cc: debian-sparc@lists.debian.org, linux-kernel@vger.kernel.org
-In-Reply-To: <44C7F794.3080304@frankengul.org>
+	Wed, 26 Jul 2006 19:54:12 -0400
+From: Neil Brown <neilb@suse.de>
+To: Eric Sandeen <sandeen@sandeen.net>
+Date: Thu, 27 Jul 2006 09:53:04 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20060726135526.GA11310@frankengul.org>
-	 <44C7F794.3080304@frankengul.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17608.96.409298.126686@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>, jack@suse.cz,
+       20@madingley.org, marcel@holtmann.org, linux-kernel@vger.kernel.org,
+       sct@redhat.com, adilger@clusterfs.com
+Subject: Re: Bad ext3/nfs DoS bug
+In-Reply-To: message from Eric Sandeen on Wednesday July 26
+References: <20060718145614.GA27788@circe.esc.cam.ac.uk>
+	<1153236136.10006.5.camel@localhost>
+	<20060718152341.GB27788@circe.esc.cam.ac.uk>
+	<1153253907.21024.25.camel@localhost>
+	<20060719092810.GA4347@circe.esc.cam.ac.uk>
+	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>
+	<17599.2754.962927.627515@cse.unsw.edu.au>
+	<20060720160639.GF25111@atrey.karlin.mff.cuni.cz>
+	<17600.30372.397971.955987@cse.unsw.edu.au>
+	<20060721170627.4cbea27d.akpm@osdl.org>
+	<20060722131759.GC7321@thunk.org>
+	<20060724185604.9181714c.akpm@osdl.org>
+	<17605.32781.909741.310735@cse.unsw.edu.au>
+	<44C7A272.8030401@sandeen.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/07/06, Sébastien Bernard <seb@frankengul.org> wrote:
-> seb@frankengul.org a écrit :
-> > I got a perfectly workable kernel 2.6.17.1 using mkinitramfs on my U60.
-> >
-> > Can you shed some lights on this dark corner of linux ?
-> >
-> >       Seb
+On Wednesday July 26, sandeen@sandeen.net wrote:
+> > +EXPORT_SYMBOL_GPL(export_iget);
+> ...
+> > +static struct dentry *ext3_get_dentry(struct super_block *sb, void *vobjp)
+> > +{
+> > +	__u32 *objp = vobjp;
+> > +	unsigned long ino = objp[0];
+> > +	__u32 generation = objp[1];
+> > +
+> > +	if (ino != EXT3_ROOT_INO && ino < EXT3_FIRST_INO(sb))
+> > +		return ERR_PTR(-ESTALE);
+> > +
+> > +	return export_iget(sb, ino, generation);
+> > +}
+> 
+> Hm, with this, ext3.ko has a new dependency on exportfs.ko.  Is that 
+> desirable/acceptable?
 
-I can't shed any more light on it, but I can look too :o)
+Drat, you're right.
+No, I don't think that is what we want.
+I'll do it differently in a day or so.
 
-The original mailing of the patch to the list is below:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0607.1/1694.html
-
-[snip>
-The prctl() system call should never allow to set "dumpable" to the
-value 2. Especially not for non-privileged users.
-
-This can be split into three cases:
-  1) running as root -- then core dumps will already be done as root,
-     and so prctl(PR_SET_DUMPABLE, 2) is not useful
-  2) running as non-root w/setuid-to-root -- this is the debatable case
-  3) running as non-root w/setuid-to-non-root -- then you definitely
-     do NOT want "dumpable" to get set to 2 because you have the
-     privilege escalation vulnerability
-<snip]
-
-Is it that something else is misbehaving and trying to dump core as root?
+Thanks,
+NeilBrown

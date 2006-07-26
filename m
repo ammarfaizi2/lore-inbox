@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbWGZRVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWGZRXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751717AbWGZRVG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751721AbWGZRVF
+	id S1030238AbWGZRXm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWGZRXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:21:05 -0400
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:42153 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751722AbWGZRVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:21:05 -0400
-Date: Wed, 26 Jul 2006 13:15:41 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: automated test? (was Re: Linux 2.6.17.7)
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arnaud Patard <apatard@mandriva.com>,
-       David Lang <dlang@digitalinsight.com>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>, Greg KH <greg@kroah.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-stable <stable@kernel.org>
-Message-ID: <200607261318_MC3-1-C623-96BB@compuserve.com>
+	Wed, 26 Jul 2006 13:23:42 -0400
+Received: from mga03.intel.com ([143.182.124.21]:35466 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1030238AbWGZRXl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:23:41 -0400
+X-IronPort-AV: i="4.07,185,1151910000"; 
+   d="scan'208"; a="105063818:sNHT2071923315"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: smp + acpi
+Date: Wed, 26 Jul 2006 13:22:52 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6011250B3@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: smp + acpi
+Thread-Index: Acaw18w7sfnyi23JTLu7S9zn0d6hBwAAC4AA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Marco Berizzi" <pupilla@hotmail.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2006 17:22:55.0180 (UTC) FILETIME=[21B878C0:01C6B0D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060726142932.GE23701@stusta.de>
+>> CONFIG_ACPI=y is necessary to parse the ACPI tables
+>> and discover HT siblings.  Except for the rare BIOS
+>> that gives the option to enumerate HT via MPS
+>> (thus breaking some versions of Windows),
+>> enabling ACPI is the only way to enable HT.
+>> 
+>> Yes, in the distant past, CONFIG_ACPI=n did not remove
+>> all ACPI code from your kernel, and that was a bug.
+>
+>Ok thanks for the confirmation.
+>
+>However the proposed change would be still wrong because
+>SMP can be without HT.
 
-On Wed, 26 Jul 2006 16:29:32 +0200, Adrian Bunk wrote:
+What proposed change?
 
-> The real problem is:
-> How do we get some testing coverage of -stable kernels by users to catch 
-> issues?
-> And compile errors are the least of my worries.
+I expect that the problem at hand is that CONFIG_SMP=y
+is fine, but with CONFIG_ACPI=n, that isn't going to
+find the HT threads on an HT system.
 
-The problem with the current method of releasing patch candidates is
-that it's too hard to test them.  I would suggest:
-
-        1.  In addition to posting all the patches separately to L-K,
-            post a combined patch.  Have it change the makefile so it
-            says 2.6.X.Y-rcZ; that way if an oops gets posted we know
-            what the codebase was.  If the patch is too big, put it
-            on a website.
-
-        2.  Make the separate patches available on a website in Quilt
-            format like Andrew does with -mm.  (Just like (1) above,
-            make sure it changes the kernel version.)  This makes it
-            easier for testers to fix individual patches.
-
-        3.  Keep posting -rc's until nobody reports problems.
-
-It's easy to generate (1) from (2):
-
-        a.      Untar the quilt patchset into the new directory.
-                Make sure the old and new dirs are subdirectories
-                of some common directory, are identical and they
-                are dist-clean.
-        b.      mv broken-out patches
-        c.      quilt push -a -q
-        d.      cd ..
-        e.      diff -uprN -X ignorefiles old new >old.new.patch
-                -- ignorefiles contains two lines:
-                        .pc
-                        patches
-
--- 
-Chuck
-
+-Len

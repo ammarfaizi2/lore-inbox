@@ -1,45 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWGZRDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWGZRHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbWGZRDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWGZRDM
+	id S1751701AbWGZRHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWGZRHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:03:12 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:29642 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751085AbWGZRDM (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 26 Jul 2006 13:03:12 -0400
-Date: Wed, 26 Jul 2006 13:02:36 -0400
-To: andrea@cpushare.com
-Cc: Adrian Bunk <bunk@stusta.de>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060726170236.GD31172@fieldses.org>
-References: <200607230920.04129.rene@exactcode.de> <17604.31639.213450.987415@gargle.gargle.HOWL> <20060725123558.GA32243@opteron.random> <44C65931.6030207@namesys.com> <20060726124557.GB23701@stusta.de> <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random>
+	Wed, 26 Jul 2006 13:07:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31643 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751701AbWGZRHL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:07:11 -0400
+Date: Wed, 26 Jul 2006 10:07:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Nasty git corruption problem
+In-Reply-To: <1153929715.13509.12.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0607260945440.29649@g5.osdl.org>
+References: <1153929715.13509.12.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726160604.GO32243@opteron.random>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 06:06:04PM +0200, andrea@cpushare.com wrote:
-> JFYI: all statistics only take a sample of the larger space, the whole
-> point of having a statistic is because you can't measure the total.
-> The smaller the sample compared to the total, the less the stats are
-> accurate
 
-Definitely not true in general.  If I wanted to know the gender ratio at
-the latest OLS I'd take the results from a sample of a dozen chosen
-randomly over the results from a sample of hundreds all taken from the
-men's room.
 
-For exactly the same quality of sampling, yes, the larger the better,
-but the point of diminishing returns comes pretty quickly.  So given
-limited resources it's probably more important to work on the quality of
-the sample rather than on its size....
+On Wed, 26 Jul 2006, Alan Cox wrote:
+> 
+> During a git rebase my machine crashed. Git claims that the rebase is 
+> complete but contains none of the outstanding 30 odd patches. There is 
+> no .dotest directory and git-fsck-objects produces some warnings about a 
+> few dangling objects, but these objects aren't the relevant ones (at 
+> least directly)
 
---b.
+They definitely should be, unless you actually did a "git prune" (or a 
+"git repack -d").
+
+> CVS and SVN in crashes don't lose old stuff, though they are pretty good
+> at losing the last commit or two.
+
+And git should be even harder to get to lose old stuff, because it won't 
+even touch it. 
+
+> Doing
+> 
+> for i in *; do (cd $i; for j in *; do git-unpack-file $i$j; done; );
+> done
+> 
+> shows that lots of the changes are still somewhere in the object tree
+> but there seems to be no tool for fixing rather than moaning about
+> objects dangling, and also no obvious way to fix it.
+
+Well, the "dangling objects" really should be the fix. We could make it 
+even more obvious by creating links to the dangling objects in a 
+"lost+found" directory, but I usually just do it by hand.
+
+So the thing to do to recover any old stuff is
+
+ - do "git-fsck-objects --full".
+
+   The "--full" is going to make it much slower, but it means that it will 
+   look _inside_ old packs too, and if you repacked the old stuff, that's 
+   what you want. Besides, if you actually had a real crash in the middle 
+   of a git op, you probably do want this anyway, although quite frankly, 
+   a truly corrupted pack is pretty damn unlikely (the only case I 
+   remember ever seing was due to actual hardware problems)
+
+   I _suspect_ you didn't do the "--full". By default, git-fsck-objects 
+   will only look at the unpacked objects, exactly because pack-files are 
+   so stable. So the only reason to use "--full" is if you're really anal 
+   and suspect hw issues, _or_ if you are looking for dangling work that 
+   may be older than your last repack.
+
+ - take all the dangling objects, and either list them explicitly to 
+   "gitk" (or other visualizer), or you could save them off as
+
+	.git/refs/lost+found/<some-random-names-here>
+
+   and then do "gitk --all"
+
+In fact, if you want to play around with a git patch, this trivial one 
+should make git-fsck-objects create those lost-and-found entries 
+automatically if you give it the "--lost-n-found" flag.
+
+Anyway, I'm pretty sure that git is a hell of a lot _safer_ than either 
+CVS or SVN have ever been, or will ever be.
+
+		Linus
+
+---
+diff --git a/fsck-objects.c b/fsck-objects.c
+index e167f41..fa50190 100644
+--- a/fsck-objects.c
++++ b/fsck-objects.c
+@@ -14,6 +14,7 @@ #include "tree-walk.h"
+ #define REACHABLE 0x0001
+ #define SEEN      0x0002
+ 
++static int lost_and_found = 0;
+ static int show_root = 0;
+ static int show_tags = 0;
+ static int show_unreachable = 0;
+@@ -102,8 +103,23 @@ static void check_connectivity(void)
+ 		}
+ 
+ 		if (!obj->used) {
+-			printf("dangling %s %s\n", typename(obj->type),
+-			       sha1_to_hex(obj->sha1));
++			char *hex = sha1_to_hex(obj->sha1);
++			printf("dangling %s %s\n", typename(obj->type), hex);
++			if (lost_and_found) {
++				int fd, ret;
++				mkdir(git_path("refs/lost+found"), 0777);
++				fd = open(git_path("refs/lost+found/%s", hex), O_CREAT | O_TRUNC | O_WRONLY, 0666);
++				if (fd < 0) {
++					perror("lost+found");
++					continue;
++				}
++				hex[40] = '\n';
++				ret = xwrite(fd, hex, 41);
++				close(fd);
++				if (ret != 41)
++					error("unable to write to lost+found");
++				continue;
++			}
+ 		}
+ 	}
+ }
+@@ -514,6 +530,10 @@ int main(int argc, char **argv)
+ 			check_strict = 1;
+ 			continue;
+ 		}
++		if (!strcmp(arg, "--lost-n-found")) {
++			lost_and_found = 1;
++			continue;
++		}
+ 		if (*arg == '-')
+ 			usage("git-fsck-objects [--tags] [--root] [[--unreachable] [--cache] [--full] [--strict] <head-sha1>*]");
+ 	}

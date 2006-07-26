@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWGZTbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWGZTeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751771AbWGZTbT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 15:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWGZTbT
+	id S932293AbWGZTeq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 15:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWGZTeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 15:31:19 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:21915 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751771AbWGZTbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 15:31:18 -0400
-Date: Wed, 26 Jul 2006 12:31:01 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Pekka J Enberg <penberg@cs.helsinki.fi>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [patch 2/2] slab: always consider arch mandated alignment
-In-Reply-To: <44C7C261.6050602@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0607261229430.7132@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com>
- <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com>
- <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com>
- <20060723162427.GA10553@osiris.ibm.com> <20060726085113.GD9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI>
- <20060726101340.GE9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261325070.17986@sbz-30.cs.Helsinki.FI>
- <20060726105204.GF9592@osiris.boeblingen.de.ibm.com>
- <Pine.LNX.4.58.0607261411420.17986@sbz-30.cs.Helsinki.FI>
- <44C7AF31.9000507@colorfullife.com> <Pine.LNX.4.64.0607261118001.6608@schroedinger.engr.sgi.com>
- <44C7B842.5060606@colorfullife.com> <Pine.LNX.4.64.0607261153220.6896@schroedinger.engr.sgi.com>
- <44C7C261.6050602@colorfullife.com>
+	Wed, 26 Jul 2006 15:34:46 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:19609 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1751772AbWGZTep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 15:34:45 -0400
+Date: Wed, 26 Jul 2006 15:34:42 -0400
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 006 of 9] knfsd: Remove nfsd_versbits as intermediate storage for desired versions.
+Message-ID: <20060726193442.GF31172@fieldses.org>
+References: <20060725114207.21779.patches@notabene> <1060725015452.21969@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060725015452.21969@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jul 2006, Manfred Spraul wrote:
+On Tue, Jul 25, 2006 at 11:54:52AM +1000, NeilBrown wrote:
+> +int nfsd_vers(int vers, enum vers_op change)
+> +{
+> +	if (vers < NFSD_MINVERS || vers >= NFSD_NRVERS)
+> +		return -1;
 
-> > So we sacrifice the ability to worsen the performance of slabs by
-> > misaligning them for debugging purposes.
-> >  
-> If a slab user can live with misaligned objects, then he shouldn't set align.
-> Thus we do not sacrifice anything.
+This isn't actually used; remove it or make it a BUG_ON()?
 
-A slab user is setting alignment in order to optimize performance not for 
-correctness. Most users that I know of can live with misalignments. If 
-that would not be the case then this code would never have worked.
-
+--b.

@@ -1,49 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWGZKyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWGZLAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWGZKyY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWGZKyY
+	id S1751281AbWGZLAi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWGZLAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:54:24 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:5488 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751251AbWGZKyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:54:23 -0400
-Date: Wed, 26 Jul 2006 12:52:04 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, manfred@colorfullife.com
-Subject: Re: [patch 2/2] slab: always consider arch mandated alignment
-Message-ID: <20060726105204.GF9592@osiris.boeblingen.de.ibm.com>
-References: <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com> <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com> <20060723162427.GA10553@osiris.ibm.com> <20060726085113.GD9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261303270.17613@sbz-30.cs.Helsinki.FI> <20060726101340.GE9592@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.58.0607261325070.17986@sbz-30.cs.Helsinki.FI>
+	Wed, 26 Jul 2006 07:00:38 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43792 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751281AbWGZLAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:00:37 -0400
+Date: Wed, 26 Jul 2006 13:00:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: v4l-dvb-maintainer@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/media/dvb/ttpci/: remove unneeded #include <linux/byteorder/swabb.h>'s
+Message-ID: <20060726110036.GG25367@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0607261325070.17986@sbz-30.cs.Helsinki.FI>
-User-Agent: mutt-ng/devel-r804 (Linux)
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:37:42PM +0300, Pekka J Enberg wrote:
-> On Wed, 26 Jul 2006, Heiko Carstens wrote:
-> > It's enough to fix the ARCH_SLAB_MINALIGN problem. But it does _not_ fix the
-> > ARCH_KMALLOC_MINALIGN problem. s390 currently only uses ARCH_KMALLOC_MINALIGN
-> > since that should be good enough and it doesn't disable as much debugging
-> > as ARCH_SLAB_MINALIGN does.
-> > What exactly isn't clear from the description of the first patch? Or why do
-> > you consider it bogus?
-> 
-> Now I am confused. What do you mean by "doesn't disable as much debugging 
-> as ARCH_SLAB_MINALIGN does"? AFAICT, the SLAB_RED_ZONE and SLAB_STORE_USER 
-> options _require_ BYTES_PER_WORD alignment, so if s390 requires 8 
-> byte alignment, you can't have them debugging anyhow...
+Since av7110.c is the only file actually using something from this 
+header, there's no reson for other files to
+#include <linux/byteorder/swabb.h>.
 
-We only specify ARCH_KMALLOC_MINALIGN, since that aligns only the kmalloc
-caches, but it doesn't disable debugging on other caches that are created
-via kmem_cache_create() where an alignment of e.g. 0 is specified.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The point of the first patch is: why should the slab cache be allowed to chose
-an aligment that is less than what the caller specified? This does very likely
-break things.
+---
+
+ drivers/media/dvb/ttpci/av7110_av.c  |    1 -
+ drivers/media/dvb/ttpci/av7110_ca.c  |    1 -
+ drivers/media/dvb/ttpci/av7110_hw.c  |    1 -
+ drivers/media/dvb/ttpci/av7110_v4l.c |    1 -
+ 4 files changed, 4 deletions(-)
+
+--- linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_av.c.old	2006-07-25 06:01:44.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_av.c	2006-07-25 06:01:50.000000000 +0200
+@@ -33,7 +33,6 @@
+ #include <linux/string.h>
+ #include <linux/sched.h>
+ #include <linux/delay.h>
+-#include <linux/byteorder/swabb.h>
+ #include <linux/smp_lock.h>
+ #include <linux/fs.h>
+ 
+--- linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_ca.c.old	2006-07-25 06:01:58.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_ca.c	2006-07-25 06:02:00.000000000 +0200
+@@ -35,7 +35,6 @@
+ #include <linux/fs.h>
+ #include <linux/timer.h>
+ #include <linux/poll.h>
+-#include <linux/byteorder/swabb.h>
+ #include <linux/smp_lock.h>
+ 
+ #include "av7110.h"
+--- linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_hw.c.old	2006-07-25 06:02:09.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_hw.c	2006-07-25 06:02:12.000000000 +0200
+@@ -34,7 +34,6 @@
+ #include <linux/string.h>
+ #include <linux/sched.h>
+ #include <linux/delay.h>
+-#include <linux/byteorder/swabb.h>
+ #include <linux/smp_lock.h>
+ #include <linux/fs.h>
+ 
+--- linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_v4l.c.old	2006-07-25 06:02:21.000000000 +0200
++++ linux-2.6.18-rc1-mm2-full/drivers/media/dvb/ttpci/av7110_v4l.c	2006-07-25 06:02:24.000000000 +0200
+@@ -32,7 +32,6 @@
+ #include <linux/fs.h>
+ #include <linux/timer.h>
+ #include <linux/poll.h>
+-#include <linux/byteorder/swabb.h>
+ #include <linux/smp_lock.h>
+ 
+ #include "av7110.h"
+

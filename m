@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWGZKaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWGZKbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWGZKaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWGZKaF
+	id S932181AbWGZKbT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWGZKbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:30:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44427 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932097AbWGZKaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:30:03 -0400
-Date: Wed, 26 Jul 2006 11:30:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-Message-ID: <20060726103001.GA10139@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	lkml <linux-kernel@vger.kernel.org>,
-	David Miller <davem@davemloft.net>,
-	Ulrich Drepper <drepper@redhat.com>,
-	netdev <netdev@vger.kernel.org>
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>
+	Wed, 26 Jul 2006 06:31:19 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:44176 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932181AbWGZKbS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:31:18 -0400
+Subject: Require mmap handler for a.out executables
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Eugene Teo <eteo@redhat.com>
+Content-Type: multipart/mixed; boundary="=-oRIaeFemI07HbbrC9oFm"
+Date: Wed, 26 Jul 2006 12:31:21 +0200
+Message-Id: <1153909881.746.39.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726101919.GB2715@2ka.mipt.ru>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.7.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 02:19:21PM +0400, Evgeniy Polyakov wrote:
-> I stopped to work on AIO, since neither existing, nor mine
-> implementation were able to outperform sync speeds (one of the major problems
-> in my implementation is get_user_pages() overhead, which can be
-> completely eliminated with physical memory allocation being done in
-> advance in userspace, like Ulrich described).
-> My personal opinion on existing AIO is that it is not the right design.
-> Benjamin LaHaise agree with me (if I understood him right),
 
-I completely agree with that aswell.
+--=-oRIaeFemI07HbbrC9oFm
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> but he
-> failed to move AIO outside repeated-call model (2.4 had state machine
-> based one, and out-of-the tree 2.6 patches have that design too).
-> In theory existing AIO (with all posix userspace API) can be replaced
-> with kevent (it will even take less space), but I would present it as a
-> TODO item, since kevent itself has nothing to do with AIO.
+Hi Linus,
 
-And replacing the existing aio code is exactly we I want you to do.  We
-can't keep adding more and more code without getting rid of old mess forever.
+with the nasty /proc privilege escalation (CVE-2006-3626) it became
+clear that we need to do something more to better protect us against
+people exploiting stuff in /proc. Besides the don't allow chmod stuff,
+Eugene also proposed to depend the a.out execution on the existence of
+the mmap handler. Since we are doing the same for ELF, this makes
+totally sense to me.
 
-And yes, the asynchronous pagecache population bit in your patchkit has a lot
-to do with aio.  It's same variant of aio done right (or at least less bad).
+The attached patch implements the additional check for the mmap handler
+and I hope you consider it for upstream inclusion.
 
-I suspect the right way to go ahead is to drop that bit for now (it's the
-by far worst code in the patchkit anyway) and then we can redo it later to
-not get abstractions wrong and duplicate lots of code but also replace the
-aio code.  I don't expect you to do that alone, you'll probably need quite
-a bit help from us FS and VM people.
+Regards
+
+Marcel
+
+
+--=-oRIaeFemI07HbbrC9oFm
+Content-Disposition: attachment; filename=patch
+Content-Type: text/plain; name=patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+[PATCH] Require mmap handler for a.out executables
+
+Files supported by fs/proc/base.c, i.e. /proc/<pid>/*, are not capable
+of meeting the validity checks in ELF load_elf_*() handling because they
+have no mmap handler which is required by ELF. In order to stop a.out
+executables being used as part of an exploit attack against /proc-related
+vulnerabilities, we make a.out executables depend on ->mmap() existing.
+
+Signed-off-by: Eugene Teo <eteo@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+
+---
+commit 1597cf8405734e4747c808bb7e04115a6670dccf
+tree 49050549aee6406dab0c021c5aa4e9bfc337bd8f
+parent 44eb123126d289bac398cac0232309c228386671
+author Marcel Holtmann <marcel@holtmann.org> Wed, 26 Jul 2006 12:12:14 +0200
+committer Marcel Holtmann <marcel@holtmann.org> Wed, 26 Jul 2006 12:12:14 +0200
+
+ fs/binfmt_aout.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/fs/binfmt_aout.c b/fs/binfmt_aout.c
+index f312103..5638acf 100644
+--- a/fs/binfmt_aout.c
++++ b/fs/binfmt_aout.c
+@@ -278,6 +278,9 @@ static int load_aout_binary(struct linux
+ 		return -ENOEXEC;
+ 	}
+ 
++	if (!bprm->file->f_op || !bprm->file->f_op->mmap)
++		return -ENOEXEC;
++
+ 	fd_offset = N_TXTOFF(ex);
+ 
+ 	/* Check initial limits. This avoids letting people circumvent
+@@ -476,6 +479,9 @@ static int load_aout_library(struct file
+ 		goto out;
+ 	}
+ 
++	if (!file->f_op || !file->f_op->mmap)
++		goto out;
++
+ 	if (N_FLAGS(ex))
+ 		goto out;
+ 
+
+--=-oRIaeFemI07HbbrC9oFm--
+

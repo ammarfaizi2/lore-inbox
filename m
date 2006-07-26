@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWGZVGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWGZVNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWGZVGw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 17:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWGZVGw
+	id S1751630AbWGZVNM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 17:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWGZVNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 17:06:52 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:58501 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751146AbWGZVGv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 17:06:51 -0400
-Date: Wed, 26 Jul 2006 13:58:10 -0700
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, Dave Jones <davej@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be totally bizare
-Message-ID: <20060726205810.GB23488@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <200607242023_MC3-1-C5FE-CADB@compuserve.com> <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org> <20060725185449.GA8074@elte.hu> <1153855844.8932.56.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607251355080.29649@g5.osdl.org> <1153921207.3381.21.camel@laptopd505.fenrus.org> <20060726155114.GA28945@redhat.com> <Pine.LNX.4.64.0607261007530.29649@g5.osdl.org> <1153942954.3381.50.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607261319160.4168@g5.osdl.org>
+	Wed, 26 Jul 2006 17:13:11 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28123
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751630AbWGZVNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 17:13:10 -0400
+Date: Wed, 26 Jul 2006 14:13:23 -0700 (PDT)
+Message-Id: <20060726.141323.81310974.davem@davemloft.net>
+To: rmk+lkml@arm.linux.org.uk
+Cc: takis@issaris.org, linux-kernel@vger.kernel.org
+Subject: Re: Unreachable e-mailaddresses in maintainers file
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060726163730.GB6868@flint.arm.linux.org.uk>
+References: <44C4D835.5010500@issaris.org>
+	<20060726163730.GB6868@flint.arm.linux.org.uk>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607261319160.4168@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:22:24PM -0700, Linus Torvalds wrote:
-> I wonder if we could just make the workqueue code just run with preemption 
-> disabled - that should also automatically protect against any CPU hotplug 
-> events on the local CPU (and I think "local CPU" is all that the wq code 
-> cares about, no?)
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Date: Wed, 26 Jul 2006 17:37:30 +0100
 
-__create_workqueue(), destroy_workqueue() and flush_workqueue() are all 
-taking CPU hotplug lock currently. AFAICS they all can block and so
-disabling preemption wont work. What am I missing?
+> On Mon, Jul 24, 2006 at 04:24:53PM +0200, Panagiotis Issaris wrote:
+> > The following two e-mailaddresses were unreachable for me:
+> >...
+> > rmk+mmc@arm.linux.org.uk
+> 
+> Bah, doesn't take long for folk to start whinging about unreachable
+> email addresses. ;(
 
--- 
-Regards,
-vatsa
+I was one keystroke away from removing you from all of the
+vger.kernel.org lists because I was getting "5 day timeout"
+bounces which usually means I'll be getting 5 more days of
+bounces if I delete the subscription right now. :)
+
+If you are going away for a vaction, have appropriate backup MX
+records in place to queue your mail if your primary mail server goes
+down.  I've crashed my primary mail server remotely to test new
+kernels on several occaisions while I was on the other side of the
+planet, and my backup MX made that a non-issue.
+
+Take care.
+

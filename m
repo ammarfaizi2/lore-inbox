@@ -1,46 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWGZOOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWGZOV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWGZOOj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 10:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWGZOOj
+	id S1750733AbWGZOV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 10:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWGZOV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 10:14:39 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:32531 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750728AbWGZOOi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 10:14:38 -0400
-Message-ID: <44C778CA.1010404@argo.co.il>
-Date: Wed, 26 Jul 2006 17:14:34 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 26 Jul 2006 10:21:56 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:1516 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750733AbWGZOV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 10:21:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iZH9R2qf2OTc/C0eA+kZyVxl43b3t5IAlBbpsJN6aee66o28oQn8hxzR+JhGekCdlDSpzzQtlwYF6BKCP5CBZBatffBHDMQCz5mZ71v1tK+4r4kGOWGaw6ym/rvNinHjdioWrmWjDIacF0h5hbNvNADACHYBG+CrrAEGm77kIyQ=
+Message-ID: <f96157c40607260721s43837f9er810da838ed56cf1b@mail.gmail.com>
+Date: Wed, 26 Jul 2006 14:21:53 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Michael Buesch" <mb@bu3sch.de>
+Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607261544.39532.mb@bu3sch.de>
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: hch@infradead.org, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org,
-       drepper@redhat.com, netdev@vger.kernel.org
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-References: <20060726.031247.98341392.davem@davemloft.net>
-In-Reply-To: <20060726.031247.98341392.davem@davemloft.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Jul 2006 14:14:36.0593 (UTC) FILETIME=[D33CEA10:01C6B0BD]
+Content-Disposition: inline
+References: <20060725222209.0048ed15.akpm@osdl.org>
+	 <200607261544.39532.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
+On 7/26/06, Michael Buesch <mb@bu3sch.de> wrote:
+> On Wednesday 26 July 2006 07:22, Andrew Morton wrote:
+> > with latest HEAD of Linus' tree I got /dev/hwrng but although the device
+> > exists rngtest does not pass as if hwrng does not work correctly.
+> > actually this case is documented in the README supplied by Debian
+> > but I'm surprised to hit the problem.
+> >
+> > I'm just curious whether there's a bug in the driver, the hwrng is bad
+> > or if it is falsely detected and made accessible via /dev/hwrng.
+> >
+> > rngtest 2-unofficial-mt.10
+> > Copyright (c) 2004 by Henrique de Moraes Holschuh
+> > This is free software; see the source for copying conditions.  There
+> > is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+> > PARTICULAR PURPOSE.
+> >
+> > rngtest: starting FIPS tests...
+> > rngtest: bits received from input: 200032
+> > rngtest: FIPS 140-2 successes: 0
+> > rngtest: FIPS 140-2 failures: 10
+> > rngtest: FIPS 140-2(2001-10-10) Monobit: 10
+> > rngtest: FIPS 140-2(2001-10-10) Poker: 10
+> > rngtest: FIPS 140-2(2001-10-10) Runs: 10
+> > rngtest: FIPS 140-2(2001-10-10) Long run: 10
+> > rngtest: FIPS 140-2(2001-10-10) Continuous run: 10
+> > rngtest: input channel speed: (min=1.132; avg=2.157; max=2.794)Mibits/s
+> > rngtest: FIPS tests speed: (min=202.909; avg=206.647; max=211.928)Mibits/s
+> > rngtest: Program run time: 89804 microseconds
+> >
+> >
+> > lspci
+> > 00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
+> > 00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev
+> > 0c)
+> > 00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c)
+> > 00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
+> > oller #1 (rev 02)
+> > 00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
+> > oller #2 (rev 02)
+> > 00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
+> > oller #3 (rev 02)
+> > 00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Contr
+> > oller #4 (rev 02)
+> > 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Cont
+> > roller (rev 02)
+> > 00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
+> > 00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Brid
+> > ge (rev 02)
+> > 00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller
+> > (rev 02)
+> > 01:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+> > 01:04.0 System peripheral: Compaq Computer Corporation Integrated Lights Out Con
+> > troller (rev 01)
+> > 01:04.2 System peripheral: Compaq Computer Corporation Integrated Lights Out  Pr
+> > ocessor (rev 01)
+> > 02:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
+> > 9)
+> > 02:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
+> > 9)
+> > 03:01.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
+> > rnet (rev 10)
+> > 03:01.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethe
+> > rnet (rev 10)
+> > 04:03.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
+> > 1)
+> > 05:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 0
+> > 9)
+> > 05:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 0
+> > 9)
+> > 0a:01.0 PCI bridge: IBM PCI-X to PCI-X Bridge (rev 03)
+> > 0b:04.0 RAID bus controller: Compaq Computer Corporation Smart Array 64xx (rev 0
+> > 1)
 >
-> From: Christoph Hellwig <hch@infradead.org>
-> Date: Wed, 26 Jul 2006 11:04:31 +0100
 >
-> > And to be honest, I don't think adding all this code is acceptable
-> > if it can't replace the existing aio code while keeping the
-> > interface.  So while you interface looks pretty sane the
-> > implementation needs a lot of work still :)
+> I guess you are running the Intel ICH RNG, right?
+> As the FIPS test is a hardware test, I would simply say it's
+> failing hardware. But let's not do this. :) Let's check what
+> actually comes out of the RNG.
+> Could you do a
+> hexdump /dev/hwrng
+> So we can see what actually comes ot of the device. Let's see
+> if it's all zeros or something.
 >
-> Networking and disk AIO have significantly different needs.
->
-Surely, there needs to be a unified polling interface to support single 
-threaded designs.
+> Does the RNG work, if you use 2.6.17 or earlier?
 
--- 
-error compiling committee.c: too many arguments to function
+it just outputs this and stops with 2.6.18-rc2-HEAD (see dmesg for hashcode or
+whatever that is which is appended as localversion)
 
+svn:~# hexdump /dev/hwrng
+0000000 ffff ffff ffff ffff ffff ffff ffff ffff
+*
+
+with 2.6.17.6:
+svn:~# hexdump /dev/hwrng
+0000000 ffff ffff ffff ffff ffff ffff ffff ffff
+*
+
+this was without any rng-tools installed and no rngd running of course.

@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWGZLUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWGZLX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWGZLUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWGZLUm
+	id S932531AbWGZLX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGZLX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:20:42 -0400
-Received: from mail.gmx.de ([213.165.64.21]:4531 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932241AbWGZLUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:20:42 -0400
-X-Authenticated: #428038
-Date: Wed, 26 Jul 2006 13:20:39 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: David Masover <ninja@slaphack.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060726112039.GA18329@merlin.emma.line.org>
-Mail-Followup-To: David Masover <ninja@slaphack.com>,
-	LKML <linux-kernel@vger.kernel.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl> <200607251708.13660.vda.linux@googlemail.com> <20060725204910.GA4807@merlin.emma.line.org> <44C6A390.2040001@slaphack.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C6A390.2040001@slaphack.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+	Wed, 26 Jul 2006 07:23:26 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:64207 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932531AbWGZLXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:23:24 -0400
+Subject: Re: [PATCH] mm: inactive-clean list
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Martin Schwidefsky <schwidefsky@googlemail.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-mm <linux-mm@kvack.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <6e0cfd1d0607260400r731489a1tfd9e6c5a197fb0bd@mail.gmail.com>
+References: <1153167857.31891.78.camel@lappy> <44C30E33.2090402@redhat.com>
+	 <6e0cfd1d0607260400r731489a1tfd9e6c5a197fb0bd@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 26 Jul 2006 13:11:08 +0200
+Message-Id: <1153912268.2732.30.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jul 2006, David Masover wrote:
-
-> Matthias Andree wrote:
-> > On Tue, 25 Jul 2006, Denis Vlasenko wrote:
-> > 
-> >> I, on the contrary, want software to impose as few limits on me
-> >> as possible.
-> > 
-> > As long as it's choosing some limit, I'll pick the one with fewer
-> > surprises.
+On Wed, 2006-07-26 at 13:00 +0200, Martin Schwidefsky wrote:
+> On 7/23/06, Rik van Riel <riel@redhat.com> wrote:
+> > Peter Zijlstra wrote:
+> > > This patch implements the inactive_clean list spoken of during the VM summit.
+> > > The LRU tail pages will be unmapped and ready to free, but not freeed.
+> > > This gives reclaim an extra chance.
+> >
+> > This patch makes it possible to implement Martin Schwidefsky's
+> > hypervisor-based fast page reclaiming for architectures without
+> > millicode - ie. Xen, UML and all other non-s390 architectures.
 > 
-> Running out of inodes would be pretty surprising for me.
+> Hmm, I wonder how the inactive clean list helps in regard to the fast
+> host reclaim
+> scheme. In particular since the memory pressure that triggers the
+> reclaim is in the
+> host, not in the guest. So all pages might be on the active list but
+> the host still
+> wants to be able to discard pages.
+> 
 
-No offense: Then it was a surprise for you because you closed your eyes
-and didn't look at df -i or didn't have monitors in place.
+I think Rik would want to set all the already unmapped pages to volatile
+state in the hypervisor.
 
-There is no way to ask how many files with particular hash values you
-can still stuff into a reiserfs 3.X. There, you're running into a brick
-wall that only your forehead will "see" when you touch it.
+These pages can be dropped without loss of information on the guest
+system since they are all already on a backing-store, be it regular
+files or swap.
 
-Of course, different sites have different needs and if you need
-gazillions of inodes or file names, you may see trouble.
 
-But the assertion that some backup was the cause for inode exhaustion on
-ext? is not very plausible since hard links do not take up inodes,
-symlinks are not backups and everything else requires disk blocks. So,
-since reformatting ext2/ext3 to one inode per block is possible
-(regardless of disk capacity), I see no way how a reformatted file
-system might run out of inodes before it runs out of blocks.
 
--- 
-Matthias Andree

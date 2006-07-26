@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWGZKUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWGZKYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWGZKUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWGZKUR
+	id S932161AbWGZKYc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWGZKYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:20:17 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:9153 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932166AbWGZKUQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:20:16 -0400
-Date: Wed, 26 Jul 2006 14:19:21 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-Message-ID: <20060726101919.GB2715@2ka.mipt.ru>
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100431.GA7518@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060726100431.GA7518@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 26 Jul 2006 14:19:21 +0400 (MSD)
+	Wed, 26 Jul 2006 06:24:32 -0400
+Received: from wx-out-0102.google.com ([66.249.82.207]:24076 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932161AbWGZKYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:24:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=guLxg1mYoRf3mu2JSXIyslLewIAX66QzHeO04ZuTbcMsy2P8xdbAQM/HeAWds56sOt6kJauaeoAoED5tItDwpUe4HWD48GFYmi101+R3x5RqPhj9KSriVcRtEuYoom2OjQOQINLkEnwMOImHTdZH4UFravq7Rxex8smGGkYDfxM=
+Date: Wed, 26 Jul 2006 12:24:50 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 0/3] [-rt] Fixes the timeout-bug in the rtmutex/PI-futex.
+In-Reply-To: <20060726085556.GA19501@elte.hu>
+Message-ID: <Pine.LNX.4.64.0607261221370.10713@localhost.localdomain>
+References: <Pine.LNX.4.64.0607230215480.11861@localhost.localdomain>
+ <20060726084152.GA15909@elte.hu> <20060726085404.GA19151@elte.hu>
+ <20060726085556.GA19501@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 11:04:31AM +0100, Christoph Hellwig (hch@infradead.org) wrote:
-> On Wed, Jul 26, 2006 at 01:18:15PM +0400, Evgeniy Polyakov wrote:
-> > 
-> > This patch includes asynchronous propagation of file's data into VFS
-> > cache and aio_sendfile() implementation.
-> > Network aio_sendfile() works lazily - it asynchronously populates pages
-> > into the VFS cache (which can be used for various tricks with adaptive
-> > readahead) and then uses usual ->sendfile() callback.
-> 
-> And please don't base this on sendfile.  Please make the splice infrastructure
-> aynschronous without duplicating all the code but rather make the existing
-> code aynch and the existing synchronous call wait on them to finish, similar
-> to how we handle async/sync direct I/O.  And to be honest, I don't think
-> adding all this code is acceptable if it can't replace the existing aio
-> code while keeping the interface.  So while you interface looks pretty
-> sane the implementation needs a lot of work still :)
 
-Kevent was created quite before splice and friends, so I used what there
-were :)
 
-I stopped to work on AIO, since neither existing, nor mine
-implementation were able to outperform sync speeds (one of the major problems
-in my implementation is get_user_pages() overhead, which can be
-completely eliminated with physical memory allocation being done in
-advance in userspace, like Ulrich described).
-My personal opinion on existing AIO is that it is not the right design.
-Benjamin LaHaise agree with me (if I understood him right), but he
-failed to move AIO outside repeated-call model (2.4 had state machine
-based one, and out-of-the tree 2.6 patches have that design too).
-In theory existing AIO (with all posix userspace API) can be replaced
-with kevent (it will even take less space), but I would present it as a
-TODO item, since kevent itself has nothing to do with AIO.
+On Wed, 26 Jul 2006, Ingo Molnar wrote:
 
-Kevent is a generic event processing mechanism, AIO, network AIO and all
-others are just kernel users of it's functionality.
+>
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+>> and i also had to do the fixes below to get it to build.
+>
+> then it crashed with the assert below. I'll skip this one for now. I've
+> attached the patches (cleaned up for whitespaces) plus the
+> build-fixpatch.
+>
+> 	Ingo
 
--- 
-	Evgeniy Polyakov
+Oops. Run ran with RT_MUTEX_DEBUG_ON on SMP? I only ran it without 
+RT_MUTEX_DEBUG_ON on UP. I did compile it for SMP though, but I don't have 
+any SMP machine :-(
+
+I'll merge your compile fix into patch 3 and try again.
+
+I am using quilt and pine to send it with so I wonder why I keep getting 
+the white-space damage. Shouldn't emacs fix the 8 space vs tabs things 
+when I switch the c-style to linux? You probably don't use emacs....
+
+Esben
+
+>
+> Brought up 2 CPUs
+> BUG at kernel/rtmutex.c:773!
+> ------------[ cut here ]------------
+> kernel BUG at kernel/rtmutex.c:773!
+> invalid opcode: 0000 [#1]
+> PREEMPT SMP
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c03e407c>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.17-rt7 #14)
+> EIP is at rt_lock_slowlock+0x21e/0x231
+> eax: 00000020   ebx: c31d7000   ecx: c0477be4   edx: c31d97f0
+> esi: 00000000   edi: c31d7d34   ebp: c31d7cdc   esp: c31d7c70
+> ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+>
+>

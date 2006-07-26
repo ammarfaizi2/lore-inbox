@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWGZLXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWGZL0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbWGZLXE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGZLXE
+	id S1751448AbWGZL0b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWGZL0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:23:04 -0400
-Received: from [212.33.180.111] ([212.33.180.111]:6922 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932526AbWGZLXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:23:03 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
-Date: Wed, 26 Jul 2006 14:23:03 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200607241857.52389.a1426z@gawab.com> <200607260745.45156.a1426z@gawab.com> <44C6FA1A.1020709@bigpond.net.au>
-In-Reply-To: <44C6FA1A.1020709@bigpond.net.au>
+	Wed, 26 Jul 2006 07:26:31 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:17561 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750942AbWGZL0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:26:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
+        b=WekHEsTvf8cj1OtfS/pXd5Ch8YQcxoYSOhXRnNi9J9gwbGbm7s5KUHwa1WaXCy+Crv7owsToSwN/g7NoTF9oehVQl+nbR+KlR+oYay19VEomvu1ZDg7CZz+L3wfqYr6em57XxtBMOkcI7gT1wjCnJEEYkb4MLlBpUa6+/nRXYAU=
+Date: Wed, 26 Jul 2006 13:26:48 +0100 (BST)
+X-X-Sender: simlo@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+cc: Esben Nielsen <nielsen.esben@googlemail.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 0/3] [-rt] Fixes the timeout-bug in the rtmutex/PI-futex.
+In-Reply-To: <20060726085556.GA19501@elte.hu>
+Message-ID: <Pine.LNX.4.64.0607261307070.10713@localhost.localdomain>
+References: <Pine.LNX.4.64.0607230215480.11861@localhost.localdomain>
+ <20060726084152.GA15909@elte.hu> <20060726085404.GA19151@elte.hu>
+ <20060726085556.GA19501@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607261423.03527.a1426z@gawab.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+From: Esben Nielsen <nielsen.esben@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Al Boldi wrote:
-> >>>>>>> It may be really great, to allow schedulers perPid parent, thus
-> >>>>>>> allowing the stacking of different scheduler semantics.  This
-> >>>>>>> could aid flexibility a lot.
-> >>>>>>
-> >>>>>> I'm don't understand what you mean here.  Could you elaborate?
-> >>>>>
-> >>>>> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
-> >>>>
-> >>>> It's probably not a good idea to have different schedulers managing
-> >>>> the same resource.  The way to do different scheduling per process is
-> >>>> to use the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR,
-> >>>> etc. (possibly extended) within each scheduler.  On the other hand,
-> >>>> on an SMP system, having a different scheduler on each run queue (or
-> >>>> sub set of queues) might be interesting :-).
-> >>>
-> >>> What's wrong with multiple run-queues on UP?
-> >>
-> >> A really high likelihood of starvation of some tasks.
-> >
-> > Maybe you are thinking of running independent run-queues, in which case
-> > it would probably be unwise to run multiple RQs on a single CPU.
+
+
+On Wed, 26 Jul 2006, Ingo Molnar wrote:
+
 >
-> No.  I'm thinking about different schedulers on a single run queue.  I
-> don't think that it's a good idea.
-
-Running different scheds on a single RQ at the same time on the same resource 
-would be rather odd.  That's why independent RQs are necessary even on SMP.  
-OTOH, running independent RQs on UP doesn't make much sense, unless there is 
-a way to relate them.
-
-> > But I was more thinking of a run-queue of run-queues, with the masterRQ
-> > scheduling slaveRQs, each RQ possibly running its own scheduling
-> > semantic.
+> * Ingo Molnar <mingo@elte.hu> wrote:
 >
-> I think that you need to think a bit harder about the consequences of
-> such a system.  The word "chaos" springs to mind.
+>> and i also had to do the fixes below to get it to build.
+>
+> then it crashed with the assert below. I'll skip this one for now. I've
+> attached the patches (cleaned up for whitespaces) plus the
+> build-fixpatch.
+>
+> 	Ingo
+>
+> Brought up 2 CPUs
+> BUG at kernel/rtmutex.c:773!
+> ------------[ cut here ]------------
+> kernel BUG at kernel/rtmutex.c:773!
+> invalid opcode: 0000 [#1]
+> PREEMPT SMP
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c03e407c>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.17-rt7 #14)
+> EIP is at rt_lock_slowlock+0x21e/0x231
+> eax: 00000020   ebx: c31d7000   ecx: c0477be4   edx: c31d97f0
+> esi: 00000000   edi: c31d7d34   ebp: c31d7cdc   esp: c31d7c70
+> ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+>
+>
 
-Are you sure?
+It is a very simple bug: The waiter was made garbage by the 
+debug_rt_mutex_free_waiter() before it was used in the BUG_ON() line.
+My UP machine boots now with CONFIG_DEBUG_RT_MUTEXEX on in -rt8. Fix 
+is below. Apply on top of the patches you just send me with no further 
+changes. I hope I don't have white space damage in this small patch!!
 
-MultiDimensional RunQueues spring to mind.
+Esben
 
+  kernel/rtmutex.c |    2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks!
+Index: linux-2.6.17-rt8/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.17-rt8.orig/kernel/rtmutex.c
++++ linux-2.6.17-rt8/kernel/rtmutex.c
+@@ -768,9 +768,9 @@ rt_lock_slowlock(struct rt_mutex *lock _
+  	if (adjust_prio_final)
+  		rt_mutex_adjust_prio_final(current, waiter.old_sched_lifo);
 
---
-Al
+-	debug_rt_mutex_free_waiter(&waiter);
+  	BUG_ON(current->boosting_prio != MAX_PRIO);
+  	BUG_ON(waiter.old_sched_lifo != get_sched_lifo());
++	debug_rt_mutex_free_waiter(&waiter);
+  }
+
+  /*
 

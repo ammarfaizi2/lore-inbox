@@ -1,101 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWGZQDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWGZQEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWGZQDc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWGZQDc
+	id S1750928AbWGZQEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWGZQEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:03:32 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:18627 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750900AbWGZQDb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:03:31 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG?] possible recursive locking detected
-Date: Wed, 26 Jul 2006 18:05:21 +0200
-User-Agent: KMail/1.9.3
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3894488.LAxeYVgYFB";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200607261805.26711.eike-kernel@sf-tec.de>
+	Wed, 26 Jul 2006 12:04:54 -0400
+Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:28900
+	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
+	id S1750928AbWGZQEx (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 26 Jul 2006 12:04:53 -0400
+Date: Wed, 26 Jul 2006 18:06:04 +0200
+From: andrea@cpushare.com
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Hans Reiser <reiser@namesys.com>, Nikita Danilov <nikita@clusterfs.com>,
+       Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060726160604.GO32243@opteron.random>
+References: <20060722130219.GB7321@thunk.org> <200607230920.04129.rene@exactcode.de> <17604.31639.213450.987415@gargle.gargle.HOWL> <20060725123558.GA32243@opteron.random> <44C65931.6030207@namesys.com> <20060726124557.GB23701@stusta.de> <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726145019.GF23701@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3894488.LAxeYVgYFB
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Jul 26, 2006 at 04:50:19PM +0200, Adrian Bunk wrote:
+> Someone said in this thread 'is used by (tens of) thousands of computers 
+> in governmental laboratories the US "national security" depends upon.'
 
-Hi,
+There can be people using reiser4 behind the firewall too, what's the
+point? IIRC US .gov even sponsored part of reiser4 development, how do
+you know they're not testing it too?
 
-I did some memory stress test (allocating and mlock()ing a huge number of=20
-pages) from userspace. At the very beginning of that I got that error long=
-=20
-before the system got unresponsible and the oom killer dropped in.
+You don't believe KLive has any relation to reality, but you have no
+way to proof your claim. JFYI: all statistics only take a sample of
+the larger space, the whole point of having a statistic is because you
+can't measure the total. The smaller the sample compared to the total,
+the less the stats are accurate, but they still have some statistical
+significance. And one can always hope that KLive will grow larger.
 
-Eike
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-[ INFO: possible recursive locking detected ]
-kded/5304 is trying to acquire lock:
- (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
-
-but task is already holding lock:
- (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
-
-other info that might help us debug this:
-3 locks held by kded/5304:
- #0:  (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
- #1:  (shrinker_rwsem){----}, at: [<c1046312>] shrink_slab+0x25/0x136
- #2:  (&type->s_umount_key#14){----}, at: [<c106be2e>] prune_dcache+0xf6/0x=
-144
-
-stack backtrace:
- [<c1003aa9>] show_trace_log_lvl+0x54/0xfd
- [<c1004915>] show_trace+0xd/0x10
- [<c100492f>] dump_stack+0x17/0x1c
- [<c102e0e1>] __lock_acquire+0x753/0x99c
- [<c102e5ac>] lock_acquire+0x4a/0x6a
- [<c11f4609>] __mutex_lock_slowpath+0xb0/0x1f4
- [<c11f476e>] mutex_lock+0x21/0x24
- [<f0854fc4>] ntfs_put_inode+0x3b/0x74 [ntfs]
- [<c106cf3f>] iput+0x33/0x6a
- [<c106b707>] dentry_iput+0x5b/0x73
- [<c106bd15>] prune_one_dentry+0x56/0x79
- [<c106be42>] prune_dcache+0x10a/0x144
- [<c106be95>] shrink_dcache_memory+0x19/0x31
- [<c10463bd>] shrink_slab+0xd0/0x136
- [<c1047494>] try_to_free_pages+0x129/0x1d5
- [<c1043d91>] __alloc_pages+0x18e/0x284
- [<c104044b>] read_cache_page+0x59/0x131
- [<c109e96f>] ext2_get_page+0x1c/0x1ff
- [<c109ebc4>] ext2_find_entry+0x72/0x139
- [<c109ec99>] ext2_inode_by_name+0xe/0x2e
- [<c10a1cad>] ext2_lookup+0x1f/0x65
- [<c1064661>] do_lookup+0xa0/0x134
- [<c1064e9a>] __link_path_walk+0x7a5/0xbe4
- [<c1065329>] link_path_walk+0x50/0xca
- [<c106586d>] do_path_lookup+0x212/0x25a
- [<c1065da9>] __user_walk_fd+0x2d/0x41
- [<c10600bd>] vfs_stat_fd+0x19/0x40
- [<c10600f5>] vfs_stat+0x11/0x13
- [<c1060826>] sys_stat64+0x14/0x2a
- [<c1002845>] sysenter_past_esp+0x56/0x8d
-
---nextPart3894488.LAxeYVgYFB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBEx5LGXKSJPmm5/E4RAqMCAKCjI7psvFFsMsAVpwRbK3YXl7k2JQCdFir7
-VseeNlL/lLURRr8Llvw6HQg=
-=eFze
------END PGP SIGNATURE-----
-
---nextPart3894488.LAxeYVgYFB--
+Last but not the least defining gentoo users as freaks isn't very nice
+from your part. For all new startups they're the ideal userbase to
+have, and they do a great deal of good work by testing all new stuff
+and they help speeding up innovation. Infact I think having a sample
+of what those brave users run is more important than the rest, the
+rest usually follows the ones living on the edge eventually.

@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWGZFOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWGZFRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWGZFOK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 01:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbWGZFOK
+	id S1030387AbWGZFRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 01:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWGZFRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 01:14:10 -0400
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:25586 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030386AbWGZFOJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 01:14:09 -0400
-Message-ID: <44C6FA1A.1020709@bigpond.net.au>
-Date: Wed, 26 Jul 2006 15:14:02 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Wed, 26 Jul 2006 01:17:23 -0400
+Received: from web37913.mail.mud.yahoo.com ([209.191.124.108]:33196 "HELO
+	web37913.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030387AbWGZFRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 01:17:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=oHZLHGsY4dhjja8U0R2qg2hj/h+12uvXDUUiHsVJL1Jdtl3k5xaHNEQ+sgpdommuSY6cu3RjyW/hWMwLDFCOIMIrXD2Ta0UIa1nbqWzOpZHUsEcEa2+iLAAC1EalrzCFBBqhnHTbReiyVaO9vNUmiJdo8GnwQCLka3pu5wlDx0E=  ;
+Message-ID: <20060726051721.18126.qmail@web37913.mail.mud.yahoo.com>
+Date: Tue, 25 Jul 2006 22:17:21 -0700 (PDT)
+From: Komal Shah <komal_shah802003@yahoo.com>
+Subject: Re: [PATCH] OMAP: Add keypad driver #2
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: akpm@osdl.org, juha.yrjola@solidboot.com, tony@atomide.com,
+       ext-timo.teras@nokia.com, r-woodruff2@ti.com,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000607251332ma001b27teaf0f07d6c122362@mail.gmail.com>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
-References: <200607241857.52389.a1426z@gawab.com> <200607252127.14024.a1426z@gawab.com> <44C6BC76.8010808@bigpond.net.au> <200607260745.45156.a1426z@gawab.com>
-In-Reply-To: <200607260745.45156.a1426z@gawab.com>
-Content-Type: text/plain; charset=windows-1256; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 26 Jul 2006 05:14:03 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> Al Boldi wrote:
->>> Peter Williams wrote:
->>>> Al Boldi wrote:
->>>>> Peter Williams wrote:
->>>>>> Al Boldi wrote:
->> [bits deleted]
->>
->>>>>>> It may be really great, to allow schedulers perPid parent, thus
->>>>>>> allowing the stacking of different scheduler semantics.  This could
->>>>>>> aid flexibility a lot.
->>>>>> I'm don't understand what you mean here.  Could you elaborate?
->>>>> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
->>>> It's probably not a good idea to have different schedulers managing the
->>>> same resource.  The way to do different scheduling per process is to
->>>> use the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR, etc.
->>>> (possibly extended) within each scheduler.  On the other hand, on an
->>>> SMP system, having a different scheduler on each run queue (or sub set
->>>> of queues) might be interesting :-).
->>> What's wrong with multiple run-queues on UP?
->> A really high likelihood of starvation of some tasks.
-> 
-> Maybe you are thinking of running independent run-queues, in which case it 
-> would probably be unwise to run multiple RQs on a single CPU.
-
-No.  I'm thinking about different schedulers on a single run queue.  I 
-don't think that it's a good idea.
+--- Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
 > 
-> But I was more thinking of a run-queue of run-queues, with the masterRQ 
-> scheduling slaveRQs, each RQ possible running its own scheduling semantic.
+> Hi Komal,
+> 
+> The driver needs to handle failures in input_register_device() and
+> unwind initialization properly. Also you do not need to do double
+> negation of the value when calling input_report_key() because it will
+> do it for you.
+> 
+> Also you might consider setting up keycodetable, keycodesize, etc in
+> the input device - this way you can change keymap at runtime via
+> ioctls.
 
-I think that you need to think a bit harder about the consequences of 
-such a system.  The word "chaos" springs to mind.
+Thanx for the review. I will update the driver and submit to list soon.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+---Komal Shah
+http://komalshah.blogspot.com/
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

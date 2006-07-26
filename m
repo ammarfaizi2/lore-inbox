@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWGZRzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWGZR73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWGZRzb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWGZRzb
+	id S1030372AbWGZR73 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWGZR73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:55:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25250 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751089AbWGZRza (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:55:30 -0400
-Date: Wed, 26 Jul 2006 13:53:06 -0400
-From: Dave Jones <davej@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Arjan van de Ven <arjan@linux.intel.com>,
-       Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: remove cpu hotplug bustification in cpufreq.
-Message-ID: <20060726175306.GG28945@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Arjan van de Ven <arjan@linux.intel.com>,
-	Ashok Raj <ashok.raj@intel.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200607242023_MC3-1-C5FE-CADB@compuserve.com> <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org> <20060725185449.GA8074@elte.hu> <20060725204624.GF13829@redhat.com> <20060726171257.GC6868@flint.arm.linux.org.uk>
+	Wed, 26 Jul 2006 13:59:29 -0400
+Received: from mga03.intel.com ([143.182.124.21]:61716 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751099AbWGZR72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:59:28 -0400
+X-IronPort-AV: i="4.07,185,1151910000"; 
+   d="scan'208"; a="105096833:sNHT1944888141"
+Date: Wed, 26 Jul 2006 10:59:25 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: [patch] add Dock Station driver to MAINTAINERS
+Message-Id: <20060726105925.221718c4.kristen.c.accardi@intel.com>
+In-Reply-To: <20060726105233.b31b5135.kristen.c.accardi@intel.com>
+References: <20060726105233.b31b5135.kristen.c.accardi@intel.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726171257.GC6868@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 06:12:57PM +0100, Russell King wrote:
+Add the Dock driver to the MAINTAINERS file
 
- > > Things used to be fairly simple until hotplug cpu came along :-/
- > > Each day, I'm getting more of the opinion that my patch just ripping
- > > out this garbage is the right solution.
- > 
- > Not sure if I'm reading your sentiment correctly, but...
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
 
-You didn't.
-The garbage I referred to was 'cpu hotplug locking'.
+---
+ MAINTAINERS |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+--- 2.6-git.orig/MAINTAINERS
++++ 2.6-git/MAINTAINERS
+@@ -882,6 +882,12 @@ M:	rdunlap@xenotime.net
+ T:	git http://tali.admingilde.org/git/linux-docbook.git
+ S:	Maintained
+ 
++DOCKING STATION DRIVER
++P:	Kristen Carlson Accardi
++M:	kristen.c.accardi@intel.com
++L:	linux-acpi@vger.kernel.org
++S:	Maintained
++
+ DOUBLETALK DRIVER
+ P:	James R. Van Zandt
+ M:	jrv@vanzandt.mv.com

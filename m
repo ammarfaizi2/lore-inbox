@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWGZKAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWGZKEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWGZKAR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:00:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWGZKAR
+	id S1751188AbWGZKEd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWGZKEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:00:17 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7651 "EHLO
+	Wed, 26 Jul 2006 06:04:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34195 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750840AbWGZKAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:00:15 -0400
-Date: Wed, 26 Jul 2006 11:00:13 +0100
+	id S1751173AbWGZKEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:04:32 -0400
+Date: Wed, 26 Jul 2006 11:04:31 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
        Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>
 Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-Message-ID: <20060726100013.GA7126@infradead.org>
+Message-ID: <20060726100431.GA7518@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
 	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
 	lkml <linux-kernel@vger.kernel.org>,
@@ -40,33 +40,12 @@ On Wed, Jul 26, 2006 at 01:18:15PM +0400, Evgeniy Polyakov wrote:
 > Network aio_sendfile() works lazily - it asynchronously populates pages
 > into the VFS cache (which can be used for various tricks with adaptive
 > readahead) and then uses usual ->sendfile() callback.
-> 
-> Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> 
-> diff --git a/fs/bio.c b/fs/bio.c
-> index 6a0b9ad..a3ee530 100644
-> --- a/fs/bio.c
-> +++ b/fs/bio.c
-> @@ -119,7 +119,7 @@ void bio_free(struct bio *bio, struct bi
->  /*
->   * default destructor for a bio allocated with bio_alloc_bioset()
->   */
-> -static void bio_fs_destructor(struct bio *bio)
-> +void bio_fs_destructor(struct bio *bio)
->  {
->  	bio_free(bio, fs_bio_set);
->  }
-> diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
-> index 04af9c4..295fce9 100644
-> --- a/fs/ext2/inode.c
-> +++ b/fs/ext2/inode.c
-> @@ -685,6 +685,7 @@ ext2_writepages(struct address_space *ma
->  }
->  
->  struct address_space_operations ext2_aops = {
-> +	.get_block		= ext2_get_block,
 
-No way in hell.  For whatever you do please provide a interface at
-the readpage/writepage/sendfile/etc abstraction layer.  get_block is
-nothing that can be exposed to the common code.
+And please don't base this on sendfile.  Please make the splice infrastructure
+aynschronous without duplicating all the code but rather make the existing
+code aynch and the existing synchronous call wait on them to finish, similar
+to how we handle async/sync direct I/O.  And to be honest, I don't think
+adding all this code is acceptable if it can't replace the existing aio
+code while keeping the interface.  So while you interface looks pretty
+sane the implementation needs a lot of work still :)
 

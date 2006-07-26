@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWGZABZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWGZACb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030276AbWGZABZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWGZABZ
+	id S1030277AbWGZACb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWGZACb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:01:25 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:35005
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030276AbWGZABY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:01:24 -0400
-Date: Tue, 25 Jul 2006 17:01:39 -0700 (PDT)
-Message-Id: <20060725.170139.24611263.davem@davemloft.net>
-To: from-linux-kernel@i-love.sakura.ne.jp
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH][IPv4/IPv6] Setting 0 for unused port field.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200607250738.k6P7c67G089452@www262.sakura.ne.jp>
-References: <200607250738.k6P7c67G089452@www262.sakura.ne.jp>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 25 Jul 2006 20:02:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29072 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030277AbWGZACb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:02:31 -0400
+Message-ID: <44C6B111.9010502@redhat.com>
+Date: Tue, 25 Jul 2006 20:02:25 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: inactive-clean list
+References: <1153167857.31891.78.camel@lappy> <44C30E33.2090402@redhat.com> <Pine.LNX.4.64.0607241109190.25634@schroedinger.engr.sgi.com> <44C518D6.3090606@redhat.com> <Pine.LNX.4.64.0607251324140.30939@schroedinger.engr.sgi.com> <44C68F0E.2050100@redhat.com> <Pine.LNX.4.64.0607251600001.32387@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0607251600001.32387@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Lameter wrote:
+> On Tue, 25 Jul 2006, Rik van Riel wrote:
+> 
+>>> An increment of a VM counter causes a state change in the hypervisor?
+>> Christoph, please read more than the first 5 words in each
+>> email before replying.
+> 
+> Well, I read the whole thing before I replied and I could not figure this 
+> one out. Maybe I am too dumb to understand. Could you please explain 
+> yourself in more detail
 
-Tetsuo-san can you please use a correct "From:" field in your patch
-postings?  Thank you.
+Page state transitions can be very expensive in a virtualized
+environment, so it would be good if we had fewer transitions.
 
-This will allow me to form a correct attribution when I apply your
-patches in the future.
+> I am also not sure why I should be running a hypervisor in the first place 
+> and so I may not be up to date on the whole technology.
 
-This time I had to perform a lengthy web search to find who is behind
-these strange from-${LIST_NAME}@i-love.sakura.ne.jp email addresses
-:-((  Using these per-listname email addresses really makes things
-painful for other developers, even though it might simplify things
-for you.
+You may not, but IMHO it would be good if whatever new VM
+things we implement in Linux would at least be virtualization
+friendly.  Especially if that can be achieved without hurting
+native performance...
 
-Thanks again.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

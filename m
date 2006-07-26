@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751635AbWGZOXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751636AbWGZO1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751635AbWGZOXW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 10:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWGZOXW
+	id S1751636AbWGZO1h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 10:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWGZO1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 10:23:22 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:40268 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751630AbWGZOXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 10:23:13 -0400
-Message-ID: <44C77CA6.2050807@gentoo.org>
-Date: Wed, 26 Jul 2006 15:31:02 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060603)
+	Wed, 26 Jul 2006 10:27:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:22235 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751630AbWGZO1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 10:27:36 -0400
+Message-ID: <44C77C23.7000803@redhat.com>
+Date: Wed, 26 Jul 2006 07:28:51 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, greg@kroah.com, jeff@garzik.org,
-       harmon@ksu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add SATA device to VIA IRQ quirk fixup list
-References: <20060714095233.5678A8B6253@zog.reactivated.net>	 <44B77B1A.6060502@garzik.org> <44B78294.1070308@gentoo.org>	 <44B78538.6030909@garzik.org> <20060714074305.1248b98e.akpm@osdl.org>	 <44BA48A0.2060008@gentoo.org> <20060716183126.GB4483@kroah.com>	 <20060717003418.GA27166@tuatara.stupidest.org>	 <20060724214046.1c1b646e.akpm@osdl.org>	 <1153874577.7559.36.camel@localhost>	 <1153917954.29975.22.camel@bastov.localdomain>	 <44C77544.1050205@gentoo.org> <1153922774.4486.7.camel@localhost.localdomain>
-In-Reply-To: <1153922774.4486.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>
+Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
+References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru> <20060726103001.GA10139@infradead.org>
+In-Reply-To: <20060726103001.GA10139@infradead.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE0F541614E1AF69A90F7C149"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto wrote:
-> No, Quirks are only need when interrupts are in XT-PIC. (is my bet).
-> When APIC and ACPI is enabled (and working) we don't need quirks.
-> 
-> Someone said on XT-PIC VIA system, don't need, to boot, quirks when ACPI
-> is disabled, but this statement don't prove that the quirk aren't need
-> it . 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE0F541614E1AF69A90F7C149
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-No, please read again:
+Christoph Hellwig wrote:
+>> My personal opinion on existing AIO is that it is not the right design=
+=2E
+>> Benjamin LaHaise agree with me (if I understood him right),
+>=20
+> I completely agree with that aswell.
 
-In the kernels referenced in the bug reports, the quirks were not being 
-applied.
+I agree, too, but the current code is not the last of the line.  Suparna
+has a st of patches which make the current kernel aio code work much
+better and especially make it really usable to implement POSIX AIO.
 
-When the systems booted up a usual APIC/ACPI config, the hardware in 
-question did not work. The quirk was not applied here.
+In Ottawa we were talking about submitting it and Suparna will.  We just
+thought about a little longer timeframe.  I guess it could be
+accelerated since he mostly has the patch done.  But I don't know her
+schedule.
 
-When the system booted up a kernel with acpi=off, the hardware in 
-question worked fine. The quirk was not applied here.
+Important here is, don't base any decision on the current aio
+implementation.
 
-When the kernel is modified to apply the quirk again, the system works 
-fine in both cases.
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
-IOW, on these systems at least, the quirk is *definitely* needed when 
-ACPI/APIC are enabled, whereas in your last mail, you were suggesting we 
-should only do the quirk in non-APIC mode:
 
-> I want put here something like:  if ( dev->irq != XT-PIC) return and
-> don't quirk this dev.
+--------------enigE0F541614E1AF69A90F7C149
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Such a change would stop the hardware in question from working when 
-ACPI/APIC are enabled on these systems.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Daniel
+iD8DBQFEx3wj2ijCOnn/RHQRAlJEAKCohm3ngAyWs0Jo5O16Urun9K9lsgCfcymV
+jsPinmGcEThS5CJG75Qh00Q=
+=phCc
+-----END PGP SIGNATURE-----
 
->> http://bugs.gentoo.org/138036
->> http://bugs.gentoo.org/141082
-
+--------------enigE0F541614E1AF69A90F7C149--

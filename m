@@ -1,107 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWGZT6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751775AbWGZUBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWGZT6i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 15:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751770AbWGZT6i
+	id S1751775AbWGZUBM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWGZUBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 15:58:38 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:52373 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1751767AbWGZT6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 15:58:37 -0400
-Date: Wed, 26 Jul 2006 12:58:35 -0700
-From: Zach Brown <zach.brown@oracle.com>
-To: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Cc: kenneth.w.chen@intel.com, suparna@in.ibm.com, pbadari@gmail.com
-Subject: [RFC][PATCH] Don't complete AIO file extension until i_size is updated
-Message-ID: <20060726195835.GB13233@tetsuo.zabbo.net>
+	Wed, 26 Jul 2006 16:01:12 -0400
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:14353 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751775AbWGZUBL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:01:11 -0400
+Date: Wed, 26 Jul 2006 22:01:21 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Re: [GIT PATCH] I2C and hwmon fixes for 2.6.18-rc1
+Message-Id: <20060726220121.89fda898.khali@linux-fr.org>
+In-Reply-To: <20060724193808.GA9244@suse.de>
+References: <20060712232359.GA22679@kroah.com>
+	<20060724212146.498d184b.khali@linux-fr.org>
+	<20060724193808.GA9244@suse.de>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't complete AIO file extension until i_size is updated
+Hi Greg,
 
-AIO O_DIRECT file extension has a bug where the IO is completed before i_size
-is updated.  direct_io_worker() calls aio_complete() after performing the
-extension but before we get back up into generic_file_direct_write() which
-updates i_size.  Another thread in io_getevents() can catch the completion and
-stat() the file before i_size is updated.
+> On Mon, Jul 24, 2006 at 09:21:46PM +0200, Jean Delvare wrote:
+> > > Here are some i2c and hwmon fixes for 2.6.18-rc1.  They fix quite a few
+> > > bugs and update the documentation.
+> > > (...)
+> > > The full patch series will sent to the sensors mailing list, if anyone
+> > > wants to see them.
+> > 
+> > Which is quite unfortunate because we now have a new mailing list
+> > dedicated to i2c [1], where the i2c patches would fit better. Is it
+> > possible to send the i2c patches to the i2c list next time? And the
+> > hwmon patches to the sensors list as before.
+> 
+> I can do that if you want me to split up the hwmon and i2c patches into
+> two different set of patches for Linus to pull from.  If you think it's
+> worth it, I will.
 
-Previously the direct write path would always call aio_complete() and return
--EIOCBQUEUED.  This fixes the bug by returning the bytes written in the sync
-aio case which lets the aio core call aio_complete() after i_size has been
-written.  Now the only time -EIOCBQUEUED is returned and aio_complete() is
-called is when bios are still in flight at the time direct_io_worker() returns.
+Yes, please. Else people will never get that i2c and hwmon are
+different things (although they intersect.)
 
-Signed-off-by: Zach Brown <zach.brown@oracle.com> 
----
-
-This fixes the bug reported (with a test case!) in
-
-  http://bugzilla.kernel.org/show_bug.cgi?id=6831
-
-light aio-stress runs work after the change but we all know that fs/direct-io.c
-is incredibly fragile.  Can you guys review this?  Has anyone packaged the
-tests at http://developer.osdl.org/daniel/AIO/ in a way that can be used to
-check for regressions?
-
- fs/direct-io.c |   15 ++++-----------
- mm/filemap.c   |    2 --
- 2 files changed, 4 insertions(+), 13 deletions(-)
-
-Index: 2.6.18-rc1-mm2-odirextend/fs/direct-io.c
-===================================================================
---- 2.6.18-rc1-mm2-odirextend.orig/fs/direct-io.c
-+++ 2.6.18-rc1-mm2-odirextend/fs/direct-io.c
-@@ -1094,8 +1094,6 @@ direct_io_worker(int rw, struct kiocb *i
- 			dio->waiter = current;
- 			should_wait = 1;
- 		}
--		if (ret == 0)
--			ret = dio->result;
- 		finished_one_bio(dio);		/* This can free the dio */
- 		blk_run_address_space(inode->i_mapping);
- 		if (should_wait) {
-@@ -1117,7 +1115,10 @@ direct_io_worker(int rw, struct kiocb *i
- 			spin_unlock_irqrestore(&dio->bio_lock, flags);
- 			set_current_state(TASK_RUNNING);
- 			kfree(dio);
--		}
-+			if (ret == 0)
-+				ret = dio->result;
-+		} else
-+			ret = -EIOCBQUEUED;
- 	} else {
- 		ssize_t transferred = 0;
- 
-@@ -1142,14 +1143,6 @@ direct_io_worker(int rw, struct kiocb *i
- 		if (ret == 0)
- 			ret = transferred;
- 
--		/* We could have also come here on an AIO file extend */
--		if (!is_sync_kiocb(iocb) && (rw & WRITE) &&
--		    ret >= 0 && dio->result == dio->size)
--			/*
--			 * For AIO writes where we have completed the
--			 * i/o, we have to mark the the aio complete.
--			 */
--			aio_complete(iocb, ret, 0);
- 		kfree(dio);
- 	}
- 	return ret;
-Index: 2.6.18-rc1-mm2-odirextend/mm/filemap.c
-===================================================================
---- 2.6.18-rc1-mm2-odirextend.orig/mm/filemap.c
-+++ 2.6.18-rc1-mm2-odirextend/mm/filemap.c
-@@ -2129,8 +2129,6 @@ generic_file_direct_write(struct kiocb *
- 		if (err < 0)
- 			written = err;
- 	}
--	if (written == count && !is_sync_kiocb(iocb))
--		written = -EIOCBQUEUED;
- 	return written;
- }
- EXPORT_SYMBOL(generic_file_direct_write);
+Thanks,
+-- 
+Jean Delvare

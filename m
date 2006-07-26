@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWGZWQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751799AbWGZWU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWGZWQD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 18:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWGZWQD
+	id S1751799AbWGZWU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 18:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWGZWU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 18:16:03 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:25490
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1161009AbWGZWQB (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 26 Jul 2006 18:16:01 -0400
-Date: Thu, 27 Jul 2006 00:17:00 +0200
-From: andrea@cpushare.com
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060726221700.GV32243@opteron.random>
-References: <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060726213757.GI31172@fieldses.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 26 Jul 2006 18:20:29 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:40363 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751798AbWGZWU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 18:20:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gLE5MslIlImGAYYcMvedhZqwArXz+NdN0TemWc42ca2rphsN2I59N9keyZ93pTTN6zgPCfuWJB5t06ubgHLw3J/E6ewmhn1mitHLhxicrpAvoBGuhkafi+A6XgFi+FciuTjTMdeoUMNuFtp6i9Xc76Rs+NRKxE6P9Q/4msVveDw=
+Message-ID: <b1bc6a000607261520v765f9708yc102747922dfabba@mail.gmail.com>
+Date: Wed, 26 Jul 2006 15:20:26 -0700
+From: "adam radford" <aradford@gmail.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Subject: Re: 3ware disk latency?
+Cc: "dean gaudet" <dean@arctic.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Jan Kasprzak" <kas@fi.muni.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <44C7F135.7000509@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060726213757.GI31172@fieldses.org>
+References: <20060710141315.GA5753@fi.muni.cz>
+	 <Pine.LNX.4.64.0607260942110.22242@twinlark.arctic.org>
+	 <1153946249.13509.29.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0607261440470.4568@twinlark.arctic.org>
+	 <b1bc6a000607261507g663ad95cwcc4a2ae4622e0fa2@mail.gmail.com>
+	 <44C7F135.7000509@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 05:37:57PM -0400, J. Bruce Fields wrote:
-> This is where we disagree.  It may be wrong, but it's certainly not
-> nearly *as* wrong....
+On 7/26/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+>
+> Isn't it set to this by default or is the default 128?
+>
 
-;)
+Default is 254.
 
-My point of view in saying you can't dismiss the current KLive stats
-completely, is simply that I didn't expect reiser4 numbers to be so
-high even in the small sample of the brave KLive project that is full
-of people willing to test new stuff (also note that I compared it to
-isofs, I didn't attempt a comparison with ext3 myself). That makes it
-a positive in my view.
-
-If you think KLive numbers aren't a positive point for reiser4, then
-it can only mean you expected them to be even higher than they were...
+-Adam

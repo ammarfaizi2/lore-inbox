@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWGZH7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWGZIHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030260AbWGZH7b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 03:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWGZH7a
+	id S932512AbWGZIHB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 04:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWGZIHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 03:59:30 -0400
-Received: from vsmtp3alice.tin.it ([212.216.176.143]:55992 "EHLO vsmtp3.tin.it")
-	by vger.kernel.org with ESMTP id S964790AbWGZH7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 03:59:30 -0400
-Message-ID: <1740.192.167.206.189.1153900740.squirrel@darkstar.linuxpratico.net>
-In-Reply-To: <44C6BADE.4030202@slaphack.com>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org>
-    <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org>
-    <44C32348.8020704@namesys.com> <44C6BADE.4030202@slaphack.com>
-Date: Wed, 26 Jul 2006 09:59:00 +0200 (CEST)
-Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org 
-     regarding reiser4 inclusion
-From: "Luigi Genoni" <genoni@sns.it>
-To: "David Masover" <ninja@slaphack.com>
-Cc: "Hans Reiser" <reiser@namesys.com>, "Jeff Garzik" <jeff@garzik.org>,
-       "Theodore Tso" <tytso@mit.edu>, "LKML" <linux-kernel@vger.kernel.org>,
-       "ReiserFS List" <reiserfs-list@namesys.com>
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Jul 2006 04:07:01 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32149 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932512AbWGZIHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 04:07:00 -0400
+Date: Wed, 26 Jul 2006 09:06:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Josh Triplett <josht@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       nfs@lists.sourceforge.net, Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: [NFS] [PATCH] [nfsd] Add lock annotations to e_start and e_stop
+Message-ID: <20060726080656.GA28346@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Josh Triplett <josht@us.ibm.com>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+	Neil Brown <neilb@cse.unsw.edu.au>
+References: <1153840824.12517.9.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153840824.12517.9.camel@josh-work.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 25, 2006 at 08:20:24AM -0700, Josh Triplett wrote:
+> e_start acquires svc_export_cache.hash_lock, and e_stop releases it.  Add lock
+> annotations to these two functions so that sparse can check callers for lock
+> pairing, and so that sparse will not complain about these functions since they
+> intentionally use locks in this manner.
+> 
+> Signed-off-by: Josh Triplett <josh@freedesktop.org>
 
-
-
-On Wed, July 26, 2006 02:44, David Masover wrote:
-> Hans Reiser wrote:
->
->
->> to use as his default.  Now that we paid the 5 year development price tag
->> to get everything as plugins, we can now upgrade in littler pieces than
->> any other FS.  Hmm, I need a buzz phrase, its not extreme programming,
->> maybe "moderate programming".  Does that sound exciting to
->
-> Hah!  No, it doesn't sound exciting.
->
->
-> Plugins don't work well either, not as a marketing concept.  People have
-> had so many bad experiences with plugins, and they're only ever visible when
-> you have a bad experience.  Think about it -- missing plugin (so you have to
-> download it),
->
-marketing?
-</joke mode on>
-if you do not like the word "plugin" why don't you suggest some alternative?
-like "modules"?
-</joke mode off>
-
-Seriously, please leave out this kind of marketing. The plugin concept in
-reiser4 is probably the most interessant feature I filesystem some users
-could need.
-
->
-> Fluid programming?  If you build a solution from the bottom up with
-> gravel or large rocks, you leave gaps that are hard to fill without ripping
-> off the top layer and redoing it.  But if you can do fluid programming, your
-> program just flows around any obstacle, and into every crack / between every
-> space (metaphor for new customer requirements)...
-
-probably I do not know english enought well to appraciate this metaphor and
-to understand what it means.
-
+The Signed-off-by: line doesn't match the from line of this mail.  Is that
+any problem or fine in general?
 

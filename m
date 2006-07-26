@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751721AbWG0PSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWG0PXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751721AbWG0PSn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWG0PSm
+	id S932495AbWG0PXA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWG0PXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:18:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58852 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751704AbWG0PSm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:18:42 -0400
-Date: Thu, 27 Jul 2006 08:18:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Marcel Holtmann <marcel@holtmann.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Eugene Teo <eteo@redhat.com>
-Subject: Re: Require mmap handler for a.out executables
-In-Reply-To: <20060727150737.GA29521@infradead.org>
-Message-ID: <Pine.LNX.4.64.0607270816500.4168@g5.osdl.org>
-References: <1153909881.746.39.camel@localhost> <20060727150737.GA29521@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Jul 2006 11:23:00 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41995 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932495AbWG0PW7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:22:59 -0400
+Date: Wed, 26 Jul 2006 13:17:09 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Matthias Andree <matthias.andree@gmx.de>, lkml@lpbproductions.com,
+       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060726131709.GB5270@ucw.cz>
+References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org> <44C4813E.2030907@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C4813E.2030907@namesys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> >of the story for me. There's nothing wrong about focusing on newer code,
+> >but the old code needs to be cared for, too, to fix remaining issues
+> >such as the "can only have N files with the same hash value". 
+> >
+> Requires a disk format change, in a filesystem without plugins, to fix it.
 
-On Thu, 27 Jul 2006, Christoph Hellwig wrote:
->
-> > diff --git a/fs/binfmt_aout.c b/fs/binfmt_aout.c
-> > index f312103..5638acf 100644
-> > --- a/fs/binfmt_aout.c
-> > +++ b/fs/binfmt_aout.c
-> > @@ -278,6 +278,9 @@ static int load_aout_binary(struct linux
-> >  		return -ENOEXEC;
-> >  	}
-> >  
-> > +	if (!bprm->file->f_op || !bprm->file->f_op->mmap)
-> > +		return -ENOEXEC;
-> > +
-> 
-> These checks need a big comment explanining why they are there, else people
-> will remove them again by accident.
-
-Since we fixed the /proc problem in a different way, I decided that it 
-might be best to leave the a.out stuff alone, at least for now. It is 
-conceivable that somebody actually might be using executables on some 
-strange filesystem that doesn't support mmap, although I can't for the 
-moment think of any good reason. 
-
-		Linus
+Well, too bad, if reiser3 is so broken it needs on-disk-format-change,
+then I guess doing that change is the right thing to do...
+							Pavel
+-- 
+Thanks for all the (sleeping) penguins.

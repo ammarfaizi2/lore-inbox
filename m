@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWGZMoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751606AbWGZMp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbWGZMoX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWGZMoX
+	id S1751606AbWGZMp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWGZMp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:44:23 -0400
-Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:57101 "EHLO
-	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751593AbWGZMoW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:44:22 -0400
-Message-Id: <s4c77fc0.041@mail.pahw.nl>
-X-Mailer: Novell GroupWise Internet Agent 6.0.2
-Date: Wed, 26 Jul 2006 14:43:53 +0200
-From: "Luuk van der Duim" <LuukvanderDuim@pahw.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by
-	kernelnewbies.org regarding reiser4 inclusion
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	Wed, 26 Jul 2006 08:45:58 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50449 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751590AbWGZMp5 (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Wed, 26 Jul 2006 08:45:57 -0400
+Date: Wed, 26 Jul 2006 14:45:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Nikita Danilov <nikita@clusterfs.com>,
+       Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060726124557.GB23701@stusta.de>
+References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <200607230920.04129.rene@exactcode.de> <17604.31639.213450.987415@gargle.gargle.HOWL> <20060725123558.GA32243@opteron.random> <44C65931.6030207@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <44C65931.6030207@namesys.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the whole thing resembles the ALSA merge case(?)
-Also a big blob which was offered at once developped seperately in alsa-devel.
+On Tue, Jul 25, 2006 at 11:47:29AM -0600, Hans Reiser wrote:
 
-It took Jaroslav and others a few years to convince Linus, him disliking music, he had no appetite for ALSA. 
-Did Alan end up feeding it to Linus by putting cream on top?
-Truth is he was busy being annoyed over scsi layer and other things. He ended up having no trouble at all
-with the 79,000 line patch.. It was merged in 2.5.4 
+> Wow, I would never have guessed our market share was that high as 1/5th
+> of ext3.  I mean, you can't even get a distro which allows you to
+> install onto reiser4 without hours of work so far as I know.  I guess
+> there are people who really do care about twice as fast.
 
-I tried reiserV4 in the earlier days of V4  (2000?), I only used it on a non-critical partition but it worked fine for me although tools were still in development then
-and _to me_ performance benefits were irreproduceable.
+I doubt Andreas values have much value.
 
-Even rmap had to go out of 2.4.10 because Linus thought the carpet would never fit the floor, no matter how many patches were to come.
-I can imagine he's not to keen experimenting on things better than sliced bread (without cream).
+According to the numbers on the klive website, Gentoo has 47 times as 
+many users as SuSE (sic).
 
-Development trees also weren't an option because people kept being annoyed over too many things being broke at the same time.
+Considering that klive is offered by someone working for SuSE, the 
+Gentoo project could make a good news article ("Numbers by a SuSE 
+developer confirm Gentoo has 47 times the market share of Suse.")
+out of it.  ;-)
 
+> Hans
 
-  Luuk
+cu
+Adrian
 
----------------------------------
+-- 
 
-Disclaimer:
-By sending an email to ANY of my addresses you are agreeing that:
-
-   1. I am by definition, "the intended recipient"
-   2. All information in the email is mine to do with as I see fit and make such financial profit, political mileage, or good joke as it lends itself to. In particular, I may quote it on usenet.
-   3. I may take the contents as representing the views of your company.
-   4. This overrides any disclaimer or statement of confidentiality that may be included on your message. 
-
-
-
-                                        
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

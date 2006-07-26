@@ -1,104 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbWGZGTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWGZGYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030392AbWGZGTI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 02:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWGZGTI
+	id S1030314AbWGZGYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 02:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030394AbWGZGYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 02:19:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:57804 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030315AbWGZGTG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 02:19:06 -0400
-Date: Tue, 25 Jul 2006 23:18:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-Cc: achirica@gmail.com, hch@infradead.org, linville@tuxdriver.com,
-       haveblue@us.ibm.com, serue@us.ibm.com, clr@fr.ibm.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kthread: airo.c
-Message-Id: <20060725231839.6a69a85e.akpm@osdl.org>
-In-Reply-To: <20060724181309.GA23938@us.ibm.com>
-References: <20060713205319.GA23594@us.ibm.com>
-	<20060724181309.GA23938@us.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jul 2006 02:24:54 -0400
+Received: from tara2.wa.amnet.net.au ([203.161.126.21]:19901 "EHLO
+	tara2.wa.amnet.net.au") by vger.kernel.org with ESMTP
+	id S1030314AbWGZGYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 02:24:53 -0400
+Date: Wed, 26 Jul 2006 14:24:48 +0800
+From: Michael Deegan <michael@ucc.gu.uwa.edu.au>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
+Subject: Re: BUG: __d_find_alias went POP! (was: BUG: lock held at task exit time!)
+Message-ID: <20060726062447.GC3874@wibble>
+References: <20060722032533.GZ3874@wibble> <1153885899.4017.21.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1153885899.4017.21.camel@localhost.localdomain>
+X-Subliminal-Message: .yenom em dneS .tsixe ton od segassem lanimilbuS
+X-ICQ-UIN: 562440
+X-Random-Number: 1.1108622248584e-227
+User-Agent: Mutt/1.5.11+cvs20060403
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: michael@wibble
+X-SA-Exim-Scanned: No (on localhost.localdomain); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jul 2006 11:13:09 -0700
-Sukadev Bhattiprolu <sukadev@us.ibm.com> wrote:
+On Tue, Jul 25, 2006 at 11:51:39PM -0400, Steven Rostedt wrote:
+> Actually the lock held at exit time was caused by the BUG, it wasn't the
+> bug itself.  Seems you got a bad pointer which killed a task that
+> happened to be holding a lock.  And that's why you got the bug from your
+> subject.
 
-> Sukadev Bhattiprolu [sukadev@us.ibm.com] wrote:
+I had initially been wondering if something in an error path forgot to
+clean things up correctly, but I guess there are valid circumstances where
+such cleanups don't get to happen...
+
+> It looks like there was something fishy going on in __d_find_alias (like
+> a corrupted inode?).  Don't know for sure but since this looks like it's
+> splice related or something wrong with general VFS, I CC'd Al Viro, and
+> since it came from ext3, I CC'd Stephen Tweedie and the ext2-devel list.
 > 
-> | Andrew,
-> | 
-> | Javier Achirica, one of the major contributors to drivers/net/wireless/airo.c
-> | took a look at this patch, and doesn't have any problems with it. It doesn't
-> | fix any bugs and is just a cleanup, so it certainly isn't a candidate
-> | for this mainline cycle
-> 
-> Here is the same patch, merged up to 2.6.18-rc2. Christoph's patch (see
-> http://lkml.org/lkml/2006/7/13/332) still applies cleanly on top of this.
-> 
-> -----
-> The airo driver is currently caching a pid for later use, but with the
-> implementation of containers, pids themselves do not uniquely identify
-> a task. The driver is also using kernel_thread() which is deprecated in
-> drivers.
-> 
-> This patch essentially replaces the kernel_thread() with kthread_create().
-> It also stores the task_struct of the airo_thread rather than its pid.
-> Since this introduces a second task_struct in struct airo_info, the patch
-> renames airo_info.task to airo_info.list_bss_task.
-> 
-> As an extension of these changes, the patch further:
-> 
->          - replaces kill_proc() with kthread_stop()
->          - replaces signal_pending() with kthread_should_stop()
-> 	 - removes thread completion synchronisation which is handled by
-> 	   kthread_stop().
-> 
-> ..
->
-> @@ -1736,9 +1736,9 @@ static int readBSSListRid(struct airo_in
->  		issuecommand(ai, &cmd, &rsp);
->  		up(&ai->sem);
->  		/* Let the command take effect */
-> -		ai->task = current;
-> +		ai->list_bss_task = current;
->  		ssleep(3);
-> -		ai->task = NULL;
-> +		ai->list_bss_task = NULL;
+> Could a corrupted filesystem cause this oops?
 
-This looks a little racy to me.  It's relatively benign - a race will cause
-us to sleep for too long.  But it's easy to fix:
+I'm afraid the problem was likely caused by bad RAM, as some time yesterday
+the machine hung hard, and upon restart failed POST. The machine was fine
+after removing the dud 32M SIMM.
 
+Sorry for the bother,
 
---- a/drivers/net/wireless/airo.c~kthread-airoc-race-fix
-+++ a/drivers/net/wireless/airo.c
-@@ -1733,10 +1733,10 @@ static int readBSSListRid(struct airo_in
- 		cmd.cmd=CMD_LISTBSS;
- 		if (down_interruptible(&ai->sem))
- 			return -ERESTARTSYS;
-+		ai->list_bss_task = current;
- 		issuecommand(ai, &cmd, &rsp);
- 		up(&ai->sem);
- 		/* Let the command take effect */
--		ai->list_bss_task = current;
- 		ssleep(3);
- 		ai->list_bss_task = NULL;
- 	}
-_
+-MD
 
-<looks more closely>
-
-Actually, ssleep() ends up doing
-
-        while (timeout)
-                timeout = schedule_timeout_uninterruptible(timeout);
-
-so if the intent of this code is to terminate the sleep early, when the
-interrupt has happened then it isn't working right.  A fix would be to
-convert the ssleep(3) into schedule_timeout_uninterruptible(3 * HZ).
+-- 
+-------------------------------------------------------------------------------
+Michael Deegan           Hugaholic          http://wibble.darktech.org/gallery/
+------------------------- Nyy Tybel Gb Gur Ulcabgbnq! -------------------------

@@ -1,141 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWGZSa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWGZSe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161021AbWGZSa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 14:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWGZSa7
+	id S1161028AbWGZSe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 14:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWGZSe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 14:30:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23783 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161021AbWGZSa6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 14:30:58 -0400
-Date: Wed, 26 Jul 2006 07:33:20 -0700
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Kirill Korotaev <dev@sw.ru>, Dipankar <dipankar@in.ibm.com>,
-       riel@redhat.com, jdike@addtoit.com,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Dave Hansen <haveblue@us.ibm.com>, clg@fr.ibm.com,
-       Serge Hellyn <serue@us.ibm.com>, ebiederm@xmission.com,
-       Badari Pulavarti <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       sekharan@us.ibm.com, Balbir Singh <balbir@in.ibm.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>, a.p.zijlstra@chello.nl
-Subject: OLS BoF on Resource Management - some notes
-Message-ID: <20060726143320.GC16852@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 26 Jul 2006 14:34:26 -0400
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:54070 "EHLO
+	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1161028AbWGZSeZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 14:34:25 -0400
+X-BigFish: V
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Date: Wed, 26 Jul 2006 13:34:14 -0500
+Message-ID: <84EA05E2CA77634C82730353CBE3A84303218F09@SAUSEXMB1.amd.com>
+In-Reply-To: <200607261854.20670.ak@suse.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [discuss] Re: [PATCH] Allow all Opteron processors to
+ change pstate at same time
+Thread-Index: Acaw1OhcS/s6zL/lSzi2NH1XHGXSmgADAPiA
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: "Andi Kleen" <ak@suse.de>
+cc: "Gulam, Nagib" <nagib.gulam@amd.com>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
+X-OriginalArrivalTime: 26 Jul 2006 18:34:14.0906 (UTC)
+ FILETIME=[18A2D5A0:01C6B0E2]
+X-WSS-ID: 68D96A2D1NW363750-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
-	The recent (ongoing) work on containers has brought a lot of focus to 
-resource management capabilities of Linux kernel. Workload management tools 
-also need the capability to manage workloads better. Both users have felt the 
-need for better resource management capabilities of Linux kernel than what 
-exists today. Nick (at OLS) suggested that some minimal requirements be worked 
-out that can satisfy some needs of both parties.
+> > AMD Opteron(tm) Processor 838 stepping 01 CPU 3: Syncing 
+> TSC to CPU 0.
+> > CPU 3: synchronized TSC with CPU 0 (last diff -109 cycles, 
+> maxerr 1024
+> 
+> Hmm, indeed  - i would have expected higher max errors too.
+> It should have worked in theory. No explanation currently.
 
-An impromptu BoF was hence arranged by Dipankar Sarma to discuss this at OLS. 
-The BoF was attended by several folks (most of folks on CC list), including 
-those from ckrm and openvz teams. Shailabh Nagar (of ckrm team) and Kirill 
-Korotaev (of openvz team) presented their views/requirements of resource 
-management from workload manager and container perspectives respectively.
+THat's unfortunate.
+ 
+> > cycles)
+> > powernow-k8:    0 : fid 0xe (2200 MHz), vid 0x6
+> > powernow-k8:    1 : fid 0xc (2000 MHz), vid 0x8
+> > powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xa
+> > powernow-k8:    3 : fid 0x2 (1000 MHz), vid 0x12
+> > 
+> > Is there a better test we can be using?
+> 
+> I don't know of any. Ok I guess it would be possible to write 
+> something in user space, but it would likely look similar to 
+> the algorithm the kernel uses.
 
-I did some note-taking during the BoF, which is shared below. I sincerely 
-apologize if there are some errors in the notes or if I have missed to note 
-other important points that were discussed.
+I ran the following simple test on the 4P system with TSC
+gtod for a week:
+while true; do date; sleep 3600; done
+the first entry went in at July 13 15:39:48, the last entry
+at  July 25 15:39:50.  A drift of 2 seconds over 12 days is 
+within specification, I believe.
 
-Broadly these were the points discussed. I dont think these reflect any final 
-decisions made on the interface/requirements but more of a common ground to 
-begin with.
+In contrast, the same machine running with TSC and standard
+PN! sees massive drift, upwards of an hour, within an hour.
 
-A - Task grouping
-	Ability to apply resource control over a group tasks was felt necessary.
+If the TSCnow! patch reduces measured drift down to a second 
+a week, would you consider that acceptable?
 
-	It was suggested that the kernel maintain some generic "task group" 
-	structure, to represent a group of tasks, which can be used for
-	various purposes - resource management, security, containers (?) etc.
-
-- Heirarchial grouping?
-	Should we support a heirarchy of groups?  This can be supported only 
-	if various controllers recognize/support the heirarchy too, which will 
-	complicate them.
-
-	It was suggested that we dont support this initially. 
-
-- Dynamic group membership
-	Should we allow movement of tasks willingly from one group to other?
-
-	Some implications of this requirement in memory controller (transfer of 
-	page-ownership) were discussed. Also questions like "how fast should 
-	this change be visible" were raised.
-
-	It was felt that this be not allowed in the 1st pass i.e once a 
-	task is bound to a group, it is struck to that group till it exits.
-
-- Controller-specific grouping?
-	Should the task-group definition be different for different controllers?
-
-	For example, should we allow container A to belong to two different 
-	groups, G1 and G2, simultaneously, where G1 governs its CPU usage and 
-	G2 governs its memory usage?
-
-	It was felt that we dont attempt to do this initially.
-
-- Interface to manage (create/delete) groups:
-	Should it be system-call or file-system based?
-
-	This was not discussed and was felt to be a non-issue. Maybe we could 
-	start with system call to begin with (like what the openvz people have).
+-Mark Langsdorf
+AMD, Inc.
 
 
-B - Resource limit and/or guarantee
-	Should the resource control be specified in terms of guarantee or 
-	(soft/hard) limit?
-
-	It was felt that we attempt to provide limit functionality only in 
-	the 1st pass. Soft or hard limit can be left to the discreetion of 
-	controller.
-
-- Absolute or relative limit?
-	Should the limit be specified in absolute terms (limit group G1's
-	memory usage to 20%) or relative terms (group G1's limit is half
-	that of G2)?
-
-		It was felt again that this be left to the discreetion of the 
-	controller. Controller should export this information and also
-	the unit of measuring this limit.
-
--  Resource control epoch:
-	Over what interval should the resource control be applied?
-
-	This was again felt should be left to the discreetion of the controller.
 
 
-C - Resources to manage
-	Openvz cares for almost everything (cpu, memory, disk i/o, network,
-	open files, etc)! 
-
-	Some suggested that a simple controller like number-of-tasks be posted
-	to illustrate the grouping and infrastructure. Others felt that
-	we need to go for "real" controllers like memory and cpu. The design
-	of memory controller received lot of interest and it was felt that
-	we attempt to do memory controller first.
-
-
-In summary, the consensus seemed to be:
-
-	- Focus on controllers more (preferably memory first). Keep them
-	  simple to begin with, willing to sacrifice accuracy to an
-	  extent where necessary.
-
-	- Choose some minimal interface for starters (say a syscall to
-	  start new group and another one to set/change limit?).
-
-
--- 
-Regards,
-vatsa

@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751714AbWGZRQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751715AbWGZRRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751714AbWGZRQi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:16:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWGZRQh
+	id S1751715AbWGZRRF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751717AbWGZRRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:16:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53918 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751712AbWGZRQg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:16:36 -0400
-Date: Wed, 26 Jul 2006 10:09:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Arjan van de Ven <arjan@linux.intel.com>, Ingo Molnar <mingo@elte.hu>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be
- totally bizare
-In-Reply-To: <20060726155114.GA28945@redhat.com>
-Message-ID: <Pine.LNX.4.64.0607261007530.29649@g5.osdl.org>
-References: <200607242023_MC3-1-C5FE-CADB@compuserve.com>
- <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org> <20060725185449.GA8074@elte.hu>
- <1153855844.8932.56.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607251355080.29649@g5.osdl.org>
- <1153921207.3381.21.camel@laptopd505.fenrus.org> <20060726155114.GA28945@redhat.com>
+	Wed, 26 Jul 2006 13:17:04 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:60662 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1751715AbWGZRRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:17:02 -0400
+Date: Wed, 26 Jul 2006 10:11:39 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew de Quincey <adq_dvb@lidskialf.net>,
+       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: automated test? (was Re: Linux 2.6.17.7)
+In-Reply-To: <20060726150041.GG23701@stusta.de>
+Message-ID: <Pine.LNX.4.63.0607261008240.10256@qynat.qvtvafvgr.pbz>
+References: <20060725034247.GA5837@kroah.com>  <200607261510.03098.adq_dvb@lidskialf.net>
+  <20060726142932.GE23701@stusta.de>  <200607261539.50492.adq_dvb@lidskialf.net>
+ <20060726150041.GG23701@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 26 Jul 2006, Adrian Bunk wrote:
 
+> On Wed, Jul 26, 2006 at 03:39:49PM +0100, Andrew de Quincey wrote:
+>> On Wednesday 26 July 2006 15:29, Adrian Bunk wrote:
+>> ...
+>>> The real problem is:
+>>> How do we get some testing coverage of -stable kernels by users to catch
+>>> issues?
+>>> And compile errors are the least of my worries.
+>>
+>> Yeah - I believe some people did test the DVB -stable patches, but obviously
+>> without the budget-av driver compile option enabled, so it didn't compile
+>> that code. DVB supports quite a few cards, so its easy to accidentally leave
+>> off one of the options when doing a mass compile of all drivers.
+>>
+>> The only thing I can think of would be to require -stable patch submitters to
+>> supply a list of CONFIG options that must be on to enable compilation of the
+>> new code so people know exactly how to enable it for testing... but obviously
+>> since those would be manually specified, they can be wrong too. But at least
+>> it would show they'd thought about it a bit....
+>
+> This helps only with compilation errors, which are as I said the least
+> of my worries.
 
-On Wed, 26 Jul 2006, Dave Jones wrote:
-> 
-> Looks sensible to me.   Assuming it passes testing..
+however, this can be automaticly tested (or at least the config options 
+specified can be tested)
 
-It looked sensible to me too, although it still shows some "Lukewarm IQ" 
-notices for the ondemand driver:
+> But does the hardware driven by this driver work?
+> And if it does, is there a bug in the patch that causes the kernel to
+> crash after some hours?
 
-	Lukewarm IQ detected in hotplug locking
-	BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
-	 [<c0103d07>] show_trace+0xd/0x10
-	 [<c01042ec>] dump_stack+0x19/0x1b
-	 [<c013778d>] lock_cpu_hotplug+0x43/0x69
-	 [<c012f9df>] __create_workqueue+0x52/0x11f
-	 [<df0ec34b>] cpufreq_governor_dbs+0x9f/0x2bd [cpufreq_ondemand]
-	 [<c0305542>] __cpufreq_governor+0x57/0xd8
-	 [<c0305700>] __cpufreq_set_policy+0x13d/0x1a9
-	 [<c0305906>] store_scaling_governor+0x12d/0x155
-	 [<c0304fbd>] store+0x34/0x45
-	 [<c01998fc>] sysfs_write_file+0x99/0xbf
-	 [<c0164953>] vfs_write+0xab/0x157
-	 [<c0164f8c>] sys_write+0x3b/0x60
-	 [<c0102d41>] sysenter_past_esp+0x56/0x79
+this cannot be tested by anyone who doesn't use the driver in question, and 
+frequently that includes the programmer who makes the changes.
 
-but is sure looks better than it used to. Which is why I already applied 
-it ;)
+there's no way to protect against a logic error in a driver, however it is 
+possible to put a safety net in place to catch compile problems due to mistakes.
 
-		Linus
+should such a net be put into place? (along with asking submitters what compile 
+options are relavent to their code), or is this a mistake that is rare enough to 
+just live with it when it happens?
+
+David Lang

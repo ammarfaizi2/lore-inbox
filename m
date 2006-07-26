@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWGZIRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWGZITj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbWGZIRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 04:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWGZIRW
+	id S1030365AbWGZITj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 04:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbWGZITj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 04:17:22 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:6016 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932522AbWGZIRV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 04:17:21 -0400
-Date: Wed, 26 Jul 2006 10:07:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: andrea@cpushare.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "bruce@andrew.cmu.edu" <bruce@andrew.cmu.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] TIF_NOTSC and SECCOMP prctl
-Message-ID: <20060726080739.GA10574@elte.hu>
-References: <200607180623_MC3-1-C54F-3802@compuserve.com> <20060718132941.GG5726@opteron.random> <20060725214441.GC32243@opteron.random>
+	Wed, 26 Jul 2006 04:19:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:42399 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030365AbWGZITi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 04:19:38 -0400
+Subject: Re: [NFS] [PATCH] [nfsd] Add lock annotations to e_start and e_stop
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Josh Triplett <josht@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       Neil Brown <neilb@cse.unsw.edu.au>
+In-Reply-To: <20060726080656.GA28346@infradead.org>
+References: <1153840824.12517.9.camel@josh-work.beaverton.ibm.com>
+	 <20060726080656.GA28346@infradead.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 26 Jul 2006 10:19:35 +0200
+Message-Id: <1153901976.3381.1.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060725214441.GC32243@opteron.random>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.3 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-07-26 at 09:06 +0100, Christoph Hellwig wrote:
+> On Tue, Jul 25, 2006 at 08:20:24AM -0700, Josh Triplett wrote:
+> > e_start acquires svc_export_cache.hash_lock, and e_stop releases it.  Add lock
+> > annotations to these two functions so that sparse can check callers for lock
+> > pairing, and so that sparse will not complain about these functions since they
+> > intentionally use locks in this manner.
+> > 
+> > Signed-off-by: Josh Triplett <josh@freedesktop.org>
+> 
+> The Signed-off-by: line doesn't match the from line of this mail.  Is that
+> any problem or fine in general?
 
-* andrea@cpushare.com <andrea@cpushare.com> wrote:
+As far as I can see it's customary for the SOB line to state the
+affiliation of the person, eg the company that wants to own the
+copyright on the code. So I'd expect Josh to use his ibm.com account...
 
-> Here a repost of the last seccomp patch against current mainline 
-> including the preempt fix. This changes the seccomp API from 
-> /proc/<pid>/seccomp to a prctl (this will produce a smaller kernel) 
-> and it adds a TIF_NOTSC that seccomp sets. Only the current task can 
-> call disable_TSC (obviously because it hasn't a task_t param). This 
-> includes Chuck's patch to give zero runtime cost to the notsc feature.
+Greetings,
+   Arjan van de Ven
 
-please send a patch-queue that is properly split-up: the bugfix, the API 
-change and the TIF_NOTSC improvement.
 
-	Ingo
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+

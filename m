@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWGZBBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWGZBA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWGZBBE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 21:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWGZBBE
+	id S1030302AbWGZBA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 21:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGZBA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 21:01:04 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13003 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1030303AbWGZBBC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 21:01:02 -0400
-Message-Id: <200607260100.k6Q10miJ007619@laptop13.inf.utfsm.cl>
-To: 7eggert@gmx.de
-cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: what is necessary for directory hard links 
-In-Reply-To: Message from Bodo Eggert <7eggert@elstempel.de> 
-   of "Tue, 25 Jul 2006 23:28:29 +0200." <E1G5USP-0000fF-Sp@be1.lrz> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Tue, 25 Jul 2006 21:00:48 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 25 Jul 2006 21:00:57 -0400 (CLT)
+	Tue, 25 Jul 2006 21:00:27 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:21466 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1030302AbWGZBA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 21:00:26 -0400
+Date: Tue, 25 Jul 2006 18:00:25 -0700 (PDT)
+From: Trent Piepho <xyzzy@speakeasy.org>
+X-X-Sender: xyzzy@shell3.speakeasy.net
+To: Edgar Toernig <froese@gmx.de>
+cc: v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>, akpm@osdl.org,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@osdl.org
+Subject: Re: [v4l-dvb-maintainer] Re: [PATCH 00/23] V4L/DVB fixes
+In-Reply-To: <20060726004127.6eab5a9f.froese@gmx.de>
+Message-ID: <Pine.LNX.4.58.0607251741350.8253@shell3.speakeasy.net>
+References: <20060725180311.PS54604900000@infradead.org>
+ <20060726004127.6eab5a9f.froese@gmx.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <7eggert@elstempel.de> wrote:
-> Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
-> > Joshua Hudson <joshudson@gmail.com> wrote:
-> 
-> > [...]
-> > 
-> >> Maybe someday I'll work out a system by which much less is locked.
-> >> Conceptually, all that is requred to lock for the algorithm
-> >> to work is creating hard-links to directories and renaming directories
-> >> cross-directory.
-> > 
-> > Some 40 years of filesystem development without finding a solution to that
-> > conundrum would make that quite unlikely, but you are certainly welcome to
-> > try.
+On Wed, 26 Jul 2006, Edgar Toernig wrote:
+> I'm still missing the VBI_OFFSET fix.  See:
+>
+>   http://marc.theaimsgroup.com/?m=114710558215044
+>
+> Could you consider that patch for the next update and
+> IMHO also for 2.6.16.x and 2.6.17.x?
 
-> There is a simple solution against loops: No directory may contain a
-> directory with a lower inode number.
+I've put a patch that fixes this in my tree.  Mauro, please pull from
+http://linuxtv.org/hg/~tap/v4l-dvb for:
 
-This is a serious restriction...
+02/02: bttv: Revert VBI_OFFSET to previous value, it works better
+http://www.linuxtv.org/hg/~tap/v4l-dvb?cmd=changeset;node=88eaa291cc50;style=gitweb
 
-> Off cause this would interfere with normal operations, so you'll allocate all
-> normal inodes above e.g. 0x800000 and don't test between those inodes.
+FYI, contents of patch:
+diff -r aaf8b9916bbb -r 88eaa291cc50 linux/drivers/media/video/bt8xx/bttv-vbi.c
+--- a/linux/drivers/media/video/bt8xx/bttv-vbi.c        Tue Jul 25 16:37:03 2006
+-0700
++++ b/linux/drivers/media/video/bt8xx/bttv-vbi.c        Tue Jul 25 17:51:36 2006
+-0700
+@@ -31,11 +31,16 @@
+ #include <asm/io.h>
+ #include "bttvp.h"
 
-And allow loops there? I don't see how that solves anything...
+-/* Offset from line sync pulse leading edge (0H) in 1 / sampling_rate:
+-   bt8x8 /HRESET pulse starts at 0H and has length 64 / fCLKx1 (E|O_VTC
+-   HSFMT = 0). VBI_HDELAY (always 0) is an offset from the trailing edge
+-   of /HRESET in 1 / fCLKx1, and the sampling_rate tvnorm->Fsc is fCLKx2. */
+-#define VBI_OFFSET ((64 + 0) * 2)
++/* Offset from line sync pulse leading edge (0H) to start of VBI capture,
++   in fCLKx2 pixels.  According to the datasheet, VBI capture starts
++   VBI_HDELAY fCLKx1 pixels from the tailing edgeof /HRESET, and /HRESET
++   is 64 fCLKx1 pixels wide.  VBI_HDELAY is set to 0, so this should be
++   (64 + 0) * 2 = 128 fCLKx2 pixels.  But it's not!  The datasheet is
++   Just Plain Wrong.  The real value appears to be different for
++   different revisions of the bt8x8 chips, and to be affected by the
++   horizontal scaling factor.  Experimentally, the value is measured
++   to be about 244.  */
++#define VBI_OFFSET 244
 
-> If you want to hardlink, you'll use a different (privileged) mkdir call
-> that will allocate a choosen low inode number. This is also required for
-> the parents of the hardlinked directories.
+ #define VBI_DEFLINES 16
+ #define VBI_MAXLINES 32
 
-Argh... even /more/ illogical restrictions!
-
-> You can also use the generic solution: Allow root to shoot his feet, and
-> make sure the gun works correctly.
-
-;-)
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

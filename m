@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWGZGmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWGZGtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030420AbWGZGmo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 02:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbWGZGmo
+	id S1030209AbWGZGtb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 02:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030421AbWGZGtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 02:42:44 -0400
-Received: from mxl145v69.mxlogic.net ([208.65.145.69]:17857 "EHLO
-	p02c11o146.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1030420AbWGZGmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 02:42:43 -0400
-Date: Wed, 26 Jul 2006 09:43:49 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Zach Brown <zach.brown@oracle.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH] lockdep: don't pull in includes when lockdep disabled
-Message-ID: <20060726064349.GA8874@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1153895599.2896.4.camel@laptopd505.fenrus.org>
+	Wed, 26 Jul 2006 02:49:31 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:32430 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1030209AbWGZGtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 02:49:31 -0400
+Subject: [patch] lockdep: annotate vfs_rmdir for filesystems that take
+	i_mutex in delete_inode
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, reiserfs-list@namesys.com,
+       reiserfs-dev@namesys.com, viro@ftp.linux.org.uk,
+       viro@zeniv.linux.org.uk, reiser@namesys.com,
+       linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>
+In-Reply-To: <20060725223327.b6d039b2.akpm@osdl.org>
+References: <9a8748490607251516j1433306ek9c64cc84c0838f7b@mail.gmail.com>
+	 <20060725223327.b6d039b2.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 26 Jul 2006 08:47:21 +0200
+Message-Id: <1153896441.2896.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153895599.2896.4.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 26 Jul 2006 06:48:11.0859 (UTC) FILETIME=[764ADA30:01C6B07F]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Arjan van de Ven <arjan@infradead.org>:
-> Subject: Re: [PATCH] lockdep: don't pull in includes when lockdep disabled
+On Tue, 2006-07-25 at 22:33 -0700, Andrew Morton wrote:
+> On Wed, 26 Jul 2006 00:16:42 +0200
+> The VFS takes the directory i_mutex and reiserfs_delete_inode() takes the
+> to-be-deleted file's i_mutex.
 > 
-> On Wed, 2006-07-26 at 09:26 +0300, Michael S. Tsirkin wrote:
-> > Ingo, does the following look good to you?
-> > 
-> > Do not pull in various includes through lockdep.h if lockdep is disabled.
-> 
-> Hi,
-> 
-> can you tell us what this fixes? Eg is there a specific problem?
+> That's notabug and lockdep will need to be taught about it.
 
-Er ... it's a cosmetic change - there's no serious problem, it is just that even
-if I disable lockdep, linux/lockdep.h will pull in several headers even
-though they are not needed -> more useless work for compiler to do.
+[2nd try, now with coffee]
 
-> I mean... we're adding ifdefs
+This is another 3 level locking ordering:
+do_rmdir takes the mutex of the parent directory
+vfs_rmdir takes the mutex of the victim
+shrink_dcache_parent ends up in the reiser delete_inode which takes the
+mutex of dead children of the victim
 
-Note this doesn't add ifdefs, just moves them around.
+the I_MUTEX ordering rules are
 
-> so there better be a real good reason for
-> them.... fixing something real would be such a reason ;-)
+I_MUTEX_PARENT -> I_MUTEX_CHILD -> <normal>
 
-Well, I don't expect this specific bit to speed compilation up in any measurable
-way, but unnecessary includes do have the tendency to accumulate and lead to
-slower builds ...
+do_rmdir already has I_MUTEX_PARENT, delete_inode does <normal> so
+vfs_rmdir needs I_MUTEX_CHILD (which is also logical)
 
-Is that a reason?
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 
--- 
-MST
+Index: linux-2.6.18-rc2-git5/fs/namei.c
+===================================================================
+--- linux-2.6.18-rc2-git5.orig/fs/namei.c
++++ linux-2.6.18-rc2-git5/fs/namei.c
+@@ -1967,7 +1967,7 @@ int vfs_rmdir(struct inode *dir, struct 
+ 
+ 	DQUOT_INIT(dir);
+ 
+-	mutex_lock(&dentry->d_inode->i_mutex);
++	mutex_lock_nested(&dentry->d_inode->i_mutex, I_MUTEX_CHILD);
+ 	dentry_unhash(dentry);
+ 	if (d_mountpoint(dentry))
+ 		error = -EBUSY;
+

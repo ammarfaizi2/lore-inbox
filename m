@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWGZLo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWGZLsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWGZLo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGZLo0
+	id S1030231AbWGZLsH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWGZLsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:44:26 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:5797
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S932527AbWGZLo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:44:26 -0400
-Date: Wed, 26 Jul 2006 13:45:34 +0200
-From: andrea@cpushare.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "bruce@andrew.cmu.edu" <bruce@andrew.cmu.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] TIF_NOTSC and SECCOMP prctl
-Message-ID: <20060726114534.GG32243@opteron.random>
-References: <200607180623_MC3-1-C54F-3802@compuserve.com> <20060718132941.GG5726@opteron.random> <20060725214441.GC32243@opteron.random> <20060726080739.GA10574@elte.hu>
+	Wed, 26 Jul 2006 07:48:06 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:40084 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1030231AbWGZLsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:48:05 -0400
+Date: Wed, 26 Jul 2006 14:48:04 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com> <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+ <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI>
+ <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726080739.GA10574@elte.hu>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 10:07:39AM +0200, Ingo Molnar wrote:
-> 
-> * andrea@cpushare.com <andrea@cpushare.com> wrote:
-> 
-> > Here a repost of the last seccomp patch against current mainline 
-> > including the preempt fix. This changes the seccomp API from 
-> > /proc/<pid>/seccomp to a prctl (this will produce a smaller kernel) 
-> > and it adds a TIF_NOTSC that seccomp sets. Only the current task can 
-> > call disable_TSC (obviously because it hasn't a task_t param). This 
-> > includes Chuck's patch to give zero runtime cost to the notsc feature.
-> 
-> please send a patch-queue that is properly split-up: the bugfix, the API 
-> change and the TIF_NOTSC improvement.
+On Wed, 26 Jul 2006, Christoph Lameter wrote:
+> If you disable them then we are fine. I think the main "bug" is that 
+> we create the caches with ARCH_KMALLOC_MINALIGN in kmem_cache_init but 
+> allow debug options on them. It seemss that we need to be able to disable 
+> debugging from kmem_cache_init.
 
-Which bugfix do you mean? If you mean the preempt fix for the NOTSC
-improvement it makes no sense to split it up from the NOTSC
-part. There are no other bugfixes (the reduction of the notsc window
-isn't strictly a bugfix, since the feature already helped).
+No, as Heiko explained, but bug is that we fail to respect architecture 
+and caller mandated alignment when CONFIG_SLAB_DEBUG is enabled. With this 
+patch (or Heiko's), we should be okay: http://lkml.org/lkml/2006/7/26/93
 
-I can split the API change from the NOTSC feature, I'll wait some more
-days in the hope this one goes in. If it doesn't go in I'll follow
-your suggestion and I'll try again later with the split up in the hope
-to increase my chances.
+Note that this will fix the kmem_cache_init() case too. If 
+ARCH_KMALLOC_MINALIGN is greater than BYTES_PER_WORD, we'll disable 
+debugging for those caches. It's obviously ok to have debugging for 
+kmem_cache_init caches too if ARCH_KMALLOC_MINALIGN is greater than or 
+equal to BYTES_PER_WORD.
 
->From my point of view it's not urgent to merge it, it's just the
-anti-seccomp advocates that should want this patch being merged
-urgently.
+					Pekka

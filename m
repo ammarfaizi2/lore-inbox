@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWGZSyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWGZS5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWGZSyP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 14:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWGZSyP
+	id S1750898AbWGZS5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 14:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWGZS5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 14:54:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:46974 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750876AbWGZSyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 14:54:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f2EB02m8NuzvTOAvQUH0t/JfC3TwhI+h0a0mcQCSlT5E6wSkxj/J3wwGw4UZ8WPcIvaHYg5FtPXlk5JeP6thVGMWO43S07fAHmls+mA6ay1KCZNnvr2n+6ujVMvOF/J70iUvREi+dNKE80jr+wygS9mYigOtRbLKaX7McUsSE+E=
-Message-ID: <5d6b65750607261154q7ca21742q8dd69e4e08ff86fa@mail.gmail.com>
-Date: Wed, 26 Jul 2006 20:54:12 +0200
-From: "Buddy Lucas" <buddy.lucas@gmail.com>
-To: "Bernd Eckenfels" <be-news06@lina.inka.de>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E1G5j2B-0005eW-00@calista.eckenfels.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Jul 2006 14:57:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:57481 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750876AbWGZS5Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 14:57:16 -0400
+Subject: [PATCH] [fs] Add lock annotation to grab_super
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Alexander Viro <viro@zeniv.linux.org.uk>
+Content-Type: text/plain
+Date: Wed, 26 Jul 2006 11:57:17 -0700
+Message-Id: <1153940237.12517.62.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060726112039.GA18329@merlin.emma.line.org>
-	 <E1G5j2B-0005eW-00@calista.eckenfels.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/06, Bernd Eckenfels <be-news06@lina.inka.de> wrote:
->
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> > But the assertion that some backup was the cause for inode exhaustion on
-> > ext? is not very plausible since hard links do not take up inodes,
-> > symlinks are not backups and everything else requires disk blocks. So,
-> > since reformatting ext2/ext3 to one inode per block is possible
-> > (regardless of disk capacity), I see no way how a reformatted file
-> > system might run out of inodes before it runs out of blocks.
->
-> Well I had actually the problem on a tmpfs where I had too many zero byte
-> files...
+grab_super gets called with sb_lock held, and releases it.  Add a lock
+annotation to this function so that sparse can check callers for lock pairing,
+and so that sparse will not complain about this function since it
+intentionally uses the lock in this manner.
 
-Yes, I once ran out of inodes because logrotate kept rotating and
-compressing already compressed and empty logfiles. I can't remember
-how many seconds it took me to add 'df -i' to our monitoring system.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ fs/super.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-This, however, was not a feature of the software. I assume.
+diff --git a/fs/super.c b/fs/super.c
+index 6d4e817..97a521c 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -198,7 +198,7 @@ EXPORT_SYMBOL(deactivate_super);
+  *	success, 0 if we had failed (superblock contents was already dead or
+  *	dying when grab_super() had been called).
+  */
+-static int grab_super(struct super_block *s)
++static int grab_super(struct super_block *s) __releases(sb_lock)
+ {
+ 	s->s_count++;
+ 	spin_unlock(&sb_lock);
 
-So, any company that considers the remote possibility of seeking a
-$250,000 solution, where the alternative is to buy a 36GB hard drive,
-please give me a call.
 
-
-Cheers,
-Buddy

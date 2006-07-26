@@ -1,152 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWGZU3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWGZUcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161034AbWGZU3V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 16:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWGZU3V
+	id S1161037AbWGZUcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161038AbWGZUcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 16:29:21 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:43224 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1161034AbWGZU3U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 16:29:20 -0400
-Message-ID: <1153945705.44c7d069c5e18@portal.student.luth.se>
-Date: Wed, 26 Jul 2006 22:28:25 +0200
-From: ricknu-0@student.ltu.se
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Michael Buesch <mb@bu3sch.de>, Paul Jackson <pj@sgi.com>
-Subject: Re: [RFC][PATCH] A generic boolean (version 6)
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-In-Reply-To: <1153341500.44be983ca1407@portal.student.luth.se>
+	Wed, 26 Jul 2006 16:32:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27088 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161037AbWGZUcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:32:20 -0400
+Date: Wed, 26 Jul 2006 13:22:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@linux.intel.com>
+cc: Dave Jones <davej@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be
+ totally bizare
+In-Reply-To: <1153942954.3381.50.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0607261319160.4168@g5.osdl.org>
+References: <200607242023_MC3-1-C5FE-CADB@compuserve.com> 
+ <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org>  <20060725185449.GA8074@elte.hu>
+  <1153855844.8932.56.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.64.0607251355080.29649@g5.osdl.org>  <1153921207.3381.21.camel@laptopd505.fenrus.org>
+  <20060726155114.GA28945@redhat.com>  <Pine.LNX.4.64.0607261007530.29649@g5.osdl.org>
+ <1153942954.3381.50.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sixth "version".
-
-Changes (since fifth):
-* removed the #undef false/true and #define false/true from include/linux/stddef.h.
-
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
-
----
-
-Have not found any (real) reason letting the cpp know about false/true. As I
-said in the last version, the only reason seem to be for the userspace. Well, as
-there is no program of my knowlage that needs it, they were removed.
-
-As there seems to be little respons nowadays (I hope its because there isn't to
-much to comment on and not because of bordom to this), I will likely send this
-in as a real patch (hoping for inclusion) tomorrow.
-
-And once again; thanks to you all for all the comments and suggestions.
-
-/Richard
 
 
- drivers/block/DAC960.h            |    2 +-
- drivers/media/video/cpia2/cpia2.h |    4 ----
- drivers/net/dgrs.c                |    1 -
- drivers/scsi/BusLogic.h           |    5 +----
- include/linux/stddef.h            |    5 +++++
- include/linux/types.h             |    2 ++
- 6 files changed, 9 insertions(+), 10 deletions(-)
+On Wed, 26 Jul 2006, Arjan van de Ven wrote:
+> 
+> As a quick hack I made non-lock_cpu_hotplug()'ing versions of the 3 key
+> workqueue functions (patch below). It works, it's correct, it's just so
+> ugly that I'm almost too ashamed to post it. I haven't found a better
+> solution yet though... time to take a step back I suppose.
 
+That really is _way_ too ugly for words.
 
-diff --git a/drivers/block/DAC960.h b/drivers/block/DAC960.h
-index a82f37f..f9217c3 100644
---- a/drivers/block/DAC960.h
-+++ b/drivers/block/DAC960.h
-@@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
-   Define a Boolean data type.
- */
- 
--typedef enum { false, true } __attribute__ ((packed)) boolean;
-+typedef bool boolean;
- 
- 
- /*
-diff --git a/drivers/media/video/cpia2/cpia2.h b/drivers/media/video/cpia2/cpia2.h
-index c5ecb2b..8d2dfc1 100644
---- a/drivers/media/video/cpia2/cpia2.h
-+++ b/drivers/media/video/cpia2/cpia2.h
-@@ -50,10 +50,6 @@ #define CPIA2_PATCH_VER	0
- /***
-  * Image defines
-  ***/
--#ifndef true
--#define true 1
--#define false 0
--#endif
- 
- /*  Misc constants */
- #define ALLOW_CORRUPT 0		/* Causes collater to discard checksum */
-diff --git a/drivers/net/dgrs.c b/drivers/net/dgrs.c
-index fa4f094..4dbc23d 100644
---- a/drivers/net/dgrs.c
-+++ b/drivers/net/dgrs.c
-@@ -110,7 +110,6 @@ static char version[] __initdata =
-  *	DGRS include files
-  */
- typedef unsigned char uchar;
--typedef unsigned int bool;
- #define vol volatile
- 
- #include "dgrs.h"
-diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
-index 9792e5a..d6d1d56 100644
---- a/drivers/scsi/BusLogic.h
-+++ b/drivers/scsi/BusLogic.h
-@@ -237,10 +237,7 @@ enum BusLogic_BIOS_DiskGeometryTranslati
-   Define a Boolean data type.
- */
- 
--typedef enum {
--	false,
--	true
--} PACKED boolean;
-+typedef bool boolean;
- 
- /*
-   Define a 10^18 Statistics Byte Counter data type.
-diff --git a/include/linux/stddef.h b/include/linux/stddef.h
-index b3a2cad..0382065 100644
---- a/include/linux/stddef.h
-+++ b/include/linux/stddef.h
-@@ -10,6 +10,11 @@ #else
- #define NULL ((void *)0)
- #endif
- 
-+enum {
-+	false	= 0,
-+	true	= 1
-+};
-+
- #undef offsetof
- #ifdef __compiler_offsetof
- #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
-diff --git a/include/linux/types.h b/include/linux/types.h
-index 3f23566..85cf587 100644
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -90,6 +90,8 @@ #define _CADDR_T
- typedef __kernel_caddr_t	caddr_t;
- #endif
- 
-+typedef _Bool			bool;
-+
- /* bsd */
- typedef unsigned char		u_char;
- typedef unsigned short		u_short;
+For 2.6.18, we may just have to leave the recursive locking in place, and 
+just remove the warning. With the recursive lock, if/when somebody needs 
+to take that lock early, the code can just do so, and then the inner 
+lock-taker ends up being a no-op.
 
+Of course, that's why people want recursive locks in the first place, and 
+it's also why we've (largely successfully) have avoided them - it allows 
+for people being way too lazy about locking, and allows for really broken 
+schenarios like this.
+
+I wonder if we could just make the workqueue code just run with preemption 
+disabled - that should also automatically protect against any CPU hotplug 
+events on the local CPU (and I think "local CPU" is all that the wq code 
+cares about, no?)
+
+		Linus

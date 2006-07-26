@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWGZQbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWGZQhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751703AbWGZQbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWGZQbQ
+	id S1751679AbWGZQhk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:37:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751686AbWGZQhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:31:16 -0400
-Received: from mxl145v67.mxlogic.net ([208.65.145.67]:23431 "EHLO
-	p02c11o144.mxlogic.net") by vger.kernel.org with ESMTP
-	id S1751702AbWGZQbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:31:15 -0400
-Date: Wed, 26 Jul 2006 19:32:26 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: restore missing PCI registers after reset
-Message-ID: <20060726163226.GG9411@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20060726162007.GA9871@suse.de>
+	Wed, 26 Jul 2006 12:37:39 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:42504 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751661AbWGZQhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:37:39 -0400
+Date: Wed, 26 Jul 2006 17:37:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Panagiotis Issaris <takis@issaris.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unreachable e-mailaddresses in maintainers file
+Message-ID: <20060726163730.GB6868@flint.arm.linux.org.uk>
+Mail-Followup-To: Panagiotis Issaris <takis@issaris.org>,
+	linux-kernel@vger.kernel.org
+References: <44C4D835.5010500@issaris.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060726162007.GA9871@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 26 Jul 2006 16:36:47.0734 (UTC) FILETIME=[B031B960:01C6B0D1]
-X-Spam: [F=0.0100000000; S=0.010(2006062901)]
-X-MAIL-FROM: <mst@mellanox.co.il>
-X-SOURCE-IP: [194.90.237.34]
+In-Reply-To: <44C4D835.5010500@issaris.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Greg KH <gregkh@suse.de>:
-> I think pci_restore_state() already restores the msi and msix state,
-> take a look at the latest kernel version :)
+On Mon, Jul 24, 2006 at 04:24:53PM +0200, Panagiotis Issaris wrote:
+> The following two e-mailaddresses were unreachable for me:
+>...
+> rmk+mmc@arm.linux.org.uk
 
-Yes, I know :)
-but I am not talking abotu MSI/MSI-X, I am talking about the following:
-> > >   PCI-X device: PCI-X command register
-> > >   PCI-X bridge: upstream and downstream split transaction registers
-> > >   PCI Express : PCI Express device control and link control registers
+Bah, doesn't take long for folk to start whinging about unreachable
+email addresses. ;(
 
-these register values include maxumum MTU for PCI express and other vital
-data.
+The one above is due to an unavoidable lack of connectivity here for a
+week, but now that connectivity is restored (mail as of about 3pm)
+it should work fine.  If you continue to see errors, mail the postmaster
+address at the site you're having issues with with a transcript of the
+error message.
 
 -- 
-MST
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

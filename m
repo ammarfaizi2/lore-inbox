@@ -1,146 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWGZDxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbWGZEla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbWGZDxA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 23:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWGZDxA
+	id S1030380AbWGZEla (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 00:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbWGZEla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 23:53:00 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10721 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030375AbWGZDw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 23:52:59 -0400
-Subject: BUG: __d_find_alias went POP! (was: BUG: lock held at task exit
-	time!)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Michael Deegan <michael@ucc.gu.uwa.edu.au>
-Cc: linux-kernel@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20060722032533.GZ3874@wibble>
-References: <20060722032533.GZ3874@wibble>
-Content-Type: text/plain
-Date: Tue, 25 Jul 2006 23:51:39 -0400
-Message-Id: <1153885899.4017.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Wed, 26 Jul 2006 00:41:30 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:3726 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030380AbWGZEl3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 00:41:29 -0400
+Message-ID: <44C6F26C.2080203@garzik.org>
+Date: Wed, 26 Jul 2006 00:41:16 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Andrew Morton <akpm@osdl.org>, Mike Miller <mike.miller@hp.com>,
+       iss_storagedev@hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CCISS: Don't print driver version until we actually	find
+ a device
+References: <200607251636.42765.bjorn.helgaas@hp.com>	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com> <1153867675.8932.68.camel@laptopd505.fenrus.org>
+In-Reply-To: <1153867675.8932.68.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually the lock held at exit time was caused by the BUG, it wasn't the
-bug itself.  Seems you got a bad pointer which killed a task that
-happened to be holding a lock.  And that's why you got the bug from your
-subject.
+Arjan van de Ven wrote:
+> On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
+>> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+>>> If we don't find any devices, we shouldn't print anything.
+>>>
+>> I disagree.
+>> I find it quite nice to be able to see that the driver loaded even if
+>> it finds nothing. At least then when there's a problem, I can quickly
+>> see that at least it is not because I didn't forget to load the
+>> driver, it's something else. Saves time since I can start looking for
+>> reasons why the driver didn't find anything without first spending
+>> additional time checking if I failed to cause it to load for some
+>> reason.
+> 
+> I'll add a second reason: it is a REALLY nice property to be able to see
+> which driver is started last in case of a crash/hang, so that the guilty
+> party is more obvious..
 
-It looks like there was something fishy going on in __d_find_alias (like
-a corrupted inode?).  Don't know for sure but since this looks like it's
-splice related or something wrong with general VFS, I CC'd Al Viro, and
-since it came from ext3, I CC'd Stephen Tweedie and the ext2-devel list.
+OTOH, it is not a property that scales well at all.
 
-Could a corrupted filesystem cause this oops?
+When you build extra drivers into the kernel, or distros load drivers 
+you don't need (_every_ distro does this), you wind up with a bunch of 
+version strings for drivers for hardware you don't have.
 
--- Steve
+	Jeff
 
-On Sat, 2006-07-22 at 11:25 +0800, Michael Deegan wrote:
-> Hi,
-> 
-> I think somehere might be interested in this, though I'm not sure who. I do
-> not have the knowledge to say whether it originates within ext3, VFS, or
-> elsewhere.
-> 
-> Anyway, I discovered an OOPS spammed into my ssh sessions to this machine,
-> and kern.log contained:
-> 
-> Jul 22 06:26:55 localhost kernel: EXT3-fs error (device sda2): ext3_readdir: bad entry in directory #691212: directory entry across blocks - offset=12, inode=691211, rec_len=12320, name_len=2
-> Jul 22 06:26:55 localhost kernel: Remounting filesystem read-only
-> Jul 22 06:27:47 localhost kernel: Unable to handle kernel paging request at virtual address 0017e95a
-> Jul 22 06:27:47 localhost kernel:  printing eip:
-> Jul 22 06:27:47 localhost kernel: c01502c1
-> Jul 22 06:27:47 localhost kernel: *pde = 00000000
-> Jul 22 06:27:47 localhost kernel: Oops: 0000 [#1]
-> Jul 22 06:27:47 localhost kernel: Modules linked in: i2c_via dm_mod
-> Jul 22 06:27:47 localhost kernel: CPU:    0
-> Jul 22 06:27:47 localhost kernel: EIP:    0060:[<c01502c1>]    Not tainted VLI
-> Jul 22 06:27:47 localhost kernel: EFLAGS: 00010203   (2.6.16.18 #1)
-> Jul 22 06:27:47 localhost kernel: EIP is at __d_find_alias+0x14/0x9a
-> Jul 22 06:27:47 localhost kernel: eax: 00008000   ebx: 0017e95a   ecx: 0017e95a   edx: c73ed128
-> Jul 22 06:27:47 localhost kernel: esi: 00000000   edi: c73ec0ec   ebp: c73ed110   esp: c4d0ede4
-> Jul 22 06:27:47 localhost kernel: ds: 007b   es: 007b   ss: 0068
-> Jul 22 06:27:47 localhost kernel: Process find (pid: 27598, threadinfo=c4d0e000 task=c63eba90)
-> Jul 22 06:27:47 localhost kernel: Stack: <0>00000001 c73ed110 c6c0b878 c6c0b878 c73ed364 c0150743 c73ed110 c13eb600
-> Jul 22 06:27:47 localhost kernel:        c6c0b878 c017145b c3c67818 c03d65e0 c6c0b878 c73ed2f4 c0148d04 c4d0ee70
-> Jul 22 06:27:47 localhost kernel:        c4d0ee64 c4d0ef1c c1145da0 95ca2dfe c73ed2f4 c67f2000 c4d0ef1c c0149435
-> Jul 22 06:27:47 localhost kernel: Call Trace:
-> Jul 22 06:27:47 localhost kernel:  [<c0150743>] d_splice_alias+0x19/0xb2
-> Jul 22 06:27:47 localhost kernel:  [<c017145b>] ext3_lookup+0x72/0x77
-> Jul 22 06:27:47 localhost kernel:  [<c0148d04>] do_lookup+0xa3/0x137
-> Jul 22 06:27:47 localhost kernel:  [<c0149435>] __link_path_walk+0x69d/0xa77
-> Jul 22 06:27:47 localhost kernel:  [<c01525ef>] mntput_no_expire+0x11/0x52
-> Jul 22 06:27:47 localhost kernel:  [<c01498be>] link_path_walk+0xaf/0xb9
-> Jul 22 06:27:47 localhost kernel:  [<c0359f7c>] __mutex_lock_slowpath+0x1d0/0x276
-> Jul 22 06:27:47 localhost kernel:  [<c0149856>] link_path_walk+0x47/0xb9
-> Jul 22 06:27:47 localhost kernel:  [<c0149c74>] do_path_lookup+0x17f/0x19f
-> Jul 22 06:27:47 localhost kernel:  [<c014a15a>] __user_walk_fd+0x2a/0x3f
-> Jul 22 06:27:47 localhost kernel:  [<c0144f65>] vfs_lstat_fd+0x12/0x39
-> Jul 22 06:27:47 localhost kernel:  [<c01455e9>] sys_lstat64+0xf/0x23
-> Jul 22 06:27:47 localhost kernel:  [<c0102409>] syscall_call+0x7/0xb
-> Jul 22 06:27:47 localhost kernel: Code: 8d 4b c4 8b 59 3c 8d 74 26 00 8d 51 3c 8d 46 18 39 c2 75 96 5b 5e c3 55 89 c5 57 56 31 f6 53 51 89 14 24 8b 48 18 8d 50 18 eb 53 <8b> 19 8d 74 26 00 0f b7 45 28 8d 79 c4 25 00 f0 00 00 3d 00 40
-> Jul 22 06:27:47 localhost kernel:  BUG: find/27598, lock held at task exit time!
-> Jul 22 06:27:47 localhost kernel:  [c73ed364] {inode_init_once}
-> Jul 22 06:27:47 localhost kernel: .. held by:              find:27598 [c63eba90, 126]
-> Jul 22 06:27:47 localhost kernel: ... acquired at:               do_lookup+0x69/0x137
-> 
-> /dev/sda2 is my root partition. Fortunately /var was on a different partition.
-> Unsurprisingly the root partition contains errors:
-> 
->     Pass 1: Checking inodes, blocks, and sizes
->     Inode 114510 has illegal block(s).  Clear? no
-> 
->     Illegal block #8 (3342783228) in inode 114510.  IGNORED.
->     Inodes that were part of a corrupted orphan linked list found.  Fix? no
-> 
->     Inode 318876 was part of the orphaned inode list.  IGNORED.
->     Inode 351606 was part of the orphaned inode list.  IGNORED.
->     Inode 491835 was part of the orphaned inode list.  IGNORED.
->     Deleted inode 556073 has zero dtime.  Fix? no
-> 
-> I am of course assuming that the mere presence of filesystem errors
-> shouldn't cause the kernel to oops.
-> 
-> Output of ver_linux (keeping in mind I can't tell what has been apt-get
-> upgraded since the kernel was compiled):
-> 
->     Linux plugh 2.6.16.18 #1 Sun May 28 01:17:17 WST 2006 i586 GNU/Linux
-> 
->     Gnu C                  4.0.4
->     Gnu make               3.81
->     binutils               2.17
->     util-linux             2.12r
->     mount                  2.12r
->     module-init-tools      3.2.2
->     e2fsprogs              1.39
->     reiserfsprogs          line
->     reiser4progs           line
->     PPP                    2.4.4b1
->     Linux C Library        2.3.6
->     Dynamic linker (ldd)   2.3.6
->     Procps                 3.2.7
->     Net-tools              1.60
->     Console-tools          0.2.3
->     Sh-utils               5.96
->     Modules Loaded         i2c_via dm_mod
-> 
-> The machine is my household webserver (128MiB K6II-500, Debian
-> testing/etch). It is still performing normally, despite a read only root fs
-> (including /tmp). I'm happy to keep the machine in this state if further
-> diagnostics are required; otherwise I'll eventually just build a new kernel
-> and reboot it.
-> 
-> I'm not on the list, so please CC replies (though I'll probably check the
-> archives from time to time anyway).
-> 
-> Thanks,
-> 
-> -MD
 
 

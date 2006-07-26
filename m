@@ -1,80 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751663AbWGZPwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWGZQDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751663AbWGZPwi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWGZPwi
+	id S1750923AbWGZQDc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWGZQDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:52:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27834 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750762AbWGZPwh (ORCPT
+	Wed, 26 Jul 2006 12:03:32 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:18627 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1750900AbWGZQDb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:52:37 -0400
-Date: Wed, 26 Jul 2006 11:51:14 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be totally bizare
-Message-ID: <20060726155114.GA28945@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@linux.intel.com>,
-	Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Ashok Raj <ashok.raj@intel.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200607242023_MC3-1-C5FE-CADB@compuserve.com> <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org> <20060725185449.GA8074@elte.hu> <1153855844.8932.56.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0607251355080.29649@g5.osdl.org> <1153921207.3381.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153921207.3381.21.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.2i
+	Wed, 26 Jul 2006 12:03:31 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG?] possible recursive locking detected
+Date: Wed, 26 Jul 2006 18:05:21 +0200
+User-Agent: KMail/1.9.3
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3894488.LAxeYVgYFB";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607261805.26711.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 03:40:07PM +0200, Arjan van de Ven wrote:
+--nextPart3894488.LAxeYVgYFB
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- > Subject: Reorganize the cpufreq cpu hotplug locking to not be totally bizare
- > From: Arjan van de Ven <arjan@linux.intel.com>
- > 
- > The patch below moves the cpu hotplugging higher up in the cpufreq
- > layering; this is needed to avoid recursive taking of the cpu hotplug
- > lock and to otherwise detangle the mess.
- > 
- > The new rules are:
- > 1. you must do lock_cpu_hotplug() around the following functions:
- >    __cpufreq_driver_target
- >    __cpufreq_governor (for CPUFREQ_GOV_LIMITS operation only)
- >    __cpufreq_set_policy
- > 2. governer methods (.governer) must NOT take the lock_cpu_hotplug()
- >    lock in any way; they are called with the lock taken already
- > 3. if your governer spawns a thread that does things, like calling
- >    __cpufreq_driver_target, your thread must honor rule #1.
- > 4. the policy lock and other cpufreq internal locks nest within 
- >    the lock_cpu_hotplug() lock. 
- > 
- > I'm not entirely happy about how the __cpufreq_governor rule ended up
- > (conditional locking rule depending on the argument) but basically all
- > callers pass this as a constant so it's not too horrible.
- > 
- > The patch also removes the cpufreq_governor() function since during the
- > locking audit it turned out to be entirely unused (so no need to fix it)
- > 
- > The patch works on my testbox, but it could use more testing 
- > (otoh... it can't be much worse than the current code)
- > 
- > Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Hi,
 
-Looks sensible to me.   Assuming it passes testing..
+I did some memory stress test (allocating and mlock()ing a huge number of=20
+pages) from userspace. At the very beginning of that I got that error long=
+=20
+before the system got unresponsible and the oom killer dropped in.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Eike
 
-Linus ?
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+[ INFO: possible recursive locking detected ]
+kded/5304 is trying to acquire lock:
+ (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
 
-		Dave
+but task is already holding lock:
+ (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
 
--- 
-http://www.codemonkey.org.uk
+other info that might help us debug this:
+3 locks held by kded/5304:
+ #0:  (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
+ #1:  (shrinker_rwsem){----}, at: [<c1046312>] shrink_slab+0x25/0x136
+ #2:  (&type->s_umount_key#14){----}, at: [<c106be2e>] prune_dcache+0xf6/0x=
+144
+
+stack backtrace:
+ [<c1003aa9>] show_trace_log_lvl+0x54/0xfd
+ [<c1004915>] show_trace+0xd/0x10
+ [<c100492f>] dump_stack+0x17/0x1c
+ [<c102e0e1>] __lock_acquire+0x753/0x99c
+ [<c102e5ac>] lock_acquire+0x4a/0x6a
+ [<c11f4609>] __mutex_lock_slowpath+0xb0/0x1f4
+ [<c11f476e>] mutex_lock+0x21/0x24
+ [<f0854fc4>] ntfs_put_inode+0x3b/0x74 [ntfs]
+ [<c106cf3f>] iput+0x33/0x6a
+ [<c106b707>] dentry_iput+0x5b/0x73
+ [<c106bd15>] prune_one_dentry+0x56/0x79
+ [<c106be42>] prune_dcache+0x10a/0x144
+ [<c106be95>] shrink_dcache_memory+0x19/0x31
+ [<c10463bd>] shrink_slab+0xd0/0x136
+ [<c1047494>] try_to_free_pages+0x129/0x1d5
+ [<c1043d91>] __alloc_pages+0x18e/0x284
+ [<c104044b>] read_cache_page+0x59/0x131
+ [<c109e96f>] ext2_get_page+0x1c/0x1ff
+ [<c109ebc4>] ext2_find_entry+0x72/0x139
+ [<c109ec99>] ext2_inode_by_name+0xe/0x2e
+ [<c10a1cad>] ext2_lookup+0x1f/0x65
+ [<c1064661>] do_lookup+0xa0/0x134
+ [<c1064e9a>] __link_path_walk+0x7a5/0xbe4
+ [<c1065329>] link_path_walk+0x50/0xca
+ [<c106586d>] do_path_lookup+0x212/0x25a
+ [<c1065da9>] __user_walk_fd+0x2d/0x41
+ [<c10600bd>] vfs_stat_fd+0x19/0x40
+ [<c10600f5>] vfs_stat+0x11/0x13
+ [<c1060826>] sys_stat64+0x14/0x2a
+ [<c1002845>] sysenter_past_esp+0x56/0x8d
+
+--nextPart3894488.LAxeYVgYFB
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBEx5LGXKSJPmm5/E4RAqMCAKCjI7psvFFsMsAVpwRbK3YXl7k2JQCdFir7
+VseeNlL/lLURRr8Llvw6HQg=
+=eFze
+-----END PGP SIGNATURE-----
+
+--nextPart3894488.LAxeYVgYFB--

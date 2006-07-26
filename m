@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWGZHNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWGZHVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWGZHNU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 03:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWGZHNU
+	id S1751603AbWGZHVL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 03:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWGZHVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 03:13:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:45209 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932515AbWGZHNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 03:13:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=GKPlOu9n9SGjrEtL0ROA8bvApY63bP9DBP3xblHvwHD9XE1NsWlfymuGRwAem0vDxiimmqmgKVPuAMgPQgun2OAIbzvbyiIFGSl0kY2rQHjFuPyBNU+QjGdN0C7Mhpazbb7IYNZyvtv9mGN5CX+oSw2QhPH+YUWGtHGDl5uXoh0=
-Date: Wed, 26 Jul 2006 11:13:18 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Ingo Molnar <mingo@elte.hu>,
-       Zach Brown <zach.brown@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH] lockdep: don't pull in includes when lockdep disabled
-Message-ID: <20060726071318.GA6824@martell.zuzino.mipt.ru>
-References: <20060704115656.GA1539@elte.hu> <20060726062647.GA8711@mellanox.co.il> <1153895599.2896.4.camel@laptopd505.fenrus.org>
+	Wed, 26 Jul 2006 03:21:11 -0400
+Received: from ns1.suse.de ([195.135.220.2]:8335 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751603AbWGZHVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 03:21:10 -0400
+Date: Wed, 26 Jul 2006 00:16:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-stable <stable@kernel.org>
+Subject: Re: [stable] Success: tty_io flush_to_ldisc() error message triggered
+Message-ID: <20060726071652.GA6204@kroah.com>
+References: <200607221209_MC3-1-C5CA-50EB@compuserve.com> <44C25548.5070307@microgate.com> <20060725184158.GH9021@kroah.com> <44C66D1C.7010903@microgate.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1153895599.2896.4.camel@laptopd505.fenrus.org>
+In-Reply-To: <44C66D1C.7010903@microgate.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 08:33:19AM +0200, Arjan van de Ven wrote:
-> On Wed, 2006-07-26 at 09:26 +0300, Michael S. Tsirkin wrote:
-> > Ingo, does the following look good to you?
-> >
-> > Do not pull in various includes through lockdep.h if lockdep is disabled.
+On Tue, Jul 25, 2006 at 02:12:28PM -0500, Paul Fulghum wrote:
+> Greg KH wrote:
+> > On Sat, Jul 22, 2006 at 11:41:44AM -0500, Paul Fulghum wrote:
+> > 
+> >>Chuck Ebbert wrote:
+> >>
+> >>>The cleaner fix looks more intrusive, though.
+> >>>
+> >>>Is this simpler change (what I'm running but without the warning
+> >>>messages) the preferred fix for -stable?
+> >>
+> >>It fixes the problem.
+> > 
+> > 
+> > So do you feel this patch should be added to the -stable kernel tree?
 > 
-> Hi,
+> No. Now that I think about it, adding that extra
+> macro is just wrong even if temporary.
 > 
-> can you tell us what this fixes? Eg is there a specific problem?
+> The real fix is equally simple, but in 2.6.18-rc
+> it is intertwined with other more intrusive changes.
+> 
+> Let me make a new separate patch that does things
+> the right way, which is simply removing the list
+> head while processing the list so two instances
+> to not trip over each other. I would have done so
+> earlier, but I've been insanely busy with multiple
+> work related deadlines (lame excuse I know).
+> 
+> I should post something tomorrow afternoon.
 
-[raises hand]
-Zillions of warnings on m68k allmodconfig. And, yes, patch removes them.
+Ok, we can wait, I'd rather have the proper fix instead of the band-aid.
 
-In file included from ...
-		 from ...
-include/linux/list.h: In function `__list_add_rcu':
-include/linux/list.h:89: warning: implicit declaration of function `smp_wmb'
+Just send it to stable@kernel.org when you have something that you feel
+comfortable with.
 
-> I mean... we're adding ifdefs so there better be a real good reason for
-> them.... fixing something real would be such a reason ;-)
+thanks,
 
+greg k-h

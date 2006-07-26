@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWGZL3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWGZLaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWGZL3u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWGZL3u
+	id S1751418AbWGZLaN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWGZLaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:29:50 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:35245 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1751382AbWGZL3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:29:49 -0400
-Date: Wed, 26 Jul 2006 05:29:48 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <gregkh@suse.de>
-Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-Subject: Re: [RFC PATCH] Multi-threaded device probing
-Message-ID: <20060726112948.GA13490@parisc-linux.org>
-References: <20060725203028.GA1270@kroah.com> <44C6B881.7030901@s5r6.in-berlin.de> <20060726073132.GE6249@suse.de>
+	Wed, 26 Jul 2006 07:30:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28051 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751453AbWGZLaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:30:11 -0400
+Date: Wed, 26 Jul 2006 04:29:54 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com> <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726073132.GE6249@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 12:31:32AM -0700, Greg KH wrote:
-> I don't know enough about SCSI to say if this driver core patch will
-> help them out or not.  At first glance it does, but the device order
-> gets all messed up from what users are traditionally used to, so perhaps
-> the scsi core will just have to stick with their own changes.
+On Wed, 26 Jul 2006, Pekka Enberg wrote:
 
-Right.  Networking is in the same boat ... unless they're using udev
-or some other tool which renames network interfaces.  I'm not entirely
-comfortable with the kernel forcing you to use some other tool in order
-to maintain stable device names on a static setup.  Perhaps we need
-either a CONFIG option or a boot option to decide whether to do parallel
-pci probes.
+> Hi Heiko,
+> 
+> On 7/22/06, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> > Sorry, I should have mentioned it: on s390 (32 bit) we set
+> > #define ARCH_KMALLOC_MINALIGN 8.
+> > This is needed since our common I/O layer allocates data structures that
+> > need
+> > to have an eight byte alignment. Now, if I turn on DEBUG_SLAB, nothing works
+> > anymore, simply because the slab cache code ignores ARCH_KMALLOC_MINALIGN
+> > and
+> > uses an BYTES_PER_WORD alignment instead, which it shouldn't:
+> 
+> This is the bit I missed, sorry. I thought that the s390 hardware
+> mandates 8 byte alignment, but it really doesn't. So you're absolutely
+> right, you don't need to set ARCH_SLAB_MINALIGN and the alignment
+> calculation in slab is indeed broken for both, architecture and caller
+> mandated alignments.
 
-I still think we need a method of renaming block devices, but haven't
-looked into it in enough detail yet.
+Well that is a bit far reaching. What is broken is that SLAB_RED_ZONE and
+SLAB_STORE_USER ignore any given alignment. If you want to fix that then 
+you need to modify how both debugging methods work.
+
+

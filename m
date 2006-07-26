@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWGZAAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030276AbWGZABZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbWGZAAe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWGZAAe
+	id S1030276AbWGZABZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWGZABZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:00:34 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:20237 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1030274AbWGZAAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:00:33 -0400
-Date: Tue, 25 Jul 2006 19:56:44 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060725235644.GA5147@localhost.localdomain>
-References: <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain> <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+	Tue, 25 Jul 2006 20:01:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:35005
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030276AbWGZABY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:01:24 -0400
+Date: Tue, 25 Jul 2006 17:01:39 -0700 (PDT)
+Message-Id: <20060725.170139.24611263.davem@davemloft.net>
+To: from-linux-kernel@i-love.sakura.ne.jp
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH][IPv4/IPv6] Setting 0 for unused port field.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607250738.k6P7c67G089452@www262.sakura.ne.jp>
+References: <200607250738.k6P7c67G089452@www262.sakura.ne.jp>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:29:25AM +0200, Segher Boessenkool wrote:
-> >Yes, but if its in trade for something thats being used currently  
-> >which hurts
-> >more (case in point being the X server), using this solution is a  
-> >net gain.
-> 
-> ...in the short term.
-> 
-And for any arch that isn't able to leverage a speedup via a vdso implementation
-of a simmilar functionality in the long term
 
-> >I'm not arguing with you that adding a low res gettimeofday  
-> >vsyscall is a better
-> >long term solution, but doing that requires potentially several  
-> >implementations
-> >in the C library accross a range of architectures, some of which  
-> >may not be able
-> >to provide a time solution any better than what the gettimeofday  
-> >syscall
-> >provides today.  The /dev/rtc solution is easy, available right  
-> >now, and applies
-> >to all arches.
-> 
-> "All"?
-> 
-It there any arch for which the rtc driver doesn't function?
-Neil
+Tetsuo-san can you please use a correct "From:" field in your patch
+postings?  Thank you.
 
-> 
-> Segher
+This will allow me to form a correct attribution when I apply your
+patches in the future.
+
+This time I had to perform a lengthy web search to find who is behind
+these strange from-${LIST_NAME}@i-love.sakura.ne.jp email addresses
+:-((  Using these per-listname email addresses really makes things
+painful for other developers, even though it might simplify things
+for you.
+
+Thanks again.

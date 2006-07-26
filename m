@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWGZLdc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWGZLlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWGZLdc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGZLdb
+	id S1750943AbWGZLlf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWGZLlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:33:31 -0400
-Received: from outbound-haw.frontbridge.com ([12.129.219.97]:15659 "EHLO
-	outbound5-haw-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S1751504AbWGZLda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:33:30 -0400
-X-BigFish: V
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Subject: RE: [discuss] Re: [PATCH] Allow all Opteron processors to
- change pstate at same time
-From: "Joachim Deguara" <joachim.deguara@amd.com>
-To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-cc: ak@suse.de, "Gulam, Nagib" <nagib.gulam@amd.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, cpufreq@lists.linux.org.uk
-In-Reply-To: <84EA05E2CA77634C82730353CBE3A84303218EF5@SAUSEXMB1.amd.com>
-References: <84EA05E2CA77634C82730353CBE3A84303218EF5@SAUSEXMB1.amd.com>
-Date: Wed, 26 Jul 2006 13:31:54 +0200
-Message-ID: <1153913514.4533.24.camel@lapdog.site>
+	Wed, 26 Jul 2006 07:41:35 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34191 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750943AbWGZLle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:41:34 -0400
+Date: Wed, 26 Jul 2006 04:41:04 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka J Enberg <penberg@cs.helsinki.fi>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com> <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+ <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-X-Mailer: Evolution 2.6.0
-X-OriginalArrivalTime: 26 Jul 2006 11:33:15.0863 (UTC)
- FILETIME=[4912BE70:01C6B0A7]
-X-WSS-ID: 68D98D750Y8410637-01-01
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 16:47 -0500, Langsdorf, Mark wrote:
-> Joachim was supposed to be collecting the data for the system
-> with PN! enabled, if he hasn't posted it already.
+On Wed, 26 Jul 2006, Pekka J Enberg wrote:
+
+> On Wed, 26 Jul 2006, Christoph Lameter wrote:
+> > Well that is a bit far reaching. What is broken is that SLAB_RED_ZONE and
+> > SLAB_STORE_USER ignore any given alignment. If you want to fix that then 
+> > you need to modify how both debugging methods work.
 > 
-yeah sorry, when I checked today my machine only had an uptime of 21
-hours and somehow has some new entries in the mcelog, great. I can redo
-the longterm test.
+> Not sure I understand what you mean. Isn't it enough that we disable 
+> debugging if architecture or caller mandated alignment is greater than 
+> BYTES_PER_WORD?
 
--joachim  
-
-
-
+If you disable them then we are fine. I think the main "bug" is that 
+we create the caches with ARCH_KMALLOC_MINALIGN in kmem_cache_init but 
+allow debug options on them. It seemss that we need to be able to disable 
+debugging from kmem_cache_init.

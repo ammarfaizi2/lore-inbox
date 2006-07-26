@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWGZKnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWGZKo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWGZKnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWGZKnZ
+	id S932528AbWGZKo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWGZKo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:43:25 -0400
-Received: from [210.76.114.181] ([210.76.114.181]:19382 "EHLO ccoss.com.cn")
-	by vger.kernel.org with ESMTP id S932523AbWGZKnY (ORCPT
+	Wed, 26 Jul 2006 06:44:27 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:12674 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932524AbWGZKo0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:43:24 -0400
-Message-ID: <44C74742.6020701@ccoss.com.cn>
-Date: Wed, 26 Jul 2006 18:43:14 +0800
-From: liyu <liyu@ccoss.com.cn>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Peter <peter@maubp.freeserve.co.uk>,
-       The Doctor <thedoctor@tardis.homelinux.org>
-Subject: [PATCH 3/3] usbhid: Driver for microsoft natural ergonomic keyboard
- 4000
-Content-Type: multipart/mixed;
- boundary="------------010900090202030804050903"
+	Wed, 26 Jul 2006 06:44:26 -0400
+Date: Wed, 26 Jul 2006 14:44:07 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       netdev <netdev@vger.kernel.org>
+Subject: Re: [1/4] kevent: core files.
+Message-ID: <20060726104407.GB10459@2ka.mipt.ru>
+References: <11539054941027@2ka.mipt.ru> <11539054952689@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <11539054952689@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 26 Jul 2006 14:44:07 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010900090202030804050903
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Wed, Jul 26, 2006 at 01:18:15PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
+> +struct kevent *kevent_alloc(gfp_t mask)
+> +{
+> +	struct kevent *k;
+> +	
+> +	if (kevent_cache)
+> +		k = kmem_cache_alloc(kevent_cache, mask);
+> +	else
+> +		k = kzalloc(sizeof(struct kevent), mask);
+> +
+> +	return k;
+> +}
+> +
 
-    This driver use "HID device simple driver interface", you must install that 
-patch first. This new version get some improvements.
+Sorry for that.
+It is fixed already to always use cache, but I forget to commit that
+change before I created pachset.
 
-    The patch include change in Kconfig of driver.
-
-    I am sorry for sendding patches in the attachment, beacause of my mail client always break TAB into some spaces.
-
-    Good luck
-
--Liyu
-
---------------010900090202030804050903
-Content-Type: text/x-patch;
- name="msnek4k-keyboard-driver-Kconfig.kernel-2.6.17.7.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="msnek4k-keyboard-driver-Kconfig.kernel-2.6.17.7.patch"
-
-
-    This patch include change of Kconfig in this driver.
-
-    Signed-off-by:  Yu Li <liyu@ccoss.com.cn>
-diff -Naurp linux-2.6.17.6/drivers/usb/input.orig/Kconfig linux-2.6.17.6/drivers/usb/input/Kconfig
---- linux-2.6.17.6/drivers/usb/input.orig/Kconfig	2006-07-16 03:00:43.000000000 +0800
-+++ linux-2.6.17.6/drivers/usb/input/Kconfig	2006-07-24 14:04:56.000000000 +0800
-@@ -326,3 +326,11 @@ config USB_APPLETOUCH
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called appletouch.
-+
-+config HID_MSNEK4K
-+	tristate "Microsoft Natural Ergonomic Keyboard 4000 Driver"
-+	depends on USB && USB_HID
-+	---help---
-+	Microsoft Natural Ergonomic Keyboard 4000 driver. These extend keys
-+	may not work without change user space configration, e.g, XKB conf-
-+	iguration in X. 
-
-
---------------010900090202030804050903--
+-- 
+	Evgeniy Polyakov

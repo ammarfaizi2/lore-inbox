@@ -1,57 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWGZRcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWGZReZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWGZRcq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWGZRcq
+	id S1030304AbWGZReZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWGZReZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:32:46 -0400
-Received: from mga02.intel.com ([134.134.136.20]:45743 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751723AbWGZRcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:32:45 -0400
-X-IronPort-AV: i="4.07,185,1151910000"; 
-   d="scan'208"; a="105072699:sNHT17081026438"
-Date: Wed, 26 Jul 2006 10:32:26 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: linux-acpi@vger.kernel.org, len.brown@intel.com, akpm@osdl.org,
-       zippel@linux-m68k.org, rdunlap@xenotime.net,
-       linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
-Message-Id: <20060726103226.69aa79c1.kristen.c.accardi@intel.com>
-In-Reply-To: <20060725164125.A15861@unix-os.sc.intel.com>
-References: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com>
-	<20060725164125.A15861@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Jul 2006 13:34:25 -0400
+Received: from 135.Red-217-125-129.staticIP.rima-tde.net ([217.125.129.135]:33431
+	"EHLO andromeda") by vger.kernel.org with ESMTP id S1030304AbWGZReY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:34:24 -0400
+Message-ID: <44C7A78B.8000208@nevola.be>
+Date: Wed, 26 Jul 2006 19:34:03 +0200
+From: Laura Garcia <laura@nevola.be>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060619)
+MIME-Version: 1.0
+To: iss_storagedev@hp.com, Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] cciss: removes uneeded 'pos' and 'size' variables
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----
-I confirmed that Anil's patch will work, here is a proper patch with
-Anil's changes.
 
-Change the build options for acpiphp so that it may build without being
-dependent on the ACPI_DOCK option, but yet does not allow the option of
-acpiphp being built-in when dock is built as a module.
+Signed-off-by: Laura Garcia Liebana <laura@nevola.be>
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
----
- drivers/pci/hotplug/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+diff -Nru a/drivers/block/cciss.c b/drivers/block/cciss.c
+--- a/drivers/block/cciss.c	2006-07-26 10:25:16.000000000 +0200
++++ b/drivers/block/cciss.c	2006-07-26 11:27:34.000000000 +0200
+@@ -238,9 +238,8 @@
+  static int cciss_proc_get_info(char *buffer, char **start, off_t offset,
+  			       int length, int *eof, void *data)
+  {
+-	off_t pos = 0;
+  	off_t len = 0;
+-	int size, i, ctlr;
++	int i, ctlr;
+  	ctlr_info_t *h = (ctlr_info_t *) data;
+  	drive_info_struct *drv;
+  	unsigned long flags;
+@@ -259,7 +258,7 @@
+  	h->busy_configuring = 1;
+  	spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
 
---- 2.6-git.orig/drivers/pci/hotplug/Kconfig
-+++ 2.6-git/drivers/pci/hotplug/Kconfig
-@@ -76,7 +76,7 @@ config HOTPLUG_PCI_IBM
- 
- config HOTPLUG_PCI_ACPI
- 	tristate "ACPI PCI Hotplug driver"
--	depends on ACPI_DOCK && HOTPLUG_PCI
-+	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || (ACPI_DOCK && HOTPLUG_PCI)
- 	help
- 	  Say Y here if you have a system that supports PCI Hotplug using
- 	  ACPI.
+-	size = sprintf(buffer, "%s: HP %s Controller\n"
++	len += sprintf(buffer, "%s: HP %s Controller\n"
+  		       "Board ID: 0x%08lx\n"
+  		       "Firmware Version: %c%c%c%c\n"
+  		       "IRQ: %d\n"
+@@ -277,9 +276,7 @@
+  		       h->num_luns, h->Qdepth, h->commands_outstanding,
+  		       h->maxQsinceinit, h->max_outstanding, h->maxSG);
+
+-	pos += size;
+-	len += size;
+-	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
++	cciss_proc_tape_report(ctlr, buffer, &len);
+  	for (i = 0; i <= h->highest_lun; i++) {
+
+  		drv = &h->drv[i];
+@@ -293,12 +290,10 @@
+
+  		if (drv->raid_level > 5)
+  			drv->raid_level = RAID_UNKNOWN;
+-		size = sprintf(buffer + len, "cciss/c%dd%d:"
++		len += sprintf(buffer + len, "cciss/c%dd%d:"
+  			       "\t%4u.%02uGB\tRAID %s\n",
+  			       ctlr, i, (int)vol_sz, (int)vol_sz_frac,
+  			       raid_label[drv->raid_level]);
+-		pos += size;
+-		len += size;
+  	}
+
+  	*eof = 1;
+diff -Nru a/drivers/block/cciss_scsi.c b/drivers/block/cciss_scsi.c
+--- a/drivers/block/cciss_scsi.c	2006-07-15 23:53:08.000000000 +0200
++++ b/drivers/block/cciss_scsi.c	2006-07-26 11:27:43.000000000 +0200
+@@ -1440,19 +1440,17 @@
+  }
+
+  static void
+-cciss_proc_tape_report(int ctlr, unsigned char *buffer, off_t *pos, off_t *len)
++cciss_proc_tape_report(int ctlr, unsigned char *buffer, off_t *len)
+  {
+  	unsigned long flags;
+-	int size;
+
+-	*pos = *pos -1; *len = *len - 1; // cut off the last trailing newline
++	*len = *len - 1; // cut off the last trailing newline
+
+  	CPQ_TAPE_LOCK(ctlr, flags);
+-	size = sprintf(buffer + *len,
++	*len += sprintf(buffer + *len,
+  		"Sequential access devices: %d\n\n",
+  			ccissscsi[ctlr].ndevices);
+  	CPQ_TAPE_UNLOCK(ctlr, flags);
+-	*pos += size; *len += size;
+  }
+
+  /* Need at least one of these error handlers to keep ../scsi/hosts.c from
+@@ -1534,6 +1532,6 @@
+  #define cciss_scsi_setup(cntl_num)
+  #define cciss_unregister_scsi(ctlr)
+  #define cciss_register_scsi(ctlr)
+-#define cciss_proc_tape_report(ctlr, buffer, pos, len)
++#define cciss_proc_tape_report(ctlr, buffer, len)
+
+  #endif /* CONFIG_CISS_SCSI_TAPE */
+
+

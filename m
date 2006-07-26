@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751683AbWGZQZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWGZQbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751683AbWGZQZa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWGZQZa
+	id S1751703AbWGZQbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWGZQbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:25:30 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:35530 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751683AbWGZQZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:25:28 -0400
-Date: Wed, 26 Jul 2006 09:25:08 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Re: [patch] slab: always follow arch requested alignments
-In-Reply-To: <84144f020607260843i15247ddai7f447f0d9422fec5@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0607260916110.5962@schroedinger.engr.sgi.com>
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
- <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com> 
- <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com> 
- <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.64.0607260823160.5647@schroedinger.engr.sgi.com>
- <84144f020607260843i15247ddai7f447f0d9422fec5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Jul 2006 12:31:16 -0400
+Received: from mxl145v67.mxlogic.net ([208.65.145.67]:23431 "EHLO
+	p02c11o144.mxlogic.net") by vger.kernel.org with ESMTP
+	id S1751702AbWGZQbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:31:15 -0400
+Date: Wed, 26 Jul 2006 19:32:26 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       Roland Dreier <rolandd@cisco.com>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Chris Wright <chrisw@sous-sol.org>
+Subject: Re: restore missing PCI registers after reset
+Message-ID: <20060726163226.GG9411@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060726162007.GA9871@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060726162007.GA9871@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 26 Jul 2006 16:36:47.0734 (UTC) FILETIME=[B031B960:01C6B0D1]
+X-Spam: [F=0.0100000000; S=0.010(2006062901)]
+X-MAIL-FROM: <mst@mellanox.co.il>
+X-SOURCE-IP: [194.90.237.34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jul 2006, Pekka Enberg wrote:
+Quoting r. Greg KH <gregkh@suse.de>:
+> I think pci_restore_state() already restores the msi and msix state,
+> take a look at the latest kernel version :)
 
-> On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
-> > We intentionally discard the caller mandated alignment for debugging
-> > purposes.
-> 
-> Disagreed. The caller mandated alignment is not a hint. It is the
-> required minimum alignment for objects.
+Yes, I know :)
+but I am not talking abotu MSI/MSI-X, I am talking about the following:
+> > >   PCI-X device: PCI-X command register
+> > >   PCI-X bridge: upstream and downstream split transaction registers
+> > >   PCI Express : PCI Express device control and link control registers
 
-This has been with the slab for a long time. Lots of alignments are now
-ignored for the debugging case without a problem. Manfred intentionally
-put that in. Alignments passed to kmem_cache_create are there for
-performance reasons and not because unaligned object break the arch code.
- 
-> On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
-> > And it changes the basic way that slab debugging works.
-> 
-> Look at kmem_cache_create, we turn off debugging for both caller and
-> architecture mandated alignments already and the only reason we are
-> not doing it for Heiko is because the architecture recommended default
-> alignment is so large.
+these register values include maxumum MTU for PCI express and other vital
+data.
 
-We discard alignment for FORCED_DEBUG unless
-
-1. object size > 4096
-
-2. If the object size would increase unreasonably.
-
-I simply added another case. That preseves the discarding of alignment for 
-the FORCED_DEBUG case but allows an override if operations would be 
-impossible for not correctly aligned objects for certain caches (like in 
-the S/390 case).
+-- 
+MST

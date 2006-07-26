@@ -1,195 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWGZTnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWGZTon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWGZTnK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 15:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWGZTnK
+	id S932394AbWGZTon (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 15:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWGZTon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 15:43:10 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:4286 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932381AbWGZTnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 15:43:09 -0400
-Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be
-	totally bizare
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0607261007530.29649@g5.osdl.org>
-References: <200607242023_MC3-1-C5FE-CADB@compuserve.com>
-	 <Pine.LNX.4.64.0607241752290.29649@g5.osdl.org>
-	 <20060725185449.GA8074@elte.hu>
-	 <1153855844.8932.56.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0607251355080.29649@g5.osdl.org>
-	 <1153921207.3381.21.camel@laptopd505.fenrus.org>
-	 <20060726155114.GA28945@redhat.com>
-	 <Pine.LNX.4.64.0607261007530.29649@g5.osdl.org>
-Content-Type: text/plain
+	Wed, 26 Jul 2006 15:44:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:50753 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932394AbWGZTom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 15:44:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ogIj/ebNMMYE+PD/y0ZMTJtRMiGXhu/btBfh2MDm3c6vk/2K9LnE35yfVYfZJujBLi34dgJ8dLnyuREiBnA+OYyB5JmB8/k3V3ns4s+QWwPGaDrsyeldO/n7msnkE68cGdSQN8CWBWHb1ROT4ZqHUics2qznueQExGR8LeUEE4U=
+Message-ID: <f96157c40607261244m205ff68dh5563c66436a2e67@mail.gmail.com>
+Date: Wed, 26 Jul 2006 21:44:40 +0200
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Michael Buesch" <mb@bu3sch.de>
+Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
+Cc: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Philipp Rumpf" <prumpf@mandrakesoft.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607261730.31717.mb@bu3sch.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Jul 2006 21:42:34 +0200
-Message-Id: <1153942954.3381.50.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+References: <20060725222209.0048ed15.akpm@osdl.org>
+	 <200607261649.10947.mb@bu3sch.de>
+	 <f96157c40607260752h1cc2a004s8cab09ad7579677e@mail.gmail.com>
+	 <200607261730.31717.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-26 at 10:09 -0700, Linus Torvalds wrote:
+On 7/26/06, Michael Buesch <mb@bu3sch.de> wrote:
+> On Wednesday 26 July 2006 16:52, gmu 2k6 wrote:
+> > On 7/26/06, Michael Buesch <mb@bu3sch.de> wrote:
+> > > On Wednesday 26 July 2006 16:21, gmu 2k6 wrote:
+> > > > it just outputs this and stops with 2.6.18-rc2-HEAD (see dmesg for hashcode or
+> > > > whatever that is which is appended as localversion)
+> > > >
+> > > > svn:~# hexdump /dev/hwrng
+> > > > 0000000 ffff ffff ffff ffff ffff ffff ffff ffff
+> > > > *
+> > > >
+> > > > with 2.6.17.6:
+> > > > svn:~# hexdump /dev/hwrng
+> > > > 0000000 ffff ffff ffff ffff ffff ffff ffff ffff
+> > > > *
+> > > >
+> > > > this was without any rng-tools installed and no rngd running of course.
+> > >
+> > > Hm, so I would say the hardware either broken, or intel
+> > > changed the way to read the random data from it. But I doubt they
+> > > would change something like this on the ICH5.
+> > >
+> > > Who wrote the ICH driver? Jeff? Philipp?
+> > > What do you think?
+> >
+> > IIRC it was Jeff.
+>
+> "What do you think?" was more a question to Jeff or Philipp ;)
+>
+>
+>
+> But could you try the following patch on top of latest git?
+> It's just a random test, but I think it's worth trying.
+> Let's see if it works around the issue.
+>
+> Index: linux-2.6/drivers/char/hw_random/intel-rng.c
+> ===================================================================
+> --- linux-2.6.orig/drivers/char/hw_random/intel-rng.c   2006-06-27 17:48:13.000000000 +0200
+> +++ linux-2.6/drivers/char/hw_random/intel-rng.c        2006-07-26 17:27:03.000000000 +0200
+> @@ -104,9 +104,14 @@
+>         int err = -EIO;
+>
+>         hw_status = hwstatus_get(mem);
+> +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
+> +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> +#if 0
+> +       hw_status = hwstatus_get(mem);
+>         /* turn RNG h/w on, if it's off */
+>         if ((hw_status & INTEL_RNG_ENABLED) == 0)
+>                 hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> +#endif
+>         if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+>                 printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+>                 goto out;
 
-> It looked sensible to me too, although it still shows some "Lukewarm IQ" 
-> notices for the ondemand driver:
-> 
-> 	Lukewarm IQ detected in hotplug locking
-> 	BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
-> 	 [<c0103d07>] show_trace+0xd/0x10
-> 	 [<c01042ec>] dump_stack+0x19/0x1b
-> 	 [<c013778d>] lock_cpu_hotplug+0x43/0x69
-> 	 [<c012f9df>] __create_workqueue+0x52/0x11f
-> 	 [<df0ec34b>] cpufreq_governor_dbs+0x9f/0x2bd [cpufreq_ondemand]
+well as it didn't work, are you sure it was not intended to be more like this:
+@@ -104,9 +104,14 @@
+       int err = -EIO;
 
-ok so this is messy. ondemand wants to create a workqueue, but this
-function is called (after my patch) with the lock_cpu_hotplug() already
-held, and all the workqueue functions take the lock_cpu_hotplug
-themselves (looking at that code I'm not 100% convinced it's quite right
-how it does that, but that's a separate matter). Before my first patch
-it wasn't doing that, but that situation was even nastier; there is a
-lock that is taken in the caller, and the lock_cpu_hotplug() lock
-*really* wants to nest outside that lock ;( 
+       hw_status = hwstatus_get(mem);
++       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
++       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
++#if 0
+       /* turn RNG h/w on, if it's off */
+       if ((hw_status & INTEL_RNG_ENABLED) == 0)
+               hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
++#endif
+       if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+               printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+               goto out;
 
-As a quick hack I made non-lock_cpu_hotplug()'ing versions of the 3 key
-workqueue functions (patch below). It works, it's correct, it's just so
-ugly that I'm almost too ashamed to post it. I haven't found a better
-solution yet though... time to take a step back I suppose.
-
-Index: linux-2.6.18-rc2-git5/include/linux/workqueue.h
-===================================================================
---- linux-2.6.18-rc2-git5.orig/include/linux/workqueue.h
-+++ linux-2.6.18-rc2-git5/include/linux/workqueue.h
-@@ -55,17 +55,20 @@ struct execute_work {
- 	} while (0)
- 
- extern struct workqueue_struct *__create_workqueue(const char *name,
--						    int singlethread);
--#define create_workqueue(name) __create_workqueue((name), 0)
--#define create_singlethread_workqueue(name) __create_workqueue((name), 1)
-+						    int singlethread, int locked);
-+#define create_workqueue(name) __create_workqueue((name), 0, 0)
-+#define create_workqueue_cpulocked(name) __create_workqueue((name), 0, 1)
-+#define create_singlethread_workqueue(name) __create_workqueue((name), 1, 0)
- 
- extern void destroy_workqueue(struct workqueue_struct *wq);
-+extern void destroy_workqueue_cpulock(struct workqueue_struct *wq);
- 
- extern int FASTCALL(queue_work(struct workqueue_struct *wq, struct work_struct *work));
- extern int FASTCALL(queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay));
- extern int queue_delayed_work_on(int cpu, struct workqueue_struct *wq,
- 	struct work_struct *work, unsigned long delay);
- extern void FASTCALL(flush_workqueue(struct workqueue_struct *wq));
-+extern void FASTCALL(__flush_workqueue(struct workqueue_struct *wq));
- 
- extern int FASTCALL(schedule_work(struct work_struct *work));
- extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
-Index: linux-2.6.18-rc2-git5/kernel/workqueue.c
-===================================================================
---- linux-2.6.18-rc2-git5.orig/kernel/workqueue.c
-+++ linux-2.6.18-rc2-git5/kernel/workqueue.c
-@@ -307,6 +307,22 @@ void fastcall flush_workqueue(struct wor
- }
- EXPORT_SYMBOL_GPL(flush_workqueue);
- 
-+void fastcall __flush_workqueue(struct workqueue_struct *wq)
-+{
-+	might_sleep();
-+
-+	if (is_single_threaded(wq)) {
-+		/* Always use first cpu's area. */
-+		flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, singlethread_cpu));
-+	} else {
-+		int cpu;
-+
-+		for_each_online_cpu(cpu)
-+			flush_cpu_workqueue(per_cpu_ptr(wq->cpu_wq, cpu));
-+	}
-+}
-+EXPORT_SYMBOL_GPL(__flush_workqueue);
-+
- static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
- 						   int cpu)
- {
-@@ -333,7 +349,7 @@ static struct task_struct *create_workqu
- }
- 
- struct workqueue_struct *__create_workqueue(const char *name,
--					    int singlethread)
-+					    int singlethread, int locked)
- {
- 	int cpu, destroy = 0;
- 	struct workqueue_struct *wq;
-@@ -351,7 +367,8 @@ struct workqueue_struct *__create_workqu
- 
- 	wq->name = name;
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
--	lock_cpu_hotplug();
-+	if (!locked)
-+		lock_cpu_hotplug();
- 	if (singlethread) {
- 		INIT_LIST_HEAD(&wq->list);
- 		p = create_workqueue_thread(wq, singlethread_cpu);
-@@ -372,7 +389,8 @@ struct workqueue_struct *__create_workqu
- 				destroy = 1;
- 		}
- 	}
--	unlock_cpu_hotplug();
-+	if (!locked)
-+		unlock_cpu_hotplug();
- 
- 	/*
- 	 * Was there any error during startup? If yes then clean up:
-@@ -400,14 +418,17 @@ static void cleanup_workqueue_thread(str
- 		kthread_stop(p);
- }
- 
--void destroy_workqueue(struct workqueue_struct *wq)
-+static void __destroy_workqueue(struct workqueue_struct *wq, int locked)
- {
- 	int cpu;
- 
--	flush_workqueue(wq);
- 
- 	/* We don't need the distraction of CPUs appearing and vanishing. */
--	lock_cpu_hotplug();
-+	if (!locked)
-+		lock_cpu_hotplug();
-+
-+	__flush_workqueue(wq);
-+
- 	if (is_single_threaded(wq))
- 		cleanup_workqueue_thread(wq, singlethread_cpu);
- 	else {
-@@ -417,11 +438,22 @@ void destroy_workqueue(struct workqueue_
- 		list_del(&wq->list);
- 		spin_unlock(&workqueue_lock);
- 	}
--	unlock_cpu_hotplug();
-+	if (!locked)
-+		unlock_cpu_hotplug();
- 	free_percpu(wq->cpu_wq);
- 	kfree(wq);
- }
-+
-+void destroy_workqueue(struct workqueue_struct *wq)
-+{
-+	__destroy_workqueue(wq, 0);
-+}
- EXPORT_SYMBOL_GPL(destroy_workqueue);
-+void destroy_workqueue_cpulock(struct workqueue_struct *wq)
-+{
-+	__destroy_workqueue(wq, 1);
-+}
-+EXPORT_SYMBOL_GPL(destroy_workqueue_cpulock);
- 
- static struct workqueue_struct *keventd_wq;
- 
-
+?

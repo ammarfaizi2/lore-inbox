@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWGZLW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWGZLXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWGZLW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 07:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWGZLW6
+	id S932530AbWGZLXE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 07:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGZLXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 07:22:58 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:53833 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932525AbWGZLW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 07:22:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=nJ5JnOXb1nFAQpD7Ux4eNHdp28BX/kq/72r6iUF+pQ9DGRCvhmDWbyRkCQ/XsW471vFoe1pCASh6/V4yETWEZC5IyJm4Sozwkg+Avr/eUEATUpVIQ56SuF7mrO6NIKZtvknF//Ius9txG7ccD+CcheD12NdMTlTkquhqndiV9Z8=
-Message-ID: <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
-Date: Wed, 26 Jul 2006 14:22:55 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Heiko Carstens" <heiko.carstens@de.ibm.com>
-Subject: Re: [patch] slab: always follow arch requested alignments
-Cc: "Christoph Lameter" <clameter@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060722162607.GA10550@osiris.ibm.com>
+	Wed, 26 Jul 2006 07:23:04 -0400
+Received: from [212.33.180.111] ([212.33.180.111]:6922 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932526AbWGZLXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 07:23:03 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.4 for 2.6.18-rc2
+Date: Wed, 26 Jul 2006 14:23:03 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200607241857.52389.a1426z@gawab.com> <200607260745.45156.a1426z@gawab.com> <44C6FA1A.1020709@bigpond.net.au>
+In-Reply-To: <44C6FA1A.1020709@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com>
-	 <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com>
-	 <20060722162607.GA10550@osiris.ibm.com>
-X-Google-Sender-Auth: 422342f2550c23e2
+Message-Id: <200607261423.03527.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Heiko,
+Peter Williams wrote:
+> Al Boldi wrote:
+> >>>>>>> It may be really great, to allow schedulers perPid parent, thus
+> >>>>>>> allowing the stacking of different scheduler semantics.  This
+> >>>>>>> could aid flexibility a lot.
+> >>>>>>
+> >>>>>> I'm don't understand what you mean here.  Could you elaborate?
+> >>>>>
+> >>>>> i.e:  Boot the kernel with spa_no_frills, then start X with spa_ws.
+> >>>>
+> >>>> It's probably not a good idea to have different schedulers managing
+> >>>> the same resource.  The way to do different scheduling per process is
+> >>>> to use the scheduling policy mechanism i.e. SCHED_FIFO, SCHED_RR,
+> >>>> etc. (possibly extended) within each scheduler.  On the other hand,
+> >>>> on an SMP system, having a different scheduler on each run queue (or
+> >>>> sub set of queues) might be interesting :-).
+> >>>
+> >>> What's wrong with multiple run-queues on UP?
+> >>
+> >> A really high likelihood of starvation of some tasks.
+> >
+> > Maybe you are thinking of running independent run-queues, in which case
+> > it would probably be unwise to run multiple RQs on a single CPU.
+>
+> No.  I'm thinking about different schedulers on a single run queue.  I
+> don't think that it's a good idea.
 
-On 7/22/06, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> Sorry, I should have mentioned it: on s390 (32 bit) we set
-> #define ARCH_KMALLOC_MINALIGN 8.
-> This is needed since our common I/O layer allocates data structures that need
-> to have an eight byte alignment. Now, if I turn on DEBUG_SLAB, nothing works
-> anymore, simply because the slab cache code ignores ARCH_KMALLOC_MINALIGN and
-> uses an BYTES_PER_WORD alignment instead, which it shouldn't:
+Running different scheds on a single RQ at the same time on the same resource 
+would be rather odd.  That's why independent RQs are necessary even on SMP.  
+OTOH, running independent RQs on UP doesn't make much sense, unless there is 
+a way to relate them.
 
-This is the bit I missed, sorry. I thought that the s390 hardware
-mandates 8 byte alignment, but it really doesn't. So you're absolutely
-right, you don't need to set ARCH_SLAB_MINALIGN and the alignment
-calculation in slab is indeed broken for both, architecture and caller
-mandated alignments.
+> > But I was more thinking of a run-queue of run-queues, with the masterRQ
+> > scheduling slaveRQs, each RQ possibly running its own scheduling
+> > semantic.
+>
+> I think that you need to think a bit harder about the consequences of
+> such a system.  The word "chaos" springs to mind.
 
-                                     Pekka
+Are you sure?
+
+MultiDimensional RunQueues spring to mind.
+
+
+Thanks!
+
+--
+Al
+

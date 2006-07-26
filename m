@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWGZPne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWGZPri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751675AbWGZPne (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWGZPnd
+	id S1751666AbWGZPri (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWGZPri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:43:33 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:37083 "EHLO
+	Wed, 26 Jul 2006 11:47:38 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:36327 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751675AbWGZPnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:43:32 -0400
+	id S1751190AbWGZPri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 11:47:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=cwjE70woGx3Jy4xgoWbAauuAhnG03JmMn7OyEt6nU3FZn+EMHACzTSmGUPt7lw8Fhd6J4N6XxNQNbfCWbqI/acKQqBdS/iflzjPWVK1yOJBQvhuRhU4c3T+zriK9nNjpCTSGT07DmUsF0c4TYD1y52+8z5cOHkb7Ns+8McGw8DA=
-Message-ID: <84144f020607260843i15247ddai7f447f0d9422fec5@mail.gmail.com>
-Date: Wed, 26 Jul 2006 18:43:30 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: Re: [patch] slab: always follow arch requested alignments
-Cc: "Heiko Carstens" <heiko.carstens@de.ibm.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Manfred Spraul" <manfred@colorfullife.com>
-In-Reply-To: <Pine.LNX.4.64.0607260823160.5647@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=WnUk81qtQjx8j5vhrdm9vfzw9UwEus6Sah4TUB+XkAsZqKjVu8Yq+2K3OLxWH66tRtHAaUtENRMa0lsABRNCR6AuT42Mf8/Ko/PVYv7HuCatRui5i8tu0FvLcaGw1edb9PsVwsIMx3aWWU6jvS+4fyRhmZFNr1pVNmZ7ju+vVTk=
+Date: Wed, 26 Jul 2006 19:55:14 +0400
+From: Paul Drynoff <pauldrynoff@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] usb: device unconnect cause oops
+Message-Id: <20060726195514.bf78bd96.pauldrynoff@gmail.com>
+In-Reply-To: <20060726013949.4eae206b.akpm@osdl.org>
+References: <20060726122003.8f99cdea.pauldrynoff@gmail.com>
+	<20060726013949.4eae206b.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.5 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com>
-	 <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI>
-	 <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI>
-	 <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI>
-	 <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com>
-	 <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com>
-	 <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
-	 <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI>
-	 <Pine.LNX.4.64.0607260823160.5647@schroedinger.engr.sgi.com>
-X-Google-Sender-Auth: 1d1a4b77c924ddcc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+On Wed, 26 Jul 2006 01:39:49 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
-> We intentionally discard the caller mandated alignment for debugging
-> purposes.
+> On Wed, 26 Jul 2006 12:20:03 +0400
+> Paul Drynoff <pauldrynoff@gmail.com> wrote:
+> 
+> > I used 2.6.18-rc1-mm2.
+> > 
+> > I have HP LaserJet 1010, it connected to computer via USB,
+> > I switched on it, printed something and swithched off it,
+> > after that I got in /var/log/messages:
+> 
+> Was
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc1/2.6.18-rc1-mm2/hot-fixes/drivers-base-check-errors-fix.patch
+> applied?
 
-Disagreed. The caller mandated alignment is not a hint. It is the
-required minimum alignment for objects.
-
-On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
-> And it changes the basic way that slab debugging works.
-
-Look at kmem_cache_create, we turn off debugging for both caller and
-architecture mandated alignments already and the only reason we are
-not doing it for Heiko is because the architecture recommended default
-alignment is so large.
-
-                                      Pekka
+No, I missed it, sorry.
+With it I can not reproduce problem.

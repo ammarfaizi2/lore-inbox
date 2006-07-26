@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWGZMbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWGZMcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWGZMbP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWGZMbP
+	id S1751496AbWGZMcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWGZMcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:31:15 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:28105 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751472AbWGZMbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:31:15 -0400
-Date: Wed, 26 Jul 2006 15:31:13 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] slab: always follow arch requested alignments
-In-Reply-To: <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI>
-References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
- <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
- <20060722162607.GA10550@osiris.ibm.com>  <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
-  <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
- <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com>
- <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com>
- <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
+	Wed, 26 Jul 2006 08:32:21 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:34774 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751496AbWGZMcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 08:32:20 -0400
+Subject: [PATCH V2] reference rt-mutex-design in rtmutex.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060726081631.GC11604@elte.hu>
+References: <Pine.LNX.4.58.0607210942410.1190@gandalf.stny.rr.com>
+	 <20060726081631.GC11604@elte.hu>
+Content-Type: text/plain
+Date: Wed, 26 Jul 2006 08:30:47 -0400
+Message-Id: <1153917047.6270.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jul 2006, Christoph Lameter wrote:
-> The following patch adds an option SLAB_DEBUG_OVERRIDE to switch off
-> debugging if its on by default. S390 would have to set ARCH_KMALLOC_FLAGS
-> to SLAB_DEBUG_OVERRIDE. The flag will then be passed in 
-> kmem_cache_init to kmem_cache_create(). This approach also preserves the 
-> existing slab behavior for all other archs.
+[V2 - update per Ingo's request]
 
-Please read my patch again. The rules are simple: we must disable 
-debugging if architecture OR caller mandated alignment is greater than 
-BYTES_PER_WORD. Note: for kmem_cache_init() the caller mandated alignment 
-_is_ ARCH_KMALLOC_MINALIGN.
+In order to prevent Doc Rot, this patch adds a reference to the design
+document for rtmutex.c in rtmutex.c.  So when someone needs to update or
+change the design of that file they will know that a document actually
+exists that explains the design (helping them change it), and hopefully
+that they will update the document if they too change the design.
 
-My patch takes care of _both_ ARCH_KMALLOC_MINALIGN and 
-ARCH_SLAB_MINALIGN.
+-- Steve
 
-				Pekka
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.18-rc2/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/rtmutex.c	2006-07-16 19:53:46.000000000 -0400
++++ linux-2.6.18-rc2/kernel/rtmutex.c	2006-07-26 08:24:14.000000000 -0400
+@@ -7,6 +7,8 @@
+  *  Copyright (C) 2005-2006 Timesys Corp., Thomas Gleixner <tglx@timesys.com>
+  *  Copyright (C) 2005 Kihon Technologies Inc., Steven Rostedt
+  *  Copyright (C) 2006 Esben Nielsen
++ *
++ *  See Documentation/rt-mutex-design.txt for details.
+  */
+ #include <linux/spinlock.h>
+ #include <linux/module.h>
+
+

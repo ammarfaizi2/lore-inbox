@@ -1,79 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWGZUls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWGZUkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWGZUls (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 16:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWGZUls
+	id S1751135AbWGZUkm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWGZUkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 16:41:48 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:36567 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751138AbWGZUls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 16:41:48 -0400
-Date: Wed, 26 Jul 2006 16:41:42 -0400
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 009 of 9] knfsd: Allow sockets to be passed to nfsd via 'portlist'
-Message-ID: <20060726204142.GG31172@fieldses.org>
-References: <20060725114207.21779.patches@notabene> <1060725015508.22007@suse.de>
+	Wed, 26 Jul 2006 16:40:42 -0400
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:29090 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1751135AbWGZUkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:40:41 -0400
+Date: Wed, 26 Jul 2006 21:39:49 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Dave Airlie <airlied@linux.ie>
+cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] vm/agp: remove private page protection map
+In-Reply-To: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
+Message-ID: <Pine.LNX.4.64.0607262135440.11629@blonde.wat.veritas.com>
+References: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060725015508.22007@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Jul 2006 20:40:18.0454 (UTC) FILETIME=[B4DCAB60:01C6B0F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 11:55:08AM +1000, NeilBrown wrote:
-> +		err = nfsd_create_serv();
-> +		if (!err) {
-> +			int proto = 0;
-> +			err = svc_addsock(nfsd_serv, fd, buf, &proto);
-> +			/* Decrease the count, but don't shutdown the
-> +			 * the service
-> +			 */
-> +			if (err >= 0)
-> +				lockd_up(proto);
-> +			nfsd_serv->sv_nrthreads--;
-....
-> @@ -211,8 +211,6 @@ static inline int nfsd_create_serv(void)
->  			       nfsd_last_thread);
->  	if (nfsd_serv == NULL)
->  		err = -ENOMEM;
-> -	else
-> -		nfsd_serv->sv_nrthreads++;
+On Tue, 18 Jul 2006, Dave Airlie wrote:
+> AGP keeps its own copy of the protection_map, upcoming DRM changes
+> will also require access to this map from modules.
 
-I don't understand these sv_nrthreads changes.
+I'm happy with the intent of your vm_get_page_prot() patch (and would
+like to extend it to other places after, minimizing references to the
+protection_map[]).  But there's a few aspects which distress me - the
+u8 type nowhere else in mm, the requirement that caller mask the arg,
+agp_convert_mmap_flags still using its own conversion from PROT_ to VM_
+while there's an inline in mm.h (though why someone thought to optimize
+and so obscure that version puzzles me!).  Would you be happy to insert
+your Sign-off in the replacement below?
 
-> @@ -449,18 +450,23 @@ int one_sock_name(char *buf, struct svc_
->  }
->  
->  int
-> -svc_sock_names(char *buf, struct svc_serv *serv)
-> +svc_sock_names(char *buf, struct svc_serv *serv, char *toclose)
->  {
-> -	struct svc_sock *svsk;
-> +	struct svc_sock *svsk, *closesk = NULL;
->  	int len = 0;
->  
->  	if (!serv) return 0;
->  	spin_lock(&serv->sv_lock);
->  	list_for_each_entry(svsk, &serv->sv_permsocks, sk_list) {
->  		int onelen = one_sock_name(buf+len, svsk);
-> -		len += onelen;
-> +		if (toclose && strcmp(toclose, buf+len) == 0)
-> +			closesk = svsk;
-> +		else
-> +			len += onelen;
->  	}
->  	spin_unlock(&serv->sv_lock);
-> +	if (closesk)
-> +		svc_delete_socket(closesk);
 
-Am I missing something, or do we end up missing a lockd_down() in this
-case?  (Because nfsd_last_thread() isn't going to be calling
-lockd_down() for this thread now that we've removed it from
-sv_permsocks).
+AGP keeps its own copy of the protection_map, upcoming DRM changes will
+also require access to this map from modules.
 
---b.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+
+ drivers/char/agp/frontend.c |   27 ++-------------------------
+ include/linux/mm.h          |    1 +
+ mm/mmap.c                   |    7 +++++++
+ 3 files changed, 10 insertions(+), 25 deletions(-)
+
+--- 2.6.18-rc2-git6/drivers/char/agp/frontend.c	2006-07-16 00:17:07.000000000 +0100
++++ linux/drivers/char/agp/frontend.c	2006-07-26 20:32:10.000000000 +0100
+@@ -151,35 +151,12 @@ static void agp_add_seg_to_client(struct
+ 	client->segments = seg;
+ }
+ 
+-/* Originally taken from linux/mm/mmap.c from the array
+- * protection_map.
+- * The original really should be exported to modules, or
+- * some routine which does the conversion for you
+- */
+-
+-static const pgprot_t my_protect_map[16] =
+-{
+-	__P000, __P001, __P010, __P011, __P100, __P101, __P110, __P111,
+-	__S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+-};
+-
+ static pgprot_t agp_convert_mmap_flags(int prot)
+ {
+-#define _trans(x,bit1,bit2) \
+-((bit1==bit2)?(x&bit1):(x&bit1)?bit2:0)
+-
+ 	unsigned long prot_bits;
+-	pgprot_t temp;
+-
+-	prot_bits = _trans(prot, PROT_READ, VM_READ) |
+-	    _trans(prot, PROT_WRITE, VM_WRITE) |
+-	    _trans(prot, PROT_EXEC, VM_EXEC);
+-
+-	prot_bits |= VM_SHARED;
+ 
+-	temp = my_protect_map[prot_bits & 0x0000000f];
+-
+-	return temp;
++	prot_bits = calc_vm_prot_bits(prot) | VM_SHARED;
++	return vm_get_page_prot(prot_bits);
+ }
+ 
+ static int agp_create_segment(struct agp_client *client, struct agp_region *region)
+--- 2.6.18-rc2-git6/include/linux/mm.h	2006-07-16 00:17:31.000000000 +0100
++++ linux/include/linux/mm.h	2006-07-26 20:33:59.000000000 +0100
+@@ -1012,6 +1012,7 @@ static inline unsigned long vma_pages(st
+ 	return (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+ }
+ 
++pgprot_t vm_get_page_prot(unsigned long vm_flags);
+ struct vm_area_struct *find_extend_vma(struct mm_struct *, unsigned long addr);
+ struct page *vmalloc_to_page(void *addr);
+ unsigned long vmalloc_to_pfn(void *addr);
+--- 2.6.18-rc2-git6/mm/mmap.c	2006-07-16 00:17:39.000000000 +0100
++++ linux/mm/mmap.c	2006-07-26 20:40:12.000000000 +0100
+@@ -60,6 +60,13 @@ pgprot_t protection_map[16] = {
+ 	__S000, __S001, __S010, __S011, __S100, __S101, __S110, __S111
+ };
+ 
++pgprot_t vm_get_page_prot(unsigned long vm_flags)
++{
++	return protection_map[vm_flags &
++				(VM_READ|VM_WRITE|VM_EXEC|VM_SHARED)];
++}
++EXPORT_SYMBOL(vm_get_page_prot);
++
+ int sysctl_overcommit_memory = OVERCOMMIT_GUESS;  /* heuristic overcommit */
+ int sysctl_overcommit_ratio = 50;	/* default is 50% */
+ int sysctl_max_map_count __read_mostly = DEFAULT_MAX_MAP_COUNT;

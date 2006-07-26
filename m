@@ -1,83 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWGZIvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWGZIvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWGZIvI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 04:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbWGZIvI
+	id S1030449AbWGZIvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 04:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWGZIvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 04:51:08 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:43256 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030452AbWGZIvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 04:51:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=f1yZ9rJ/4YDnFM/xg426x/M6BjIzkAfvbscqB/Nyyx7gfjIHgr1KgHCXS80ImQ1wSN0Al23lrfgAdkarDPlXfGttb2APmGccLlvD/pPUojGl4MGpImM/N5JAtyewNaq4II7w0NBoWMLoi3rn4qPOaIOZ2i1nw+nAzyiTdr+wI0Q=
-Message-ID: <6bffcb0e0607260151i6065457g6acf9f4d9b2a6d50@mail.gmail.com>
-Date: Wed, 26 Jul 2006 10:51:05 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [2.6.18-rc2-gabb5a5cc BUG] Lukewarm IQ detected in hotplug locking
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060725181415.483838f5.pj@sgi.com>
+	Wed, 26 Jul 2006 04:51:44 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:44514 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030449AbWGZIvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 04:51:44 -0400
+Date: Wed, 26 Jul 2006 10:49:21 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [patch] slab: always follow arch requested alignments
+Message-ID: <20060726084921.GB9592@osiris.boeblingen.de.ibm.com>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> <20060722162607.GA10550@osiris.ibm.com> <Pine.LNX.4.64.0607221241130.14513@schroedinger.engr.sgi.com> <20060723073500.GA10556@osiris.ibm.com> <Pine.LNX.4.64.0607230558560.15651@schroedinger.engr.sgi.com> <20060723162427.GA10553@osiris.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
-	 <20060725181415.483838f5.pj@sgi.com>
+In-Reply-To: <20060723162427.GA10553@osiris.ibm.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/07/06, Paul Jackson <pj@sgi.com> wrote:
-> Michal - you addressed this to me.  This isn't my area.
+On Sun, Jul 23, 2006 at 06:24:27PM +0200, Heiko Carstens wrote:
+> On Sun, Jul 23, 2006 at 06:03:09AM -0700, Christoph Lameter wrote:
+> > On Sun, 23 Jul 2006, Heiko Carstens wrote:
+> > > > See kmem_cache_create():
+> > > >       /* 2) arch mandated alignment: disables debug if necessary */
+> > > >         if (ralign < ARCH_SLAB_MINALIGN) {
+> > > >                 ralign = ARCH_SLAB_MINALIGN;
+> > > >                 if (ralign > BYTES_PER_WORD)
+> > > >                         flags &= ~(SLAB_RED_ZONE | SLAB_STORE_USER);
+> > > >         }
+> > > 
+> > > That is because if kmem_cache_create gets called with SLAB_HWCACHE_ALIGN set
+> > > in flags then ralign will be greater or equal to ARCH_SLAB_MINALIGN:
+> > > 
+> > >         /* 1) arch recommendation: can be overridden for debug */ 
+> > >         if (flags & SLAB_HWCACHE_ALIGN) { 
+> > > 	        [...]
+> > >                 ralign = cache_line_size(); 
+> > > 	        [...]
+> > 
+> > Ok. Then you do not have a problem because ralign is greater than
+> > ARCH_SLAB_MINALIGN.
+> >  
+> > > Therefore the test above will be passed and SLAB_RED_ZONE and SLAB_STORE_USER
+> > > will stay in flags.
+> > > cache_line_size() will return 256 on s390.
+> > 
+> > Looks as if you would have the correct alignment then. I still do not 
+> > understand where the problem is since you want to align on an 8 byte 
+> > boundary.
+> 
+> CONFIG_DEBUG_SLAB is on. In step 4) we have align = ralign.
+> Still ok.
+> Next thing:
+> 
+> 	if (flags & SLAB_RED_ZONE) {
+> 		/* redzoning only works with word aligned caches */
+> 		align = BYTES_PER_WORD;
+> 
+> Result: align is less than ARCH_SLAB_MINALIGN -> busted.
+> Same is true if SLAB_STORE_USER is set.
+> Therefore I masked them both out in my patch.
 
-I was wrong, sorry.
-
-> Hopefully someone else can handle this.  Good luck.
-
-Here is the bad commit
-
-aa95387774039096c11803c04011f1aa42d85758 is first bad commit
-commit aa95387774039096c11803c04011f1aa42d85758
-Author: Linus Torvalds <torvalds@macmini.osdl.org>
-Date:   Sun Jul 23 12:12:16 2006 -0700
-
-    cpu hotplug: simplify and hopefully fix locking
-
-    The CPU hotplug locking was quite messy, with a recursive lock to
-    handle the fact that both the actual up/down sequence wanted to
-    protect itself from being re-entered, but the callbacks that it
-    called also tended to want to protect themselves from CPU events.
-
-    This splits the lock into two (one to serialize the whole hotplug
-    sequence, the other to protect against the CPU present bitmaps
-    changing). The latter still allows recursive usage because some
-    subsystems (ondemand policy for cpufreq at least) had already gotten
-    too used to the lax locking, but the locking mistakes are hopefully
-    now less fundamental, and we now warn about recursive lock usage
-    when we see it, in the hope that it can be fixed.
-
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-:040000 040000 9189d56fe28f6823287e9d1e79976e68074da5db
-266b4ea87d2ac441bc02ad2c
-4ba2c4f332c7c0ce M      include
-:040000 040000 3dfe69afef86aef8e6472d6d543ba965833e201b
-bfb64b2824c1e23f0629e976
-2526fd11b789d51e M      kernel
-
->
-> --
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
->
-
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Since I didn't get an ACK or NACK, I split this patch into two very small
+ones and repost them. Hopefully with a better description than the first
+time.

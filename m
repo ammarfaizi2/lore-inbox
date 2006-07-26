@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWGZRXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWGZRZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWGZRXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWGZRXm
+	id S1161000AbWGZRZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWGZRZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:23:42 -0400
-Received: from mga03.intel.com ([143.182.124.21]:35466 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1030238AbWGZRXl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:23:41 -0400
-X-IronPort-AV: i="4.07,185,1151910000"; 
-   d="scan'208"; a="105063818:sNHT2071923315"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: smp + acpi
-Date: Wed, 26 Jul 2006 13:22:52 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6011250B3@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: smp + acpi
-Thread-Index: Acaw18w7sfnyi23JTLu7S9zn0d6hBwAAC4AA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Marco Berizzi" <pupilla@hotmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2006 17:22:55.0180 (UTC) FILETIME=[21B878C0:01C6B0D8]
+	Wed, 26 Jul 2006 13:25:18 -0400
+Received: from alnrmhc11.comcast.net ([206.18.177.51]:36748 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1030304AbWGZRZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:25:16 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Jim Gettys <jg@laptop.org>
+Reply-To: jg@laptop.org
+To: Andi Kleen <ak@suse.de>
+Cc: Neil Horman <nhorman@tuxdriver.com>, a.zummo@towertech.it,
+       jg@freedesktop.org, linux-kernel@vger.kernel.org,
+       Keith Packard <keithp@keithp.com>
+In-Reply-To: <p73bqrc5rbu.fsf@verdi.suse.de>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <p73bqrc5rbu.fsf@verdi.suse.de>
+Content-Type: text/plain
+Organization: OLPC
+Date: Wed, 26 Jul 2006 13:25:09 -0400
+Message-Id: <1153934710.8660.56.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> CONFIG_ACPI=y is necessary to parse the ACPI tables
->> and discover HT siblings.  Except for the rare BIOS
->> that gives the option to enumerate HT via MPS
->> (thus breaking some versions of Windows),
->> enabling ACPI is the only way to enable HT.
->> 
->> Yes, in the distant past, CONFIG_ACPI=n did not remove
->> all ACPI code from your kernel, and that was a bug.
->
->Ok thanks for the confirmation.
->
->However the proposed change would be still wrong because
->SMP can be without HT.
+On Wed, 2006-07-26 at 17:16 +0200, Andi Kleen wrote:
+> Neil Horman <nhorman@tuxdriver.com> writes:
+> 
+> > 	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
+> > Geddys and some of the Xorg guys noted that they would be able to stop using gettimeofday
+> > so frequently, if they had some other way to get a millisecond resolution timer
+> > in userspace,
 
-What proposed change?
+I agree with Andi here.
 
-I expect that the problem at hand is that CONFIG_SMP=y
-is fine, but with CONFIG_ACPI=n, that isn't going to
-find the HT threads on an HT system.
+> 
+> No, no, it's wrong. They should use gettimeofday and the kernel's job
+> is to make it fast enough that they can. 
 
--Len
+Exactly.  On modern machines, doing a procedure call to get the time (as
+opposed to a system trap) is, I suspect, very tolerable.  And who knows,
+maybe a smart compiler inlines the procedure so it optimizes to just a
+few instructions.
+
+If behind the scenes there is a mapped page that is used to convey this
+information efficiently, that's fine.  
+
+But I don't think it should be the application programmer's
+responsibility to know of hackish solutions of mmapping particular
+devices on particular OS hardware or software platforms.  That's a
+symptom of the disease, rather than a clean solution.
+
+> 
+> Or rather they likely shouldn't use gettimeofday, but clock_gettime()
+> with CLOCK_MONOTONIC instead to be independent of someone setting the
+> clock back.
+
+Turns out we already have code to handle the turn back case, but
+monotonically increasing time is generally appreciated ;-).
+
+> 
+> Memory mapped counters are generally not flexible enough and there
+> are lots of reasons why the kernel might need to do special things
+> for time keeping. Don't expose them.
+
+Yup.  I agree entirely. 
+
+> 
+> -Andi
+-- 
+Jim Gettys
+One Laptop Per Child
+
+

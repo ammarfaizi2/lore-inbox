@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWGZKYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWGZKZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWGZKYc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 06:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWGZKYc
+	id S932207AbWGZKZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 06:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWGZKZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 06:24:32 -0400
-Received: from wx-out-0102.google.com ([66.249.82.207]:24076 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932161AbWGZKYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 06:24:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=guLxg1mYoRf3mu2JSXIyslLewIAX66QzHeO04ZuTbcMsy2P8xdbAQM/HeAWds56sOt6kJauaeoAoED5tItDwpUe4HWD48GFYmi101+R3x5RqPhj9KSriVcRtEuYoom2OjQOQINLkEnwMOImHTdZH4UFravq7Rxex8smGGkYDfxM=
-Date: Wed, 26 Jul 2006 12:24:50 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 0/3] [-rt] Fixes the timeout-bug in the rtmutex/PI-futex.
-In-Reply-To: <20060726085556.GA19501@elte.hu>
-Message-ID: <Pine.LNX.4.64.0607261221370.10713@localhost.localdomain>
-References: <Pine.LNX.4.64.0607230215480.11861@localhost.localdomain>
- <20060726084152.GA15909@elte.hu> <20060726085404.GA19151@elte.hu>
- <20060726085556.GA19501@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+	Wed, 26 Jul 2006 06:25:58 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:18592 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932170AbWGZKZ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 06:25:57 -0400
+Date: Wed, 26 Jul 2006 14:25:07 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       netdev <netdev@vger.kernel.org>
+Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
+Message-ID: <20060726102507.GC2715@2ka.mipt.ru>
+References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru> <20060726100013.GA7126@infradead.org> <20060726100848.GA2715@2ka.mipt.ru> <20060726101356.GA8443@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060726101356.GA8443@infradead.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 26 Jul 2006 14:25:07 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 26, 2006 at 11:13:56AM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> On Wed, Jul 26, 2006 at 02:08:49PM +0400, Evgeniy Polyakov wrote:
+> > On Wed, Jul 26, 2006 at 11:00:13AM +0100, Christoph Hellwig (hch@infradead.org) wrote:
+> > > >  struct address_space_operations ext2_aops = {
+> > > > +	.get_block		= ext2_get_block,
+> > > 
+> > > No way in hell.  For whatever you do please provide a interface at
+> > > the readpage/writepage/sendfile/etc abstraction layer.  get_block is
+> > > nothing that can be exposed to the common code.
+> > 
+> > Compare this with sync read methods - all they do is exactly the same
+> > operations with low-level blocks, which are combined into nice exported
+> > function, so there is _no_ readpage layer - it calls only one function
+> > which works with blocks.
+> 
+> No.  The abtraction layer there is ->readpage(s).  _A_ common implementation
+> works with a get_block callback from the filesystem, but there are various
+> others.  We've been there before, up to mid-2.3.x we had a get_block inode
+> operation and we got rid of it because it is the wrong abstraction.
 
+Well, kevent can work not from it's own, but with common implementation,
+which works with get_block(). No problem here.
 
-On Wed, 26 Jul 2006, Ingo Molnar wrote:
+> > So it is not a technical problem, but political one.
+> 
+> It's a technical problem, and it's called get you abstractions right.  And
+> ontop of that a political one and that's called get your abstraction coherent.
+> If you managed to argue all of us into accept that get_block is the right
+> abstraction (and as I mentioned above that's technically not true) you'd
+> still have the burden to update everything to use the same abstraction.
 
->
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
->> and i also had to do the fixes below to get it to build.
->
-> then it crashed with the assert below. I'll skip this one for now. I've
-> attached the patches (cleaned up for whitespaces) plus the
-> build-fixpatch.
->
-> 	Ingo
+Christoph, I completely understand your point of view.
+There is absolutely no technical problem to create common async implementation,
+and place it where existing sync lives and call from readpage() level.
 
-Oops. Run ran with RT_MUTEX_DEBUG_ON on SMP? I only ran it without 
-RT_MUTEX_DEBUG_ON on UP. I did compile it for SMP though, but I don't have 
-any SMP machine :-(
+It just requires to allow to change BIO callbacks instead of default
+one, and (probably) event sync readpage can be used.
 
-I'll merge your compile fix into patch 3 and try again.
-
-I am using quilt and pine to send it with so I wonder why I keep getting 
-the white-space damage. Shouldn't emacs fix the 8 space vs tabs things 
-when I switch the c-style to linux? You probably don't use emacs....
-
-Esben
-
->
-> Brought up 2 CPUs
-> BUG at kernel/rtmutex.c:773!
-> ------------[ cut here ]------------
-> kernel BUG at kernel/rtmutex.c:773!
-> invalid opcode: 0000 [#1]
-> PREEMPT SMP
-> Modules linked in:
-> CPU:    0
-> EIP:    0060:[<c03e407c>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.17-rt7 #14)
-> EIP is at rt_lock_slowlock+0x21e/0x231
-> eax: 00000020   ebx: c31d7000   ecx: c0477be4   edx: c31d97f0
-> esi: 00000000   edi: c31d7d34   ebp: c31d7cdc   esp: c31d7c70
-> ds: 007b   es: 007b   ss: 0068   preempt: 00000001
->
->
+-- 
+	Evgeniy Polyakov

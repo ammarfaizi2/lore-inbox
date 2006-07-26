@@ -1,45 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWGZA0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWGZA36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWGZA0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jul 2006 20:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWGZA0q
+	id S1030295AbWGZA36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jul 2006 20:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWGZA36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 20:26:46 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9689 "EHLO
-	out.lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S932508AbWGZA0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 20:26:45 -0400
-Subject: Re: Rescan IDE interface when no IDE devices are present
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel De Graaf <danieldegraaf@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
-References: <427c54c0607161212m714f4faew60b8615e06ac885a@mail.gmail.com>
-	 <1153077903.5905.35.camel@localhost.localdomain>
-	 <427c54c0607161303r416c0dddt916a2b635c7431c5@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Jul 2006 02:28:24 +0100
-Message-Id: <1153877304.7559.44.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 25 Jul 2006 20:29:58 -0400
+Received: from 63-162-81-169.lisco.net ([63.162.81.169]:3991 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1030295AbWGZA35
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jul 2006 20:29:57 -0400
+Message-ID: <44C6B784.5050507@slaphack.com>
+Date: Tue, 25 Jul 2006 19:29:56 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060708)
+MIME-Version: 1.0
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+CC: Mike Benoit <ipso@snappymail.ca>, Matthias Andree <matthias.andree@gmx.de>,
+       Hans Reiser <reiser@namesys.com>, lkml@lpbproductions.com,
+       Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl>
+In-Reply-To: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="------------enig4B0280BFA9A06FE0593F60FC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2006-07-16 at 15:03 -0500, Daniel De Graaf wrote:
-> On 7/16/06, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > If you have ide1, you have both hdc and hdd (slave of hdc) unles sit's
-> > not really IDE ...
-> >
-> > Ben.
-> 
-> Yes, I have /dev/hdd, but no device is ever present there. I also have
-> /dev/sda for the SATA hard disk, but do not think it is useful for
-> HDIO_SCAN_HWIF or HWIO_UNREGISTER_HWIF ioctls.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4B0280BFA9A06FE0593F60FC
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-There isn't. Feel free to write a module to do it (see how the ioctl
-handles it and follow the same logic). Its at best a hack. libata is
-trying to add proper hotplug for ATA/SATA.
+Horst H. von Brand wrote:
 
-Alan
+> 18GiB =3D 18 million KiB, you do have a point there. But 40 million fil=
+es on
+> that, with some space to spare, just doesn't add up.
+
+Right, ok...
+
+Here's a quick check of my box.  I've explicitly stated which root-level
+directories to search, to avoid nfs mounts, chrooted OSes, and virtual
+filesystems like /proc and /sys.
+
+elite ~ # find /bin/ /boot/ /dev/ /emul/ /etc/ /home /lib32 /lib64 /opt
+/root /sbin /tmp /usr /var -type f -size 1 | wc -l
+246127
+
+According to the "find" manpage:
+
+-size n[bckw]
+      File uses n units of space.  The units are  512-byte  blocks  by
+      default  or  if `b' follows n, bytes if `c' follows n, kilobytes
+      if `k' follows n, or 2-byte words if `w' follows  n.   The  size
+      does  not  count  indirect  blocks,  but it does count blocks in
+      sparse files that are not actually allocated.
+
+
+And I certainly didn't plan it that way.  And this is my desktop box,
+and I'm just one user.  Most of the space is taken up by movies.
+
+And yet, I have almost 250k files at the moment whose size is less than
+512 bytes.  And this is a normal usage pattern.  It's not hard to
+imagine something prone to creating lots of tiny files, combined with
+thousands of users, easily hitting some 40 mil files -- and since none
+of them are movies, it could fit in 18 gigs.
+
+I mean, just for fun:
+
+elite ~ # find /bin/ /boot/ /dev/ /emul/ /etc/ /home /lib32 /lib64 /opt
+/root /sbin /tmp /usr /var | wc -l
+866160
+
+It may not be a good idea, but it's possible.  And one of the larger
+reasons it's not a good idea is that most filesystems can't handle it.
+Kind of like how BitTorrent is a very bad idea on dialup, but a very
+good idea on broadband.
+
+
+--------------enig4B0280BFA9A06FE0593F60FC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRMa3hHgHNmZLgCUhAQp16w/+KXL68lp1E9pGqd4IQCNEiXNVKsTCkTKy
+I/FQsNTiH1qjJtsRf7APVL7EYnGvtGDKpM2Z3HMk4DXdiS8yYD3qxTKJ4jcBKX97
+69eme7R7RJym7bFW7r1UcM4UfTI1XmIFCqJLmxoQ9cUR2iUf3foJG6KCzSi7Qgo6
+VRIXp3IYl+n3pGu0O11G6gCBEs5Psch+rlQaUD4YmBwJ48YNGIqrjJc9Hg3UlQHd
+apwUv8kIMJ2gv0kBWPX5klC/0p8i730FgTpx6t/bWt3lxIIgi/e/a18OGSWbNcUW
+PF6ZRykku80FyGnlmpUXtzP3bhLjjAN/K5zRGtNhPv6h7HfUD/8Hb4H557hbmgOV
+jIoLz6PdEqu5rP5volD/Td74T7dypbHbSl1L/wLrHkMu922cjx0hdlCpn0lY4rks
+j7jqoj05cwcxjmTWkwb2dmxQQBV2BoPHW8rs3t/vm7e/0nS9HRCe+8MeCeH4iMOk
+TXMlj+w3L1V0u1H2gpzHbYWVediMXQeQ07NFOrY18FX0vpUWoLhLvZWZI5tJ/Cn9
+HAGL16tuWaw/LI4xgA1mxFdMnHtAYhmQli9LmL++LQOnWho8p4QDxFsQcSQYya2z
+zAk4hICILhNGim5SMfnfRtRBIVRkx4t0OKbboh6+Ne7whISljwBCMlavZb4RBsUX
+Pdaclb5ZksE=
+=bKhv
+-----END PGP SIGNATURE-----
+
+--------------enig4B0280BFA9A06FE0593F60FC--

@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWGZMeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWGZMfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWGZMeM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGZMeM
+	id S1751588AbWGZMfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbWGZMfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:34:12 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:14520 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751483AbWGZMeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:34:11 -0400
-Date: Wed, 26 Jul 2006 14:27:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH V2] reference rt-mutex-design in rtmutex.c
-Message-ID: <20060726122746.GA19885@elte.hu>
-References: <Pine.LNX.4.58.0607210942410.1190@gandalf.stny.rr.com> <20060726081631.GC11604@elte.hu> <1153917047.6270.15.camel@localhost.localdomain>
+	Wed, 26 Jul 2006 08:35:05 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:49079 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751588AbWGZMfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 08:35:02 -0400
+Date: Wed, 26 Jul 2006 15:35:00 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0607261532130.20519@sbz-30.cs.Helsinki.FI>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com>  <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+  <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com>
+ <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com>
+ <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153917047.6270.15.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.3 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/26/06, Christoph Lameter <clameter@sgi.com> wrote:
+> > > Your patch only deals with ARCH_SLAB_MINALIGN. kmem_cache_create() never
+> > > uses ARCH_KMALLOC_MINALIGN only kmem_cache_init() does by passing it to
+> > > kmem_cache_create.  ARCH_KMALLOC_MINALIGN will still be ignored.
+ 
+On Wed, 26 Jul 2006, Pekka Enberg wrote:
+> > Yes, in which case the caller mandated align will be, well,
+> > ARCH_KMALLOC_MINALIGN. The patch changes kmem_cache_create to respect
+> > caller mandated alignment too.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+On Wed, 26 Jul 2006, Christoph Lameter wrote:
+> As far as I understood Heiko s390 does not set ARCH_SLAB_MINALIGN
+> because they do not want alignent for all caches.
 
-> [V2 - update per Ingo's request]
-> 
-> In order to prevent Doc Rot, this patch adds a reference to the design
-> document for rtmutex.c in rtmutex.c.  So when someone needs to update or
-> change the design of that file they will know that a document actually
-> exists that explains the design (helping them change it), and hopefully
-> that they will update the document if they too change the design.
-> 
-> -- Steve
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Correct. Heiko sets ARCH_KMALLOC_MINALIGN which will be passed as the 
+'align' parameter to kmem_cache_create -- also known as 'caller mandated 
+alignment.'
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+My patch changes the code so that, if either architecture or 
+caller mandated alignment is greater than BYTES_PER_WORD, 
+kmem_cache_create will disable debugging. Do you now see why my patch is 
+in fact _not_ ignoring ARCH_KMALLOC_MINALIGN, but instead respecting that.
 
-	Ingo
+			Pekka

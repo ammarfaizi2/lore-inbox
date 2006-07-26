@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWGZRZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWGZRcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbWGZRZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWGZRZS
+	id S1751728AbWGZRcq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWGZRcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:25:18 -0400
-Received: from alnrmhc11.comcast.net ([206.18.177.51]:36748 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1030304AbWGZRZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:25:16 -0400
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-From: Jim Gettys <jg@laptop.org>
-Reply-To: jg@laptop.org
-To: Andi Kleen <ak@suse.de>
-Cc: Neil Horman <nhorman@tuxdriver.com>, a.zummo@towertech.it,
-       jg@freedesktop.org, linux-kernel@vger.kernel.org,
-       Keith Packard <keithp@keithp.com>
-In-Reply-To: <p73bqrc5rbu.fsf@verdi.suse.de>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-	 <p73bqrc5rbu.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: OLPC
-Date: Wed, 26 Jul 2006 13:25:09 -0400
-Message-Id: <1153934710.8660.56.camel@localhost.localdomain>
+	Wed, 26 Jul 2006 13:32:46 -0400
+Received: from mga02.intel.com ([134.134.136.20]:45743 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751723AbWGZRcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 13:32:45 -0400
+X-IronPort-AV: i="4.07,185,1151910000"; 
+   d="scan'208"; a="105072699:sNHT17081026438"
+Date: Wed, 26 Jul 2006 10:32:26 -0700
+From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: linux-acpi@vger.kernel.org, len.brown@intel.com, akpm@osdl.org,
+       zippel@linux-m68k.org, rdunlap@xenotime.net,
+       linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+Message-Id: <20060726103226.69aa79c1.kristen.c.accardi@intel.com>
+In-Reply-To: <20060725164125.A15861@unix-os.sc.intel.com>
+References: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com>
+	<20060725164125.A15861@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-26 at 17:16 +0200, Andi Kleen wrote:
-> Neil Horman <nhorman@tuxdriver.com> writes:
-> 
-> > 	At OLS last week, During Dave Jones Userspace Sucks presentation, Jim
-> > Geddys and some of the Xorg guys noted that they would be able to stop using gettimeofday
-> > so frequently, if they had some other way to get a millisecond resolution timer
-> > in userspace,
+---
+I confirmed that Anil's patch will work, here is a proper patch with
+Anil's changes.
 
-I agree with Andi here.
+Change the build options for acpiphp so that it may build without being
+dependent on the ACPI_DOCK option, but yet does not allow the option of
+acpiphp being built-in when dock is built as a module.
 
-> 
-> No, no, it's wrong. They should use gettimeofday and the kernel's job
-> is to make it fast enough that they can. 
+Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+ drivers/pci/hotplug/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Exactly.  On modern machines, doing a procedure call to get the time (as
-opposed to a system trap) is, I suspect, very tolerable.  And who knows,
-maybe a smart compiler inlines the procedure so it optimizes to just a
-few instructions.
-
-If behind the scenes there is a mapped page that is used to convey this
-information efficiently, that's fine.  
-
-But I don't think it should be the application programmer's
-responsibility to know of hackish solutions of mmapping particular
-devices on particular OS hardware or software platforms.  That's a
-symptom of the disease, rather than a clean solution.
-
-> 
-> Or rather they likely shouldn't use gettimeofday, but clock_gettime()
-> with CLOCK_MONOTONIC instead to be independent of someone setting the
-> clock back.
-
-Turns out we already have code to handle the turn back case, but
-monotonically increasing time is generally appreciated ;-).
-
-> 
-> Memory mapped counters are generally not flexible enough and there
-> are lots of reasons why the kernel might need to do special things
-> for time keeping. Don't expose them.
-
-Yup.  I agree entirely. 
-
-> 
-> -Andi
--- 
-Jim Gettys
-One Laptop Per Child
-
-
+--- 2.6-git.orig/drivers/pci/hotplug/Kconfig
++++ 2.6-git/drivers/pci/hotplug/Kconfig
+@@ -76,7 +76,7 @@ config HOTPLUG_PCI_IBM
+ 
+ config HOTPLUG_PCI_ACPI
+ 	tristate "ACPI PCI Hotplug driver"
+-	depends on ACPI_DOCK && HOTPLUG_PCI
++	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || (ACPI_DOCK && HOTPLUG_PCI)
+ 	help
+ 	  Say Y here if you have a system that supports PCI Hotplug using
+ 	  ACPI.

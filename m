@@ -1,113 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWGZE6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWGZE5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbWGZE6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 00:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWGZE6b
+	id S1030383AbWGZE5o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 00:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWGZE5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 00:58:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60237 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030384AbWGZE6a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 00:58:30 -0400
-Date: Tue, 25 Jul 2006 17:19:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: gmu 2k6 <gmu2006@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: i686 hang on boot in userspace
-Message-ID: <20060725151945.GY4044@suse.de>
-References: <20060725080002.GD4044@suse.de> <f96157c40607250128h279d6df7n8e86381729b8aa97@mail.gmail.com> <20060725080807.GF4044@suse.de> <f96157c40607250217o1084b992u78083353032b9abc@mail.gmail.com> <f96157c40607250220h13abfd6av2b532cae70745d2@mail.gmail.com> <f96157c40607250235t4cdd76ffxfd6f95389d2ddbdc@mail.gmail.com> <20060725112955.GR4044@suse.de> <f96157c40607250547m5af37b4gbab72a2764e7cb7c@mail.gmail.com> <20060725125201.GT4044@suse.de> <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com>
+	Wed, 26 Jul 2006 00:57:44 -0400
+Received: from mga06.intel.com ([134.134.136.21]:61710 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030383AbWGZE5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 00:57:43 -0400
+X-IronPort-AV: i="4.07,181,1151910000"; 
+   d="scan'208"; a="104471524:sNHT37344755"
+Subject: Re: [PATCH 5/5] PCI-Express AER implemetation: pcie_portdrv error
+	handler
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
+In-Reply-To: <20060724193752.GD7448@austin.ibm.com>
+References: <1152688203.28493.214.camel@ymzhang-perf.sh.intel.com>
+	 <1152854749.28493.286.camel@ymzhang-perf.sh.intel.com>
+	 <1152854873.28493.289.camel@ymzhang-perf.sh.intel.com>
+	 <1152854937.28493.291.camel@ymzhang-perf.sh.intel.com>
+	 <1152855040.28493.294.camel@ymzhang-perf.sh.intel.com>
+	 <1152855124.28493.297.camel@ymzhang-perf.sh.intel.com>
+	 <1152855338.28493.300.camel@ymzhang-perf.sh.intel.com>
+	 <20060724193752.GD7448@austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1153889791.3984.3.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f96157c40607250750n5aa08856jbe792b0e66fb814b@mail.gmail.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 26 Jul 2006 12:56:31 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25 2006, gmu 2k6 wrote:
-> On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> >On Tue, Jul 25 2006, gmu 2k6 wrote:
-> >> On 7/25/06, Jens Axboe <axboe@suse.de> wrote:
-> >> >On Tue, Jul 25 2006, gmu 2k6 wrote:
-> >> >> ok, let's nail it to 2.6.17-git5 instead as it survived git status
-> >> >> compared to -git6
-> >> >> which seems to have correctly booted by accident the lastime. timing
-> >> >issues
-> >> >> I guess.
-> >> >
-> >> >I will try and reproduce it here now. It seems to be in between commit
-> >> >271f18f102c789f59644bb6c53a69da1df72b2f4 and commit
-> >> >dd67d051529387f6e44d22d1d5540ef281965fdd where the first one could also
-> >> >be bad.
-> >> >
-> >> >I'm assuming that acf421755593f7d7bd9352d57eda796c6eb4fa43 should be
-> >> >good, so you can try and verify that
-> >> >dd67d051529387f6e44d22d1d5540ef281965fdd is bad and bisect between the
-> >> >two. It's only about 6 commits, so should be quick enough to do.
-> >>
-> >> 1) no luck with remote serial console
-> >> 2) netconsole does not work although connecting to the listener with 
-> >netcat
-> >> and
-> >> sending strings works
-> >> I'm gonna try via physical rs232 9pins and see how that works.
-> >> afterwards I will try to bisect the revisions you mentioned.
-> >>
-> >> btw, the issue seems to come and go as I managed to boot log into a 
-> >.17-git6
-> >> kernel or is timing-dependent.
-> >
-> >I can reproduce it, you don't have to spend more time on bisecting or
-> >testing. This should fix it:
-> >
-> >diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-> >index 1c4df22..1eac041 100644
-> >--- a/drivers/block/cciss.c
-> >+++ b/drivers/block/cciss.c
-> >@@ -1238,6 +1238,7 @@ static void cciss_softirq_done(struct re
-> >        CommandList_struct *cmd = rq->completion_data;
-> >        ctlr_info_t *h = hba[cmd->ctlr];
-> >        unsigned long flags;
-> >+       request_queue_t *q;
-> >        u64bit temp64;
-> >        int i, ddir;
-> >
-> >@@ -1260,10 +1261,13 @@ #ifdef CCISS_DEBUG
-> >        printk("Done with %p\n", rq);
-> > #endif                         /* CCISS_DEBUG */
-> >
-> >+       q = rq->q;
-> >+
-> >        add_disk_randomness(rq->rq_disk);
-> >        spin_lock_irqsave(&h->lock, flags);
-> >        end_that_request_last(rq, rq->errors);
-> >        cmd_free(h, cmd, 1);
-> >+       blk_start_queue(q);
-> >        spin_unlock_irqrestore(&h->lock, flags);
-> > }
-> >
-> >
-> >A better fix would rework the start_queue logic entirely in the driver,
-> >but the above should get you running for now. I'll take a further look.
+On Tue, 2006-07-25 at 03:37, Linas Vepstas wrote:
+> Hi,
 > 
-> this four-liner seems to fix it:
-> - I can boot
-> - log in
-> - git-status works
-> - svn up works
+> Sorry for a late reply...
 > 
-> as my last mail said the 2nd patch with the new function introduced
-> did hang cciss
-> on driver init before printing any drive info.
+> On Fri, Jul 14, 2006 at 01:35:38PM +0800, Zhang, Yanmin wrote:
+> > 
+> > --- linux-2.6.17/drivers/pci/pcie/portdrv_pci.c	2006-06-22 16:27:35.000000000 +0800
+> > +++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_pci.c	2006-06-22 16:46:29.000000000 +0800
+> > +
+> > +static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
+> > +					enum pci_channel_state error)
+> > +{
+> > +	/* If fatal, save cfg space for possible link reset at upstream */
+> > +	if (error == pci_channel_io_frozen)
+> > +		pcie_portdrv_save_config(dev);
+> 
+> If the channel is frozen, is the config space still readable? 
+> In my case, I had to save config space data early on before
+> the bus error. 
+You are right.
 
-The problem with the 4-liner is that it potentially starves some arrays
-(in theory). I'll retry the full fix.
+> 
+> What's more, I discovered that I had to save the pci config 
+> space data before device drivers do thier probe. During the probe, 
+> device drivers will change the config. For example, they'll enable
+> interrupts and dma. If you turn these on, and then do the probe,
+> you'll get spectacuar failures.
+> 
+> To be safe, I found the best thing to do was to save the pci
+> config space state as it was during boot, before the PCI probe 
+> routines ran.
+Thanks. I will try.
 
-> btw, I assume you have systems with SmartArray 6* at your disposal to
-> test, right?
-> I mean SuSE should have some as a distro vendor.
-
-I do, I have several right here next to me.
-
--- 
-Jens Axboe
-
+> 
+> --linas

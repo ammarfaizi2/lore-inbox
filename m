@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751692AbWGZPCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751691AbWGZPB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751692AbWGZPCE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWGZPCE
+	id S1751691AbWGZPB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWGZPB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:02:04 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:12440 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751692AbWGZPCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:02:03 -0400
-Date: Wed, 26 Jul 2006 17:00:41 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-Cc: David Lang <dlang@digitalinsight.com>,
-       Arnaud Patard <apatard@mandriva.com>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: automated test? (was Re: Linux 2.6.17.7)
-Message-ID: <20060726150041.GG23701@stusta.de>
-References: <20060725034247.GA5837@kroah.com> <200607261510.03098.adq_dvb@lidskialf.net> <20060726142932.GE23701@stusta.de> <200607261539.50492.adq_dvb@lidskialf.net>
+	Wed, 26 Jul 2006 11:01:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:42428 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751688AbWGZPB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 11:01:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fJXaeb5P8FohruTNhtMAsNW5RJNVq8BngbGfUQ5gr+dA1P68j/UYOAMIFivUc0hM85txXSEy93ZmAyjUDldZCAXFV2FK0KFW4R/xd/jFxr11eoySPza/64cNhOLaQW0I+PBfKvwGMcsOLzdV+kXmIzcI5Rai8d/LqgAxGwa4fkk=
+Message-ID: <6bffcb0e0607260801s73cdee9avd207984712011c80@mail.gmail.com>
+Date: Wed, 26 Jul 2006 17:01:26 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: torvalds@osdl.org
+Subject: Re: [2.6.18-rc2-gabb5a5cc BUG] Lukewarm IQ detected in hotplug locking
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607260151i6065457g6acf9f4d9b2a6d50@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200607261539.50492.adq_dvb@lidskialf.net>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <6bffcb0e0607251657w47697883n74bab2255fd44ece@mail.gmail.com>
+	 <20060725181415.483838f5.pj@sgi.com>
+	 <6bffcb0e0607260151i6065457g6acf9f4d9b2a6d50@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 03:39:49PM +0100, Andrew de Quincey wrote:
-> On Wednesday 26 July 2006 15:29, Adrian Bunk wrote:
->...
-> > The real problem is:
-> > How do we get some testing coverage of -stable kernels by users to catch
-> > issues?
-> > And compile errors are the least of my worries.
-> 
-> Yeah - I believe some people did test the DVB -stable patches, but obviously 
-> without the budget-av driver compile option enabled, so it didn't compile 
-> that code. DVB supports quite a few cards, so its easy to accidentally leave 
-> off one of the options when doing a mass compile of all drivers.
-> 
-> The only thing I can think of would be to require -stable patch submitters to 
-> supply a list of CONFIG options that must be on to enable compilation of the 
-> new code so people know exactly how to enable it for testing... but obviously 
-> since those would be manually specified, they can be wrong too. But at least 
-> it would show they'd thought about it a bit....
+On 26/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Here is the bad commit
+>
+> aa95387774039096c11803c04011f1aa42d85758 is first bad commit
+> commit aa95387774039096c11803c04011f1aa42d85758
+> Author: Linus Torvalds <torvalds@macmini.osdl.org>
+> Date:   Sun Jul 23 12:12:16 2006 -0700
+>
+>     cpu hotplug: simplify and hopefully fix locking
+>
+>     The CPU hotplug locking was quite messy, with a recursive lock to
+>     handle the fact that both the actual up/down sequence wanted to
+>     protect itself from being re-entered, but the callbacks that it
+>     called also tended to want to protect themselves from CPU events.
+>
+>     This splits the lock into two (one to serialize the whole hotplug
+>     sequence, the other to protect against the CPU present bitmaps
+>     changing). The latter still allows recursive usage because some
+>     subsystems (ondemand policy for cpufreq at least) had already gotten
+>     too used to the lax locking, but the locking mistakes are hopefully
+>     now less fundamental, and we now warn about recursive lock usage
+>     when we see it, in the hope that it can be fixed.
+>
+>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+>
+> :040000 040000 9189d56fe28f6823287e9d1e79976e68074da5db
+> 266b4ea87d2ac441bc02ad2c
+> 4ba2c4f332c7c0ce M      include
+> :040000 040000 3dfe69afef86aef8e6472d6d543ba965833e201b
+> bfb64b2824c1e23f0629e976
+> 2526fd11b789d51e M      kernel
 
-This helps only with compilation errors, which are as I said the least 
-of my worries.
+Sorry for the noise.
 
-But does the hardware driven by this driver work?
-And if it does, is there a bug in the patch that causes the kernel to 
-crash after some hours?
+The bug is fixed in latest git tree.
 
-cu
-Adrian
+Regards,
+Michal
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

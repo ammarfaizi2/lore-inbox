@@ -1,28 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWGZIRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWGZIRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbWGZIRO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 04:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWGZIRO
+	id S1030352AbWGZIRW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 04:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWGZIRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 04:17:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:4224 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932522AbWGZIRN (ORCPT
+	Wed, 26 Jul 2006 04:17:22 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:6016 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932522AbWGZIRV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 04:17:13 -0400
-Date: Wed, 26 Jul 2006 10:10:39 +0200
+	Wed, 26 Jul 2006 04:17:21 -0400
+Date: Wed, 26 Jul 2006 10:07:39 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Duetsch, Thomas LDE1" <thomas.duetsch@siemens.com>
-Subject: Re: [PATCH -rt] Don't let raise_softirq_prio lower the prio (was: [RT] rt priority losing)
-Message-ID: <20060726081039.GA11604@elte.hu>
-References: <1153755660.4002.137.camel@localhost.localdomain> <Pine.LNX.4.64.0607241758420.10471@localhost.localdomain> <1153759042.11295.10.camel@localhost.localdomain> <Pine.LNX.4.64.0607241854360.10471@localhost.localdomain> <1153761301.11295.30.camel@localhost.localdomain>
+To: andrea@cpushare.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "bruce@andrew.cmu.edu" <bruce@andrew.cmu.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] TIF_NOTSC and SECCOMP prctl
+Message-ID: <20060726080739.GA10574@elte.hu>
+References: <200607180623_MC3-1-C54F-3802@compuserve.com> <20060718132941.GG5726@opteron.random> <20060725214441.GC32243@opteron.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1153761301.11295.30.camel@localhost.localdomain>
+In-Reply-To: <20060725214441.GC32243@opteron.random>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: 0.3
 X-ELTE-SpamLevel: 
@@ -37,17 +39,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+* andrea@cpushare.com <andrea@cpushare.com> wrote:
 
-> I guess the simple fix is not to allow the interrupt to lower the 
-> priority. But simple fixes do not always handle all the cases.
-> 
-> Thomas G., see any side effects with this patch?
-> 
-> -- Steve
-> 
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+> Here a repost of the last seccomp patch against current mainline 
+> including the preempt fix. This changes the seccomp API from 
+> /proc/<pid>/seccomp to a prctl (this will produce a smaller kernel) 
+> and it adds a TIF_NOTSC that seccomp sets. Only the current task can 
+> call disable_TSC (obviously because it hasn't a task_t param). This 
+> includes Chuck's patch to give zero runtime cost to the notsc feature.
 
-thanks, applied. Thomas, fine with you too?
+please send a patch-queue that is properly split-up: the bugfix, the API 
+change and the TIF_NOTSC improvement.
 
 	Ingo

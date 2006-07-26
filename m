@@ -1,50 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWGZUWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161034AbWGZU3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161033AbWGZUWl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 16:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbWGZUWk
+	id S1161034AbWGZU3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWGZU3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 16:22:40 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:18144 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161033AbWGZUWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 16:22:40 -0400
-Subject: Re: why does nforce pata controller need ide0=ata66  ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jimmy.Jazz@gmx.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44C0E510.7000805@gmx.net>
-References: <44C0E510.7000805@gmx.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 26 Jul 2006 21:41:22 +0100
-Message-Id: <1153946482.13509.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 26 Jul 2006 16:29:21 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:43224 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1161034AbWGZU3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:29:20 -0400
+Message-ID: <1153945705.44c7d069c5e18@portal.student.luth.se>
+Date: Wed, 26 Jul 2006 22:28:25 +0200
+From: ricknu-0@student.ltu.se
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Michael Buesch <mb@bu3sch.de>, Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC][PATCH] A generic boolean (version 6)
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+In-Reply-To: <1153341500.44be983ca1407@portal.student.luth.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-07-21 am 16:30 +0200, ysgrifennodd Jimmy Jazz:
-> What puzzles me is the kernel message: ide_setup: ide0=ata66 -- OBSOLETE
-> OPTION, WILL BE REMOVED SOON!
-> 
-> So, i guess, if the option will be removed soon, it is no more necessary
-> to worry about it because PATA drives are "end of life" or the option
-> will certainly (hopefully) be replaced with a new one ;).
+The sixth "version".
 
-The current plan is that drivers/ide goes away and libata takes over.
+Changes (since fifth):
+* removed the #undef false/true and #define false/true from include/linux/stddef.h.
 
-> Would it be a way in the future to make ata66 drives and over work at
-> their nominal speed when the chipset capabilities are not well
-> recognized by the kernel driver ?
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
-They should always be correctly detected.
+---
 
-> Have i simply misconfigured anything ?
+Have not found any (real) reason letting the cpp know about false/true. As I
+said in the last version, the only reason seem to be for the userspace. Well, as
+there is no program of my knowlage that needs it, they were removed.
 
-Probably not. Make sure the cable itself is the right way around and can
-you also send me an lspci -vxxx, as that will let me see the cable and
-udma setup bits on your machine and investigate further.
+As there seems to be little respons nowadays (I hope its because there isn't to
+much to comment on and not because of bordom to this), I will likely send this
+in as a real patch (hoping for inclusion) tomorrow.
 
-Alan
+And once again; thanks to you all for all the comments and suggestions.
+
+/Richard
+
+
+ drivers/block/DAC960.h            |    2 +-
+ drivers/media/video/cpia2/cpia2.h |    4 ----
+ drivers/net/dgrs.c                |    1 -
+ drivers/scsi/BusLogic.h           |    5 +----
+ include/linux/stddef.h            |    5 +++++
+ include/linux/types.h             |    2 ++
+ 6 files changed, 9 insertions(+), 10 deletions(-)
+
+
+diff --git a/drivers/block/DAC960.h b/drivers/block/DAC960.h
+index a82f37f..f9217c3 100644
+--- a/drivers/block/DAC960.h
++++ b/drivers/block/DAC960.h
+@@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
+   Define a Boolean data type.
+ */
+ 
+-typedef enum { false, true } __attribute__ ((packed)) boolean;
++typedef bool boolean;
+ 
+ 
+ /*
+diff --git a/drivers/media/video/cpia2/cpia2.h b/drivers/media/video/cpia2/cpia2.h
+index c5ecb2b..8d2dfc1 100644
+--- a/drivers/media/video/cpia2/cpia2.h
++++ b/drivers/media/video/cpia2/cpia2.h
+@@ -50,10 +50,6 @@ #define CPIA2_PATCH_VER	0
+ /***
+  * Image defines
+  ***/
+-#ifndef true
+-#define true 1
+-#define false 0
+-#endif
+ 
+ /*  Misc constants */
+ #define ALLOW_CORRUPT 0		/* Causes collater to discard checksum */
+diff --git a/drivers/net/dgrs.c b/drivers/net/dgrs.c
+index fa4f094..4dbc23d 100644
+--- a/drivers/net/dgrs.c
++++ b/drivers/net/dgrs.c
+@@ -110,7 +110,6 @@ static char version[] __initdata =
+  *	DGRS include files
+  */
+ typedef unsigned char uchar;
+-typedef unsigned int bool;
+ #define vol volatile
+ 
+ #include "dgrs.h"
+diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
+index 9792e5a..d6d1d56 100644
+--- a/drivers/scsi/BusLogic.h
++++ b/drivers/scsi/BusLogic.h
+@@ -237,10 +237,7 @@ enum BusLogic_BIOS_DiskGeometryTranslati
+   Define a Boolean data type.
+ */
+ 
+-typedef enum {
+-	false,
+-	true
+-} PACKED boolean;
++typedef bool boolean;
+ 
+ /*
+   Define a 10^18 Statistics Byte Counter data type.
+diff --git a/include/linux/stddef.h b/include/linux/stddef.h
+index b3a2cad..0382065 100644
+--- a/include/linux/stddef.h
++++ b/include/linux/stddef.h
+@@ -10,6 +10,11 @@ #else
+ #define NULL ((void *)0)
+ #endif
+ 
++enum {
++	false	= 0,
++	true	= 1
++};
++
+ #undef offsetof
+ #ifdef __compiler_offsetof
+ #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
+diff --git a/include/linux/types.h b/include/linux/types.h
+index 3f23566..85cf587 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -90,6 +90,8 @@ #define _CADDR_T
+ typedef __kernel_caddr_t	caddr_t;
+ #endif
+ 
++typedef _Bool			bool;
++
+ /* bsd */
+ typedef unsigned char		u_char;
+ typedef unsigned short		u_short;
 

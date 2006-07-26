@@ -1,431 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWGZUI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWGZUPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWGZUI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 16:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWGZUI1
+	id S1161023AbWGZUPT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 16:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWGZUPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 16:08:27 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:38370 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1751140AbWGZUIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 16:08:25 -0400
-Date: Wed, 26 Jul 2006 16:19:16 -0400
-From: Catherine Zhang <cxzhang@watson.ibm.com>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jmorris@namei.org,
-       sds@tycho.nsa.gov, davem@davemloft.net
-Cc: catalin.marinas@gmail.com, michal.k.k.piotrowski@gmail.com,
-       czhang.us@gmail.com
-Subject: RFC: kernel memory leak fix for af_unix datagram getpeersec
-Message-ID: <20060726201916.GA32505@jiayuguan.watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 26 Jul 2006 16:15:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21904 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751778AbWGZUPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 16:15:17 -0400
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org, Jakub Jelinek <jakub@redhat.com>
+Subject: [PATCH] vDSO hash-style fix
+Message-Id: <20060726201502.A14FE18003A@magilla.sf.frob.com>
+Date: Wed, 26 Jul 2006 13:15:02 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all,
+The latest toolchains can produce a new ELF section in DSOs and
+dynamically-linked executables.  The new section ".gnu.hash" replaces
+".hash", and allows for more efficient runtime symbol lookups by the
+dynamic linker.  The new ld option --hash-style={sysv|gnu|both}
+controls whether to produce the old ".hash", the new ".gnu.hash", or
+both.  In some new systems such as Fedora Core 6, gcc by default
+passes --hash-style=gnu to the linker, so that a standard invocation
+of "gcc -shared" results in producing a DSO with only ".gnu.hash".
+The new ".gnu.hash" sections need to be dealt with the same way as
+".hash" sections in all respects; only the dynamic linker cares about
+their contents.  To work with older dynamic linkers (i.e. preexisting
+releases of glibc), a binary must have the old ".hash" section.  The
+--hash-style=both option produces binaries that a new dynamic linker
+can use more efficiently, but an old dynamic linker can still handle.
 
-Enclosed please find the new fix for the memory leak problem, incorporating
-suggestions from Stephen and James.
+The new section runs afoul of the custom linker scripts used to
+build vDSO images for the kernel.  On ia64, the failure mode for
+this is a boot-time panic because the vDSO's PT_IA_64_UNWIND
+segment winds up ill-formed.
 
-thanks all for your help!
-Catherine
+This patch addresses the problem in two ways.
 
---
+First, it mentions ".gnu.hash" in all the linker scripts alongside
+".hash".  This produces correct vDSO images with --hash-style=sysv (or
+old tools), with --hash-style=gnu, or with --hash-style=both.
 
+Second, it passes the --hash-style=sysv option when building the vDSO
+images, so that ".gnu.hash" is not actually produced.  This is the
+most conservative choice for compatibility with any old userland.
+There is some concern that some ancient glibc builds (though not any
+known old production system) might choke on --hash-style=both
+binaries.  The optimizations provided by the new style of hash section
+do not really matter for a DSO with a tiny number of symbols, as the
+vDSO has.  If someone wants to use =gnu or =both for their vDSO builds
+and worry less about that compatibility, just change the option and
+the linker script changes will make any choice work fine.
 
-From: cxzhang@watson.ibm.com
-
-This patch implements a cleaner fix for the memory leak problem of the original 
-unix datagram getpeersec patch.  Instead of creating a security context each
-time a unix datagram is sent, we only create the security context when the
-receiver requests it.
-
-This new design requires modification of the current unix_getsecpeer_dgram
-LSM hook and addition of two new hooks, namely, sid_to_secctx and
-release_secctx.  The former retrieves the security context and the latter
-releases it.  A hook is required for releasing the security context because
-it is up to the security module to decide how that's done.  In the case of
-Selinux, it's a simple kfree operation.
-
-
+Signed-off-by: Roland McGrath <roland@redhat.com>
 ---
+ arch/i386/kernel/Makefile               |    4 ++--
+ arch/i386/kernel/vsyscall.lds.S         |    1 +
+ arch/ia64/kernel/Makefile               |    3 ++-
+ arch/ia64/kernel/gate.lds.S             |    1 +
+ arch/parisc/kernel/vmlinux.lds.S        |    1 +
+ arch/powerpc/kernel/vdso32/Makefile     |    4 ++--
+ arch/powerpc/kernel/vdso32/vdso32.lds.S |    1 +
+ arch/powerpc/kernel/vdso64/Makefile     |    5 ++---
+ arch/powerpc/kernel/vdso64/vdso64.lds.S |    1 +
+ arch/ppc/kernel/vmlinux.lds.S           |    1 +
+ arch/um/kernel/dyn.lds.S                |    1 +
+ arch/x86_64/ia32/Makefile               |    1 +
+ arch/x86_64/ia32/vsyscall.lds           |    1 +
+ scripts/Kbuild.include                  |    6 ++++++
+ 14 files changed, 23 insertions(+), 8 deletions(-)
 
- include/linux/security.h |   41 +++++++++++++++++++++++++++++++++++------
- include/net/af_unix.h    |    6 ++----
- include/net/scm.h        |   29 +++++++++++++++++++++++++----
- net/ipv4/ip_sockglue.c   |    9 +++++++--
- net/unix/af_unix.c       |   33 ++++++---------------------------
- security/dummy.c         |   14 ++++++++++++--
- security/selinux/hooks.c |   34 ++++++++++++++++++++++------------
- 7 files changed, 109 insertions(+), 57 deletions(-)
-
-diff -puN include/net/scm.h~af_unix-datagram-getpeersec-ml-fix include/net/scm.h
---- linux-2.6.18-rc2/include/net/scm.h~af_unix-datagram-getpeersec-ml-fix	2006-07-22 21:28:21.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/include/net/scm.h	2006-07-24 11:19:54.000000000 -0400
-@@ -3,6 +3,7 @@
+diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+index 1b452a1..5b5fa68 100644  
+--- a/arch/i386/kernel/Makefile
++++ b/arch/i386/kernel/Makefile
+@@ -59,7 +59,8 @@ quiet_cmd_syscall = SYSCALL $@
  
- #include <linux/limits.h>
- #include <linux/net.h>
-+#include <linux/security.h>
+ export CPPFLAGS_vsyscall.lds += -P -C -U$(ARCH)
  
- /* Well, we should have at least one descriptor open
-  * to accept passed FDs 8)
-@@ -20,8 +21,7 @@ struct scm_cookie
- 	struct ucred		creds;		/* Skb credentials	*/
- 	struct scm_fp_list	*fp;		/* Passed files		*/
- #ifdef CONFIG_SECURITY_NETWORK
--	char			*secdata;	/* Security context	*/
--	u32			seclen;		/* Security length	*/
-+	u32			sid;		/* Passed security ID 	*/
+-vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1
++vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1 \
++		 $(call ld-option, -Wl$(comma)--hash-style=sysv)
+ SYSCFLAGS_vsyscall-sysenter.so	= $(vsyscall-flags)
+ SYSCFLAGS_vsyscall-int80.so	= $(vsyscall-flags)
+ 
+diff --git a/arch/i386/kernel/vsyscall.lds.S b/arch/i386/kernel/vsyscall.lds.S
+index e26975f..f66cd11 100644  
+--- a/arch/i386/kernel/vsyscall.lds.S
++++ b/arch/i386/kernel/vsyscall.lds.S
+@@ -10,6 +10,7 @@ SECTIONS
+   . = VDSO_PRELINK + SIZEOF_HEADERS;
+ 
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 0e4553f..ad8215a 100644  
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -45,7 +45,8 @@ CPPFLAGS_gate.lds := -P -C -U$(ARCH)
+ quiet_cmd_gate = GATE $@
+       cmd_gate = $(CC) -nostdlib $(GATECFLAGS_$(@F)) -Wl,-T,$(filter-out FORCE,$^) -o $@
+ 
+-GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1
++GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1 \
++		     $(call ld-option, -Wl$(comma)--hash-style=sysv)
+ $(obj)/gate.so: $(obj)/gate.lds $(obj)/gate.o FORCE
+ 	$(call if_changed,gate)
+ 
+diff --git a/arch/ia64/kernel/gate.lds.S b/arch/ia64/kernel/gate.lds.S
+index cc35cdd..6d19833 100644  
+--- a/arch/ia64/kernel/gate.lds.S
++++ b/arch/ia64/kernel/gate.lds.S
+@@ -12,6 +12,7 @@ SECTIONS
+   . = GATE_ADDR + SIZEOF_HEADERS;
+ 
+   .hash				: { *(.hash) }				:readable
++  .gnu.hash			: { *(.gnu.hash) }
+   .dynsym			: { *(.dynsym) }
+   .dynstr			: { *(.dynstr) }
+   .gnu.version			: { *(.gnu.version) }
+diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
+index 9989495..b3677fc 100644  
+--- a/arch/parisc/kernel/vmlinux.lds.S
++++ b/arch/parisc/kernel/vmlinux.lds.S
+@@ -204,6 +204,7 @@ SECTIONS
+ 	*(.dynstr)
+ 	*(.dynamic)
+ 	*(.hash)
++	*(.gnu.hash)
  #endif
- 	unsigned long		seq;		/* Connection seqno	*/
- };
-@@ -32,6 +32,16 @@ extern int __scm_send(struct socket *soc
- extern void __scm_destroy(struct scm_cookie *scm);
- extern struct scm_fp_list * scm_fp_dup(struct scm_fp_list *fpl);
- 
-+#ifdef CONFIG_SECURITY_NETWORK
-+static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
-+{
-+	security_socket_getpeersec_dgram(sock, NULL, &scm->sid);
-+}
-+#else
-+static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
-+{ }
-+#endif /* CONFIG_SECURITY_NETWORK */
-+
- static __inline__ void scm_destroy(struct scm_cookie *scm)
- {
- 	if (scm && scm->fp)
-@@ -47,6 +57,7 @@ static __inline__ int scm_send(struct so
- 	scm->creds.pid = p->tgid;
- 	scm->fp = NULL;
- 	scm->seq = 0;
-+	unix_get_peersec_dgram(sock, scm);
- 	if (msg->msg_controllen <= 0)
- 		return 0;
- 	return __scm_send(sock, msg, scm);
-@@ -55,8 +66,18 @@ static __inline__ int scm_send(struct so
- #ifdef CONFIG_SECURITY_NETWORK
- static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
- {
--	if (test_bit(SOCK_PASSSEC, &sock->flags) && scm->secdata != NULL)
--		put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, scm->seclen, scm->secdata);
-+	char *secdata;
-+	u32 seclen;
-+	int err;
-+
-+	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
-+		err = security_sid_to_secctx(scm->sid, &secdata, &seclen);
-+
-+		if (!err) {
-+			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
-+			security_release_secctx(secdata, seclen);
-+		}
-+	}
- }
- #else
- static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
-diff -puN net/unix/af_unix.c~af_unix-datagram-getpeersec-ml-fix net/unix/af_unix.c
---- linux-2.6.18-rc2/net/unix/af_unix.c~af_unix-datagram-getpeersec-ml-fix	2006-07-22 23:01:26.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/net/unix/af_unix.c	2006-07-22 23:14:15.000000000 -0400
-@@ -127,30 +127,6 @@ static atomic_t unix_nr_socks = ATOMIC_I
- 
- #define UNIX_ABSTRACT(sk)	(unix_sk(sk)->addr->hash != UNIX_HASH_SIZE)
- 
--#ifdef CONFIG_SECURITY_NETWORK
--static void unix_get_peersec_dgram(struct sk_buff *skb)
--{
--	int err;
--
--	err = security_socket_getpeersec_dgram(skb, UNIXSECDATA(skb),
--					       UNIXSECLEN(skb));
--	if (err)
--		*(UNIXSECDATA(skb)) = NULL;
--}
--
--static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
--{
--	scm->secdata = *UNIXSECDATA(skb);
--	scm->seclen = *UNIXSECLEN(skb);
--}
--#else
--static inline void unix_get_peersec_dgram(struct sk_buff *skb)
--{ }
--
--static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
--{ }
--#endif /* CONFIG_SECURITY_NETWORK */
--
- /*
-  *  SMP locking strategy:
-  *    hash table is protected with spinlock unix_table_lock
-@@ -1323,8 +1299,9 @@ static int unix_dgram_sendmsg(struct kio
- 	memcpy(UNIXCREDS(skb), &siocb->scm->creds, sizeof(struct ucred));
- 	if (siocb->scm->fp)
- 		unix_attach_fds(siocb->scm, skb);
--
--	unix_get_peersec_dgram(skb);
-+#ifdef CONFIG_SECURITY_NETWORK
-+	memcpy(UNIXSID(skb), &siocb->scm->sid, sizeof(u32));
-+#endif /* CONFIG_SECURITY_NETWORK */
- 
- 	skb->h.raw = skb->data;
- 	err = memcpy_fromiovec(skb_put(skb,len), msg->msg_iov, len);
-@@ -1605,7 +1582,9 @@ static int unix_dgram_recvmsg(struct kio
- 		memset(&tmp_scm, 0, sizeof(tmp_scm));
  	}
- 	siocb->scm->creds = *UNIXCREDS(skb);
--	unix_set_secdata(siocb->scm, skb);
-+#ifdef CONFIG_SECURITY_NETWORK
-+	siocb->scm->sid   = *UNIXSID(skb);
-+#endif /* CONFIG_SECURITY_NETWORK */
  
- 	if (!(flags & MSG_PEEK))
- 	{
-diff -puN include/net/af_unix.h~af_unix-datagram-getpeersec-ml-fix include/net/af_unix.h
---- linux-2.6.18-rc2/include/net/af_unix.h~af_unix-datagram-getpeersec-ml-fix	2006-07-22 23:41:05.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/include/net/af_unix.h	2006-07-22 23:43:26.000000000 -0400
-@@ -54,15 +54,13 @@ struct unix_skb_parms {
- 	struct ucred		creds;		/* Skb credentials	*/
- 	struct scm_fp_list	*fp;		/* Passed files		*/
- #ifdef CONFIG_SECURITY_NETWORK
--	char			*secdata;	/* Security context	*/
--	u32			seclen;		/* Security length	*/
-+	u32			sid;		/* Security ID		*/
- #endif
- };
+diff --git a/arch/powerpc/kernel/vdso32/Makefile b/arch/powerpc/kernel/vdso32/Makefile
+index 8a3bed5..61ac45a 100644  
+--- a/arch/powerpc/kernel/vdso32/Makefile
++++ b/arch/powerpc/kernel/vdso32/Makefile
+@@ -14,7 +14,8 @@ obj-vdso32 := $(addprefix $(obj)/, $(obj
  
- #define UNIXCB(skb) 	(*(struct unix_skb_parms*)&((skb)->cb))
- #define UNIXCREDS(skb)	(&UNIXCB((skb)).creds)
--#define UNIXSECDATA(skb)	(&UNIXCB((skb)).secdata)
--#define UNIXSECLEN(skb)		(&UNIXCB((skb)).seclen)
-+#define UNIXSID(skb)	(&UNIXCB((skb)).sid)
  
- #define unix_state_rlock(s)	spin_lock(&unix_sk(s)->lock)
- #define unix_state_runlock(s)	spin_unlock(&unix_sk(s)->lock)
-diff -puN include/linux/security.h~af_unix-datagram-getpeersec-ml-fix include/linux/security.h
---- linux-2.6.18-rc2/include/linux/security.h~af_unix-datagram-getpeersec-ml-fix	2006-07-23 17:49:18.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/include/linux/security.h	2006-07-24 11:16:54.000000000 -0400
-@@ -1109,6 +1109,16 @@ struct swap_info_struct;
-  *	@name contains the name of the security module being unstacked.
-  *	@ops contains a pointer to the struct security_operations of the module to unstack.
-  * 
-+ * @sid_to_secctx:
-+ *	Convert sid to security context.
-+ *	@sid contains the security ID.
-+ *	@secdata contains the pointer that stores the converted security context.
-+ *
-+ * @release_secctx:
-+ *	Release the security context.
-+ *	@secdata contains the security context.
-+ *	@seclen contains the length of the security context.
-+ *
-  * This is the main security structure.
-  */
- struct security_operations {
-@@ -1289,6 +1299,8 @@ struct security_operations {
+ EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
+-EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1
++EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1 \
++		$(call ld-option, -Wl$(comma)--hash-style=sysv)
+ EXTRA_AFLAGS := -D__VDSO32__ -s
  
-  	int (*getprocattr)(struct task_struct *p, char *name, void *value, size_t size);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
-+	int (*sid_to_secctx)(u32 sid, char **secdata, u32 *seclen);
-+	void (*release_secctx)(char *secdata, u32 seclen);
- 
- #ifdef CONFIG_SECURITY_NETWORK
- 	int (*unix_stream_connect) (struct socket * sock,
-@@ -1317,7 +1329,7 @@ struct security_operations {
- 	int (*socket_shutdown) (struct socket * sock, int how);
- 	int (*socket_sock_rcv_skb) (struct sock * sk, struct sk_buff * skb);
- 	int (*socket_getpeersec_stream) (struct socket *sock, char __user *optval, int __user *optlen, unsigned len);
--	int (*socket_getpeersec_dgram) (struct sk_buff *skb, char **secdata, u32 *seclen);
-+	int (*socket_getpeersec_dgram) (struct socket *sock, struct sk_buff *skb, u32 *sid);
- 	int (*sk_alloc_security) (struct sock *sk, int family, gfp_t priority);
- 	void (*sk_free_security) (struct sock *sk);
- 	unsigned int (*sk_getsid) (struct sock *sk, struct flowi *fl, u8 dir);
-@@ -2059,6 +2071,16 @@ static inline int security_netlink_recv(
- 	return security_ops->netlink_recv(skb, cap);
- }
- 
-+static inline int security_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
-+{
-+	return security_ops->sid_to_secctx(sid, secdata, seclen);
-+}
-+
-+static inline void security_release_secctx(char *secdata, u32 seclen)
-+{
-+	return security_ops->release_secctx(secdata, seclen);
-+}
-+
- /* prototypes */
- extern int security_init	(void);
- extern int register_security	(struct security_operations *ops);
-@@ -2725,6 +2747,15 @@ static inline void securityfs_remove(str
+ obj-y += vdso32_wrapper.o
+diff --git a/arch/powerpc/kernel/vdso32/vdso32.lds.S b/arch/powerpc/kernel/vdso32/vdso32.lds.S
+index f4bad72..6187af2 100644  
+--- a/arch/powerpc/kernel/vdso32/vdso32.lds.S
++++ b/arch/powerpc/kernel/vdso32/vdso32.lds.S
+@@ -14,6 +14,7 @@ SECTIONS
  {
- }
+   . = VDSO32_LBASE + SIZEOF_HEADERS;
+   .hash           : { *(.hash) }			:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/powerpc/kernel/vdso64/Makefile b/arch/powerpc/kernel/vdso64/Makefile
+index ab39988..1d0d02b 100644  
+--- a/arch/powerpc/kernel/vdso64/Makefile
++++ b/arch/powerpc/kernel/vdso64/Makefile
+@@ -8,7 +8,8 @@ targets := $(obj-vdso64) vdso64.so
+ obj-vdso64 := $(addprefix $(obj)/, $(obj-vdso64))
  
-+static inline int security_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static inline void security_release_secctx(char *secdata, u32 seclen)
-+{
-+	return -EOPNOTSUPP;
-+}
- #endif	/* CONFIG_SECURITY */
+ EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
+-EXTRA_CFLAGS +=  -nostdlib -Wl,-soname=linux-vdso64.so.1
++EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
++		$(call ld-option, -Wl$(comma)--hash-style=sysv)
+ EXTRA_AFLAGS := -D__VDSO64__ -s
  
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -2840,10 +2871,9 @@ static inline int security_socket_getpee
- 	return security_ops->socket_getpeersec_stream(sock, optval, optlen, len);
- }
- 
--static inline int security_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
--						   u32 *seclen)
-+static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
+ obj-y += vdso64_wrapper.o
+diff --git a/arch/powerpc/kernel/vdso64/vdso64.lds.S b/arch/powerpc/kernel/vdso64/vdso64.lds.S
+index 4bdf224..4a2b6dc 100644  
+--- a/arch/powerpc/kernel/vdso64/vdso64.lds.S
++++ b/arch/powerpc/kernel/vdso64/vdso64.lds.S
+@@ -12,6 +12,7 @@ SECTIONS
  {
--	return security_ops->socket_getpeersec_dgram(skb, secdata, seclen);
-+	return security_ops->socket_getpeersec_dgram(sock, skb, sid);
- }
+   . = VDSO64_LBASE + SIZEOF_HEADERS;
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/ppc/kernel/vmlinux.lds.S b/arch/ppc/kernel/vmlinux.lds.S
+index 09c6525..095fd33 100644  
+--- a/arch/ppc/kernel/vmlinux.lds.S
++++ b/arch/ppc/kernel/vmlinux.lds.S
+@@ -8,6 +8,7 @@ SECTIONS
+   . = + SIZEOF_HEADERS;
+   .interp : { *(.interp) }
+   .hash          : { *(.hash)		}
++  .gnu.hash      : { *(.gnu.hash)	}
+   .dynsym        : { *(.dynsym)		}
+   .dynstr        : { *(.dynstr)		}
+   .rel.text      : { *(.rel.text)		}
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index 2517ecb..68ed24d 100644  
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -26,6 +26,7 @@ SECTIONS
  
- static inline int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
-@@ -2968,8 +2998,7 @@ static inline int security_socket_getpee
- 	return -ENOPROTOOPT;
- }
+   /* Read-only sections, merged into text segment: */
+   .hash           : { *(.hash) }
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/x86_64/ia32/Makefile b/arch/x86_64/ia32/Makefile
+index 62bc5f5..cdae364 100644  
+--- a/arch/x86_64/ia32/Makefile
++++ b/arch/x86_64/ia32/Makefile
+@@ -23,6 +23,7 @@ targets := $(foreach F,sysenter syscall,
+ # The DSO images are built using a special linker script
+ quiet_cmd_syscall = SYSCALL $@
+       cmd_syscall = $(CC) -m32 -nostdlib -shared -s \
++			  $(call ld-option, -Wl$(comma)--hash-style=sysv) \
+ 			   -Wl,-soname=linux-gate.so.1 -o $@ \
+ 			   -Wl,-T,$(filter-out FORCE,$^)
  
--static inline int security_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
--						   u32 *seclen)
-+static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
- {
- 	return -ENOPROTOOPT;
- }
-diff -puN security/selinux/hooks.c~af_unix-datagram-getpeersec-ml-fix security/selinux/hooks.c
---- linux-2.6.18-rc2/security/selinux/hooks.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 00:55:21.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/security/selinux/hooks.c	2006-07-24 23:28:05.000000000 -0400
-@@ -3524,25 +3524,21 @@ out:	
- 	return err;
- }
+diff --git a/arch/x86_64/ia32/vsyscall.lds b/arch/x86_64/ia32/vsyscall.lds
+index f2e75ed..1dc86ff 100644  
+--- a/arch/x86_64/ia32/vsyscall.lds
++++ b/arch/x86_64/ia32/vsyscall.lds
+@@ -11,6 +11,7 @@ SECTIONS
+   . = VSYSCALL_BASE + SIZEOF_HEADERS;
  
--static int selinux_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata, u32 *seclen)
-+static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
- {
-+	u32 peer_sid = SECSID_NULL;
- 	int err = 0;
--	u32 peer_sid;
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 2180c88..a3c0fdc 100644  
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -85,6 +85,12 @@ cc-version = $(shell $(CONFIG_SHELL) $(s
+ cc-ifversion = $(shell if [ $(call cc-version, $(CC)) $(1) $(2) ]; then \
+                        echo $(3); fi;)
  
--	if (skb->sk->sk_family == PF_UNIX)
--		selinux_get_inode_sid(SOCK_INODE(skb->sk->sk_socket),
--				      &peer_sid);
--	else
-+	if (sock && (sock->sk->sk_family == PF_UNIX))
-+		selinux_get_inode_sid(SOCK_INODE(sock), &peer_sid);
-+	else if (skb)
- 		peer_sid = selinux_socket_getpeer_dgram(skb);
- 
- 	if (peer_sid == SECSID_NULL)
--		return -EINVAL;
--
--	err = security_sid_to_context(peer_sid, secdata, seclen);
--	if (err)
--		return err;
-+		err = -EINVAL;
-+	*sid = peer_sid;
- 
--	return 0;
-+	return err;
- }
- 
- static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
-@@ -4407,6 +4403,17 @@ static int selinux_setprocattr(struct ta
- 	return size;
- }
- 
-+static int selinux_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
-+{
-+	return security_sid_to_context(sid, secdata, seclen);
-+}
++# ld-option
++# Usage: ldflags += $(call ld-option, -Wl$(comma)--hash-style=both)
++ld-option = $(shell if $(CC) $(1) \
++			     -nostdlib -o /dev/null -xc /dev/null \
++             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
 +
-+static void selinux_release_secctx(char *secdata, u32 seclen)
-+{
-+	if (secdata)
-+		kfree(secdata);
-+}
-+
- #ifdef CONFIG_KEYS
- 
- static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
-@@ -4587,6 +4594,9 @@ static struct security_operations selinu
- 	.getprocattr =                  selinux_getprocattr,
- 	.setprocattr =                  selinux_setprocattr,
- 
-+	.sid_to_secctx =		selinux_sid_to_secctx,
-+	.release_secctx =		selinux_release_secctx,
-+
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
- 	.unix_may_send =		selinux_socket_unix_may_send,
- 
-diff -puN security/dummy.c~af_unix-datagram-getpeersec-ml-fix security/dummy.c
---- linux-2.6.18-rc2/security/dummy.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 01:01:07.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/security/dummy.c	2006-07-24 11:30:36.000000000 -0400
-@@ -791,8 +791,7 @@ static int dummy_socket_getpeersec_strea
- 	return -ENOPROTOOPT;
- }
- 
--static int dummy_socket_getpeersec_dgram(struct sk_buff *skb, char **secdata,
--					 u32 *seclen)
-+static int dummy_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *sid)
- {
- 	return -ENOPROTOOPT;
- }
-@@ -876,6 +875,15 @@ static int dummy_setprocattr(struct task
- 	return -EINVAL;
- }
- 
-+static int dummy_sid_to_secctx(u32 sid, char **secdata, u32 *seclen)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static void dummy_release_secctx(char *secdata, u32 seclen)
-+{
-+}
-+
- #ifdef CONFIG_KEYS
- static inline int dummy_key_alloc(struct key *key, struct task_struct *ctx,
- 				  unsigned long flags)
-@@ -1028,6 +1036,8 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, d_instantiate);
-  	set_to_dummy_if_null(ops, getprocattr);
-  	set_to_dummy_if_null(ops, setprocattr);
-+ 	set_to_dummy_if_null(ops, sid_to_secctx);
-+ 	set_to_dummy_if_null(ops, release_secctx);
- #ifdef CONFIG_SECURITY_NETWORK
- 	set_to_dummy_if_null(ops, unix_stream_connect);
- 	set_to_dummy_if_null(ops, unix_may_send);
-diff -puN net/ipv4/ip_sockglue.c~af_unix-datagram-getpeersec-ml-fix net/ipv4/ip_sockglue.c
---- linux-2.6.18-rc2/net/ipv4/ip_sockglue.c~af_unix-datagram-getpeersec-ml-fix	2006-07-24 18:42:18.000000000 -0400
-+++ linux-2.6.18-rc2-cxzhang/net/ipv4/ip_sockglue.c	2006-07-24 18:42:25.000000000 -0400
-@@ -112,14 +112,19 @@ static void ip_cmsg_recv_retopts(struct 
- static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
- {
- 	char *secdata;
--	u32 seclen;
-+	u32 seclen, sid;
- 	int err;
- 
--	err = security_socket_getpeersec_dgram(skb, &secdata, &seclen);
-+	err = security_socket_getpeersec_dgram(NULL, skb, &sid);
-+	if (err)
-+		return;
-+
-+	err = security_sid_to_secctx(sid, &secdata, &seclen);
- 	if (err)
- 		return;
- 
- 	put_cmsg(msg, SOL_IP, SCM_SECURITY, seclen, secdata);
-+	security_release_secctx(secdata, seclen);
- }
- 
- 
-_
+ ###
+ # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
+ # Usage:

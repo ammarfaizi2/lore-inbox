@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWGZRIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751673AbWGZRMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWGZRIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 13:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWGZRIy
+	id S1751673AbWGZRMh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 13:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbWGZRMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 13:08:54 -0400
-Received: from mga02.intel.com ([134.134.136.20]:3407 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030345AbWGZRIx convert rfc822-to-8bit (ORCPT
+	Wed, 26 Jul 2006 13:12:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45701 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751659AbWGZRMg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 13:08:53 -0400
-X-IronPort-AV: i="4.07,185,1151910000"; 
-   d="scan'208"; a="105048772:sNHT1550372712"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 26 Jul 2006 13:12:36 -0400
+Message-ID: <44C7A272.8030401@sandeen.net>
+Date: Wed, 26 Jul 2006 12:12:18 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: smp + acpi
-Date: Wed, 26 Jul 2006 13:07:42 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB60112506C@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: smp + acpi
-Thread-Index: AcawymM2wt98mf1ZRpiImDIzWImzXQACqVMQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Marco Berizzi" <pupilla@hotmail.com>, <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2006 17:07:47.0154 (UTC) FILETIME=[047EB320:01C6B0D6]
+To: Neil Brown <neilb@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>, jack@suse.cz,
+       20@madingley.org, marcel@holtmann.org, linux-kernel@vger.kernel.org,
+       sct@redhat.com, adilger@clusterfs.com
+Subject: Re: Bad ext3/nfs DoS bug
+References: <20060718145614.GA27788@circe.esc.cam.ac.uk>	<1153236136.10006.5.camel@localhost>	<20060718152341.GB27788@circe.esc.cam.ac.uk>	<1153253907.21024.25.camel@localhost>	<20060719092810.GA4347@circe.esc.cam.ac.uk>	<20060719155502.GD3270@atrey.karlin.mff.cuni.cz>	<17599.2754.962927.627515@cse.unsw.edu.au>	<20060720160639.GF25111@atrey.karlin.mff.cuni.cz>	<17600.30372.397971.955987@cse.unsw.edu.au>	<20060721170627.4cbea27d.akpm@osdl.org>	<20060722131759.GC7321@thunk.org>	<20060724185604.9181714c.akpm@osdl.org> <17605.32781.909741.310735@cse.unsw.edu.au>
+In-Reply-To: <17605.32781.909741.310735@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Since 2.6.15 smp doesn't work anymore without ACPI
->> > May be possible to have a note in "Symmetric multi processing
->> > support" help dialog? Or is it possible to enable ACPI when
->> > SMP is selected?
->>
->>It's probably specific to your system, nothing general.
->
->Hi Andi,
->
->Thanks for the reply. I'm compiling linux on a pentinum
->4 HT 3GHz. 2.6.14 did detect both processor, but all
->kernels > 2.6.15 did not. (at least till 2.6.17.7)
+> +EXPORT_SYMBOL_GPL(export_iget);
+...
+> +static struct dentry *ext3_get_dentry(struct super_block *sb, void *vobjp)
+> +{
+> +	__u32 *objp = vobjp;
+> +	unsigned long ino = objp[0];
+> +	__u32 generation = objp[1];
+> +
+> +	if (ino != EXT3_ROOT_INO && ino < EXT3_FIRST_INO(sb))
+> +		return ERR_PTR(-ESTALE);
+> +
+> +	return export_iget(sb, ino, generation);
+> +}
 
-CONFIG_ACPI=y is necessary to parse the ACPI tables
-and discover HT siblings.  Except for the rare BIOS
-that gives the option to enumerate HT via MPS
-(thus breaking some versions of Windows),
-enabling ACPI is the only way to enable HT.
-
-Yes, in the distant past, CONFIG_ACPI=n did not remove
-all ACPI code from your kernel, and that was a bug.
-
-thanks,
--Len
+Hm, with this, ext3.ko has a new dependency on exportfs.ko.  Is that 
+desirable/acceptable?
+-Eric

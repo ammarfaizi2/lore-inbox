@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWGZPdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWGZPej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWGZPdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 11:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWGZPdg
+	id S1751020AbWGZPej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 11:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWGZPej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 11:33:36 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:6359 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S1750856AbWGZPdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 11:33:36 -0400
-Message-ID: <44C77D38.8090001@namesys.com>
-Date: Wed, 26 Jul 2006 08:33:28 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Wed, 26 Jul 2006 11:34:39 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:42169
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751005AbWGZPei
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 11:34:38 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] hwrng: fix intel probe error unwind
+Date: Wed, 26 Jul 2006 17:34:19 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: David Masover <ninja@slaphack.com>
-CC: Jeff Garzik <jeff@garzik.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <44C6BADE.4030202@slaphack.com>
-In-Reply-To: <44C6BADE.4030202@slaphack.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200607261734.19307.mb@bu3sch.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Masover wrote:
+The intel hwrng leaks an iomapped resource, if hwrng_register() failes.
+This fixes it.
 
->Hans Reiser wrote:
->
->  
->
->>to use as his default.  Now that we paid the 5 year development price
->>tag to get everything as plugins, we can now upgrade in littler pieces
->>than any other FS.  Hmm, I need a buzz phrase, its not extreme
->>programming, maybe "moderate programming".
->>
-This phrase was a bit tongue-in-cheek.
+Signed-off-by: Michael Buesch <mb@bu3sch.de>
 
->>  Does that sound exciting to
->>    
->>
->
->  
->
+Index: linux-2.6/drivers/char/hw_random/intel-rng.c
+===================================================================
+--- linux-2.6.orig/drivers/char/hw_random/intel-rng.c	2006-07-26 17:30:47.000000000 +0200
++++ linux-2.6/drivers/char/hw_random/intel-rng.c	2006-07-26 17:31:51.000000000 +0200
+@@ -164,7 +164,7 @@
+ 	if (err) {
+ 		printk(KERN_ERR PFX "RNG registering failed (%d)\n",
+ 		       err);
+-		goto out;
++		goto err_unmap;
+ 	}
+ out:
+ 	return err;
 
+-- 
+Greetings Michael.

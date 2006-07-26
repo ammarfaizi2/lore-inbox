@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWGZQLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWGZQMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWGZQLN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 12:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWGZQLN
+	id S1750908AbWGZQMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 12:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWGZQMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 12:11:13 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:59305 "EHLO
+	Wed, 26 Jul 2006 12:12:43 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:2218 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1750965AbWGZQLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 12:11:12 -0400
-Date: Wed, 26 Jul 2006 12:10:55 -0400
+	id S1750892AbWGZQMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 12:12:42 -0400
+Date: Wed, 26 Jul 2006 12:12:32 -0400
 From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
 To: liyu <liyu@ccoss.com.cn>
 Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
        Peter <peter@maubp.freeserve.co.uk>,
        The Doctor <thedoctor@tardis.homelinux.org>
-Subject: Re: [PATCH 2/2] usbhid: HID device simple driver interface
-Message-ID: <20060726161055.GB28284@filer.fsl.cs.sunysb.edu>
-References: <44C746F1.6090601@ccoss.com.cn>
+Subject: Re: [PATCH 1/3] usbhid: Driver for microsoft natural ergonomic keyboard 4000
+Message-ID: <20060726161232.GC28284@filer.fsl.cs.sunysb.edu>
+References: <44C74708.6090907@ccoss.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44C746F1.6090601@ccoss.com.cn>
+In-Reply-To: <44C74708.6090907@ccoss.com.cn>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 06:41:53PM +0800, liyu wrote:
-> ==================================
-> HID device simple driver interface
-> ==================================
->  
->     This patch include the header file for this API.
-> 
->     I am sorry for sendding patches in the attachment, beacause of my
-> mail client always break TAB into some spaces.
-> 
->     Good luck.
-> 
-> -Liyu
-> 
++#define map_key(c) \
++       do { \
++               usage->code = c; \
++               usage->type = EV_KEY; \
++               set_bit(c,input->keybit); \
++       } while (0)
 
-First of all, you should include your patches inline. That way one can
-easily comment on them. I only quickly glanced at it, and I am not sure
-about why you need the additional list_ macros. Also, several of your macros
-do something like this:
-
-+#define hidinput_simple_driver_setup_usage(hid) \
-+do {\
-+       if (hid->simple) {\
-+               hid->simple->flags |= HIDINPUT_SIMPLE_SETUP_USAGE; \
-+               hidinput_simple_driver_configure_usage(hid); \
-+       }\
-+} while (0)
-
-You should use (hid) instead of hid. Because of how the pre-processor works.
+I'm not quite sure where usage is coming from. Some magical global variable?
+Eeek.
 
 Josef "Jeff" Sipek.
 

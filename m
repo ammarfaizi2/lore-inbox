@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWGZNT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWGZNSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWGZNT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 09:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWGZNT0
+	id S1751617AbWGZNSA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 09:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWGZNSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 09:19:26 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:51270 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751114AbWGZNT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 09:19:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=R/bb8sQk9wFjiNlRz6t4/yeZOh/ubxfVVUn2GDKJ8GPeg6lGZwXyE5pN0vmNPI0ZxxGQj+0eoMKGGok+zrpXDft2DWh/RtN8DIt1ga5VVLrov+/HRONpEQ4LKEKwnwUVBiG8fMlxR3Q30dP980saKHvcarRsZ9Qc6oORX3aOEKU=
-Message-ID: <d120d5000607260619j6019d0ffh59fca33032cb5b6e@mail.gmail.com>
-Date: Wed, 26 Jul 2006 09:19:24 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Komal Shah" <komal_shah802003@yahoo.com>
-Subject: Re: [PATCH 1/2] OMAP: Add keypad driver
-Cc: akpm@osdl.org, juha.yrjola@solidboot.com, tony@atomide.com,
-       ext-timo.teras@nokia.com, r-woodruff2@ti.com,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       dbrownell@users.sourceforge.net, kjh@hilman.org
-In-Reply-To: <1153915433.13733.266905718@webmail.messagingengine.com>
+	Wed, 26 Jul 2006 09:18:00 -0400
+Received: from dvhart.com ([64.146.134.43]:28347 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751617AbWGZNR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 09:17:59 -0400
+Message-ID: <44C76B85.5040708@mbligh.org>
+Date: Wed, 26 Jul 2006 06:17:57 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+References: <20060725174100.GA4608@hmsreliant.homelinux.net> <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org> <20060725182833.GE4608@hmsreliant.homelinux.net> <44C66C91.8090700@zytor.com> <20060725192138.GI4608@hmsreliant.homelinux.net> <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net>
+In-Reply-To: <20060725204736.GK4608@hmsreliant.homelinux.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1153915433.13733.266905718@webmail.messagingengine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/06, Komal Shah <komal_shah802003@yahoo.com> wrote:
-> Andrew/Tony/Richard/Dmitry,
->
-> This is a revised patch as per the review comments from the Dmitry
-> on thread:
->
-> http://lkml.org/lkml/2006/7/25/279
->
-> Please review it and give me the Ack if looks ok.
+
+>Agreed.  How about we take the /dev/rtc patch now (since its an added feature
+>that doesn't hurt anything if its not used, as far as tickless kernels go), and
+>I'll start working on doing gettimeofday in vdso for arches other than x86_64.
+>That will give the X guys what they wanted until such time until all the other
+>arches have a gettimeofday alternative that doesn't require kernel traps.
+>  
 >
 
-Komal,
-
-You may not call input_free_device() after calling
-input_unregister_device() in the error path because unregister will
-drop the reference to the device and since it was the last (and only)
-reference it will free the device. input_free_device() coming after
-that will try to free already freed memory.
-
-You have several options:
-1. Have separate error paths for before and after input_register_device()
-2. Set input_dev = NULL after calling input_unregister_device() -
-input-free-device() handles NULLs just fine.
-3. Take an extra reference with input_get_device() before calling
-input_unregister_device(). This way the device won't actually be freed
-until you call input_free_device() later.
-
--- 
-Dmitry
+The timelag involved in rolling X into a distro and releasing
+it means that we don't really need short term workarounds.
+Introducing new userspace APIs is not something that
+should be done casually.

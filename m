@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWGZMaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWGZMbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWGZMaP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 08:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWGZMaO
+	id S1751472AbWGZMbP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 08:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWGZMbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 08:30:14 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:34712 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP
-	id S1751453AbWGZMaN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 08:30:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: oops in scsi_device_put after PCMCIA based USB HC is ejected
-Date: Wed, 26 Jul 2006 17:59:52 +0530
-Message-ID: <0F35D2C4458E9B4A9891BE2D4E0C83900138CE56@PNE-HJN-MBX01.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: oops in scsi_device_put after PCMCIA based USB HC is ejected
-Thread-Index: AcauU7ZHR8oE3N2nSUydD7DpDeju5ACWoR/A
-From: <deepti.chotai@wipro.com>
-To: <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2006 12:30:10.0955 (UTC) FILETIME=[3CA06DB0:01C6B0AF]
+	Wed, 26 Jul 2006 08:31:15 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:28105 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751472AbWGZMbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 08:31:15 -0400
+Date: Wed, 26 Jul 2006 15:31:13 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] slab: always follow arch requested alignments
+In-Reply-To: <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0607261529240.20519@sbz-30.cs.Helsinki.FI>
+References: <20060722110601.GA9572@osiris.boeblingen.de.ibm.com> 
+ <Pine.LNX.4.64.0607220748160.13737@schroedinger.engr.sgi.com> 
+ <20060722162607.GA10550@osiris.ibm.com>  <84144f020607260422t668c4d8dldfcdedfe3713b73e@mail.gmail.com>
+  <Pine.LNX.4.64.0607260426450.3744@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261430520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260433410.3855@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.58.0607261443150.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.58.0607261448520.17986@sbz-30.cs.Helsinki.FI> 
+ <Pine.LNX.4.64.0607260451250.4021@schroedinger.engr.sgi.com>
+ <84144f020607260505s17daa5c8j6e5095eb956828ee@mail.gmail.com>
+ <Pine.LNX.4.64.0607260511430.4075@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 26 Jul 2006, Christoph Lameter wrote:
+> The following patch adds an option SLAB_DEBUG_OVERRIDE to switch off
+> debugging if its on by default. S390 would have to set ARCH_KMALLOC_FLAGS
+> to SLAB_DEBUG_OVERRIDE. The flag will then be passed in 
+> kmem_cache_init to kmem_cache_create(). This approach also preserves the 
+> existing slab behavior for all other archs.
 
+Please read my patch again. The rules are simple: we must disable 
+debugging if architecture OR caller mandated alignment is greater than 
+BYTES_PER_WORD. Note: for kmem_cache_init() the caller mandated alignment 
+_is_ ARCH_KMALLOC_MINALIGN.
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
-> Sent: Sunday, July 23, 2006 6:00 PM
-> To: Deepti Chotai (WT01 - Semiconductors & Consumer Electronics)
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: oops in scsi_device_put after PCMCIA based USB HC is
-ejected
-> 
-> On Sun, 23 Jul 2006 15:17:02 +0530
-> <deepti.chotai@wipro.com> wrote:
-> 
-> > I am working on a HCD for an OHCI compliant USB Host Controller on a
-> > PCMICIA card for 2.6.15.4 kernel.
-> 
-> We've changed an awful lot of things in that area since 2.6.15.  It'd
-be
-> best if you could retest 2.6.18-rc2, please.
+My patch takes care of _both_ ARCH_KMALLOC_MINALIGN and 
+ARCH_SLAB_MINALIGN.
 
-We are in the last stage of development currently. Porting the drivers
-to 2.6.18-rc2 will be not be feasible for us, in the available time
-frame. Could you please suggest any patches for the kernel 2.6.15.4 or
-indicate the changes that have been made.
-
-Thanks for your help.
-
--Deepti
+				Pekka

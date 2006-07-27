@@ -1,111 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWG0QLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWG0QLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWG0QLA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 12:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWG0QLA
+	id S1751481AbWG0QLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWG0QLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 12:11:00 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:63626 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1750822AbWG0QK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 12:10:59 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Shem Multinymous" <multinymous@gmail.com>
-Subject: Re: [PATCH] DMI: Decode and save OEM String information
-Date: Thu, 27 Jul 2006 10:10:53 -0600
-User-Agent: KMail/1.9.1
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Henrique de Moraes Holschuh" <hmh@debian.org>
-References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
-In-Reply-To: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Jul 2006 12:11:41 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16276 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751481AbWG0QLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:11:40 -0400
+Subject: Re: Re: [RFC/PATCH] revoke/frevoke system calls V2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, tytso@mit.edu, tigran@veritas.com
+In-Reply-To: <Pine.LNX.4.58.0607271858380.6287@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <1154012822.13509.52.camel@localhost.localdomain>
+	 <84144f020607270833v4c981d00w8e3e643406aea7a@mail.gmail.com>
+	 <1154016589.13509.56.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0607271858380.6287@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607271010.53489.bjorn.helgaas@hp.com>
+Date: Thu, 27 Jul 2006 17:30:09 +0100
+Message-Id: <1154017809.13509.64.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 July 2006 07:47, Shem Multinymous wrote:
-> This teachs dmi_decode() how to to save OEM Strings (type 11) information.
-> OEM Strings are  the only safe way to identify some hardware, e.g., the ThinkPad
-> embedded controller used by the soon-to-be-submitted tp_smapi driver.
+Ar Iau, 2006-07-27 am 19:01 +0300, ysgrifennodd Pekka J Enberg:
+> Yes revoke calls it too, but is that sufficient, or do we need ->revoke?
+> Ouch. You are right. I need to stick that invalidate_inode_pages2 
+> back in there. The do_fsync call takes care of writes only, obviously. 
 
-I always thought that ACPI was supposed to describe everything that
-(a) consumes resources or requires a driver and (b) is not enumerable
-by other hardware standards such as PCI.
+Actually that isn't true either - it takes care of *regular file*
+writes. Devices will need a revoke hook and thats really probably only
+right. If they don't have one just -EOPNOTSUPP, you can check it before
+you begin any other processing so its easy to check.
 
-If that's true, isn't it a BIOS defect if this embedded controller isn't
-described via ACPI?
-
-I don't object to this patch, but it seems like the ideal way forward
-would be to get the BIOS fixed so you could claim the device with PNP
-for future ThinkPads, and the table of OEM strings would not require
-ongoing maintenance.
-
-> Follows the "System Management BIOS (SMBIOS) Specification"
-> (http://www.dmtf.org/standards/smbios), and also the userspace
-> dmidecode.c code.
-> 
-> ---
->  drivers/firmware/dmi_scan.c |   21 +++++++++++++++++++++
->  include/linux/dmi.h         |    3 ++-
->  2 files changed, 23 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/firmware/dmi_scan.c b/drivers/firmware/dmi_scan.c
-> index b9e3886..d1add3f 100644
-> --- a/drivers/firmware/dmi_scan.c
-> +++ b/drivers/firmware/dmi_scan.c
-> @@ -123,6 +123,24 @@ static void __init dmi_save_devices(stru
->  		dev->type = *d++ & 0x7f;
->  		dev->name = dmi_string(dm, *d);
->  		dev->device_data = NULL;
-> +		list_add(&dev->list, &dmi_devices);
-> +	}
-> +}
-> +
-> +static void __init dmi_save_oem_strings_devices(struct dmi_header *dm)
-> +{
-> +	int i, count = *(u8 *)(dm + 1);
-> +	struct dmi_device *dev;
-> +
-> +	for (i = 1; i <= count; i++) {
-> +		dev = dmi_alloc(sizeof(*dev));
-> +		if (!dev) {
-> +			break;
-> +		}
-> +
-> +		dev->type = DMI_DEV_TYPE_OEM_STRING;
-> +		dev->name = dmi_string(dm, i);
-> +		dev->device_data = NULL;
-> 
->  		list_add(&dev->list, &dmi_devices);
->  	}
-> @@ -181,6 +199,9 @@ static void __init dmi_decode(struct dmi
->  	case 10:	/* Onboard Devices Information */
->  		dmi_save_devices(dm);
->  		break;
-> +	case 11:	/* OEM Strings */
-> +		dmi_save_oem_strings_devices(dm);
-> +		break;
->  	case 38:	/* IPMI Device Information */
->  		dmi_save_ipmi_device(dm);
->  	}
-> diff --git a/include/linux/dmi.h b/include/linux/dmi.h
-> index b2cd207..38dc403 100644
-> --- a/include/linux/dmi.h
-> +++ b/include/linux/dmi.h
-> @@ -27,7 +27,8 @@ enum dmi_device_type {
->  	DMI_DEV_TYPE_ETHERNET,
->  	DMI_DEV_TYPE_TOKENRING,
->  	DMI_DEV_TYPE_SOUND,
-> -	DMI_DEV_TYPE_IPMI = -1
-> +	DMI_DEV_TYPE_IPMI = -1,
-> +	DMI_DEV_TYPE_OEM_STRING = -2
->  };
-> 
->  struct dmi_header {
-> 
+Alan

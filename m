@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWG0NbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWG0Nb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWG0NbB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWG0NbA
+	id S1161072AbWG0Nb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWG0NbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:31:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23479 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161071AbWG0Na7 (ORCPT
+	Thu, 27 Jul 2006 09:31:25 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:11684 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1161072AbWG0NbY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:30:59 -0400
-Subject: Re: [Ext2-devel] Question about ext3 jbd module
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Mao, Bibo" <bibo.mao@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <CA502B3E9EE27B4490C87C12E3C7C85111D033@pdsmsx412.ccr.corp.intel.com>
-References: <CA502B3E9EE27B4490C87C12E3C7C85111D033@pdsmsx412.ccr.corp.intel.com>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 14:30:33 +0100
-Message-Id: <1154007033.4941.2.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-27) 
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 09:31:24 -0400
+Message-Id: <200607271330.k6RDUaPC008087@laptop13.inf.utfsm.cl>
+To: "Luigi Genoni" <genoni@sns.it>
+cc: "Adrian Bunk" <bunk@stusta.de>, andrea@cpushare.com,
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       "Hans Reiser" <reiser@namesys.com>,
+       "Nikita Danilov" <nikita@clusterfs.com>,
+       "Rene Rebe" <rene@exactcode.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org regarding reiser4 inclusion 
+In-Reply-To: Message from "Luigi Genoni" <genoni@sns.it> 
+   of "Thu, 27 Jul 2006 13:07:27 +0200." <2870.192.167.206.189.1153998447.squirrel@darkstar.linuxpratico.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Thu, 27 Jul 2006 09:30:36 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 27 Jul 2006 09:30:37 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Luigi Genoni <genoni@sns.it> wrote:
 
-On Tue, 2006-07-25 at 17:59 +0800, Mao, Bibo wrote:
-> Yes, kernel version is 2.6.9, it is OS distribution kernel RHEL4.
+[...]
 
-Which version?  There were a few upstream problems like this fixed in
-2.6.11 or so, and I think current RHEL-4 updates should include those.
+> Anyway you have a datum.
+> Some people need reiser4, period.
 
-I'm off on holiday/family wedding tomorrow for a couple of weeks, so
-replies might be slow...
-
---Stephen
-
-
+Nope. Some people run kernels that include reiser4. That is all you can
+infer, and that I knew beforehand. They are at least 35, and that I'd have
+guessed in any case.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

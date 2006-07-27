@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWG0AAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWG0ACJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751827AbWG0AAa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 20:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWG0AAa
+	id S1751825AbWG0ACJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 20:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWG0ACJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 20:00:30 -0400
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:3539 "EHLO
-	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1751827AbWG0AA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 20:00:29 -0400
-Date: Thu, 27 Jul 2006 00:59:44 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Dave Airlie <airlied@linux.ie>
-cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] vm/agp: remove private page protection map
-In-Reply-To: <Pine.LNX.4.64.0607270023120.23571@skynet.skynet.ie>
-Message-ID: <Pine.LNX.4.64.0607270059220.17518@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0607181905140.26533@skynet.skynet.ie>
- <Pine.LNX.4.64.0607262135440.11629@blonde.wat.veritas.com>
- <Pine.LNX.4.64.0607270023120.23571@skynet.skynet.ie>
+	Wed, 26 Jul 2006 20:02:09 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:40167 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751825AbWG0ACI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 20:02:08 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: [RFC PATCH] Multi-threaded device probing
+Date: Thu, 27 Jul 2006 02:02:00 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+References: <20060725203028.GA1270@kroah.com>
+In-Reply-To: <20060725203028.GA1270@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 27 Jul 2006 00:00:14.0992 (UTC) FILETIME=[A35B1900:01C6B10F]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607270202.00854.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006, Dave Airlie wrote:
-> > agp_convert_mmap_flags still using its own conversion from PROT_ to VM_
-> > while there's an inline in mm.h (though why someone thought to optimize
+On Tuesday 25 July 2006 22:30, Greg KH wrote:
+> --- gregkh-2.6.orig/include/linux/device.h
+> +++ gregkh-2.6/include/linux/device.h
+> @@ -105,6 +105,8 @@ struct device_driver {
+>         void    (*shutdown)     (struct device * dev);
+>         int     (*suspend)      (struct device * dev, pm_message_t state);
+>         int     (*resume)       (struct device * dev);
+> +
+> +       unsigned int multithread_probe:1;
+>  };
+>  
 
-My mistake: calc_vm_prot_bits() is actually in include/linux/mman.h
-(which you are already #including, so no problem).
+Why use a bit field here? It ends up consuming sizeof(long) anyway
+and causes more complex code, with no obvious benefit.
 
-> > AGP keeps its own copy of the protection_map, upcoming DRM changes will
-> > also require access to this map from modules.
-> >
-> > Signed-off-by: Hugh Dickins <hugh@veritas.com>
-> 
-> Signed-of-by: Dave Airlie <airlied@linux.ie>
-
-Thanks.  By the way, I hope you noticed that some architectures
-(arm, m68k, sparc, sparc64) may adjust protection_map[] at startup:
-so the old agp_convert_mmap_flags would supply the compiled in prot,
-whereas the new agp_convert_mmap_flags supplies the adjusted prot.
-
-I assume this is either irrelevant to you (no AGP on some arches?)
-or an improvement (the adjusted prot more appropriate); but if you
-weren't aware of it, please do check that those do what you want.
-
-Hugh
+	Arnd <><

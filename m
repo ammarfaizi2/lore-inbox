@@ -1,110 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWG0UxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWG0VAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWG0UxB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWG0UxA
+	id S1751193AbWG0VAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWG0VAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:53:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40407 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750809AbWG0Uw5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:52:57 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 07/30] NFS: Return an error when starting the idmapping pipe [try #11]
-Date: Thu, 27 Jul 2006 21:52:42 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205242.8443.12357.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 27 Jul 2006 17:00:15 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:15772 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751056AbWG0VAJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 17:00:09 -0400
+Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Zach Brown <zach.brown@oracle.com>,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+In-Reply-To: <44C90987.1040200@redhat.com>
+References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru>
+	 <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>
+	 <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>
+	 <44C796C3.9030404@us.ibm.com> <1153982954.3887.9.camel@frecb000686>
+	 <44C8DB80.6030007@us.ibm.com>  <44C9029A.4090705@oracle.com>
+	 <1154024943.29920.3.camel@dyn9047017100.beaverton.ibm.com>
+	 <44C90987.1040200@redhat.com>
+Content-Type: text/plain
+Date: Thu, 27 Jul 2006 14:02:44 -0700
+Message-Id: <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Return an error when starting the idmapping pipe so that we can detect it
-failing.
+On Thu, 2006-07-27 at 11:44 -0700, Ulrich Drepper wrote:
+> Badari Pulavarty wrote:
+> > Before we spend too much time cleaning up and merging into mainline -
+> > I would like an agreement that what we add is good enough for glibc
+> > POSIX AIO.
+> 
+> I haven't seen a description of the interface so far.  Would be good if
+> it existed.  But I briefly mentioned one quirk in the interface about
+> which Suparna wasn't sure whether it's implemented/implementable in the
+> current interface.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
+Sebastien, could you provide a description of interfaces you are
+adding ? Since you did all the work, it would be appropriate for
+you to do it :)
 
- fs/nfs/idmap.c            |   12 ++++++++----
- fs/nfs/super.c            |    3 ++-
- include/linux/nfs_idmap.h |    2 +-
- 3 files changed, 11 insertions(+), 6 deletions(-)
+> If a lio_listio call is made the individual requests are handle just as
+> if they'd be issue separately.  I.e., the notification specified in the
+> individual aiocb is performed when the specific request is done.  Then,
+> once all requests are done, another notification is made, this time
+> controlled by the sigevent parameter if lio_listio.
+> 
+> 
+> Another feature which I always wanted: the current lio_listio call
+> returns in blocking mode only if all requests are done.  In non-blocking
+> mode it returns immediately and the program needs to poll the aiocbs.
+> What is needed is something in the middle.  For instance, if multiple
+> read requests are issued the program might be able to start working as
+> soon as one request is satisfied.  I.e., a call similar to lio_listio
+> would be nice which also takes another parameter specifying how many of
+> the NENT aiocbs have to finish before the call returns.
 
-diff --git a/fs/nfs/idmap.c b/fs/nfs/idmap.c
-index b151053..cd80d89 100644
---- a/fs/nfs/idmap.c
-+++ b/fs/nfs/idmap.c
-@@ -108,15 +108,17 @@ static struct rpc_pipe_ops idmap_upcall_
-         .destroy_msg    = idmap_pipe_destroy_msg,
- };
- 
--void
-+int
- nfs_idmap_new(struct nfs_client *clp)
- {
- 	struct idmap *idmap;
-+	int error;
- 
- 	if (clp->cl_idmap != NULL)
--		return;
-+		return 0;
-+
-         if ((idmap = kzalloc(sizeof(*idmap), GFP_KERNEL)) == NULL)
--                return;
-+                return -ENOMEM;
- 
- 	snprintf(idmap->idmap_path, sizeof(idmap->idmap_path),
- 	    "%s/idmap", clp->cl_rpcclient->cl_pathname);
-@@ -124,8 +126,9 @@ nfs_idmap_new(struct nfs_client *clp)
-         idmap->idmap_dentry = rpc_mkpipe(idmap->idmap_path,
- 	    idmap, &idmap_upcall_ops, 0);
-         if (IS_ERR(idmap->idmap_dentry)) {
-+		error = PTR_ERR(idmap->idmap_dentry);
- 		kfree(idmap);
--		return;
-+		return error;
- 	}
- 
-         mutex_init(&idmap->idmap_lock);
-@@ -135,6 +138,7 @@ nfs_idmap_new(struct nfs_client *clp)
- 	idmap->idmap_group_hash.h_type = IDMAP_TYPE_GROUP;
- 
- 	clp->cl_idmap = idmap;
-+	return 0;
- }
- 
- void
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 509fa99..0fbb75e 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -1131,7 +1131,8 @@ static struct rpc_clnt *nfs4_create_clie
- 		clnt->cl_softrtry = 1;
- 		clp->cl_rpcclient = clnt;
- 		memcpy(clp->cl_ipaddr, server->ip_addr, sizeof(clp->cl_ipaddr));
--		nfs_idmap_new(clp);
-+		if (nfs_idmap_new(clp) < 0)
-+			goto out_fail;
- 	}
- 	list_add_tail(&server->nfs4_siblings, &clp->cl_superblocks);
- 	clnt = rpc_clone_client(clp->cl_rpcclient);
-diff --git a/include/linux/nfs_idmap.h b/include/linux/nfs_idmap.h
-index 678fe68..15a9f3b 100644
---- a/include/linux/nfs_idmap.h
-+++ b/include/linux/nfs_idmap.h
-@@ -64,7 +64,7 @@ #ifdef __KERNEL__
- /* Forward declaration to make this header independent of others */
- struct nfs_client;
- 
--void nfs_idmap_new(struct nfs_client *);
-+int nfs_idmap_new(struct nfs_client *);
- void nfs_idmap_delete(struct nfs_client *);
- 
- int nfs_map_name_to_uid(struct nfs_client *, const char *, size_t, __u32 *);
+Looks reasonable.
+
+Thanks,
+Badari
+

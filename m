@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWG0Qou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWG0QqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751748AbWG0Qou (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 12:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWG0Qou
+	id S1751749AbWG0QqE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWG0QqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 12:44:50 -0400
-Received: from xenotime.net ([66.160.160.81]:33452 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751744AbWG0Qot (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 12:44:49 -0400
-Date: Thu, 27 Jul 2006 09:44:46 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: "jens m. noedler" <noedler@web.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update kernel-parameters.txt
-In-Reply-To: <44C8CDF7.4070205@web.de>
-Message-ID: <Pine.LNX.4.58.0607270942180.7955@shark.he.net>
-References: <44C8CDF7.4070205@web.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Jul 2006 12:46:04 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:50333 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751749AbWG0QqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:46:02 -0400
+Subject: Re: [patch] ipc/msg.c: clean up coding style
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060727162434.GA29489@elte.hu>
+References: <20060727135321.GA24644@elte.hu>
+	 <20060727144659.GC6825@martell.zuzino.mipt.ru>
+	 <20060727162434.GA29489@elte.hu>
+Content-Type: text/plain
+Date: Thu, 27 Jul 2006 09:45:59 -0700
+Message-Id: <1154018760.23162.35.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006, jens m. noedler wrote:
+On Thu, 2006-07-27 at 18:24 +0200, Ingo Molnar wrote:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Hi,
->
-> This is just a little documentation update which applies to 2.6.18-rc2.
->
-> Signed-off-by: jens m. noedler <noedler@web.de>
->
-> - ---
->
-> - --- Documentation/kernel-parameters.txt.orig    2006-07-26 16:47:34.000000000 +0200
-> +++ Documentation/kernel-parameters.txt 2006-07-27 15:57:02.000000000 +0200
+> > > +			"%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
 
-Patch should apply with 'patch -p1' (i.e., filenames begin with linux/
-or a/, b/ etc.)
+There's still a giant long line there.. I noticed you tend to leave
+strings un-touched.
 
-> @@ -110,6 +110,13 @@ be entered as an environment variable, w
->  it will appear as a kernel argument readable via /proc/cmdline by programs
->  running once the system is up.
->
-> +The number of kernel parameters in not limited, but the length of the
-                                   is
+Daniel
 
-> +complete command line (parameters including spaces etc.) is limited to
-> +a fixed number of characters. This limit depends on the architecture
-> +and is between 256 and 4096 characters. It is defined in the file
-> +./include/asm/setup.h as COMMAND_LINE_SIZE.
-> +
-> +
->         53c7xx=         [HW,SCSI] Amiga SCSI controllers
->                         See header of drivers/scsi/53c7xx.c.
->                         See also Documentation/scsi/ncr53c7xx.txt.
-
--- 
-~Randy

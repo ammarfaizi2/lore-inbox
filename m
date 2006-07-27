@@ -1,97 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWG0C5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWG0DBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWG0C5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 22:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWG0C5s
+	id S1161015AbWG0DBB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 23:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWG0DBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 22:57:48 -0400
-Received: from mail.jambit.com ([62.245.207.83]:44008 "EHLO mail.jambit.com")
-	by vger.kernel.org with ESMTP id S932065AbWG0C5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 22:57:47 -0400
-Message-ID: <44BE5A04.6080106@gmx.net>
-Date: Wed, 19 Jul 2006 18:12:52 +0200
-From: Michael Kerrisk <mtk-manpages@gmx.net>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Wed, 26 Jul 2006 23:01:00 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:28854 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id S1161015AbWG0DBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jul 2006 23:01:00 -0400
+Date: Wed, 26 Jul 2006 20:00:58 -0700 (PDT)
+From: dean gaudet <dean@arctic.org>
+To: adam radford <aradford@gmail.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 3ware disk latency?
+In-Reply-To: <b1bc6a000607261507g663ad95cwcc4a2ae4622e0fa2@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0607261959010.4568@twinlark.arctic.org>
+References: <20060710141315.GA5753@fi.muni.cz> 
+ <Pine.LNX.4.64.0607260942110.22242@twinlark.arctic.org> 
+ <1153946249.13509.29.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0607261440470.4568@twinlark.arctic.org>
+ <b1bc6a000607261507g663ad95cwcc4a2ae4622e0fa2@mail.gmail.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: man-pages-2.35 is released
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
+On Wed, 26 Jul 2006, adam radford wrote:
 
-I recently released man-pages-2.35, which can be found at the
-location in the .sig.
+> On 7/26/06, dean gaudet <dean@arctic.org> wrote:
+> > 
+> > unfortunately when i did the experiment i neglected to perform
+> > simultaneous tests on more than one 3ware unit on the same controller.  i
+> > got great results from a raid1 or from a raid10 (even a raid5)... but
+> > never i only tested one unit at a time.
+> > 
+> 
+> Did you try setting /sys/class/scsi_host/hostX/cmd_per_lun to 256 / num_units
+> ?
 
-Changes in this release that may be of interest to readers
-of this list include the following:
+hmm doesn't look like i can do this in 2.6.16.27:
 
-New pages
----------
+# ls -l /sys/class/scsi_host/host0/cmd_per_lun
+-r--r--r-- 1 root root 0 Jul 26 19:58 /sys/class/scsi_host/host0/cmd_per_lun
+# echo 85 >!$
+echo 85 >/sys/class/scsi_host/host0/cmd_per_lun
+zsh: permission denied: /sys/class/scsi_host/host0/cmd_per_lun
 
-sync_file_range.2
-   Andrew Morton / mtk
-      New page for sync_file_range(2), new in kernel 2.6.17.
+it'll probably be sometime until i update this box past 2.6.16.x ... but 
+i'll keep it in mind and retry the experiment... thanks.
 
-Changes to individual pages
----------------------------
-
-epoll_ctl.2
-    mtk / Davide Libenzi
-        Added EPOLLRDHUP description.
-
-==========
-
-The man-pages set contains sections 2, 3, 4, 5, and 7 of
-the manual pages.  These sections describe the following:
-
-2: (Linux) system calls
-3: (libc) library functions
-4: Devices
-5: File formats and protocols
-7: Overview pages, conventions, etc.
-
-As far as this list is concerned the most relevant parts are:
-all of sections 2 and 4, which describe kernel-userland interfaces;
-in section 5, the proc(5) manual page, which attempts (it's always
-catching up) to be a comprehensive description of /proc; and
-various pages in section 7, some of which are overview pages of
-kernel features (e.g., networking protocols).
-
-If you make a change to a kernel-userland interface, or observe
-a discrepancy between the manual pages and reality, would you
-please send me (at mtk-manpages@gmx.net ) one of the following
-(in decreasing order of preference):
-
-1. An in-line "diff -u" patch with text changes for the
-   corresponding manual page.  (The most up-to-date version
-   of the manual pages can always be found at
-   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
-   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
-
-2. Some raw text describing the changes, which I can then
-   integrate into the appropriate manual page.
-
-3. A message alerting me that some part of the manual pages
-   does not correspond to reality.  Eventually, I will try to
-   remedy the situation.
-
-Obviously, as we get further down this list, more of my time
-is required, and things may go slower, especially when the
-changes concern some part of the kernel that I am ignorant
-about and I can't find someone to assist.
-
-Cheers,
-
-Michael
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7
-Want to help with man page maintenance?
-Grab the latest tarball at ftp://ftp.win.tue.nl/pub/linux-local/manpages/,
-read the HOWTOHELP file and grep the source files for 'FIXME'.
-
-
+-dean

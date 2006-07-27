@@ -1,88 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWG0N4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWG0N6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWG0N4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWG0N4x
+	id S1750709AbWG0N6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWG0N6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:56:53 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:59762 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750859AbWG0N4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:56:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=torgbX4TYBVCv0LdFptuxWC/nGYjgHCr6dlT5/InppzwYb+eofUviv7jFr3GOCPf6rYFYTqgTv8he0FijR1idQIf0ufZUfQytheo1sCSYxfZkywtr4KmWWZbYmT2e/xmAw2pyk+1rSqyYqVJmgBlQTnwZl6xRMJ58JZhcxVQSMk=
-Message-ID: <d120d5000607270656l60e7353cob6a2605347f1577e@mail.gmail.com>
-Date: Thu, 27 Jul 2006 09:56:50 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "gmu 2k6" <gmu2006@gmail.com>
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Arjan van de Ven" <arjan@infradead.org>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Mike Miller" <mike.miller@hp.com>, iss_storagedev@hp.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <f96157c40607270628u7456bbf4w80bcd166d741b7f0@mail.gmail.com>
+	Thu, 27 Jul 2006 09:58:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52237 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750709AbWG0N6Y (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Thu, 27 Jul 2006 09:58:24 -0400
+Date: Thu, 27 Jul 2006 15:58:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: andrea@cpushare.com
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Hans Reiser <reiser@namesys.com>,
+       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060727135823.GA19718@stusta.de>
+References: <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <20060727115229.GD32243@opteron.random> <20060727121811.GN23701@stusta.de> <20060727131032.GE32243@opteron.random>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200607251636.42765.bjorn.helgaas@hp.com>
-	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
-	 <1153867675.8932.68.camel@laptopd505.fenrus.org>
-	 <44C6F26C.2080203@garzik.org>
-	 <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
-	 <f96157c40607270628u7456bbf4w80bcd166d741b7f0@mail.gmail.com>
+In-Reply-To: <20060727131032.GE32243@opteron.random>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/06, gmu 2k6 <gmu2006@gmail.com> wrote:
-> On 7/27/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 7/26/06, Jeff Garzik <jeff@garzik.org> wrote:
-> > > Arjan van de Ven wrote:
-> > > > On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
-> > > >> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> > > >>> If we don't find any devices, we shouldn't print anything.
-> > > >>>
-> > > >> I disagree.
-> > > >> I find it quite nice to be able to see that the driver loaded even if
-> > > >> it finds nothing. At least then when there's a problem, I can quickly
-> > > >> see that at least it is not because I didn't forget to load the
-> > > >> driver, it's something else. Saves time since I can start looking for
-> > > >> reasons why the driver didn't find anything without first spending
-> > > >> additional time checking if I failed to cause it to load for some
-> > > >> reason.
-> > > >
-> > > > I'll add a second reason: it is a REALLY nice property to be able to see
-> > > > which driver is started last in case of a crash/hang, so that the guilty
-> > > > party is more obvious..
-> > >
-> > > OTOH, it is not a property that scales well at all.
-> > >
-> > > When you build extra drivers into the kernel, or distros load drivers
-> > > you don't need (_every_ distro does this), you wind up with a bunch of
-> > > version strings for drivers for hardware you don't have.
-> > >
-> >
-> > Given that boot tracing is best done with initcall_debug and
-> > drivers that care about their version string can report it through
-> > /sys/modules/<driver>/version why should version string be printed at
-> > load time at all?
->
-> not every driver provides that file (btw, I guess you mean
-> /sys/module, don't you?) there anyway so it's still inconsistent.
+On Thu, Jul 27, 2006 at 03:10:32PM +0200, andrea@cpushare.com wrote:
+> On Thu, Jul 27, 2006 at 02:18:11PM +0200, Adrian Bunk wrote:
+> > They could only be considered positive if someone expected less than
+> > 35 reiser4 users worldwide.
+> 
+> The only thing we know for sure is that 35 out of 500 KLive user are
+> running reiser4, worldwide we have no clue.
+> 
+> > If you are intelligent (which I assume), you should have learned by this 
+> > how to not present your data.
+> 
+> I think readers are intelligent enough too to interpret the KLive data
+> properly for themself, without you having to prevent their eyes to see
+> the raw KLive data.
+> 
+> When you tell me how I should not present my data, you're asking me to
+> censor part or all of the very output of the KLive project. I'd rather
+> wipe out KLive completely, than to censor it. The way I presented it
+> was absolutely not biased, if you can make more transparent and
+> unbiased sql queries than the ones I did, please post them and I'll be
+> glad to run them.
 
-Yes, you are right, we drop version string when !MODULE. We need to
-keep it if we want to have consistent sysfs data.
+What about the following statement:
 
-> what if you can see up until loading of the driver and it halts there
-> without /sys being mounted yet. I don't think you can rely on sysfs
-> being mounted or modules being loaded.
+"Gentoo is 47 times as popular as SuSE among KLive users (a service
+ offered by a SuSE employee gathering data from many users worldwide)."
 
-Right, so you boot with debug_initcall to see what was the last thing
-that we tried to initialize. Hmm, we might need to add debug_modcall
-to print names of modules being loaded as well.
+Is any part of this information wrong?
+
+Is it therefore OK to put this information to /. ?
+
+Surely not, but you might get the point.
+
+> > [..] (I'm a happy ext2 user).
+> 
+> Oh my, I hope you're only choosing the fs for your own workstation.
+> 
+> Even though I don't pretend to fully understand someone who claims to
+> be happy with ext2,
+
+It's stable, and if the machine crashes the fsck is really great (Linus' 
+tree contains at least a dozen patches that had their temporary home in 
+my lost+found). (I don't care that the fsck takes 20 minutes on a 250 GB 
+partition.)
+
+Other people have other preferences and do therefore prefer other 
+filesystems.
+
+> I've no idea why you hate so much the stuff
+> running at cpushare.com domain. But if it helps KLive is actually one
+> of the non commercial projects I'm hosting there, and the only reason
+> I keep it there, is to be sure not to find it filled by ads.
+
+This isn't against cpushare.com, it's against publishing things people 
+will easily misinterpret.
+
+The Linux Counter [1] is another non commercial project gathering 
+similar data (including live data about running kernels and uptimes) 
+from far more users, and I've already given an example in this thread 
+how someone could have misinterpreted the data offered there. And if 
+someone would argue with data from there in a similar easy to 
+misinterpret way on this list, I'd react similarly.
+
+And another example would be that you could say "one third of all Linux 
+Counter machines are still running kernels < 2.6". This would be based 
+on current information submitted automatically from nearly 5000 
+machines. But people would read this is "one third of all machines are 
+still running kernels < 2.6". But the data doesn't have the quality for 
+this generalization. And this is exactly the problem.
+
+> Now let's try to get some work done instead of only sending emails ;)
+
+Agreed.  ;-)
+
+cu
+Adrian
+
+[1] http://counter.li.org/
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

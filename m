@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751723AbWG0QmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWG0Qou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751723AbWG0QmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 12:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWG0QmN
+	id S1751748AbWG0Qou (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWG0Qou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 12:42:13 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:29288 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751723AbWG0QmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 12:42:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EFeha3UJtjHBPDpLsJCnhoANvQ7heZutcVQpc8jpC7mbUaUogHwvjlMW4MFfHK/DUBCAjU4sTfHIQDK6d7nSYCGawKRxih0f3kq9k6KgX/W7RIxexUwDVwM9465FvoWpRtX3gePBDVERkiOMrsvWWHJY7Y4txDilOe/rUeAaGQM=
-Message-ID: <41840b750607270942l7a53010du1fabcf2a4b492789@mail.gmail.com>
-Date: Thu, 27 Jul 2006 19:42:10 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH] DMI: Decode and save OEM String information
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Henrique de Moraes Holschuh" <hmh@debian.org>
-In-Reply-To: <200607271010.53489.bjorn.helgaas@hp.com>
+	Thu, 27 Jul 2006 12:44:50 -0400
+Received: from xenotime.net ([66.160.160.81]:33452 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751744AbWG0Qot (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:44:49 -0400
+Date: Thu, 27 Jul 2006 09:44:46 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: "jens m. noedler" <noedler@web.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update kernel-parameters.txt
+In-Reply-To: <44C8CDF7.4070205@web.de>
+Message-ID: <Pine.LNX.4.58.0607270942180.7955@shark.he.net>
+References: <44C8CDF7.4070205@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
-	 <200607271010.53489.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 27 Jul 2006, jens m. noedler wrote:
 
-On 7/27/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> I always thought that ACPI was supposed to describe everything that
-> (a) consumes resources or requires a driver and (b) is not enumerable
-> by other hardware standards such as PCI.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> If that's true, isn't it a BIOS defect if this embedded controller isn't
-> described via ACPI?
+> Hi,
+>
+> This is just a little documentation update which applies to 2.6.18-rc2.
+>
+> Signed-off-by: jens m. noedler <noedler@web.de>
+>
+> - ---
+>
+> - --- Documentation/kernel-parameters.txt.orig    2006-07-26 16:47:34.000000000 +0200
+> +++ Documentation/kernel-parameters.txt 2006-07-27 15:57:02.000000000 +0200
 
-The ThinkPad ACPI tables do list the relevant IO ports (0x1600-0x161F)
-as reserved, but provide no way to discern what's behind them. Other
-machines have different hardware on the same ports.
+Patch should apply with 'patch -p1' (i.e., filenames begin with linux/
+or a/, b/ etc.)
 
-BTW, I should clarify that this embedded controller interface (used by
-hdaps and tp_smapi) is different than the standard ACPI EC interface,
-and goes through different IO ports.
+> @@ -110,6 +110,13 @@ be entered as an environment variable, w
+>  it will appear as a kernel argument readable via /proc/cmdline by programs
+>  running once the system is up.
+>
+> +The number of kernel parameters in not limited, but the length of the
+                                   is
 
+> +complete command line (parameters including spaces etc.) is limited to
+> +a fixed number of characters. This limit depends on the architecture
+> +and is between 256 and 4096 characters. It is defined in the file
+> +./include/asm/setup.h as COMMAND_LINE_SIZE.
+> +
+> +
+>         53c7xx=         [HW,SCSI] Amiga SCSI controllers
+>                         See header of drivers/scsi/53c7xx.c.
+>                         See also Documentation/scsi/ncr53c7xx.txt.
 
-> it seems like the ideal way forward
-> would be to get the BIOS fixed so you could claim the device with PNP
-> for future ThinkPads, and the table of OEM strings would not require
-> ongoing maintenance.
-
-This is unrealistic. The hdaps and tp_smapi drivers support dozens of
-ThinkPad models, each with a different BIOS.
-
-For the tp_smapi driver, AFAIK the only completely safe alternative to
-this patch is a frequently-updated whitelist of over a hundred models,
-identified by the existing DMI attributes.
-
-  Shem
+-- 
+~Randy

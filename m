@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWG0Pjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWG0PmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbWG0Pjv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWG0Pjv
+	id S932437AbWG0PmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWG0PmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:39:51 -0400
-Received: from alpha.polcom.net ([83.143.162.52]:16620 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S932570AbWG0Pju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:39:50 -0400
-Date: Thu, 27 Jul 2006 17:39:40 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Hans Reiser <reiser@namesys.com>, Matthias Andree <matthias.andree@gmx.de>,
-       lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-In-Reply-To: <20060726131709.GB5270@ucw.cz>
-Message-ID: <Pine.LNX.4.63.0607271732010.8976@alpha.polcom.net>
-References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org>
- <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com>
- <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org>
- <44C4813E.2030907@namesys.com> <20060726131709.GB5270@ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 27 Jul 2006 11:42:25 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:13992 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S932437AbWG0PmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:42:24 -0400
+Message-Id: <44C8FB44.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Thu, 27 Jul 2006 17:43:32 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "gmu 2k6" <gmu2006@gmail.com>
+Cc: <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix Intel RNG detection
+References: <44C8BE63.76E4.0078.0@novell.com>
+ <f96157c40607270818p2cfec277x7eaf8eb2f3767268@mail.gmail.com>
+ <f96157c40607270835l34cd0de1w8c8a0d95ba8ee39f@mail.gmail.com>
+In-Reply-To: <f96157c40607270835l34cd0de1w8c8a0d95ba8ee39f@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jul 2006, Pavel Machek wrote:
-
-> Hi!
+># dmesg | grep rng
+>intel_rng: FWH not detected
 >
->>> of the story for me. There's nothing wrong about focusing on newer code,
->>> but the old code needs to be cared for, too, to fix remaining issues
->>> such as the "can only have N files with the same hash value".
->>>
->> Requires a disk format change, in a filesystem without plugins, to fix it.
->
-> Well, too bad, if reiser3 is so broken it needs on-disk-format-change,
-> then I guess doing that change is the right thing to do...
+>looks like this ProLiant box with the ICH5 chip has no usable RNG
+>included, or should it?
 
-Sorry for my stupid question, but could you tell me why starting to make 
-incompatible changes to reiserfs3 now (when reiserfs3 "technology" is 
-rather old) and making reiserfs3 unstable (again), possibly for several 
-months or even years is better than fixing big issues with reiser4 (if 
-there are any really big left) merging it and trying to stabilize it?
+A configuration like this is what actually motivated me to write the
+patch. You need to remember that the RNG doesn't live in the ICH, but in
+the FWH (which is a different chip not showing up as a separate device
+anywhere) with only some access parameters being configured via the LPC
+device inside the ICH.
 
-For end user both ways will result in mkfs so...
-
-
-Thanks,
-
-Grzegorz Kulewski
-
+Jan

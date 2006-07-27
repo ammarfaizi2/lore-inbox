@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWG0IL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWG0IM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWG0IL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 04:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWG0IL3
+	id S1750868AbWG0IM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 04:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWG0IM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 04:11:29 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28202 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750792AbWG0IL2 (ORCPT
+	Thu, 27 Jul 2006 04:12:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22658 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750868AbWG0IM1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 04:11:28 -0400
-Date: Thu, 27 Jul 2006 10:11:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: David Miller <davem@davemloft.net>
-Cc: johnpol@2ka.mipt.ru, drepper@redhat.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: async network I/O, event channels, etc
-Message-ID: <20060727081114.GH5282@suse.de>
-References: <20060726062817.GA20636@2ka.mipt.ru> <20060726.231055.121220029.davem@davemloft.net> <20060727074902.GC5490@2ka.mipt.ru> <20060727.010255.87351515.davem@davemloft.net> <20060727080901.GG5282@suse.de>
+	Thu, 27 Jul 2006 04:12:27 -0400
+Date: Thu, 27 Jul 2006 01:12:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: a.p.zijlstra@chello.nl, linux-mm@kvack.org, torvalds@osdl.org,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: use-once cleanup
+Message-Id: <20060727011204.87033366.akpm@osdl.org>
+In-Reply-To: <44C86FB9.6090709@redhat.com>
+References: <1153168829.31891.89.camel@lappy>
+	<44C86FB9.6090709@redhat.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727080901.GG5282@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27 2006, Jens Axboe wrote:
-> On Thu, Jul 27 2006, David Miller wrote:
-> > From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-> > Date: Thu, 27 Jul 2006 11:49:02 +0400
+On Thu, 27 Jul 2006 03:48:09 -0400
+Rik van Riel <riel@redhat.com> wrote:
+
+> Peter Zijlstra wrote:
+> > Hi,
 > > 
-> > > I.e. map skb's data to userspace? Not a good idea especially with it's
-> > > tricky lifetime and unability for userspace to inform kernel when it
-> > > finished and skb can be freed (without additional syscall).
-> > 
-> > Hmmm...
-> > 
-> > If it is paged based, I do not see the problem.  Events and calls to
-> > AIO I/O routines make transfer of buffer ownership.  The fact that
-> > while kernel (and thus networking stack) "owns" the buffer for an AIO
-> > call, the user can have a valid mapping to it is a unimportant detail.
+> > This is yet another implementation of the PG_useonce cleanup spoken of
+> > during the VM summit.
 > 
-> Ownership may be clear, but "when can I reuse" is tricky. The same issue
-> comes up for vmsplice -> splice to socket.
+> After getting bitten by rsync yet again, I guess it's time to insist
+> that this patch gets merged...
+> 
+> Andrew, could you merge this?  Pretty please? ;)
+> 
 
-Ownership transition from user -> kernel that is, what I'm trying to say
-that returning ownership to the user again is the tricky part.
+Guys, this is a performance patch, right?
 
--- 
-Jens Axboe
+One which has no published performance testing results, right?
 
+It would be somewhat odd to merge it under these circumstances.
+
+And this applies to all of these
+hey-this-is-cool-but-i-didnt-bother-testing-it MM patches which people are
+throwing around.  This stuff is *hard*.  It has a bad tendency to cause
+nasty problems which only become known months after the code is merged.
+
+I shouldn't have to describe all this, but
+
+- Identify the workloads which it's supposed to improve, set up tests,
+  run tests, publish results.
+
+- Identify the workloads which it's expected to damage, set up tests, run
+  tests, publish results.
+
+- Identify workloads which aren't expected to be impacted, make a good
+  effort at demonstrating that they are not impacted.
+
+- Perform stability/stress testing, publish results.
+
+Writing the code is about 5% of the effort for this sort of thing.
+
+Yes, we can toss it in the tree and see what happens.  But it tends to be
+the case that unless someone does targetted testing such as the above,
+regressions simply aren't noticed for long periods of time.  <wonders which
+schmuck gets to do the legwork when people report problems>
+
+Just the (unchangelogged) changes to the when-to-call-mark_page_accessed()
+logic are a big deal.  Probably these should be a separate patch -
+separately changelogged, separately tested, separately justified.
+
+Performance testing is *everything* for this sort of patch and afaict none
+has been done, so it's as if it hadn't been written, no?

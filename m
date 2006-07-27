@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWG0VBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWG0UxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWG0VBk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWG0VBj
+	id S1750829AbWG0UxB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWG0UxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:01:39 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:16354 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S1751049AbWG0Uxl (ORCPT
+	Thu, 27 Jul 2006 16:53:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40407 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750809AbWG0Uw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:53:41 -0400
+	Thu, 27 Jul 2006 16:52:57 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 30/30] VFS: Destroy the dentries contributed by a superblock on unmounting [try #11]
-Date: Thu, 27 Jul 2006 21:53:34 +0100
+Subject: [PATCH 07/30] NFS: Return an error when starting the idmapping pipe [try #11]
+Date: Thu, 27 Jul 2006 21:52:42 +0100
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205333.8443.97943.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060727205242.8443.12357.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
 References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,237 +25,86 @@ User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch destroys all the dentries attached to a superblock in one go
-by:
-
- (1) Destroying the tree rooted at s_root.
-
- (2) Destroying every entry in the anon list, one at a time.
-
- (3) Each entry in the anon list has its subtree consumed from the leaves
-     inwards.
-
-This reduces the amount of work generic_shutdown_super() does, and avoids
-iterating through the dentry_unused list.
-
-Note that locking is almost entirely absent in the shrink_dcache_for_umount*()
-functions added by this patch.  This is because:
-
- (1) at the point the filesystem calls generic_shutdown_super(), it is not
-     permitted to further touch the superblock's set of dentries, and nor may
-     it remove aliases from inodes;
-
- (2) the dcache memory shrinker now skips dentries that are being unmounted;
-     and
-
- (3) the superblock no longer has any external references through which the VFS
-     can reach it.
-
-Given these points, the only locking we need to do is when we remove dentries
-from the unused list and the name hashes, which we do a directory's worth at a
-time.
-
-We also don't need to guard against reference counts going to zero unexpectedly
-and removing bits of the tree we're working on as nothing else can call dput().
-
-A cut down version of dentry_iput() has been folded into
-shrink_dcache_for_umount_subtree() function.  Apart from not needing to unlock
-things, it also doesn't need to check for inotify watches.
-
-In this version of the patch, the complaint about a dentry still being in use
-has been expanded from a single BUG_ON() and now gives much more information.
+Return an error when starting the idmapping pipe so that we can detect it
+failing.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
-Acked-by: NeilBrown <neilb@suse.de>
-Acked-by: Ian Kent <raven@themaw.net>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 ---
 
- fs/dcache.c            |  133 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/super.c             |   12 ++--
- include/linux/dcache.h |    1 
- 3 files changed, 140 insertions(+), 6 deletions(-)
+ fs/nfs/idmap.c            |   12 ++++++++----
+ fs/nfs/super.c            |    3 ++-
+ include/linux/nfs_idmap.h |    2 +-
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 17b392a..780f014 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -547,6 +547,139 @@ repeat:
+diff --git a/fs/nfs/idmap.c b/fs/nfs/idmap.c
+index b151053..cd80d89 100644
+--- a/fs/nfs/idmap.c
++++ b/fs/nfs/idmap.c
+@@ -108,15 +108,17 @@ static struct rpc_pipe_ops idmap_upcall_
+         .destroy_msg    = idmap_pipe_destroy_msg,
+ };
+ 
+-void
++int
+ nfs_idmap_new(struct nfs_client *clp)
+ {
+ 	struct idmap *idmap;
++	int error;
+ 
+ 	if (clp->cl_idmap != NULL)
+-		return;
++		return 0;
++
+         if ((idmap = kzalloc(sizeof(*idmap), GFP_KERNEL)) == NULL)
+-                return;
++                return -ENOMEM;
+ 
+ 	snprintf(idmap->idmap_path, sizeof(idmap->idmap_path),
+ 	    "%s/idmap", clp->cl_rpcclient->cl_pathname);
+@@ -124,8 +126,9 @@ nfs_idmap_new(struct nfs_client *clp)
+         idmap->idmap_dentry = rpc_mkpipe(idmap->idmap_path,
+ 	    idmap, &idmap_upcall_ops, 0);
+         if (IS_ERR(idmap->idmap_dentry)) {
++		error = PTR_ERR(idmap->idmap_dentry);
+ 		kfree(idmap);
+-		return;
++		return error;
+ 	}
+ 
+         mutex_init(&idmap->idmap_lock);
+@@ -135,6 +138,7 @@ nfs_idmap_new(struct nfs_client *clp)
+ 	idmap->idmap_group_hash.h_type = IDMAP_TYPE_GROUP;
+ 
+ 	clp->cl_idmap = idmap;
++	return 0;
  }
  
- /*
-+ * destroy a single subtree of dentries for unmount
-+ * - see the comments on shrink_dcache_for_umount() for a description of the
-+ *   locking
-+ */
-+static void shrink_dcache_for_umount_subtree(struct dentry *dentry)
-+{
-+	struct dentry *parent;
-+
-+	BUG_ON(!IS_ROOT(dentry));
-+
-+	/* detach this root from the system */
-+	spin_lock(&dcache_lock);
-+	if (!list_empty(&dentry->d_lru)) {
-+		dentry_stat.nr_unused--;
-+		list_del_init(&dentry->d_lru);
-+	}
-+	__d_drop(dentry);
-+	spin_unlock(&dcache_lock);
-+
-+	for (;;) {
-+		/* descend to the first leaf in the current subtree */
-+		while (!list_empty(&dentry->d_subdirs)) {
-+			struct dentry *loop;
-+
-+			/* this is a branch with children - detach all of them
-+			 * from the system in one go */
-+			spin_lock(&dcache_lock);
-+			list_for_each_entry(loop, &dentry->d_subdirs,
-+					    d_u.d_child) {
-+				if (!list_empty(&loop->d_lru)) {
-+					dentry_stat.nr_unused--;
-+					list_del_init(&loop->d_lru);
-+				}
-+
-+				__d_drop(loop);
-+				cond_resched_lock(&dcache_lock);
-+			}
-+			spin_unlock(&dcache_lock);
-+
-+			/* move to the first child */
-+			dentry = list_entry(dentry->d_subdirs.next,
-+					    struct dentry, d_u.d_child);
-+		}
-+
-+		/* consume the dentries from this leaf up through its parents
-+		 * until we find one with children or run out altogether */
-+		do {
-+			struct inode *inode;
-+
-+			if (atomic_read(&dentry->d_count) != 0) {
-+				printk(KERN_ERR
-+				       "BUG: Dentry %p{i=%lx,n=%s}"
-+				       " still in use (%d)"
-+				       " [unmount of %s %s]\n",
-+				       dentry,
-+				       dentry->d_inode ?
-+				       dentry->d_inode->i_ino : 0UL,
-+				       dentry->d_name.name,
-+				       atomic_read(&dentry->d_count),
-+				       dentry->d_sb->s_type->name,
-+				       dentry->d_sb->s_id);
-+				BUG();
-+			}
-+
-+			parent = dentry->d_parent;
-+			if (parent == dentry)
-+				parent = NULL;
-+			else
-+				atomic_dec(&parent->d_count);
-+
-+			list_del(&dentry->d_u.d_child);
-+			dentry_stat.nr_dentry--;	/* For d_free, below */
-+
-+			inode = dentry->d_inode;
-+			if (inode) {
-+#ifdef CONFIG_INOTIFY
-+				BUG_ON(!list_empty(&inode->inotify_watches));
-+#endif
-+				dentry->d_inode = NULL;
-+				list_del_init(&dentry->d_alias);
-+				if (dentry->d_op && dentry->d_op->d_iput)
-+					dentry->d_op->d_iput(dentry, inode);
-+				else
-+					iput(inode);
-+			}
-+
-+			d_free(dentry);
-+
-+			/* finished when we fall off the top of the tree,
-+			 * otherwise we ascend to the parent and move to the
-+			 * next sibling if there is one */
-+			if (!parent)
-+				return;
-+
-+			dentry = parent;
-+
-+		} while (list_empty(&dentry->d_subdirs));
-+
-+		dentry = list_entry(dentry->d_subdirs.next,
-+				    struct dentry, d_u.d_child);
-+	}
-+}
-+
-+/*
-+ * destroy the dentries attached to a superblock on unmounting
-+ * - we don't need to use dentry->d_lock, and only need dcache_lock when
-+ *   removing the dentry from the system lists and hashes because:
-+ *   - the superblock is detached from all mountings and open files, so the
-+ *     dentry trees will not be rearranged by the VFS
-+ *   - s_umount is write-locked, so the memory pressure shrinker will ignore
-+ *     any dentries belonging to this superblock that it comes across
-+ *   - the filesystem itself is no longer permitted to rearrange the dentries
-+ *     in this superblock
-+ */
-+void shrink_dcache_for_umount(struct super_block *sb)
-+{
-+	struct dentry *dentry;
-+
-+	if (down_read_trylock(&sb->s_umount))
-+		BUG();
-+
-+	dentry = sb->s_root;
-+	sb->s_root = NULL;
-+	atomic_dec(&dentry->d_count);
-+	shrink_dcache_for_umount_subtree(dentry);
-+
-+	while (!hlist_empty(&sb->s_anon)) {
-+		dentry = hlist_entry(sb->s_anon.first, struct dentry, d_hash);
-+		shrink_dcache_for_umount_subtree(dentry);
-+	}
-+}
-+
-+/*
-  * Search for at least 1 mount point in the dentry's subdirs.
-  * We descend to the next level whenever the d_subdirs
-  * list is non-empty and continue searching.
-diff --git a/fs/super.c b/fs/super.c
-index 6d4e817..3bf8e5f 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -228,17 +228,17 @@ static int grab_super(struct super_block
-  *	that need destruction out of superblock, call generic_shutdown_super()
-  *	and release aforementioned objects.  Note: dentries and inodes _are_
-  *	taken care of and do not need specific handling.
-+ *
-+ *	Upon calling this function, the filesystem may no longer alter or
-+ *	rearrange the set of dentries belonging to this super_block, nor may it
-+ *	change the attachments of dentries to inodes.
-  */
- void generic_shutdown_super(struct super_block *sb)
- {
--	struct dentry *root = sb->s_root;
- 	struct super_operations *sop = sb->s_op;
+ void
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index 509fa99..0fbb75e 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -1131,7 +1131,8 @@ static struct rpc_clnt *nfs4_create_clie
+ 		clnt->cl_softrtry = 1;
+ 		clp->cl_rpcclient = clnt;
+ 		memcpy(clp->cl_ipaddr, server->ip_addr, sizeof(clp->cl_ipaddr));
+-		nfs_idmap_new(clp);
++		if (nfs_idmap_new(clp) < 0)
++			goto out_fail;
+ 	}
+ 	list_add_tail(&server->nfs4_siblings, &clp->cl_superblocks);
+ 	clnt = rpc_clone_client(clp->cl_rpcclient);
+diff --git a/include/linux/nfs_idmap.h b/include/linux/nfs_idmap.h
+index 678fe68..15a9f3b 100644
+--- a/include/linux/nfs_idmap.h
++++ b/include/linux/nfs_idmap.h
+@@ -64,7 +64,7 @@ #ifdef __KERNEL__
+ /* Forward declaration to make this header independent of others */
+ struct nfs_client;
  
--	if (root) {
--		sb->s_root = NULL;
--		shrink_dcache_parent(root);
--		shrink_dcache_sb(sb);
--		dput(root);
-+	if (sb->s_root) {
-+		shrink_dcache_for_umount(sb);
- 		fsync_super(sb);
- 		lock_super(sb);
- 		sb->s_flags &= ~MS_ACTIVE;
-diff --git a/include/linux/dcache.h b/include/linux/dcache.h
-index 44605be..63f64a9 100644
---- a/include/linux/dcache.h
-+++ b/include/linux/dcache.h
-@@ -230,6 +230,7 @@ extern struct dentry * d_alloc_anon(stru
- extern struct dentry * d_splice_alias(struct inode *, struct dentry *);
- extern void shrink_dcache_sb(struct super_block *);
- extern void shrink_dcache_parent(struct dentry *);
-+extern void shrink_dcache_for_umount(struct super_block *);
- extern int d_invalidate(struct dentry *);
+-void nfs_idmap_new(struct nfs_client *);
++int nfs_idmap_new(struct nfs_client *);
+ void nfs_idmap_delete(struct nfs_client *);
  
- /* only used at mount-time */
+ int nfs_map_name_to_uid(struct nfs_client *, const char *, size_t, __u32 *);

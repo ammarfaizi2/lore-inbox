@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWG0Nm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbWG0Npe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbWG0Nm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWG0Nm0
+	id S1161068AbWG0Npe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161075AbWG0Npe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:42:26 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:55879 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161067AbWG0NmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:42:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n6LtCqbbzJ1C3fwZSLQPu6eECoo1iWwnMUtItqLGc/qZ1rbC774/kpMj5690snFgrnITti7Yh2X0PHxoOUx6y3tXXfeX1wmulTPuhgb6zz+CAxYtKGQmUyvrel/sAvm3uFw1ojSdyQ6jSHNf1HelwHnjH2oFexPYPO5HQOKlGy0=
-Message-ID: <f96157c40607270642p44c89597pcbb7d5685b47dae8@mail.gmail.com>
-Date: Thu, 27 Jul 2006 13:42:23 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org regarding reiser4 inclusion
-Cc: "Luigi Genoni" <genoni@sns.it>, "Adrian Bunk" <bunk@stusta.de>,
-       andrea@cpushare.com, "J. Bruce Fields" <bfields@fieldses.org>,
-       "Hans Reiser" <reiser@namesys.com>,
-       "Nikita Danilov" <nikita@clusterfs.com>,
-       "Rene Rebe" <rene@exactcode.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200607271330.k6RDUaPC008087@laptop13.inf.utfsm.cl>
+	Thu, 27 Jul 2006 09:45:34 -0400
+Received: from mga01.intel.com ([192.55.52.88]:23226 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161068AbWG0Npe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:45:34 -0400
+X-IronPort-AV: i="4.07,187,1151910000"; 
+   d="scan'208"; a="105852235:sNHT16424940"
+Message-ID: <44C8C37B.50405@intel.com>
+Date: Thu, 27 Jul 2006 21:45:31 +0800
+From: "bibo,mao" <bibo.mao@intel.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, ext2-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Question about ext3 jbd module
+References: <CA502B3E9EE27B4490C87C12E3C7C85111D033@pdsmsx412.ccr.corp.intel.com> <1154007033.4941.2.camel@sisko.sctweedie.blueyonder.co.uk>
+In-Reply-To: <1154007033.4941.2.camel@sisko.sctweedie.blueyonder.co.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <genoni@sns.it>
-	 <2870.192.167.206.189.1153998447.squirrel@darkstar.linuxpratico.net>
-	 <200607271330.k6RDUaPC008087@laptop13.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/06, Horst H. von Brand <vonbrand@inf.utfsm.cl> wrote:
-> Luigi Genoni <genoni@sns.it> wrote:
->
-> [...]
->
-> > Anyway you have a datum.
-> > Some people need reiser4, period.
->
-> Nope. Some people run kernels that include reiser4. That is all you can
-> infer, and that I knew beforehand. They are at least 35, and that I'd have
-> guessed in any case.
+System crashed in RHEL4 U3 version, I doubt why there is no judgement
+about whether jh is NULL or not in function journal_dirty_metadata().
 
-35.5 as I'm testing it here on my workstation and it seems to be
-faster when you test some things involving many copies of large
-multi-level sourcetree directories each 3 to 6GiB big in size.
-2.6.18-rc2-mm1 with Reiser4 looks ok so far and I had no sync() OOPS
-like the last time with one -mm revision.
 
-speed tells us nothing about reliability of course, but compared to
-ext3 with dir_index,sparse_super Reiser4 seems to handle "du -sh" and
-"rm -r" much faster and without eating all of the CPU cycles as it
-finishes quicker although Reiser4 was meant to be CPU-heavy compared
-to ext*/reiserfs3.
+thanks
+bibo,mao
+
+Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Tue, 2006-07-25 at 17:59 +0800, Mao, Bibo wrote:
+>  > Yes, kernel version is 2.6.9, it is OS distribution kernel RHEL4.
+> 
+> Which version?  There were a few upstream problems like this fixed in
+> 2.6.11 or so, and I think current RHEL-4 updates should include those.
+> 
+> I'm off on holiday/family wedding tomorrow for a couple of weeks, so
+> replies might be slow...
+> 
+> --Stephen
+> 

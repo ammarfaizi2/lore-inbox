@@ -1,104 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWG0Ma6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWG0Mey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWG0Ma6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 08:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWG0Ma6
+	id S1750720AbWG0Mey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 08:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWG0Mey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 08:30:58 -0400
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:34491 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751128AbWG0Ma5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 08:30:57 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: [BUG?] possible recursive locking detected
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, eike-kernel@sf-tec.de,
-       linux-kernel@vger.kernel.org, aia21@cantab.net
-In-Reply-To: <44C88F46.9010201@yahoo.com.au>
-References: <200607261805.26711.eike-kernel@sf-tec.de>
-	 <20060726225311.f51cee6d.akpm@osdl.org> <44C86271.9030603@yahoo.com.au>
-	 <1153984527.21849.2.camel@imp.csi.cam.ac.uk>
-	 <20060727003806.def43f26.akpm@osdl.org>
-	 <1153988398.21849.16.camel@imp.csi.cam.ac.uk>
-	 <44C884EF.6010705@yahoo.com.au>
-	 <1153992928.21849.41.camel@imp.csi.cam.ac.uk>
-	 <44C88F46.9010201@yahoo.com.au>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Thu, 27 Jul 2006 13:30:34 +0100
-Message-Id: <1154003434.21849.44.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 08:34:54 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:24802 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750720AbWG0Mey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 08:34:54 -0400
+From: Bodo Eggert <7eggert@elstempel.de>
+Subject: Re: Can we ignore errors in mcelog if the server is running fine
+To: Vikas Kedia <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 27 Jul 2006 14:34:02 +0200
+References: <6Dc4C-1tt-47@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+X-Troll: Tanz
+Message-Id: <E1G654J-0001B7-55@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@elstempel.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-27 at 20:02 +1000, Nick Piggin wrote:
-> Anton Altaparmakov wrote:
-> > On Thu, 2006-07-27 at 19:18 +1000, Nick Piggin wrote:
-> > 
-> >>Anton Altaparmakov wrote:
-> 
-> >>>I beg to differ.  It is a bug.  You cannot reenter the file system when
-> >>>the file system is trying to allocate memory.  Otherwise you can never
-> >>>allocate memory with any locks held or you are bound to introduce an
-> >>>A->B B->A deadlock somewhere.
-> >>
-> >>I don't think it is a bug in general. It really depends on the allocation:
-> >>
-> >>- If it is a path that might be required in order to writeout a page, then
-> >>yes GFP_NOFS is going to help prevent deadlocks.
-> >>
-> >>- If it is a path where you'll take the same locks as page reclaim requires,
-> >>then again GFP_NOFS is required.
-> >>
-> >>For NTFS case, it seems like holding i_mutex on the write path falls foul
-> >>of the second problem. But I agree with Andrew that this is a critical case
-> >>where we do have to enter the fs. GFP_NOFS is too big a hammer to use.
-> >>
-> >>I guess you'd have to change NTFS to do something sane privately, or come
-> >>up with a nice general solution that doesn't harm the common filesystems
-> >>that apparently don't have a problem here... can you just add GFP_NOFS to
-> >>NTFS's mapping_gfp_mask to start with?
-> > 
-> > 
-> > I don't think NTFS has a problem either.  It is a theoretical problem
-> 
-> No, I mean: *really* doesn't have a problem. If Andrew says ext2 doesn't
-> need i_mutex in reclaim, then I tend to believe him.
-> 
-> > with an extremely small chance of being hit.  I am happy to have such a
-> > problem for now.  There are more pressing problems to solve.  The only
-> > thing that needs to happen is for the messages to stop so people stop
-> > complaining / getting worried about them...
-> 
-> I guess the memory deadlock issue is probably mostly theoretical, although
-> it is still nice to get them fixed. I'd imagine a deadlock condition -- if
-> one really exists -- could be hit without much problem though. Page reclaim
-> will readily get kicked from the write(2) path, and will potentially free
-> *lots* of stuff from there.
-> 
-> If it isn't a problem for you, I'd suspect it might be due to some other
-> conditions which happen to mean it is avoided. For example, the inode who's
-> i_mutex you are holding will have a raised refcount AFAIK, so it will not
-> get reclaimed and so may get around your problem.
+Vikas Kedia <kedia.vikas@gmail.com> wrote:
 
-That is true, yes.  So at least in that respect it should be safe.
+> The server seems to be running fine.
 
-> This would be a valid solution IMO. It probably could do with documentation
-> to outline the issues, though.
+Since these errors were corrected, you should expect that.
 
-That is true.
+> A. can I ignore the following
+> mcelog errors ?
 
-Best regards,
+Obviously, but I doubt you want to.
 
-        Anton
+> B. If not what should i do to stop the server from
+> reporting mcelog errors.
+
+Fix the problem.
+
+> CPU 0 0 data cache TSC 997fa760e9
+> ADDR 2c13340
+>   Data cache ECC error (syndrome e3)
+>        bit46 = corrected ecc error
+
+It's reported to be the data cache on CPU 0. You'll need to replace that
+part of the cache (and the rest of the CPU, since you can't buy spare
+cache lines nor that small soldering irons.-) The old CPU will be fine for
+unimportant machines.
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://www.linux-ntfs.org/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.
 
+http://david.woodhou.se/why-not-spf.html

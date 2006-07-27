@@ -1,23 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWG0AZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWG0A04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751835AbWG0AZN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 20:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWG0AZM
+	id S1751833AbWG0A04 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 20:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWG0A04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 20:25:12 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:34532 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751835AbWG0AZL (ORCPT
+	Wed, 26 Jul 2006 20:26:56 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:35300 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751833AbWG0A0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 20:25:11 -0400
-Date: Thu, 27 Jul 2006 02:25:05 +0200 (CEST)
+	Wed, 26 Jul 2006 20:26:55 -0400
+Date: Thu, 27 Jul 2006 02:23:15 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Sam Ravnborg <sam@mars.ravnborg.org>
-Subject: Re: [PATCH v2 0/3] kconfig/lxdialog: color theme support
-In-Reply-To: <20060725065640.GA2685@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0607270223220.6761@scrub.home>
-References: <20060725065640.GA2685@mars.ravnborg.org>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       linux-acpi@vger.kernel.org, len.brown@intel.com, akpm@osdl.org,
+       rdunlap@xenotime.net, linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [patch] pci/hotplug acpiphp: fix Kconfig for Dock dependencies
+In-Reply-To: <20060726103226.69aa79c1.kristen.c.accardi@intel.com>
+Message-ID: <Pine.LNX.4.64.0607270218190.6761@scrub.home>
+References: <20060725161854.79f9cc1b.kristen.c.accardi@intel.com>
+ <20060725164125.A15861@unix-os.sc.intel.com> <20060726103226.69aa79c1.kristen.c.accardi@intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,15 +29,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, 25 Jul 2006, Sam Ravnborg wrote:
+On Wed, 26 Jul 2006, Kristen Carlson Accardi wrote:
 
-> Second iteration of the patchset to add color theme support to lxdialog.
-> This patchset allow the menuconfig user to select between a number of
-> different color themes for menuconfig:
-> blackbg, classic, mono and bluetitle
+>  config HOTPLUG_PCI_ACPI
+>  	tristate "ACPI PCI Hotplug driver"
+> -	depends on ACPI_DOCK && HOTPLUG_PCI
+> +	depends on (!ACPI_DOCK && ACPI && HOTPLUG_PCI) || (ACPI_DOCK && HOTPLUG_PCI)
+>  	help
 
-Looks good.
-
-Acked-by: Roman Zippel <zippel@linux-m68k.org>
+If you keep the HOTPLUG_PCI separate, it won't break the menu, e.g. 
+((!ACPI_DOCK && ACPI) || ACPI_DOCK) && HOTPLUG_PCI
+BTW most of this file could be put into a "if HOTPLUG_PCI" group, so all 
+the HOTPLUG_PCI dependencies don't have to be repeated.
 
 bye, Roman

@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751911AbWG0SO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWG0SQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751911AbWG0SO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 14:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG0SO5
+	id S1751918AbWG0SQG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 14:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751916AbWG0SQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 14:14:57 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:45983 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1751888AbWG0SO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 14:14:56 -0400
-Message-ID: <44C9029A.4090705@oracle.com>
-Date: Thu, 27 Jul 2006 11:14:50 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 27 Jul 2006 14:16:05 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64015 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751918AbWG0SQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 14:16:04 -0400
+Date: Thu, 27 Jul 2006 20:16:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Edgar Hucek <hostmaster@ed-soft.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] arch/i386/pci/mmconfig.c: fixes
+Message-ID: <20060727181603.GA23554@stusta.de>
+References: <20060727015639.9c89db57.akpm@osdl.org>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: =?ISO-8859-15?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru>	 <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>	 <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>	 <44C796C3.9030404@us.ibm.com> <1153982954.3887.9.camel@frecb000686> <44C8DB80.6030007@us.ibm.com>
-In-Reply-To: <44C8DB80.6030007@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 27, 2006 at 01:56:39AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.18-rc2-mm1:
+>...
+> +add-force-of-use-mmconfig.patch
+>...
+>  x86 updates
+>...
 
-> Suparna mentioned at Ulrich wants us to concentrate on kernel-side 
-> support, so that he can look at glibc side of things (along with
-> other work he is already doing). So, if we can get an agreement on
-> what kind of kernel support is needed - we can focus our efforts on
-> kernel side first and leave glibc enablement to capable hands of Uli
-> :)
+This patch contains the following fixes:
+- add an #include <asm/setup.h> for getting the prototype of 
+  add_memory_region()
+  since add_memory_region() has two "long long" parameters, it's
+  possible this might fix runtime corruption problems
+- make the needlessly global pci_mmcfg_force() static
+ 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Yeah, and the existing patches still need some cleanup.  Badari, did you
-still want me to look into that?
+---
 
-We need someone to claim ultimate responsibility for getting these
-patches suitable for merging :).  I'm happy to do that if Suparna isn't
-already on it.
+ arch/i386/pci/mmconfig.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-- z
+--- linux-2.6.18-rc2-mm1-full/arch/i386/pci/mmconfig.c.old	2006-07-27 16:18:48.000000000 +0200
++++ linux-2.6.18-rc2-mm1-full/arch/i386/pci/mmconfig.c	2006-07-27 16:19:42.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/dmi.h>
+ #include <linux/efi.h>
+ #include <asm/e820.h>
++#include <asm/setup.h>
+ #include "pci.h"
+ 
+ /* aperture is up to 256MB but BIOS may reserve less */
+@@ -225,7 +226,7 @@
+  * Check force MMCONFIG.
+  */
+ 
+-int __init pci_mmcfg_force(void)
++static int __init pci_mmcfg_force(void)
+ {
+ 	if (efi_enabled) {
+ 		if (dmi_check_system(pci_mmcfg_dmi_system_apple)) {
+

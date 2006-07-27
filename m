@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWG0XMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWG0XUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWG0XMY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 19:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWG0XMY
+	id S1750883AbWG0XUP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 19:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWG0XUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 19:12:24 -0400
-Received: from ns2.suse.de ([195.135.220.15]:50867 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751424AbWG0XMX (ORCPT
+	Thu, 27 Jul 2006 19:20:15 -0400
+Received: from mga08.intel.com ([134.134.136.24]:4403 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750772AbWG0XUN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 19:12:23 -0400
-Date: Thu, 27 Jul 2006 16:08:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Pavel Machek <pavel@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, vojtech@suse.cz,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-Subject: Re: Generic battery interface
-Message-ID: <20060727230801.GA30619@kroah.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <20060727221632.GE3797@elf.ucw.cz> <41840b750607271556n1901af3by2e4d046d68abcb94@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41840b750607271556n1901af3by2e4d046d68abcb94@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 27 Jul 2006 19:20:13 -0400
+X-IronPort-AV: i="4.07,190,1151910000"; 
+   d="scan'208"; a="97233623:sNHT18975390"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Generic battery interface
+Date: Thu, 27 Jul 2006 19:20:08 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB601168A85@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Generic battery interface
+Thread-Index: Acaxymwgkuz1JAGuQnqIzfX441zZiAABvINQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Shem Multinymous" <multinymous@gmail.com>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>, <vojtech@suse.cz>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       <linux-thinkpad@linux-thinkpad.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jul 2006 23:20:10.0819 (UTC) FILETIME=[34C52930:01C6B1D3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 01:56:03AM +0300, Shem Multinymous wrote:
-> On 7/28/06, Pavel Machek <pavel@suse.cz> wrote:
-> >+ perhaps it would not need explicit maintainer, just assign names
-> >        carefully
-> 
-> We also need to decide on clear convention about units. Are they in
-> the output and/or filename? Filename is best, I think, since it's
-> impossible to miss and works nicely for input attributes too.
+>Anyone volunteers write battery layer? If so, I'd go with /dev/XXX,
 
-Actually, this whole thing could probably just go under the 'hwmon'
-interface, as it already handles other hardware monitoring events.  I
-don't see how a battery would be any different, do you?
+I'd like to take a swing at it.
+If it catches on, I'd be happy to maintain it.
 
-> >- does not suit PC-style batteries which trigger events when data
-> >        change (can be fixed by /sys/XXX/anything-new, which gives one
-> >        byte when something changes)
-> 
-> Changed since last poll? That doesn't work with multiple clients.
-> Changed for the last X seconds? That requires everybody to poll that
-> frequenty, and risks missing events due to system load.
+I think we should be able to make different underlying battery
+instrumentation make sense to user-space -- even Zaurus-style systems.
 
-Again, look at the hwmon documentation, they handle alarms and other
-things already that you are trying to re-invent.
+I'm not religious about /dev vs. /sys.  At the end of the day I think
+that an easy and consistent programming I/F between user and kernel
+is the highest priority, and at the moment for this type of thing
+I think /dev is simpler than /proc or /sys files.  But if using
+/dev has some fatal flaw, I'll be happy to change to /sys.
+Also, there is no law that says we can't do some of both
+if that turns out to be useful.
 
-> Wild thought: how about adding a generic "event source" mechanism into
-> sysfs, at the same level as attributes? Maybe even make them textual,
-> in keeping with sysfs philosophy:
-> 
-> while read TYPE PARAM  < /sys/class/battery/BAT0/criticl_events; do
->  echo "battery 0 generated ctitical event $TYPE with parameters $PARAM"
-> done
-
-Heh, no, the file should specify the units, and then you document it.
-Much simpler.
-
-> The simpler solution is to convert events into state (e.g.,
-> critical=0/1) and present them as normal attributes which userspace
-> can poll, as Greg KH suggested (did I get that right?).
-
-Yes, just like temperature events today.
-
-People have asked for the "this sysfs file's value changed" type uevent
-message to come back, so that's also an option that might be used here.
-
-thanks,
-
-greg k-h
+-Len

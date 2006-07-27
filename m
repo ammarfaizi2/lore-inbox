@@ -1,109 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWG0U65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWG0U53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWG0U65 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWG0U6Y
+	id S1751149AbWG0U53 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWG0U51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:58:24 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:2433 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751034AbWG0U6U (ORCPT
+	Thu, 27 Jul 2006 16:57:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13272 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750995AbWG0Ux6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:58:20 -0400
-Date: Thu, 27 Jul 2006 16:58:06 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: David Miller <davem@davemloft.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060727205806.GD16971@kvack.org>
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C91192.4090303@oracle.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 27 Jul 2006 16:53:58 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 00/30] Permit filesystem local caching and NFS superblock sharing  [try #11]
+Date: Thu, 27 Jul 2006 21:52:22 +0100
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 12:18:42PM -0700, Zach Brown wrote:
-> The easy part is fixing up the somewhat obfuscated collection call.
-> Instead of coming in through a multiplexer that magically treats a void
-> * as a struct kevent_user_control followed by N ukevents (as specified
-> in the kevent_user_control!) we'd turn it into a more explicit
-> collection syscall:
-> 
-> 	int kevent_getevents(int event_fd, struct ukevent *events,
-> 		int min_events, int max_events,
-> 		struct timeval *timeout);
 
-You've just reinvented io_getevents().  What exactly are we getting from 
-reinventing this (aside from breaking existing apps and creating more of 
-an API mess)?
+These patches make it possible to share NFS superblocks between related
+mounts, where "related" means on the same server and FSID. Inodes and dentries
+will be shared where the NFS filehandles are the same (for example if two NFS3
+files come from the same export but from different mounts, such as is not
+uncommon with autofs on /home).
 
-> Say we have a ring of event structs.  AIO has this today, but it sort of
-> gets it wrong because each event element doesn't specify whether it is
-> owned by the kernel or userspace.  (It really gets it wrong because it
-> doesn't flush_dcache_page() after updating the ring via kmap(), but
-> never mind that!  No one actually uses this mmap() AIO ring.)  In AIO
-> today there is also a control struct mapped along with the ring that has
-> head and tail pointers.  We don't want to bounce that cacheline around.
->  net/socket/af_packet.c gets this right with it's tp_status member of
-> tpacket_hdr.
+These patches also add local caching for network filesystems such as NFS and
+AFS.
 
-That could be rev'd in the mmap() ring buffer, as there are compat and 
-incompat bits for changing the structure layout.  As for bouncing the 
-cacheline of head/tail around, I don't think it matters on real machines, 
-as the multithreaded/SMP case will hit that cacheline bouncing if the 
-user is sharing the event ring between multiple threads on multiple CPUs.  
-The only way around that is to use multiple event rings, say one per node, 
-at which point you have to do load balancing of io requests explicitely 
-between queues (which might be worth it).
 
-> So, great, glibc can now find pending events very quickly if they're
-> waiting in the ring and can fall back to the collection syscall if it
-> wants to wait and the ring is empty.  If it consumes events via the
-> syscall it increases its ring index by the number the syscall returned.
-> 
-> There's two things we should address: level events and the notion of
-> only submitting as much as fits in the ring.
-> 
-> epoll and kevent both have the notion of an event type that always
-> creates an event at the time of the collection syscall while the event
-> source is on a ready list.  Think of epoll calling ->poll(POLLOUT) for
-> an empty socket buffer at every sys_epoll_wait() call.  We can't have
-> some source constantly spewing into the ring :/.  We could fix this by
-> the API requiring that level events can *only* be collected through the
-> syscall interface.  userspace could call into the collection syscall
-> every N events collected through the ring, say.  N would be tuned to
-> amortize the syscall cost and still provide fairness or latency for the
-> level sources.  I'd be fine with that, especially when it's hidden off
-> in glibc.
+The patches can be grouped as:
 
-This is exactly why I think level triggered events are nasty.  It's 
-impossible to do cleanly without requiring a syscall.
+ (A) 01-21
 
-> Today AIO only allows submission of as many events as there are space in
-> the ring.  It mostly does this so its completion can drop an event in
-> the ring from any context.  If we back away from this so that we can
-> have long-lived source registration generate multiple edge events (and I
-> think we want to!), we have to be kind of careful.  A source could
-> generate an event while the ring is full.  The event could go in a list
-> but if userspace is collecting events in userspace the kernel won't be
-> told when there's space.  We'd first have to check this ready list when
-> later events are generated so that pending events on the list aren't
-> overlooked.  Userspace would also want to use the collection syscall as
-> the ring empties.  Neither seem hard.
+     NFS Superblock unification.  Patches 01-19 are in Trond's NFS GIT tree.
 
-As soon as you allow queueing events up in kernel space, it becomes 
-necessary to do another syscall after pulling events out of the queue, 
-which is a waste of CPU cycles when you're under heavy load (exactly the 
-point at which you want the system to be its most efficient).  Given that 
-growing the ring buffer is easy enough to do, I'm not sure that the hit 
-is worth it.  At some point there has to be some form of flow control 
-involved, and it is much better if it is explicitely obvious where this 
-happens (as opposed to signal queues and our wonderful OOM handling).
+ (B) 22-25
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+     Filesystem caching, including support for AFS.
+
+ (C) 26
+
+     Filesystem caching support for NFS; depends on (A) and (B).
+
+ (D) 27-28
+
+     CacheFiles: cache on files backend; depends on (B).
+
+ (E) 29-30
+
+     dentry cleanup during unmount optimisation.  Patch 29 cleans up autofs4,
+     patch 30 will make autofs4 oops during unmount if patch 29 isn't applied.
+
+
+---
+Changes [try #9] that have been made:
+
+ (*) [PATCH] NFS: Permit filesystem to perform statfs with a known root dentry
+
+     [*] Inclusions of linux/mount.h have been added where necessary to make
+       	 allyesconfig build successfully.
+
+ (*) [PATCH] NFS: Share NFS superblocks per-protocol per-server per-FSID
+
+     [*] The exports from fs/namespace.c and fs/namei.c are no longer required.
+
+ (*) [PATCH] FS-Cache: Release page->private in failed readahead
+
+     [*] The try_to_release_page() is called instead of calling the
+     	 releasepage() op directly.
+
+     [*] The page is locked before try_to_release_page() is called.
+
+     [*] The call to try_to_release_page() and page_cache_release() have been
+     	 abstracted out into a helper function as this bit of code occurs
+     	 twice..
+
+Changes [try #10] that have been made:
+
+ (*) [PATCH] NFS: Permit filesystem to perform statfs with a known root dentry
+
+     [*] Pass a dentry rather than a vfsmount to the statfs() op as the key by
+     	 which to determine the filesystem.
+
+ (*) [PATCH] NFS: Share NFS superblocks per-protocol per-server per-FSID
+
+     [*] nfs4_pathname_string() needed an extra const.
+
+ (*) [PATCH] FS-Cache: Release page->private in failed readahead
+
+     [*] The comment header on the helper function is much expanded.  This
+     	 states why there's a need to call the releasepage() op in the event of
+     	 an error.
+
+     [*] BUG() if the page is already locked when we try and lock it.
+
+     [*] Don't set the page mapping pointer until we've locked the page.
+
+     [*] The page is unlocked after try_to_release_page() is called.
+
+ (*) The release-page patch now comes before the fscache-afs patch as well as
+     the fscache-nfs patch.
+
+Changes [try #11] that have been made:
+
+ (*) Split up of the NFS superblock sharing patches into a set of smaller
+     patches and reworked some of the contents as per Trond's suggestions.
+
+ (*) [PATCH] NFS: Fix error handling
+
+     [*] Fix error handling in earlier patches (the earlier patches are also in
+     	 Trond's NFS tree, so I haven't rolled this in for the moment).
+
+ (*) [PATCH] NFS: Secure the roots of the NFS subtrees in a shared superblock
+
+     [*] Initialise the security on detached NFS roots manually since they're
+     	 allocated with dcache_alloc_anon() not dcache_alloc_root().
+
+ (*) [PATCH] FS-Cache: CacheFiles: A cache that backs onto a mounted filesystem
+
+     [*] Don't use file structs when accessing the data storage backing files.
+     	 Pass NULL as the file argument to prepare_write() and commit_write()
+     	 calls.
+
+     [*] Check for a bmap() inode op to prevent NFS being used as the cache
+     	 backing store (and besides, we need bmap() available anyway).
+
+ (*) [PATCH] FS-Cache: CacheFiles: ia64: missing copy_page export
+
+     [*] Export copy_page() on IA-64 as we need that.
+
+ (*) [PATCH] AUTOFS: Make sure all dentries refs are released before calling kill_anon_super()
+
+     [*] Make sure autofs4 releases all its retained dentries in its kill_sb()
+     	 op before calling kill_anon_super() rather than in the put_super() op.
+     	 This prevents the next patch from oopsing it.
+
+ (*) [PATCH] VFS: Destroy the dentries contributed by a superblock on unmounting
+
+     [*] Optimise the destruction of the dentries attached to a superblock
+     	 during unmounting.
+
+
+---
+In response to those who've asked, there are at least three reasons for
+implementing superblock sharing:
+
+ (1) As I understand what I've been told, NFSv4 requires a 1:1 mapping between
+     server files and client files.  I suspect this has to do with the
+     management of leases.
+
+ (2) We can reduce the resource consumption on NFSv2 and NFSv3 clients as well
+     as on NFSv4 clients by sharing superblocks that cover overlapping segments
+     of the file space.
+
+     Consider a machine that's used by a lot of people at the same time, each
+     of whom has an automounted NFS homedir off of the same server - and in
+     fact off of the same disk on the that server.  Currently, with Linus's
+     tree, each one will get a separate superblock to represent them; with
+     Trond's tree, each one will still get a separate superblock unless they
+     share the same root filehandle; and with my patches, they'll get the same
+     superblock.
+
+     If two homedirs have a hard link between them (unlikely, I know, but by no
+     means impossible, and probably more likely with, say, data such as NFS
+     mounted git repositories), then you have the possibility of aliasing.
+     This means that you can have two or more inodes in core that refer to the
+     same server object, and each of these inodes can have pages that refer to
+     the same remote pages on the server - aliasing again.  You _have_ to have
+     two inodes because they're covered by separate superblocks.
+
+     Aliasing is bad, generally, because you end up using more storage than
+     you need to (pagecache and inode cache in this case), and you have the
+     problem of keeping them in sync.  It's also twice as hard to keep two
+     inodes up to date when they change on the server as to keep one up to
+     date.
+
+     If you can use the same superblock where possible, then you can cut out
+     aliasing on that client since you can share dentries that have the same
+     file handle (hard links or subtrees).
+
+     Part of the problem with NFSv2 and NFSv3 is that you invoke mountd to get
+     the filehandle to a subtree, but you may not be able to work out how two
+     different subtrees relate.  The getsb patch permits the superblock to
+     have more than one root, which allows us to defer this problem until we
+     see the root of one subtree cropping up in another subtree - at which
+     point we can splice the former into the latter.
+
+ (3) In my local file caching patches (FS-Cache), I have two reasons for
+     wanting this:
+
+     (a) Unique keys.  I need a unique key to find an object in the cache.  If
+     	 we can get inode aliases, then I end up with several inodes referring
+     	 to the same cache object.  This also means that I have to use a fair
+     	 bit of extra memory to keep track of the multiple cookie mappings in
+     	 FS-Cache, and have to compare keys a lot to find duplicate mappings.
+
+	 If I can assume that the _netfs_ will manage the 1:1 mapping, I can
+	 use a lot less memory and save some processing capacity also.
+
+	 I don't want to invent random keys to differentiate aliased
+	 superblocks or inodes as that destroys the persistence capabilities
+	 of the cache across power failures and reboots.
+
+     (b) Callbacks.  I want a callback that the netfs passes to FS-Cache to
+     	 permit the cache to update the metadata in the cache from netfs
+     	 metadata at convenient times.  However, if there's more than one
+     	 inode alias in core, which one should the cache use?
+
+AFS doesn't have anything like these problems because mounts are always made
+from the root of a volume, and AFS was designed with local caching in mind.
+
+The getsb and statfs patches are a consequence of NFS being permitted to mount
+arbitrary subtrees from the server.
+
+David

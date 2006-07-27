@@ -1,207 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWG0WJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWG0WOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWG0WJP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 18:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWG0WJP
+	id S1751369AbWG0WOx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 18:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWG0WOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 18:09:15 -0400
-Received: from main.gmane.org ([80.91.229.2]:60049 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751377AbWG0WJO (ORCPT
+	Thu, 27 Jul 2006 18:14:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50588 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751369AbWG0WOx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 18:09:14 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Orion Poplawski <orion@cora.nwra.com>
-Subject: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
-Date: Thu, 27 Jul 2006 16:08:53 -0600
-Message-ID: <eabdhq$nca$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060101040208040906060900"
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 27 Jul 2006 18:14:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+X-Fcc: ~/Mail/linus
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH] vDSO hash-style fix
+In-Reply-To: Sam Ravnborg's message of  Thursday, 27 July 2006 13:04:54 +0200 <20060727110453.GA27162@mars.ravnborg.org>
+X-Shopping-List: (1) Resentful yies
+   (2) Asiatic Ink
+   (3) Slanderous eggplants
+   (4) Prehistoric attention
+   (5) Transparent vapor
+Message-Id: <20060727221442.6D97718003B@magilla.sf.frob.com>
+Date: Thu, 27 Jul 2006 15:14:42 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060101040208040906060900
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Here is a new version of the patch that addresses the issues cited.
 
-fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-The attached program (oplocktest.c) illustrates.  Compile and run with 
-strace.  In another
-shell do "echo >> oplockstest.c".  On 2.6.16 we get:
-
-fcntl64(3, F_SETSIG, 0x23)              = 0
-fcntl64(3, 0x400 /* F_??? */, 0x1)      = 0
-nanosleep({50, 0}, 0)                   = ? ERESTART_RESTARTBLOCK (To be 
-restarted)
---- SIGRT_3 (Real-time signal 1) @ 0 (0) ---
-+++ killed by SIGRT_3 +++
-
-on 2.6.17 we get:
-
-fcntl64(3, F_SETSIG, 0x23)              = 0
-fcntl64(3, 0x400 /* F_??? */, 0x1)      = 0
-nanosleep({50, 0}, 0)                   = ? ERESTART_RESTARTBLOCK (To be 
-restarted)
---- SIGIO (I/O possible) @ 0 (0) ---
-+++ killed by SIGIO +++
-
-The signal is no longer changed from SIGIO to SIGRT_3.
-
-This causes problems with samba and kernel oplocks.  Windows clients get 
-the dreaded "Delayed Write Failed" message when smbd dies with SIGIO.
-
--- 
-Orion Poplawski
-System Administrator                   303-415-9701 x222
-Colorado Research Associates/NWRA      FAX: 303-415-9702
-3380 Mitchell Lane, Boulder CO 80301   http://www.co-ra.com
-
---------------060101040208040906060900
-Content-Type: text/x-csrc;
- name="oplocktest.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="oplocktest.c"
-
-/* 
-   Unix SMB/CIFS implementation.
-   kernel oplock processing for Linux
-   Copyright (C) Andrew Tridgell 2000
-   
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
-
-#define DBGC_CLASS DBGC_LOCKING
-#include <signal.h>
-#include <errno.h>
-#include <sys/fcntl.h>
-#include <sys/select.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-
-typedef unsigned int uint32;
-
-/* these can be removed when they are in glibc headers */
-struct  cap_user_header {
-	uint32 version;
-	int pid;
-} header;
-struct cap_user_data {
-	uint32 effective;
-	uint32 permitted;
-	uint32 inheritable;
-} data;
-
-extern int capget(struct cap_user_header * hdrp,
-		  struct cap_user_data * datap);
-extern int capset(struct cap_user_header * hdrp,
-		  const struct cap_user_data * datap);
-
-#ifndef F_SETLEASE
-#define F_SETLEASE	1024
-#endif
-
-#ifndef F_GETLEASE
-#define F_GETLEASE	1025
-#endif
-
-#ifndef CAP_LEASE
-#define CAP_LEASE 28
-#endif
-
-#ifndef RT_SIGNAL_LEASE
-#define RT_SIGNAL_LEASE (SIGRTMIN+1)
-#endif
-
-#ifndef F_SETSIG
-#define F_SETSIG 10
-#endif
-
-/****************************************************************************
- Try to gain a linux capability.
-****************************************************************************/
-
-static void set_capability(unsigned capability)
-{
-#ifndef _LINUX_CAPABILITY_VERSION
-#define _LINUX_CAPABILITY_VERSION 0x19980330
-#endif
-	header.version = _LINUX_CAPABILITY_VERSION;
-	header.pid = 0;
-
-	if (capget(&header, &data) == -1) {
-		printf("Unable to get kernel capabilities (%s)\n", strerror(errno));
-		return;
-	}
-
-	data.effective |= (1<<capability);
-
-	if (capset(&header, &data) == -1) {
-		printf("Unable to set %d capability (%s)\n", 
-			 capability, strerror(errno));
-	}
-}
-
-/****************************************************************************
- Call SETLEASE. If we get EACCES then we try setting up the right capability and
- try again
-****************************************************************************/
-
-static int linux_setlease(int fd, int leasetype)
-{
-	int ret;
-
-	if (fcntl(fd, F_SETSIG, RT_SIGNAL_LEASE) == -1) {
-		printf("Failed to set signal handler for kernel lease\n");
-		return -1;
-	}
-
-	ret = fcntl(fd, F_SETLEASE, leasetype);
-	if (ret == -1 && errno == EACCES) {
-		set_capability(CAP_LEASE);
-		ret = fcntl(fd, F_SETLEASE, leasetype);
-	}
-
-	return ret;
-}
-
-int main(int argc, char **argv)
-{
-	int fd;
-
-	fd = open("oplocktest.c", O_RDONLY);
-        linux_setlease(fd, 1);	
-
-   struct timespec ts;
-
-   ts.tv_sec = 50;
-   ts.tv_nsec = 0;
-
-   nanosleep(&ts, NULL);
-
-   return(0);
-}
-
-
-
---------------060101040208040906060900--
-
+---
+diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
+index 14ef386..5438335 100644  
+--- a/Documentation/kbuild/makefiles.txt
++++ b/Documentation/kbuild/makefiles.txt
+@@ -407,6 +407,20 @@ more details, with real examples.
+ 	The second argument is optional, and if supplied will be used
+ 	if first argument is not supported.
+ 
++    ld-option
++    	ld-option is used to check if $(CC) when used to link object files
++	supports the given option.  An optional second option may be
++	specified if first option are not supported.
++
++	Example:
++		#arch/i386/kernel/Makefile
++		vsyscall-flags += $(call ld-option, -Wl$(comma)--hash-style=sysv)
++
++	In the above example vsyscall-flags will be assigned the option
++	-Wl$(comma)--hash-style=sysv if it is supported by $(CC).
++	The second argument is optional, and if supplied will be used
++	if first argument is not supported.
++
+     cc-option
+ 	cc-option is used to check if $(CC) support a given option, and not
+ 	supported to use an optional second option.
+diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+index 1b452a1..5b5fa68 100644  
+--- a/arch/i386/kernel/Makefile
++++ b/arch/i386/kernel/Makefile
+@@ -59,7 +59,8 @@ quiet_cmd_syscall = SYSCALL $@
+ 
+ export CPPFLAGS_vsyscall.lds += -P -C -U$(ARCH)
+ 
+-vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1
++vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1 \
++		 $(call ld-option, -Wl$(comma)--hash-style=sysv)
+ SYSCFLAGS_vsyscall-sysenter.so	= $(vsyscall-flags)
+ SYSCFLAGS_vsyscall-int80.so	= $(vsyscall-flags)
+ 
+diff --git a/arch/i386/kernel/vsyscall.lds.S b/arch/i386/kernel/vsyscall.lds.S
+index e26975f..f66cd11 100644  
+--- a/arch/i386/kernel/vsyscall.lds.S
++++ b/arch/i386/kernel/vsyscall.lds.S
+@@ -10,6 +10,7 @@ SECTIONS
+   . = VDSO_PRELINK + SIZEOF_HEADERS;
+ 
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 0e4553f..ad8215a 100644  
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -45,7 +45,8 @@ CPPFLAGS_gate.lds := -P -C -U$(ARCH)
+ quiet_cmd_gate = GATE $@
+       cmd_gate = $(CC) -nostdlib $(GATECFLAGS_$(@F)) -Wl,-T,$(filter-out FORCE,$^) -o $@
+ 
+-GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1
++GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1 \
++		     $(call ld-option, -Wl$(comma)--hash-style=sysv)
+ $(obj)/gate.so: $(obj)/gate.lds $(obj)/gate.o FORCE
+ 	$(call if_changed,gate)
+ 
+diff --git a/arch/ia64/kernel/gate.lds.S b/arch/ia64/kernel/gate.lds.S
+index cc35cdd..6d19833 100644  
+--- a/arch/ia64/kernel/gate.lds.S
++++ b/arch/ia64/kernel/gate.lds.S
+@@ -12,6 +12,7 @@ SECTIONS
+   . = GATE_ADDR + SIZEOF_HEADERS;
+ 
+   .hash				: { *(.hash) }				:readable
++  .gnu.hash			: { *(.gnu.hash) }
+   .dynsym			: { *(.dynsym) }
+   .dynstr			: { *(.dynstr) }
+   .gnu.version			: { *(.gnu.version) }
+diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
+index 9989495..b3677fc 100644  
+--- a/arch/parisc/kernel/vmlinux.lds.S
++++ b/arch/parisc/kernel/vmlinux.lds.S
+@@ -204,6 +204,7 @@ SECTIONS
+ 	*(.dynstr)
+ 	*(.dynamic)
+ 	*(.hash)
++	*(.gnu.hash)
+ #endif
+ 	}
+ 
+diff --git a/arch/powerpc/kernel/vdso32/Makefile b/arch/powerpc/kernel/vdso32/Makefile
+index 8a3bed5..61ac45a 100644  
+--- a/arch/powerpc/kernel/vdso32/Makefile
++++ b/arch/powerpc/kernel/vdso32/Makefile
+@@ -14,7 +14,8 @@ obj-vdso32 := $(addprefix $(obj)/, $(obj
+ 
+ 
+ EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
+-EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1
++EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1 \
++		$(call ld-option, -Wl$(comma)--hash-style=sysv)
+ EXTRA_AFLAGS := -D__VDSO32__ -s
+ 
+ obj-y += vdso32_wrapper.o
+diff --git a/arch/powerpc/kernel/vdso32/vdso32.lds.S b/arch/powerpc/kernel/vdso32/vdso32.lds.S
+index f4bad72..6187af2 100644  
+--- a/arch/powerpc/kernel/vdso32/vdso32.lds.S
++++ b/arch/powerpc/kernel/vdso32/vdso32.lds.S
+@@ -14,6 +14,7 @@ SECTIONS
+ {
+   . = VDSO32_LBASE + SIZEOF_HEADERS;
+   .hash           : { *(.hash) }			:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/powerpc/kernel/vdso64/Makefile b/arch/powerpc/kernel/vdso64/Makefile
+index ab39988..1d0d02b 100644  
+--- a/arch/powerpc/kernel/vdso64/Makefile
++++ b/arch/powerpc/kernel/vdso64/Makefile
+@@ -8,7 +8,8 @@ targets := $(obj-vdso64) vdso64.so
+ obj-vdso64 := $(addprefix $(obj)/, $(obj-vdso64))
+ 
+ EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
+-EXTRA_CFLAGS +=  -nostdlib -Wl,-soname=linux-vdso64.so.1
++EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
++		$(call ld-option, -Wl$(comma)--hash-style=sysv)
+ EXTRA_AFLAGS := -D__VDSO64__ -s
+ 
+ obj-y += vdso64_wrapper.o
+diff --git a/arch/powerpc/kernel/vdso64/vdso64.lds.S b/arch/powerpc/kernel/vdso64/vdso64.lds.S
+index 4bdf224..4a2b6dc 100644  
+--- a/arch/powerpc/kernel/vdso64/vdso64.lds.S
++++ b/arch/powerpc/kernel/vdso64/vdso64.lds.S
+@@ -12,6 +12,7 @@ SECTIONS
+ {
+   . = VDSO64_LBASE + SIZEOF_HEADERS;
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/ppc/kernel/vmlinux.lds.S b/arch/ppc/kernel/vmlinux.lds.S
+index 09c6525..095fd33 100644  
+--- a/arch/ppc/kernel/vmlinux.lds.S
++++ b/arch/ppc/kernel/vmlinux.lds.S
+@@ -8,6 +8,7 @@ SECTIONS
+   . = + SIZEOF_HEADERS;
+   .interp : { *(.interp) }
+   .hash          : { *(.hash)		}
++  .gnu.hash      : { *(.gnu.hash)	}
+   .dynsym        : { *(.dynsym)		}
+   .dynstr        : { *(.dynstr)		}
+   .rel.text      : { *(.rel.text)		}
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index 2517ecb..68ed24d 100644  
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -26,6 +26,7 @@ SECTIONS
+ 
+   /* Read-only sections, merged into text segment: */
+   .hash           : { *(.hash) }
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/arch/x86_64/ia32/Makefile b/arch/x86_64/ia32/Makefile
+index 62bc5f5..cdae364 100644  
+--- a/arch/x86_64/ia32/Makefile
++++ b/arch/x86_64/ia32/Makefile
+@@ -23,6 +23,7 @@ targets := $(foreach F,sysenter syscall,
+ # The DSO images are built using a special linker script
+ quiet_cmd_syscall = SYSCALL $@
+       cmd_syscall = $(CC) -m32 -nostdlib -shared -s \
++			  $(call ld-option, -Wl$(comma)--hash-style=sysv) \
+ 			   -Wl,-soname=linux-gate.so.1 -o $@ \
+ 			   -Wl,-T,$(filter-out FORCE,$^)
+ 
+diff --git a/arch/x86_64/ia32/vsyscall.lds b/arch/x86_64/ia32/vsyscall.lds
+index f2e75ed..1dc86ff 100644  
+--- a/arch/x86_64/ia32/vsyscall.lds
++++ b/arch/x86_64/ia32/vsyscall.lds
+@@ -11,6 +11,7 @@ SECTIONS
+   . = VSYSCALL_BASE + SIZEOF_HEADERS;
+ 
+   .hash           : { *(.hash) }		:text
++  .gnu.hash       : { *(.gnu.hash) }
+   .dynsym         : { *(.dynsym) }
+   .dynstr         : { *(.dynstr) }
+   .gnu.version    : { *(.gnu.version) }
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 2180c88..ceeb087 100644  
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -85,6 +85,13 @@ cc-version = $(shell $(CONFIG_SHELL) $(s
+ cc-ifversion = $(shell if [ $(call cc-version, $(CC)) $(1) $(2) ]; then \
+                        echo $(3); fi;)
+ 
++# ld-option
++# Usage: ldflags += $(call ld-option, -Wl$(comma)--hash-style=both)
++ld-option = $(shell if $(CC) $(1) \
++			     -nostdlib -o ldtest$$$$.out -xc /dev/null \
++             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi; \
++	     rm -f ldtest$$$$.out)
++
+ ###
+ # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
+ # Usage:

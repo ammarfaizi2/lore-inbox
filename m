@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWG0UkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWG0UlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWG0UkG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWG0UkG
+	id S1750769AbWG0UlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWG0UlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:40:06 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:39386 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750768AbWG0UkE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:40:04 -0400
-Subject: [PATCH] ext3 -nobh option causes oops (2.6.17.7)
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>, stable@kernel.org
-Cc: akpm@osdl.org
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 13:42:41 -0700
-Message-Id: <1154032961.29920.17.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 16:41:14 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:37591 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750769AbWG0UlN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 16:41:13 -0400
+Date: Thu, 27 Jul 2006 22:40:47 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: akpm@osdl.org
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Some const for linux/time.h
+Message-ID: <Pine.LNX.4.61.0607272239001.14351@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hello,
 
-ext3 -nobh option causes kernel oops on files other than IFREG -
-since the modification to them are journalled anyway and the
-code expects to have buffer_head attached to it.
 
-We need this patch for stable series also.
+time compare functions do not modify their arguments, so they can 
+be marked as const (like some of the functions in time.h are already).
 
-Thanks,
-Badari
+Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
 
-For files other than IFREG, nobh option doesn't make sense.
-Modifications to them are journalled and needs buffer heads
-to do that. Without this patch, we get kernel oops in page_buffers().
-
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-
-Index: linux-2.6.17.7/fs/ext3/inode.c
-===================================================================
---- linux-2.6.17.7.orig/fs/ext3/inode.c	2006-07-24 20:36:01.000000000 -0700
-+++ linux-2.6.17.7/fs/ext3/inode.c	2006-07-27 13:26:13.000000000 -0700
-@@ -1159,7 +1159,7 @@ retry:
- 		ret = PTR_ERR(handle);
- 		goto out;
- 	}
--	if (test_opt(inode->i_sb, NOBH))
-+	if (test_opt(inode->i_sb, NOBH) && ext3_should_writeback_data(inode))
- 		ret = nobh_prepare_write(page, from, to, ext3_get_block);
- 	else
- 		ret = block_prepare_write(page, from, to, ext3_get_block);
-@@ -1245,7 +1245,7 @@ static int ext3_writeback_commit_write(s
- 	if (new_i_size > EXT3_I(inode)->i_disksize)
- 		EXT3_I(inode)->i_disksize = new_i_size;
+diff --fast -Ndpru linux-2.6.17.7~/include/linux/time.h linux-2.6.17.7+/include/linux/time.h
+--- linux-2.6.17.7~/include/linux/time.h	2006-06-06 02:57:02.000000000 +0200
++++ linux-2.6.17.7+/include/linux/time.h	2006-07-27 22:35:53.308571000 +0200
+@@ -33,7 +33,8 @@ struct timezone {
+ #define NSEC_PER_SEC		1000000000L
+ #define NSEC_PER_USEC		1000L
  
--	if (test_opt(inode->i_sb, NOBH))
-+	if (test_opt(inode->i_sb, NOBH) && ext3_should_writeback_data(inode))
- 		ret = nobh_commit_write(file, page, from, to);
- 	else
- 		ret = generic_commit_write(file, page, from, to);
-@@ -1495,7 +1495,7 @@ static int ext3_writeback_writepage(stru
- 		goto out_fail;
- 	}
+-static inline int timespec_equal(struct timespec *a, struct timespec *b)
++static inline int timespec_equal(const struct timespec *a,
++ const struct timespec *b)
+ {
+ 	return (a->tv_sec == b->tv_sec) && (a->tv_nsec == b->tv_nsec);
+ }
+@@ -43,7 +44,8 @@ static inline int timespec_equal(struct 
+  * lhs == rhs: return 0
+  * lhs > rhs:  return >0
+  */
+-static inline int timespec_compare(struct timespec *lhs, struct timespec *rhs)
++static inline int timespec_compare(const struct timespec *lhs,
++ struct timespec *rhs)
+ {
+ 	if (lhs->tv_sec < rhs->tv_sec)
+ 		return -1;
+@@ -52,7 +54,8 @@ static inline int timespec_compare(struc
+ 	return lhs->tv_nsec - rhs->tv_nsec;
+ }
  
--	if (test_opt(inode->i_sb, NOBH))
-+	if (test_opt(inode->i_sb, NOBH) && ext3_should_writeback_data(inode))
- 		ret = nobh_writepage(page, ext3_get_block, wbc);
- 	else
- 		ret = block_write_full_page(page, ext3_get_block, wbc);
+-static inline int timeval_compare(struct timeval *lhs, struct timeval *rhs)
++static inline int timeval_compare(const struct timeval *lhs,
++ const struct timeval *rhs)
+ {
+ 	if (lhs->tv_sec < rhs->tv_sec)
+ 		return -1;
+#<<eof>>
 
 
+Jan Engelhardt
+-- 

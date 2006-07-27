@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbWG0NBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWG0NDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161047AbWG0NBk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWG0NBk
+	id S1161055AbWG0NDW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWG0NDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:01:40 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:10192 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161047AbWG0NBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:01:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oHu1/A2GEEBIJDCGPmB3bWnVtJcEXiZFjZThvmvK71+lOO+Jer41QJrmq/SGog3kft6yi9RxHA+rMi4RZ18LiFTUTBujJ3dkDgLWKIiILuT27KaPonS7aWgKUtPVPZ/JsxOolNcA5JTqf0jb71uf08FFIxoKKCXWU1YpHdH/Y8c=
-Message-ID: <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
-Date: Thu, 27 Jul 2006 09:01:36 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Jeff Garzik" <jeff@garzik.org>
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Mike Miller" <mike.miller@hp.com>, iss_storagedev@hp.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44C6F26C.2080203@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200607251636.42765.bjorn.helgaas@hp.com>
-	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
-	 <1153867675.8932.68.camel@laptopd505.fenrus.org>
-	 <44C6F26C.2080203@garzik.org>
+	Thu, 27 Jul 2006 09:03:21 -0400
+Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:22222 "EHLO
+	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1161027AbWG0NDV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:03:21 -0400
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk
+In-reply-to: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Thu, 27 Jul 2006 14:55:30 +0200)
+Subject: [PATCH 5/5] vfs: define new lookup flag for chdir
+References: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1G65Vu-0002jG-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 27 Jul 2006 15:02:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/26/06, Jeff Garzik <jeff@garzik.org> wrote:
-> Arjan van de Ven wrote:
-> > On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
-> >> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> >>> If we don't find any devices, we shouldn't print anything.
-> >>>
-> >> I disagree.
-> >> I find it quite nice to be able to see that the driver loaded even if
-> >> it finds nothing. At least then when there's a problem, I can quickly
-> >> see that at least it is not because I didn't forget to load the
-> >> driver, it's something else. Saves time since I can start looking for
-> >> reasons why the driver didn't find anything without first spending
-> >> additional time checking if I failed to cause it to load for some
-> >> reason.
-> >
-> > I'll add a second reason: it is a REALLY nice property to be able to see
-> > which driver is started last in case of a crash/hang, so that the guilty
-> > party is more obvious..
->
-> OTOH, it is not a property that scales well at all.
->
-> When you build extra drivers into the kernel, or distros load drivers
-> you don't need (_every_ distro does this), you wind up with a bunch of
-> version strings for drivers for hardware you don't have.
->
+In the "operation does permission checking" model used by fuse, chdir
+permission is not checked, since there's no chdir method.
 
-Given that boot tracing is best done with initcall_debug and
-drivers that care about their version string can report it through
-/sys/modules/<driver>/version why should version string be printed at
-load time at all?
+For this case set a lookup flag, which will be passed to
+->permission(), so fuse can distinguish it from permission checks for
+other operations.
 
--- 
-Dmitry
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+---
+
+Index: linux/fs/fuse/dir.c
+===================================================================
+--- linux.orig/fs/fuse/dir.c	2006-07-27 14:38:04.000000000 +0200
++++ linux/fs/fuse/dir.c	2006-07-27 14:38:15.000000000 +0200
+@@ -776,7 +776,7 @@ static int fuse_permission(struct inode 
+ 		if ((mask & MAY_EXEC) && !S_ISDIR(mode) && !(mode & S_IXUGO))
+ 			return -EACCES;
+ 
+-		if (nd && (nd->flags & LOOKUP_ACCESS))
++		if (nd && (nd->flags & (LOOKUP_ACCESS | LOOKUP_CHDIR)))
+ 			return fuse_access(inode, mask);
+ 		return 0;
+ 	}
+Index: linux/fs/open.c
+===================================================================
+--- linux.orig/fs/open.c	2006-07-27 14:35:14.000000000 +0200
++++ linux/fs/open.c	2006-07-27 14:38:15.000000000 +0200
+@@ -546,7 +546,8 @@ asmlinkage long sys_chdir(const char __u
+ 	struct nameidata nd;
+ 	int error;
+ 
+-	error = __user_walk(filename, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &nd);
++	error = __user_walk(filename,
++			    LOOKUP_FOLLOW|LOOKUP_DIRECTORY|LOOKUP_CHDIR, &nd);
+ 	if (error)
+ 		goto out;
+ 
+Index: linux/include/linux/namei.h
+===================================================================
+--- linux.orig/include/linux/namei.h	2006-07-27 14:35:14.000000000 +0200
++++ linux/include/linux/namei.h	2006-07-27 14:38:15.000000000 +0200
+@@ -54,6 +54,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LA
+ #define LOOKUP_OPEN		(0x0100)
+ #define LOOKUP_CREATE		(0x0200)
+ #define LOOKUP_ACCESS		(0x0400)
++#define LOOKUP_CHDIR		(0x0800)
+ 
+ extern int FASTCALL(__user_walk(const char __user *, unsigned, struct nameidata *));
+ extern int FASTCALL(__user_walk_fd(int dfd, const char __user *, unsigned, struct nameidata *));

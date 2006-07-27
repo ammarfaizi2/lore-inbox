@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWG0GwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751856AbWG0Gw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWG0GwF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 02:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWG0GwE
+	id S1751856AbWG0Gw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 02:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751859AbWG0Gw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 02:52:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19169 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751839AbWG0GwB (ORCPT
+	Thu, 27 Jul 2006 02:52:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10374 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751856AbWG0Gw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 02:52:01 -0400
-Date: Wed, 26 Jul 2006 23:51:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: Hello, We have IP100A Linux driver need to submit to 2.6.x
- kernel
-Message-Id: <20060726235145.bcb4d9a5.akpm@osdl.org>
-In-Reply-To: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw>
-References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Thu, 27 Jul 2006 02:52:27 -0400
+Date: Wed, 26 Jul 2006 23:51:15 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: arnd.bergmann@de.ibm.com, ricknu-0@student.ltu.se,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, jeff@garzik.org,
+       adobriyan@gmail.com, vlobanov@speakeasy.net, jengelh@linux01.gwdg.de,
+       getshorty_@hotmail.com, pwil3058@bigpond.net.au, mb@bu3sch.de,
+       penberg@cs.helsinki.fi, stefanr@s5r6.in-berlin.de, larsbj@gullik.net
+Subject: Re: [RFC][PATCH] A generic boolean (version 6)
+Message-Id: <20060726235115.3772ec1e.pj@sgi.com>
+In-Reply-To: <1153978047.2807.5.camel@entropy>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	<1153945705.44c7d069c5e18@portal.student.luth.se>
+	<200607270448.03257.arnd.bergmann@de.ibm.com>
+	<1153978047.2807.5.camel@entropy>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006 14:41:29 +0800
-"Jesse Huang" <jesse@icplus.com.tw> wrote:
+Nicholas wrote:
+> If _Bool does end up in the user-kernel ABI
 
-> Dear All:
-> 
-> I am IC Plus software engineer. We have IP100A 10/100 fast network adapter
-> driver need to submit to Linux 2.6.x kernel.
+I'd be inclined to not put a _Bool in that ABI.
+I'd stick with the scalar ints and such we have now.
 
-Thanks!
+The benefits of compile type checking are weaker
+across that ABI, and the demands of compatibility
+much higher than they are for kernel internals.
 
-> Please tell me who should I submit to.
-> 
-
-Please send it to the four addresses to which you sent this email.
-
-Documentation/SubmittingDrivers, Documentation/SubmittingPatches and
-Documentation/SubmitChecklist contain helpful info.
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

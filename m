@@ -1,198 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWG0OrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWG0OrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWG0OrF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 10:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWG0OrF
+	id S1750782AbWG0OrO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 10:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWG0OrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 10:47:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:18193 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750774AbWG0OrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 10:47:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=O1B1Rwhk8Uooi3ekt6gvF1nEodyt5Ic1yRCPahvMm74WYKzKsBwT9HVzqh88WhEUe4EOiwGkN0QeTLcQCeda5lJ+nknpTuxW+//iIsqzSymNA08QWxsSLhmgS241xs/aV4GwtKIbqw6AnRiSZyf5gvdv9tqrPDKQpubPTnx5x+s=
-Date: Thu, 27 Jul 2006 18:46:59 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ipc/msg.c: clean up coding style
-Message-ID: <20060727144659.GC6825@martell.zuzino.mipt.ru>
-References: <20060727135321.GA24644@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727135321.GA24644@elte.hu>
-User-Agent: Mutt/1.5.11
+	Thu, 27 Jul 2006 10:47:13 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:29709 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750782AbWG0OrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 10:47:09 -0400
+Message-ID: <44C8D165.3060803@shadowen.org>
+Date: Thu, 27 Jul 2006 15:44:53 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       a.p.zijlstra@chello.nl, linux-mm@kvack.org, torvalds@osdl.org,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: use-once cleanup
+References: <1153168829.31891.89.camel@lappy>	<44C86FB9.6090709@redhat.com> <20060727011204.87033366.akpm@osdl.org> <44C8C80F.8010705@mbligh.org>
+In-Reply-To: <44C8C80F.8010705@mbligh.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 03:53:21PM +0200, Ingo Molnar wrote:
-> clean up ipc/msg.c to conform to Documentation/CodingStyle. (before it
-> was an inconsistent hodepodge of various coding styles)
+Martin J. Bligh wrote:
+> 
+>>> Peter Zijlstra wrote:
+>>>   
+>>>> Hi,
+>>>>
+>>>> This is yet another implementation of the PG_useonce cleanup spoken of
+>>>> during the VM summit.
+>>>>     
+>>> After getting bitten by rsync yet again, I guess it's time to insist
+>>> that this patch gets merged...
+>>>
+>>> Andrew, could you merge this?  Pretty please? ;)
+>>>
+>>>   
+>>
+>> Guys, this is a performance patch, right?
+>>
+>> One which has no published performance testing results, right?
+>>
+>> It would be somewhat odd to merge it under these circumstances.
+>>
+>> And this applies to all of these
+>> hey-this-is-cool-but-i-didnt-bother-testing-it MM patches which people 
+>> are
+>> throwing around.  This stuff is *hard*.  It has a bad tendency to cause
+>> nasty problems which only become known months after the code is merged.
+>>
+>> I shouldn't have to describe all this, but
+>>
+>> - Identify the workloads which it's supposed to improve, set up tests,
+>>  run tests, publish results.
+>>
+>> - Identify the workloads which it's expected to damage, set up tests, run
+>>  tests, publish results.
+>>
+>> - Identify workloads which aren't expected to be impacted, make a good
+>>  effort at demonstrating that they are not impacted.
+>>
+>> - Perform stability/stress testing, publish results.
+>>
+>> Writing the code is about 5% of the effort for this sort of thing.
+>>
+>> Yes, we can toss it in the tree and see what happens.  But it tends to be
+>> the case that unless someone does targetted testing such as the above,
+>> regressions simply aren't noticed for long periods of time.  <wonders 
+>> which
+>> schmuck gets to do the legwork when people report problems>
+>>
+>> Just the (unchangelogged) changes to the 
+>> when-to-call-mark_page_accessed()
+>> logic are a big deal.  Probably these should be a separate patch -
+>> separately changelogged, separately tested, separately justified.
+>>
+>> Performance testing is *everything* for this sort of patch and afaict 
+>> none
+>> has been done, so it's as if it hadn't been written, no?
+>> -
+>>
+>>  
+>>
+> Rik / Peter ... I lost the original mail + patch, but if you put it
+> up on a URL somewhere, Andy would probably run it through the test
+> harness for at least some basic perf testing, if you ask him ;-)
+> Probably against mainline, not -mm, as -mm seems to have other
+> problems right now.
 
-> --- linux.orig/ipc/msg.c
-> +++ linux/ipc/msg.c
-> -/* one msg_receiver structure for each sleeping receiver */
-> +/*
-> + * one msg_receiver structure for each sleeping receiver:
-> + */
+I'll happily run it through the test suites once I get my machines 
+working again after 2.6.18-rc2-mm1 has finished with them :(.
 
-Was OK.
-
->  struct msg_receiver {
-> -	struct list_head r_list;
-> -	struct task_struct* r_tsk;
-> +	struct list_head	r_list;
-> +	struct task_struct	*r_tsk;
-
-Moving * to name is OK, but lining up all names is probably not.
-
-> -	int r_mode;
-> -	long r_msgtype;
-> -	long r_maxsize;
-> +	int			r_mode;
-> +	long			r_msgtype;
-> +	long			r_maxsize;
->  
-> -	struct msg_msg* volatile r_msg;
-> +	volatile struct msg_msg	*r_msg;
-
-First, it was a volatile pointer, now pointer points to volatile data.
-Right?
-
->  /* one msg_sender for each sleeping sender */
->  struct msg_sender {
-> -	struct list_head list;
-> -	struct task_struct* tsk;
-> +	struct list_head	list;
-> +	struct task_struct	*tsk;
-
-Let's not lineup fields.
-
-> -static atomic_t msg_bytes = ATOMIC_INIT(0);
-> -static atomic_t msg_hdrs = ATOMIC_INIT(0);
-> +static atomic_t msg_bytes =	ATOMIC_INIT(0);
-> +static atomic_t msg_hdrs =	ATOMIC_INIT(0);
-
-Was OK.
-
-> -asmlinkage long sys_msgget (key_t key, int msgflg)
-> +asmlinkage long sys_msgget(key_t key, int msgflg)
->  {
-> -	int id, ret = -EPERM;
->  	struct msg_queue *msq;
-> +	int id, ret = -EPERM;
-
-For what?
-
-> -static inline unsigned long copy_msqid_to_user(void __user *buf, struct msqid64_ds *in, int version)
-> +static inline unsigned long
-> +copy_msqid_to_user(void __user *buf, struct msqid64_ds *in, int version)
-
-Let's not go BSD way.
-
->  	case IPC_OLD:
-> -	    {
-> +	{
-
-Or
-	case IPC_OLD: {
-
-> -static inline unsigned long copy_msqid_from_user(struct msq_setbuf *out, void __user *buf, int version)
-> +static inline unsigned long
-> +copy_msqid_from_user(struct msq_setbuf *out, void __user *buf, int version)
-
-Let's not go BSD way.
-
->  	case IPC_64:
-> -	    {
-> +	{
-
-	case IPC_64: {
-
-> -asmlinkage long sys_msgctl (int msqid, int cmd, struct msqid_ds __user *buf)
-> +asmlinkage long sys_msgctl(int msqid, int cmd, struct msqid_ds __user *buf)
->  {
-> -	int err, version;
-> -	struct msg_queue *msq;
-> -	struct msq_setbuf setbuf;
->  	struct kern_ipc_perm *ipcp;
-> -	
-> +	struct msq_setbuf setbuf;
-> +	struct msg_queue *msq;
-> +	int err, version;
-
-There must be logic about moving up and down, but I failed to extract
-it. Except you want to see err, rv, retval, ... last.
-
-> @@ -556,6 +567,7 @@ static inline int pipelined_send(struct 
->  				wake_up_process(msr->r_tsk);
->  				smp_mb();
->  				msr->r_msg = msg;
-> +
->  				return 1;
-
-Dunno.
-
-> -asmlinkage long sys_msgsnd (int msqid, struct msgbuf __user *msgp, size_t msgsz, int msgflg)
-> +asmlinkage long
-> +sys_msgsnd(int msqid, struct msgbuf __user *msgp, size_t msgsz, int msgflg)
-
-Let's not go BSD way.
-
-> @@ -773,17 +793,17 @@ asmlinkage long sys_msgrcv (int msqid, s
->  		 * wake_up_process(). There is a race with exit(), see
->  		 * ipc/mqueue.c for the details.
->  		 */
-> -		msg = (struct msg_msg*) msr_d.r_msg;
-> +		msg = (struct msg_msg*)msr_d.r_msg;
-
-msg_msg *, while you're at it.
-
-> @@ -827,20 +848,20 @@ static int sysvipc_msg_proc_show(struct 
->  	struct msg_queue *msq = it;
->  
->  	return seq_printf(s,
-> -			  "%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
-> -			  msq->q_perm.key,
-> -			  msq->q_id,
-> -			  msq->q_perm.mode,
-> -			  msq->q_cbytes,
-> -			  msq->q_qnum,
-> -			  msq->q_lspid,
-> -			  msq->q_lrpid,
-> -			  msq->q_perm.uid,
-> -			  msq->q_perm.gid,
-> -			  msq->q_perm.cuid,
-> -			  msq->q_perm.cgid,
-> -			  msq->q_stime,
-> -			  msq->q_rtime,
-> -			  msq->q_ctime);
-> +			"%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
-> +			msq->q_perm.key,
-> +			msq->q_id,
-> +			msq->q_perm.mode,
-> +			msq->q_cbytes,
-> +			msq->q_qnum,
-> +			msq->q_lspid,
-> +			msq->q_lrpid,
-> +			msq->q_perm.uid,
-> +			msq->q_perm.gid,
-> +			msq->q_perm.cuid,
-> +			msq->q_perm.cgid,
-> +			msq->q_stime,
-> +			msq->q_rtime,
-> +			msq->q_ctime);
-
-Was OK.
-
-
-ObS_IRWXUGOUNREADABLEJUNK: What about
-
-	#define rw_r__r__ 0644
-	#define rwxr_xr_x 0755
-
-?
-
+-apw

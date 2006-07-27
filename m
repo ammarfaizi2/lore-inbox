@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWG0NA6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbWG0NBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbWG0NA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:00:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWG0NA6
+	id S1161047AbWG0NBk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWG0NBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:00:58 -0400
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:20426 "EHLO
-	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1161044AbWG0NA5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:00:57 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Thu, 27 Jul 2006 14:55:30 +0200)
-Subject: [PATCH 4/5] fuse: use dentry in statfs
-References: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1G65Tc-0002iG-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 27 Jul 2006 15:00:32 +0200
+	Thu, 27 Jul 2006 09:01:40 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:10192 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161047AbWG0NBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:01:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oHu1/A2GEEBIJDCGPmB3bWnVtJcEXiZFjZThvmvK71+lOO+Jer41QJrmq/SGog3kft6yi9RxHA+rMi4RZ18LiFTUTBujJ3dkDgLWKIiILuT27KaPonS7aWgKUtPVPZ/JsxOolNcA5JTqf0jb71uf08FFIxoKKCXWU1YpHdH/Y8c=
+Message-ID: <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
+Date: Thu, 27 Jul 2006 09:01:36 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Mike Miller" <mike.miller@hp.com>, iss_storagedev@hp.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44C6F26C.2080203@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200607251636.42765.bjorn.helgaas@hp.com>
+	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
+	 <1153867675.8932.68.camel@laptopd505.fenrus.org>
+	 <44C6F26C.2080203@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some filesystems may want to report different values depending on the
-path within the filesystem, i.e. one mount is actually several
-filesystems.  This can be the case for a network filesystem exported
-by an unprivileged server (e.g. sshfs).
+On 7/26/06, Jeff Garzik <jeff@garzik.org> wrote:
+> Arjan van de Ven wrote:
+> > On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
+> >> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> >>> If we don't find any devices, we shouldn't print anything.
+> >>>
+> >> I disagree.
+> >> I find it quite nice to be able to see that the driver loaded even if
+> >> it finds nothing. At least then when there's a problem, I can quickly
+> >> see that at least it is not because I didn't forget to load the
+> >> driver, it's something else. Saves time since I can start looking for
+> >> reasons why the driver didn't find anything without first spending
+> >> additional time checking if I failed to cause it to load for some
+> >> reason.
+> >
+> > I'll add a second reason: it is a REALLY nice property to be able to see
+> > which driver is started last in case of a crash/hang, so that the guilty
+> > party is more obvious..
+>
+> OTOH, it is not a property that scales well at all.
+>
+> When you build extra drivers into the kernel, or distros load drivers
+> you don't need (_every_ distro does this), you wind up with a bunch of
+> version strings for drivers for hardware you don't have.
+>
 
-This is now possible, thanks to David Howells "VFS: Permit filesystem
-to perform statfs with a known root dentry" patch.
+Given that boot tracing is best done with initcall_debug and
+drivers that care about their version string can report it through
+/sys/modules/<driver>/version why should version string be printed at
+load time at all?
 
-This change is backward compatible, so no need to change interface
-version.
-
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
----
-
-Index: linux/fs/fuse/inode.c
-===================================================================
---- linux.orig/fs/fuse/inode.c	2006-07-27 14:38:04.000000000 +0200
-+++ linux/fs/fuse/inode.c	2006-07-27 14:38:12.000000000 +0200
-@@ -252,6 +252,7 @@ static int fuse_statfs(struct dentry *de
- 	memset(&outarg, 0, sizeof(outarg));
- 	req->in.numargs = 0;
- 	req->in.h.opcode = FUSE_STATFS;
-+	req->in.h.nodeid = get_node_id(dentry->d_inode);
- 	req->out.numargs = 1;
- 	req->out.args[0].size =
- 		fc->minor < 4 ? FUSE_COMPAT_STATFS_SIZE : sizeof(outarg);
+-- 
+Dmitry

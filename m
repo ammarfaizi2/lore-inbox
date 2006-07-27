@@ -1,58 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWG0PRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWG0PRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751719AbWG0PRg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWG0PRg
+	id S1751706AbWG0PRO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWG0PRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:17:36 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:8641 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751719AbWG0PRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:17:36 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Subject: Re: Building the kernel on an SMP box?
-Date: Thu, 27 Jul 2006 17:19:23 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B3898@chicken.machinevisionproducts.com>
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3898@chicken.machinevisionproducts.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1995013.xQxMXdvX8s";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 27 Jul 2006 11:17:14 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:63664 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751359AbWG0PRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:17:14 -0400
+Date: Thu, 27 Jul 2006 17:17:11 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: [Patch] [2.6.18-rc2-mm1] Return code checking for make_class_name()
+Message-ID: <20060727171711.6fe210aa@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200607271719.37097.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1995013.xQxMXdvX8s
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-> And then to go to the extreme, what kind of horsepower should I be
-> looking for if I want get the build times down to say a minute or so???
+make_class_name() may return an error pointer. Make sure that all
+callers in the driver core check for it.
 
-The machine where I reached the one minute limit was a 16x 2,7Ghz Xeon HT w=
-ith=20
-32GB of RAM. The good thing is I had to pay neither the machine nor the pow=
-er=20
-bill for it :)
+CC: Greg K-H <greg@kroah.com>
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Eike
+ class.c |   25 ++++++++++++++++++++++---
+ core.c  |   11 +++++++----
+ 2 files changed, 29 insertions(+), 7 deletions(-)
 
---nextPart1995013.xQxMXdvX8s
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBEyNmJXKSJPmm5/E4RAkJ3AKCHCppOu6EdPe/p4YgYWGVxJFfWTACfcjih
-/uTzR0GVPXnP0wUXp0oVxFw=
-=tQ7A
------END PGP SIGNATURE-----
-
---nextPart1995013.xQxMXdvX8s--
+diff -Naurp linux-2.6.18-rc2-mm1/drivers/base/class.c linux-2.6.18-rc2-mm1+CH/drivers/base/class.c
+--- linux-2.6.18-rc2-mm1/drivers/base/class.c	2006-07-27 16:43:25.000000000 +0200
++++ linux-2.6.18-rc2-mm1+CH/drivers/base/class.c	2006-07-27 16:39:14.000000000 +0200
+@@ -602,6 +602,11 @@ int class_device_add(struct class_device
+ 	if (class_dev->dev) {
+ 		class_name = make_class_name(class_dev->class->name,
+ 					     &class_dev->kobj);
++		if (IS_ERR(class_name)) {
++			error = PTR_ERR(class_name);
++			class_name = NULL;
++			goto out6;
++		}
+ 		error = sysfs_create_link(&class_dev->kobj,
+ 					  &class_dev->dev->kobj, "device");
+ 		if (error)
+@@ -741,7 +746,11 @@ void class_device_del(struct class_devic
+ 		class_name = make_class_name(class_dev->class->name,
+ 					     &class_dev->kobj);
+ 		sysfs_remove_link(&class_dev->kobj, "device");
+-		sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		if (!IS_ERR(class_name))
++			sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		else
++			/* Hmm, don't know what else to do */
++			class_name = NULL;
+ 	}
+ 	sysfs_remove_link(&class_dev->kobj, "subsystem");
+ 	class_device_remove_file(class_dev, &class_dev->uevent_attr);
+@@ -804,10 +813,15 @@ int class_device_rename(struct class_dev
+ 	pr_debug("CLASS: renaming '%s' to '%s'\n", class_dev->class_id,
+ 		 new_name);
+ 
+-	if (class_dev->dev)
++	if (class_dev->dev) {
+ 		old_class_name = make_class_name(class_dev->class->name,
+ 						 &class_dev->kobj);
+-
++		if (IS_ERR(old_class_name)) {
++			error = PTR_ERR(old_class_name);
++			old_class_name = NULL;
++			goto out;
++		}
++	}
+ 	strlcpy(class_dev->class_id, new_name, KOBJ_NAME_LEN);
+ 
+ 	error = kobject_rename(&class_dev->kobj, new_name);
+@@ -815,6 +829,11 @@ int class_device_rename(struct class_dev
+ 	if (class_dev->dev) {
+ 		new_class_name = make_class_name(class_dev->class->name,
+ 						 &class_dev->kobj);
++		if (IS_ERR(new_class_name)) {
++			error = PTR_ERR(new_class_name);
++			new_class_name = NULL;
++			goto out;
++		}
+ 		error = sysfs_create_link(&class_dev->dev->kobj,
+ 					  &class_dev->kobj, new_class_name);
+ 		if (error)
+diff -Naurp linux-2.6.18-rc2-mm1/drivers/base/core.c linux-2.6.18-rc2-mm1+CH/drivers/base/core.c
+--- linux-2.6.18-rc2-mm1/drivers/base/core.c	2006-07-27 16:43:25.000000000 +0200
++++ linux-2.6.18-rc2-mm1+CH/drivers/base/core.c	2006-07-27 16:41:03.000000000 +0200
+@@ -608,11 +608,14 @@ void device_del(struct device * dev)
+ 		sysfs_remove_link(&dev->kobj, "subsystem");
+ 		sysfs_remove_link(&dev->class->subsys.kset.kobj, dev->bus_id);
+ 		class_name = make_class_name(dev->class->name, &dev->kobj);
+-		if (parent) {
+-			sysfs_remove_link(&dev->kobj, "device");
+-			sysfs_remove_link(&dev->parent->kobj, class_name);
++		if (!IS_ERR(class_name)) {
++			if (parent) {
++				sysfs_remove_link(&dev->kobj, "device");
++				sysfs_remove_link(&dev->parent->kobj,
++						  class_name);
++			}
++			kfree(class_name);
+ 		}
+-		kfree(class_name);
+ 		down(&dev->class->sem);
+ 		list_del_init(&dev->node);
+ 		up(&dev->class->sem);

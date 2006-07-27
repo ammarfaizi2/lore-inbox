@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWG0Tbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWG0TcL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751963AbWG0Tbm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 15:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWG0Tbm
+	id S1751044AbWG0TcL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 15:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWG0TcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 15:31:42 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:35803 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751961AbWG0Tbl (ORCPT
+	Thu, 27 Jul 2006 15:32:11 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9928 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751044AbWG0TcK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 15:31:41 -0400
-Message-Id: <200607271930.k6RJUQ6s016546@laptop13.inf.utfsm.cl>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Petr Baudis <pasky@suse.cz>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       alan@lxorguk.ukuu.org.uk, tytso@mit.edu, tigran@veritas.com
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2 
-In-Reply-To: Message from Pekka Enberg <penberg@cs.helsinki.fi> 
-   of "Thu, 27 Jul 2006 21:10:36 +0300." <1154023836.7190.3.camel@ubuntu> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Thu, 27 Jul 2006 15:30:26 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Thu, 27 Jul 2006 15:30:32 -0400 (CLT)
+	Thu, 27 Jul 2006 15:32:10 -0400
+Date: Thu, 27 Jul 2006 12:32:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Should cpuset ABBA deadlock fix be in 2.6.18-rc2-mmx?
+Message-Id: <20060727123204.5a5062e6.pj@sgi.com>
+In-Reply-To: <20060727112219.8b052e9b.akpm@osdl.org>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	<20060727061232.044fc927.pj@sgi.com>
+	<20060727112219.8b052e9b.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.9.12 (GTK+ 2.6.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> On Thu, 2006-07-27 at 20:06 +0200, Petr Baudis wrote:
-> > Make that setuid root or just create log file owned by you and make root
-> > run it.  Should be innocent enough, right?
-> > 
-> > Well, except that you can revoke the log file before the shadow file is
-> > opened, at which point open() probably reuses the fd and the program
-> > conveniently logs to /etc/shadow.
+Andrew wrote:
+> Linus merged that four days ago.
 
-> No, the fd is leaked on purpose to avoid recycling. See revoke_fds for
-> details.
+Good - thanks.
 
-Doesn't that violate a POSIX guarantee that the lowest unused fd is
-returned? If the leakage lasts "long enough", this gives an opportunity of
-a nice DoS by using up fds...
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

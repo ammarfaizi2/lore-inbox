@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWG0VTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWG0VVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWG0VTN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWG0VTN
+	id S1751304AbWG0VVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWG0VVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:19:13 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:62683 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751214AbWG0VTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 17:19:12 -0400
-Date: Thu, 27 Jul 2006 23:18:35 +0200 (CEST)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: 7eggert@gmx.de, Marcel Holtmann <marcel@holtmann.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Eugene Teo <eteo@redhat.com>
-Subject: Re: Require mmap handler for a.out executables
-In-Reply-To: <1154024752.13509.86.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0607272311020.5867@be1.lrz>
-References: <6COYh-8f0-41@gated-at.bofh.it>  <E1G69zn-0001Wb-66@be1.lrz>
- <1154024752.13509.86.camel@localhost.localdomain>
+	Thu, 27 Jul 2006 17:21:21 -0400
+Received: from fmmailgate02.web.de ([217.72.192.227]:20636 "EHLO
+	fmmailgate02.web.de") by vger.kernel.org with ESMTP
+	id S1751304AbWG0VVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 17:21:20 -0400
+Message-ID: <44C92E4E.1000104@web.de>
+Date: Thu, 27 Jul 2006 23:21:18 +0200
+From: "jens m. noedler" <noedler@web.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update kernel-parameters.txt
+References: <44C8CDF7.4070205@web.de> <Pine.LNX.4.58.0607270942180.7955@shark.he.net>
+In-Reply-To: <Pine.LNX.4.58.0607270942180.7955@shark.he.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006, Alan Cox wrote:
-> Ar Iau, 2006-07-27 am 19:49 +0200, ysgrifennodd Bodo Eggert:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Can shell scripts or binfmt_misc be exploited, too? Even if not, I'd
-> > additionally force noexec, nosuid on proc and sysfs mounts.
-> 
-> Why force them, this is just papering over imagined cracks and running
-> from shadows. If users want to be paranoid about these file systems or
-> their distro vendor is smart then the ability to set noexec/nosuid is
-> already supported and even more can be done with selinux. In fact as its
-> usually mounted in one place even AppArmor might be able to get it right
-> 8)
+Hello,
 
-s/force/default to/, since it's not OK to let the admin shoot his feet 
-unless he _explicitely_ demands to. What if the next crack allows evading 
-nosuid by using proc?
+Randy.Dunlap wrote at 07/27/2006 06:44 PM:
 
-Being paranoid doesn't mean they aren't after you ...
--- 
-bus error. passengers dumped.
+> Patch should apply with 'patch -p1' (i.e., filenames begin
+> with linux/ or a/, b/ etc.)
+
+Thanks for the feedback, here is an updated patch.
+
+By the way: Does anybody know _why_ COMMAND_LINE_SIZE depends
+on the architecture? Wouldn't it make sense to generalize it 
+for all platforms to e.g. 2048 characters? 
+
+Bye, Jens
+
+
+Signed-off-by: jens m. noedler <noedler@web.de>
+
+- ---
+
+- --- linux/Documentation/kernel-parameters.txt.orig      2006-07-26 16:47:34.000000000 +0200
++++ linux/Documentation/kernel-parameters.txt   2006-07-27 23:16:00.000000000 +0200
+@@ -110,6 +110,13 @@ be entered as an environment variable, w
+ it will appear as a kernel argument readable via /proc/cmdline by programs
+ running once the system is up.
+
++The number of kernel parameters is not limited, but the length of the
++complete command line (parameters including spaces etc.) is limited to
++a fixed number of characters. This limit depends on the architecture
++and is between 256 and 4096 characters. It is defined in the file
++./include/asm/setup.h as COMMAND_LINE_SIZE.
++
++
+        53c7xx=         [HW,SCSI] Amiga SCSI controllers
+                        See header of drivers/scsi/53c7xx.c.
+                        See also Documentation/scsi/ncr53c7xx.txt.
+
+
+- -- 
+jens m. noedler
+  noedler@web.de
+  pgp: 0x9f0920bb
+  http://noedler.de
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEyS5OBoFc9p8JILsRAnAwAKD/SlVUogI1weJaSqHmMgAkYvdCkwCfbb77
+yDrZi2Zg0AWcxLW9mfh8ArU=
+=cMXH
+-----END PGP SIGNATURE-----

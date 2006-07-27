@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbWG0NaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWG0NbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161070AbWG0NaH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWG0NaG
+	id S1161071AbWG0NbB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWG0NbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:30:06 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:64741
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161070AbWG0NaE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:30:04 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: "gmu 2k6" <gmu2006@gmail.com>
-Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
-Date: Thu, 27 Jul 2006 15:29:39 +0200
-User-Agent: KMail/1.9.1
-References: <20060725222209.0048ed15.akpm@osdl.org> <200607261730.31717.mb@bu3sch.de> <f96157c40607261244m205ff68dh5563c66436a2e67@mail.gmail.com>
-In-Reply-To: <f96157c40607261244m205ff68dh5563c66436a2e67@mail.gmail.com>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>,
-       "Philipp Rumpf" <prumpf@mandrakesoft.com>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Jul 2006 09:31:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23479 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161071AbWG0Na7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:30:59 -0400
+Subject: Re: [Ext2-devel] Question about ext3 jbd module
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Mao, Bibo" <bibo.mao@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <CA502B3E9EE27B4490C87C12E3C7C85111D033@pdsmsx412.ccr.corp.intel.com>
+References: <CA502B3E9EE27B4490C87C12E3C7C85111D033@pdsmsx412.ccr.corp.intel.com>
+Content-Type: text/plain
+Date: Thu, 27 Jul 2006 14:30:33 +0100
+Message-Id: <1154007033.4941.2.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-27) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607271529.39549.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 July 2006 21:44, gmu 2k6 wrote:
-> > But could you try the following patch on top of latest git?
-> > It's just a random test, but I think it's worth trying.
-> > Let's see if it works around the issue.
-> >
-> > Index: linux-2.6/drivers/char/hw_random/intel-rng.c
-> > ===================================================================
-> > --- linux-2.6.orig/drivers/char/hw_random/intel-rng.c   2006-06-27 17:48:13.000000000 +0200
-> > +++ linux-2.6/drivers/char/hw_random/intel-rng.c        2006-07-26 17:27:03.000000000 +0200
-> > @@ -104,9 +104,14 @@
-> >         int err = -EIO;
-> >
-> >         hw_status = hwstatus_get(mem);
-> > +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
-> > +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
-> > +#if 0
-> > +       hw_status = hwstatus_get(mem);
-> >         /* turn RNG h/w on, if it's off */
-> >         if ((hw_status & INTEL_RNG_ENABLED) == 0)
-> >                 hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
-> > +#endif
-> >         if ((hw_status & INTEL_RNG_ENABLED) == 0) {
-> >                 printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
-> >                 goto out;
-> 
-> well as it didn't work, are you sure it was not intended to be more like this:
-> @@ -104,9 +104,14 @@
->        int err = -EIO;
-> 
->        hw_status = hwstatus_get(mem);
-> +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
-> +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
-> +#if 0
->        /* turn RNG h/w on, if it's off */
->        if ((hw_status & INTEL_RNG_ENABLED) == 0)
->                hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
-> +#endif
->        if ((hw_status & INTEL_RNG_ENABLED) == 0) {
->                printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
->                goto out;
-> 
-> ?
+Hi,
 
-I don't think that makes a difference to the generated code, does it?
+On Tue, 2006-07-25 at 17:59 +0800, Mao, Bibo wrote:
+> Yes, kernel version is 2.6.9, it is OS distribution kernel RHEL4.
 
--- 
-Greetings Michael.
+Which version?  There were a few upstream problems like this fixed in
+2.6.11 or so, and I think current RHEL-4 updates should include those.
+
+I'm off on holiday/family wedding tomorrow for a couple of weeks, so
+replies might be slow...
+
+--Stephen
+
+

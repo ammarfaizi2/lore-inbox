@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWG0PWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWG0PXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWG0PWy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWG0PWy
+	id S932515AbWG0PXY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWG0PXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:22:54 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41739 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932448AbWG0PWy
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:22:54 -0400
-Date: Wed, 26 Jul 2006 13:08:06 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Olivier Galibert <galibert@pobox.com>, Theodore Tso <tytso@mit.edu>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Nikita Danilov <nikita@clusterfs.com>, Steve Lord <lord@xfs.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060726130806.GA5270@ucw.cz>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C42B92.40507@xfs.org> <17604.31844.765717.375423@gargle.gargle.HOWL> <20060724103023.GA7615@thunk.org> <20060724113534.GA64920@dspnet.fr.eu.org> <20060724133939.GA11353@thunk.org> <20060724153853.GA88678@dspnet.fr.eu.org>
-Mime-Version: 1.0
+	Thu, 27 Jul 2006 11:23:23 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:38802 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932560AbWG0PXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:23:21 -0400
+X-Sasl-enc: fwIcU89VSf49ZYY+RlkoC8/411CcXhkxiRpqZGuG3w+E 1154013799
+Date: Thu, 27 Jul 2006 12:23:14 -0300
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
+       vojtech@suse.cz, Len Brown <len.brown@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org
+Subject: Re: [ltp] Re: Generic battery interface
+Message-ID: <20060727152314.GC14873@khazad-dum.debian.net>
+References: <20060727002035.GA2896@elf.ucw.cz> <20060727140539.GA10835@srcf.ucam.org> <41840b750607270739u7b6fe7efl5ac5ec147d83e624@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060724153853.GA88678@dspnet.fr.eu.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <41840b750607270739u7b6fe7efl5ac5ec147d83e624@mail.gmail.com>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > A much more important effect is that non-maintainers aren't familiar
-> > with coding and patch submission guidelines.  For example, in
-> > suspend2, Nigel first tried with patches that were too monolithic,
-> > and then his next series was too broken down such that it was too
-> > hard to review (and "git bisect" wouldn't work).
+On Thu, 27 Jul 2006, Shem Multinymous wrote:
+> On 7/27/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> >This would also be useful for the OLPC project - it's unlikely that
+> >it'll use ACPI, but a more feature-rich interface than /proc/apm would
+> >be massively helpful. This is just a matter of speccing out what
+> >information is needed and what format it should be presented in, and
+> >then adding a new device class, right?
 > 
-> All his submissions since 2004 or so?  It's a little easy to limit
-> oneself to the last two ones.
+> Can we really assume there's one driver providing all battery-related
+> attributes?
 
-Nigel did not do any submissions in 2004 or so. Check your fact, that
-stuff was marked 'RFC' and yes I did comment on it.
+No, we cannot.  This is not true on ThinkPads, for example.  We *can* make
+it true, but AFAIK that means overriding the entire generic ACPI battery
+driver, and greating a "glue" thinkpad_battery one that does:
 
-He did 1 (one) submission that looked like SubmittingPatches at the
-first sight, and that was very recent.
+	1. generic ACPI battery access when ACPI is available
+	2. thinkpad specific ACPI battery access when ACPI is available
+	3. thinkpad specific EC firmware battery access (not ACPI).
 
-Stop spreading lies.
+That requires the new driver to use functions from ibm_acpi and tp_smapi,
+plus the stuff in the generic acpi battery access driver.
 
-							Pavel
+It might be the best way to go for ThinkPads, actually.  Some rework on
+ibm_acpi ain't that bad, and tp_smapi is already undergoing major surgery.
+
+> In this particular case we could split the ACPI module into two, one
+> module for events and one module for the sysfs interface, and load
+> only the first one on ThinkPads. But that's only because tp_smapi
+> happens to reproduce all of ACPI's attributes; there are probably
+> other cases whether neither method dominates the other.
+
+Yes.
+
+> So, if we insist on a standard battery device class name, how do we
+> cope with multiple sources of information and control functions?
+
+Good question.
+
 -- 
-Thanks for all the (sleeping) penguins.
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

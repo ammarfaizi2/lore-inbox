@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWG0OOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWG0OTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWG0OOs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 10:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWG0OOs
+	id S1751204AbWG0OTR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 10:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWG0OTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 10:14:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20955 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751340AbWG0OOr (ORCPT
+	Thu, 27 Jul 2006 10:19:17 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:40795 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751204AbWG0OTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 10:14:47 -0400
-Message-ID: <44C8950C.3080609@redhat.com>
-Date: Thu, 27 Jul 2006 18:27:24 +0800
-From: Eugene Teo <eteo@redhat.com>
-Organization: Red Hat Asia-Pacific
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Thu, 27 Jul 2006 10:19:16 -0400
+Message-ID: <44C8CB5F.5040705@tls.msk.ru>
+Date: Thu, 27 Jul 2006 18:19:11 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Mail/News 1.5 (X11/20060318)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Marcel Holtmann <holtmann@redhat.com>
-Subject: [PATCH] Require mmap handler for a.out executables (was Re: 2.6.18-rc2-mm1)
-References: <20060727015639.9c89db57.akpm@osdl.org>
-In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [WARNING -mm] 2.6.18-rc2-mm1 build kills /dev/null!?
+References: <20060727101128.GA31920@rhlx01.fht-esslingen.de>
+In-Reply-To: <20060727101128.GA31920@rhlx01.fht-esslingen.de>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Andreas Mohr wrote:
+> Hello all,
+> 
+> for some reason a 2.6.18-rc2-mm1 build seems to kill my /dev/null device!
+> 
+> A simple
+> # make bzImage modules modules_install
+> managed to reduce my
+> 
+> crw-rw-rw-    1 root     root       1,   3 27. Jul 12:04 null
+> 
+> into the charred remains equivalent of
+> 
+> -rw-r--r--    1 root     root            0 27. Jul 12:02 null
 
-Andrew Morton wrote:
-[snipped]
-> - Lots of random patches.  Many of them are bugfixes and I shall, as usual,
->   go through them all identifying 2.6.18 material.  But I can miss things, so
->   please don't be afraid to point 2.6.18 candidates out to me.
-[snipped]
+Don't build as root.
 
-The following patch provides better protection against people exploiting stuff
-in /proc and I hope you consider it for upstream inclusion.
+While something's broke in kernel build scripts and probably
+should be fixed, it's not a reason for anyone to get their
+whole filesystem rm -rf'ed.
 
-Thanks.
-
-Eugene
-
-[PATCH] Require mmap handler for a.out executables
-
-Files supported by fs/proc/base.c, i.e. /proc/<pid>/*, are not capable
-of meeting the validity checks in ELF load_elf_*() handling because they
-have no mmap handler which is required by ELF. In order to stop a.out
-executables being used as part of an exploit attack against /proc-related
-vulnerabilities, we make a.out executables depend on ->mmap() existing.
-
-Signed-off-by: Eugene Teo <eteo@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-
----
-commit 1597cf8405734e4747c808bb7e04115a6670dccf
-tree 49050549aee6406dab0c021c5aa4e9bfc337bd8f
-parent 44eb123126d289bac398cac0232309c228386671
-author Marcel Holtmann <marcel@holtmann.org> Wed, 26 Jul 2006 12:12:14 +0200
-committer Marcel Holtmann <marcel@holtmann.org> Wed, 26 Jul 2006 12:12:14 +0200
-
- fs/binfmt_aout.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
-
-diff --git a/fs/binfmt_aout.c b/fs/binfmt_aout.c
-index f312103..5638acf 100644
---- a/fs/binfmt_aout.c
-+++ b/fs/binfmt_aout.c
-@@ -278,6 +278,9 @@ static int load_aout_binary(struct linux
- 		return -ENOEXEC;
- 	}
-
-+	if (!bprm->file->f_op || !bprm->file->f_op->mmap)
-+		return -ENOEXEC;
-+
- 	fd_offset = N_TXTOFF(ex);
-
- 	/* Check initial limits. This avoids letting people circumvent
-@@ -476,6 +479,9 @@ static int load_aout_library(struct file
- 		goto out;
- 	}
-
-+	if (!file->f_op || !file->f_op->mmap)
-+		goto out;
-+
- 	if (N_FLAGS(ex))
- 		goto out;
-
-
--- 
-eteo redhat.com  ph: +65 6490 4142  http://www.kernel.org/~eugeneteo
-gpg fingerprint:  47B9 90F6 AE4A 9C51 37E0  D6E1 EA84 C6A2 58DF 8823
+/mjt

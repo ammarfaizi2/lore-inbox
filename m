@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWG0RuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWG0Rul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWG0RuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 13:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWG0RuH
+	id S1751874AbWG0Rul (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 13:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWG0Rul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 13:50:07 -0400
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:60426 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1750927AbWG0RuG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 13:50:06 -0400
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: linux-kernel@vger.kernel.org
-Subject: request_irq() return value
-Date: Thu, 27 Jul 2006 19:50:03 +0200
-User-Agent: KMail/1.9.1
+	Thu, 27 Jul 2006 13:50:41 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:61732 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751876AbWG0Ruj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 13:50:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eOWnn1f2NL+zGo6mscd1/LFVazYdQY3o07xIjeb0mAlUPOZOYyLvpxA0zQ+iSHmZS49C5n794t1Fr6WMH0MFlxC7zZGHYM1J+BQNZy69RIEMFzUyeDB0/Lidrtt6DJpf3MCn4U3x0g8klw8fKr9Tc4TVBM0aDFXpH+X8CLcxcVo=
+Message-ID: <a36005b50607271050g7d6fcf59g4950410e7c9356c4@mail.gmail.com>
+Date: Thu, 27 Jul 2006 10:50:38 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: O_CAREFUL flag to disable open() side effects
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Pekka J Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
+       tytso@mit.edu, tigran@veritas.com
+In-Reply-To: <44C8F8E3.1070306@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607271950.03370.m.kozlowski@tuxland.pl>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <a36005b50607270941n187e8b06ga9b1b6454cf2e548@mail.gmail.com>
+	 <Pine.LNX.4.58.0607272004270.7152@sbz-30.cs.Helsinki.FI>
+	 <1154021616.13509.68.camel@localhost.localdomain>
+	 <44C8F8E3.1070306@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 7/27/06, H. Peter Anvin <hpa@zytor.com> wrote:
+> Dumb thought: would it make sense to add an O_CAREFUL flag to open(), to
+> disable side effects?
 
-	I'm looking at the source code of different drivers and wondering about 
-request_irq() return value. It is used mostly in 'open' routine of struct 
-net_device. If request_irq() fails some drivers return -EAGAIN, some -EBUSY 
-and some the return value of request_irq(). Is this intentional? Sample 
-drivers code:
+Not that I don't want to be constructive, but this is something you'll
+likely never be able to specify with the needed level of accuray.
+What is careful?  I can imagine all kinds ideas possible ways file
+systems and device drivers might want to use this.
 
-8139cp.c:
-static int cp_open (struct net_device *dev) {
-        ...
-        rc = request_irq(dev->irq, cp_interrupt, SA_SHIRQ, dev->name, dev);
-        if (rc)
-                goto err_out_hw;
-        ...
-err_out_hw:
-        ...
-        return rc;
-}
-
-3c359.c:
-static int xl_open(struct net_device *dev){
-        ...
-        if(request_irq(dev->irq, &xl_interrupt, SA_SHIRQ , "3c359", dev)) {
-                return -EAGAIN;
-        }
-        ...
-}
-
-Besides request_irq() is arch dependent so depending on arch it has different 
-set of possible return values. So ... does the return value matter or I 
-misunderstood something here?
-
-Regards,
-
-	Mariusz
+Adding a separate interface taking a file name isn't high enough a
+price to open such a can of worms.

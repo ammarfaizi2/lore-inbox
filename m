@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWG0HqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWG0HsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWG0HqR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 03:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWG0HqR
+	id S932538AbWG0HsY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 03:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWG0HsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 03:46:17 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:64448 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750851AbWG0HqR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 03:46:17 -0400
-Message-Id: <200607270746.k6R7jjLB013448@zeus2.kernel.org>
-From: "amina bello" <aminabelloa2005@she.com>
-Reply-To: aminabelloa2005@she.com
-To: linux-kernel@vger.kernel.org
-Date: Thu, 27 Jul 2006 14:46:09 +0700
-Subject: REQUEST FOR YOUR ASSISTANT
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	Thu, 27 Jul 2006 03:48:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23465 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751299AbWG0HsX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 03:48:23 -0400
+Message-ID: <44C86FB9.6090709@redhat.com>
+Date: Thu, 27 Jul 2006 03:48:09 -0400
+From: Rik van Riel <riel@redhat.com>
+Organization: Red Hat, Inc
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm <linux-mm@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] mm: use-once cleanup
+References: <1153168829.31891.89.camel@lappy>
+In-Reply-To: <1153168829.31891.89.camel@lappy>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:Mrs.Amina.A Bello. 
-Attn:The Managing Director
-Before I proceed, may I humbly introduce myself to your goodself, My Name is Mrs. Amina.A.Bello, an Iraqi refugee ,my husband was one of the personal aid to the president of Iraq who was formerly overthrown out of power by American Government . 
-Prior to this last serious crisis that is still ravaging in my country,which recently led to misfortune of our government and my late husband position as the personal aid to the president, we were able to come over here in Thailand ,we inherited the sum of US11 million.The funds were originally gotten from my late husband proceeds. 
-My late husband was able to safe guard the fund with a very good diplomatic contact from my Country. 
-I have decided to contact you because I am interested in investing in your country which is investment friendly. Please kindly guide and assist me in making the right investment since I am also interested in buying a residential property as I will be moving my family over there as soon as every thing regarding technical and logictics details is worked out and ascertained to our respective satisfaction. In view of your participation,I am ready to give you a good negotiable percentage for your assistance,or better still commit it into viable Joint venture projects,be assured that you stand no risk of any kind as the funds belong to me and my only survived son. As soon as I get your consent, we will quickly move this fund to your country for investment . 
-However, upon your acceptance to work as my partner, you can contact me with my private email:aminabelloa2005@she.com for more details.
-I am here with my only surviving son Musa, 
-I strongly believe that associating with you to embark on this and other business ventures will derive a huge success here after, please include you private contact telephone number and private e-mail when replying.
-Yours Sincerely.
-Mrs.Amina.A.Bello. 
+Peter Zijlstra wrote:
+> Hi,
+> 
+> This is yet another implementation of the PG_useonce cleanup spoken of
+> during the VM summit.
 
+After getting bitten by rsync yet again, I guess it's time to insist
+that this patch gets merged...
 
+Andrew, could you merge this?  Pretty please? ;)
 
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

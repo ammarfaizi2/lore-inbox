@@ -1,87 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751727AbWG0QgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751729AbWG0Qld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751727AbWG0QgY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 12:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWG0QgY
+	id S1751729AbWG0Qld (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWG0Qld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 12:36:24 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.155]:10656 "EHLO
-	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S1751645AbWG0QgX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 12:36:23 -0400
-Message-ID: <44C8EB3C.4080404@ru.mvista.com>
-Date: Thu, 27 Jul 2006 20:35:08 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
+	Thu, 27 Jul 2006 12:41:33 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:35942 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751564AbWG0Qlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:41:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A5EDvTaGeBzULUrU8lnQYby+K6S1aQsoypbO7cZkoHrtF6Pxb529qt3rFe3NAz7OGKRrMsA8qkeMoI7izdaPj2+sTVfrDYWzHbwSpYxUI7rZ6vYfAtF40vLnErgibw4nCHlP/cm5mQwqLTJm0w6QiFAIKkjxW1K8YSgXYVyFUm0=
+Message-ID: <a36005b50607270941n187e8b06ga9b1b6454cf2e548@mail.gmail.com>
+Date: Thu, 27 Jul 2006 09:41:30 -0700
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, alan@lxorguk.ukuu.org.uk, tytso@mit.edu,
+       tigran@veritas.com
+In-Reply-To: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-To: albertl@mail.com
-Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, alan@redhat.com,
-       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@enoyolf.org>
-Subject: Re: libata pata_pdc2027x success on sparc64
-References: <200607172358.k6HNwYhF002052@harpo.it.uu.se> <44BD2370.8090506@ru.mvista.com> <44C841B5.40806@tw.ibm.com>
-In-Reply-To: <44C841B5.40806@tw.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On 7/27/06, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
+> +asmlinkage int sys_revoke(const char __user *filename)
 
-Albert Lee wrote:
-
->>>In contrast, the old IDE pdc202xx_new driver had lots
->>>of problems with CRC errors causing it to disable DMA.
-
->>   Hm, from my experience it usually falls back to UltraDMA/44 and then
->>the thing startrt working...
-
->>>I wasn't able to manually tune it above udma3 without
->>>getting more errors. This isn't sparc64-specific: I've
->>>had similar negative experience with the old IDE Promise
->>>drivers in a PowerMac.
-
->>   This happens because the "old" driver misses the PLL calibration code.
->>   You may want to try these Albert's patches:
-
->>http://marc.theaimsgroup.com/?t=110992452800002&r=1&w=2
->>http://marc.theaimsgroup.com/?t=110992471500002&r=1&w=2
->>http://marc.theaimsgroup.com/?t=110992490100002&r=1&w=2
->>http://marc.theaimsgroup.com/?t=111019238400003&r=1&w=2
-
->>   It looks like they were never considered for accepting into the kernel
->>while they succesfully solve this issue. Maybe Albert could try pushing
->>them into -mm tree once more?
-
-> The libata version has three improvements compared to the IDE version.
-
-> 1. The PLL calibration patches in the above URLs (for IDE)
-> still need more improvement as done in the pdc_read_counter()
-> of the libata version.
-
-    Indeed. When backporting your patches to 2.6.10, I've added alike 
-function, so can generate an extra patch against those.
-
-> 2. The Promise 2027x adapters check the "set features - xfer mode"
->    and set the timing register automatically. However, the automatically
->    set values are not correct under 133MHz. Libata has a hook
->    pdc2027x_post_set_mode() to set the values back by software.
-
-    You probably forgot -- the last mentioned patch was all about it. :-)
-
-> 3. ATAPI DMA is supported (please see pdc2027x_check_atapi_dma()).
->    Maybe we also need to add this to the IDE version.
-
-    Wouldn't hurt. :-)
-
-> Currently I have no time to update the IDE pdc202xx_new driver.
-
-    I'll probably take this on then, starting with pushing this half-buried 
-stuff into -mm tree.
-
-> Also as Alan said, we have no maintainer for the IDE layer at this time.
-> So, if ok, please try to use the libata-based driver.
-
-WBR, Sergei
+Could we just plainly avoid adding any new syscalls which take a
+filename without extending the interface like the *at functions?
+I.e., add a file descriptor parameter, handle AT_FDCWD, etc.  The
+additional effort is really minimal.  Even if, as in this case, the
+function is propably not used in situations where the filename use is
+racy there are still those people to consider who want to implement a
+virtual per-thread current working directory.

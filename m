@@ -1,116 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWG0LXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWG0Ljg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWG0LXW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 07:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWG0LXW
+	id S1751166AbWG0Ljg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 07:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWG0Ljg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 07:23:22 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:63070
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751297AbWG0LXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 07:23:21 -0400
-Message-Id: <44C8BE8F.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 27 Jul 2006 12:24:31 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386: initialize end-of-memory variables as early as
-	possible
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 27 Jul 2006 07:39:36 -0400
+Received: from server077.de-nserver.de ([62.27.12.245]:32645 "EHLO
+	server077.de-nserver.de") by vger.kernel.org with ESMTP
+	id S1750720AbWG0Ljg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 07:39:36 -0400
+X-User-Auth: Auth by hostmaster@profihost.com through 84.134.46.66
+Message-ID: <44C8A5F1.7060604@profihost.com>
+Date: Thu, 27 Jul 2006 13:39:29 +0200
+From: ProfiHost - Stefan Priebe <s.priebe@profihost.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: XFS / Quota Bug in  2.6.17.x and 2.6.18x
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move initialization of all memory end variables to as early as
-possible, so that dependent code doesn't need to check whether these
-variables have already been set.
+Hello!
 
-Change the range check in kunmap_atomic to actually make use of this
-so that the no-mapping-estabished path (under CONFIG_DEBUG_HIGHMEM)
-gets used only when the address is inside the lowmem area (and BUG()
-otherwise).
+The crash only occurs if you use quota and IDE without barrier support.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+The Problem is, that on a new mount of a root filesystem - the flag 
+VFS_RDONLY is set - and so no barrier check is done before checking 
+quota. With this patch barrier check is done always. The partition 
+should not be mounted at that moment. For mount -o remount, rw or 
+something like this it uses another function where VFS_RDONLY is checked.
 
---- /home/jbeulich/tmp/linux-2.6.18-rc2/arch/i386/kernel/setup.c	2006-07-27 08:50:01.000000000 +0200
-+++ 2.6.18-rc2-i386-early-mem-vars/arch/i386/kernel/setup.c	2006-07-19 14:52:48.000000000 +0200
-@@ -1170,6 +1170,14 @@ static unsigned long __init setup_memory
- 	}
- 	printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
- 		pages_to_mb(highend_pfn - highstart_pfn));
-+	num_physpages = highend_pfn;
-+	high_memory = (void *) __va(highstart_pfn * PAGE_SIZE - 1) + 1;
-+#else
-+	num_physpages = max_low_pfn;
-+	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
-+#endif
-+#ifdef CONFIG_FLATMEM
-+	max_mapnr = num_physpages;
- #endif
- 	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
- 			pages_to_mb(max_low_pfn));
---- /home/jbeulich/tmp/linux-2.6.18-rc2/arch/i386/mm/discontig.c	2006-07-27 08:50:01.000000000 +0200
-+++ 2.6.18-rc2-i386-early-mem-vars/arch/i386/mm/discontig.c	2006-07-27 12:31:09.457856288 +0200
-@@ -313,6 +313,11 @@ unsigned long __init setup_memory(void)
- 		highstart_pfn = system_max_low_pfn;
- 	printk(KERN_NOTICE "%ldMB HIGHMEM available.\n",
- 	       pages_to_mb(highend_pfn - highstart_pfn));
-+	num_physpages = highend_pfn;
-+	high_memory = (void *) __va(highstart_pfn * PAGE_SIZE - 1) + 1;
-+#else
-+	num_physpages = system_max_low_pfn;
-+	high_memory = (void *) __va(system_max_low_pfn * PAGE_SIZE - 1) + 1;
- #endif
- 	printk(KERN_NOTICE "%ldMB LOWMEM available.\n",
- 			pages_to_mb(system_max_low_pfn));
---- /home/jbeulich/tmp/linux-2.6.18-rc2/arch/i386/mm/highmem.c	2006-06-18 03:49:35.000000000 +0200
-+++ 2.6.18-rc2-i386-early-mem-vars/arch/i386/mm/highmem.c	2006-06-30 10:07:14.000000000 +0200
-@@ -54,7 +54,7 @@ void kunmap_atomic(void *kvaddr, enum km
- 	unsigned long vaddr = (unsigned long) kvaddr & PAGE_MASK;
- 	enum fixed_addresses idx = type + KM_TYPE_NR*smp_processor_id();
- 
--	if (vaddr < FIXADDR_START) { // FIXME
-+	if (vaddr >= PAGE_OFFSET && vaddr < (unsigned long)high_memory) {
- 		dec_preempt_count();
- 		preempt_check_resched();
- 		return;
---- /home/jbeulich/tmp/linux-2.6.18-rc2/arch/i386/mm/init.c	2006-07-27 08:50:01.000000000 +0200
-+++ 2.6.18-rc2-i386-early-mem-vars/arch/i386/mm/init.c	2006-07-19 14:52:48.000000000 +0200
-@@ -552,18 +552,6 @@ static void __init test_wp_bit(void)
- 	}
- }
- 
--static void __init set_max_mapnr_init(void)
--{
--#ifdef CONFIG_HIGHMEM
--	num_physpages = highend_pfn;
--#else
--	num_physpages = max_low_pfn;
--#endif
--#ifdef CONFIG_FLATMEM
--	max_mapnr = num_physpages;
--#endif
--}
--
- static struct kcore_list kcore_mem, kcore_vmalloc; 
- 
- void __init mem_init(void)
-@@ -590,14 +578,6 @@ void __init mem_init(void)
- 	}
- #endif
-  
--	set_max_mapnr_init();
--
--#ifdef CONFIG_HIGHMEM
--	high_memory = (void *) __va(highstart_pfn * PAGE_SIZE - 1) + 1;
--#else
--	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE - 1) + 1;
--#endif
--
- 	/* this will put all low memory onto the freelists */
- 	totalram_pages += free_all_bootmem();
- 
+Error Message:
+ns2 Wed Jul 26 14:22:58 2006 "I/O error in filesystem ("hda6") meta-data 
+dev
+hda6 block 0x23db5ab       ("xlog_iodone") error 5 buf count 1024"
+ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x2) called from line
+959 of file fs/xfs/xfs_log.c.  Return address = 0xc0211535"
+ns2 Wed Jul 26 14:22:58 2006 "Filesystem "hda6": Log I/O Error Detected.
+Shutting down filesystem: hda6"
+ns2 Wed Jul 26 14:22:58 2006 "Please umount the filesystem, and rectify the
+problem(s)"
+ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x1) called from line
+338 of file fs/xfs/xfs_rw.c.  Return address = 0xc0211535"
+ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x1) called from line
+338 of file fs/xfs/xfs_rw.c.  Return address = 0xc0211535"
+
+Patch:
+*** fs/xfs/xfs_vfsops.c.orig	Thu Jul 27 13:10:23 2006
+--- fs/xfs/xfs_vfsops.c	Thu Jul 27 13:11:17 2006
+*************** xfs_mount(
+*** 524,528 ****
+   		goto error2;
+
+! 	if ((mp->m_flags & XFS_MOUNT_BARRIER) && !(vfsp->vfs_flag &
+VFS_RDONLY))
+   		xfs_mountfs_check_barriers(mp);
+
+--- 524,528 ----
+   		goto error2;
+
+! 	if (mp->m_flags & XFS_MOUNT_BARRIER)
+   		xfs_mountfs_check_barriers(mp);
 
 
+Best regards,
+Ihr ProfiHost Team
+------------------------------------------
+ProfiHost e.K.
+Lindener Str 15
+38300 Wolfenbüttel
+
+Tel.: 05331 996890
+Fax: 05331 996899
+URL: http://www.profihost.com
+E-Mail: support@profihost.com

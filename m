@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWG0OwG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWG0OxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWG0OwG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 10:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWG0OwF
+	id S1751339AbWG0OxF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 10:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWG0OxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 10:52:05 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:40870 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751287AbWG0OwE (ORCPT
+	Thu, 27 Jul 2006 10:53:05 -0400
+Received: from vsmtp14.tin.it ([212.216.176.118]:18336 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S1751339AbWG0OxE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 10:52:04 -0400
-Date: Thu, 27 Jul 2006 16:45:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org, aia21@cantab.net,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [BUG?] possible recursive locking detected
-Message-ID: <20060727144542.GA27451@elte.hu>
-References: <200607261805.26711.eike-kernel@sf-tec.de> <20060726225311.f51cee6d.akpm@osdl.org> <44C86271.9030603@yahoo.com.au> <1153984527.21849.2.camel@imp.csi.cam.ac.uk> <20060727003806.def43f26.akpm@osdl.org> <1153988398.21849.16.camel@imp.csi.cam.ac.uk> <20060727015356.f01b5644.akpm@osdl.org> <1153992484.21849.36.camel@imp.csi.cam.ac.uk> <20060727094617.GA5955@elte.hu> <1154010677.21849.66.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154010677.21849.66.camel@imp.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.3 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 27 Jul 2006 10:53:04 -0400
+Message-ID: <4095.192.167.206.189.1154010667.squirrel@darkstar.linuxpratico.net>
+In-Reply-To: <200607271330.k6RDUaPC008087@laptop13.inf.utfsm.cl>
+References: Message from "Luigi Genoni" <genoni@sns.it>    of "Thu, 27 Jul
+    2006 13:07:27 +0200."
+    <2870.192.167.206.189.1153998447.squirrel@darkstar.linuxpratico.net>
+    <200607271330.k6RDUaPC008087@laptop13.inf.utfsm.cl>
+Date: Thu, 27 Jul 2006 16:31:07 +0200 (CEST)
+Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org 
+     regarding reiser4 inclusion
+From: "Luigi Genoni" <genoni@sns.it>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+Cc: "Luigi Genoni" <genoni@sns.it>, "Adrian Bunk" <bunk@stusta.de>,
+       andrea@cpushare.com, "J. Bruce Fields" <bfields@fieldses.org>,
+       "Hans Reiser" <reiser@namesys.com>,
+       "Nikita Danilov" <nikita@clusterfs.com>,
+       "Rene Rebe" <rene@exactcode.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.5.1 [CVS]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Since reiser4 is not something enabled by default into a default kernel
+distribution, I assume they enabled it knowing what they where doing because
+they wanted to use it.
 
-* Anton Altaparmakov <aia21@cam.ac.uk> wrote:
 
-> Note that even the above patch is not a 100% solution.  What 
-> guarantees are there that the page faulted in will still be around 
-> when it is read a few lines down the line in the code?  Given 
-> sufficient parallel memory pressure/io pressure it can still cause the 
-> page to be evicted again immediately after it is faulted in...
+
+On Thu, July 27, 2006 15:30, Horst H. von Brand wrote:
+> Luigi Genoni <genoni@sns.it> wrote:
 >
-> All the above patch does is to _dramatically_ reduce the race window 
-> for this happening but it does not eliminate it in theory (AFAICS).
-> 
-> So if your stance is that deadlocks are completely unacceptable it 
-> still is not fixed.  If your stance is that _really_ unlikely 
-> deadlocks are acceptable then it is fixed.
+>
+> [...]
+>
+>
+>> Anyway you have a datum.
+>> Some people need reiser4, period.
+>>
+>
+> Nope. Some people run kernels that include reiser4. That is all you can
+> infer, and that I knew beforehand. They are at least 35, and that I'd have
+> guessed in any case. --
+> Dr. Horst H. von Brand                   User #22616 counter.li.org
+> Departamento de Informatica                     Fono: +56 32 654431
+> Universidad Tecnica Federico Santa Maria              +56 32 654239
+> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org More majordomo info at
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 
-my 'stance' is pretty common-sense: exploitable deadlocks (it's possible 
-to force eviction of a page), or even hard-to-trigger but possible 
-deadlocks (which are not associated with hopeless resource exhaustation) 
-must be fixed.
-
-couldnt we exclude the case of 'write writing to the same page it is 
-reading from' abuse, to avoid the deadlock problem?
-
-	Ingo

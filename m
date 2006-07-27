@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWG0UOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWG0UPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWG0UOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWG0UOJ
+	id S1750712AbWG0UPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWG0UPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:14:09 -0400
-Received: from alnrmhc13.comcast.net ([204.127.225.93]:2440 "EHLO
-	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750714AbWG0UOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:14:07 -0400
-Subject: Re: [RFC][PATCH] A generic boolean (version 6)
-From: Nicholas Miell <nmiell@comcast.net>
-To: ricknu-0@student.ltu.se
-Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <1154030149.44c91a453d6b0@portal.student.luth.se>
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-	 <1153945705.44c7d069c5e18@portal.student.luth.se>
-	 <200607270448.03257.arnd.bergmann@de.ibm.com>
-	 <1153978047.2807.5.camel@entropy>
-	 <1154030149.44c91a453d6b0@portal.student.luth.se>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 13:13:59 -0700
-Message-Id: <1154031240.2535.1.camel@entropy>
+	Thu, 27 Jul 2006 16:15:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17316 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750712AbWG0UPL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 16:15:11 -0400
+Date: Thu, 27 Jul 2006 13:12:55 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+Message-ID: <20060727201255.GA9515@suse.de>
+References: <20060727015639.9c89db57.akpm@osdl.org> <200607281546.09592.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060727125655.f5f443ea.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060727125655.f5f443ea.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-27 at 21:55 +0200, ricknu-0@student.ltu.se wrote:
-> Citerar Nicholas Miell <nmiell@comcast.net>:
+On Thu, Jul 27, 2006 at 12:56:55PM -0700, Andrew Morton wrote:
+> On Fri, 28 Jul 2006 15:46:08 -0400
+> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
 > 
-> > If _Bool does end up in the user-kernel ABI, be advised that validating
-> > them will be tricky ("b == true || b == false" or "!!b" won't work), and
+> > Hello,
+> > 
+> > Some change between -rc1-mm2 and -rc2-mm1 broke Kubuntu's udev
+> > (079-0ubuntu34). In particular /dev/mem went missing, and /dev/null had
+> > bogus permissions (crw-------). I've kludged around the problem by
+> > populating /lib/udev/devices from a good /dev, but I'm assuming the
+> > breakage was unintentional.
+> > 
 > 
-> Why would !!b not work?
-> I don't think it should end up in the ABI (at least, not yet). Just asking
-> because I'm curious. :)
+> /dev/null damage is due to a combination of vdso-hash-style-fix.patch and
+> doing the kernel build as root (don't do that).
 > 
+> I don't know what happened to /dev/mem.
 
-The compiler knows that "b = !!b;" is a no-op.
+Me either.  Look in /sys/class/mem/  Is it full of symlinks or real
+directories?
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+If symlinks, your version of udev should be able to handle it properly,
+but might have a bug somehow.
 
+Try running udevmonitor and echo a "1" to /sys/class/mem/mem/uevent and
+see if udev creates the device properly or not.
+
+thanks,
+
+greg k-h

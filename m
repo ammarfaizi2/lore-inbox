@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWG0IyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWG0Iy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWG0IyI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 04:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWG0IyI
+	id S932545AbWG0Iy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 04:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWG0Iy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 04:54:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59275 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932442AbWG0IyG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 04:54:06 -0400
-Date: Thu, 27 Jul 2006 01:53:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: nickpiggin@yahoo.com.au, eike-kernel@sf-tec.de,
-       linux-kernel@vger.kernel.org, aia21@cantab.net
-Subject: Re: [BUG?] possible recursive locking detected
-Message-Id: <20060727015356.f01b5644.akpm@osdl.org>
-In-Reply-To: <1153988398.21849.16.camel@imp.csi.cam.ac.uk>
-References: <200607261805.26711.eike-kernel@sf-tec.de>
-	<20060726225311.f51cee6d.akpm@osdl.org>
-	<44C86271.9030603@yahoo.com.au>
-	<1153984527.21849.2.camel@imp.csi.cam.ac.uk>
-	<20060727003806.def43f26.akpm@osdl.org>
-	<1153988398.21849.16.camel@imp.csi.cam.ac.uk>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 27 Jul 2006 04:54:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:31970 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932517AbWG0IyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 04:54:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=pz9s07qAoPhESEpc8HrfVAPq4u8tLWECsEM380aaVwawYypjuFoGAUWpEz3YjYmlFJQFAO7dTo0pnCilQ8QJgNwavke2GWiW4OVznIfHXp58wPwvYvXOe0Xluu7BzDOsQyIENQrluC6aEbU5TOAcarBKrupaOmyLuodILSpMC80=
+Message-ID: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com>
+Date: Thu, 27 Jul 2006 10:54:23 +0200
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: The ondemand CPUFreq code -- I hope the functionality stays
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006 09:19:58 +0100
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+Hello,
 
-> b) is impossible for ntfs.
+It sounds, from comments in the discussion of CPU Hotplug locking
+problems, as though you are considering deleting the ondemand CPUFreq
+code.  If this happens, I hope that something that provides the same
+functionality replaces it.  I really appreciate having my power
+consumption automatically modulated on an as needed basis.  Power
+management seems to be one of the areas where there is a lot of room
+for improvement.
 
-ntfs write() is already doing GFP_HIGHUSER allocations inside i_mutex.
-
-Presumably there's some reason why it isn't deadlocking at present.  Could
-be that we'll end up deciding to make lockdep shut up about cross-fs
-i_mutex-takings, but that's a bit lame because if some other fs starts
-taking i_mutex in the reclaim path we're exposed to ab/ba deadlocks, and
-they won't be reported.
-
-But sorry, we just cannot go and require that write()'s pagecache
-allocations not be able to write dirty data, not be able to strip buffers
-from clean pages and not be able to reclaim slab.
+Thanks,
+      Miles

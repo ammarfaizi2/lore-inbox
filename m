@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWG0THn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751955AbWG0TLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751952AbWG0THn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 15:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751954AbWG0THn
+	id S1751955AbWG0TLE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 15:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWG0TLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 15:07:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13493 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751952AbWG0THm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 15:07:42 -0400
-Date: Thu, 27 Jul 2006 12:07:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nasty git corruption problem
-In-Reply-To: <1154025127.13509.90.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607271206461.4168@g5.osdl.org>
-References: <1153929715.13509.12.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0607260945440.29649@g5.osdl.org> 
- <Pine.LNX.4.63.0607261935160.29667@wbgn013.biozentrum.uni-wuerzburg.de> 
- <Pine.LNX.4.64.0607261039380.29649@g5.osdl.org>  <Pine.LNX.4.64.0607261041490.29649@g5.osdl.org>
- <1154025127.13509.90.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Jul 2006 15:11:04 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:46042 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751055AbWG0TLC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 15:11:02 -0400
+Date: Thu, 27 Jul 2006 21:07:07 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Hello, We have IP100A Linux driver need to submit to 2.6.x kernel
+Message-ID: <20060727190707.GA24157@electric-eye.fr.zoreil.com>
+References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 27 Jul 2006, Alan Cox wrote:
+Jesse Huang <jesse@icplus.com.tw> :
+[...]
+> I am IC Plus software engineer. We have IP100A 10/100 fast network adapter
+> driver need to submit to Linux 2.6.x kernel. Please tell me who should I
+> submit to.
 > 
-> git-lost-found turns up some of the missing stuff that was applied
-> earliest in the rebase but the other stuff is apparently neither visible
-> anywhere in the tree or missing (the tree I was rebasing "^^^..." never
-> shows it nor does the log).
+> IP100A's device ID is 0x13f0 0200.
 
-Did you try "git-fsck-objects --full"?
+You do not need to do anything:
 
-The git-lost-found script is apparently broken, exactly because it doesn't 
-do a "full".
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1668b19f75cb949f930814a23b74201ad6f76a53
 
-		Linus
+As far as I have checked before forwarding Pedro Alejandro's patch, the
+out-of-tree IP100 driver exhibited no significant difference with the
+sundance driver.
+
+-- 
+Ueimor

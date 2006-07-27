@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWG0N22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbWG0NaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWG0N22 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWG0N22
+	id S1161070AbWG0NaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWG0NaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:28:28 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:34849 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932082AbWG0N21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:28:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TSfPIR9kms4XrSb19S4acF+5O3/eGUpUKQnh80wDMFS6KDCz5RqzrOgolkXNC+U3K8h9WIDPYEPAwqbVvMcaXlZ53I8GYpVaVI+0gwVAb2pcE3LUHsg/i5JV2qAMOc957OfdgZ9Axwn3qzWAgjoHppTolW8USEYyUhVXsJ4Rmps=
-Message-ID: <f96157c40607270628u7456bbf4w80bcd166d741b7f0@mail.gmail.com>
-Date: Thu, 27 Jul 2006 13:28:25 +0000
-From: "gmu 2k6" <gmu2006@gmail.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Arjan van de Ven" <arjan@infradead.org>,
-       "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Mike Miller" <mike.miller@hp.com>, iss_storagedev@hp.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
+	Thu, 27 Jul 2006 09:30:06 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:64741
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1161070AbWG0NaE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:30:04 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "gmu 2k6" <gmu2006@gmail.com>
+Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
+Date: Thu, 27 Jul 2006 15:29:39 +0200
+User-Agent: KMail/1.9.1
+References: <20060725222209.0048ed15.akpm@osdl.org> <200607261730.31717.mb@bu3sch.de> <f96157c40607261244m205ff68dh5563c66436a2e67@mail.gmail.com>
+In-Reply-To: <f96157c40607261244m205ff68dh5563c66436a2e67@mail.gmail.com>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Philipp Rumpf" <prumpf@mandrakesoft.com>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200607251636.42765.bjorn.helgaas@hp.com>
-	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
-	 <1153867675.8932.68.camel@laptopd505.fenrus.org>
-	 <44C6F26C.2080203@garzik.org>
-	 <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
+Message-Id: <200607271529.39549.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 7/26/06, Jeff Garzik <jeff@garzik.org> wrote:
-> > Arjan van de Ven wrote:
-> > > On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
-> > >> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> > >>> If we don't find any devices, we shouldn't print anything.
-> > >>>
-> > >> I disagree.
-> > >> I find it quite nice to be able to see that the driver loaded even if
-> > >> it finds nothing. At least then when there's a problem, I can quickly
-> > >> see that at least it is not because I didn't forget to load the
-> > >> driver, it's something else. Saves time since I can start looking for
-> > >> reasons why the driver didn't find anything without first spending
-> > >> additional time checking if I failed to cause it to load for some
-> > >> reason.
-> > >
-> > > I'll add a second reason: it is a REALLY nice property to be able to see
-> > > which driver is started last in case of a crash/hang, so that the guilty
-> > > party is more obvious..
+On Wednesday 26 July 2006 21:44, gmu 2k6 wrote:
+> > But could you try the following patch on top of latest git?
+> > It's just a random test, but I think it's worth trying.
+> > Let's see if it works around the issue.
 > >
-> > OTOH, it is not a property that scales well at all.
+> > Index: linux-2.6/drivers/char/hw_random/intel-rng.c
+> > ===================================================================
+> > --- linux-2.6.orig/drivers/char/hw_random/intel-rng.c   2006-06-27 17:48:13.000000000 +0200
+> > +++ linux-2.6/drivers/char/hw_random/intel-rng.c        2006-07-26 17:27:03.000000000 +0200
+> > @@ -104,9 +104,14 @@
+> >         int err = -EIO;
 > >
-> > When you build extra drivers into the kernel, or distros load drivers
-> > you don't need (_every_ distro does this), you wind up with a bunch of
-> > version strings for drivers for hardware you don't have.
-> >
->
-> Given that boot tracing is best done with initcall_debug and
-> drivers that care about their version string can report it through
-> /sys/modules/<driver>/version why should version string be printed at
-> load time at all?
+> >         hw_status = hwstatus_get(mem);
+> > +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
+> > +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > +#if 0
+> > +       hw_status = hwstatus_get(mem);
+> >         /* turn RNG h/w on, if it's off */
+> >         if ((hw_status & INTEL_RNG_ENABLED) == 0)
+> >                 hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > +#endif
+> >         if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+> >                 printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+> >                 goto out;
+> 
+> well as it didn't work, are you sure it was not intended to be more like this:
+> @@ -104,9 +104,14 @@
+>        int err = -EIO;
+> 
+>        hw_status = hwstatus_get(mem);
+> +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
+> +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> +#if 0
+>        /* turn RNG h/w on, if it's off */
+>        if ((hw_status & INTEL_RNG_ENABLED) == 0)
+>                hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> +#endif
+>        if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+>                printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+>                goto out;
+> 
+> ?
 
-not every driver provides that file (btw, I guess you mean
-/sys/module, don't you?) there anyway so it's still inconsistent.
-what if you can see up until loading of the driver and it halts there
-without /sys being mounted yet. I don't think you can rely on sysfs
-being mounted or modules being loaded.
-if I may vote as a CCISS user I say print the version number even if
-no device is present.
+I don't think that makes a difference to the generated code, does it?
+
+-- 
+Greetings Michael.

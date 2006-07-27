@@ -1,44 +1,27 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWGYKsT (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 25 Jul 2006 06:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWGYKsT
+	id S1161050AbWG0EIS (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 27 Jul 2006 00:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWG0EIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jul 2006 06:48:19 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:31416 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751352AbWGYKsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jul 2006 06:48:18 -0400
-Message-Id: <200607251048.k6PAm1aG016377@zeus1.kernel.org>
-From: New-Hyip <sallyB@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: sallyB@yahoo.com
-Subject: NEW
-Date: Tue, 25 Jul 2006 12:47:17 +0200
+	Thu, 27 Jul 2006 00:08:18 -0400
+Received: from pool-141-154-227-19.bos.east.verizon.net ([141.154.227.19]:20996
+	"EHLO ROBERTO") by vger.kernel.org with ESMTP id S1161050AbWG0EIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 00:08:15 -0400
+Message-ID: <83944361819784.1F3B879691@3DLN6>
+From: "Locke" <Lockealoft@dr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=20It=92s?= a pity, because you could do it with her much longer!
+Date: Thu, 27 Jul 2006 00:07:38 -0400
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="602b2503-94da-45ff-ae93-6e3dd7ef0651"
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: ImixEPqIyb33CNt63pMIyXRwp5p61Mnzxx4f
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751352AbWGYKsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1161050AbWG0EIS@vger.kernel.org>
 
-
-This is a multi-part message in MIME format
---602b2503-94da-45ff-ae93-6e3dd7ef0651
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-1-hyip
-
-150-400 % after 1 day
-300-500 % after 2 days
-450-750 % after 4 days
-
-min spend: 1 USD
-max spend: 5000 USD
-
-REF:10-15-20 %
-
-Sign Up
-
-http://www.1-hyip.com/?ref=3DSallyB  
---602b2503-94da-45ff-ae93-6e3dd7ef0651--
+Dear user. Millions of men are facing this issue, and the smartest ones already got an answer. Forget about rubber, drinking, hypnosis and the like - Extra-Time is the way that works. You tried condoms, pauses, alcohol, but nothing worked. Eager to find a way to stop this premature thing forever? Take a look: http://tredhisdom.com/gall/get/ Gain the enormous sensual vibe in your relationships - no frustration!
 

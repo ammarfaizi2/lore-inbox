@@ -1,58 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWG0U4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWG0U4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751072AbWG0U4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWG0U4G
+	id S1751029AbWG0U4s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWG0UyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:56:06 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:2320 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751072AbWG0Uzh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:55:37 -0400
-Date: Thu, 27 Jul 2006 22:55:49 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] cirrus-logic-framebuffer-i2c-support.patch
-Message-Id: <20060727225549.40b14655.khali@linux-fr.org>
-In-Reply-To: <m34pxoh0pd.fsf@defiant.localdomain>
-References: <200607050147.k651kxmT023763@shell0.pdx.osdl.net>
-	<20060705165255.ab7f1b83.khali@linux-fr.org>
-	<m3bqryv7jx.fsf_-_@defiant.localdomain>
-	<44B196ED.1070804@pol.net>
-	<m3irm5hjr0.fsf@defiant.localdomain>
-	<44B226E8.40104@pol.net>
-	<m3mzbh68g9.fsf@defiant.localdomain>
-	<44B2398B.7040300@pol.net>
-	<m3ejwt65of.fsf@defiant.localdomain>
-	<44B248E4.2020506@pol.net>
-	<m3u05p4mkx.fsf@defiant.localdomain>
-	<44B26004.4050500@gmail.com>
-	<m3r70tqxmt.fsf@defiant.localdomain>
-	<44B2808F.8000901@pol.net>
-	<m3ac7h6vxy.fsf@defiant.localdomain>
-	<44B351CF.1090001@pol.net>
-	<m34pxoh0pd.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 16:54:03 -0400
+Received: from mx2.redhat.com ([66.187.237.31]:49121 "EHLO mx2.redhat.com")
+	by vger.kernel.org with ESMTP id S1750888AbWG0UxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 16:53:19 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 17/30] NFS: Start rpciod in server common management [try #11]
+Date: Thu, 27 Jul 2006 21:53:05 +0100
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060727205305.8443.6740.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
+References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > X has its own i2c functionality which is completely separate from the
-> > kernel i2c layer.
-> 
-> Yes, but X11 could use I2C adapter functionality provided by the
-> kernel.
+Start rpciod in the server common (nfs_client struct) management code rather
+than in the superblock management code.  This means we only need to "start" it
+once per server instead of once per superblock.
 
-Yes, it should. Now, go convince the X folks to do so...
+Signed-Off-By: David Howells <dhowells@redhat.com>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
 
-In practice, I would guess that both X and the framebuffer drivers only
-use the I2C/DDC channel to read the monitor's EDID at initialization
-time, so the risk of concurrent accesses is thin.
+ fs/nfs/super.c |   31 ++++++-------------------------
+ 1 files changed, 6 insertions(+), 25 deletions(-)
 
-Good luck,
--- 
-Jean Delvare
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index f3f229d..321f0d7 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -717,18 +717,15 @@ static int nfs_clone_generic_sb(struct n
+ 	if (server->hostname == NULL)
+ 		goto free_server;
+ 	memcpy(server->hostname, hostname, len);
+-	error = rpciod_up();
+-	if (error != 0)
+-		goto free_hostname;
+ 
+ 	sb = fill_sb(server, data);
+ 	if (IS_ERR(sb)) {
+ 		error = PTR_ERR(sb);
+-		goto kill_rpciod;
++		goto free_hostname;
+ 	}
+ 
+ 	if (sb->s_root)
+-		goto out_rpciod_down;
++		goto out_share;
+ 
+ 	server = fill_server(sb, data);
+ 	if (IS_ERR(server)) {
+@@ -740,14 +737,11 @@ out_deactivate:
+ 	up_write(&sb->s_umount);
+ 	deactivate_super(sb);
+ 	return error;
+-out_rpciod_down:
+-	rpciod_down();
++out_share:
+ 	kfree(server->hostname);
+ 	nfs_put_client(server->nfs_client);
+ 	kfree(server);
+ 	return simple_set_mnt(mnt, sb);
+-kill_rpciod:
+-	rpciod_down();
+ free_hostname:
+ 	kfree(server->hostname);
+ free_server:
+@@ -934,22 +928,14 @@ #endif /* CONFIG_NFS_V3 */
+ 		goto out_err;
+ 	}
+ 
+-	/* Fire up rpciod if not yet running */
+-	error = rpciod_up();
+-	if (error < 0) {
+-		dprintk("%s: couldn't start rpciod! Error = %d\n",
+-				__FUNCTION__, error);
+-		goto out_err;
+-	}
+-
+ 	s = sget(fs_type, nfs_compare_super, nfs_set_super, server);
+ 	if (IS_ERR(s)) {
+ 		error = PTR_ERR(s);
+-		goto out_err_rpciod;
++		goto out_err;
+ 	}
+ 
+ 	if (s->s_root)
+-		goto out_rpciod_down;
++		goto out_share;
+ 
+ 	s->s_flags = flags;
+ 
+@@ -962,13 +948,10 @@ #endif /* CONFIG_NFS_V3 */
+ 	s->s_flags |= MS_ACTIVE;
+ 	return simple_set_mnt(mnt, s);
+ 
+-out_rpciod_down:
+-	rpciod_down();
++out_share:
+ 	kfree(server);
+ 	return simple_set_mnt(mnt, s);
+ 
+-out_err_rpciod:
+-	rpciod_down();
+ out_err:
+ 	kfree(server);
+ out_err_noserver:
+@@ -989,8 +972,6 @@ static void nfs_kill_super(struct super_
+ 	if (!(server->flags & NFS_MOUNT_NONLM))
+ 		lockd_down();	/* release rpc.lockd */
+ 
+-	rpciod_down();		/* release rpciod */
+-
+ 	nfs_free_iostats(server->io_stats);
+ 	kfree(server->hostname);
+ 	nfs_put_client(server->nfs_client);

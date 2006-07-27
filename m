@@ -1,105 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWG0P0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWG0P2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWG0P0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:26:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWG0P0p
+	id S932548AbWG0P2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbWG0P2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:26:45 -0400
-Received: from mail.ccur.com ([66.10.65.12]:63911 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id S932561AbWG0P0o (ORCPT
+	Thu, 27 Jul 2006 11:28:07 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:24779 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932548AbWG0P2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:26:44 -0400
-Subject: [PATCH] documentation: Documentation/initrd.txt
-From: Tom Horsley <tom.horsley@ccur.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org
-Content-Type: multipart/mixed; boundary="=-Jeu4XbmCaw/9IIhEI5fE"
-Date: Thu, 27 Jul 2006 11:26:43 -0400
-Message-Id: <1154014003.5166.30.camel@tweety>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Thu, 27 Jul 2006 11:28:06 -0400
+Message-ID: <44C8DB80.6030007@us.ibm.com>
+Date: Thu, 27 Jul 2006 08:28:00 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
+CC: Ulrich Drepper <drepper@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       netdev <netdev@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
+Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
+References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru>	 <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>	 <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>	 <44C796C3.9030404@us.ibm.com> <1153982954.3887.9.camel@frecb000686>
+In-Reply-To: <1153982954.3887.9.camel@frecb000686>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sébastien Dugué wrote:
+> On Wed, 2006-07-26 at 09:22 -0700, Badari Pulavarty wrote:
+>   
+>> Ulrich Drepper wrote:
+>>     
+>>> Christoph Hellwig wrote:
+>>>   
+>>>       
+>>>>> My personal opinion on existing AIO is that it is not the right design.
+>>>>> Benjamin LaHaise agree with me (if I understood him right),
+>>>>>       
+>>>>>           
+>>>> I completely agree with that aswell.
+>>>>     
+>>>>         
+>>> I agree, too, but the current code is not the last of the line.  Suparna
+>>> has a st of patches which make the current kernel aio code work much
+>>> better and especially make it really usable to implement POSIX AIO.
+>>>
+>>> In Ottawa we were talking about submitting it and Suparna will.  We just
+>>> thought about a little longer timeframe.  I guess it could be
+>>> accelerated since he mostly has the patch done.  But I don't know her
+>>> schedule.
+>>>
+>>> Important here is, don't base any decision on the current aio
+>>> implementation.
+>>>   
+>>>       
+>> Ulrich,
+>>
+>> Suparna mentioned your interest in making POSIX glibc aio work with 
+>> kernel-aio at OLS.
+>> We thought taking a re-look at the (kernel side) work BULL did, would be 
+>> a nice starting
+>> point. I re-based those patches to 2.6.18-rc2 and sent it to Zach Brown 
+>> for review before
+>> sending them out to list.
+>>
+>> These patches does NOT make AIO any cleaner. All they do is add 
+>> functionality to support
+>> POSIX AIO easier. These are
+>>
+>> [ PATCH 1/3 ]  Adding signal notification for event completion
+>>
+>> [ PATCH 2/3 ]  lio (listio) completion semantics
+>>
+>> [ PATCH 3/3 ] cancel_fd support
+>>     
+>
+>   Badari,
+>
+>   Thanks for refreshing those patches, they have been sitting here
+> for quite some time now and collected dust.
+>
+>   I also think Suparna's patchset for doing buffered AIO would be
+> a real plus here.
+>
+>   
+>> Suparna explained these in the following article:
+>>
+>> http://lwn.net/Articles/148755/
+>>
+>> If you think, this is a reasonable direction/approach for the kernel and 
+>> you would take care
+>> of glibc side of things - I can spend time on these patches, getting 
+>> them to reasonable shape
+>> and push for inclusion.
+>>     
+>
+>   Ulrich, I you want to have a look at how those patches are put to
+> use in libposix-aio, have a look at http://sourceforge.net/projects/paiol.
+>
+>   It could be a starting point for glibc.
+>
+>   Thanks,
+>
+>   Sébastien.
+>
+>   
+Sebastien,
 
---=-Jeu4XbmCaw/9IIhEI5fE
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Suparna mentioned at Ulrich wants us to concentrate on kernel-side 
+support, so that he
+can look at glibc side of things (along with other work he is already 
+doing). So, if we
+can get an agreement on what kind of kernel support is needed - we can 
+focus our
+efforts on kernel side first and leave glibc enablement to capable hands 
+of Uli :)
 
-From: Thomas Horsley <tom.horsley@ccur.com>
+Thanks,
+Badari
 
-I spent a long time the other day trying to examine an initrd
-image on a fedora core 5 system because the initrd.txt file
-is apparently obsolete. Here is a patch which I hope
-will reduce future confusion for others.
-
-Signed-off-by: Thomas Horsley <tom.horsley@ccur.com>
-
----
-
-I'm resubmitting this according to the SubmittingPatches
-guidelines. This was made from the 2.6.17.7 tree, but
-I don't think initrd.txt has changed much in any of the
-trees. I know I'm not supposed to send an attachment, but
-I see evolution has already screwed up my cut and paste
-attempt and who knows what will happen by the time it
-goes through exchange, so I'm adding the patch as an
-attachment as well.
-
---- Documentation/initrd.txt	2006-07-27 08:49:30.000000000 -0400
-+++ Documentation/initrd.txt	2006-07-27 09:02:04.000000000 -0400
-@@ -73,6 +73,22 @@
-     initrd is mounted as root, and the normal boot procedure is
-followed,
-     with the RAM disk still mounted as root.
- 
-+Compressed cpio images
-+----------------------
-+
-+Recent kernels have support for populating a ramdisk from a compressed
-cpio
-+archive, on such systems, the creation of a ramdisk image doesn't need
-to
-+involve special block devices or loopbacks, you merely create a
-directory on
-+disk with the desired initrd content, cd to that directory, and run (as
-an
-+example):
-+
-+find . | cpio --quiet -c -o | gzip -9 -n > /boot/imagefile.img
-+
-+Examining the contents of an existing image file is just as simple:
-+
-+mkdir /tmp/imagefile
-+cd /tmp/imagefile
-+gzip -cd /boot/imagefile.img | cpio -imd --quiet
- 
- Installation
- ------------
-
-
---=-Jeu4XbmCaw/9IIhEI5fE
-Content-Disposition: attachment; filename=initrd-doc-patch
-Content-Type: text/plain; name=initrd-doc-patch; charset=us-ascii
-Content-Transfer-Encoding: base64
-
-LS0tIERvY3VtZW50YXRpb24vaW5pdHJkLnR4dAkyMDA2LTA3LTI3IDA4OjQ5OjMwLjAwMDAwMDAw
-MCAtMDQwMA0KKysrIERvY3VtZW50YXRpb24vaW5pdHJkLnR4dAkyMDA2LTA3LTI3IDA5OjAyOjA0
-LjAwMDAwMDAwMCAtMDQwMA0KQEAgLTczLDYgKzczLDIyIEBADQogICAgIGluaXRyZCBpcyBtb3Vu
-dGVkIGFzIHJvb3QsIGFuZCB0aGUgbm9ybWFsIGJvb3QgcHJvY2VkdXJlIGlzIGZvbGxvd2VkLA0K
-ICAgICB3aXRoIHRoZSBSQU0gZGlzayBzdGlsbCBtb3VudGVkIGFzIHJvb3QuDQogDQorQ29tcHJl
-c3NlZCBjcGlvIGltYWdlcw0KKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCisNCitSZWNlbnQga2Vy
-bmVscyBoYXZlIHN1cHBvcnQgZm9yIHBvcHVsYXRpbmcgYSByYW1kaXNrIGZyb20gYSBjb21wcmVz
-c2VkIGNwaW8NCithcmNoaXZlLCBvbiBzdWNoIHN5c3RlbXMsIHRoZSBjcmVhdGlvbiBvZiBhIHJh
-bWRpc2sgaW1hZ2UgZG9lc24ndCBuZWVkIHRvDQoraW52b2x2ZSBzcGVjaWFsIGJsb2NrIGRldmlj
-ZXMgb3IgbG9vcGJhY2tzLCB5b3UgbWVyZWx5IGNyZWF0ZSBhIGRpcmVjdG9yeSBvbg0KK2Rpc2sg
-d2l0aCB0aGUgZGVzaXJlZCBpbml0cmQgY29udGVudCwgY2QgdG8gdGhhdCBkaXJlY3RvcnksIGFu
-ZCBydW4gKGFzIGFuDQorZXhhbXBsZSk6DQorDQorZmluZCAuIHwgY3BpbyAtLXF1aWV0IC1jIC1v
-IHwgZ3ppcCAtOSAtbiA+IC9ib290L2ltYWdlZmlsZS5pbWcNCisNCitFeGFtaW5pbmcgdGhlIGNv
-bnRlbnRzIG9mIGFuIGV4aXN0aW5nIGltYWdlIGZpbGUgaXMganVzdCBhcyBzaW1wbGU6DQorDQor
-bWtkaXIgL3RtcC9pbWFnZWZpbGUNCitjZCAvdG1wL2ltYWdlZmlsZQ0KK2d6aXAgLWNkIC9ib290
-L2ltYWdlZmlsZS5pbWcgfCBjcGlvIC1pbWQgLS1xdWlldA0KIA0KIEluc3RhbGxhdGlvbg0KIC0t
-LS0tLS0tLS0tLQ0K
-
-
---=-Jeu4XbmCaw/9IIhEI5fE--

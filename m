@@ -1,74 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWG0PXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWG0P0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWG0PXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWG0PXX
+	id S932561AbWG0P0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWG0P0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:23:23 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:38802 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932560AbWG0PXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:23:21 -0400
-X-Sasl-enc: fwIcU89VSf49ZYY+RlkoC8/411CcXhkxiRpqZGuG3w+E 1154013799
-Date: Thu, 27 Jul 2006 12:23:14 -0300
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
-       vojtech@suse.cz, Len Brown <len.brown@intel.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org
-Subject: Re: [ltp] Re: Generic battery interface
-Message-ID: <20060727152314.GC14873@khazad-dum.debian.net>
-References: <20060727002035.GA2896@elf.ucw.cz> <20060727140539.GA10835@srcf.ucam.org> <41840b750607270739u7b6fe7efl5ac5ec147d83e624@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41840b750607270739u7b6fe7efl5ac5ec147d83e624@mail.gmail.com>
-X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
-User-Agent: Mutt/1.5.12-2006-07-14
+	Thu, 27 Jul 2006 11:26:45 -0400
+Received: from mail.ccur.com ([66.10.65.12]:63911 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id S932561AbWG0P0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:26:44 -0400
+Subject: [PATCH] documentation: Documentation/initrd.txt
+From: Tom Horsley <tom.horsley@ccur.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Content-Type: multipart/mixed; boundary="=-Jeu4XbmCaw/9IIhEI5fE"
+Date: Thu, 27 Jul 2006 11:26:43 -0400
+Message-Id: <1154014003.5166.30.camel@tweety>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006, Shem Multinymous wrote:
-> On 7/27/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> >This would also be useful for the OLPC project - it's unlikely that
-> >it'll use ACPI, but a more feature-rich interface than /proc/apm would
-> >be massively helpful. This is just a matter of speccing out what
-> >information is needed and what format it should be presented in, and
-> >then adding a new device class, right?
-> 
-> Can we really assume there's one driver providing all battery-related
-> attributes?
 
-No, we cannot.  This is not true on ThinkPads, for example.  We *can* make
-it true, but AFAIK that means overriding the entire generic ACPI battery
-driver, and greating a "glue" thinkpad_battery one that does:
+--=-Jeu4XbmCaw/9IIhEI5fE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-	1. generic ACPI battery access when ACPI is available
-	2. thinkpad specific ACPI battery access when ACPI is available
-	3. thinkpad specific EC firmware battery access (not ACPI).
+From: Thomas Horsley <tom.horsley@ccur.com>
 
-That requires the new driver to use functions from ibm_acpi and tp_smapi,
-plus the stuff in the generic acpi battery access driver.
+I spent a long time the other day trying to examine an initrd
+image on a fedora core 5 system because the initrd.txt file
+is apparently obsolete. Here is a patch which I hope
+will reduce future confusion for others.
 
-It might be the best way to go for ThinkPads, actually.  Some rework on
-ibm_acpi ain't that bad, and tp_smapi is already undergoing major surgery.
+Signed-off-by: Thomas Horsley <tom.horsley@ccur.com>
 
-> In this particular case we could split the ACPI module into two, one
-> module for events and one module for the sysfs interface, and load
-> only the first one on ThinkPads. But that's only because tp_smapi
-> happens to reproduce all of ACPI's attributes; there are probably
-> other cases whether neither method dominates the other.
+---
 
-Yes.
+I'm resubmitting this according to the SubmittingPatches
+guidelines. This was made from the 2.6.17.7 tree, but
+I don't think initrd.txt has changed much in any of the
+trees. I know I'm not supposed to send an attachment, but
+I see evolution has already screwed up my cut and paste
+attempt and who knows what will happen by the time it
+goes through exchange, so I'm adding the patch as an
+attachment as well.
 
-> So, if we insist on a standard battery device class name, how do we
-> cope with multiple sources of information and control functions?
+--- Documentation/initrd.txt	2006-07-27 08:49:30.000000000 -0400
++++ Documentation/initrd.txt	2006-07-27 09:02:04.000000000 -0400
+@@ -73,6 +73,22 @@
+     initrd is mounted as root, and the normal boot procedure is
+followed,
+     with the RAM disk still mounted as root.
+ 
++Compressed cpio images
++----------------------
++
++Recent kernels have support for populating a ramdisk from a compressed
+cpio
++archive, on such systems, the creation of a ramdisk image doesn't need
+to
++involve special block devices or loopbacks, you merely create a
+directory on
++disk with the desired initrd content, cd to that directory, and run (as
+an
++example):
++
++find . | cpio --quiet -c -o | gzip -9 -n > /boot/imagefile.img
++
++Examining the contents of an existing image file is just as simple:
++
++mkdir /tmp/imagefile
++cd /tmp/imagefile
++gzip -cd /boot/imagefile.img | cpio -imd --quiet
+ 
+ Installation
+ ------------
 
-Good question.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+--=-Jeu4XbmCaw/9IIhEI5fE
+Content-Disposition: attachment; filename=initrd-doc-patch
+Content-Type: text/plain; name=initrd-doc-patch; charset=us-ascii
+Content-Transfer-Encoding: base64
+
+LS0tIERvY3VtZW50YXRpb24vaW5pdHJkLnR4dAkyMDA2LTA3LTI3IDA4OjQ5OjMwLjAwMDAwMDAw
+MCAtMDQwMA0KKysrIERvY3VtZW50YXRpb24vaW5pdHJkLnR4dAkyMDA2LTA3LTI3IDA5OjAyOjA0
+LjAwMDAwMDAwMCAtMDQwMA0KQEAgLTczLDYgKzczLDIyIEBADQogICAgIGluaXRyZCBpcyBtb3Vu
+dGVkIGFzIHJvb3QsIGFuZCB0aGUgbm9ybWFsIGJvb3QgcHJvY2VkdXJlIGlzIGZvbGxvd2VkLA0K
+ICAgICB3aXRoIHRoZSBSQU0gZGlzayBzdGlsbCBtb3VudGVkIGFzIHJvb3QuDQogDQorQ29tcHJl
+c3NlZCBjcGlvIGltYWdlcw0KKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCisNCitSZWNlbnQga2Vy
+bmVscyBoYXZlIHN1cHBvcnQgZm9yIHBvcHVsYXRpbmcgYSByYW1kaXNrIGZyb20gYSBjb21wcmVz
+c2VkIGNwaW8NCithcmNoaXZlLCBvbiBzdWNoIHN5c3RlbXMsIHRoZSBjcmVhdGlvbiBvZiBhIHJh
+bWRpc2sgaW1hZ2UgZG9lc24ndCBuZWVkIHRvDQoraW52b2x2ZSBzcGVjaWFsIGJsb2NrIGRldmlj
+ZXMgb3IgbG9vcGJhY2tzLCB5b3UgbWVyZWx5IGNyZWF0ZSBhIGRpcmVjdG9yeSBvbg0KK2Rpc2sg
+d2l0aCB0aGUgZGVzaXJlZCBpbml0cmQgY29udGVudCwgY2QgdG8gdGhhdCBkaXJlY3RvcnksIGFu
+ZCBydW4gKGFzIGFuDQorZXhhbXBsZSk6DQorDQorZmluZCAuIHwgY3BpbyAtLXF1aWV0IC1jIC1v
+IHwgZ3ppcCAtOSAtbiA+IC9ib290L2ltYWdlZmlsZS5pbWcNCisNCitFeGFtaW5pbmcgdGhlIGNv
+bnRlbnRzIG9mIGFuIGV4aXN0aW5nIGltYWdlIGZpbGUgaXMganVzdCBhcyBzaW1wbGU6DQorDQor
+bWtkaXIgL3RtcC9pbWFnZWZpbGUNCitjZCAvdG1wL2ltYWdlZmlsZQ0KK2d6aXAgLWNkIC9ib290
+L2ltYWdlZmlsZS5pbWcgfCBjcGlvIC1pbWQgLS1xdWlldA0KIA0KIEluc3RhbGxhdGlvbg0KIC0t
+LS0tLS0tLS0tLQ0K
+
+
+--=-Jeu4XbmCaw/9IIhEI5fE--

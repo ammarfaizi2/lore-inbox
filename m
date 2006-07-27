@@ -1,113 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWG0GzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWG0G4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751855AbWG0GzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 02:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWG0GzU
+	id S1751809AbWG0G4G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 02:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbWG0G4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 02:55:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:28614 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751855AbWG0GzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 02:55:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Twxf7HL/VZJE40EN9AgH+zBPiF6Ugq5OgV+4tv9lZx+MXTt0DMUJ+HDy8VTsGN+ot995TBSyjeOQwvJby0l108csTl4TsA1F4okwxIdN2SHr3LslcgkkOfabnW0exC/pcn39Q6H+ZsoRIpXiQ/CdjSyxozC0totdp4i1VjlfARM=
-Message-ID: <787b0d920607262355x3f669f0ap544e3166be2dca21@mail.gmail.com>
-Date: Thu, 27 Jul 2006 02:55:17 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
-       arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       roland@redhat.com
-Subject: ptrace bugs and related problems
+	Thu, 27 Jul 2006 02:56:05 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17930 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751809AbWG0G4E (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Thu, 27 Jul 2006 02:56:04 -0400
+Date: Thu, 27 Jul 2006 08:56:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: andrea@cpushare.com
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, Hans Reiser <reiser@namesys.com>,
+       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060727065603.GJ23701@stusta.de>
+References: <20060726124557.GB23701@stusta.de> <20060726132957.GH32243@opteron.random> <20060726134326.GD23701@stusta.de> <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060726211741.GU32243@opteron.random>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many of these bugs are generic, some are pure i386, some are for
-i386 binaries on the x86-64 kernel, and some apply to a bit more.
-Some bugs may involve race conditions: I use a 2-core AMD system.
-Kernels vary, but are generally quite recent. (stock 2.6.17.7,
-FC5's latest update, etc.)
+On Wed, Jul 26, 2006 at 11:17:41PM +0200, andrea@cpushare.com wrote:
+> On Wed, Jul 26, 2006 at 10:50:22PM +0200, Adrian Bunk wrote:
+> > But depending on the nature of the error, the worst case might be the 
+> > common case (as I've already explained in another email).
+> > 
+> > If you can't ensure the quality of your data, please don't use this data 
+> > to wrongly draw any conclusions from them [1].
+> 
+> Please read the footer of the KLive pages:
+> 
+> "The use of the information and of the software in this website is at
+>  your own risk.  KLive probably doesn't represent a reliable sample of
+>  the real usage of the Linux Kernel."
 
-There is a ptrace option to follow vfork, and an option to get a
-message when the parent is released by the child. In kernel/fork.c
-there is a bad attempt at optimization which prevents the release
-message (PTRACE_EVENT_VFORK_DONE) from being sent unless the ptrace
-user also chose the option to follow the vfork child.
+It was you who wrongly said:
+"With KLive I can attempt to estimate market share of _kernel_ code"
 
-System call restart does not appear to nest. It stores stuff
-in the thread info rather than on the user stack.
+Hadn't you read your own disclaimer?
 
-Both i386 and x86-64 PTRACE_SINGLESTEP only check for popf, not iret.
-Yes, really, iret can be used by normal apps. There is also no check
-for failure, as when the popf or iret takes an alignment exception
-or hits an unmapped page. The signal handler could fix that up, but
-the kernel still thinks that the popf must have set TF in eflags and
-thus writes a messed-up eflags into the sigcontext.
+> Said that pretending that KLive data has absolutely no significance at
+> all and that you can't draw any conclusion at all from it, to me seems
+> as wrong as pretending it to perfect.
 
-There is the pushf problem. Single-stepping this simple code
-does not work:   pushf ; popf
+Possibly wrong conclusions about the general market share based on data 
+not having the quality for being the basis of such statements are worse 
+than having no data.
 
-A debugger can set or get the siginfo. Great. Signal handlers also
-have sigcontext/ucontext data. Besides being generally very useful,
-this is the only place where the cr2 register and trap error data
-can be found. Looking on the stack only works once the signal is
-allowed to be delivered, which may be too late for the debugger.
+Every time someone will repeat the "1:5 ratio for reiser4:ext3 users", 
+this will be an additional proof it's really worse than no data.
 
-x86-64 has big problems single-stepping in the vdso's signal
-return path. Suppose I breakpoint the pop. (this is in the path
-that goes pop,mov,syscall or pop,mov,sysenter) If I then try to
-single step, the process runs free. The i386 arch works fine.
+cu
+Adrian
 
-I can't even set the hardware breakpoints:
+-- 
 
-(gdb) hbreak __kernel_sigreturn
-Hardware assisted breakpoint 1 at 0xffffe500
-(gdb) hbreak __kernel_rt_sigreturn
-Hardware assisted breakpoint 2 at 0xffffe600
-(gdb) continue
-Continuing.
-Couldn't write debug register: Input/output error.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-The debugger has no way to reliably stop a process without causing
-confusion. The SIGSTOP signal is not queued. The app under debug might
-use SIGSTOP and rely on SIGSTOP to work. The debugger can't steal this.
-Any signal that could be queued can also be blocked. The debugger has
-no way to get notice when a signal has merely been queued, can not
-see into the queue, and can not reasonably adjust the signal mask.
-
-The is_at_popf function on x86-64 fails to account for instruction
-set differences. Many prefixes are only valid in 32-bit mode, and
-many others are only valid in 64-bit mode. The name is of course
-wrong too; see above note about iret and other problems.
-
-The PTRACE_EVENT_EXEC messages are just plain unreliable. They don't
-always arrive. Things get especially ugly when a non-leader task
-does an execve.
-
-A debugger has little reasonable access to x86 segment info.
-Given an arbitrary segment number, I can not generally look it
-up in the context of the target process. I can special case
-the typical ones, separately for i386 and x86-64. I can "know"
-that specific segments are the context switched ones, then ask
-the kernel about those.
-
-A debugger needs to read the vdso page. A debugger might want to use
-either /proc/*/mem or PTRACE_PEEK. One of the architectures can't do
-both. If I remember right, x86-64 can't PTRACE_PEEK.
-
-Suppose my debugger has a few threads. PTRACE_ATTACH will not share.
-All ptrace calls fail for all threads other than the one that attached.
-It really sucks to have to funnel everything through one thread.
-
-BTW, not bugs exactly, but... Getting ptrace events via waitpid is
-horrible. Events arrive in some arbitrary order, with no peeking ahead
-either within a single target process or even across multiple target
-processes. Messages from successful clone/fork/exec may arrive before
-or after the child stops, making for some lovely non-deterministic
-behavior. Also, it's no fun to mix waitpid with signals or select.
-Writing a reliable debugger with ptrace on Linux is absurdly painful.

@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWG0MVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWG0MY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWG0MVh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 08:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWG0MVh
+	id S1750838AbWG0MY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 08:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWG0MY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 08:21:37 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:11278 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S932132AbWG0MVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 08:21:37 -0400
-Date: Thu, 27 Jul 2006 22:21:51 +1000
-From: CaT <cat@zip.com.au>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Luigi Genoni <genoni@sns.it>, andrea@cpushare.com,
-       "J. Bruce Fields" <bfields@fieldses.org>,
-       Hans Reiser <reiser@namesys.com>, Nikita Danilov <nikita@clusterfs.com>,
-       Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060727122151.GH2066@zip.com.au>
-References: <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <4284.192.167.206.189.1153989192.squirrel@darkstar.linuxpratico.net> <20060727100446.GK23701@stusta.de>
-Mime-Version: 1.0
+	Thu, 27 Jul 2006 08:24:28 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49319 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750838AbWG0MY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 08:24:28 -0400
+Date: Thu, 27 Jul 2006 02:20:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: vojtech@suse.cz, Len Brown <len.brown@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: linux-thinkpad@linux-thinkpad.org, multinymous@gmail.com
+Subject: Generic battery interface
+Message-ID: <20060727002035.GA2896@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060727100446.GK23701@stusta.de>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 12:04:46PM +0200, Adrian Bunk wrote:
-> I can't prove that the 1:5 ratio is wrong, but the point is that 
-> claiming a 1:5 ratio was true based on the klive data is not better than 
-> claiming it based on no data. But claiming it based on the klive data is 
-> worse since people like you are getting the wrong impression it was 
-> based on data that would have the quality for supporting such a 
-> statement.
-> 
-> The data simply has not the quality for such a statement.
-> Please read my two examples in [1] if you want to get an impression why 
-> such problems can occur.
-> 
-> [1] http://lkml.org/lkml/2006/7/26/203
+Hi!
 
-Also, one may wish to invest in the purchase of 'How to Lie with
-Statistics'[1] by Darrel Huff (ISBN 0-393-31072-8). An easy yet
-powerful little read.
+(Vojtech and other thinkpad users: look at tp_smapi package; it
+includes stuff like "do not charge battery unless it is below 90%",
+which should make your battery last few more years).
 
-[1] this is not meant to imply that anyone here is lieing, attempting to
-lie, thinking of lieing, wishing they were lieing or having anything to
-do with lieing, purposeful or otherwise.
+(I'll still need to test it on x60, sorry).
 
+Anyway, unlike acpi, tp_smapi uses some reasonably-nice
+one-value-per-file sysfs interface. I have few objections:
+
+0) it needs to move to /sys/class/battery/tp_smapi or something like
+that
+ 
+1) it probably should not include units in the files (hard to parse,
+and someone may have great idea to choose different units)
+
+2) some optional method for battery applets to avoid polling would be
+nice (OTOH tp_smapi probably does not support notifications, so it is
+not its fault)
+
+3) some fields look almost too specialized, but if hardware supports
+them, I guess we should export them, too...
+
+...but otherwise it looks very good, certainly better than
+alternatives. Perhaps we should make something like this "generic"
+battery interface?
+
+Good description is at
+http://thinkwiki.org/wiki/Tp_smapi#Installation_from_source , and to
+give you a quick example:
+
+# cat /sys/devices/platform/smapi/BAT0/installed
+# cat /sys/devices/platform/smapi/BAT0/state       # idle/charging/discharging
+# cat /sys/devices/platform/smapi/BAT0/cycle_count 
+# cat /sys/devices/platform/smapi/BAT0/current_now # instantaneous  current
+# cat /sys/devices/platform/smapi/BAT0/current_avg # last minute average
+# cat /sys/devices/platform/smapi/BAT0/power_now   # instantaneous  power
+# cat /sys/devices/platform/smapi/BAT0/power_avg   # last minute  average
+# cat /sys/devices/platform/smapi/BAT0/last_full_capacity
+# cat /sys/devices/platform/smapi/BAT0/remaining_capacity
+# cat /sys/devices/platform/smapi/BAT0/design_capacity
+# cat /sys/devices/platform/smapi/BAT0/voltage
+# cat /sys/devices/platform/smapi/BAT0/design_voltage
+# cat /sys/devices/platform/smapi/BAT0/manufacturer
+# cat /sys/devices/platform/smapi/BAT0/model
+# cat /sys/devices/platform/smapi/BAT0/barcoding
+# cat /sys/devices/platform/smapi/BAT0/chemistry
+# cat /sys/devices/platform/smapi/BAT0/serial
+# cat /sys/devices/platform/smapi/BAT0/manufacture_date
+# cat /sys/devices/platform/smapi/BAT0/first_use_date
+# cat /sys/devices/platform/smapi/ac_connected
+
+								Pavel
 -- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

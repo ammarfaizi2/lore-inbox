@@ -1,113 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWG0WCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWG0WJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWG0WCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 18:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWG0WCx
+	id S1751377AbWG0WJP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 18:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWG0WJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 18:02:53 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:47747 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751358AbWG0WCw (ORCPT
+	Thu, 27 Jul 2006 18:09:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:60049 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751377AbWG0WJO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 18:02:52 -0400
-Date: Thu, 27 Jul 2006 18:02:38 -0400
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: David Miller <davem@davemloft.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060727220238.GE16971@kvack.org>
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com>
+	Thu, 27 Jul 2006 18:09:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Orion Poplawski <orion@cora.nwra.com>
+Subject: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+Date: Thu, 27 Jul 2006 16:08:53 -0600
+Message-ID: <eabdhq$nca$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C933D2.4040406@oracle.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed;
+ boundary="------------060101040208040906060900"
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 02:44:50PM -0700, Zach Brown wrote:
-> 
-> >> 	int kevent_getevents(int event_fd, struct ukevent *events,
-> >> 		int min_events, int max_events,
-> >> 		struct timeval *timeout);
-> > 
-> > You've just reinvented io_getevents().
-> 
-> Well, that's certainly one inflammatory way to put it.  I would describe
-> it as suggesting that the kevents collection interface not lose the
-> nicer properties of io_getevents().
+This is a multi-part message in MIME format.
+--------------060101040208040906060900
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Perhaps, but there seems to be a lot of talk about introducing new APIs 
-where it isn't entirely clear that it is needed.  Sorry if that sounded 
-rather acerbic.
+fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
 
-> > What exactly are we getting from 
-> > reinventing this (aside from breaking existing apps and creating more of 
-> > an API mess)?
-> 
-> A generic event collection interface that isn't so strongly bound to the
-> existing semantics of io_setup() and io_submit().  It can be a file
-> descriptor instead of a mysterious cookie/pointer to the mapped region,
-> to start.
+The attached program (oplocktest.c) illustrates.  Compile and run with 
+strace.  In another
+shell do "echo >> oplockstest.c".  On 2.6.16 we get:
 
-Things were like that at one point in time, but file descriptors turn out 
-to introduce a huge gaping security hole with SUID programs.  The problem 
-is that any event context is closely tied to the address space of the 
-thread issuing the syscalls, and file descriptors do not have this close 
-binding.
+fcntl64(3, F_SETSIG, 0x23)              = 0
+fcntl64(3, 0x400 /* F_??? */, 0x1)      = 0
+nanosleep({50, 0}, 0)                   = ? ERESTART_RESTARTBLOCK (To be 
+restarted)
+--- SIGRT_3 (Real-time signal 1) @ 0 (0) ---
++++ killed by SIGRT_3 +++
 
-> Sure, so maybe we experiment with these things in the context of the
-> kevent patches and maybe merge them back into the AIO paths if in the
-> end that's the right thing to do.  I see no problem with separating
-> development from the existing code.
+on 2.6.17 we get:
 
-Excellent!
+fcntl64(3, F_SETSIG, 0x23)              = 0
+fcntl64(3, 0x400 /* F_??? */, 0x1)      = 0
+nanosleep({50, 0}, 0)                   = ? ERESTART_RESTARTBLOCK (To be 
+restarted)
+--- SIGIO (I/O possible) @ 0 (0) ---
++++ killed by SIGIO +++
 
-> >> epoll and kevent both have the notion of an event type that always
-> >> creates an event at the time of the collection syscall while the event
-> >> source is on a ready list.  Think of epoll calling ->poll(POLLOUT) for
-> >> an empty socket buffer at every sys_epoll_wait() call.  We can't have
-> >> some source constantly spewing into the ring :/.  We could fix this by
-> >> the API requiring that level events can *only* be collected through the
-> >> syscall interface.  userspace could call into the collection syscall
-> >> every N events collected through the ring, say.  N would be tuned to
-> >> amortize the syscall cost and still provide fairness or latency for the
-> >> level sources.  I'd be fine with that, especially when it's hidden off
-> >> in glibc.
-> > 
-> > This is exactly why I think level triggered events are nasty.  It's 
-> > impossible to do cleanly without requiring a syscall.
-> 
-> I'm not convinced that it isn't possible to get a sufficiently clean
-> interface that involves the mix.
+The signal is no longer changed from SIGIO to SIGRT_3.
 
-My arguement is that this approach introduces a slow path into the heavily 
-loaded server case.  If you can show me how to avoid that, I'd be happy to 
-see such an implementation. =-)
+This causes problems with samba and kernel oplocks.  Windows clients get 
+the dreaded "Delayed Write Failed" message when smbd dies with SIGIO.
 
-> > As soon as you allow queueing events up in kernel space, it becomes 
-> > necessary to do another syscall after pulling events out of the queue, 
-> > which is a waste of CPU cycles when you're under heavy load (exactly the 
-> > point at which you want the system to be its most efficient).
-> 
-> If we've just consumed a full ring worth of events, and done real work
-> with them, I'm not convinced that an empty syscall is going to be that
-> painful.  If we're really under load it might well return some newly
-> arrived events.  It becomes a mix of ring completions and syscall
-> completions.
-
-Except that you're not usually pulling a full ring worth of events at a 
-time, more often just one.  One of the driving forces behind AIO use is 
-in realtime apps where you don't want to eat occasional spikes in the 
-latency of request processing, one just wants to eat the highest priority 
-event then work on the next.  By keeping each step small and managable, 
-the properties of the system are much easier to predict.  Yes, batching 
-can be helpful performance-wise, but it is somewhat opposite to the design 
-criteria that need to be considered.  The right way to cope with that may 
-be to have two different modes of operation that trade off one way or the 
-other on the batching question.
-
-		-ben
 -- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+Orion Poplawski
+System Administrator                   303-415-9701 x222
+Colorado Research Associates/NWRA      FAX: 303-415-9702
+3380 Mitchell Lane, Boulder CO 80301   http://www.co-ra.com
+
+--------------060101040208040906060900
+Content-Type: text/x-csrc;
+ name="oplocktest.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oplocktest.c"
+
+/* 
+   Unix SMB/CIFS implementation.
+   kernel oplock processing for Linux
+   Copyright (C) Andrew Tridgell 2000
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+
+#define DBGC_CLASS DBGC_LOCKING
+#include <signal.h>
+#include <errno.h>
+#include <sys/fcntl.h>
+#include <sys/select.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+typedef unsigned int uint32;
+
+/* these can be removed when they are in glibc headers */
+struct  cap_user_header {
+	uint32 version;
+	int pid;
+} header;
+struct cap_user_data {
+	uint32 effective;
+	uint32 permitted;
+	uint32 inheritable;
+} data;
+
+extern int capget(struct cap_user_header * hdrp,
+		  struct cap_user_data * datap);
+extern int capset(struct cap_user_header * hdrp,
+		  const struct cap_user_data * datap);
+
+#ifndef F_SETLEASE
+#define F_SETLEASE	1024
+#endif
+
+#ifndef F_GETLEASE
+#define F_GETLEASE	1025
+#endif
+
+#ifndef CAP_LEASE
+#define CAP_LEASE 28
+#endif
+
+#ifndef RT_SIGNAL_LEASE
+#define RT_SIGNAL_LEASE (SIGRTMIN+1)
+#endif
+
+#ifndef F_SETSIG
+#define F_SETSIG 10
+#endif
+
+/****************************************************************************
+ Try to gain a linux capability.
+****************************************************************************/
+
+static void set_capability(unsigned capability)
+{
+#ifndef _LINUX_CAPABILITY_VERSION
+#define _LINUX_CAPABILITY_VERSION 0x19980330
+#endif
+	header.version = _LINUX_CAPABILITY_VERSION;
+	header.pid = 0;
+
+	if (capget(&header, &data) == -1) {
+		printf("Unable to get kernel capabilities (%s)\n", strerror(errno));
+		return;
+	}
+
+	data.effective |= (1<<capability);
+
+	if (capset(&header, &data) == -1) {
+		printf("Unable to set %d capability (%s)\n", 
+			 capability, strerror(errno));
+	}
+}
+
+/****************************************************************************
+ Call SETLEASE. If we get EACCES then we try setting up the right capability and
+ try again
+****************************************************************************/
+
+static int linux_setlease(int fd, int leasetype)
+{
+	int ret;
+
+	if (fcntl(fd, F_SETSIG, RT_SIGNAL_LEASE) == -1) {
+		printf("Failed to set signal handler for kernel lease\n");
+		return -1;
+	}
+
+	ret = fcntl(fd, F_SETLEASE, leasetype);
+	if (ret == -1 && errno == EACCES) {
+		set_capability(CAP_LEASE);
+		ret = fcntl(fd, F_SETLEASE, leasetype);
+	}
+
+	return ret;
+}
+
+int main(int argc, char **argv)
+{
+	int fd;
+
+	fd = open("oplocktest.c", O_RDONLY);
+        linux_setlease(fd, 1);	
+
+   struct timespec ts;
+
+   ts.tv_sec = 50;
+   ts.tv_nsec = 0;
+
+   nanosleep(&ts, NULL);
+
+   return(0);
+}
+
+
+
+--------------060101040208040906060900--
+

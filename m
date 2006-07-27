@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWG0SNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWG0SN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWG0SNY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 14:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751909AbWG0SNY
+	id S1751914AbWG0SN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 14:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWG0SN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 14:13:24 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9610 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750981AbWG0SNY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 14:13:24 -0400
-Subject: Re: Nasty git corruption problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0607261041490.29649@g5.osdl.org>
-References: <1153929715.13509.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0607260945440.29649@g5.osdl.org>
-	 <Pine.LNX.4.63.0607261935160.29667@wbgn013.biozentrum.uni-wuerzburg.de>
-	 <Pine.LNX.4.64.0607261039380.29649@g5.osdl.org>
-	 <Pine.LNX.4.64.0607261041490.29649@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 19:32:07 +0100
-Message-Id: <1154025127.13509.90.camel@localhost.localdomain>
+	Thu, 27 Jul 2006 14:13:59 -0400
+Received: from hera.kernel.org ([140.211.167.34]:45736 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751911AbWG0SN6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 14:13:58 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: request_irq() return value
+Date: Thu, 27 Jul 2006 11:13:17 -0700
+Organization: OSDL
+Message-ID: <20060727111317.109bfc4d@localhost.localdomain>
+References: <200607271950.03370.m.kozlowski@tuxland.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1154023998 6608 10.8.0.54 (27 Jul 2006 18:13:18 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Thu, 27 Jul 2006 18:13:18 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.1.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-07-26 am 10:43 -0700, ysgrifennodd Linus Torvalds:
-> (And if it wasn't already obvious, with my patch you still need to do 
-> "git-fsck-objects --full --lost-n-found" if you want to look inside those 
-> pack-files, but at least it's an option you can enable).
+On Thu, 27 Jul 2006 19:50:03 +0200
+Mariusz Kozlowski <m.kozlowski@tuxland.pl> wrote:
 
-git-lost-found turns up some of the missing stuff that was applied
-earliest in the rebase but the other stuff is apparently neither visible
-anywhere in the tree or missing (the tree I was rebasing "^^^..." never
-shows it nor does the log). The changes are in the objects if you dump
-every object and investigate them by hand.
+> Hello,
+> 
+> 	I'm looking at the source code of different drivers and wondering about 
+> request_irq() return value. It is used mostly in 'open' routine of struct 
+> net_device. If request_irq() fails some drivers return -EAGAIN, some -EBUSY 
+> and some the return value of request_irq(). Is this intentional? Sample 
+> drivers code:
 
-Beats me but a mix of a restore and reapplying some stuff from archived
-email along with rescued objects seems to have recovered all lost
-changesets.
+Correct practice is to propagate the error code of request_irq out to be
+the return value of the open routine. This allows the request_irq to return
+different values for overlapping irqs, or out of memory, etc.
 
-Alan
+> Besides request_irq() is arch dependent so depending on arch it has different 
+> set of possible return values. So ... does the return value matter or I 
+> misunderstood something here?
+
+Each architecture should return something sane. If it doesn't then it a problem
+that should be addressed there.

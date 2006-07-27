@@ -1,95 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWG0Vmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWG0Voz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWG0Vmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWG0Vmi
+	id S1751320AbWG0Voz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:44:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWG0Voz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:42:38 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18119 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751060AbWG0Vmh (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 17:42:37 -0400
-Date: Thu, 27 Jul 2006 23:42:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Olivier Galibert <galibert@pobox.com>, Theodore Tso <tytso@mit.edu>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Nikita Danilov <nikita@clusterfs.com>, Steve Lord <lord@xfs.org>
-Subject: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060727214224.GB3797@elf.ucw.cz>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C42B92.40507@xfs.org> <17604.31844.765717.375423@gargle.gargle.HOWL> <20060724103023.GA7615@thunk.org> <20060724113534.GA64920@dspnet.fr.eu.org> <20060724133939.GA11353@thunk.org> <20060724153853.GA88678@dspnet.fr.eu.org> <20060726130806.GA5270@ucw.cz> <20060727155222.GA30593@dspnet.fr.eu.org>
+	Thu, 27 Jul 2006 17:44:55 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:61421 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751185AbWG0Voy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 17:44:54 -0400
+Message-ID: <44C933D2.4040406@oracle.com>
+Date: Thu, 27 Jul 2006 14:44:50 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727155222.GA30593@dspnet.fr.eu.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Benjamin LaHaise <bcrl@kvack.org>
+CC: David Miller <davem@davemloft.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org>
+In-Reply-To: <20060727205806.GD16971@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > A much more important effect is that non-maintainers aren't familiar
-> > > > with coding and patch submission guidelines.  For example, in
-> > > > suspend2, Nigel first tried with patches that were too monolithic,
-> > > > and then his next series was too broken down such that it was too
-> > > > hard to review (and "git bisect" wouldn't work).
-> > > 
-> > > All his submissions since 2004 or so?  It's a little easy to limit
-> > > oneself to the last two ones.
-> > 
-> > Nigel did not do any submissions in 2004 or so. Check your fact, that
-> > stuff was marked 'RFC' and yes I did comment on it.
+>> 	int kevent_getevents(int event_fd, struct ukevent *events,
+>> 		int min_events, int max_events,
+>> 		struct timeval *timeout);
 > 
-> 2004-09-16 submission:
+> You've just reinvented io_getevents().
+
+Well, that's certainly one inflammatory way to put it.  I would describe
+it as suggesting that the kevents collection interface not lose the
+nicer properties of io_getevents().
+
+> What exactly are we getting from 
+> reinventing this (aside from breaking existing apps and creating more of 
+> an API mess)?
+
+A generic event collection interface that isn't so strongly bound to the
+existing semantics of io_setup() and io_submit().  It can be a file
+descriptor instead of a mysterious cookie/pointer to the mapped region,
+to start.
+
+> incompat bits for changing the structure layout.  As for bouncing the 
+> cacheline of head/tail around, I don't think it matters on real machines, 
+> as the multithreaded/SMP case will hit that cacheline bouncing if the 
+> user is sharing the event ring between multiple threads on multiple CPUs.  
+> The only way around that is to use multiple event rings, say one per node, 
+> at which point you have to do load balancing of io requests explicitely 
+> between queues (which might be worth it).
+
+Sure, so maybe we experiment with these things in the context of the
+kevent patches and maybe merge them back into the AIO paths if in the
+end that's the right thing to do.  I see no problem with separating
+development from the existing code.
+
+>> epoll and kevent both have the notion of an event type that always
+>> creates an event at the time of the collection syscall while the event
+>> source is on a ready list.  Think of epoll calling ->poll(POLLOUT) for
+>> an empty socket buffer at every sys_epoll_wait() call.  We can't have
+>> some source constantly spewing into the ring :/.  We could fix this by
+>> the API requiring that level events can *only* be collected through the
+>> syscall interface.  userspace could call into the collection syscall
+>> every N events collected through the ring, say.  N would be tuned to
+>> amortize the syscall cost and still provide fairness or latency for the
+>> level sources.  I'd be fine with that, especially when it's hidden off
+>> in glibc.
 > 
-> http://lkml.org/lkml/2004/9/16/76
-...
-> http://lkml.org/lkml/2004/9/16/90
+> This is exactly why I think level triggered events are nasty.  It's 
+> impossible to do cleanly without requiring a syscall.
 
-Yes, Nigel submitted part of suspend2 here (I do not think he
-submitted compression code on that day, for example), but then
+I'm not convinced that it isn't possible to get a sufficiently clean
+interface that involves the mix.
 
-http://lkml.org/lkml/2004/9/16/347
+> As soon as you allow queueing events up in kernel space, it becomes 
+> necessary to do another syscall after pulling events out of the queue, 
+> which is a waste of CPU cycles when you're under heavy load (exactly the 
+> point at which you want the system to be its most efficient).
 
-came:
+If we've just consumed a full ring worth of events, and done real work
+with them, I'm not convinced that an empty syscall is going to be that
+painful.  If we're really under load it might well return some newly
+arrived events.  It becomes a mix of ring completions and syscall
+completions.
 
-#I should mention, I'm planning on producing a BK tree with these patches
-#(and ones to fix issues raised), so you won't have to include a long
-#list in -mm eventually! It will be on suspend2.bkbits.net (not there
-#yet).
-
-That sounds like "don't merge it yet, I'll prepare better version" to
-me.
-
-> 2004-11-24 submission:
-> 
-> http://lkml.org/lkml/2004/11/24/93
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Okay, this one is important. It starts with 
-
-#Hi everyone.
-#
-#I know that I still have work to do on suspend2, but thought it was high
-#time I got around to properly submitting the code for review, so here goes.
-
-That looks like request for review, not request for merge. Plus it was
-to: lkml, while it should be to: maintainer (or maybe to: akpm). Well,
-it also says "Suspend 2 merge" in subject..
- 
-> > He did 1 (one) submission that looked like SubmittingPatches at the
-> > first sight, and that was very recent.
-> > 
-> > Stop spreading lies.
-> 
-> I am awaiting your apologies.
-
-Okay, 11/24 looked closer to submission than I recalled. So I guess I
-have to say "sorry".
-
-So we have 1 submission for review in 11/2004 and 1 submission for -mm
-merge in 2006, right?
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+- z

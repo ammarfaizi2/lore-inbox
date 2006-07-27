@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWG0Hjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWG0HqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWG0Hjd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 03:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWG0Hjc
+	id S1750851AbWG0HqR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 03:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWG0HqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 03:39:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:12944 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751288AbWG0Hjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 03:39:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=quN4B/xcEb+P4ynv6awtqH5dW1qgERd9OgW1lHtnfcPMUTdDEfXDLX5JhzbmIZ1rmOg6jmp6sLeih9AYJb47wooIXy81djYkIqmcAYv2smmZeGZgJ0GPemySDWI1pEIV69WErvRvnUN99r9PCpQ0LKL2wPJ4ciDaJYqlcB7TRqQ=
-Date: Thu, 27 Jul 2006 09:38:38 +0200
+	Thu, 27 Jul 2006 03:46:17 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:64448 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1750851AbWG0HqR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 03:46:17 -0400
+Message-Id: <200607270746.k6R7jjLB013448@zeus2.kernel.org>
+From: "amina bello" <aminabelloa2005@she.com>
+Reply-To: aminabelloa2005@she.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: BUG() on apm resume in 2.6.18-rc2
-Message-ID: <20060727073838.GA12586@leiferikson.gentoo>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060727033819.GA368@fieldses.org> <20060726231049.e9a0346e.akpm@osdl.org> <20060727062932.GA32598@leiferikson.gentoo> <20060727000856.f75d2603.akpm@osdl.org>
+Date: Thu, 27 Jul 2006 14:46:09 +0700
+Subject: REQUEST FOR YOUR ASSISTANT
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727000856.f75d2603.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From:Mrs.Amina.A Bello. 
+Attn:The Managing Director
+Before I proceed, may I humbly introduce myself to your goodself, My Name is Mrs. Amina.A.Bello, an Iraqi refugee ,my husband was one of the personal aid to the president of Iraq who was formerly overthrown out of power by American Government . 
+Prior to this last serious crisis that is still ravaging in my country,which recently led to misfortune of our government and my late husband position as the personal aid to the president, we were able to come over here in Thailand ,we inherited the sum of US11 million.The funds were originally gotten from my late husband proceeds. 
+My late husband was able to safe guard the fund with a very good diplomatic contact from my Country. 
+I have decided to contact you because I am interested in investing in your country which is investment friendly. Please kindly guide and assist me in making the right investment since I am also interested in buying a residential property as I will be moving my family over there as soon as every thing regarding technical and logictics details is worked out and ascertained to our respective satisfaction. In view of your participation,I am ready to give you a good negotiable percentage for your assistance,or better still commit it into viable Joint venture projects,be assured that you stand no risk of any kind as the funds belong to me and my only survived son. As soon as I get your consent, we will quickly move this fund to your country for investment . 
+However, upon your acceptance to work as my partner, you can contact me with my private email:aminabelloa2005@she.com for more details.
+I am here with my only surviving son Musa, 
+I strongly believe that associating with you to embark on this and other business ventures will derive a huge success here after, please include you private contact telephone number and private e-mail when replying.
+Yours Sincerely.
+Mrs.Amina.A.Bello. 
 
-On Thu, Jul 27, 2006 at 12:08:56AM -0700, Andrew Morton wrote:
-> (please always do reply-to-all)
 
-Oh, sorry. Sometimes mutt doesn't recognize mails belonging to a list.
 
-> That was an easy one - it crashed at
-> 
-> EIP is at mcheck_init+0x4/0x80
-> 
-> right at the start of mcheck_init(), so it had to be the access of
-> mce_disabled.
-> 
-> It accessed the address c0729c38:
-> 
-> BUG: unable to handle kernel paging request at virtual address c0729c38
-> 
-> and the code dump shows an access to that address.
-> 
-> And the only way in which an access to a global variable of this nature can
-> oops is if that variable has been unmapped from the kenrel address space. 
-> We unmap (and reuse) the __init memory, so it had to be a sectioning bug.
-
-The fix was clear to me, though. After seeing it, I could imagine what
-went wrong.
-
-Hannes

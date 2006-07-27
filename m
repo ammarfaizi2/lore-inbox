@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWG0RPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWG0RTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751800AbWG0RPs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 13:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWG0RPr
+	id S1751805AbWG0RTa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 13:19:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWG0RTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 13:15:47 -0400
-Received: from mail.ccur.com ([66.10.65.12]:24796 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id S1751800AbWG0RPr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 13:15:47 -0400
-Subject: Re: [PATCH] documentation: Documentation/initrd.txt
-From: Tom Horsley <tom.horsley@ccur.com>
-To: 7eggert@gmx.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1G69M4-0001Um-Jg@be1.lrz>
-References: <6DfYt-7zU-49@gated-at.bofh.it>  <E1G69M4-0001Um-Jg@be1.lrz>
+	Thu, 27 Jul 2006 13:19:30 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:18571 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751805AbWG0RT3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 13:19:29 -0400
+Subject: [PATCH] timer: Fix tvec_bases initializer
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 13:15:46 -0400
-Message-Id: <1154020546.5166.35.camel@tweety>
+Date: Thu, 27 Jul 2006 10:19:28 -0700
+Message-Id: <1154020768.12517.87.camel@josh-work.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-27 at 19:08 +0200, Bodo Eggert wrote:
-> > I spent a long time the other day trying to examine an initrd
-> > image on a fedora core 5 system because the initrd.txt file
-> > is apparently obsolete. Here is a patch which I hope
-> > will reduce future confusion for others.
-> 
-> Your documentation is technically wrong, and there is a better
-> explanation:
+kernel/timer.c defines a (per-cpu) pointer to tvec_base_t, but initializes it
+using { &a_tvec_base_t }, which sparse warns about; change this to just
+&a_tvec_base_t.
 
-I find it easy to believe my document is wrong, but looking at
-the Documentation/filesystems/ramfs-rootfs-initramfs.txt file
-would never have led me to believe that the initrd.img file
-was related in any way. The ramfs-rootfs-initramfs.txt
-file describes the the archive as being built into the
-kernel, so it needs updating too I guess (and fedora
-should change the name of the initrd files to be
-initramfs files so I'll look for documentation in the right
-place :-).
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ kernel/timer.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 05809c2..793a847 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -84,7 +84,7 @@ typedef struct tvec_t_base_s tvec_base_t
+ 
+ tvec_base_t boot_tvec_bases;
+ EXPORT_SYMBOL(boot_tvec_bases);
+-static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = { &boot_tvec_bases };
++static DEFINE_PER_CPU(tvec_base_t *, tvec_bases) = &boot_tvec_bases;
+ 
+ static inline void set_running_timer(tvec_base_t *base,
+ 					struct timer_list *timer)
+
+

@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWG0PvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWG0Pvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWG0PvS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWG0PvS
+	id S1750814AbWG0Pvx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWG0Pvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:51:18 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38081 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750801AbWG0PvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:51:17 -0400
-Subject: Re: Re: [RFC/PATCH] revoke/frevoke system calls V2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@zeniv.linux.org.uk, tytso@mit.edu, tigran@veritas.com
-In-Reply-To: <84144f020607270833v4c981d00w8e3e643406aea7a@mail.gmail.com>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <1154012822.13509.52.camel@localhost.localdomain>
-	 <84144f020607270833v4c981d00w8e3e643406aea7a@mail.gmail.com>
-Content-Type: text/plain
+	Thu, 27 Jul 2006 11:51:52 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:29651 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750814AbWG0Pvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:51:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gWX8o4jl4SU5z4pvCSI1b7zlIuIknR0RMOspSv7QpfGj9o1mB8wZP+4JBlVtxzFWw33pL55JAMAe0dkivQ0T2RjxtlEIRWU8C0Mw5be/x5onuLkGMipjGDBLqi0Cr18+sU9pNUGW69D5b+mzQbmBa+putRRoOUJrgx1kdtFGWxk=
+Message-ID: <f96157c40607270851i1e791774i81a557e6f0386c87@mail.gmail.com>
+Date: Thu, 27 Jul 2006 15:51:50 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [PATCH] fix Intel RNG detection
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <44C8FB44.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 17:09:49 +0100
-Message-Id: <1154016589.13509.56.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <44C8BE63.76E4.0078.0@novell.com>
+	 <f96157c40607270818p2cfec277x7eaf8eb2f3767268@mail.gmail.com>
+	 <f96157c40607270835l34cd0de1w8c8a0d95ba8ee39f@mail.gmail.com>
+	 <44C8FB44.76E4.0078.0@novell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-07-27 am 18:33 +0300, ysgrifennodd Pekka Enberg:
-> Don't device drivers already do that for f_ops->flush (filp_close) and
+On 7/27/06, Jan Beulich <jbeulich@novell.com> wrote:
+> ># dmesg | grep rng
+> >intel_rng: FWH not detected
+> >
+> >looks like this ProLiant box with the ICH5 chip has no usable RNG
+> >included, or should it?
+>
+> A configuration like this is what actually motivated me to write the
+> patch. You need to remember that the RNG doesn't live in the ICH, but in
+> the FWH (which is a different chip not showing up as a separate device
+> anywhere) with only some access parameters being configured via the LPC
+> device inside the ICH.
 
-->flush is called when each closing occurs.
-
-> vm_ops->close (munmap)? What revoke and frevoke do is basically
-> unmap/fsync/close on all the open file descriptors.
-
-What happens if an app is already blocked on a read when you do a
-revoke ? The nasty case answer could be "it completes later on and
-returns the users captured password"
-
-Alan
-
+well, then let's push it into Linus' tree after the proposed cleanups.

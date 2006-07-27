@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161055AbWG0NDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWG0NFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161055AbWG0NDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWG0NDV
+	id S1161030AbWG0NFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWG0NFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:03:21 -0400
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:22222 "EHLO
-	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1161027AbWG0NDV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:03:21 -0400
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk
-In-reply-to: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Thu, 27 Jul 2006 14:55:30 +0200)
-Subject: [PATCH 5/5] vfs: define new lookup flag for chdir
-References: <E1G65Ok-0002fh-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1G65Vu-0002jG-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 27 Jul 2006 15:02:54 +0200
+	Thu, 27 Jul 2006 09:05:21 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:59609 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161030AbWG0NFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:05:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=j5Y0sZ1sHdBu1nzjgchIejllU7zrcWyVwRCcjDQYvRQ4e6h+It5Yd/htytgaJ21zBmbj7i+PDNZHxqs/sxZEuGC4WO+namLHS1wqJI+kE4SVccT6MhR/wmqFvVe7lk2/tR3zQ7azVOsklXYMYn35YvRZc8/VZhbEjrxXoIGr8/4=
+Message-ID: <215036450607270605t1f1ea28am44684c13eb2a724f@mail.gmail.com>
+Date: Thu, 27 Jul 2006 21:05:19 +0800
+From: "Joe Jin" <lkmaillist@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       ipw2100-admin@linux.intel.com
+Subject: [PATCH]: Add check return result on call create_workqueue
+Cc: linux-kernel@vger.kernel.org, "Randy Dunlap" <randy.dunlap@oracle.com>,
+       wim.coekaerts@oracle.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the "operation does permission checking" model used by fuse, chdir
-permission is not checked, since there's no chdir method.
+Add check return result on call create_workqueue().
 
-For this case set a lookup flag, which will be passed to
-->permission(), so fuse can distinguish it from permission checks for
-other operations.
-
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Signed-off-by: Joe Jin <lkmaillist@gmail.com>
 ---
 
-Index: linux/fs/fuse/dir.c
-===================================================================
---- linux.orig/fs/fuse/dir.c	2006-07-27 14:38:04.000000000 +0200
-+++ linux/fs/fuse/dir.c	2006-07-27 14:38:15.000000000 +0200
-@@ -776,7 +776,7 @@ static int fuse_permission(struct inode 
- 		if ((mask & MAY_EXEC) && !S_ISDIR(mode) && !(mode & S_IXUGO))
- 			return -EACCES;
- 
--		if (nd && (nd->flags & LOOKUP_ACCESS))
-+		if (nd && (nd->flags & (LOOKUP_ACCESS | LOOKUP_CHDIR)))
- 			return fuse_access(inode, mask);
- 		return 0;
- 	}
-Index: linux/fs/open.c
-===================================================================
---- linux.orig/fs/open.c	2006-07-27 14:35:14.000000000 +0200
-+++ linux/fs/open.c	2006-07-27 14:38:15.000000000 +0200
-@@ -546,7 +546,8 @@ asmlinkage long sys_chdir(const char __u
- 	struct nameidata nd;
- 	int error;
- 
--	error = __user_walk(filename, LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &nd);
-+	error = __user_walk(filename,
-+			    LOOKUP_FOLLOW|LOOKUP_DIRECTORY|LOOKUP_CHDIR, &nd);
- 	if (error)
- 		goto out;
- 
-Index: linux/include/linux/namei.h
-===================================================================
---- linux.orig/include/linux/namei.h	2006-07-27 14:35:14.000000000 +0200
-+++ linux/include/linux/namei.h	2006-07-27 14:38:15.000000000 +0200
-@@ -54,6 +54,7 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LA
- #define LOOKUP_OPEN		(0x0100)
- #define LOOKUP_CREATE		(0x0200)
- #define LOOKUP_ACCESS		(0x0400)
-+#define LOOKUP_CHDIR		(0x0800)
- 
- extern int FASTCALL(__user_walk(const char __user *, unsigned, struct nameidata *));
- extern int FASTCALL(__user_walk_fd(int dfd, const char __user *, unsigned, struct nameidata *));
+--- linux-2.6.17.7/drivers/net/wireless/ipw2100.c       2006-07-25
+11:36:01.000000000 +0800
++++ linux.new/drivers/net/wireless/ipw2100.c    2006-07-27
+20:23:03.000000000 +0800
+@@ -6110,6 +6110,10 @@
+        INIT_STAT(&priv->fw_pend_stat);
+
+        priv->workqueue = create_workqueue(DRV_NAME);
++       if(NULL == priv->workqueue){
++               free_ieee80211(dev);
++               return NULL;
++       }
+
+        INIT_WORK(&priv->reset_work,
+                  (void (*)(void *))ipw2100_reset_adapter, priv);
+
+
+-- 
+Regards,
+Joe Jin

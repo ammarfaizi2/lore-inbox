@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWG0N3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWG0N22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWG0N3q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWG0N3q
+	id S932082AbWG0N22 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWG0N22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:29:46 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:56227 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932098AbWG0N3p (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 09:29:45 -0400
-Message-Id: <200607271326.k6RDQWRW008048@laptop13.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Adrian Bunk <bunk@stusta.de>, andrea@cpushare.com,
-       "J. Bruce Fields" <bfields@fieldses.org>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Wed, 26 Jul 2006 22:35:26 CST." <44C8428E.4070007@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Thu, 27 Jul 2006 09:26:32 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 27 Jul 2006 09:26:33 -0400 (CLT)
+	Thu, 27 Jul 2006 09:28:28 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:34849 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932082AbWG0N21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:28:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TSfPIR9kms4XrSb19S4acF+5O3/eGUpUKQnh80wDMFS6KDCz5RqzrOgolkXNC+U3K8h9WIDPYEPAwqbVvMcaXlZ53I8GYpVaVI+0gwVAb2pcE3LUHsg/i5JV2qAMOc957OfdgZ9Axwn3qzWAgjoHppTolW8USEYyUhVXsJ4Rmps=
+Message-ID: <f96157c40607270628u7456bbf4w80bcd166d741b7f0@mail.gmail.com>
+Date: Thu, 27 Jul 2006 13:28:25 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] CCISS: Don't print driver version until we actually find a device
+Cc: "Jeff Garzik" <jeff@garzik.org>, "Arjan van de Ven" <arjan@infradead.org>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Mike Miller" <mike.miller@hp.com>, iss_storagedev@hp.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200607251636.42765.bjorn.helgaas@hp.com>
+	 <9a8748490607251543w7496864dtd587abc45b93394a@mail.gmail.com>
+	 <1153867675.8932.68.camel@laptopd505.fenrus.org>
+	 <44C6F26C.2080203@garzik.org>
+	 <d120d5000607270601n74227ccdrb37b965c247c375e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Adrian Bunk wrote:
-> >[1] the conclusion itself might or might not be true
-> >    e.g. there _could_ be an 1:5 ratio between reiser4 and ext3 users
-> >    but your data is not in any way able to support or reject this 
-> >    statement
+On 7/27/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 7/26/06, Jeff Garzik <jeff@garzik.org> wrote:
+> > Arjan van de Ven wrote:
+> > > On Wed, 2006-07-26 at 00:43 +0200, Jesper Juhl wrote:
+> > >> On 26/07/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > >>> If we don't find any devices, we shouldn't print anything.
+> > >>>
+> > >> I disagree.
+> > >> I find it quite nice to be able to see that the driver loaded even if
+> > >> it finds nothing. At least then when there's a problem, I can quickly
+> > >> see that at least it is not because I didn't forget to load the
+> > >> driver, it's something else. Saves time since I can start looking for
+> > >> reasons why the driver didn't find anything without first spending
+> > >> additional time checking if I failed to cause it to load for some
+> > >> reason.
+> > >
+> > > I'll add a second reason: it is a REALLY nice property to be able to see
+> > > which driver is started last in case of a crash/hang, so that the guilty
+> > > party is more obvious..
+> >
+> > OTOH, it is not a property that scales well at all.
+> >
+> > When you build extra drivers into the kernel, or distros load drivers
+> > you don't need (_every_ distro does this), you wind up with a bunch of
+> > version strings for drivers for hardware you don't have.
+> >
+>
+> Given that boot tracing is best done with initcall_debug and
+> drivers that care about their version string can report it through
+> /sys/modules/<driver>/version why should version string be printed at
+> load time at all?
 
-> It does however suggest that my surprise at how people at the last 
-> Linux Conference I went to all seemed to know that there exists a
-> Reiser4
-
-I'd be rather surprised to find someone at a Linux conference who hasn't at
-least heard of the recurrent flamewars on the topic here...
-
->         may be due to it being more widely used than I would have
-> guessed.  Maybe there is some coolness factor to having the faster FS
-> that you can't get from any Distro that is enough to overcome the hassle
-> of compiling reiser4progs and a kernel before inserting the DVD.
-
-Not seen any data backing up the "faster", let alone so much faster that
-the hassle (and the risk) would make it worth trying... No, Gentoo folks
-don't count, around here they are fond of claiming that their self-compiled
-systems are at least twice as fast as a binary distribution with the exact
-same software.
-
->                                                                   I
-> would not have guessed we had 1/5th of ext3's usage even among lkml
-> readers.....
-
-I'd guess something of the order of 1/100, for testing purposes and idle
-curiosity.
-
->              I guess the market contains more people who like
-> technology than I was guessing.  Maybe there is a positive word of mouth
-> effect going on too.
-
-LKML (and Linux conferences) are exactly the places where you /only/ find
-this kind of people...
-
-> It would be nice if SuSE and others at least made it an unsupported
-> option at install time.  I shall have to find the time to go asking them
-> all.....
-
-At least Fedora is trying hard to just follow upstream packages (in this
-case, Linus' kernels) with the absolute minimum of local patches. It makes
-good sense, as it reduces the up-front work, and (more important) minimizes
-the pain when the later official version is somehow incompatible with the
-previews.
-
-If you want ReiserFS 4 to get more exposure, do the legwork to get it into
-the official kernel. Distributions should be reluctant to pick it up as
-long as its status as an official Linux filesystem is in question.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+not every driver provides that file (btw, I guess you mean
+/sys/module, don't you?) there anyway so it's still inconsistent.
+what if you can see up until loading of the driver and it halts there
+without /sys being mounted yet. I don't think you can rely on sysfs
+being mounted or modules being loaded.
+if I may vote as a CCISS user I say print the version number even if
+no device is present.

@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWG0PFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbWG0PHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWG0PFM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751646AbWG0PFM
+	id S1751646AbWG0PHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbWG0PHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:05:12 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28942 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751647AbWG0PFK (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Thu, 27 Jul 2006 11:05:10 -0400
-Date: Thu, 27 Jul 2006 17:05:08 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: andrea@cpushare.com
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060727150508.GB19718@stusta.de>
-References: <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <20060727115229.GD32243@opteron.random> <20060727121811.GN23701@stusta.de> <20060727131032.GE32243@opteron.random> <20060727135823.GA19718@stusta.de> <20060727144529.GB6877@opteron.random>
+	Thu, 27 Jul 2006 11:07:37 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:18766 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750787AbWG0PHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:07:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y1moOWxSgZJO0tgn8HsJc0X0U+mh0x5sYjZEKGLSxbxWLX+1y7IGiz8WrU9XvgpP4c1siQRuim5J4TkQ0KgrnbS7RRUmP6d3UhmVELFoiXBXT/p8n6tjaLRjLdOH73zFjTVpHAsO427jjxnoJ0YT4Z5uuqeV4LWuhOi0bly/qdk=
+Message-ID: <f96157c40607270807t381dff91h83b3685fcedfdbaf@mail.gmail.com>
+Date: Thu, 27 Jul 2006 15:07:35 +0000
+From: "gmu 2k6" <gmu2006@gmail.com>
+To: "Michael Buesch" <mb@bu3sch.de>
+Subject: Re: hwrng on 82801EB/ER (ICH5/ICH5R) fails rngtest checks
+Cc: "Jan Beulich" <jbeulich@novell.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200607271632.12682.mb@bu3sch.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060727144529.GB6877@opteron.random>
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <20060725222209.0048ed15.akpm@osdl.org>
+	 <200607271529.39549.mb@bu3sch.de>
+	 <f96157c40607270720n1dd5443avfdb53641a1cdad6f@mail.gmail.com>
+	 <200607271632.12682.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 04:45:29PM +0200, andrea@cpushare.com wrote:
-> On Thu, Jul 27, 2006 at 03:58:23PM +0200, Adrian Bunk wrote:
-> > What about the following statement:
-> > 
-> > "Gentoo is 47 times as popular as SuSE among KLive users (a service
-> >  offered by a SuSE employee gathering data from many users worldwide)."
-> > 
-> > Is any part of this information wrong?
-> > 
-> > Is it therefore OK to put this information to /. ?
-> > 
-> > Surely not, but you might get the point.
-> 
-> I already told you once that such a claim is totally bogus because
-> KLive _doesn't_ record anything about the _userland_, it only records
-> kernel stuff.
-> 
-> It's not Dlive (distributon Live), it's KLive and K stands for
-> _kernel_ not distributions.
-> 
-> Not sure how many times I'll have to remind you about this.
-> 
-> 
-> Also note currently the current cumulative uptime ratio is 1:18 not
-> 1:47 and even the ratio of the number of users is 1:42. The only claim
-> based on actual facts you can try to publish on the press is this:
+On 7/27/06, Michael Buesch <mb@bu3sch.de> wrote:
+> On Thursday 27 July 2006 16:20, gmu 2k6 wrote:
+> > On 7/27/06, Michael Buesch <mb@bu3sch.de> wrote:
+> > > On Wednesday 26 July 2006 21:44, gmu 2k6 wrote:
+> > > > > But could you try the following patch on top of latest git?
+> > > > > It's just a random test, but I think it's worth trying.
+> > > > > Let's see if it works around the issue.
+> > > > >
+> > > > > Index: linux-2.6/drivers/char/hw_random/intel-rng.c
+> > > > > ===================================================================
+> > > > > --- linux-2.6.orig/drivers/char/hw_random/intel-rng.c   2006-06-27 17:48:13.000000000 +0200
+> > > > > +++ linux-2.6/drivers/char/hw_random/intel-rng.c        2006-07-26 17:27:03.000000000 +0200
+> > > > > @@ -104,9 +104,14 @@
+> > > > >         int err = -EIO;
+> > > > >
+> > > > >         hw_status = hwstatus_get(mem);
+> > > > > +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
+> > > > > +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > > > > +#if 0
+> > > > > +       hw_status = hwstatus_get(mem);
+> > > > >         /* turn RNG h/w on, if it's off */
+> > > > >         if ((hw_status & INTEL_RNG_ENABLED) == 0)
+> > > > >                 hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > > > > +#endif
+> > > > >         if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+> > > > >                 printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+> > > > >                 goto out;
+> > > >
+> > > > well as it didn't work, are you sure it was not intended to be more like this:
+> > > > @@ -104,9 +104,14 @@
+> > > >        int err = -EIO;
+> > > >
+> > > >        hw_status = hwstatus_get(mem);
+> > > > +       hw_status = hwstatus_set(mem, hw_status & ~INTEL_RNG_ENABLED);
+> > > > +       hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > > > +#if 0
+> > > >        /* turn RNG h/w on, if it's off */
+> > > >        if ((hw_status & INTEL_RNG_ENABLED) == 0)
+> > > >                hw_status = hwstatus_set(mem, hw_status | INTEL_RNG_ENABLED);
+> > > > +#endif
+> > > >        if ((hw_status & INTEL_RNG_ENABLED) == 0) {
+> > > >                printk(KERN_ERR PFX "cannot enable RNG, aborting\n");
+> > > >                goto out;
+> > > >
+> > > > ?
+> > >
+> > > I don't think that makes a difference to the generated code, does it?
+> >
+> > I will test it now as you seem to be interested in the results.
+> >
+> > actually I was just curious what sense it made to do
+> > hw_status = hwstatus_get(mem);
+> > twice, though I'm not informed about the semantics there so I could be wrong
+> > in interpreting the API on that level.
+>
+> Look at the #if 0. The second hwstatus_get is not going to be compiled, anyway.
 
-The 1:47 was what I calculated yesterday, but it seems to be 1:42 now.
+yep you're right, originally I caught it as because it won't be
+included in the gcc output at all and later on false thought it would
+be called twice after a long day of work. maybe I should take more
+time when replying to mails :D
 
-But I'd measure popularity in current usage, not in cumulative uptime.
+> But Jan Beulich posted an interresting patch to lkml.
+> Please test it.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=115399953714650&q=raw
 
-> "The Gentoo kernels are 18 times more popular than the SUSE kernels
-> among KLive users (a service offered in his spare time by a SUSE
-> contractor that tries to gather data from many users worldwide)."
->...
-
-Slightly modified version is now in my .signature (I omitted the 
-"spare time" part since the information is still true and sounds better 
-without it - it would be cencorship if you'd try to force me to not 
-omit it).
-
-cu
-Adrian
-
--- 
-
-  The Gentoo kernels are 42 times more popular than the SUSE kernels 
-  among KLive users (a service by SuSE contractor Andrea Arcangeli that 
-  gathers data about kernels from many users worldwide).
-
+I saw that too and was thinking about trying it out, will do so now.

@@ -1,122 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWG0Gt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWG0Gvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbWG0Gt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 02:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWG0Gt2
+	id S1751812AbWG0Gvc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 02:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWG0Gvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 02:49:28 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:18073 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750812AbWG0Gt0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 02:49:26 -0400
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <44C796C3.9030404@us.ibm.com>
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru>
-	 <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>
-	 <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>
-	 <44C796C3.9030404@us.ibm.com>
-Date: Thu, 27 Jul 2006 08:49:14 +0200
-Message-Id: <1153982954.3887.9.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/07/2006 08:54:01,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/07/2006 08:54:02,
-	Serialize complete at 27/07/2006 08:54:02
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+	Thu, 27 Jul 2006 02:51:31 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:39612 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751812AbWG0Gvb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 02:51:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=e11c0/wKtplmpT+2I+go9x4ny6GGXVVVsZN/IWXCANchBbBc1SlY0A6zO+ENzb1c5L3lM+GVurcYAZxtP7BrtLOE2fnXiLpD8gTtn8WHNw8I94459N+h5ClYa3SZldE5JsFZVyaxyq40/F/aVfh1OhS+wYSkEryOp+GOVUHpLkE=  ;
+Message-ID: <44C86271.9030603@yahoo.com.au>
+Date: Thu, 27 Jul 2006 16:51:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org,
+       Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [BUG?] possible recursive locking detected
+References: <200607261805.26711.eike-kernel@sf-tec.de> <20060726225311.f51cee6d.akpm@osdl.org>
+In-Reply-To: <20060726225311.f51cee6d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-07-26 at 09:22 -0700, Badari Pulavarty wrote:
-> Ulrich Drepper wrote:
-> > Christoph Hellwig wrote:
-> >   
-> >>> My personal opinion on existing AIO is that it is not the right design.
-> >>> Benjamin LaHaise agree with me (if I understood him right),
-> >>>       
-> >> I completely agree with that aswell.
-> >>     
-> >
-> > I agree, too, but the current code is not the last of the line.  Suparna
-> > has a st of patches which make the current kernel aio code work much
-> > better and especially make it really usable to implement POSIX AIO.
-> >
-> > In Ottawa we were talking about submitting it and Suparna will.  We just
-> > thought about a little longer timeframe.  I guess it could be
-> > accelerated since he mostly has the patch done.  But I don't know her
-> > schedule.
-> >
-> > Important here is, don't base any decision on the current aio
-> > implementation.
-> >   
-> Ulrich,
+Andrew Morton wrote:
+> On Wed, 26 Jul 2006 18:05:21 +0200
+> Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
 > 
-> Suparna mentioned your interest in making POSIX glibc aio work with 
-> kernel-aio at OLS.
-> We thought taking a re-look at the (kernel side) work BULL did, would be 
-> a nice starting
-> point. I re-based those patches to 2.6.18-rc2 and sent it to Zach Brown 
-> for review before
-> sending them out to list.
 > 
-> These patches does NOT make AIO any cleaner. All they do is add 
-> functionality to support
-> POSIX AIO easier. These are
+>>Hi,
+>>
+>>I did some memory stress test (allocating and mlock()ing a huge number of 
+>>pages) from userspace. At the very beginning of that I got that error long 
+>>before the system got unresponsible and the oom killer dropped in.
+>>
+>>Eike
+>>
+>>=============================================
+>>[ INFO: possible recursive locking detected ]
+>>kded/5304 is trying to acquire lock:
+>> (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
+>>
+>>but task is already holding lock:
+>> (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
+>>
+>>other info that might help us debug this:
+>>3 locks held by kded/5304:
+>> #0:  (&inode->i_mutex){--..}, at: [<c11f476e>] mutex_lock+0x21/0x24
+>> #1:  (shrinker_rwsem){----}, at: [<c1046312>] shrink_slab+0x25/0x136
+>> #2:  (&type->s_umount_key#14){----}, at: [<c106be2e>] prune_dcache+0xf6/0x144
+>>
+>>stack backtrace:
+>> [<c1003aa9>] show_trace_log_lvl+0x54/0xfd
+>> [<c1004915>] show_trace+0xd/0x10
+>> [<c100492f>] dump_stack+0x17/0x1c
+>> [<c102e0e1>] __lock_acquire+0x753/0x99c
+>> [<c102e5ac>] lock_acquire+0x4a/0x6a
+>> [<c11f4609>] __mutex_lock_slowpath+0xb0/0x1f4
+>> [<c11f476e>] mutex_lock+0x21/0x24
+>> [<f0854fc4>] ntfs_put_inode+0x3b/0x74 [ntfs]
+>> [<c106cf3f>] iput+0x33/0x6a
+>> [<c106b707>] dentry_iput+0x5b/0x73
+>> [<c106bd15>] prune_one_dentry+0x56/0x79
+>> [<c106be42>] prune_dcache+0x10a/0x144
+>> [<c106be95>] shrink_dcache_memory+0x19/0x31
+>> [<c10463bd>] shrink_slab+0xd0/0x136
+>> [<c1047494>] try_to_free_pages+0x129/0x1d5
+>> [<c1043d91>] __alloc_pages+0x18e/0x284
+>> [<c104044b>] read_cache_page+0x59/0x131
+>> [<c109e96f>] ext2_get_page+0x1c/0x1ff
+>> [<c109ebc4>] ext2_find_entry+0x72/0x139
+>> [<c109ec99>] ext2_inode_by_name+0xe/0x2e
+>> [<c10a1cad>] ext2_lookup+0x1f/0x65
+>> [<c1064661>] do_lookup+0xa0/0x134
+>> [<c1064e9a>] __link_path_walk+0x7a5/0xbe4
+>> [<c1065329>] link_path_walk+0x50/0xca
+>> [<c106586d>] do_path_lookup+0x212/0x25a
+>> [<c1065da9>] __user_walk_fd+0x2d/0x41
+>> [<c10600bd>] vfs_stat_fd+0x19/0x40
+>> [<c10600f5>] vfs_stat+0x11/0x13
+>> [<c1060826>] sys_stat64+0x14/0x2a
+>> [<c1002845>] sysenter_past_esp+0x56/0x8d
 > 
-> [ PATCH 1/3 ]  Adding signal notification for event completion
 > 
-> [ PATCH 2/3 ]  lio (listio) completion semantics
-> 
-> [ PATCH 3/3 ] cancel_fd support
+> We hold the ext2 directory mutex, and ntfs_put_inode is trying to take an
+> ntfs i_mutex.  Not a deadlock as such, but it could become one in ntfs if
+> ntfs ever does a __GFP_WAIT allocation inside i_mutex, which it surely
+> does.
 
-  Badari,
+Though it should be using GFP_NOFS, right? So the dcache shrinker would
+not reenter the fs in that case.
 
-  Thanks for refreshing those patches, they have been sitting here
-for quite some time now and collected dust.
-
-  I also think Suparna's patchset for doing buffered AIO would be
-a real plus here.
-
-> 
-> Suparna explained these in the following article:
-> 
-> http://lwn.net/Articles/148755/
-> 
-> If you think, this is a reasonable direction/approach for the kernel and 
-> you would take care
-> of glibc side of things - I can spend time on these patches, getting 
-> them to reasonable shape
-> and push for inclusion.
-
-  Ulrich, I you want to have a look at how those patches are put to
-use in libposix-aio, have a look at http://sourceforge.net/projects/paiol.
-
-  It could be a starting point for glibc.
-
-  Thanks,
-
-  Sébastien.
+I'm surprised ext2 is allocating with __GFP_FS set, though. Would that
+cause any problem?
 
 -- 
------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-                   http://sourceforge.net/projects/paiol
-
------------------------------------------------------
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

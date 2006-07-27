@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWG0PhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbWG0Pjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWG0PhR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWG0PhR
+	id S932570AbWG0Pjv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWG0Pjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:37:17 -0400
-Received: from mo31.po.2iij.net ([210.128.50.54]:42041 "EHLO mo31.po.2iij.net")
-	by vger.kernel.org with ESMTP id S932568AbWG0PhQ (ORCPT
+	Thu, 27 Jul 2006 11:39:51 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:16620 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S932570AbWG0Pju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:37:16 -0400
-Date: Fri, 28 Jul 2006 00:37:08 +0900
-From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] highmem: fixed ip27-memory.c build error
-Message-Id: <20060728003708.29ff1a86.yoichi_yuasa@tripeaks.co.jp>
-In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
-References: <20060727015639.9c89db57.akpm@osdl.org>
-Organization: TriPeaks Corporation
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 11:39:50 -0400
+Date: Thu, 27 Jul 2006 17:39:40 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Hans Reiser <reiser@namesys.com>, Matthias Andree <matthias.andree@gmx.de>,
+       lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+In-Reply-To: <20060726131709.GB5270@ucw.cz>
+Message-ID: <Pine.LNX.4.63.0607271732010.8976@alpha.polcom.net>
+References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org>
+ <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com>
+ <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org>
+ <44C4813E.2030907@namesys.com> <20060726131709.GB5270@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 26 Jul 2006, Pavel Machek wrote:
 
-This patch has fixed following build error.
-This error occurred in relation to reduce-max_nr_zones-move-highmem-counters-into-highmemc-h.patch .
+> Hi!
+>
+>>> of the story for me. There's nothing wrong about focusing on newer code,
+>>> but the old code needs to be cared for, too, to fix remaining issues
+>>> such as the "can only have N files with the same hash value".
+>>>
+>> Requires a disk format change, in a filesystem without plugins, to fix it.
+>
+> Well, too bad, if reiser3 is so broken it needs on-disk-format-change,
+> then I guess doing that change is the right thing to do...
 
-  CC      arch/mips/sgi-ip27/ip27-memory.o
-arch/mips/sgi-ip27/ip27-memory.c: In function `mem_init':
-arch/mips/sgi-ip27/ip27-memory.c:582: error: `totalhigh_pages' undeclared (first use in this function)
-arch/mips/sgi-ip27/ip27-memory.c:582: error: (Each undeclared identifier is reported only once
-arch/mips/sgi-ip27/ip27-memory.c:582: error: for each function it appears in.)
-make[1]: *** [arch/mips/sgi-ip27/ip27-memory.o] Error 1
-make: *** [arch/mips/sgi-ip27] Error 2
+Sorry for my stupid question, but could you tell me why starting to make 
+incompatible changes to reiserfs3 now (when reiserfs3 "technology" is 
+rather old) and making reiserfs3 unstable (again), possibly for several 
+months or even years is better than fixing big issues with reiser4 (if 
+there are any really big left) merging it and trying to stabilize it?
 
-Yoichi
+For end user both ways will result in mkfs so...
 
-Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 
-diff -pruN -X linux-2.6.18-rc2-mm1/Documentation/dontdiff linux-2.6.18-rc2-mm1-orig/arch/mips/sgi-ip27/ip27-memory.c linux-2.6.18-rc2-mm1/arch/mips/sgi-ip27/ip27-memory.c
---- linux-2.6.18-rc2-mm1-orig/arch/mips/sgi-ip27/ip27-memory.c	2006-07-27 20:15:23.680114000 +0900
-+++ linux-2.6.18-rc2-mm1/arch/mips/sgi-ip27/ip27-memory.c	2006-07-27 19:40:11.234693250 +0900
-@@ -19,6 +19,7 @@
- #include <linux/swap.h>
- #include <linux/bootmem.h>
- #include <linux/pfn.h>
-+#include <linux/highmem.h>
- #include <asm/page.h>
- #include <asm/sections.h>
- 
+Thanks,
+
+Grzegorz Kulewski
 

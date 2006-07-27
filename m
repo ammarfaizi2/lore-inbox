@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWG0VCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWG0VCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWG0VCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWG0VCL
+	id S1751056AbWG0VCI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWG0VCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:02:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8157 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751199AbWG0VCE (ORCPT
+	Thu, 27 Jul 2006 17:02:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27090 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751049AbWG0VBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 17:02:04 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 11/30] NFS: Use the dentry superblock directly in nfs_statfs() [try #11]
-Date: Thu, 27 Jul 2006 21:52:50 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205250.8443.5984.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 27 Jul 2006 17:01:46 -0400
+Date: Thu, 27 Jul 2006 14:01:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Nasty git corruption problem
+In-Reply-To: <Pine.LNX.4.63.0607272247420.29667@wbgn013.biozentrum.uni-wuerzburg.de>
+Message-ID: <Pine.LNX.4.64.0607271354270.4168@g5.osdl.org>
+References: <1153929715.13509.12.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0607260945440.29649@g5.osdl.org> 
+ <Pine.LNX.4.63.0607261935160.29667@wbgn013.biozentrum.uni-wuerzburg.de> 
+ <Pine.LNX.4.64.0607261039380.29649@g5.osdl.org>  <Pine.LNX.4.64.0607261041490.29649@g5.osdl.org>
+ <1154025127.13509.90.camel@localhost.localdomain> <Pine.LNX.4.64.0607271206461.4168@g5.osdl.org>
+ <Pine.LNX.4.63.0607272247420.29667@wbgn013.biozentrum.uni-wuerzburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use the nominated dentry's superblock directly in the NFS statfs() op to get a
-file handle, rather than using s_root (which will become a dummy dentry in a
-future patch).
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
 
- fs/nfs/super.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
+On Thu, 27 Jul 2006, Johannes Schindelin wrote:
+> 
+> On Thu, 27 Jul 2006, Linus Torvalds wrote:
+> 
+> > On Thu, 27 Jul 2006, Alan Cox wrote:
+> > > 
+> > > git-lost-found turns up some of the missing stuff that was applied
+> > > earliest in the rebase but the other stuff is apparently neither visible
+> > > anywhere in the tree or missing (the tree I was rebasing "^^^..." never
+> > > shows it nor does the log).
+> > 
+> > Did you try "git-fsck-objects --full"?
+> > 
+> > The git-lost-found script is apparently broken, exactly because it doesn't 
+> > do a "full".
+> 
+> Of course, I was assuming that nothing like repacking or pruning took 
+> place after the crash...
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index ce24b52..4e128fe 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -235,11 +235,10 @@ #endif
-  */
- static int nfs_statfs(struct dentry *dentry, struct kstatfs *buf)
- {
--	struct super_block *sb = dentry->d_sb;
--	struct nfs_server *server = NFS_SB(sb);
-+	struct nfs_server *server = NFS_SB(dentry->d_sb);
- 	unsigned char blockbits;
- 	unsigned long blockres;
--	struct nfs_fh *rootfh = NFS_FH(sb->s_root->d_inode);
-+	struct nfs_fh *fh = NFS_FH(dentry->d_inode);
- 	struct nfs_fattr fattr;
- 	struct nfs_fsstat res = {
- 			.fattr = &fattr,
-@@ -248,7 +247,7 @@ static int nfs_statfs(struct dentry *den
- 
- 	lock_kernel();
- 
--	error = server->rpc_ops->statfs(server, rootfh, &res);
-+	error = server->rpc_ops->statfs(server, fh, &res);
- 	buf->f_type = NFS_SUPER_MAGIC;
- 	if (error < 0)
- 		goto out_err;
-@@ -258,7 +257,7 @@ static int nfs_statfs(struct dentry *den
- 	 * case where f_frsize != f_bsize.  Eventually we want to
- 	 * report the value of wtmult in this field.
- 	 */
--	buf->f_frsize = sb->s_blocksize;
-+	buf->f_frsize = dentry->d_sb->s_blocksize;
- 
- 	/*
- 	 * On most *nix systems, f_blocks, f_bfree, and f_bavail
-@@ -267,8 +266,8 @@ static int nfs_statfs(struct dentry *den
- 	 * thus historically Linux's sys_statfs reports these
- 	 * fields in units of f_bsize.
- 	 */
--	buf->f_bsize = sb->s_blocksize;
--	blockbits = sb->s_blocksize_bits;
-+	buf->f_bsize = dentry->d_sb->s_blocksize;
-+	blockbits = dentry->d_sb->s_blocksize_bits;
- 	blockres = (1 << blockbits) - 1;
- 	buf->f_blocks = (res.tbytes + blockres) >> blockbits;
- 	buf->f_bfree = (res.fbytes + blockres) >> blockbits;
+That's not the point.
+
+If somebody does a "git rebase", he might be changing the heads that have 
+already been packed, and replacing them them with heads that have _not_ 
+yet been packed. So the _dangling_ links are the old ones (in the 
+pack-file), and "git-fsck-objects --full" is needed to see them.
+
+That said, I still don't think Alan sees what he says he sees. Even if 
+something crashes in the middle of a "git rebase", I think the old head 
+should have been saved in .git/ORIG_HEAD, for example. 
+
+That said, some of the more invasive operations (and "git rebase" 
+certainly counts) should probably have a few "sync" operations to make 
+sure that things like ORIG_HEAD really are on disk, so that we would be 
+able to recreate the tree even _without_ anything like "git-fsck-objects".
+
+		Linus

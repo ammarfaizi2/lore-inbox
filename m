@@ -1,211 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWG0Qaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751727AbWG0QgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751642AbWG0Qaj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 12:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWG0Qai
+	id S1751727AbWG0QgY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWG0QgY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 12:30:38 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60602 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751513AbWG0Qai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 12:30:38 -0400
-Date: Thu, 27 Jul 2006 18:24:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] ipc/msg.c: clean up coding style
-Message-ID: <20060727162434.GA29489@elte.hu>
-References: <20060727135321.GA24644@elte.hu> <20060727144659.GC6825@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727144659.GC6825@martell.zuzino.mipt.ru>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 27 Jul 2006 12:36:24 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.155]:10656 "EHLO
+	imap.sh.mvista.com") by vger.kernel.org with ESMTP id S1751645AbWG0QgX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:36:23 -0400
+Message-ID: <44C8EB3C.4080404@ru.mvista.com>
+Date: Thu, 27 Jul 2006 20:35:08 +0400
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: albertl@mail.com
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, alan@redhat.com,
+       Unicorn Chang <uchang@tw.ibm.com>, Doug Maxey <dwm@enoyolf.org>
+Subject: Re: libata pata_pdc2027x success on sparc64
+References: <200607172358.k6HNwYhF002052@harpo.it.uu.se> <44BD2370.8090506@ru.mvista.com> <44C841B5.40806@tw.ibm.com>
+In-Reply-To: <44C841B5.40806@tw.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-* Alexey Dobriyan <adobriyan@gmail.com> wrote:
+Albert Lee wrote:
 
-> On Thu, Jul 27, 2006 at 03:53:21PM +0200, Ingo Molnar wrote:
-> > clean up ipc/msg.c to conform to Documentation/CodingStyle. (before it
-> > was an inconsistent hodepodge of various coding styles)
-> 
-> > --- linux.orig/ipc/msg.c
-> > +++ linux/ipc/msg.c
-> > -/* one msg_receiver structure for each sleeping receiver */
-> > +/*
-> > + * one msg_receiver structure for each sleeping receiver:
-> > + */
-> 
-> Was OK.
+>>>In contrast, the old IDE pdc202xx_new driver had lots
+>>>of problems with CRC errors causing it to disable DMA.
 
-but it was not consistent. So i made it so.
+>>   Hm, from my experience it usually falls back to UltraDMA/44 and then
+>>the thing startrt working...
 
-> >  struct msg_receiver {
-> > -	struct list_head r_list;
-> > -	struct task_struct* r_tsk;
-> > +	struct list_head	r_list;
-> > +	struct task_struct	*r_tsk;
-> 
-> Moving * to name is OK, but lining up all names is probably not.
+>>>I wasn't able to manually tune it above udma3 without
+>>>getting more errors. This isn't sparc64-specific: I've
+>>>had similar negative experience with the old IDE Promise
+>>>drivers in a PowerMac.
 
-again, it was not consistent, i made it so. It's perfectly fine to line 
-up names, especially in structure declarations.
+>>   This happens because the "old" driver misses the PLL calibration code.
+>>   You may want to try these Albert's patches:
 
-> > -	int r_mode;
-> > -	long r_msgtype;
-> > -	long r_maxsize;
-> > +	int			r_mode;
-> > +	long			r_msgtype;
-> > +	long			r_maxsize;
-> >  
-> > -	struct msg_msg* volatile r_msg;
-> > +	volatile struct msg_msg	*r_msg;
-> 
-> First, it was a volatile pointer, now pointer points to volatile data.
-> Right?
+>>http://marc.theaimsgroup.com/?t=110992452800002&r=1&w=2
+>>http://marc.theaimsgroup.com/?t=110992471500002&r=1&w=2
+>>http://marc.theaimsgroup.com/?t=110992490100002&r=1&w=2
+>>http://marc.theaimsgroup.com/?t=111019238400003&r=1&w=2
 
-the volatile is quite likely bogus anyway. It made no difference to the 
-assembly output.
+>>   It looks like they were never considered for accepting into the kernel
+>>while they succesfully solve this issue. Maybe Albert could try pushing
+>>them into -mm tree once more?
 
-> >  /* one msg_sender for each sleeping sender */
-> >  struct msg_sender {
-> > -	struct list_head list;
-> > -	struct task_struct* tsk;
-> > +	struct list_head	list;
-> > +	struct task_struct	*tsk;
-> 
-> Let's not lineup fields.
+> The libata version has three improvements compared to the IDE version.
 
-again, consistency.
+> 1. The PLL calibration patches in the above URLs (for IDE)
+> still need more improvement as done in the pdc_read_counter()
+> of the libata version.
 
-> > -static atomic_t msg_bytes = ATOMIC_INIT(0);
-> > -static atomic_t msg_hdrs = ATOMIC_INIT(0);
-> > +static atomic_t msg_bytes =	ATOMIC_INIT(0);
-> > +static atomic_t msg_hdrs =	ATOMIC_INIT(0);
-> 
-> Was OK.
+    Indeed. When backporting your patches to 2.6.10, I've added alike 
+function, so can generate an extra patch against those.
 
-again, consistency.
+> 2. The Promise 2027x adapters check the "set features - xfer mode"
+>    and set the timing register automatically. However, the automatically
+>    set values are not correct under 133MHz. Libata has a hook
+>    pdc2027x_post_set_mode() to set the values back by software.
 
-> > -asmlinkage long sys_msgget (key_t key, int msgflg)
-> > +asmlinkage long sys_msgget(key_t key, int msgflg)
-> >  {
-> > -	int id, ret = -EPERM;
-> >  	struct msg_queue *msq;
-> > +	int id, ret = -EPERM;
-> 
-> For what?
+    You probably forgot -- the last mentioned patch was all about it. :-)
 
-that's how i mark functions that i cleaned up, i order the variable 
-lines by length. (take a look at kernel/sched.c, kernel/rtmutex.c, 
-kernel/lockdep.c, etc., etc.) It also looks a tiny bit more structured 
-than the usual random dump of variable definitions.
+> 3. ATAPI DMA is supported (please see pdc2027x_check_atapi_dma()).
+>    Maybe we also need to add this to the IDE version.
 
-> > -static inline unsigned long copy_msqid_to_user(void __user *buf, struct msqid64_ds *in, int version)
-> > +static inline unsigned long
-> > +copy_msqid_to_user(void __user *buf, struct msqid64_ds *in, int version)
-> 
-> Let's not go BSD way.
+    Wouldn't hurt. :-)
 
-lets not go for longer than 80 chars.
+> Currently I have no time to update the IDE pdc202xx_new driver.
 
-> >  	case IPC_OLD:
-> > -	    {
-> > +	{
-> 
-> Or
-> 	case IPC_OLD: {
+    I'll probably take this on then, starting with pushing this half-buried 
+stuff into -mm tree.
 
-again, consistency. Most places in this file used the one to what i 
-corrected it above.
+> Also as Alan said, we have no maintainer for the IDE layer at this time.
+> So, if ok, please try to use the libata-based driver.
 
-> > -static inline unsigned long copy_msqid_from_user(struct msq_setbuf *out, void __user *buf, int version)
-> > +static inline unsigned long
-> > +copy_msqid_from_user(struct msq_setbuf *out, void __user *buf, int version)
-> 
-> Let's not go BSD way.
-
-again, lets not have overlong line 80 prototypes.
-
-> > -	int err, version;
-> > -	struct msg_queue *msq;
-> > -	struct msq_setbuf setbuf;
-> >  	struct kern_ipc_perm *ipcp;
-> > -	
-> > +	struct msq_setbuf setbuf;
-> > +	struct msg_queue *msq;
-> > +	int err, version;
-> 
-> There must be logic about moving up and down, but I failed to extract 
-> it. Except you want to see err, rv, retval, ... last.
-
-take a look at the resulting file.
-
-> > -		msg = (struct msg_msg*) msr_d.r_msg;
-> > +		msg = (struct msg_msg*)msr_d.r_msg;
-> 
-> msg_msg *, while you're at it.
-
-yep.
-
-> > @@ -827,20 +848,20 @@ static int sysvipc_msg_proc_show(struct 
-> >  	struct msg_queue *msq = it;
-> >  
-> >  	return seq_printf(s,
-> > -			  "%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
-> > -			  msq->q_perm.key,
-> > -			  msq->q_id,
-> > -			  msq->q_perm.mode,
-> > -			  msq->q_cbytes,
-> > -			  msq->q_qnum,
-> > -			  msq->q_lspid,
-> > -			  msq->q_lrpid,
-> > -			  msq->q_perm.uid,
-> > -			  msq->q_perm.gid,
-> > -			  msq->q_perm.cuid,
-> > -			  msq->q_perm.cgid,
-> > -			  msq->q_stime,
-> > -			  msq->q_rtime,
-> > -			  msq->q_ctime);
-> > +			"%10d %10d  %4o  %10lu %10lu %5u %5u %5u %5u %5u %5u %10lu %10lu %10lu\n",
-> > +			msq->q_perm.key,
-> > +			msq->q_id,
-> > +			msq->q_perm.mode,
-> > +			msq->q_cbytes,
-> > +			msq->q_qnum,
-> > +			msq->q_lspid,
-> > +			msq->q_lrpid,
-> > +			msq->q_perm.uid,
-> > +			msq->q_perm.gid,
-> > +			msq->q_perm.cuid,
-> > +			msq->q_perm.cgid,
-> > +			msq->q_stime,
-> > +			msq->q_rtime,
-> > +			msq->q_ctime);
-> 
-> Was OK.
-
-stupid 2 spaces for every line was not OK but we/you can reintroduce 
-them after this patch goes in.
-
-(anyway, i'd suggest to also spend some of your review energy on all the 
-other 1000 zillion files that have very real and obvious style problems, 
-instead of redundantly finetuning the ones i did? The last thing we need 
-is the needless blocking of obviously right cleanup patches on small 
-silly details, which patches already vastly improve what was there 
-before. We can quibble about BSD or non-BSD prototypes after all that 
-has been finished.)
-
-	Ingo
+WBR, Sergei

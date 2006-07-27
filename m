@@ -1,243 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWG0WOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWG0WQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWG0WOx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 18:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWG0WOx
+	id S1751375AbWG0WQt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 18:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWG0WQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 18:14:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50588 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751369AbWG0WOx (ORCPT
+	Thu, 27 Jul 2006 18:16:48 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45548 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751375AbWG0WQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 18:14:53 -0400
+	Thu, 27 Jul 2006 18:16:47 -0400
+Date: Fri, 28 Jul 2006 00:16:32 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, vojtech@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+Message-ID: <20060727221632.GE3797@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Jakub Jelinek <jakub@redhat.com>
-Subject: Re: [PATCH] vDSO hash-style fix
-In-Reply-To: Sam Ravnborg's message of  Thursday, 27 July 2006 13:04:54 +0200 <20060727110453.GA27162@mars.ravnborg.org>
-X-Shopping-List: (1) Resentful yies
-   (2) Asiatic Ink
-   (3) Slanderous eggplants
-   (4) Prehistoric attention
-   (5) Transparent vapor
-Message-Id: <20060727221442.6D97718003B@magilla.sf.frob.com>
-Date: Thu, 27 Jul 2006 15:14:42 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a new version of the patch that addresses the issues cited.
+Hi!
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+> >So I've proposed /sys/class/battery/{acpi,apm,thinkpad}/BAT?/* 
+> >as a comrpromise:
+> >A userspace app that only needs a generic voltage readout will try
+> >(all of) /sys/class/battery/*/BAT0/voltage. This is your generic
+> >interface.
+> 
+> If we have to export all these totally different implementations
+> via totally different paths, then we failed.
 
----
-diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
-index 14ef386..5438335 100644  
---- a/Documentation/kbuild/makefiles.txt
-+++ b/Documentation/kbuild/makefiles.txt
-@@ -407,6 +407,20 @@ more details, with real examples.
- 	The second argument is optional, and if supplied will be used
- 	if first argument is not supported.
- 
-+    ld-option
-+    	ld-option is used to check if $(CC) when used to link object files
-+	supports the given option.  An optional second option may be
-+	specified if first option are not supported.
-+
-+	Example:
-+		#arch/i386/kernel/Makefile
-+		vsyscall-flags += $(call ld-option, -Wl$(comma)--hash-style=sysv)
-+
-+	In the above example vsyscall-flags will be assigned the option
-+	-Wl$(comma)--hash-style=sysv if it is supported by $(CC).
-+	The second argument is optional, and if supplied will be used
-+	if first argument is not supported.
-+
-     cc-option
- 	cc-option is used to check if $(CC) support a given option, and not
- 	supported to use an optional second option.
-diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
-index 1b452a1..5b5fa68 100644  
---- a/arch/i386/kernel/Makefile
-+++ b/arch/i386/kernel/Makefile
-@@ -59,7 +59,8 @@ quiet_cmd_syscall = SYSCALL $@
- 
- export CPPFLAGS_vsyscall.lds += -P -C -U$(ARCH)
- 
--vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1
-+vsyscall-flags = -shared -s -Wl,-soname=linux-gate.so.1 \
-+		 $(call ld-option, -Wl$(comma)--hash-style=sysv)
- SYSCFLAGS_vsyscall-sysenter.so	= $(vsyscall-flags)
- SYSCFLAGS_vsyscall-int80.so	= $(vsyscall-flags)
- 
-diff --git a/arch/i386/kernel/vsyscall.lds.S b/arch/i386/kernel/vsyscall.lds.S
-index e26975f..f66cd11 100644  
---- a/arch/i386/kernel/vsyscall.lds.S
-+++ b/arch/i386/kernel/vsyscall.lds.S
-@@ -10,6 +10,7 @@ SECTIONS
-   . = VDSO_PRELINK + SIZEOF_HEADERS;
- 
-   .hash           : { *(.hash) }		:text
-+  .gnu.hash       : { *(.gnu.hash) }
-   .dynsym         : { *(.dynsym) }
-   .dynstr         : { *(.dynstr) }
-   .gnu.version    : { *(.gnu.version) }
-diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
-index 0e4553f..ad8215a 100644  
---- a/arch/ia64/kernel/Makefile
-+++ b/arch/ia64/kernel/Makefile
-@@ -45,7 +45,8 @@ CPPFLAGS_gate.lds := -P -C -U$(ARCH)
- quiet_cmd_gate = GATE $@
-       cmd_gate = $(CC) -nostdlib $(GATECFLAGS_$(@F)) -Wl,-T,$(filter-out FORCE,$^) -o $@
- 
--GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1
-+GATECFLAGS_gate.so = -shared -s -Wl,-soname=linux-gate.so.1 \
-+		     $(call ld-option, -Wl$(comma)--hash-style=sysv)
- $(obj)/gate.so: $(obj)/gate.lds $(obj)/gate.o FORCE
- 	$(call if_changed,gate)
- 
-diff --git a/arch/ia64/kernel/gate.lds.S b/arch/ia64/kernel/gate.lds.S
-index cc35cdd..6d19833 100644  
---- a/arch/ia64/kernel/gate.lds.S
-+++ b/arch/ia64/kernel/gate.lds.S
-@@ -12,6 +12,7 @@ SECTIONS
-   . = GATE_ADDR + SIZEOF_HEADERS;
- 
-   .hash				: { *(.hash) }				:readable
-+  .gnu.hash			: { *(.gnu.hash) }
-   .dynsym			: { *(.dynsym) }
-   .dynstr			: { *(.dynstr) }
-   .gnu.version			: { *(.gnu.version) }
-diff --git a/arch/parisc/kernel/vmlinux.lds.S b/arch/parisc/kernel/vmlinux.lds.S
-index 9989495..b3677fc 100644  
---- a/arch/parisc/kernel/vmlinux.lds.S
-+++ b/arch/parisc/kernel/vmlinux.lds.S
-@@ -204,6 +204,7 @@ SECTIONS
- 	*(.dynstr)
- 	*(.dynamic)
- 	*(.hash)
-+	*(.gnu.hash)
- #endif
- 	}
- 
-diff --git a/arch/powerpc/kernel/vdso32/Makefile b/arch/powerpc/kernel/vdso32/Makefile
-index 8a3bed5..61ac45a 100644  
---- a/arch/powerpc/kernel/vdso32/Makefile
-+++ b/arch/powerpc/kernel/vdso32/Makefile
-@@ -14,7 +14,8 @@ obj-vdso32 := $(addprefix $(obj)/, $(obj
- 
- 
- EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
--EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1
-+EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1 \
-+		$(call ld-option, -Wl$(comma)--hash-style=sysv)
- EXTRA_AFLAGS := -D__VDSO32__ -s
- 
- obj-y += vdso32_wrapper.o
-diff --git a/arch/powerpc/kernel/vdso32/vdso32.lds.S b/arch/powerpc/kernel/vdso32/vdso32.lds.S
-index f4bad72..6187af2 100644  
---- a/arch/powerpc/kernel/vdso32/vdso32.lds.S
-+++ b/arch/powerpc/kernel/vdso32/vdso32.lds.S
-@@ -14,6 +14,7 @@ SECTIONS
- {
-   . = VDSO32_LBASE + SIZEOF_HEADERS;
-   .hash           : { *(.hash) }			:text
-+  .gnu.hash       : { *(.gnu.hash) }
-   .dynsym         : { *(.dynsym) }
-   .dynstr         : { *(.dynstr) }
-   .gnu.version    : { *(.gnu.version) }
-diff --git a/arch/powerpc/kernel/vdso64/Makefile b/arch/powerpc/kernel/vdso64/Makefile
-index ab39988..1d0d02b 100644  
---- a/arch/powerpc/kernel/vdso64/Makefile
-+++ b/arch/powerpc/kernel/vdso64/Makefile
-@@ -8,7 +8,8 @@ targets := $(obj-vdso64) vdso64.so
- obj-vdso64 := $(addprefix $(obj)/, $(obj-vdso64))
- 
- EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin
--EXTRA_CFLAGS +=  -nostdlib -Wl,-soname=linux-vdso64.so.1
-+EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
-+		$(call ld-option, -Wl$(comma)--hash-style=sysv)
- EXTRA_AFLAGS := -D__VDSO64__ -s
- 
- obj-y += vdso64_wrapper.o
-diff --git a/arch/powerpc/kernel/vdso64/vdso64.lds.S b/arch/powerpc/kernel/vdso64/vdso64.lds.S
-index 4bdf224..4a2b6dc 100644  
---- a/arch/powerpc/kernel/vdso64/vdso64.lds.S
-+++ b/arch/powerpc/kernel/vdso64/vdso64.lds.S
-@@ -12,6 +12,7 @@ SECTIONS
- {
-   . = VDSO64_LBASE + SIZEOF_HEADERS;
-   .hash           : { *(.hash) }		:text
-+  .gnu.hash       : { *(.gnu.hash) }
-   .dynsym         : { *(.dynsym) }
-   .dynstr         : { *(.dynstr) }
-   .gnu.version    : { *(.gnu.version) }
-diff --git a/arch/ppc/kernel/vmlinux.lds.S b/arch/ppc/kernel/vmlinux.lds.S
-index 09c6525..095fd33 100644  
---- a/arch/ppc/kernel/vmlinux.lds.S
-+++ b/arch/ppc/kernel/vmlinux.lds.S
-@@ -8,6 +8,7 @@ SECTIONS
-   . = + SIZEOF_HEADERS;
-   .interp : { *(.interp) }
-   .hash          : { *(.hash)		}
-+  .gnu.hash      : { *(.gnu.hash)	}
-   .dynsym        : { *(.dynsym)		}
-   .dynstr        : { *(.dynstr)		}
-   .rel.text      : { *(.rel.text)		}
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index 2517ecb..68ed24d 100644  
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -26,6 +26,7 @@ SECTIONS
- 
-   /* Read-only sections, merged into text segment: */
-   .hash           : { *(.hash) }
-+  .gnu.hash       : { *(.gnu.hash) }
-   .dynsym         : { *(.dynsym) }
-   .dynstr         : { *(.dynstr) }
-   .gnu.version    : { *(.gnu.version) }
-diff --git a/arch/x86_64/ia32/Makefile b/arch/x86_64/ia32/Makefile
-index 62bc5f5..cdae364 100644  
---- a/arch/x86_64/ia32/Makefile
-+++ b/arch/x86_64/ia32/Makefile
-@@ -23,6 +23,7 @@ targets := $(foreach F,sysenter syscall,
- # The DSO images are built using a special linker script
- quiet_cmd_syscall = SYSCALL $@
-       cmd_syscall = $(CC) -m32 -nostdlib -shared -s \
-+			  $(call ld-option, -Wl$(comma)--hash-style=sysv) \
- 			   -Wl,-soname=linux-gate.so.1 -o $@ \
- 			   -Wl,-T,$(filter-out FORCE,$^)
- 
-diff --git a/arch/x86_64/ia32/vsyscall.lds b/arch/x86_64/ia32/vsyscall.lds
-index f2e75ed..1dc86ff 100644  
---- a/arch/x86_64/ia32/vsyscall.lds
-+++ b/arch/x86_64/ia32/vsyscall.lds
-@@ -11,6 +11,7 @@ SECTIONS
-   . = VSYSCALL_BASE + SIZEOF_HEADERS;
- 
-   .hash           : { *(.hash) }		:text
-+  .gnu.hash       : { *(.gnu.hash) }
-   .dynsym         : { *(.dynsym) }
-   .dynstr         : { *(.dynstr) }
-   .gnu.version    : { *(.gnu.version) }
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 2180c88..ceeb087 100644  
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -85,6 +85,13 @@ cc-version = $(shell $(CONFIG_SHELL) $(s
- cc-ifversion = $(shell if [ $(call cc-version, $(CC)) $(1) $(2) ]; then \
-                        echo $(3); fi;)
- 
-+# ld-option
-+# Usage: ldflags += $(call ld-option, -Wl$(comma)--hash-style=both)
-+ld-option = $(shell if $(CC) $(1) \
-+			     -nostdlib -o ldtest$$$$.out -xc /dev/null \
-+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi; \
-+	     rm -f ldtest$$$$.out)
-+
- ###
- # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
- # Usage:
+Agreed.
+
+> sysfs is great for demos from a shell prompt,
+> but isn't such a great programming interface, either
+> from inside the kernel or from user-space.
+
+Well, we have prior examples for /dev/XXX style interface (input), and
+we have examples for /sys/XXX interface (LED subsystem). Each has its
+advantages and disadvantages, and both are okay for programming
+AFAICT.
+
+> Please do not add more polling to user-space, else DaveJ
+> will be putting it up as a further example of "Why userspace sucks"
+> at the next OLS:-)
+
+Let me clarify this: zaurus-style systems can read battery status as
+often as someone asks, and do not really have events. If someone asks,
+they read the status. If noone asks, they do not have to read status
+_at all_. Event interface suits PC world where BIOS already does the
+polling...
+
+Anyway, let's compare /dev/XXX vs. /sys/XXX
+
+/sys/XXX:
++ existing code uses similar scheme
++ easy to add very obscure features, such as 
+	do_not_charge_battery_for_X_minutes
++ perhaps it would not need explicit maintainer, just assign names 
+	carefully
+- lack of maintainer mean people will probably not assign names
+	carefully
+- does not suit PC-style batteries which trigger events when data
+	change (can be fixed by /sys/XXX/anything-new, which gives one
+	byte when something changes)
+- you are not getting atomic snapshot of battery state. For example
+	you could read battery status okay, voltage 9.5V; while real
+	states were (okay, 10.5V), (critical, 9.5V) and update
+	happened between you reading status and voltage. (Is it
+	problem?)
++ userspace UPS daemons can just create files somewhere else, battery
+	applets can scan two directories easily
+
+/dev/XXX
++ battery layer will need to be invented
+- that layer will need maintainer
++ maintainer ensures this is not a mess, allocates numbers
+- does not quite suit zaurus-style batteries, that can _only_ be
+	polled. Can be worked-around by polling from kernel (and we
+	are often doing that, anyway)
++ userspace backdoor interface will need to be invented, /dev/uinput style
+- hard to handle obscure features
+	(do_not_charge_battery_for_X_minutes), and we'll probably want
+	to unify batteries a bit, probably loosing precision.
+
+So... I'm not sure which one I prefer. If I had to do one _myself_,
+I'd do /sys/XXX version, because it requires less maintainance, and
+I'm lazy.
+
+If I could clone vojtech, I'd prefer just doing that, then letting him
+do /dev/XXX interface. It will be more work and painful transition.
+
+Anyone volunteers write battery layer? If so, I'd go with /dev/XXX,
+otherwise I'd go with /sys/XXX, because it is simpler to code, and I
+believe it is also good enough...
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

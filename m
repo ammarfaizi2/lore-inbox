@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWG0GKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWG0GK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbWG0GKh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 02:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWG0GKh
+	id S932519AbWG0GK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 02:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWG0GK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 02:10:37 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44729
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932518AbWG0GKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 02:10:36 -0400
-Date: Wed, 26 Jul 2006 23:10:55 -0700 (PDT)
-Message-Id: <20060726.231055.121220029.davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: async network I/O, event channels, etc
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060726062817.GA20636@2ka.mipt.ru>
-References: <44C66FC9.3050402@redhat.com>
-	<20060725.150122.49854414.davem@davemloft.net>
-	<20060726062817.GA20636@2ka.mipt.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 27 Jul 2006 02:10:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32985 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932519AbWG0GK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 02:10:56 -0400
+Date: Wed, 26 Jul 2006 23:10:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG() on apm resume in 2.6.18-rc2
+Message-Id: <20060726231049.e9a0346e.akpm@osdl.org>
+In-Reply-To: <20060727033819.GA368@fieldses.org>
+References: <20060727033819.GA368@fieldses.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Date: Wed, 26 Jul 2006 10:28:17 +0400
+On Wed, 26 Jul 2006 23:38:19 -0400
+"J. Bruce Fields" <bfields@fieldses.org> wrote:
 
-> I have not created additional DMA memory allocation methods, like
-> Ulrich described in his article, so I handle it inside NAIO which
-> has some overhead (I posted get_user_pages() sclability graph some
-> time ago).
+> After suspending to ram and then resuming, I'm getting the following on
+> 2.6.18-rc2.  I also checked the latest git (54721324...) with the same
+> results.  The last that I know was OK was 2.6.17.
+> 
+> Let me know if any more information would be useful.
+> 
+> Copied by hand as fast as I could type, so there are probably typos....
+> 
+> --b.
+> 
+> 2.6.18-rc2-g64821324
+> BUG: unable to handle kernel paging request at virtual address c0729c38
+>  printing eip:
+> c0109204
+> *pde = 009bf027
+> *pte = 00729000
+> Oops: 0000 [#1]
+> PREEMPT DEBUG_PAGEALLOC
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c0109204>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.18-rc2-g64821324 #134)
+> EIP is at mcheck_init+0x4/0x80
+> eax: 000010ff   ebx: f584bd90   ecx: c010a230   edx: 00000000
+> esi: 00004102   edi: 00004102   ebp: f5887ef8   esp: f5887ef4
+> ds: 007b   es: 007b  ss: 0068
+> Process apmd (pid: 4032, ti=f5887000 task=f5cf0560 task.ti=f5887000)
+> Stack: f584bd90 f5887f08 c04e1dcf c070a220 00000000 f5887f14 c04e1dfd c09b1080
+>        f5887f28 c010c820 00000002 00000002 f6a35f74 f5887f4c c010d72e 00000000
+>        00000000 00000000 f5cf0ad0 00000246 f53e3f28 00000000 f5887f70 c016cf8b
+> Call Trace:
+>  [<c01036fc>] show_stack_log_lvl+0x9c/0xd0
+>  [<c01038fe>] show_registers+0x17e/0x210
+>  [<c0103a92>] die+0x102/0x2c0
+>  [<c05683b5>] do_page_fault+0x305/0x630
+>  [<c0103159>] error_code+0x39/0x40
+>  [<c04e1dcf>] __restore_processor_state+0x16f/0x190
+>  [<c04e1dfd>] restore_processor_state+0xd/0x10
+>  [<c010c820>] suspend+0xa0/0x1c0
+>  [<c010d72e>] do_ioctl+0x13e/0x170
+>  [<c016cf8b>] do_ioctl+0x6b/0x80
+>  [<c016cff1>] vfs_ioctl+0x51/0x2c0
+>  [<c016d290>] sys_ioctl+0x30/0x50
+>  [<c0102e37>] syscall_call+0x7/0xb
+> Code: 90 90 90 90 90 90 90 55 89 e5 e8 48 f7 28 00 50 68 38 66 59 c0 e8 1d d7 00
+>  00 58 5a c9 c3 89 f6 8d bc 27 00 00 00 00 55 89 e5 53 <83> 3d 38 9c 72 c0 01 8b
+>  5d 08 74 20 8a 43 01 3c 02 74 1e 3c 05
 
-I've been thinking about this aspect, and I think it's very
-interesting.  Let's be clear what the ramifications of this
-are first.
+This?
 
-Using the terminology of Network Algorithmics, this is an
-instance of Principle 2, "Shift computation in time".
+--- a/./arch/i386/kernel/cpu/mcheck/mce.h~mce-section-fix
++++ a/./arch/i386/kernel/cpu/mcheck/mce.h
+@@ -9,6 +9,6 @@ void winchip_mcheck_init(struct cpuinfo_
+ /* Call the installed machine check handler for this CPU setup. */
+ extern fastcall void (*machine_check_vector)(struct pt_regs *, long error_code);
+ 
+-extern int mce_disabled __initdata;
++extern int mce_disabled;
+ extern int nr_mce_banks;
+ 
+_
 
-Instead of using get_user_pages() at AIO setup, we instead map the
-thing to userspace later when the user wants it.  Pinning pages is a
-pain because both user and kernel refer to the buffer at the same
-time.  We get more flexibility when the user has to map the thing
-explicitly.
-
-I want us to think about how a user might want to use this.  What
-I anticipate is that users will want to organize a pool of AIO
-buffers for themselves using this DMA interface.  So the events
-they are truly interested in are of a finer granularity than you
-might expect.  They want to know when pieces of a buffer are
-available for reuse.
-
-And here is the core dilemma.
-
-If you make the event granularity too coarse, a larger AIO buffer
-pool is necessary.  If you make the event granuliary too fine,
-event processing begins to dominate, and costs too much.  This is
-true even for something as light weight as kevent.

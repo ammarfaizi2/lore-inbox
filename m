@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWG0JRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWG0JTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWG0JRw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 05:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWG0JRw
+	id S1750773AbWG0JTI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 05:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWG0JTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 05:17:52 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:47271 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750761AbWG0JRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 05:17:51 -0400
-Date: Thu, 27 Jul 2006 11:17:42 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Levitsky Maxim <maximlevitsky@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Block size > PAGE_SIZE
-Message-ID: <20060727091742.GA10622@wohnheim.fh-wedel.de>
-References: <20060720105058.40166.qmail@web38507.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060720105058.40166.qmail@web38507.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 27 Jul 2006 05:19:08 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:56483 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750773AbWG0JTH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 05:19:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=cgWOblKYqgn2ShsGZPXbG0gLkO+aFKKeRvAuGdAJNE1yihFxcRiTOCgBpMf3MNzAoa3shxy21mBWKkYxli1adm3Fmh3FGBDETZnFMbOsfnijN8esRRESYLzJpEdWPyuSE1CeI9s3bJbB14ENGpAYFsok2edoENasK8xVNapDd2M=  ;
+Message-ID: <44C884EF.6010705@yahoo.com.au>
+Date: Thu, 27 Jul 2006 19:18:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: Andrew Morton <akpm@osdl.org>, eike-kernel@sf-tec.de,
+       linux-kernel@vger.kernel.org, aia21@cantab.net
+Subject: Re: [BUG?] possible recursive locking detected
+References: <200607261805.26711.eike-kernel@sf-tec.de>	 <20060726225311.f51cee6d.akpm@osdl.org> <44C86271.9030603@yahoo.com.au>	 <1153984527.21849.2.camel@imp.csi.cam.ac.uk>	 <20060727003806.def43f26.akpm@osdl.org> <1153988398.21849.16.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1153988398.21849.16.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 July 2006 03:50:58 -0700, Levitsky Maxim wrote:
+Anton Altaparmakov wrote:
+> On Thu, 2006-07-27 at 00:38 -0700, Andrew Morton wrote:
 > 
-> I have idea to lift software based limitation of 4K
-> maximum block size of block devices.
+>>On Thu, 27 Jul 2006 08:15:27 +0100
+>>Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+>>
+>>
+>>>>I'm surprised ext2 is allocating with __GFP_FS set, though. Would that
+>>>>cause any problem?
+>>>
+>>>That is an ext2 bug IMO.
+>>
+>>There is no bug.
+>>
+>>What there is is an ill-defined set of rules.  If we want to tighten these
+>>rules we have a choice between
 > 
-> There are some devices that have bigger that 4K block
-> size. The most notable are packet driven CD/DVD
-> recorders, but for example Flash chips cannot erase
-> blocks that are bigger that 64K of even more.
+> 
+> I beg to differ.  It is a bug.  You cannot reenter the file system when
+> the file system is trying to allocate memory.  Otherwise you can never
+> allocate memory with any locks held or you are bound to introduce an
+> A->B B->A deadlock somewhere.
 
-s/bigger/smaller/
+I don't think it is a bug in general. It really depends on the allocation:
 
-Flash is a bad example.  Even if the block layer and say ext2 could
-deal with 64k block size, using ext2 as a flash filesystem would still
-be an extremely bad idea for several other reasons.  Not sure about
-the CD/DVD case, but according to my half-knowledge the same is true
-there.
+- If it is a path that might be required in order to writeout a page, then
+yes GFP_NOFS is going to help prevent deadlocks.
 
-> The extent based filesystems can also benefit from
-> bigger block size , they will be able to read a
-> cluster at time
+- If it is a path where you'll take the same locks as page reclaim requires,
+then again GFP_NOFS is required.
 
-Already the case, afaics.
+For NTFS case, it seems like holding i_mutex on the write path falls foul
+of the second problem. But I agree with Andrew that this is a critical case
+where we do have to enter the fs. GFP_NOFS is too big a hammer to use.
 
-> Each buffer_head will have addition filed ->next that
-> will point in circuit to next buffer_head that stores
-> data from the same sector 
-
-buffer_head is considered deprecated.  You could have a look at
-struct bio and reconsider whether your idea is a good one.
-
-> I didn't yet implemented this idea , because I want to
-> know whenever you like this idea or not. After all
-> this is not a simply work. 
-
-There can be some benefit in having larger block sizes.  For ext2, it
-would increase limits like the maximum file size, decrease the amount
-of metadata and have some nice effects on caches (smaller data is as
-good as bigger caches and bigger bandwidth in one).
-
-But there are disadvantages as well, most notably the wasted space for
-small files increases.
-
-And overall, 99% of the problem lies within an individual filesystem,
-so working on the block layer doesn't help much.  If you want to
-follow your idea, you should pick a filesystem, learn as much about it
-as you can and then change this filesystem.  And after your changes,
-measure whether they have beneficial effects.
-
-Jörn
+I guess you'd have to change NTFS to do something sane privately, or come
+up with a nice general solution that doesn't harm the common filesystems
+that apparently don't have a problem here... can you just add GFP_NOFS to
+NTFS's mapping_gfp_mask to start with?
 
 -- 
-Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it.
--- Brian W. Kernighan
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

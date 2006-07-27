@@ -1,226 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWG0U6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWG0U65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWG0U6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWG0U5Y
+	id S1751151AbWG0U65 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWG0U6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:57:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14040 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750996AbWG0Ux6 (ORCPT
+	Thu, 27 Jul 2006 16:58:24 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:2433 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751034AbWG0U6U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:53:58 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/30] NFS: Fix up split of fs/nfs/inode.c [try #11]
-Date: Thu, 27 Jul 2006 21:52:27 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205227.8443.77016.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 27 Jul 2006 16:58:20 -0400
+Date: Thu, 27 Jul 2006 16:58:06 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: David Miller <davem@davemloft.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060727205806.GD16971@kvack.org>
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C91192.4090303@oracle.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix ups for the splitting of the superblock stuff out of fs/nfs/inode.c,
-including:
+On Thu, Jul 27, 2006 at 12:18:42PM -0700, Zach Brown wrote:
+> The easy part is fixing up the somewhat obfuscated collection call.
+> Instead of coming in through a multiplexer that magically treats a void
+> * as a struct kevent_user_control followed by N ukevents (as specified
+> in the kevent_user_control!) we'd turn it into a more explicit
+> collection syscall:
+> 
+> 	int kevent_getevents(int event_fd, struct ukevent *events,
+> 		int min_events, int max_events,
+> 		struct timeval *timeout);
 
- (*) Move the callback tcpport module param into callback.c.
+You've just reinvented io_getevents().  What exactly are we getting from 
+reinventing this (aside from breaking existing apps and creating more of 
+an API mess)?
 
- (*) Move the idmap cache timeout module param into idmap.c.
+> Say we have a ring of event structs.  AIO has this today, but it sort of
+> gets it wrong because each event element doesn't specify whether it is
+> owned by the kernel or userspace.  (It really gets it wrong because it
+> doesn't flush_dcache_page() after updating the ring via kmap(), but
+> never mind that!  No one actually uses this mmap() AIO ring.)  In AIO
+> today there is also a control struct mapped along with the ring that has
+> head and tail pointers.  We don't want to bounce that cacheline around.
+>  net/socket/af_packet.c gets this right with it's tp_status member of
+> tpacket_hdr.
 
- (*) Changes to internal.h:
+That could be rev'd in the mmap() ring buffer, as there are compat and 
+incompat bits for changing the structure layout.  As for bouncing the 
+cacheline of head/tail around, I don't think it matters on real machines, 
+as the multithreaded/SMP case will hit that cacheline bouncing if the 
+user is sharing the event ring between multiple threads on multiple CPUs.  
+The only way around that is to use multiple event rings, say one per node, 
+at which point you have to do load balancing of io requests explicitely 
+between queues (which might be worth it).
 
-     (*) namespace-nfs4.c was renamed to nfs4namespace.c.
+> So, great, glibc can now find pending events very quickly if they're
+> waiting in the ring and can fall back to the collection syscall if it
+> wants to wait and the ring is empty.  If it consumes events via the
+> syscall it increases its ring index by the number the syscall returned.
+> 
+> There's two things we should address: level events and the notion of
+> only submitting as much as fits in the ring.
+> 
+> epoll and kevent both have the notion of an event type that always
+> creates an event at the time of the collection syscall while the event
+> source is on a ready list.  Think of epoll calling ->poll(POLLOUT) for
+> an empty socket buffer at every sys_epoll_wait() call.  We can't have
+> some source constantly spewing into the ring :/.  We could fix this by
+> the API requiring that level events can *only* be collected through the
+> syscall interface.  userspace could call into the collection syscall
+> every N events collected through the ring, say.  N would be tuned to
+> amortize the syscall cost and still provide fairness or latency for the
+> level sources.  I'd be fine with that, especially when it's hidden off
+> in glibc.
 
-     (*) nfs_stat_to_errno() is in nfs2xdr.c, not nfs4xdr.c.
+This is exactly why I think level triggered events are nasty.  It's 
+impossible to do cleanly without requiring a syscall.
 
-     (*) nfs4xdr.c is contingent on CONFIG_NFS_V4.
+> Today AIO only allows submission of as many events as there are space in
+> the ring.  It mostly does this so its completion can drop an event in
+> the ring from any context.  If we back away from this so that we can
+> have long-lived source registration generate multiple edge events (and I
+> think we want to!), we have to be kind of careful.  A source could
+> generate an event while the ring is full.  The event could go in a list
+> but if userspace is collecting events in userspace the kernel won't be
+> told when there's space.  We'd first have to check this ready list when
+> later events are generated so that pending events on the list aren't
+> overlooked.  Userspace would also want to use the collection syscall as
+> the ring empties.  Neither seem hard.
 
-     (*) nfs4_path() is only uses if CONFIG_NFS_V4 is set.
+As soon as you allow queueing events up in kernel space, it becomes 
+necessary to do another syscall after pulling events out of the queue, 
+which is a waste of CPU cycles when you're under heavy load (exactly the 
+point at which you want the system to be its most efficient).  Given that 
+growing the ring buffer is easy enough to do, I'm not sure that the hit 
+is worth it.  At some point there has to be some form of flow control 
+involved, and it is much better if it is explicitely obvious where this 
+happens (as opposed to signal queues and our wonderful OOM handling).
 
-Plus also:
-
- (*) The sec_flavours[] table should really be const.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/nfs/callback.c |   15 +++++++++++++++
- fs/nfs/idmap.c    |   14 ++++++++++++++
- fs/nfs/internal.h |   12 ++++++------
- fs/nfs/super.c    |   40 ++++------------------------------------
- 4 files changed, 39 insertions(+), 42 deletions(-)
-
-diff --git a/fs/nfs/callback.c b/fs/nfs/callback.c
-index fe0a6b8..d6c4bae 100644
---- a/fs/nfs/callback.c
-+++ b/fs/nfs/callback.c
-@@ -36,6 +36,21 @@ static struct svc_program nfs4_callback_
- 
- unsigned int nfs_callback_set_tcpport;
- unsigned short nfs_callback_tcpport;
-+static const int nfs_set_port_min = 0;
-+static const int nfs_set_port_max = 65535;
-+
-+static int param_set_port(const char *val, struct kernel_param *kp)
-+{
-+	char *endp;
-+	int num = simple_strtol(val, &endp, 0);
-+	if (endp == val || *endp || num < nfs_set_port_min || num > nfs_set_port_max)
-+		return -EINVAL;
-+	*((int *)kp->arg) = num;
-+	return 0;
-+}
-+
-+module_param_call(callback_tcpport, param_set_port, param_get_int,
-+		 &nfs_callback_set_tcpport, 0644);
- 
- /*
-  * This is the callback kernel thread.
-diff --git a/fs/nfs/idmap.c b/fs/nfs/idmap.c
-index b81e7ed..447ae91 100644
---- a/fs/nfs/idmap.c
-+++ b/fs/nfs/idmap.c
-@@ -57,6 +57,20 @@ #define IDMAP_HASH_SZ          128
- /* Default cache timeout is 10 minutes */
- unsigned int nfs_idmap_cache_timeout = 600 * HZ;
- 
-+static int param_set_idmap_timeout(const char *val, struct kernel_param *kp)
-+{
-+	char *endp;
-+	int num = simple_strtol(val, &endp, 0);
-+	int jif = num * HZ;
-+	if (endp == val || *endp || num < 0 || jif < num)
-+		return -EINVAL;
-+	*((int *)kp->arg) = jif;
-+	return 0;
-+}
-+
-+module_param_call(idmap_cache_timeout, param_set_idmap_timeout, param_get_int,
-+		 &nfs_idmap_cache_timeout, 0644);
-+
- struct idmap_hashent {
- 	unsigned long ih_expires;
- 	__u32 ih_id;
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index e4f4e5d..94a7870 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -15,7 +15,7 @@ struct nfs_clone_mount {
- 	rpc_authflavor_t authflavor;
- };
- 
--/* namespace-nfs4.c */
-+/* nfs4namespace.c */
- #ifdef CONFIG_NFS_V4
- extern struct vfsmount *nfs_do_refmount(const struct vfsmount *mnt_parent, struct dentry *dentry);
- #else
-@@ -46,6 +46,7 @@ #define nfs_destroy_directcache() do {} 
- #endif
- 
- /* nfs2xdr.c */
-+extern int nfs_stat_to_errno(int);
- extern struct rpc_procinfo nfs_procedures[];
- extern u32 * nfs_decode_dirent(u32 *, struct nfs_entry *, int);
- 
-@@ -54,8 +55,9 @@ extern struct rpc_procinfo nfs3_procedur
- extern u32 *nfs3_decode_dirent(u32 *, struct nfs_entry *, int);
- 
- /* nfs4xdr.c */
--extern int nfs_stat_to_errno(int);
-+#ifdef CONFIG_NFS_V4
- extern u32 *nfs4_decode_dirent(u32 *p, struct nfs_entry *entry, int plus);
-+#endif
- 
- /* nfs4proc.c */
- #ifdef CONFIG_NFS_V4
-@@ -94,15 +96,13 @@ extern char *nfs_path(const char *base, 
- /*
-  * Determine the mount path as a string
-  */
-+#ifdef CONFIG_NFS_V4
- static inline char *
- nfs4_path(const struct dentry *dentry, char *buffer, ssize_t buflen)
- {
--#ifdef CONFIG_NFS_V4
- 	return nfs_path(NFS_SB(dentry->d_sb)->mnt_path, dentry, buffer, buflen);
--#else
--	return NULL;
--#endif
- }
-+#endif
- 
- /*
-  * Determine the device name as a string
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index e8a9bee..1c20ff0 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -187,40 +187,6 @@ static struct super_operations nfs4_sops
- };
- #endif
- 
--#ifdef CONFIG_NFS_V4
--static const int nfs_set_port_min = 0;
--static const int nfs_set_port_max = 65535;
--
--static int param_set_port(const char *val, struct kernel_param *kp)
--{
--	char *endp;
--	int num = simple_strtol(val, &endp, 0);
--	if (endp == val || *endp || num < nfs_set_port_min || num > nfs_set_port_max)
--		return -EINVAL;
--	*((int *)kp->arg) = num;
--	return 0;
--}
--
--module_param_call(callback_tcpport, param_set_port, param_get_int,
--		 &nfs_callback_set_tcpport, 0644);
--#endif
--
--#ifdef CONFIG_NFS_V4
--static int param_set_idmap_timeout(const char *val, struct kernel_param *kp)
--{
--	char *endp;
--	int num = simple_strtol(val, &endp, 0);
--	int jif = num * HZ;
--	if (endp == val || *endp || num < 0 || jif < num)
--		return -EINVAL;
--	*((int *)kp->arg) = jif;
--	return 0;
--}
--
--module_param_call(idmap_cache_timeout, param_set_idmap_timeout, param_get_int,
--		 &nfs_idmap_cache_timeout, 0644);
--#endif
--
- /*
-  * Register the NFS filesystems
-  */
-@@ -323,9 +289,12 @@ static int nfs_statfs(struct dentry *den
- 
- }
- 
-+/*
-+ * Map the security flavour number to a name
-+ */
- static const char *nfs_pseudoflavour_to_name(rpc_authflavor_t flavour)
- {
--	static struct {
-+	static const struct {
- 		rpc_authflavor_t flavour;
- 		const char *str;
- 	} sec_flavours[] = {
-@@ -1363,7 +1332,6 @@ static int nfs4_get_sb(struct file_syste
- 	}
- 
- 	s = sget(fs_type, nfs4_compare_super, nfs_set_super, server);
--
- 	if (IS_ERR(s)) {
- 		error = PTR_ERR(s);
- 		goto out_free;
+		-ben
+-- 
+"Time is of no importance, Mr. President, only life is important."
+Don't Email: <dont@kvack.org>.

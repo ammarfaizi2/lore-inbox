@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWG0Ljg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWG0LfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWG0Ljg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 07:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWG0Ljg
+	id S1750886AbWG0LfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 07:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWG0LfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 07:39:36 -0400
-Received: from server077.de-nserver.de ([62.27.12.245]:32645 "EHLO
-	server077.de-nserver.de") by vger.kernel.org with ESMTP
-	id S1750720AbWG0Ljg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 07:39:36 -0400
-X-User-Auth: Auth by hostmaster@profihost.com through 84.134.46.66
-Message-ID: <44C8A5F1.7060604@profihost.com>
-Date: Thu, 27 Jul 2006 13:39:29 +0200
-From: ProfiHost - Stefan Priebe <s.priebe@profihost.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Thu, 27 Jul 2006 07:35:09 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34060 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750886AbWG0LfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 07:35:07 -0400
+Date: Thu, 27 Jul 2006 13:35:06 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Luigi Genoni <genoni@sns.it>
+Cc: andrea@cpushare.com, "J. Bruce Fields" <bfields@fieldses.org>,
+       Hans Reiser <reiser@namesys.com>, Nikita Danilov <nikita@clusterfs.com>,
+       Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060727113506.GL23701@stusta.de>
+References: <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <4284.192.167.206.189.1153989192.squirrel@darkstar.linuxpratico.net> <20060727100446.GK23701@stusta.de> <2870.192.167.206.189.1153998447.squirrel@darkstar.linuxpratico.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: XFS / Quota Bug in  2.6.17.x and 2.6.18x
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2870.192.167.206.189.1153998447.squirrel@darkstar.linuxpratico.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Jul 27, 2006 at 01:07:27PM +0200, Luigi Genoni wrote:
 
-The crash only occurs if you use quota and IDE without barrier support.
+> Still I am missing something.
+> 
+> I am not interested in discussing about 1:5 ora 5:1 or so on.
+> I am not even interested if reiser4 users are 35 or 35000.
+> But if some people felt they need reiser4 to get their work done, that means
+> something. The numbers and the datum per se are meaningless.
+>...
 
-The Problem is, that on a new mount of a root filesystem - the flag 
-VFS_RDONLY is set - and so no barrier check is done before checking 
-quota. With this patch barrier check is done always. The partition 
-should not be mounted at that moment. For mount -o remount, rw or 
-something like this it uses another function where VFS_RDONLY is checked.
+You answered to an email where I talked about the wrong assumption the 
+klive data could support the 1:5 market share claim.
 
-Error Message:
-ns2 Wed Jul 26 14:22:58 2006 "I/O error in filesystem ("hda6") meta-data 
-dev
-hda6 block 0x23db5ab       ("xlog_iodone") error 5 buf count 1024"
-ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x2) called from line
-959 of file fs/xfs/xfs_log.c.  Return address = 0xc0211535"
-ns2 Wed Jul 26 14:22:58 2006 "Filesystem "hda6": Log I/O Error Detected.
-Shutting down filesystem: hda6"
-ns2 Wed Jul 26 14:22:58 2006 "Please umount the filesystem, and rectify the
-problem(s)"
-ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x1) called from line
-338 of file fs/xfs/xfs_rw.c.  Return address = 0xc0211535"
-ns2 Wed Jul 26 14:22:58 2006 "xfs_force_shutdown(hda6,0x1) called from line
-338 of file fs/xfs/xfs_rw.c.  Return address = 0xc0211535"
+This is completely independent from discussions about why users might 
+need reiser4, or which technical or social problems prevent its merging
+(unless of course someone wants to justify its merging wrongly with the 
+1:5 claim), and therefore your answer does not apply to this part of 
+the thread.
 
-Patch:
-*** fs/xfs/xfs_vfsops.c.orig	Thu Jul 27 13:10:23 2006
---- fs/xfs/xfs_vfsops.c	Thu Jul 27 13:11:17 2006
-*************** xfs_mount(
-*** 524,528 ****
-   		goto error2;
+cu
+Adrian
 
-! 	if ((mp->m_flags & XFS_MOUNT_BARRIER) && !(vfsp->vfs_flag &
-VFS_RDONLY))
-   		xfs_mountfs_check_barriers(mp);
+-- 
 
---- 524,528 ----
-   		goto error2;
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-! 	if (mp->m_flags & XFS_MOUNT_BARRIER)
-   		xfs_mountfs_check_barriers(mp);
-
-
-Best regards,
-Ihr ProfiHost Team
-------------------------------------------
-ProfiHost e.K.
-Lindener Str 15
-38300 Wolfenbüttel
-
-Tel.: 05331 996890
-Fax: 05331 996899
-URL: http://www.profihost.com
-E-Mail: support@profihost.com

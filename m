@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWG0PwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWG0QB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWG0PwY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWG0PwY
+	id S1750846AbWG0QB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 12:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWG0QB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:52:24 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:31752 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750803AbWG0PwX (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:52:23 -0400
-Date: Thu, 27 Jul 2006 17:52:22 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Theodore Tso <tytso@mit.edu>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Nikita Danilov <nikita@clusterfs.com>, Steve Lord <lord@xfs.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060727155222.GA30593@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Pavel Machek <pavel@ucw.cz>, Theodore Tso <tytso@mit.edu>,
-	Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-	Nikita Danilov <nikita@clusterfs.com>, Steve Lord <lord@xfs.org>
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org> <44C42B92.40507@xfs.org> <17604.31844.765717.375423@gargle.gargle.HOWL> <20060724103023.GA7615@thunk.org> <20060724113534.GA64920@dspnet.fr.eu.org> <20060724133939.GA11353@thunk.org> <20060724153853.GA88678@dspnet.fr.eu.org> <20060726130806.GA5270@ucw.cz>
+	Thu, 27 Jul 2006 12:01:57 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:6583 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750818AbWG0QB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 12:01:56 -0400
+Date: Thu, 27 Jul 2006 19:01:55 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, tytso@mit.edu, tigran@veritas.com
+Subject: Re: Re: [RFC/PATCH] revoke/frevoke system calls V2
+In-Reply-To: <1154016589.13509.56.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0607271858380.6287@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI> 
+ <1154012822.13509.52.camel@localhost.localdomain> 
+ <84144f020607270833v4c981d00w8e3e643406aea7a@mail.gmail.com>
+ <1154016589.13509.56.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060726130806.GA5270@ucw.cz>
-User-Agent: Mutt/1.4.2.2i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 01:08:06PM +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > > A much more important effect is that non-maintainers aren't familiar
-> > > with coding and patch submission guidelines.  For example, in
-> > > suspend2, Nigel first tried with patches that were too monolithic,
-> > > and then his next series was too broken down such that it was too
-> > > hard to review (and "git bisect" wouldn't work).
-> > 
-> > All his submissions since 2004 or so?  It's a little easy to limit
-> > oneself to the last two ones.
-> 
-> Nigel did not do any submissions in 2004 or so. Check your fact, that
-> stuff was marked 'RFC' and yes I did comment on it.
+Ar Iau, 2006-07-27 am 18:33 +0300, ysgrifennodd Pekka Enberg:
+> > Don't device drivers already do that for f_ops->flush (filp_close) and
 
-2004-09-16 submission:
+On Thu, 27 Jul 2006, Alan Cox wrote:
+> ->flush is called when each closing occurs.
 
-http://lkml.org/lkml/2004/9/16/76
-http://lkml.org/lkml/2004/9/16/77
-http://lkml.org/lkml/2004/9/16/78
-http://lkml.org/lkml/2004/9/16/81
-http://lkml.org/lkml/2004/9/16/82
-http://lkml.org/lkml/2004/9/16/83
-http://lkml.org/lkml/2004/9/16/86
-http://lkml.org/lkml/2004/9/16/87
-http://lkml.org/lkml/2004/9/16/89
-http://lkml.org/lkml/2004/9/16/90
+Yes revoke calls it too, but is that sufficient, or do we need ->revoke?
 
+Ar Iau, 2006-07-27 am 18:33 +0300, ysgrifennodd Pekka Enberg:
+> > vm_ops->close (munmap)? What revoke and frevoke do is basically
+> > unmap/fsync/close on all the open file descriptors.
 
-2004-11-24 submission:
+On Thu, 27 Jul 2006, Alan Cox wrote:
+> What happens if an app is already blocked on a read when you do a
+> revoke ? The nasty case answer could be "it completes later on and
+> returns the users captured password"
 
-http://lkml.org/lkml/2004/11/24/93
-http://lkml.org/lkml/2004/11/24/94
-http://lkml.org/lkml/2004/11/24/95
-http://lkml.org/lkml/2004/11/24/96
-http://lkml.org/lkml/2004/11/24/97
-http://lkml.org/lkml/2004/11/24/98
-http://lkml.org/lkml/2004/11/24/100
-http://lkml.org/lkml/2004/11/24/101
-[58 mails or so total]
+Ouch. You are right. I need to stick that invalidate_inode_pages2 
+back in there. The do_fsync call takes care of writes only, obviously. 
+Thanks!
 
-
-> He did 1 (one) submission that looked like SubmittingPatches at the
-> first sight, and that was very recent.
-> 
-> Stop spreading lies.
-
-I am awaiting your apologies.
-
-  OG.
+				Pekka

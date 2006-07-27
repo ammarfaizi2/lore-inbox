@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWG0XWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWG0XYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWG0XWw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 19:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWG0XWv
+	id S1751194AbWG0XYm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 19:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWG0XYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 19:22:51 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:15111 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751309AbWG0XWu (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 19:22:50 -0400
-Date: Fri, 28 Jul 2006 01:22:49 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060727232249.GA25993@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-References: <20060722130219.GB7321@thunk.org> <44C42B92.40507@xfs.org> <17604.31844.765717.375423@gargle.gargle.HOWL> <20060724103023.GA7615@thunk.org> <20060724113534.GA64920@dspnet.fr.eu.org> <20060724133939.GA11353@thunk.org> <20060724153853.GA88678@dspnet.fr.eu.org> <20060726130806.GA5270@ucw.cz> <20060727155222.GA30593@dspnet.fr.eu.org> <20060727214224.GB3797@elf.ucw.cz>
-Mime-Version: 1.0
+	Thu, 27 Jul 2006 19:24:41 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20455 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751194AbWG0XYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 19:24:40 -0400
+Date: Fri, 28 Jul 2006 01:24:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <greg@kroah.com>, khali@linux-fr.org, lm-sensors@lm-sensors.org
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, vojtech@suse.cz,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+Message-ID: <20060727232426.GI3797@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <20060727221632.GE3797@elf.ucw.cz> <41840b750607271556n1901af3by2e4d046d68abcb94@mail.gmail.com> <20060727230801.GA30619@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060727214224.GB3797@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20060727230801.GA30619@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 11:42:25PM +0200, Pavel Machek wrote:
-> So we have 1 submission for review in 11/2004 and 1 submission for -mm
-> merge in 2006, right?
+Hi!
 
-Wrong.  I gave a list of dates at the beginning of the month, do you
-think I threw dice to get them?
+> > >+ perhaps it would not need explicit maintainer, just assign names
+> > >        carefully
+> > 
+> > We also need to decide on clear convention about units. Are they in
+> > the output and/or filename? Filename is best, I think, since it's
+> > impossible to miss and works nicely for input attributes too.
+> 
+> Actually, this whole thing could probably just go under the 'hwmon'
+> interface, as it already handles other hardware monitoring events.  I
+> don't see how a battery would be any different, do you?
 
-And could you explain, as suspend maintainer for the linux kernel, how
-come code submitted for the first time two years ago and with a much
-better track record than the in-kernel one is still not in?
+Heh... yes, hwmon already has voltage, current, and more importantly,
+a maintainer.
 
-  OG.
+I'd still prefer batteries to go into /sys/class/battery/... they are
+really different from lm78-style voltage sensor and I'd not expect
+battery applet to understand all the fields "normal" hwmon
+exports. But conventions developed by hwmon group look sane and
+usable.
+
+Actually I do not see "hwmon infrastructure" to exist. Every driver
+just uses sysfs directly. I'm not sure that the best option --
+"input-like" infrastructure can make drivers even shorter -- but
+perhaps just directly using sysfs is best for simple task like a battery?
+
+Jean, any ideas?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

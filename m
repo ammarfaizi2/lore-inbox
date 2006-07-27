@@ -1,99 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWG0OrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWG0Osq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWG0OrO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 10:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWG0OrN
+	id S1751084AbWG0Osq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 10:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWG0Osq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 10:47:13 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:29709 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750782AbWG0OrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 10:47:09 -0400
-Message-ID: <44C8D165.3060803@shadowen.org>
-Date: Thu, 27 Jul 2006 15:44:53 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       a.p.zijlstra@chello.nl, linux-mm@kvack.org, torvalds@osdl.org,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: use-once cleanup
-References: <1153168829.31891.89.camel@lappy>	<44C86FB9.6090709@redhat.com> <20060727011204.87033366.akpm@osdl.org> <44C8C80F.8010705@mbligh.org>
-In-Reply-To: <44C8C80F.8010705@mbligh.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 27 Jul 2006 10:48:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50139 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751084AbWG0Osp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 10:48:45 -0400
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, tytso@mit.edu, tigran@veritas.com
+In-Reply-To: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 27 Jul 2006 16:07:02 +0100
+Message-Id: <1154012822.13509.52.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> 
->>> Peter Zijlstra wrote:
->>>   
->>>> Hi,
->>>>
->>>> This is yet another implementation of the PG_useonce cleanup spoken of
->>>> during the VM summit.
->>>>     
->>> After getting bitten by rsync yet again, I guess it's time to insist
->>> that this patch gets merged...
->>>
->>> Andrew, could you merge this?  Pretty please? ;)
->>>
->>>   
->>
->> Guys, this is a performance patch, right?
->>
->> One which has no published performance testing results, right?
->>
->> It would be somewhat odd to merge it under these circumstances.
->>
->> And this applies to all of these
->> hey-this-is-cool-but-i-didnt-bother-testing-it MM patches which people 
->> are
->> throwing around.  This stuff is *hard*.  It has a bad tendency to cause
->> nasty problems which only become known months after the code is merged.
->>
->> I shouldn't have to describe all this, but
->>
->> - Identify the workloads which it's supposed to improve, set up tests,
->>  run tests, publish results.
->>
->> - Identify the workloads which it's expected to damage, set up tests, run
->>  tests, publish results.
->>
->> - Identify workloads which aren't expected to be impacted, make a good
->>  effort at demonstrating that they are not impacted.
->>
->> - Perform stability/stress testing, publish results.
->>
->> Writing the code is about 5% of the effort for this sort of thing.
->>
->> Yes, we can toss it in the tree and see what happens.  But it tends to be
->> the case that unless someone does targetted testing such as the above,
->> regressions simply aren't noticed for long periods of time.  <wonders 
->> which
->> schmuck gets to do the legwork when people report problems>
->>
->> Just the (unchangelogged) changes to the 
->> when-to-call-mark_page_accessed()
->> logic are a big deal.  Probably these should be a separate patch -
->> separately changelogged, separately tested, separately justified.
->>
->> Performance testing is *everything* for this sort of patch and afaict 
->> none
->> has been done, so it's as if it hadn't been written, no?
->> -
->>
->>  
->>
-> Rik / Peter ... I lost the original mail + patch, but if you put it
-> up on a URL somewhere, Andy would probably run it through the test
-> harness for at least some basic perf testing, if you ask him ;-)
-> Probably against mainline, not -mm, as -mm seems to have other
-> problems right now.
+Ar Iau, 2006-07-27 am 17:25 +0300, ysgrifennodd Pekka J Enberg:
+> There are two known remaining issues: if someone expands the fd
+> tables, we will BUG_ON. Edgar Toerning expressed concers over allowing
+> any user to remove mappings from another process and letting it
+> crash. Albert Cahalan suggested either converting the shared mapping
+> to private or substitute the unmapped pages with zeroed pages.
 
-I'll happily run it through the test suites once I get my machines 
-working again after 2.6.18-rc2-mm1 has finished with them :(.
+That should be three I think. frevoke and revoke should not return until
+all the existing outstanding is dead. For devices that means we need to
+wake up the device where possible and really suggests we need a device
+->revoke method. TTY devices need this to allow us to re-implement
+vhangup in terms of revoke. Other devices devices are not all
+sufficiently secure without this check. Some may also want to use this
+hook to ensure that any security context is dead (eg cached crypto
+keys).
 
--apw
+Alan
+

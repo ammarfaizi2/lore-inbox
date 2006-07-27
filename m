@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWG0V2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWG0VcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWG0V2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWG0V2h
+	id S1751161AbWG0VcM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWG0VcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:28:37 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:35480 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751157AbWG0V2h (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 17:28:37 -0400
-Message-Id: <200607272128.k6RLSJMW027138@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       andrew.j.wade@gmail.com, gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
-In-Reply-To: Your message of "Thu, 27 Jul 2006 12:56:55 PDT."
-             <20060727125655.f5f443ea.akpm@osdl.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060727015639.9c89db57.akpm@osdl.org> <200607281546.09592.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-            <20060727125655.f5f443ea.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1154035699_3017P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 27 Jul 2006 17:32:12 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:54932 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751161AbWG0VcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 17:32:10 -0400
+Message-ID: <44C930D5.9020704@oracle.com>
+Date: Thu, 27 Jul 2006 14:32:05 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru>
+In-Reply-To: <20060727200655.GA4586@2ka.mipt.ru>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 17:28:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1154035699_3017P
-Content-Type: text/plain; charset=us-ascii
 
-On Thu, 27 Jul 2006 12:56:55 PDT, Andrew Morton said:
-> On Fri, 28 Jul 2006 15:46:08 -0400
-> Andrew James Wade <andrew.j.wade@gmail.com> wrote:
+>> 	int kevent_getevents(int event_fd, struct ukevent *events,
+>> 		int min_events, int max_events,
+>> 		struct timeval *timeout);
 > 
-> > Hello,
-> > 
-> > Some change between -rc1-mm2 and -rc2-mm1 broke Kubuntu's udev
-> > (079-0ubuntu34). In particular /dev/mem went missing, and /dev/null had
-> > bogus permissions (crw-------). I've kludged around the problem by
-> > populating /lib/udev/devices from a good /dev, but I'm assuming the
-> > breakage was unintentional.
-> > 
-> 
-> /dev/null damage is due to a combination of vdso-hash-style-fix.patch and
-> doing the kernel build as root (don't do that).
+> I used only one syscall for all operations, above syscall is
+> essentially what kevent_user_wait() does.
 
-Hmm... I thought the vdso-hash whoops caused /dev/null to get removed and
-thus recreated as a regular file - Andrew Wade is showing it as being
-mode 600 - but still a 'char special'?
+Essentially, yes, but the differences are important.  It's important to
+have a clear syscall interface instead of nesting through multiplexers.
+ And we should get the batching/latency inputs right.  (I'm for both
+min/max elements and arguably timeouts, but I could understand not
+wanting to go *that* far.)
 
-Or did udev get there before somebody managed to recreate it, and it
-stuck funky permissions on it?
+> Hmm, it looks like I'm lost here...
 
---==_Exmh_1154035699_3017P
-Content-Type: application/pgp-signature
+Yeah, it seems my description might not have sunk in :).  We're giving
+userspace a way to collect events without performing a system call.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> I especially like idea about world happinness in a week or so :)
 
-iD8DBQFEyS/zcC3lWbTT17ARAvhyAKDZAxAO+3bWEsHyVxcVtHTGOSm2+wCeOrsS
-TvLjMobEvFwIzH6yDEeXTIQ=
-=Jbv2
------END PGP SIGNATURE-----
+A few weeks! :)
 
---==_Exmh_1154035699_3017P--
+- z

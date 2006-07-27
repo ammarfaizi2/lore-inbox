@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWG0LRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWG0LQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWG0LRL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 07:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWG0LRL
+	id S1750715AbWG0LQs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 07:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWG0LQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 07:17:11 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56245 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751133AbWG0LRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 07:17:09 -0400
-Date: Thu, 27 Jul 2006 13:16:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] Make suspend possible with a traced process at a breakpoint
-Message-ID: <20060727111655.GB1762@elf.ucw.cz>
-References: <200607270914.08774.rjw@sisk.pl> <200607270941.45876.rjw@sisk.pl>
+	Thu, 27 Jul 2006 07:16:48 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:43224 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750715AbWG0LQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 07:16:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mEjD3pgFgVwtoHYwQZy518NH8M6Aj7kriUQlWlfNd1L19fae0qb15QQ+uUho9XDfN/P47XxVILoha1BterCdLrO9eTZzJxJrP1Mbc/wzy0x1+I0+Cd4aFXmqgZxXaVEgAm/rwbZAIekaJZHNzyWtUVCgvV6OMCEmXe4w0s7g0hU=
+Message-ID: <6e0cfd1d0607270416g1248e93fi123b6ada852ff242@mail.gmail.com>
+Date: Thu, 27 Jul 2006 13:16:45 +0200
+From: "Martin Schwidefsky" <schwidefsky@googlemail.com>
+To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
+Subject: Re: [PATCH] mm: inactive-clean list
+Cc: "Rik van Riel" <riel@redhat.com>, linux-mm <linux-mm@kvack.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1153925104.2762.11.camel@taijtu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200607270941.45876.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <1153167857.31891.78.camel@lappy> <44C30E33.2090402@redhat.com>
+	 <6e0cfd1d0607260400r731489a1tfd9e6c5a197fb0bd@mail.gmail.com>
+	 <1153912268.2732.30.camel@taijtu>
+	 <6e0cfd1d0607260604w3e8636e4taaea4bc918397b34@mail.gmail.com>
+	 <1153925104.2762.11.camel@taijtu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 7/26/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+> Wouldn't we typically have all free pages > min_free in state U?
+> Also wouldn't all R/O mapped pages not also be V, all R/W mapped pages
+> and unmapped page-cache pages P like you state in your paper.
 
-> It should be possible to suspend, either to RAM or to disk, if there's a
-> traced process that has just reached a breakpoint.  However, this is a special
-> case, because its parent process might have been frozen already and then
-> we are unable to deliver the "freeze" signal to the traced process.  If this
-> happens, it's better to cancel the freezing of the traced process.
+Ahh, ok, I misunderstood. You want to keep the state changes for clean
+page cache pages, I assumed that you only want to make pages volatile
+if the get on the inactive_clean list and leave them stable if they
+are on one of the other two lists.
 
-Thanks for debugging this.
+> This patch would just increase the number of V pages with the tail end
+> of the guest LRU, which are typically the pages you would want to evict
+> (perhaps even add 5th guest state to indicate that these V pages are
+> preferable over the others?)
 
-> @@ -85,6 +97,10 @@ int freeze_processes(void)
->  				continue;
->  			if (frozen(p))
->  				continue;
-> +			if (p->state == TASK_TRACED && frozen(p->parent)) {
-> +				cancel_freezing(p);
-> +				continue;
-> +			}
+Yes, that would help for architectures that cannot implement the
+potential-volatile state.
 
-Could we just add line to freezeable, like this?
+> But isn't it so that for the gross over-commit scenario you outline the
+> host OS will have to swap out S pages eventually?
 
-...no, this is probably racy, because freezeable() should not change
-while we are thawing other processes... I was hoping for one-liner...
+My point was that you really have to distinguish between host memory
+pressure and guest memory pressure.
 
-diff --git a/kernel/power/process.c b/kernel/power/process.c
-index b2a5f67..13dceb8 100644
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -26,6 +26,7 @@ static inline int freezeable(struct task
- 	    (p->flags & PF_NOFREEZE) ||
- 	    (p->exit_state == EXIT_ZOMBIE) ||
- 	    (p->exit_state == EXIT_DEAD) ||
-+	    ((p->exit_state == TASK_TRACED) && frozen(p->parent)) ||
- 	    (p->state == TASK_STOPPED))
- 		return 0;
- 	return 1;
-
-...okay, so ACK on your patch.
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+blue skies,
+  Martin

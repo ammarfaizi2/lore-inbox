@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWG0U6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWG0U5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWG0U6S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWG0Uxv
+	id S1750996AbWG0U5i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWG0U5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:53:51 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:49889 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S1750936AbWG0UxT (ORCPT
+	Thu, 27 Jul 2006 16:57:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13016 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750936AbWG0Ux5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:53:19 -0400
+	Thu, 27 Jul 2006 16:53:57 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 19/30] NFS: Add server and volume lists to /proc [try #11]
-Date: Thu, 27 Jul 2006 21:53:09 +0100
+Subject: [PATCH 01/30] NFS: Add dentry materialisation op [try #11]
+Date: Thu, 27 Jul 2006 21:52:24 +0100
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205309.8443.91347.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060727205224.8443.25484.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
 References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -25,368 +25,278 @@ User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make two new proc files available:
+The attached patch adds a new directory cache management function that prepares
+a disconnected anonymous function to be connected into the dentry tree. The
+anonymous dentry is transferred the name and parentage from another dentry.
 
-	/proc/fs/nfsfs/servers
-	/proc/fs/nfsfs/volumes
 
-The first lists the servers with which we are currently dealing (struct
-nfs_client), and the second lists the volumes we have on those servers (struct
-nfs_server).
+The following changes were made in [try #2]:
+
+ (*) d_materialise_dentry() now switches the parentage of the two nodes around
+     correctly when one or other of them is self-referential.
+
+The following changes were made in [try #7]:
+
+ (*) d_instantiate_unique() has had the interior part split out as function
+     __d_instantiate_unique(). Callers of this latter function must be holding
+     the appropriate locks.
+
+ (*) _d_rehash() has been added as a wrapper around __d_rehash() to call it
+     with the most obvious hash list (the one from the name). d_rehash() now
+     calls _d_rehash().
+
+ (*) d_materialise_dentry() is now __d_materialise_dentry() and is static.
+
+ (*) d_materialise_unique() added to perform the combination of d_find_alias(),
+     d_materialise_dentry() and d_add_unique() that the NFS client was doing
+     twice, all within a single dcache_lock critical section. This reduces the
+     number of times two different spinlocks were being accessed.
+
+The following further changes were made:
+
+ (*) Add the dentries onto their parents d_subdirs lists.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
 ---
 
- fs/nfs/client.c   |  284 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/inode.c    |    7 +
- fs/nfs/internal.h |   12 ++
- 3 files changed, 303 insertions(+), 0 deletions(-)
+ fs/dcache.c            |  164 ++++++++++++++++++++++++++++++++++++++++++++----
+ include/linux/dcache.h |    1 
+ 2 files changed, 151 insertions(+), 14 deletions(-)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index dafba60..27f6478 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -1148,3 +1148,287 @@ out_free_server:
- 	dprintk("<-- nfs_clone_server() = error %d\n", error);
- 	return ERR_PTR(error);
- }
-+
-+#ifdef CONFIG_PROC_FS
-+static struct proc_dir_entry *proc_fs_nfs;
-+
-+static int nfs_server_list_open(struct inode *inode, struct file *file);
-+static void *nfs_server_list_start(struct seq_file *p, loff_t *pos);
-+static void *nfs_server_list_next(struct seq_file *p, void *v, loff_t *pos);
-+static void nfs_server_list_stop(struct seq_file *p, void *v);
-+static int nfs_server_list_show(struct seq_file *m, void *v);
-+
-+static struct seq_operations nfs_server_list_ops = {
-+	.start	= nfs_server_list_start,
-+	.next	= nfs_server_list_next,
-+	.stop	= nfs_server_list_stop,
-+	.show	= nfs_server_list_show,
-+};
-+
-+static struct file_operations nfs_server_list_fops = {
-+	.open		= nfs_server_list_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
-+static int nfs_volume_list_open(struct inode *inode, struct file *file);
-+static void *nfs_volume_list_start(struct seq_file *p, loff_t *pos);
-+static void *nfs_volume_list_next(struct seq_file *p, void *v, loff_t *pos);
-+static void nfs_volume_list_stop(struct seq_file *p, void *v);
-+static int nfs_volume_list_show(struct seq_file *m, void *v);
-+
-+static struct seq_operations nfs_volume_list_ops = {
-+	.start	= nfs_volume_list_start,
-+	.next	= nfs_volume_list_next,
-+	.stop	= nfs_volume_list_stop,
-+	.show	= nfs_volume_list_show,
-+};
-+
-+static struct file_operations nfs_volume_list_fops = {
-+	.open		= nfs_volume_list_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
-+/*
-+ * open "/proc/fs/nfsfs/servers" which provides a summary of servers with which
-+ * we're dealing
-+ */
-+static int nfs_server_list_open(struct inode *inode, struct file *file)
-+{
-+	struct seq_file *m;
-+	int ret;
-+
-+	ret = seq_open(file, &nfs_server_list_ops);
-+	if (ret < 0)
-+		return ret;
-+
-+	m = file->private_data;
-+	m->private = PDE(inode)->data;
-+
-+	return 0;
-+}
-+
-+/*
-+ * set up the iterator to start reading from the server list and return the first item
-+ */
-+static void *nfs_server_list_start(struct seq_file *m, loff_t *_pos)
-+{
-+	struct list_head *_p;
-+	loff_t pos = *_pos;
-+
-+	/* lock the list against modification */
-+	spin_lock(&nfs_client_lock);
-+
-+	/* allow for the header line */
-+	if (!pos)
-+		return SEQ_START_TOKEN;
-+	pos--;
-+
-+	/* find the n'th element in the list */
-+	list_for_each(_p, &nfs_client_list)
-+		if (!pos--)
-+			break;
-+
-+	return _p != &nfs_client_list ? _p : NULL;
-+}
-+
-+/*
-+ * move to next server
-+ */
-+static void *nfs_server_list_next(struct seq_file *p, void *v, loff_t *pos)
-+{
-+	struct list_head *_p;
-+
-+	(*pos)++;
-+
-+	_p = v;
-+	_p = (v == SEQ_START_TOKEN) ? nfs_client_list.next : _p->next;
-+
-+	return _p != &nfs_client_list ? _p : NULL;
-+}
-+
-+/*
-+ * clean up after reading from the transports list
-+ */
-+static void nfs_server_list_stop(struct seq_file *p, void *v)
-+{
-+	spin_unlock(&nfs_client_lock);
-+}
-+
-+/*
-+ * display a header line followed by a load of call lines
-+ */
-+static int nfs_server_list_show(struct seq_file *m, void *v)
-+{
-+	struct nfs_client *clp;
-+
-+	/* display header on line 1 */
-+	if (v == SEQ_START_TOKEN) {
-+		seq_puts(m, "NV SERVER   PORT USE HOSTNAME\n");
-+		return 0;
-+	}
-+
-+	/* display one transport per line on subsequent lines */
-+	clp = list_entry(v, struct nfs_client, cl_share_link);
-+
-+	seq_printf(m, "v%d %02x%02x%02x%02x %4hx %3d %s\n",
-+		   clp->cl_nfsversion,
-+		   NIPQUAD(clp->cl_addr.sin_addr),
-+		   ntohs(clp->cl_addr.sin_port),
-+		   atomic_read(&clp->cl_count),
-+		   clp->cl_hostname);
-+
-+	return 0;
-+}
-+
-+/*
-+ * open "/proc/fs/nfsfs/volumes" which provides a summary of extant volumes
-+ */
-+static int nfs_volume_list_open(struct inode *inode, struct file *file)
-+{
-+	struct seq_file *m;
-+	int ret;
-+
-+	ret = seq_open(file, &nfs_volume_list_ops);
-+	if (ret < 0)
-+		return ret;
-+
-+	m = file->private_data;
-+	m->private = PDE(inode)->data;
-+
-+	return 0;
-+}
-+
-+/*
-+ * set up the iterator to start reading from the volume list and return the first item
-+ */
-+static void *nfs_volume_list_start(struct seq_file *m, loff_t *_pos)
-+{
-+	struct list_head *_p;
-+	loff_t pos = *_pos;
-+
-+	/* lock the list against modification */
-+	spin_lock(&nfs_client_lock);
-+
-+	/* allow for the header line */
-+	if (!pos)
-+		return SEQ_START_TOKEN;
-+	pos--;
-+
-+	/* find the n'th element in the list */
-+	list_for_each(_p, &nfs_volume_list)
-+		if (!pos--)
-+			break;
-+
-+	return _p != &nfs_volume_list ? _p : NULL;
-+}
-+
-+/*
-+ * move to next volume
-+ */
-+static void *nfs_volume_list_next(struct seq_file *p, void *v, loff_t *pos)
-+{
-+	struct list_head *_p;
-+
-+	(*pos)++;
-+
-+	_p = v;
-+	_p = (v == SEQ_START_TOKEN) ? nfs_volume_list.next : _p->next;
-+
-+	return _p != &nfs_volume_list ? _p : NULL;
-+}
-+
-+/*
-+ * clean up after reading from the transports list
-+ */
-+static void nfs_volume_list_stop(struct seq_file *p, void *v)
-+{
-+	spin_unlock(&nfs_client_lock);
-+}
-+
-+/*
-+ * display a header line followed by a load of call lines
-+ */
-+static int nfs_volume_list_show(struct seq_file *m, void *v)
-+{
-+	struct nfs_server *server;
-+	struct nfs_client *clp;
-+	char dev[8], fsid[17];
-+
-+	/* display header on line 1 */
-+	if (v == SEQ_START_TOKEN) {
-+		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
-+		return 0;
-+	}
-+	/* display one transport per line on subsequent lines */
-+	server = list_entry(v, struct nfs_server, master_link);
-+	clp = server->nfs_client;
-+
-+	snprintf(dev, 8, "%u:%u",
-+		 MAJOR(server->s_dev), MINOR(server->s_dev));
-+
-+	snprintf(fsid, 17, "%llx:%llx",
-+		 server->fsid.major, server->fsid.minor);
-+
-+	seq_printf(m, "v%d %02x%02x%02x%02x %4hx %-7s %-17s\n",
-+		   clp->cl_nfsversion,
-+		   NIPQUAD(clp->cl_addr.sin_addr),
-+		   ntohs(clp->cl_addr.sin_port),
-+		   dev,
-+		   fsid);
-+
-+	return 0;
-+}
-+
-+/*
-+ * initialise the /proc/fs/nfsfs/ directory
-+ */
-+int __init nfs_fs_proc_init(void)
-+{
-+	struct proc_dir_entry *p;
-+
-+	proc_fs_nfs = proc_mkdir("nfsfs", proc_root_fs);
-+	if (!proc_fs_nfs)
-+		goto error_0;
-+
-+	proc_fs_nfs->owner = THIS_MODULE;
-+
-+	/* a file of servers with which we're dealing */
-+	p = create_proc_entry("servers", S_IFREG|S_IRUGO, proc_fs_nfs);
-+	if (!p)
-+		goto error_1;
-+
-+	p->proc_fops = &nfs_server_list_fops;
-+	p->owner = THIS_MODULE;
-+
-+	/* a file of volumes that we have mounted */
-+	p = create_proc_entry("volumes", S_IFREG|S_IRUGO, proc_fs_nfs);
-+	if (!p)
-+		goto error_2;
-+
-+	p->proc_fops = &nfs_volume_list_fops;
-+	p->owner = THIS_MODULE;
-+	return 0;
-+
-+error_2:
-+	remove_proc_entry("servers", proc_fs_nfs);
-+error_1:
-+	remove_proc_entry("nfsfs", proc_root_fs);
-+error_0:
-+	return -ENOMEM;
-+}
-+
-+/*
-+ * clean up the /proc/fs/nfsfs/ directory
-+ */
-+void nfs_fs_proc_exit(void)
-+{
-+	remove_proc_entry("volumes", proc_fs_nfs);
-+	remove_proc_entry("servers", proc_fs_nfs);
-+	remove_proc_entry("nfsfs", proc_root_fs);
-+}
-+
-+#endif /* CONFIG_PROC_FS */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 261411a..7665b73 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1144,6 +1144,10 @@ static int __init init_nfs_fs(void)
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 1b4a3a3..17b392a 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -828,17 +828,19 @@ void d_instantiate(struct dentry *entry,
+  * (or otherwise set) by the caller to indicate that it is now
+  * in use by the dcache.
+  */
+-struct dentry *d_instantiate_unique(struct dentry *entry, struct inode *inode)
++static struct dentry *__d_instantiate_unique(struct dentry *entry,
++					     struct inode *inode)
  {
- 	int err;
+ 	struct dentry *alias;
+ 	int len = entry->d_name.len;
+ 	const char *name = entry->d_name.name;
+ 	unsigned int hash = entry->d_name.hash;
  
-+	err = nfs_fs_proc_init();
-+	if (err)
-+		goto out5;
+-	BUG_ON(!list_empty(&entry->d_alias));
+-	spin_lock(&dcache_lock);
+-	if (!inode)
+-		goto do_negative;
++	if (!inode) {
++		entry->d_inode = NULL;
++		return NULL;
++	}
 +
- 	err = nfs_init_nfspagecache();
- 	if (err)
- 		goto out4;
-@@ -1184,6 +1188,8 @@ out2:
- out3:
- 	nfs_destroy_nfspagecache();
- out4:
-+	nfs_fs_proc_exit();
-+out5:
- 	return err;
+ 	list_for_each_entry(alias, &inode->i_dentry, d_alias) {
+ 		struct qstr *qstr = &alias->d_name;
+ 
+@@ -851,19 +853,35 @@ struct dentry *d_instantiate_unique(stru
+ 		if (memcmp(qstr->name, name, len))
+ 			continue;
+ 		dget_locked(alias);
+-		spin_unlock(&dcache_lock);
+-		BUG_ON(!d_unhashed(alias));
+-		iput(inode);
+ 		return alias;
+ 	}
++
+ 	list_add(&entry->d_alias, &inode->i_dentry);
+-do_negative:
+ 	entry->d_inode = inode;
+ 	fsnotify_d_instantiate(entry, inode);
+-	spin_unlock(&dcache_lock);
+-	security_d_instantiate(entry, inode);
+ 	return NULL;
+ }
++
++struct dentry *d_instantiate_unique(struct dentry *entry, struct inode *inode)
++{
++	struct dentry *result;
++
++	BUG_ON(!list_empty(&entry->d_alias));
++
++	spin_lock(&dcache_lock);
++	result = __d_instantiate_unique(entry, inode);
++	spin_unlock(&dcache_lock);
++
++	if (!result) {
++		security_d_instantiate(entry, inode);
++		return NULL;
++	}
++
++	BUG_ON(!d_unhashed(result));
++	iput(inode);
++	return result;
++}
++
+ EXPORT_SYMBOL(d_instantiate_unique);
+ 
+ /**
+@@ -1235,6 +1253,11 @@ static void __d_rehash(struct dentry * e
+  	hlist_add_head_rcu(&entry->d_hash, list);
  }
  
-@@ -1198,6 +1204,7 @@ #ifdef CONFIG_PROC_FS
- 	rpc_proc_unregister("nfs");
- #endif
- 	unregister_nfs_fs();
-+	nfs_fs_proc_exit();
++static void _d_rehash(struct dentry * entry)
++{
++	__d_rehash(entry, d_hash(entry->d_parent, entry->d_name.hash));
++}
++
+ /**
+  * d_rehash	- add an entry back to the hash
+  * @entry: dentry to add to the hash
+@@ -1244,11 +1267,9 @@ static void __d_rehash(struct dentry * e
+  
+ void d_rehash(struct dentry * entry)
+ {
+-	struct hlist_head *list = d_hash(entry->d_parent, entry->d_name.hash);
+-
+ 	spin_lock(&dcache_lock);
+ 	spin_lock(&entry->d_lock);
+-	__d_rehash(entry, list);
++	_d_rehash(entry);
+ 	spin_unlock(&entry->d_lock);
+ 	spin_unlock(&dcache_lock);
+ }
+@@ -1386,6 +1407,120 @@ already_unhashed:
+ 	spin_unlock(&dcache_lock);
  }
  
- /* Not quite true; I just maintain it */
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 3d51eee..1a1312e 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -47,6 +47,18 @@ extern void nfs_free_server(struct nfs_s
- extern struct nfs_server *nfs_clone_server(struct nfs_server *,
- 					   struct nfs_fh *,
- 					   struct nfs_fattr *);
-+#ifdef CONFIG_PROC_FS
-+extern int __init nfs_fs_proc_init(void);
-+extern void nfs_fs_proc_exit(void);
-+#else
-+static inline int nfs_fs_proc_init(void)
++/*
++ * Prepare an anonymous dentry for life in the superblock's dentry tree as a
++ * named dentry in place of the dentry to be replaced.
++ */
++static void __d_materialise_dentry(struct dentry *dentry, struct dentry *anon)
 +{
-+	return 0;
++	struct dentry *dparent, *aparent;
++
++	switch_names(dentry, anon);
++	do_switch(dentry->d_name.len, anon->d_name.len);
++	do_switch(dentry->d_name.hash, anon->d_name.hash);
++
++	dparent = dentry->d_parent;
++	aparent = anon->d_parent;
++
++	dentry->d_parent = (aparent == anon) ? dentry : aparent;
++	list_del(&dentry->d_u.d_child);
++	if (!IS_ROOT(dentry))
++		list_add(&dentry->d_u.d_child, &dentry->d_parent->d_subdirs);
++	else
++		INIT_LIST_HEAD(&dentry->d_u.d_child);
++
++	anon->d_parent = (dparent == dentry) ? anon : dparent;
++	list_del(&anon->d_u.d_child);
++	if (!IS_ROOT(anon))
++		list_add(&anon->d_u.d_child, &anon->d_parent->d_subdirs);
++	else
++		INIT_LIST_HEAD(&anon->d_u.d_child);
++
++	anon->d_flags &= ~DCACHE_DISCONNECTED;
 +}
-+static inline void nfs_fs_proc_exit(void)
++
++/**
++ * d_materialise_unique - introduce an inode into the tree
++ * @dentry: candidate dentry
++ * @inode: inode to bind to the dentry, to which aliases may be attached
++ *
++ * Introduces an dentry into the tree, substituting an extant disconnected
++ * root directory alias in its place if there is one
++ */
++struct dentry *d_materialise_unique(struct dentry *dentry, struct inode *inode)
 +{
++	struct dentry *alias, *actual;
++
++	BUG_ON(!d_unhashed(dentry));
++
++	spin_lock(&dcache_lock);
++
++	if (!inode) {
++		actual = dentry;
++		dentry->d_inode = NULL;
++		goto found_lock;
++	}
++
++	/* See if a disconnected directory already exists as an anonymous root
++	 * that we should splice into the tree instead */
++	if (S_ISDIR(inode->i_mode) && (alias = __d_find_alias(inode, 1))) {
++		spin_lock(&alias->d_lock);
++
++		/* Is this a mountpoint that we could splice into our tree? */
++		if (IS_ROOT(alias))
++			goto connect_mountpoint;
++
++		if (alias->d_name.len == dentry->d_name.len &&
++		    alias->d_parent == dentry->d_parent &&
++		    memcmp(alias->d_name.name,
++			   dentry->d_name.name,
++			   dentry->d_name.len) == 0)
++			goto replace_with_alias;
++
++		spin_unlock(&alias->d_lock);
++
++		/* Doh! Seem to be aliasing directories for some reason... */
++		dput(alias);
++	}
++
++	/* Add a unique reference */
++	actual = __d_instantiate_unique(dentry, inode);
++	if (!actual)
++		actual = dentry;
++	else if (unlikely(!d_unhashed(actual)))
++		goto shouldnt_be_hashed;
++
++found_lock:
++	spin_lock(&actual->d_lock);
++found:
++	_d_rehash(actual);
++	spin_unlock(&actual->d_lock);
++	spin_unlock(&dcache_lock);
++
++	if (actual == dentry) {
++		security_d_instantiate(dentry, inode);
++		return NULL;
++	}
++
++	iput(inode);
++	return actual;
++
++	/* Convert the anonymous/root alias into an ordinary dentry */
++connect_mountpoint:
++	__d_materialise_dentry(dentry, alias);
++
++	/* Replace the candidate dentry with the alias in the tree */
++replace_with_alias:
++	__d_drop(alias);
++	actual = alias;
++	goto found;
++
++shouldnt_be_hashed:
++	spin_unlock(&dcache_lock);
++	BUG();
++	goto shouldnt_be_hashed;
 +}
-+#endif
++
+ /**
+  * d_path - return the path of a dentry
+  * @dentry: dentry to report
+@@ -1784,6 +1919,7 @@ EXPORT_SYMBOL(d_instantiate);
+ EXPORT_SYMBOL(d_invalidate);
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(d_move);
++EXPORT_SYMBOL_GPL(d_materialise_unique);
+ EXPORT_SYMBOL(d_path);
+ EXPORT_SYMBOL(d_prune_aliases);
+ EXPORT_SYMBOL(d_rehash);
+diff --git a/include/linux/dcache.h b/include/linux/dcache.h
+index 471781f..44605be 100644
+--- a/include/linux/dcache.h
++++ b/include/linux/dcache.h
+@@ -221,6 +221,7 @@ static inline int dname_external(struct 
+  */
+ extern void d_instantiate(struct dentry *, struct inode *);
+ extern struct dentry * d_instantiate_unique(struct dentry *, struct inode *);
++extern struct dentry * d_materialise_unique(struct dentry *, struct inode *);
+ extern void d_delete(struct dentry *);
  
- /* nfs4namespace.c */
- #ifdef CONFIG_NFS_V4
+ /* allocate/de-allocate */

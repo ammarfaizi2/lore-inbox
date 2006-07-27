@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWG0BTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWG0B3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751844AbWG0BTT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jul 2006 21:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWG0BTT
+	id S1750861AbWG0B3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jul 2006 21:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751847AbWG0B3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jul 2006 21:19:19 -0400
-Received: from 63-162-81-169.lisco.net ([63.162.81.169]:36052 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751844AbWG0BTS
+	Wed, 26 Jul 2006 21:29:21 -0400
+Received: from 63-162-81-169.lisco.net ([63.162.81.169]:58058 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1750861AbWG0B3V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jul 2006 21:19:18 -0400
-Message-ID: <44C81493.7030900@slaphack.com>
-Date: Wed, 26 Jul 2006 20:19:15 -0500
+	Wed, 26 Jul 2006 21:29:21 -0400
+Message-ID: <44C816ED.3070304@slaphack.com>
+Date: Wed, 26 Jul 2006 20:29:17 -0500
 From: David Masover <ninja@slaphack.com>
 User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060530)
 MIME-Version: 1.0
-To: Russell Cattelan <cattelan@thebarn.com>
-CC: Hans Reiser <reiser@namesys.com>, Jeff Garzik <jeff@garzik.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+To: David Masover <ninja@slaphack.com>, LKML <linux-kernel@vger.kernel.org>,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
  regarding reiser4 inclusion
-References: <44C12F0A.1010008@namesys.com> <20060722130219.GB7321@thunk.org>	 <44C26F65.4000103@namesys.com> <44C28A8F.1050408@garzik.org>	 <44C32348.8020704@namesys.com>	 <1153854781.5893.5.camel@xenon.msp.redhat.com>	 <44C6AE9E.6020300@slaphack.com>  <44C77B8A.7090303@namesys.com> <1153937787.25828.51.camel@xenon.msp.redhat.com>
-In-Reply-To: <1153937787.25828.51.camel@xenon.msp.redhat.com>
+References: <200607242151.k6OLpDZu009297@laptop13.inf.utfsm.cl> <200607251708.13660.vda.linux@googlemail.com> <20060725204910.GA4807@merlin.emma.line.org> <44C6A390.2040001@slaphack.com> <20060726112039.GA18329@merlin.emma.line.org>
+In-Reply-To: <20060726112039.GA18329@merlin.emma.line.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Cattelan wrote:
+Matthias Andree wrote:
+> On Tue, 25 Jul 2006, David Masover wrote:
+> 
+>> Matthias Andree wrote:
+>>> On Tue, 25 Jul 2006, Denis Vlasenko wrote:
+>>>
+>>>> I, on the contrary, want software to impose as few limits on me
+>>>> as possible.
+>>> As long as it's choosing some limit, I'll pick the one with fewer
+>>> surprises.
+>> Running out of inodes would be pretty surprising for me.
+> 
+> No offense: Then it was a surprise for you because you closed your eyes
+> and didn't look at df -i or didn't have monitors in place.
 
-> Guess it's sort of like adopting a 8 year old child vs a new born, hard
-> to tell what happened in first 8 years.
+Or because my (hypothetical) business exploded before I had the chance.
 
-And, by that token, the newborn is sometimes preferable.  It hasn't had 
-time to develop severe emotional problems, it's physically harmless, and 
-you get to help it form its ideas and beliefs.
+After all, you could make the same argument about bandwidth, until you 
+get Slashdotted.  Surprise!
 
-On the other hand, the 8 year old is potty trained, you won't have to 
-change a single diaper, it's intelligent and makes you question things, 
-it understands what you want it to do...
+> There is no way to ask how many files with particular hash values you
+> can still stuff into a reiserfs 3.X. There, you're running into a brick
+> wall that only your forehead will "see" when you touch it.
 
-So, it depends what kind of developer you are, what kind of gatekeeper, 
-and what kind of project it is.  I still believe in releasing early and 
-often, but I can see many reasons not to.  Some are financial -- Namesys 
-is trying to operate a business, so any features they open up too early 
-could be that much harder to sell as a commercial product.  The 
-repacker, for instance.
+That's true, so you may be correct about "less" surprises.  So, it 
+depends which is more valuable -- fewer surprises, or fewer limits?
 
-I'm not arguing for closed source, I'm just saying that once you open, 
-there's no going back.  Many times it's a good thing, but sometimes you 
-want to wait and see.
+That's not a hypothetical statement, and I don't really know.  I can see 
+both sides of this one.  But I do hope that once Reiser4 is stable 
+enough for you, it will be predictable enough.
+
+> But the assertion that some backup was the cause for inode exhaustion on
+> ext? is not very plausible since hard links do not take up inodes,
+> symlinks are not backups and everything else requires disk blocks. So,
+
+Ok, where's the assertion that symlinks are not backups?  Or not used in 
+backup software?  What about directories full of hardlinks -- the dirs 
+themselves must use something, right?
+
+Anyway, it wasn't my project that hit this limit.

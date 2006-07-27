@@ -1,114 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751970AbWG0UGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWG0UH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbWG0UGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751967AbWG0UGq
+	id S1161065AbWG0UH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 16:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWG0UH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:06:46 -0400
-Received: from mga01.intel.com ([192.55.52.88]:12581 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751968AbWG0UGp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:06:45 -0400
-X-IronPort-AV: i="4.07,189,1151910000"; 
-   d="scan'208"; a="106103679:sNHT1711749424"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 27 Jul 2006 16:07:57 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:11403 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161065AbWG0UH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 16:07:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qsgz5zZO3w9z41quBXIhMuFW5msmDnJR5TOkQ+ALDBUqZlcLg0ARLADpnNJ6SKZQ5u9NY2gNH6dbazujhO3fmVfmA8cFRaxlXkqOYNNyAmElu65yrIzL4FpDVqvBZD3XRUX/xq3MlxQjOm58a/N1XcDWPF4HNdpsWmGdzZjO9jQ=
+Message-ID: <41840b750607271307w76016f07wf6c5a4a04a62e008@mail.gmail.com>
+Date: Thu, 27 Jul 2006 23:07:53 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Daniel Barkalow" <barkalow@iabervon.org>
+Subject: Re: Generic battery interface
+Cc: "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@suse.cz>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>, vojtech@suse.cz,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0607271236440.9789@iabervon.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Generic battery interface
-Date: Thu, 27 Jul 2006 16:06:20 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Generic battery interface
-Thread-Index: AcaxmTEBrrsMVRFSTcy0D56PeFpp9QAGTIUA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Shem Multinymous" <multinymous@gmail.com>
-Cc: "Pavel Machek" <pavel@suse.cz>, "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       <vojtech@suse.cz>, "kernel list" <linux-kernel@vger.kernel.org>,
-       <linux-thinkpad@linux-thinkpad.org>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 27 Jul 2006 20:06:23.0976 (UTC) FILETIME=[22A1B680:01C6B1B8]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6011259C4@hdsmsx411.amr.corp.intel.com>
+	 <41840b750607270923j21074661v6254ba52ec67b67a@mail.gmail.com>
+	 <Pine.LNX.4.64.0607271236440.9789@iabervon.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On 7/27/06, Brown, Len <len.brown@intel.com> wrote:
->> Path names and file names in sysfs are an API, so it is important
->> to choose them wisely.  The string "acpi" should not appear in
->> any path-name or file-name in sysfs that is intended to be generic,
->> as it would make no sense on a non-ACPI system.
->>
->> Neither the ACPI /proc/acpi/battery API or
->> the tp_smapi /sys/devices/platform/smapi API qualify as generic.
->> It it a historical artifact that /proc/acpi exists, I'd delete it
->> immediately if that wouldn't instantly break every distro on earth.
+On 7/27/06, Daniel Barkalow <barkalow@iabervon.org> wrote:
+> Maybe it would be best to have a virtual driver that knows about the union
+> of the features, and makes whatever features are provided by the
+> underlying driver available to userspace. That way, all of the drivers are
+> implementing features out of a shared set, so you don't end up with
+> thinkpad/force_discharge and something/discharge_battery. This is the
+> principle behind, for example, the generic cdrom driver, which doesn't
+> actually implement much but rather provides uniformity across devices
+> handled by different drivers.
 >
->Yes. But it looks like we'll have a hard time finding this common
->interface, due to overlaps and omissions between battery drivers.
+> I don't think this is a case where each driver provides very similar
+> functionality, but with critical differences which can't be corrected for;
+> it seems like features are clearly available or not.
 
-Why not just specify the union of the different sets,
-and those that don't implement parts leave those parts out?
+It's a bit trickier than it first looks.
 
->So I've proposed /sys/class/battery/{acpi,apm,thinkpad}/BAT?/* 
->as a comrpromise:
->A userspace app that only needs a generic voltage readout will try
->(all of) /sys/class/battery/*/BAT0/voltage. This is your generic
->interface.
+For example, take the "force discharge" and "inhibit charge" commands.
+Do they take effect until further notice, or for a given time period?
+Whichever variant you pick, the ThinkPad hardware can't do it: you can
+only tell it to force discharging until further notice, and you can
+only tell it to avoid charging for N minutes. Note that the variants
+cannot emulate each other, because when the laptop is suspended the
+embedded controller still ticks but the kernel can't use timers to
+issue new commands.
 
-If we have to export all these totally different implementations
-via totally different paths, then we failed.
+Another examle: suppose one hardware interface provide average power
+reading while another interface provides only voltage and average
+current. The two are not equivalent: if you try to compute power as
+voltage*current you'll get inaccurate results, because power is the
+integral over (instantaneous current)*(instantaneous voltage) and the
+latter fluctuates. So you'd want to somehow prioritize the first
+interface over the second, at least when it comes to power readings.
 
->A specialized app can be more specific and access
->/sys/class/battery/thinkpad/BAT0/force_discharge.
->
->And a complex system monitor like GKrellM will  let you configure a
->list of paths, e.g., /sys/class/battery/acpi/BAT0 +
->/sys/class/battery/mustek/UPS0.
->
->The only drawback I see is the inelegant userspace code for
->enumerating /sys/class/battery/* in languages like C. I suppose this
->could be wrapped by a trivial userspace library.
+These details are inconsequential for most applications, but some do
+care. So an interface that forces a certain view and hides the rest
+may not be a good idea.
 
-sysfs is great for demos from a shell prompt,
-but isn't such a great programming interface, either
-from inside the kernel or from user-space.
-
->> Vojtech suggested that we create a virtual battery interface,
->> just like the input layer has virtual input devices.
->[snip]
->> In either case, user-space would look for a well known set
->> of device file names, such as /dev/battery0, /dev/battery1
->> or some such, do a select on the file and get events that way.
->
->Isn't this an overkill? Battery status changes very slowly, so it
->seems perfectly adequate to have the usual userspace daemons poll the
->kernel every few seconds. No need for extra kernal event mechanisms,
->device file allocation, IOCTLs...
-
-No need to poll for status that hasn't even changed.
-This is what events are for.
-
-Also, critical battery alarms are important events.
-
-Please do not add more polling to user-space, else DaveJ
-will be putting it up as a further example of "Why userspace sucks"
-at the next OLS:-)
-
->> Drivers such as above could conjur up devices, and user-space
->> could also create what look like batteries, say through a
->> utility that knows how to talk to a UPS.
->
->Excellent idea, but it's orthogonal to the API issue. You might as
->well have  /sys/class/battery/usespace-battery/UPS0.
-
-I think the question is where the GUI is going to go look for it.
-I could imagine it would be simple for userspace to look for
-/dev/battery0
-/dev/battery1
-/dev/battery2
-until it finds no more, and then present the capacity of each
-if it wants to.
-
--Len
+  Shem

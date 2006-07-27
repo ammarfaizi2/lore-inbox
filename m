@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWG0VHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWG0VKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWG0VHM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 17:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWG0VHL
+	id S1751179AbWG0VKP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWG0VKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 17:07:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42455 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750821AbWG0Uw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:52:59 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/30] NFS: Add a server capabilities NFS RPC op [try #11]
-Date: Thu, 27 Jul 2006 21:52:46 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205246.8443.11317.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 27 Jul 2006 17:10:14 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:16882 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751179AbWG0VKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 17:10:12 -0400
+Date: Thu, 27 Jul 2006 23:09:49 +0200 (CEST)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Tom Horsley <tom.horsley@ccur.com>
+cc: 7eggert@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] documentation: Documentation/initrd.txt
+In-Reply-To: <1154020546.5166.35.camel@tweety>
+Message-ID: <Pine.LNX.4.58.0607272257100.5867@be1.lrz>
+References: <6DfYt-7zU-49@gated-at.bofh.it>  <E1G69M4-0001Um-Jg@be1.lrz>
+ <1154020546.5166.35.camel@tweety>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:9b3b2cc444a07783f194c895a09f1de9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a set_capabilities NFS RPC op so that the server capabilities can be set.
+On Thu, 27 Jul 2006, Tom Horsley wrote:
+> On Thu, 2006-07-27 at 19:08 +0200, Bodo Eggert wrote:
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
+> > > I spent a long time the other day trying to examine an initrd
+> > > image on a fedora core 5 system because the initrd.txt file
+> > > is apparently obsolete. Here is a patch which I hope
+> > > will reduce future confusion for others.
+> > 
+> > Your documentation is technically wrong, and there is a better
+> > explanation:
+> 
+> I find it easy to believe my document is wrong, but looking at
+> the Documentation/filesystems/ramfs-rootfs-initramfs.txt file
+> would never have led me to believe that the initrd.img file
+> was related in any way. The ramfs-rootfs-initramfs.txt
+> file describes the the archive as being built into the
+> kernel, so it needs updating too I guess (and fedora
+> should change the name of the initrd files to be
+> initramfs files so I'll look for documentation in the right
+> place :-).
 
- fs/nfs/nfs4proc.c       |    1 +
- include/linux/nfs_xdr.h |    1 +
- 2 files changed, 2 insertions(+), 0 deletions(-)
+Yes.
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 7fa2938..b433810 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3765,6 +3765,7 @@ struct nfs_rpc_ops	nfs_v4_clientops = {
- 	.statfs		= nfs4_proc_statfs,
- 	.fsinfo		= nfs4_proc_fsinfo,
- 	.pathconf	= nfs4_proc_pathconf,
-+	.set_capabilities = nfs4_server_capabilities,
- 	.decode_dirent	= nfs4_decode_dirent,
- 	.read_setup	= nfs4_proc_read_setup,
- 	.read_done	= nfs4_read_done,
-diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
-index be80310..24ceac1 100644
---- a/include/linux/nfs_xdr.h
-+++ b/include/linux/nfs_xdr.h
-@@ -809,6 +809,7 @@ struct nfs_rpc_ops {
- 			    struct nfs_fsinfo *);
- 	int	(*pathconf) (struct nfs_server *, struct nfs_fh *,
- 			     struct nfs_pathconf *);
-+	int	(*set_capabilities)(struct nfs_server *, struct nfs_fh *);
- 	u32 *	(*decode_dirent)(u32 *, struct nfs_entry *, int plus);
- 	void	(*read_setup)   (struct nfs_read_data *);
- 	int	(*read_done)  (struct rpc_task *, struct nfs_read_data *);
+Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
+
+--- 2.6.17/Documentation/initrd.txt.ori	2006-07-27 18:49:25.000000000 +0200
++++ 2.6.17/Documentation/initrd.txt	2006-07-27 18:58:19.000000000 +0200
+@@ -15,6 +15,9 @@ initrd is mainly designed to allow syste
+ where the kernel comes up with a minimum set of compiled-in drivers, and
+ where additional modules are loaded from initrd.
+ 
++initrd has recently been obsoleted by initramfs, which is described in
++Documentation/filesystems/ramfs-rootfs-initramfs.txt.
++
+ This document gives a brief overview of the use of initrd. A more detailed
+ discussion of the boot process can be found in [1].
+ 
+--- 2.6.17/Documentation/filesystems/ramfs-rootfs-initramfs.txt.ori	2006-07-27 23:05:44.000000000 +0200
++++ 2.6.17/Documentation/filesystems/ramfs-rootfs-initramfs.txt	2006-07-27 23:06:26.000000000 +0200
+@@ -96,6 +96,10 @@ All this differs from the old initrd in 
+     into the linux kernel image.  (The directory linux-*/usr is devoted to
+     generating this archive during the build.)
+     
++    However, if you use one or more compressed cpio archives (concatenated) 
++    instead of an initrd image, they will be unpacked, too, possibly
++    replacing existing files.
++
+   - The old initrd file was a gzipped filesystem image (in some file format,
+     such as ext2, that had to be built into the kernel), while the new
+     initramfs archive is a gzipped cpio archive (like tar only simpler,
+-- 
+Fun things to slip into your budget
+Request for 'supermodel access' to the UNIX server.
+	Just don't tell the PHB why your home directory is named 'jpgs.'

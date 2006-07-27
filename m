@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWG0U7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWG0VAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWG0U7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 16:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWG0Uxs
+	id S1751168AbWG0VAM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 17:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWG0U75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 16:53:48 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:50401 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S1750948AbWG0UxT (ORCPT
+	Thu, 27 Jul 2006 16:59:57 -0400
+Received: from mga02.intel.com ([134.134.136.20]:23971 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751168AbWG0U7b convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 16:53:19 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 20/30] NFS: Fix error handling [try #11]
-Date: Thu, 27 Jul 2006 21:53:12 +0100
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060727205312.8443.52843.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Thu, 27 Jul 2006 16:59:31 -0400
+X-IronPort-AV: i="4.07,189,1151910000"; 
+   d="scan'208"; a="97151528:sNHT15655486"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] acpi: Add lock annotations to acpi_os_acquire_lock andacpi_os_release_lock
+Date: Thu, 27 Jul 2006 16:59:21 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB601168989@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] acpi: Add lock annotations to acpi_os_acquire_lock andacpi_os_release_lock
+Thread-Index: AcaxrmOElUSK9BtYTuCGzGAzRbN/bgAECAmg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Josh Triplett" <josht@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jul 2006 20:59:23.0406 (UTC) FILETIME=[89B83AE0:01C6B1BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix an error handling problem: nfs_put_client() can be given a NULL pointer if
-nfs_free_server() is asked to destroy a partially initialised record.
+Josh,
+if __acquires() and __releases() are always handled in a
+Linux kernel build, then we don't need the bit in actypes.h.
+Linux specific changes for sparse will never be used
+in upstream ACPICA -- Linux can just diverge on these bits,
+like we do for other annotations, like asmlinkage.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-
- fs/nfs/client.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 27f6478..700bd58 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -208,6 +208,9 @@ #endif
-  */
- void nfs_put_client(struct nfs_client *clp)
- {
-+	if (!clp)
-+		return;
-+
- 	dprintk("--> nfs_put_client({%d})\n", atomic_read(&clp->cl_count));
- 
- 	if (atomic_dec_and_lock(&clp->cl_count, &nfs_client_lock)) {
+thanks,
+-Len

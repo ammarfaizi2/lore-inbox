@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWG0PPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWG0PRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751651AbWG0PPI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751687AbWG0PPI
+	id S1751719AbWG0PRg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:17:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWG0PRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:15:08 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:25481
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751651AbWG0PPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:15:07 -0400
-Message-Id: <44C8F4E5.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 27 Jul 2006 16:16:21 +0100
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Michael Buesch" <mb@bu3sch.de>
-Cc: <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix Intel RNG detection
-References: <44C8BE63.76E4.0078.0@novell.com>
- <200607271623.48023.mb@bu3sch.de>
-In-Reply-To: <200607271623.48023.mb@bu3sch.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 27 Jul 2006 11:17:36 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:8641 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751719AbWG0PRg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:17:36 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Brian D. McGrew" <brian@visionpro.com>
+Subject: Re: Building the kernel on an SMP box?
+Date: Thu, 27 Jul 2006 17:19:23 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B3898@chicken.machinevisionproducts.com>
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0012B3898@chicken.machinevisionproducts.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1995013.xQxMXdvX8s";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200607271719.37097.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +#ifdef CONFIG_SMP
->> +static volatile char __initdata waitflag;
->
->I don't think we want to add yet another use of volatile
->(see the kernel archives for why).
->Use memory barriers instead, please.
+--nextPart1995013.xQxMXdvX8s
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I can certainly do that.
+> And then to go to the extreme, what kind of horsepower should I be
+> looking for if I want get the build times down to say a minute or so???
 
->> +#define waitflag err
->
->That's really confusing magic.
+The machine where I reached the one minute limit was a 16x 2,7Ghz Xeon HT w=
+ith=20
+32GB of RAM. The good thing is I had to pay neither the machine nor the pow=
+er=20
+bill for it :)
 
-Any better idea? I just wanted to prevent adding another #ifdef CONFIG_SMP, and since it doesn't matter where the write
-goes for UP, doing it that way seemed the simplest solution.
+Eike
 
->> +	writeb(0xff, mem);
->> +	writeb(0x90, mem);
->> +	mfg = readb(mem + 0);
->> +	dvc = readb(mem + 1);
->> +	writeb(0xff, mem);
->
->Do these magic registers have names? Possible to use #defines for it?
+--nextPart1995013.xQxMXdvX8s
+Content-Type: application/pgp-signature
 
-While one could certainly make up names for them (the documentation of the functionality used here isn't the best I've
-seen), I generally dislike creating defines when their values are used just in a single place *and* when their naming
-can at best be artificial (i.e. doesn't serve documentation purposes). But if you and/or Jeff insist, I can certainly do
-a change like that.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Jan
+iD8DBQBEyNmJXKSJPmm5/E4RAkJ3AKCHCppOu6EdPe/p4YgYWGVxJFfWTACfcjih
+/uTzR0GVPXnP0wUXp0oVxFw=
+=tQ7A
+-----END PGP SIGNATURE-----
 
-Jan
+--nextPart1995013.xQxMXdvX8s--

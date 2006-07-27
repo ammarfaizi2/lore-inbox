@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752006AbWG2Dgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161398AbWG2Dgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752006AbWG2Dgj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 23:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752069AbWG2Dgh
+	id S1161398AbWG2Dgd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 23:36:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752058AbWG2Dgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 23:36:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54432 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752006AbWG2Dgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 23:36:36 -0400
-Message-ID: <44CAD81A.9060401@redhat.com>
-Date: Fri, 28 Jul 2006 20:38:02 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 28 Jul 2006 23:36:33 -0400
+Received: from adsl-69-230-3-206.dsl.pltn13.pacbell.net ([69.230.3.206]:23015
+	"EHLO mailix.sanjose.privnets") by vger.kernel.org with ESMTP
+	id S1752006AbWG2Dgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 23:36:32 -0400
 MIME-Version: 1.0
-To: Zach Brown <zach.brown@oracle.com>
-CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, David Miller <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru> <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru> <44CA586C.4010205@oracle.com> <20060728184445.GA10797@2ka.mipt.ru> <44CA613F.9080806@oracle.com>
-In-Reply-To: <44CA613F.9080806@oracle.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1B2C08651A93A5532AC0B66A"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17608.58181.131183.860897@mobilix.safe-mbox.com>
+Date: Thu, 27 Jul 2006 12:01:09 -0400
+From: Richard Gooch <rgooch@safe-mbox.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: bunk@stusta.de, kernel1@cyberdogtech.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel FAQ maintenance
+In-Reply-To: <20060723232200.2fb3bc30.rdunlap@xenotime.net>
+References: <1153607759.28263@shark.he.net>
+	<20060723170838.GW25367@stusta.de>
+	<17603.46703.810585.59906@mobilix.safe-mbox.com>
+	<20060723232200.2fb3bc30.rdunlap@xenotime.net>
+X-Mailer: VM 7.19 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1B2C08651A93A5532AC0B66A
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Randy.Dunlap writes:
+> On Sun, 23 Jul 2006 13:48:31 -0400 Richard Gooch wrote:
+> 
+> > Adrian Bunk writes:
+> > > On Sat, Jul 22, 2006 at 03:35:59PM -0700, Randy Dunlap wrote:
+> > > > 
+> > > > Touche.  :)
+> > > > 
+> > > > The FAQ needs to be updated.  Last I heard, Richard Gooch wasn't
+> > > > ready to hand it off to anyone else, but he wasn't updating it either.
+> > > > Time for a change IMO.
+> > 
+> > Bollocks. I've updated it when people send me patches.
+> > 
+> > > Sounds reasonable.
+> > > 
+> > > Do you want to become the new maintainer?
+> > > Otherwise, I could try to get it updated.
+> > 
+> > How about actually sending patches to me rather than just aimed at the
+> > list?
+> 
+> I sent you a patch sometime (2-3 years ago) and you replied that
+> you weren't updating the FAQ (maybe "at that time").  I have no
+> physical record of that patch or your reply now.  However, I'll be
+> glad to send FAQ patches to you in the future.
 
-Zach Brown wrote:
-> Ulrich, would you be satisfied if we didn't
-> have the userspace mapped ring on the first pass and only had a
-> collection syscall?
+Hm. According to my records, the last time we communicated was
+20-AUG-2003 and I said basically that I don't usually scan LKML for
+FAQ material, and depend on people sending patches in. The FAQ seems
+"stable" now (i.e. not that much has changed on the list, some old
+flamers have mellowed, new kids have taken their place, traffic is
+still high, business as usual).
 
-I'm not the one to make a call but why rush things?  Let's do it right
-from the start.  Later changes can only lead to problems with users of
-the earlier interface.
+Oh, BTW: please don't send to my old .au address. I hardly read that
+anymore because it receives too much spam and I have not yet
+succeeded in getting it shut down responsibly.
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+				Regards,
 
+					Richard....
 
---------------enig1B2C08651A93A5532AC0B66A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEytga2ijCOnn/RHQRAvDpAJwJWFGyrC5rJZMjNF/h2l3NhV739QCfdt0E
-6TYaA/HYfEsA7aV0f/bdBTw=
-=frO5
------END PGP SIGNATURE-----
-
---------------enig1B2C08651A93A5532AC0B66A--

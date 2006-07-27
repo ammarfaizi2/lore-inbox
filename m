@@ -1,99 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWG0KRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWG0KTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161019AbWG0KRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 06:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWG0KRL
+	id S932555AbWG0KTr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 06:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWG0KTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 06:17:11 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:3564 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932116AbWG0KRK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 06:17:10 -0400
-Date: Thu, 27 Jul 2006 12:17:09 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [WARNING -mm] 2.6.18-rc2-mm1 build kills /dev/null!?
-Message-ID: <20060727101709.GB31920@rhlx01.fht-esslingen.de>
-References: <20060727101128.GA31920@rhlx01.fht-esslingen.de>
+	Thu, 27 Jul 2006 06:19:47 -0400
+Received: from cantor.suse.de ([195.135.220.2]:12168 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932561AbWG0KTq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 06:19:46 -0400
+Date: Thu, 27 Jul 2006 12:19:45 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [patch] mm: non syncing lock_page
+Message-ID: <20060727101945.GD18140@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060727101128.GA31920@rhlx01.fht-esslingen.de>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sent this one a while back, but we decided it didn't need to be in
+2.6.17. Any new comments on the patch?
 
-On Thu, Jul 27, 2006 at 12:11:28PM +0200, Andreas Mohr wrote:
-> Hello all,
-> 
-> for some reason a 2.6.18-rc2-mm1 build seems to kill my /dev/null device!
+---
 
-Replying to myself, this could easily be due to:
+lock_page needs the caller to have a reference on the page->mapping inode
+due to sync_page, ergo set_page_dirty_lock is obviously buggy according to
+its comments.
 
---- linux-2.6.18-rc2/scripts/Kbuild.include     2006-07-15 21:41:08.000000000 -
-0700
-+++ devel/scripts/Kbuild.include        2006-07-27 01:15:54.000000000 -0700
-@@ -8,9 +8,13 @@ empty   :=
- space   := $(empty) $(empty)
+Solve it by introducing a new lock_page_nosync which does not do a sync_page. 
 
- ###
-+# Name of target with a '.' as filename prefix. foo/bar.o => foo/.bar.o
-+dot-target = $(dir $@).$(notdir $@)
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+Index: linux-2.6/include/linux/pagemap.h
+===================================================================
+--- linux-2.6.orig/include/linux/pagemap.h
++++ linux-2.6/include/linux/pagemap.h
+@@ -130,14 +130,29 @@ static inline pgoff_t linear_page_index(
+ }
+ 
+ extern void FASTCALL(__lock_page(struct page *page));
++extern void FASTCALL(__lock_page_nosync(struct page *page));
+ extern void FASTCALL(unlock_page(struct page *page));
+ 
++/*
++ * lock_page may only be called if we have the page's inode pinned.
++ */
+ static inline void lock_page(struct page *page)
+ {
+ 	might_sleep();
+ 	if (TestSetPageLocked(page))
+ 		__lock_page(page);
+ }
 +
-+###
- # The temporary file to save gcc -MD generated dependencies must not
- # contain a comma
--depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
-+depfile = $(subst $(comma),_,$(dot-target).d)
-
- ###
- # filename of target with directory and extension stripped
-@@ -59,6 +63,12 @@ as-option = $(shell if $(CC) $(CFLAGS) $
-             -xassembler /dev/null > /dev/null 2>&1; then echo "$(1)"; \
-             else echo "$(2)"; fi ;)
-
-+# as-instr
-+# Usage: cflags-y += $(call as-instr, instr, option1, option2)
++/*
++ * lock_page_nosync should only be used if we can't pin the page's inode.
++ * Doesn't play quite so well with block device plugging.
++ */
++static inline void lock_page_nosync(struct page *page)
++{
++	might_sleep();
++	if (TestSetPageLocked(page))
++		__lock_page_nosync(page);
++}
+ 	
+ /*
+  * This is exported only for wait_on_page_locked/wait_on_page_writeback.
+Index: linux-2.6/mm/filemap.c
+===================================================================
+--- linux-2.6.orig/mm/filemap.c
++++ linux-2.6/mm/filemap.c
+@@ -488,6 +488,12 @@ struct page *page_cache_alloc_cold(struc
+ EXPORT_SYMBOL(page_cache_alloc_cold);
+ #endif
+ 
++static int __sleep_on_page_lock(void *word)
++{
++	io_schedule();
++	return 0;
++}
 +
-+as-instr = $(shell if echo -e "$(1)" | $(AS) -Z -o /dev/null \
-+                  2>&1 >/dev/null ; then echo "$(2)"; else echo "$(3)"; fi;)
+ /*
+  * In order to wait for pages to become available there must be
+  * waitqueues associated with pages. By using a hash table of
+@@ -577,6 +583,17 @@ void fastcall __lock_page(struct page *p
+ }
+ EXPORT_SYMBOL(__lock_page);
+ 
++/*
++ * Variant of lock_page that does not require the caller to hold a reference
++ * on the page's mapping.
++ */
++void fastcall __lock_page_nosync(struct page *page)
++{
++	DEFINE_WAIT_BIT(wait, &page->flags, PG_locked);
++	__wait_on_bit_lock(page_waitqueue(page), &wait, __sleep_on_page_lock,
++							TASK_UNINTERRUPTIBLE);
++}
 +
- # cc-option
- # Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
-
-@@ -77,14 +87,19 @@ cc-option-align = $(subst -functions=0,,
-
- # cc-version
- # Usage gcc-ver := $(call cc-version, $(CC))
--cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
--              $(if $(1), $(1), $(CC)))
-+cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh $(CC))
-
- # cc-ifversion
- # Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
- cc-ifversion = $(shell if [ $(call cc-version, $(CC)) $(1) $(2) ]; then \
-                        echo $(3); fi;)
-
-+# ld-option
-+# Usage: ldflags += $(call ld-option, -Wl$(comma)--hash-style=both)
-+ld-option = $(shell if $(CC) $(1) \
-+                            -nostdlib -o /dev/null -xc /dev/null \
-+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi)
-+
-
-
-Possibly an older binutils doesn't have a "if *output* file /dev/null,
-then kill output instead of overwriting file" check builtin as IIRC newer
-utils often have?
-
-# which ld
-/usr/bin/ld
-
-# rpm -qf /usr/bin/ld
-binutils-2.15.92.0.2-5
-
-Andreas Mohr
+ /**
+  * find_get_page - find and get a page reference
+  * @mapping: the address_space to search
+Index: linux-2.6/mm/page-writeback.c
+===================================================================
+--- linux-2.6.orig/mm/page-writeback.c
++++ linux-2.6/mm/page-writeback.c
+@@ -690,7 +690,7 @@ int set_page_dirty_lock(struct page *pag
+ {
+ 	int ret;
+ 
+-	lock_page(page);
++	lock_page_nosync(page);
+ 	ret = set_page_dirty(page);
+ 	unlock_page(page);
+ 	return ret;

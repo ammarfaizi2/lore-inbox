@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWG0SHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWG0SKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWG0SHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 14:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWG0SHW
+	id S1751915AbWG0SKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 14:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWG0SKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 14:07:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48361 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751910AbWG0SHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 14:07:20 -0400
-Subject: Re: Require mmap handler for a.out executables
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: 7eggert@gmx.de
-Cc: Marcel Holtmann <marcel@holtmann.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Eugene Teo <eteo@redhat.com>
-In-Reply-To: <E1G69zn-0001Wb-66@be1.lrz>
-References: <6COYh-8f0-41@gated-at.bofh.it>  <E1G69zn-0001Wb-66@be1.lrz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 19:25:52 +0100
-Message-Id: <1154024752.13509.86.camel@localhost.localdomain>
+	Thu, 27 Jul 2006 14:10:39 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:37052 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751912AbWG0SKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 14:10:38 -0400
+Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Petr Baudis <pasky@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@zeniv.linux.org.uk, alan@lxorguk.ukuu.org.uk, tytso@mit.edu,
+       tigran@veritas.com
+In-Reply-To: <20060727180634.GA28962@pasky.or.cz>
+References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
+	 <20060727180634.GA28962@pasky.or.cz>
+Date: Thu, 27 Jul 2006 21:10:36 +0300
+Message-Id: <1154023836.7190.3.camel@ubuntu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-07-27 am 19:49 +0200, ysgrifennodd Bodo Eggert:
-> Can shell scripts or binfmt_misc be exploited, too? Even if not, I'd
-> additionally force noexec, nosuid on proc and sysfs mounts.
+On Thu, 2006-07-27 at 20:06 +0200, Petr Baudis wrote:
+> Make that setuid root or just create log file owned by you and make root
+> run it.  Should be innocent enough, right?
+> 
+> Well, except that you can revoke the log file before the shadow file is
+> opened, at which point open() probably reuses the fd and the program
+> conveniently logs to /etc/shadow.
 
-Why force them, this is just papering over imagined cracks and running
-from shadows. If users want to be paranoid about these file systems or
-their distro vendor is smart then the ability to set noexec/nosuid is
-already supported and even more can be done with selinux. In fact as its
-usually mounted in one place even AppArmor might be able to get it right
-8)
-
+No, the fd is leaked on purpose to avoid recycling. See revoke_fds for
+details.
 

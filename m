@@ -1,43 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWG0JAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWG0JRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWG0JAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 05:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWG0JAZ
+	id S1750761AbWG0JRw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 05:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWG0JRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 05:00:25 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:52161 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161019AbWG0JAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 05:00:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iuI3dSTu7zN1/k7HkzyghZ2CZ7lf56/EvqzAvCDv0WSWYc71iEPnVWeNIeA4hQL0jjwDrm1iXbwqC2Hbf6ba9bSHPHnz0ENmFqycxIlMr+K49OuNYU7nLLZ8/k5jhqeNpaqnT1R0FMNbLSSgS2mWFfVh90RiOurQxPuL15UiZNI=
-Message-ID: <b0943d9e0607270200h250953d7uf58dc9a4f087cb0b@mail.gmail.com>
-Date: Thu, 27 Jul 2006 10:00:23 +0100
-From: "Catalin Marinas" <catalin.marinas@gmail.com>
-To: "Catherine Zhang" <cxzhang@watson.ibm.com>
-Subject: Re: RFC: kernel memory leak fix for af_unix datagram getpeersec
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jmorris@namei.org,
-       sds@tycho.nsa.gov, davem@davemloft.net, michal.k.k.piotrowski@gmail.com,
-       czhang.us@gmail.com
-In-Reply-To: <20060726201916.GA32505@jiayuguan.watson.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 05:17:52 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:47271 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750761AbWG0JRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 05:17:51 -0400
+Date: Thu, 27 Jul 2006 11:17:42 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Levitsky Maxim <maximlevitsky@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Block size > PAGE_SIZE
+Message-ID: <20060727091742.GA10622@wohnheim.fh-wedel.de>
+References: <20060720105058.40166.qmail@web38507.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <20060726201916.GA32505@jiayuguan.watson.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060720105058.40166.qmail@web38507.mail.mud.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/07/06, Catherine Zhang <cxzhang@watson.ibm.com> wrote:
-> Enclosed please find the new fix for the memory leak problem, incorporating
-> suggestions from Stephen and James.
+On Thu, 20 July 2006 03:50:58 -0700, Levitsky Maxim wrote:
+> 
+> I have idea to lift software based limitation of 4K
+> maximum block size of block devices.
+> 
+> There are some devices that have bigger that 4K block
+> size. The most notable are packet driven CD/DVD
+> recorders, but for example Flash chips cannot erase
+> blocks that are bigger that 64K of even more.
 
-FYI, Michal confirmed that, with this patch, kmemleak no longer
-reports leaks in the context_struct_to_string() function in
-security/selinux/ss/services.c. Many thanks to Michal for testing this
-(and his constant feedback into kmemleak).
+s/bigger/smaller/
+
+Flash is a bad example.  Even if the block layer and say ext2 could
+deal with 64k block size, using ext2 as a flash filesystem would still
+be an extremely bad idea for several other reasons.  Not sure about
+the CD/DVD case, but according to my half-knowledge the same is true
+there.
+
+> The extent based filesystems can also benefit from
+> bigger block size , they will be able to read a
+> cluster at time
+
+Already the case, afaics.
+
+> Each buffer_head will have addition filed ->next that
+> will point in circuit to next buffer_head that stores
+> data from the same sector 
+
+buffer_head is considered deprecated.  You could have a look at
+struct bio and reconsider whether your idea is a good one.
+
+> I didn't yet implemented this idea , because I want to
+> know whenever you like this idea or not. After all
+> this is not a simply work. 
+
+There can be some benefit in having larger block sizes.  For ext2, it
+would increase limits like the maximum file size, decrease the amount
+of metadata and have some nice effects on caches (smaller data is as
+good as bigger caches and bigger bandwidth in one).
+
+But there are disadvantages as well, most notably the wasted space for
+small files increases.
+
+And overall, 99% of the problem lies within an individual filesystem,
+so working on the block layer doesn't help much.  If you want to
+follow your idea, you should pick a filesystem, learn as much about it
+as you can and then change this filesystem.  And after your changes,
+measure whether they have beneficial effects.
+
+Jörn
 
 -- 
-Catalin
+Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it.
+-- Brian W. Kernighan

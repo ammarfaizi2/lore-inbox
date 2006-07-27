@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWG0NJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161049AbWG0NMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWG0NJN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 09:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWG0NJM
+	id S1161049AbWG0NMh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 09:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161056AbWG0NMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 09:09:12 -0400
-Received: from host36-195-149-62.serverdedicati.aruba.it ([62.149.195.36]:22937
-	"EHLO mx.cpushare.com") by vger.kernel.org with ESMTP
-	id S1751192AbWG0NJL (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Thu, 27 Jul 2006 09:09:11 -0400
-Date: Thu, 27 Jul 2006 15:10:32 +0200
-From: andrea@cpushare.com
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Hans Reiser <reiser@namesys.com>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060727131032.GE32243@opteron.random>
-References: <20060726142854.GM32243@opteron.random> <20060726145019.GF23701@stusta.de> <20060726160604.GO32243@opteron.random> <20060726170236.GD31172@fieldses.org> <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <20060727115229.GD32243@opteron.random> <20060727121811.GN23701@stusta.de>
+	Thu, 27 Jul 2006 09:12:37 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35241 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161049AbWG0NMh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 09:12:37 -0400
+Date: Thu, 27 Jul 2006 06:12:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Should cpuset ABBA deadlock fix be in 2.6.18-rc2-mmx?
+Message-Id: <20060727061232.044fc927.pj@sgi.com>
+In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727121811.GN23701@stusta.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 02:18:11PM +0200, Adrian Bunk wrote:
-> They could only be considered positive if someone expected less than
-> 35 reiser4 users worldwide.
+I'd like to encourage including the patch:
 
-The only thing we know for sure is that 35 out of 500 KLive user are
-running reiser4, worldwide we have no clue.
+  Cpuset: fix ABBA deadlock with cpu hotplug lock
 
-> If you are intelligent (which I assume), you should have learned by this 
-> how to not present your data.
+in 2.6.18-rc2-mmx.  This patch was sent to lkml,
+copied to akpm, 14 July.  It was sent again to lkml,
+in response to a request for a copy from Linus, on
+23 July, copied again to akpm.
 
-I think readers are intelligent enough too to interpret the KLive data
-properly for themself, without you having to prevent their eyes to see
-the raw KLive data.
+Granted, the case for including it is not absolute.
 
-When you tell me how I should not present my data, you're asking me to
-censor part or all of the very output of the KLive project. I'd rather
-wipe out KLive completely, than to censor it. The way I presented it
-was absolutely not biased, if you can make more transparent and
-unbiased sql queries than the ones I did, please post them and I'll be
-glad to run them.
+The fix is simple enough and fixes a definite deadlock,
+as verified by testing results on the system that was
+seeing this deadlock.
 
-> [..] (I'm a happy ext2 user).
+However ... only one system, world-wide, has the magic
+workload to provoke this deadlock, so far.  And it involves
+the cpu hotplug lock, which perhaps Linus would like to
+nuke entirely.
 
-Oh my, I hope you're only choosing the fs for your own workstation.
-
-Even though I don't pretend to fully understand someone who claims to
-be happy with ext2, I've no idea why you hate so much the stuff
-running at cpushare.com domain. But if it helps KLive is actually one
-of the non commercial projects I'm hosting there, and the only reason
-I keep it there, is to be sure not to find it filled by ads.
-
-Now let's try to get some work done instead of only sending emails ;)
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWG0Tez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWG0TlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWG0Tez (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 15:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751965AbWG0Tez
+	id S1750731AbWG0TlW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 15:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWG0TlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 15:34:55 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:20218 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751046AbWG0Tez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 15:34:55 -0400
-Date: Thu, 27 Jul 2006 13:34:53 -0600
+	Thu, 27 Jul 2006 15:41:21 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24865 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750731AbWG0TlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 15:41:21 -0400
+Date: Thu, 27 Jul 2006 13:41:19 -0600
 From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Can we ignore errors in mcelog if the server is running fine
-In-reply-to: <fa.2RkKSvRvPsGNSGCsUHQ9gQ8qlrg@ifi.uio.no>
-To: Vikas Kedia <kedia.vikas@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <44C9155D.5060102@shaw.ca>
+Subject: Re: BIOS detects 4 GB RAM, but kernel does not
+In-reply-to: <mH3yg.16777$2u4.7977@trnddc06>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <44C916DF.6080200@shaw.ca>
 MIME-version: 1.0
 Content-type: text/plain; charset=ISO-8859-1; format=flowed
 Content-transfer-encoding: 7bit
-References: <fa.2RkKSvRvPsGNSGCsUHQ9gQ8qlrg@ifi.uio.no>
+References: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
+ <1153933737.200164.160870@m73g2000cwd.googlegroups.com>
+ <1154007393.940693.259680@i42g2000cwa.googlegroups.com>
+ <mH3yg.16777$2u4.7977@trnddc06>
 User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vikas Kedia wrote:
-> The server seems to be running fine. A. can I ignore the following
-> mcelog errors ? B. If not what should i do to stop the server from
-> reporting mcelog errors.
+Jean-David Beyer wrote:
+> You need to compile with
+> 
+> # CONFIG_NOHIGHMEM is not set
+> # CONFIG_HIGHMEM4G is not set
+> CONFIG_HIGHMEM64G=y
+> CONFIG_HIGHMEM=y
+> CONFIG_HIGHPTE=y
+> CONFIG_X86_PAE=y
+> CONFIG_HIGHIO=y
+> CONFIG_X86_4G=y
+> CONFIG_X86_SWITCH_PAGETABLES=y
+> CONFIG_X86_4G_VM_LAYOUT=y
+> CONFIG_X86_UACCESS_INDIRECT=y
+> CONFIG_X86_HIGH_ENTRY=y
+> 
+> in your .config (for *86 machines) to get 4G of user and 4G of system space.
+> I so or know how much sense this would make for a 4G of RAM machine. I never
+> tried it when this machine had only 4G, but that is what is required to get
+> all 4G in a single user process now that I have 8G.
 
-Looks like data cache ECC errors, meaning the CPU 0 is faulty. 
-Eventually if it's not replaced there will likely be some uncorrectable 
-errors and the system will likely crash.
+Those options are not applicable on an x86-64 kernel.
 
 -- 
 Robert Hancock      Saskatoon, SK, Canada

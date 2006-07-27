@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWG0PmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWG0PoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWG0PmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 11:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWG0PmZ
+	id S1750797AbWG0PoG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 11:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWG0PoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 11:42:25 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:13992 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S932437AbWG0PmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 11:42:24 -0400
-Message-Id: <44C8FB44.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 27 Jul 2006 17:43:32 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "gmu 2k6" <gmu2006@gmail.com>
-Cc: <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix Intel RNG detection
-References: <44C8BE63.76E4.0078.0@novell.com>
- <f96157c40607270818p2cfec277x7eaf8eb2f3767268@mail.gmail.com>
- <f96157c40607270835l34cd0de1w8c8a0d95ba8ee39f@mail.gmail.com>
-In-Reply-To: <f96157c40607270835l34cd0de1w8c8a0d95ba8ee39f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 27 Jul 2006 11:44:05 -0400
+Received: from mga01.intel.com ([192.55.52.88]:22202 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750802AbWG0PoE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 11:44:04 -0400
+X-IronPort-AV: i="4.07,189,1151910000"; 
+   d="scan'208"; a="105925461:sNHT329960267"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Generic battery interface
+Date: Thu, 27 Jul 2006 11:40:43 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6011259C4@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Generic battery interface
+Thread-Index: AcaxjzziJX69FFXLSuWUQrr7KNG1ZgAAW9ew
+From: "Brown, Len" <len.brown@intel.com>
+To: "Shem Multinymous" <multinymous@gmail.com>, "Pavel Machek" <pavel@suse.cz>
+Cc: "Matthew Garrett" <mjg59@srcf.ucam.org>, <vojtech@suse.cz>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       <linux-thinkpad@linux-thinkpad.org>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jul 2006 15:40:45.0404 (UTC) FILETIME=[0680A1C0:01C6B193]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-># dmesg | grep rng
->intel_rng: FWH not detected
->
->looks like this ProLiant box with the ICH5 chip has no usable RNG
->included, or should it?
+> ... need a consistent interface to common functionality.
 
-A configuration like this is what actually motivated me to write the
-patch. You need to remember that the RNG doesn't live in the ICH, but in
-the FWH (which is a different chip not showing up as a separate device
-anywhere) with only some access parameters being configured via the LPC
-device inside the ICH.
+Agreed.
 
-Jan
+Path names and file names in sysfs are an API, so it is important
+to choose them wisely.  The string "acpi" should not appear in
+any path-name or file-name in sysfs that is intended to be generic,
+as it would make no sense on a non-ACPI system.
+
+Neither the ACPI /proc/acpi/battery API or
+the tp_smapi /sys/devices/platform/smapi API qualify as generic.
+It it a historical artifact that /proc/acpi exists, I'd delete it
+immediately if that wouldn't instantly break every distro on earth.
+
+Re: battery events
+
+Vojtech suggested that we create a virtual battery interface,
+just like the input layer has virtual input devices.
+Drivers such as above could conjur up devices, and user-space
+could also create what look like batteries, say through a
+utility that knows how to talk to a UPS.
+
+In either case, user-space would look for a well known set
+of device file names, such as /dev/battery0, /dev/battery1
+or some such, do a select on the file and get events that way.
+
+With a /dev/battery0, and IOCTLS to get information from it,
+the question becomes redundancy between that file and sysfs
+text files.
+
+Re: sysfs or /dev
+
+It is tempting to claim that sysfs is extensible, but note
+that whenever you create a sysfs file, you are creating an API,
+which is a decision of exactly the same magnitude as defining
+an IOCTL -- in either case, user-space needs to react to it
+to understand it -- just that you can do that from the shell
+with sysfs.
+
+-Len

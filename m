@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWG0RPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWG0RPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWG0RPW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 13:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbWG0RPW
+	id S1751800AbWG0RPs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 13:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWG0RPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 13:15:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38302 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750957AbWG0RPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 13:15:21 -0400
-Subject: Re: [RFC/PATCH] revoke/frevoke system calls V2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Ulrich Drepper <drepper@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       tytso@mit.edu, tigran@veritas.com
-In-Reply-To: <Pine.LNX.4.58.0607272004270.7152@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0607271722430.4663@sbz-30.cs.Helsinki.FI>
-	 <a36005b50607270941n187e8b06ga9b1b6454cf2e548@mail.gmail.com>
-	 <Pine.LNX.4.58.0607272004270.7152@sbz-30.cs.Helsinki.FI>
+	Thu, 27 Jul 2006 13:15:47 -0400
+Received: from mail.ccur.com ([66.10.65.12]:24796 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id S1751800AbWG0RPr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 13:15:47 -0400
+Subject: Re: [PATCH] documentation: Documentation/initrd.txt
+From: Tom Horsley <tom.horsley@ccur.com>
+To: 7eggert@gmx.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1G69M4-0001Um-Jg@be1.lrz>
+References: <6DfYt-7zU-49@gated-at.bofh.it>  <E1G69M4-0001Um-Jg@be1.lrz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Jul 2006 18:33:36 +0100
-Message-Id: <1154021616.13509.68.camel@localhost.localdomain>
+Date: Thu, 27 Jul 2006 13:15:46 -0400
+Message-Id: <1154020546.5166.35.camel@tweety>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Iau, 2006-07-27 am 20:05 +0300, ysgrifennodd Pekka J Enberg:
-> Sure. Though I wonder if sys_frevoke is enough for us and we can drop 
-> sys_revoke completely.
+On Thu, 2006-07-27 at 19:08 +0200, Bodo Eggert wrote:
+> > I spent a long time the other day trying to examine an initrd
+> > image on a fedora core 5 system because the initrd.txt file
+> > is apparently obsolete. Here is a patch which I hope
+> > will reduce future confusion for others.
+> 
+> Your documentation is technically wrong, and there is a better
+> explanation:
 
-Alas not. Some Unix devices have side effects when you open() them. 
-
+I find it easy to believe my document is wrong, but looking at
+the Documentation/filesystems/ramfs-rootfs-initramfs.txt file
+would never have led me to believe that the initrd.img file
+was related in any way. The ramfs-rootfs-initramfs.txt
+file describes the the archive as being built into the
+kernel, so it needs updating too I guess (and fedora
+should change the name of the initrd files to be
+initramfs files so I'll look for documentation in the right
+place :-).

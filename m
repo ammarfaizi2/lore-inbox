@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWG0Ekw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWG0F1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWG0Ekw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 00:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWG0Ekw
+	id S1751291AbWG0F1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 01:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWG0F1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 00:40:52 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:36565 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751283AbWG0Ekv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 00:40:51 -0400
-Date: Thu, 27 Jul 2006 00:40:04 -0400
-From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: ricknu-0@student.ltu.se
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       jeff@garzik.org, adobriyan@gmail.com, vlobanov@speakeasy.net,
-       jengelh@linux01.gwdg.de, getshorty_@hotmail.com,
-       pwil3058@bigpond.net.au, mb@bu3sch.de, penberg@cs.helsinki.fi,
-       stefanr@s5r6.in-berlin.de, larsbj@gullik.net
+	Thu, 27 Jul 2006 01:27:46 -0400
+Received: from alnrmhc11.comcast.net ([206.18.177.51]:64896 "EHLO
+	alnrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750795AbWG0F1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 01:27:46 -0400
 Subject: Re: [RFC][PATCH] A generic boolean (version 6)
-Message-ID: <20060727044004.GJ28284@filer.fsl.cs.sunysb.edu>
-References: <1153341500.44be983ca1407@portal.student.luth.se> <1153945705.44c7d069c5e18@portal.student.luth.se> <20060726180622.63be9e55.pj@sgi.com> <20060727021047.GG28284@filer.fsl.cs.sunysb.edu> <1153972270.44c8382ea9da5@portal.student.luth.se>
+From: Nicholas Miell <nmiell@comcast.net>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Paul Jackson <pj@sgi.com>
+In-Reply-To: <200607270448.03257.arnd.bergmann@de.ibm.com>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	 <1153945705.44c7d069c5e18@portal.student.luth.se>
+	 <200607270448.03257.arnd.bergmann@de.ibm.com>
+Content-Type: text/plain
+Date: Wed, 26 Jul 2006 22:27:27 -0700
+Message-Id: <1153978047.2807.5.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153972270.44c8382ea9da5@portal.student.luth.se>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 05:51:10AM +0200, ricknu-0@student.ltu.se wrote:
-...
-> Hope it make some sense.
+On Thu, 2006-07-27 at 04:48 +0200, Arnd Bergmann wrote:
+> On Wednesday 26 July 2006 22:28, ricknu-0@student.ltu.se wrote:
+> > Have not found any (real) reason letting the cpp know about false/true. As I
+> > said in the last version, the only reason seem to be for the userspace. Well, as
+> > there is no program of my knowlage that needs it, they were removed.
+> > 
+> If we don't expect this to show up in the ABI (which I hope is true), then
+> the definition should probably be inside of #ifdef __KERNEL__. Right
+> now, it's inside of (!__KERNEL_STRICT_NAMES), which is not exactly the
+> same.
+> 
 
-Fair enough.
+If _Bool does end up in the user-kernel ABI, be advised that validating
+them will be tricky ("b == true || b == false" or "!!b" won't work), and
+the compiler could in theory generate code which tests truthfulness by
+comparing to 1 in one place and non-zero in another.
 
-> PS
-> If I got you wrong and you meant why it can't be defined where it is used, I
-> refere you to Andrew's mail "[patch 1/1] consolidate TRUE and FALSE", where a
-> redefinition occured (of TRUE/FALSE).
-
-You first guess was right.
-
-Josef "Jeff" Sipek.
+My brief IRC conversation with gcc people regarding validating untrusted
+_Bool resulted in the instruction to never store a value in a _Bool
+until after it has been validated. 
 
 -- 
-NT is to UNIX what a doughnut is to a particle accelerator.
+Nicholas Miell <nmiell@comcast.net>
+

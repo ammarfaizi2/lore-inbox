@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWG0KLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWG0KMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWG0KLa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 06:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWG0KLa
+	id S932513AbWG0KMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 06:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWG0KMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 06:11:30 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:47296 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932109AbWG0KL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 06:11:29 -0400
-Date: Thu, 27 Jul 2006 12:11:28 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [WARNING -mm] 2.6.18-rc2-mm1 build kills /dev/null!?
-Message-ID: <20060727101128.GA31920@rhlx01.fht-esslingen.de>
+	Thu, 27 Jul 2006 06:12:05 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36565 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932513AbWG0KME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 06:12:04 -0400
+Subject: Re: The ondemand CPUFreq code -- I hope the functionality stays
+From: Arjan van de Ven <arjan@infradead.org>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com>
+References: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Thu, 27 Jul 2006 12:12:01 +0200
+Message-Id: <1153995121.3039.43.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, 2006-07-27 at 10:54 +0200, Miles Lane wrote:
+> Hello,
+> 
+> It sounds, from comments in the discussion of CPU Hotplug locking
+> problems, as though you are considering deleting the ondemand CPUFreq
+> code. 
 
-for some reason a 2.6.18-rc2-mm1 build seems to kill my /dev/null device!
+Hi,
 
-A simple
-# make bzImage modules modules_install
-managed to reduce my
+I think you misunderstood; we are considering removing the cpu hotplug
+locking (from cpufreq), not ondemand itself. ondemand itself is not a
+problem in itself, it's only the hotplug locking that's an issue (and
+that issue is bigger than just ondemand btw)
 
-crw-rw-rw-    1 root     root       1,   3 27. Jul 12:04 null
+Greetings,
+   Arjan van de Ven
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 
-into the charred remains equivalent of
-
--rw-r--r--    1 root     root            0 27. Jul 12:02 null
-
-, *twice* (I tried it the first time and had that issue,
-then rebuilt the device and rebooted, same problem once build started).
-
-Any idea why this might happen?
-
-This did not happen with a 2.6.18-rc1-mm2 build.
-
-A simple
-
-rm /dev/null
-mknod /dev/null c 1 3
-chmod 666 /dev/null
-
-corrects the problem, BTW.
-
-Thanks,
-
-Andreas Mohr

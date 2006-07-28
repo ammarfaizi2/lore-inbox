@@ -1,92 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWG1CcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWG1CdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbWG1CcB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 22:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWG1CcB
+	id S1751286AbWG1CdL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 22:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWG1CdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 22:32:01 -0400
-Received: from smtp.ono.com ([62.42.230.12]:45229 "EHLO resmta03.ono.com")
-	by vger.kernel.org with ESMTP id S1750752AbWG1CcA (ORCPT
+	Thu, 27 Jul 2006 22:33:10 -0400
+Received: from mx2.suse.de ([195.135.220.15]:62147 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751286AbWG1CdJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 22:32:00 -0400
-Date: Fri, 28 Jul 2006 04:31:59 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Kernel -rc2-mm1 ate one PATA channel
-Message-ID: <20060728043159.17c6449b@werewolf.auna.net>
-X-Mailer: Sylpheed-Claws 2.3.1cvs86 (GTK+ 2.10.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 27 Jul 2006 22:33:09 -0400
+From: Neil Brown <neilb@suse.de>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Date: Fri, 28 Jul 2006 12:32:13 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17609.30509.387670.585340@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, Steve Dickson <SteveD@redhat.com>,
+       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 005 of 9] knfsd: Be more selective in which
+	sockets lockd listens on.
+In-Reply-To: message from J. Bruce Fields on Wednesday July 26
+References: <20060725114207.21779.patches@notabene>
+	<1060725015447.21957@suse.de>
+	<20060726191714.GE31172@fieldses.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+On Wednesday July 26, bfields@fieldses.org wrote:
+> On Tue, Jul 25, 2006 at 11:54:47AM +1000, NeilBrown wrote:
+> > @@ -112,6 +114,7 @@ lockd(struct svc_rqst *rqstp)
+> >  	 * Let our maker know we're running.
+> >  	 */
+> >  	nlmsvc_pid = current->pid;
+> > +	nlmsvc_serv = serv;
+> 
+> Nitpick: any reason not to just get rid of the local variable "serv"
+> after that?
 
-I've been out for more than a week. Just went to try -rc2-mm1 and
-it ate one ide channel...
+Well... it is used two more times in that function.... but in both
+those cases it isn't really needed because we pass it to a function that
+also gets rqstp, serv is always rqstp->rq_server.  So there is room
+for cleaning up there ... patch to follow.
 
-This was -rc1-mm2:
-libata version 2.00 loaded.
-ata_piix 0000:00:1f.1: version 2.00ac6
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/33
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.00: configured for PIO3
-ata1.01: configured for PIO3
-  Vendor: HL-DT-ST  Model: DVDRAM GSA-4120B  Rev: A111
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: IOMEGA    Model: ZIP 250           Rev: 51.G
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0xF008 irq 15
-scsi1 : ata_piix
-ata2.00: ATA-6, max UDMA/100, 234441648 sectors: LBA48
-ata2.00: ata2: dev 0 multi count 16
-ata2.01: ATAPI, max UDMA/33
-ata2.00: configured for UDMA/33
-ata2.01: configured for UDMA/33
-  Vendor: ATA       Model: ST3120022A        Rev: 3.06
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1712  Rev: 1004
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ]
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata3: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata4: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+> 
+> > @@ -224,8 +259,10 @@ lockd_up(void)
+> >  	/*
+> >  	 * Check whether we're already up and running.
+> >  	 */
+> > -	if (nlmsvc_pid)
+> > +	if (nlmsvc_pid) {
+> > +		error = make_socks(nlmsvc_serv, proto);
+> >  		goto out;
+> 
+> ...
+> 
+> > +	if ((error = make_socks(serv, proto)) < 0) {
+> >  		if (warned++ == 0) 
+> >  			printk(KERN_WARNING
+> >  				"lockd_up: makesock failed, error=%d\n", error);
+> 
+> The warning is printk'ed a little inconsistently.  (If we care, maybe it
+> should just go inside make_socks?)
 
+So.  Do we care?  That's a hard one...  I guess we do.  I'll move the
+message into make_socks.
 
-This is -rc2-mm1, a PATA channel is missing...
+> 
+> By the way, why don't most callers use the error returned from
+> lockd_up()?
 
-libata version 2.00 loaded.
-ata_piix 0000:00:1f.1: version 2.00ac6
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/33 
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.00: configured for UDMA/33
-ata1.01: configured for PIO3
-  Vendor: HL-DT-ST  Model: DVDRAM GSA-4120B  Rev: A111 
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-  Vendor: IOMEGA    Model: ZIP 250           Rev: 51.G 
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-ata_piix 0000:00:1f.2: MAP [ P0 -- P1 -- ] 
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata2: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata3: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+Most?  I could 2 out of 5.
+One of those is just getting an extra ref-count so it cannot fail.
+The other - in nfsctl - is simply carelessness on my part.
+I should fix that.... patch to follow.
 
-Any idea ?
-Any more info needed ?
-TIA
+However...
+ One would expect that if lockd_up fails, a matching lockd_down
+wouldn't be needed.  However nlmsvc_users is unconditionally
+increased by lockd_up.  That's a worry.
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam04 (gcc 4.1.1 20060518 (prerelease)) #2 SMP PREEMPT Mon
+ - The nfs client will only call lockd_down if lockd_up succeeded.
+ - NFSD currently will call lockd_down either way.
+ - The lockd reclaimer ignores the return value and always calls
+    lockd_down.
+
+So the most common usage is to always call lockd_down, but I cannot
+help feeling that is wrong.  And 'fixing' the client code to do it
+that way would make it very ugly....
+
+Patch to follow :-)
+
+> 
+> > diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
+> > --- .prev/fs/nfsd/nfssvc.c	2006-07-24 15:14:31.000000000 +1000
+> > +++ ./fs/nfsd/nfssvc.c	2006-07-24 15:15:04.000000000 +1000
+> > @@ -134,6 +134,9 @@ static int killsig = 0; /* signal that w
+> >  static void nfsd_last_thread(struct svc_serv *serv)
+> >  {
+> >  	/* When last nfsd thread exits we need to do some clean-up */
+> > +	struct svc_sock *svsk;
+> > +	list_for_each_entry(svsk, &serv->sv_permsocks, sk_list)
+> > +		lockd_down();
+> 
+> So I guess it's a minor point, but: we take the trouble to only open tcp
+> or udp sockets as necessary, but then won't close them down till all the
+> mounts and nfsd's go away at which point we close them all down.
+
+I thought about making that cleaner but couldn't quite motivate myself
+to do it.... and it can always be done later (?).
+
+> 
+> Would it be that bad just to always listen on both?
+
+Some people seem to want to only listen on one.
+Why?  Maybe a security thing?  
+So once you have opened a protocol once, the "horse has bolted" and
+closing it is no big deal?
+
+dunno... any else go opinions on this?
+
+Steve?
+
+NeilBrown

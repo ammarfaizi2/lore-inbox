@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWG1PT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751995AbWG1PT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752011AbWG1PT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 11:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWG1PT7
+	id S1751995AbWG1PT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 11:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWG1PT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 11:19:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:55792 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752011AbWG1PT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 11:19:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LyYpWJs4DxmV96qnSp53l/qNOAQliKeZgQptKLvPdsSUjyfTK3MhQbQCb1AbYwXYMEwEeAGPWBU/li/9WAhLqOEE92uo1t8jQSpxepTZp/izMFayYwenIDaeYXEXrmL8X5VYjxavN6IBRIOoRw0e8/ITRnOgS/rcpM7Swce9lfA=
-Message-ID: <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
-Date: Fri, 28 Jul 2006 18:19:46 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Generic battery interface
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       "Pavel Machek" <pavel@suse.cz>, "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-In-Reply-To: <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
+	Fri, 28 Jul 2006 11:19:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:27553 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751995AbWG1PT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 11:19:56 -0400
+Date: Fri, 28 Jul 2006 08:19:37 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: Pekka J Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: respect architecture and caller mandated alignment
+In-Reply-To: <20060728062028.GA9559@osiris.boeblingen.de.ibm.com>
+Message-ID: <Pine.LNX.4.64.0607280816590.18325@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0607271514310.2172@sbz-30.cs.Helsinki.FI>
+ <Pine.LNX.4.64.0607271909580.15840@schroedinger.engr.sgi.com>
+ <20060728062028.GA9559@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
-	 <20060727232427.GA4907@suse.cz>
-	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	 <20060728074202.GA4757@suse.cz>
-	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 4) sysfs - all capabilities, IDs, etc for input devices exported there as well.
+On Fri, 28 Jul 2006, Heiko Carstens wrote:
 
-Forgive my ignorance, but how do I conncet a sysfs directory with a /dev device?
-So far the only way I found is to compare /sys/whatever/dev with the
-major+minor of the dev file, which requires brute-force enumeration on
-at least one side.
+> > You may want to document that change somewhere.
+> 
+> It is already documented (see top of slab.c). The only thing that was 
+> wrong was that ARCH_SLAB_MINALIGN and ARCH_KMALLOC_MINALIGN didn't have 
+> the effect like one would expect from the documentation.
 
-  Shem
+Some of the passages there are a bit fuzzy to me. This is the first time 
+though that we enforce these alignments for the SLAB_DEBUG case.

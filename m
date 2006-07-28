@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161213AbWG1SYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWG1SdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161213AbWG1SYx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWG1SYx
+	id S1161225AbWG1SdS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161223AbWG1SdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:24:53 -0400
-Received: from hera.kernel.org ([140.211.167.34]:25008 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1161215AbWG1SYw (ORCPT
+	Fri, 28 Jul 2006 14:33:18 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:62950 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1161220AbWG1SdR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:24:52 -0400
-Date: Fri, 28 Jul 2006 18:24:21 GMT
-From: Eric Van Hensbergen <ericvh@hera.kernel.org>
-Message-Id: <200607281824.k6SIOLfq013114@hera.kernel.org>
-To: akpm@osdl.org
-Subject: [PATCH] 9p: fix marshalling bug in tcreate with empty extension field
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       ericvh@gmail.com
+	Fri, 28 Jul 2006 14:33:17 -0400
+Message-ID: <44CA586C.4010205@oracle.com>
+Date: Fri, 28 Jul 2006 11:33:16 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru> <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru>
+In-Reply-To: <20060728052312.GB11210@2ka.mipt.ru>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From c4610f24dbaa1fbd2e1c15162b76200a2ac40204 Mon Sep 17 00:00:00 2001
-From: Eric Van Hensbergen <ericvh@ericvh-laptop.(none)>
-Date: Fri, 28 Jul 2006 13:18:35 -0500
-Subject: [PATCH] marshalling bug in tcreate with empty extension field
 
-Signed-off-by: Russ Ross <russross@gmail.com>
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
----
- fs/9p/conv.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+> I completely agree that existing kevent interface is not the best, so
+> I'm opened for any suggestions.
+> Should kevent creation/removing/modification be separated too?
 
-diff --git a/fs/9p/conv.c b/fs/9p/conv.c
-index 1e89814..56d88c1 100644
---- a/fs/9p/conv.c
-+++ b/fs/9p/conv.c
-@@ -673,8 +673,10 @@ struct v9fs_fcall *v9fs_create_tcreate(u
- 	struct cbuf *bufp = &buffer;
- 
- 	size = 4 + 2 + strlen(name) + 4 + 1;	/* fid[4] name[s] perm[4] mode[1] */
--	if (extended && extension!=NULL)
--		size += 2 + strlen(extension);	/* extension[s] */
-+	if (extended) {
-+		size += 2 +			/* extension[s] */
-+		    (extension == NULL ? 0 : strlen(extension));
-+	}
- 
- 	fc = v9fs_create_common(bufp, size, TCREATE);
- 	if (IS_ERR(fc))
--- 
-1.4.2.rc1.g83e1
+Yeah, I think so.
 
+>>> Hmm, it looks like I'm lost here...
+>> Yeah, it seems my description might not have sunk in :).  We're giving
+>> userspace a way to collect events without performing a system call.
+> 
+> And why do we want this?
+
+So that event collection can be very efficient.
+
+> How glibc is supposed to determine, that some events already fired and
+> such requests will return immediately, or for example how timer events
+> will be managed?
+
+...
+
+That was what my previous mail was all about!
+
+- z

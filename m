@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752041AbWG1QeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWG1QeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752041AbWG1QeR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 12:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWG1QeQ
+	id S1750952AbWG1QeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 12:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWG1QeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 12:34:16 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:18608 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752034AbWG1QeP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 12:34:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IJChC6Q8JZgjqYhUUykJFL5TkwxQAbgmJIjnBuKpstt/816dzQcW2YfDQSi63guViiSNh9DC7azi0HK60PFfdoj1PPRx8lMFqsjwvMaRx2p4GJjxH6wSwAz9rA42vldCFrtp3mYvxPcSkUo93Nspnu5aVV8H2HMoN8E2p9jjvXc=
-Message-ID: <6de39a910607280934t5c264b20w38c1f52c978b4e15@mail.gmail.com>
-Date: Fri, 28 Jul 2006 09:34:11 -0700
-From: "Handle X" <xhandle@gmail.com>
-To: "=?ISO-8859-1?Q?Bj=F6rn_Steinbrink?=" <B.Steinbrink@gmx.de>,
-       "Alexey Dobriyan" <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] #define rwxr_xr_x 0755
-In-Reply-To: <20060727222314.GA9192@atjola.homenet>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20060727205911.GB5356@martell.zuzino.mipt.ru>
-	 <20060727222314.GA9192@atjola.homenet>
+	Fri, 28 Jul 2006 12:34:09 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31718 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750952AbWG1QeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 12:34:08 -0400
+Subject: Re: [PATCH] amd74xx: implement suspend-to-ram
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       Jason Lunz <lunz@falooley.org>
+In-Reply-To: <200607281646.31207.rjw@sisk.pl>
+References: <200607281646.31207.rjw@sisk.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Jul 2006 17:51:55 +0100
+Message-Id: <1154105517.13509.153.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/06, Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-> On 2006.07.28 00:59:11 +0400, Alexey Dobriyan wrote:
-> > Every time I try to decipher S_I* combos I cry in pain. Often I just
-> > refer to include/linux/stat.h defines to find out what mode it is
-> > because numbers are actually quickier to understand.
-> >
-> > Compare and contrast:
-> >
-> >       0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
-> >
-> > I'd say #2 really sucks.
->
-> IMHO #3 sucks more, it's not as easy to spot when glossing over the
-> code, the underscores make it quite ugly (think _r________) and it's
-> less "greppable". If I know that there's something that sets S_ISUID, I
-> can easily search for that, compare that to [_cpdbl]{1}[r_]{1}[w_]{1}s...
-I agree with Steinbink. But how about having macros like,
-S_I0700, S_I0070, S_I6444 ..etc. They combine visual appeal of octals,
-easy to grep, easy to decipher ...etc.
+Ar Gwe, 2006-07-28 am 16:46 +0200, ysgrifennodd Rafael J. Wysocki:
+> From: Jason Lunz <lunz@falooley.org>
+> 
+> The amd74xx driver needs to reprogram each drive's PIO timings as well
+> as the DMA timings on resume from s2ram.  Otherwise, my
+> nforce3-150-based laptop hangs hard when ide_start_power_step() calls
+> drive->hwif->ide_dma_check(drive).
 
-Regards,
-Om.
+NAK
+
+This beings in the IDE power step code. You should do that as a step
+before the win_idleimmediate I suspect. Theory is right, diagnosis is
+right, implementation is in the wrong place.
+
+You'll make a lot more people happy by fixing it in ide-io
+
+Alan
+
+

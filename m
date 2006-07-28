@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWG1D1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWG1DaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWG1D1V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 23:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWG1D1V
+	id S1751077AbWG1DaF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 23:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWG1DaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 23:27:21 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:682 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750721AbWG1D1U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 23:27:20 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Shem Multinymous" <multinymous@gmail.com>
-Subject: Re: [PATCH] DMI: Decode and save OEM String information
-Date: Thu, 27 Jul 2006 21:27:14 -0600
-User-Agent: KMail/1.9.1
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Henrique de Moraes Holschuh" <hmh@debian.org>
-References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com> <200607271010.53489.bjorn.helgaas@hp.com> <41840b750607270942l7a53010du1fabcf2a4b492789@mail.gmail.com>
-In-Reply-To: <41840b750607270942l7a53010du1fabcf2a4b492789@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Jul 2006 23:30:05 -0400
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:5803 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1751077AbWG1DaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 23:30:04 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Jim Gettys <jg@laptop.org>
+Reply-To: jg@laptop.org
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andi Kleen <ak@suse.de>, Neil Horman <nhorman@tuxdriver.com>,
+       a.zummo@towertech.it, jg@freedesktop.org, linux-kernel@vger.kernel.org
+In-Reply-To: <17609.21005.415970.234577@cargo.ozlabs.ibm.com>
+References: <20060725174100.GA4608@hmsreliant.homelinux.net>
+	 <p73bqrc5rbu.fsf@verdi.suse.de>
+	 <17609.21005.415970.234577@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Organization: OLPC
+Date: Thu, 27 Jul 2006 23:29:48 -0400
+Message-Id: <1154057388.10570.132.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607272127.14689.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 July 2006 10:42, Shem Multinymous wrote:
-> On 7/27/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> > I always thought that ACPI was supposed to describe everything that
-> > (a) consumes resources or requires a driver and (b) is not enumerable
-> > by other hardware standards such as PCI.
-> >
-> > If that's true, isn't it a BIOS defect if this embedded controller isn't
-> > described via ACPI?
+The only awkward thing about the current interfaces is that you have to
+go from seconds and microseconds, to milliseconds, but only really when
+you represent time to X clients, which requires a bit of 64 bit of
+math...    It is true that since you have two values in the timeval
+structure, the update might require some sort of locking, which could be
+a performance lose; but there are other simple solutions to that (e.g.
+simple ring representations where you rely on the store of an index
+value to be atomic without requiring full locks and increment the index
+after updating both values, but a simple memory barrier), but those
+implementation tricks should be hidden behind an interface, and not
+exposed to application programmers..
+
+In theory, that conversion to milliseconds only actually has to be done
+if the time is (significantly) different.
+
+I can't forsee that this is a big deal on (most of) today's machines.
+Last I looked, the CPU runs the same speed in kernel mode as user
+mode ;-).
+
+On the other hand, the idea of a one off Linux specific "oh, there is
+this magic file you mmap, and then you can poke at a magic location",
+strikes me as a one-off hack, and that Linux would be better off
+spending the same effort to speed up the general interface (which might
+very well do this mmap trick trick behind the scenes, as far as I'm
+concerned).
+
+The difference is one is a standard, well known interface, which to an
+application programmer has very well defined semantics; the other, to be
+honest, is a kludge, which may expose applications to too many details
+of the hardware.  For example, exact issues of cache coherency and
+memory barriers differ between machines.
+                                Regards,
+                                    - Jim
+
+
+If it's to be a kludge, it might as well be a X driver kludge (which is
+where we put it in the '80's).
+
+
+
+
+On Fri, 2006-07-28 at 09:53 +1000, Paul Mackerras wrote:
+> Andi Kleen writes:
 > 
-> The ThinkPad ACPI tables do list the relevant IO ports (0x1600-0x161F)
-> as reserved, but provide no way to discern what's behind them.
-
-How are they listed?  Maybe an example would help.  Do you mean the
-ACPI namespace has a device whose _CRS includes ports 0x1600-0x161F,
-but that device's _HID is used for devices with different programming
-models?  Or do you mean it's in some static table (not the namespace)?
-Or is the device at 0x1600-0x161F really a bridge, and we can't
-determine what's on the other side?
-
-> BTW, I should clarify that this embedded controller interface (used by
-> hdaps and tp_smapi) is different than the standard ACPI EC interface,
-> and goes through different IO ports.
-
-That's fine.  The point is that for every device, ACPI should tell the
-OS the programming model (with _HID/_CID) and resources it uses (with
-_CRS/_PRS).  If ACPI doesn't do that, how is the OS supposed to know
-that it can't allocate those I/O ports to other devices?
-
-> > it seems like the ideal way forward
-> > would be to get the BIOS fixed so you could claim the device with PNP
-> > for future ThinkPads, and the table of OEM strings would not require
-> > ongoing maintenance.
+> > No, no, it's wrong. They should use gettimeofday and the kernel's job
+> > is to make it fast enough that they can. 
 > 
-> This is unrealistic. The hdaps and tp_smapi drivers support dozens of
-> ThinkPad models, each with a different BIOS.
+> Not necessarily - maybe gettimeofday's seconds + microseconds
+> representation is awkward for them to use, and some other kernel
+> interface would be more efficient for them to use, while being as easy
+> or easier for the kernel to compute.  Jim, was that your point?
+> 
+> Paul.
+-- 
+Jim Gettys
+One Laptop Per Child
 
-If there's an ACPI defect, I think it's realistic to report it and
-ask for a fix in future releases.  Obviously you can't fix all the
-machines in the field, so you'd still need something like the OEM
-string table.  But if the BIOS were fixed for future machines, at
-least the OEM string table would stop growing.
 
-Bjorn

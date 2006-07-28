@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWG1DeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWG1DjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWG1DeI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 23:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWG1DeI
+	id S1751830AbWG1DjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 23:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbWG1DjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 23:34:08 -0400
-Received: from web36712.mail.mud.yahoo.com ([209.191.85.46]:60808 "HELO
-	web36712.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751408AbWG1DeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 23:34:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=SIOdYg1Q4cj7UIVevdQcWz2KOoxnc4OZhLcKg78/OzTdOepl1SDW63n+jZioSKCxIHc9GGNn5HCswjoazWN2lPvlKha41AtjdnA7GOCLBEemA2x4TXDeBAnfo+oGmnhpwcZAs7tY+J0MeD4Ree3Q59Z32F1RxxiAXiQhtV/l1ro=  ;
-Message-ID: <20060728033406.40478.qmail@web36712.mail.mud.yahoo.com>
-Date: Thu, 27 Jul 2006 20:34:06 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: linux-kernel@vger.kernel.org
+	Thu, 27 Jul 2006 23:39:03 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:59554 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751830AbWG1DjC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 23:39:02 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Petr Vandrovec <petr@vandrovec.name>
+Subject: Re: [PATCH] ncpfs: move ioctl32 code to fs/ncpfs/ioctl.c
+Date: Fri, 28 Jul 2006 05:38:53 +0200
+User-Agent: KMail/1.9.1
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <20060710085142.GB9440@osiris.boeblingen.de.ibm.com> <200607270745.42622.arnd.bergmann@de.ibm.com> <20060728021520.GA23831@vana.vc.cvut.cz>
+In-Reply-To: <20060728021520.GA23831@vana.vc.cvut.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607280538.53355.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to announce the availability of the
-driver for TI FlashMedia flash card readers. Currently
-supported pci ids:
-1. 104c:8033.3
-2. 104c:803b.2
+On Friday 28 July 2006 04:15, Petr Vandrovec wrote:
+> I've updated your diff as outlined above, and I've removed ncp_fs.h include from
+> compat_ioctl, as it is not needed anymore.  I've also removed one 
+> #include <linux/config.h> you introduced...
 
-Device with id 8033 also features sdhci interface (as
-subfunction 4). However, sdhci is disabled on many
-laptops (notably Acer's), while FlashMedia interface
-is available.
+Ok, great! Are you pushing this for 2.6.19?
 
-The driver is called tifmxx and available from:
-http://developer.berlios.de/projects/tifmxx/
-
-Only mmc/sd cards are supported at present, via mmc
-subsystem. Provisions for other card types (Sony MS,
-xD and such) are in place, but no support is available
-due to lack of hardware and interest.
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+	Arnd <><

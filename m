@@ -1,42 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752044AbWG1REF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752046AbWG1RGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752044AbWG1REF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752047AbWG1REF
+	id S1752046AbWG1RGT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752047AbWG1RGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:04:05 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:19939 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752044AbWG1REE (ORCPT
+	Fri, 28 Jul 2006 13:06:18 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:63753 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1752046AbWG1RGS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:04:04 -0400
-Date: Fri, 28 Jul 2006 19:03:10 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Robert Hancock <hancockr@shaw.ca>
-cc: ravibt@gmail.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BIOS detects 4 GB RAM, but kernel does not
-In-Reply-To: <44C79E56.2040603@shaw.ca>
-Message-ID: <Pine.LNX.4.61.0607281902560.4972@yvahk01.tjqt.qr>
-References: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
- <44C79E56.2040603@shaw.ca>
+	Fri, 28 Jul 2006 13:06:18 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 28 Jul 2006 17:06:13.0447 (UTC) FILETIME=[2177A570:01C6B268]
+Content-class: urn:content-classes:message
+Subject: Re: Driver timeout
+Date: Fri, 28 Jul 2006 13:06:13 -0400
+Message-ID: <Pine.LNX.4.61.0607281304580.5357@chaos.analogic.com>
+In-Reply-To: <1154105732.13509.157.camel@localhost.localdomain>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Driver timeout
+Thread-Index: AcayaCGWyFJpfRlBQdCfdKplo1XT/A==
+References: <Pine.LNX.4.61.0607281152030.5161@chaos.analogic.com> <1154105732.13509.157.camel@localhost.localdomain>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>,
+       "Larson, Greg" <GLarson@analogic.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+On Fri, 28 Jul 2006, Alan Cox wrote:
+
+> Ar Gwe, 2006-07-28 am 11:54 -0400, ysgrifennodd linux-os (Dick Johnson):
+>>
+>> Hello list,
+>> What is the correct error code for a driver to return if
+>> the requested operation timed out?
 >
-> Essentially I don't think there is much you can do about this on this board.
-> The memory space starting at around 3.2GB is being used by the memory-mapped IO
-> regions for the PCI and PCI Express devices and motherboard resources and
-> therefore "covers up" the RAM in that part of the address space. The solution
-> to this is for the system to remap the affected memory above the 4GB mark,
-> which is possible with Athlon 64/Opteron CPUs and on some of the Intel server
-> chipsets. However, I don't think any Intel desktop chipsets support this for
-> some unfathomable reason.
+> If the operation is blocking then
+> 	ETIMEDOUT - if a timeout occurred
+>
+> possibly also
+> 	ETIME	  - if a timer of some kind expired
+>
+> If you know why it timed out you may want to return that instead to
+> provide more information (eg the net code returns things like 'Host
+> down')
+>
 
-Maybe PAE can help?
+Okay, thanks. We are trying to standardize everything here.
+
+Also, thanks to the others who answered.
 
 
-Jan Engelhardt
--- 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

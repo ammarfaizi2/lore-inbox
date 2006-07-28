@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWG1Roy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWG1RqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161194AbWG1Roy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbWG1Roy
+	id S1161198AbWG1RqS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbWG1RqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:44:54 -0400
-Received: from mtagate5.uk.ibm.com ([195.212.29.138]:47527 "EHLO
-	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1161194AbWG1Rox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:44:53 -0400
-Date: Fri, 28 Jul 2006 20:44:49 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Andrew Morton <akpm@osdl.org>, trivial@kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use BUG_ON(foo) instead of "if (foo) BUG()" in include/asm-i386/dma-mapping.h
-Message-ID: <20060728174449.GA11046@rhun.ibm.com>
-References: <200607280928.54306.eike-kernel@sf-tec.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607280928.54306.eike-kernel@sf-tec.de>
-User-Agent: Mutt/1.5.11
+	Fri, 28 Jul 2006 13:46:18 -0400
+Received: from mga01.intel.com ([192.55.52.88]:60074 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161198AbWG1RqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 13:46:17 -0400
+X-IronPort-AV: i="4.07,193,1151910000"; 
+   d="scan'208"; a="106692030:sNHT3062548734"
+Message-ID: <44CA4D1E.9040203@intel.com>
+Date: Fri, 28 Jul 2006 10:45:02 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>, sam@ravnborg.org, mec@shout.net,
+       bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: Linguistic fixes for Documentation/kbuild/
+References: <Pine.LNX.4.61.0607272208110.29115@yvahk01.tjqt.qr> <20060728103756.9f2d8507.rdunlap@xenotime.net>
+In-Reply-To: <20060728103756.9f2d8507.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jul 2006 17:46:04.0808 (UTC) FILETIME=[B2D46080:01C6B26D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 09:28:49AM +0200, Rolf Eike Beer wrote:
+Randy.Dunlap wrote:
+> On Thu, 27 Jul 2006 22:14:29 +0200 (MEST) Jan Engelhardt wrote:
+>> I have done a look-through through Documentation/kbuild/ and my corrections 
+>> (proposed) are attached. It is bzipped because the uncompressed diff is 
+>> 41KB and may have get stuck on the magic list limit (30 or 40, I believe 40).
+> 
+> or 80 or 100 KB ?  Certainly more than 40 KB.
 
-> We have BUG_ON() right for this, don't we?
 
-Even better, we have valid_dma_direction() in x86-64. Care to move it
-to generic code and update i386 to use it?
+ From "http://vger.kernel.org/majordomo-info.html":
+
+"Message size exceeding 100 000 characters causes blocking."
+
+So that's 97KB :)
+
 
 Cheers,
-Muli
 
 
+Auke

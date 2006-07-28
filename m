@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161201AbWG1Rhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161194AbWG1Roy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161201AbWG1Rhg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWG1Rhf
+	id S1161194AbWG1Roy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161199AbWG1Roy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:37:35 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:8004 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1161201AbWG1Rhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:37:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=QtYFf9nbg8iIcVj+GiukYWu2A3QUz2zhGcRyBe9OxH+UY15i/LlG3b0+pVo6alGmscRrivLmYzTmKCt/cIvYsVaT9SM2WQhsLFxwyq2NqYW+CiOtYiK+apwCCD0V+wilG2zU03dR/zG6m2LOMkxThNrha00RuYTj1qAVlYFvN0o=
-From: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Bug with USB proc_bulk in 2.4 kernel
-Date: Fri, 28 Jul 2006 10:37:27 -0700
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       mtosatti@redhat.com
-References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200607271521.38217.benjamin.cherian.kernel@gmail.com> <20060727164951.ada33ed5.zaitcev@redhat.com>
-In-Reply-To: <20060727164951.ada33ed5.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jul 2006 13:44:54 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:47527 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161194AbWG1Rox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 13:44:53 -0400
+Date: Fri, 28 Jul 2006 20:44:49 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Andrew Morton <akpm@osdl.org>, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use BUG_ON(foo) instead of "if (foo) BUG()" in include/asm-i386/dma-mapping.h
+Message-ID: <20060728174449.GA11046@rhun.ibm.com>
+References: <200607280928.54306.eike-kernel@sf-tec.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607281037.28328.benjamin.cherian.kernel@gmail.com>
+In-Reply-To: <200607280928.54306.eike-kernel@sf-tec.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete,
-Thanks for the reply.
-> By the way, you didn't tell me if you tried to use alarm(2) across
-> submitted URBs. This is the technique ADSL modem drivers use. They
-> also have to have input and output streams running simultaneously.
+On Fri, Jul 28, 2006 at 09:28:49AM +0200, Rolf Eike Beer wrote:
 
-I'm making a library to operate my device, and I don't want to use alarm, 
-because the user might need to use alarm in his own applications.
+> We have BUG_ON() right for this, don't we?
 
-Thanks again,
-Ben
+Even better, we have valid_dma_direction() in x86-64. Care to move it
+to generic code and update i386 to use it?
+
+Cheers,
+Muli
+
 

@@ -1,117 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWG1New@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbWG1NnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbWG1New (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 09:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWG1New
+	id S1161143AbWG1NnM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 09:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWG1NnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 09:34:52 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:42963 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1030242AbWG1Nev (ORCPT
+	Fri, 28 Jul 2006 09:43:12 -0400
+Received: from styx.suse.cz ([82.119.242.94]:14987 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1161099AbWG1NnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 09:34:51 -0400
-Subject: [PATCH]: tty buffering limit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1153941029.6903.5.camel@amdx2.microgate.com>
-References: <200607221209_MC3-1-C5CA-50EB@compuserve.com>
-	 <44C25548.5070307@microgate.com> <20060725184158.GH9021@kroah.com>
-	 <44C66D1C.7010903@microgate.com>  <20060726071652.GA6204@kroah.com>
-	 <1153941029.6903.5.camel@amdx2.microgate.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 14:53:36 +0100
-Message-Id: <1154094816.13509.132.camel@localhost.localdomain>
+	Fri, 28 Jul 2006 09:43:11 -0400
+Date: Fri, 28 Jul 2006 15:43:07 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Shem Multinymous <multinymous@gmail.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+Message-ID: <20060728134307.GD29217@suse.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060728122508.GC4158@elf.ucw.cz>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Certain people seem to have assumed tty->throttled was 'advisory'. In
-the absence of tty->author->throttle(), it seems we should keep a simple
-limit of our own to avoid problems when this occurs. 
+On Fri, Jul 28, 2006 at 02:25:08PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > >The applets that were doing it (yes, up to 100 times per second)
+> > > >corrected their ways pretty quickly, because some machines became
+> > > >unusable with the applet enabled.
+> > > 
+> > > Exactly -- and they've been working merrily ever since.
+> > > And if you don't want to trust applet developers, cache the latest
+> > > reads and refresh them only if X jiffies have passed.
+> > 
+> > The timer interrupt still has to happen every time their select() or
+> > sleep() expires, with the system having to wake up, even when nothing
+> > happened. Polling from userspace is bad.
+> 
+> I do not understand this. Any polling (in kernel or in userspace) will
+> wake the CPU, wasting power.
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+The kernel, however, has all the gory details at hand, and can decide
+much better about the polling frequency, than the (hopefully) hardware
+agnostic userspace.
 
+Imagine your Zaurus: You don't need to poll very often when you are on
+the flat part of the LiIon discharge curve, you probably want more
+detailed info near the end.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/char/tty_io.c linux-2.6.18-rc2-mm1/drivers/char/tty_io.c
---- linux.vanilla-2.6.18-rc2-mm1/drivers/char/tty_io.c	2006-07-27 16:19:51.000000000 +0100
-+++ linux-2.6.18-rc2-mm1/drivers/char/tty_io.c	2006-07-27 16:44:17.000000000 +0100
-@@ -247,6 +247,7 @@
- 		kfree(thead);
- 	}
- 	tty->buf.tail = NULL;
-+	tty->buf.memory_used = 0;
- }
- 
- static void tty_buffer_init(struct tty_struct *tty)
-@@ -255,11 +256,16 @@
- 	tty->buf.head = NULL;
- 	tty->buf.tail = NULL;
- 	tty->buf.free = NULL;
-+	tty->buf.memory_used = 0;
- }
- 
--static struct tty_buffer *tty_buffer_alloc(size_t size)
-+static struct tty_buffer *tty_buffer_alloc(struct tty_struct *tty, size_t size)
- {
--	struct tty_buffer *p = kmalloc(sizeof(struct tty_buffer) + 2 * size, GFP_ATOMIC);
-+	struct tty_buffer *p;
-+
-+	if (tty->buf.memory_used + size > 65536)
-+		return NULL;
-+	p = kmalloc(sizeof(struct tty_buffer) + 2 * size, GFP_ATOMIC);
- 	if(p == NULL)
- 		return NULL;
- 	p->used = 0;
-@@ -269,7 +275,7 @@
- 	p->read = 0;
- 	p->char_buf_ptr = (char *)(p->data);
- 	p->flag_buf_ptr = (unsigned char *)p->char_buf_ptr + size;
--/* 	printk("Flip create %p\n", p); */
-+	tty->buf.memory_used += size;
- 	return p;
- }
- 
-@@ -279,7 +285,9 @@
- static void tty_buffer_free(struct tty_struct *tty, struct tty_buffer *b)
- {
- 	/* Dumb strategy for now - should keep some stats */
--/* 	printk("Flip dispose %p\n", b); */
-+	tty->buf.memory_used -= b->size;
-+	WARN_ON(tty->buf.memory_used < 0);
-+
- 	if(b->size >= 512)
- 		kfree(b);
- 	else {
-@@ -299,16 +307,14 @@
- 			t->used = 0;
- 			t->commit = 0;
- 			t->read = 0;
--			/* DEBUG ONLY */
--			memset(t->data, '*', size);
--/* 			printk("Flip recycle %p\n", t); */
-+			tty->buf.memory_used += t->size;
- 			return t;
- 		}
- 		tbh = &((*tbh)->next);
- 	}
- 	/* Round the buffer size out */
- 	size = (size + 0xFF) & ~ 0xFF;
--	return tty_buffer_alloc(size);
-+	return tty_buffer_alloc(tty, size);
- 	/* Should possibly check if this fails for the largest buffer we
- 	   have queued and recycle that ? */
- }
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/include/linux/tty.h linux-2.6.18-rc2-mm1/include/linux/tty.h
---- linux.vanilla-2.6.18-rc2-mm1/include/linux/tty.h	2006-07-27 16:19:26.000000000 +0100
-+++ linux-2.6.18-rc2-mm1/include/linux/tty.h	2006-07-27 16:45:37.000000000 +0100
-@@ -59,6 +59,7 @@
- 	struct tty_buffer *head;	/* Queue head */
- 	struct tty_buffer *tail;	/* Active buffer */
- 	struct tty_buffer *free;	/* Free queue head */
-+	int memory_used;		/* Buffer space used excluding free queue */
- };
- /*
-  * The pty uses char_buf and flag_buf as a contiguous buffer
+> OTOH "high/low/very low" battery applet can reasonably query battery
+> every 5 minutes, while detailed, graphical thingie displaying the
+> current power consumption will probably poll every 10 seconds...
 
+-- 
+Vojtech Pavlik
+Director SuSE Labs

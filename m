@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWG1EeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWG1Eux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWG1EeG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 00:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWG1EeG
+	id S1750971AbWG1Eux (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 00:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWG1Eux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 00:34:06 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:11161 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1750870AbWG1EeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 00:34:04 -0400
-Date: Fri, 28 Jul 2006 00:34:03 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG() on apm resume in 2.6.18-rc2
-Message-ID: <20060728043403.GA21441@fieldses.org>
-References: <20060727033819.GA368@fieldses.org> <20060726231049.e9a0346e.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 28 Jul 2006 00:50:53 -0400
+Received: from 1wt.eu ([62.212.114.60]:1293 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S1750971AbWG1Euw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 00:50:52 -0400
+Date: Fri, 28 Jul 2006 06:49:39 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux v2.4.33-rc3 (and a new v2.4 maintainer)
+Message-ID: <20060728044939.GB17478@1wt.eu>
+References: <20060727213019.GA10677@dmt>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060726231049.e9a0346e.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <20060727213019.GA10677@dmt>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 26, 2006 at 11:10:49PM -0700, Andrew Morton wrote:
-> This?
+Hi Marcelo,
 
-Yep.  With 2.6.18-rc2 + that patch, the BUG() is gone and suspend-resume
-works fine.
-
-Thanks!--b.
-
-> --- a/./arch/i386/kernel/cpu/mcheck/mce.h~mce-section-fix
-> +++ a/./arch/i386/kernel/cpu/mcheck/mce.h
-> @@ -9,6 +9,6 @@ void winchip_mcheck_init(struct cpuinfo_
->  /* Call the installed machine check handler for this CPU setup. */
->  extern fastcall void (*machine_check_vector)(struct pt_regs *, long error_code);
->  
-> -extern int mce_disabled __initdata;
-> +extern int mce_disabled;
->  extern int nr_mce_banks;
->  
-> _
+On Thu, Jul 27, 2006 at 06:30:19PM -0300, Marcelo Tosatti wrote:
+ 
+> Willy Tarreau has stepped up to maintain the mainline v2.4 tree, and
+> will do so starting from v2.4.34.
 > 
+> He has devoted great effort to help maintenance for the past few years.
+> His -hotfix tree is quite popular amongst v2.4 users, for instance.
+> 
+> I feel very confident in his competence for the job, knowing his good
+> common sense and great technical/communication skills.
+> 
+> Thanks Willy!
+
+Hmmm... Like I once told you, I felt like you were trying to sell me
+your car, but you seem to have maintained it in very good state so I
+am confident it will not break after a few miles. I still hope that
+if I have any problem with it, you will come with your breakdown
+truck to rescue me :-)
+
+I hope I will get criticisms if I do things wrong. It's frustrating
+to work without feedback (either positive or negative).
+
+Best regards,
+Willy
+

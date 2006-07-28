@@ -1,79 +1,268 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWG1B4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWG1CBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWG1B4k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 21:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWG1B4j
+	id S932113AbWG1CBT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 22:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWG1CBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 21:56:39 -0400
-Received: from sccrmhc14.comcast.net ([204.127.200.84]:64188 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S932107AbWG1B4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 21:56:37 -0400
-Subject: Re: [RFC][PATCH] A generic boolean (version 6)
-From: Nicholas Miell <nmiell@comcast.net>
-To: ricknu-0@student.ltu.se
-Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <1154050195.44c968932df8d@portal.student.luth.se>
-References: <1153341500.44be983ca1407@portal.student.luth.se>
-	 <1153945705.44c7d069c5e18@portal.student.luth.se>
-	 <200607270448.03257.arnd.bergmann@de.ibm.com>
-	 <1153978047.2807.5.camel@entropy>
-	 <1154030149.44c91a453d6b0@portal.student.luth.se>
-	 <1154031240.2535.1.camel@entropy>
-	 <1154050195.44c968932df8d@portal.student.luth.se>
-Content-Type: text/plain
-Date: Thu, 27 Jul 2006 18:56:32 -0700
-Message-Id: <1154051792.2535.9.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Jul 2006 22:01:19 -0400
+Received: from msr22.hinet.net ([168.95.4.122]:50869 "EHLO msr22.hinet.net")
+	by vger.kernel.org with ESMTP id S932113AbWG1CBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 22:01:18 -0400
+Message-ID: <041701c6b1e9$aa23b140$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <1154029172.5967.8.camel@localhost.localdomain> <1153988890.3039.37.camel@laptopd505.fenrus.org>
+Subject: Re: [PATCH] Create IP100A Driver
+Date: Fri, 28 Jul 2006 10:00:56 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 03:29 +0200, ricknu-0@student.ltu.se wrote:
-> Citerar Nicholas Miell <nmiell@comcast.net>:
-> 
-> > On Thu, 2006-07-27 at 21:55 +0200, ricknu-0@student.ltu.se wrote:
-> > > Citerar Nicholas Miell <nmiell@comcast.net>:
-> > > 
-> > > > If _Bool does end up in the user-kernel ABI, be advised that validating
-> > > > them will be tricky ("b == true || b == false" or "!!b" won't work), and
-> > > 
-> > > Why would !!b not work?
-> > > I don't think it should end up in the ABI (at least, not yet). Just asking
-> > > because I'm curious. :)
-> > > 
-> > 
-> > The compiler knows that "b = !!b;" is a no-op.
-> 
-> In what gcc version? Using 4.0.2 myself and got that if b equals 12 (using a
-> pointer to add the value to the boolean) then !!b equals 1.
+Hi
+Thanks for those suggestion. We will update to our driver.
+After update I will submit it again.
 
-gcc version 4.1.1 20060525 (Red Hat 4.1.1-1) compiles:
+Thanks.
 
-#include <stdbool.h>
-bool validBool(bool b) { return (b == true || b == false); }
-bool normalizeBool(bool b) { return !!b; }
+Jesse
+----- Original Message ----- 
+From: "Arjan van de Ven" <arjan@infradead.org>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 27, 2006 4:28 PM
+Subject: Re: [PATCH] Create IP100A Driver
 
-to:
 
-validBool:
-        movl    $1, %eax
-        ret
+On Thu, 2006-07-27 at 15:39 -0400, Jesse Huang wrote:
+> From: Jesse Huang <jesse@icplus.com.tw>
+>
+> This is the first version of IP100A Linux Driver.
 
-normalizeBool:
-        movzbl  %dil, %eax
-        ret
+Hi,
+
+we appreciate your efforts in making a Linux driver a lot!
+I assume you are familiar with the process a bit; if not; a few of us
+will do a code review of the driver. The goal is just to avoid common
+mistakes and to assure a sort of consistent look/feel of the code with
+the rest of the kernel. These comments are not a reflection of you not
+doing something good, but please see them as suggestions for improving
+even further.
+
+>
+>
+>  drivers/net/ipf.c | 1378
+> +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+your email program has wrapped the longer lines of your email. I see
+that you are using Evolution; I use evolution as well and what works for
+me to avoid this problem is to set the text to "preformat". You can do
+this by clicking on the "Normal" box in the area just above the place
+where you type your email text; it will show a series of settings,
+preformat will be one of them. When you pick that the patch will come
+through undamaged.
+(it's not a big deal for review but for merging it into the tree it is a
+problem; the patch program cannot deal with line wrapped emails)
+
+>  drivers/net/ipf.h |  267 ++++++++++
+>  2 files changed, 1644 insertions(+), 1 deletions(-)
+>
+> 5e4c20f6799411d9262fc281b5ab1834c85c532a
+> diff --git a/drivers/net/ipf.c b/drivers/net/ipf.c
+> index 8b13789..6e610bd 100644
+> --- a/drivers/net/ipf.c
+> +++ b/drivers/net/ipf.c
+
+what would you think of calling your driver ip100a.c instead of ipf.c?
+> \
+
+> +/* Work-around for Kendin chip bugs. */
+> +#define CONFIG_SUNDANCE_MMIO // use MMIO
+> +#ifndef CONFIG_SUNDANCE_MMIO
+> +#define USE_IO_OPS 1
+> +#endif
+
+is this relevant for your driver as well?
+> +
+> +#ifndef __KERNEL__
+> +#define __KERNEL__
+> +#endif
+
+this is not needed at all, __KERNEL__ is always set; it's better to
+remove this, it's redundant and looks strange
+
+> +#if !defined(__OPTIMIZE__)
+> +#warning  You must compile this file with the correct options!
+> +#warning  See the last lines of the source file.
+> +#error You must compile this driver with "-O".
+> +#endif
+
+same for this
+
+
+> I/O (MDIO) interfaces. */
+> +static int __devinit eeprom_read(void __iomem * ioaddr, int location)
+> +{
+> + int boguscnt = 1000; /* Typical 190 ticks. */
+> + iowr16(0x0200 | (location & 0xff), ioaddr + EECtrl);
+> + do {
+> + if (! (iord16(ioaddr + EECtrl) & 0x8000)) {
+> + return iord16(ioaddr + EEData);
+> + }
+
+do you want some sort of timeout for this? This would be an infinite
+hang if the hardware ever does weird things
+
+> +static int change_mtu(struct net_device *dev, int new_mtu)
+> +{
+> + if ((new_mtu < 68) || (new_mtu > 8191)) /* Set by RxDMAFrameLen */
+> + return -EINVAL;
+
+I think the network layer already checks 68, but it's no problem to be
+double sure
+
+
+> +static struct ethtool_ops ipf_ethtool_ops = {
+> + .get_settings = ipf_get_settings,
+> + .set_settings = ipf_set_settings,
+> + .nway_reset   = ipf_nway_reset,
+> +};
+
+you probably want a few more ethtool_ops; at least the "get driver info"
+one is used by userspace distribution installation programs
+
+
+
+
+> +static int reset_tx (struct net_device *dev)
+> +{
+> + struct netdev_private *np = (struct netdev_private*) dev->priv;
+> + void __iomem * ioaddr = ipf_ioaddr(dev);
+> + struct sk_buff *skb;
+> + int i;
+> + int irq = in_interrupt();
+
+this sets of warning lights for me; in_interrupt() very often doesn't do
+what people think it does...
+however you don't seem to use it in your driver so it might as well go
+away
+
+> \+ if (intr_status & IntrPCIErr) {
+> + printk(KERN_ERR "%s: Something Wicked happened! %4.4x.\n",
+> +    dev->name, intr_status);
+> + /* We must do a global reset of DMA to continue. */
+> + }
+
+the comment says you need to do something, but I don't see the code
+doing that... is that correct?
+
+
+> +static irqreturn_t intr_handler(int irq, void *dev_instance, struct
+> pt_regs *rgs)
+> +{
+> + struct net_device *dev = (struct net_device *)dev_instance;
+> + struct netdev_private *np=dev->priv;
+> + void __iomem * ioaddr = ipf_ioaddr(dev);
+> + int hw_frame_id;
+> + int tx_cnt;
+> + int tx_status;
+> +    irqreturn_t intr_handled=IRQ_HANDLED;//IRQ_NONE;
+
+this looks like you return IRQ_HANDLED even when the hardware didn't
+have any work for you; that's not a good idea, you really ought to only
+return that if you did work, and use IRQ_NONE otherwise.
+> + if (tx_status & 0x1e) {
+> + /* It could fail to restart the tx when MaxCollions, need to try
+> more times */
+> + int i = 10;
+> + do {
+> + iowr16 (iord16(ioaddr + MACCtrl1) | TxEnable, ioaddr +
+> MACCtrl1);
+> + if (iord16(ioaddr + MACCtrl1) & TxEnabled) break;
+> + mdelay(1);
+
+are you really sure you want to do mdelay() in interrupt context?
+Especially if you do it 10 times that will give a HUGE latency
+
+
+> +static int netdev_open(struct net_device *dev)
+> +{
+> + struct netdev_private *np = dev->priv;
+> + void __iomem * ioaddr = ipf_ioaddr(dev);
+> + int i;
+> +
+> +   for(i=0;i<10;i++)
+> +   {
+> +   if(np->ProbeDone==1)break;//For Mandrake10.x multi-cpu
+> +   mdelay(1000);
+> +   }
+
+ouch! what is this about?
+
+> + // 04/19/2005 Jesse fix for complete initial step
+> + spin_lock(&np->lock);
+
+this lock is used in the IRQ handler, right? you really want to use
+spin_lock_irq or spin_lock_irqsave then!
+> +static void tx_timeout(struct net_device *dev)
+> +{
+> + struct netdev_private *np = dev->priv;
+> + void __iomem * ioaddr = ipf_ioaddr(dev);
+> + ULONG  flag;
+
+please do not use ULONG but just use "unsigned long"
+
+> + /* Increment cur_tx before tasklet_schedule() */
+> + np->cur_tx++;
+> + mb();
+
+would this need an atomic increment?
+
+
+> +
+> +    for(i=2000;i> 0;i--) {
+> + if((iord32(ioaddr + DMACtrl)&0xC000) == 0)break;
+> + mdelay(1);
+> +    }
+
+you really do like mdelay :)
+it's however quite evil since it is busy wait.... you may want to
+investigate using msleep() instead in the places that you can sleep
+> +   //20040817Jesse_ChangeSpeed: Add
+> +   for(i=1000;i;i--)
+> +   {
+> +    mdelay(1);
+> +      if(mdio_read(dev,np->phys[0],MII_BMSR)&0x20)break;
+> +   }
+
+and another one of these ;)
+
+
+> +/* when a module, this is printed whether or not devices are found in
+> probe */
+> +#ifdef MODULE
+> + printk(version);
+> +#endif
+
+hmm such ifdef is uncommon
+
+> + INT  msg_enable;
+> + UINT cur_rx, dirty_rx; /* Producer/consumer ring indices */
+> + UINT rx_buf_sz; /* Based on MTU+slack. */
+> + struct netdev_desc *last_tx; /* Last Tx descriptor used. */
+> + UINT cur_tx, dirty_tx;
+
+please use linux natural types (eg "int" and "unsigned int") rather than
+such defines.\
+
+Greetings,
+   Arjan van de Ven
 
 -- 
-Nicholas Miell <nmiell@comcast.net>
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+
 

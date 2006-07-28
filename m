@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWG1Bzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWG1B4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751790AbWG1Bzo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 21:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWG1Bzo
+	id S932114AbWG1B4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 21:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWG1B4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 21:55:44 -0400
-Received: from msr43.hinet.net ([168.95.4.143]:42634 "EHLO msr43.hinet.net")
-	by vger.kernel.org with ESMTP id S1751790AbWG1Bzn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 21:55:43 -0400
-Message-ID: <040401c6b1e8$e8b14ae0$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Francois Romieu" <romieu@fr.zoreil.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Jeff Garzik" <jgarzik@pobox.com>
-References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw> <20060727190707.GA24157@electric-eye.fr.zoreil.com>
-Subject: Re: Hello, We have IP100A Linux driver need to submit to 2.6.x kernel
-Date: Fri, 28 Jul 2006 09:55:31 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Thu, 27 Jul 2006 21:56:39 -0400
+Received: from sccrmhc14.comcast.net ([204.127.200.84]:64188 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932107AbWG1B4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 21:56:37 -0400
+Subject: Re: [RFC][PATCH] A generic boolean (version 6)
+From: Nicholas Miell <nmiell@comcast.net>
+To: ricknu-0@student.ltu.se
+Cc: Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Paul Jackson <pj@sgi.com>
+In-Reply-To: <1154050195.44c968932df8d@portal.student.luth.se>
+References: <1153341500.44be983ca1407@portal.student.luth.se>
+	 <1153945705.44c7d069c5e18@portal.student.luth.se>
+	 <200607270448.03257.arnd.bergmann@de.ibm.com>
+	 <1153978047.2807.5.camel@entropy>
+	 <1154030149.44c91a453d6b0@portal.student.luth.se>
+	 <1154031240.2535.1.camel@entropy>
+	 <1154050195.44c968932df8d@portal.student.luth.se>
+Content-Type: text/plain
+Date: Thu, 27 Jul 2006 18:56:32 -0700
+Message-Id: <1154051792.2535.9.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francois:
+On Fri, 2006-07-28 at 03:29 +0200, ricknu-0@student.ltu.se wrote:
+> Citerar Nicholas Miell <nmiell@comcast.net>:
+> 
+> > On Thu, 2006-07-27 at 21:55 +0200, ricknu-0@student.ltu.se wrote:
+> > > Citerar Nicholas Miell <nmiell@comcast.net>:
+> > > 
+> > > > If _Bool does end up in the user-kernel ABI, be advised that validating
+> > > > them will be tricky ("b == true || b == false" or "!!b" won't work), and
+> > > 
+> > > Why would !!b not work?
+> > > I don't think it should end up in the ABI (at least, not yet). Just asking
+> > > because I'm curious. :)
+> > > 
+> > 
+> > The compiler knows that "b = !!b;" is a no-op.
+> 
+> In what gcc version? Using 4.0.2 myself and got that if b equals 12 (using a
+> pointer to add the value to the boolean) then !!b equals 1.
 
-    Sorry, I don't know this patch before. IP100A is a new version of IP100
-(sundance.c). I don't know what is you suggestion of IP100A driver? Should
-I...
+gcc version 4.1.1 20060525 (Red Hat 4.1.1-1) compiles:
 
-1. Only updata sundance.c to support IP100A
-2. Release ip100a.c which support ip100(sundance) to kernel 2.6.x and ask to
-remove sundance.c.
-3. Release ip100a.c with sundance.c both to kernel 2.6.x
+#include <stdbool.h>
+bool validBool(bool b) { return (b == true || b == false); }
+bool normalizeBool(bool b) { return !!b; }
 
-We hope to use IP100a.c as our product driver, so 2. and 3. will better for
-IC Plus. But we will still follow your suggestion, if you feel 1. was better
-for kernel.
+to:
 
-Thanks!
+validBool:
+        movl    $1, %eax
+        ret
 
-Jesse
-
------ Original Message ----- 
-From: "Francois Romieu" <romieu@fr.zoreil.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>; "Andrew
-Morton" <akpm@osdl.org>; "Jeff Garzik" <jgarzik@pobox.com>
-Sent: Friday, July 28, 2006 3:07 AM
-Subject: Re: Hello, We have IP100A Linux driver need to submit to 2.6.x
-kernel
-
-
-Jesse Huang <jesse@icplus.com.tw> :
-[...]
-> I am IC Plus software engineer. We have IP100A 10/100 fast network adapter
-> driver need to submit to Linux 2.6.x kernel. Please tell me who should I
-> submit to.
->
-> IP100A's device ID is 0x13f0 0200.
-
-You do not need to do anything:
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1668b19f75cb949f930814a23b74201ad6f76a53
-
-As far as I have checked before forwarding Pedro Alejandro's patch, the
-out-of-tree IP100 driver exhibited no significant difference with the
-sundance driver.
+normalizeBool:
+        movzbl  %dil, %eax
+        ret
 
 -- 
-Ueimor
-
+Nicholas Miell <nmiell@comcast.net>
 

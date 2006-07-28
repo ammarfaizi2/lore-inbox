@@ -1,78 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWG1Hb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWG1HmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWG1Hb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 03:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030179AbWG1Hb0
+	id S1030207AbWG1HmR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 03:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWG1HmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 03:31:26 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:29628 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S932586AbWG1HbZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 03:31:25 -0400
-Subject: Re: [3/4] kevent: AIO, aio_sendfile() implementation.
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Ulrich Drepper <drepper@redhat.com>, Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       netdev <netdev@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com>
-References: <1153905495613@2ka.mipt.ru> <11539054952574@2ka.mipt.ru>
-	 <20060726100431.GA7518@infradead.org> <20060726101919.GB2715@2ka.mipt.ru>
-	 <20060726103001.GA10139@infradead.org> <44C77C23.7000803@redhat.com>
-	 <44C796C3.9030404@us.ibm.com> <1153982954.3887.9.camel@frecb000686>
-	 <44C8DB80.6030007@us.ibm.com>  <44C9029A.4090705@oracle.com>
-	 <1154024943.29920.3.camel@dyn9047017100.beaverton.ibm.com>
-	 <44C90987.1040200@redhat.com>
-	 <1154034164.29920.22.camel@dyn9047017100.beaverton.ibm.com>
-Date: Fri, 28 Jul 2006 09:31:15 +0200
-Message-Id: <1154071875.13577.8.camel@frecb000686>
+	Fri, 28 Jul 2006 03:42:16 -0400
+Received: from styx.suse.cz ([82.119.242.94]:16351 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1030207AbWG1HmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 03:42:15 -0400
+Date: Fri, 28 Jul 2006 09:42:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+Message-ID: <20060728074202.GA4757@suse.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2006 09:36:04,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 28/07/2006 09:36:05,
-	Serialize complete at 28/07/2006 09:36:05
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-07-27 at 14:02 -0700, Badari Pulavarty wrote:
-> On Thu, 2006-07-27 at 11:44 -0700, Ulrich Drepper wrote:
-> > Badari Pulavarty wrote:
-> > > Before we spend too much time cleaning up and merging into mainline -
-> > > I would like an agreement that what we add is good enough for glibc
-> > > POSIX AIO.
-> > 
-> > I haven't seen a description of the interface so far.  Would be good if
-> > it existed.  But I briefly mentioned one quirk in the interface about
-> > which Suparna wasn't sure whether it's implemented/implementable in the
-> > current interface.
+On Fri, Jul 28, 2006 at 03:27:00AM +0300, Shem Multinymous wrote:
+
+> >You're joking, right? On quite a number of laptops, it takes quite a
+> >while to read the battery, spent in BIOS through SMI, polling the I2C
+> >bus while talking to the battery. The less often this is done, the
+> >better.
 > 
-> Sebastien, could you provide a description of interfaces you are
-> adding ? Since you did all the work, it would be appropriate for
-> you to do it :)
+> Yes, I know -- tp_smapi does that too. And it's still negligible,
+> usually a few microseconds.
+
+The load isn't the problem. The incurred latencies - both interrupt and
+scheduling - are. Audio playback skips, mice losing sync, keyboards
+losing keystrokes, these are the nasty effects I've seen so far.
+
+> Heck, the hdaps driver polls that same I2C bus 50 times per seconds
+> and still doesn't tickle the load average.
+
+The Analog Devices ADXL2xx sensors in the HDAPS are not implementing
+I2C, only having analog and PWM outputs. I doubt they're connected over
+I2C to the EC.
+
+> >The applets that were doing it (yes, up to 100 times per second)
+> >corrected their ways pretty quickly, because some machines became
+> >unusable with the applet enabled.
 > 
+> Exactly -- and they've been working merrily ever since.
+> And if you don't want to trust applet developers, cache the latest
+> reads and refresh them only if X jiffies have passed.
 
-  I will clean up what description I have and send it soon.
+The timer interrupt still has to happen every time their select() or
+sleep() expires, with the system having to wake up, even when nothing
+happened. Polling from userspace is bad.
 
-  Sébastien.
+> >You could, trivially, mirror the behavior of current applets: Not report
+> >the changes to the battery status more often than each N seconds, except
+> >for critical events.
+> 
+> You're taking a polling-based hardware, exposing it as an event-based
+> interface, and then and kludging it so that it behaves like polling
+> again...
 
+Every (I2C, direct ADC and more) sensor is polling-based by nature. The
+eventization can happen in the EC, the BIOS, or later in the chain -
+kernel or userspace. The earlier you stop it, the better for your power
+consumption.
+
+On event-based interface, the program using it doesn't have to use
+events (it still can read the immediate values explicitly), on a
+polling-based interface nobody can use events.
+
+The event-based interface can even signal a certain device will not
+supply any events and needs to be polled. This would the interface to
+match the hardware better at the expense of making it more complex.
+
+> So, in this scheme, how many lines of code does is the equivalent of
+> "cat /sys/devices/platform/smapi/BAT0/voltage"?
+
+NOTE: I'm arguing event-based vs poll-based here. This is orthogonal to
+the /dev vs /sys - both can supply or not supply events.
+
+It's two lines in C, if you omit error checking.
+
+	fd = open("/dev/bat0", O_RDONLY);
+	ioctl(fd, BATCGVOLTAGE, &voltage);
+
+for the sysfs implementation (for comparison), you'll need (at minimum):
+
+	fd = open("/dev/bat0", O_RDONLY);
+	read(fd, buf, MAX_LEN);
+	voltage = strtol(buf, buf + MAX_LEN, 10);
+
+If you want a shell script, you'd use a small utility supplied with the
+reference implementation:
+
+	batstate -t voltage /dev/bat0
+
+And it'd of course give you the same output as the 'cat' line.
+
+> >> And you'll need to identify devices in a useful way, a problem that's
+> >> not yet solved even for input devices... You see where it's going.
+> >
+> >May you be more specific here? I'm not aware of any problems in this
+> >area. This may be my fault: What needs to be fixed there?
+> 
+> "Generic interface for accelerometers (AMS, HDAPS, ...)" on LKML, a
+> few weeks ago, about moving accelerator-based hard disk parking from
+> sysfs polling to the the input infrastructure. One unresolved issue
+> was how to find which input device happens to be the relevant
+> accelerometer.
+
+The current well known methods are:
+
+	1) udev/hotplug. It can create device nodes and symlinks based on the
+		capabilities and IDs of an input device.
+	1a) HAL. It has all the info from hotplug as well.
+	2) open them all and do the capability checks / IDs yourself.
+	3) (obsolete, deprecated) parse /proc/bus/input/devices, which
+		lists all the input devices
+
+Any problems with that?
 
 -- 
------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-                   http://sourceforge.net/projects/paiol
-
------------------------------------------------------
-
+Vojtech Pavlik
+Director SuSE Labs

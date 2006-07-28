@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWG1USF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161274AbWG1USr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWG1USF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161274AbWG1USE
+	id S1161274AbWG1USr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161279AbWG1USr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:18:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:9109 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161267AbWG1USB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:18:01 -0400
-Subject: Re: A better interface, perhaps: a timed signal flag
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Theodore Tso <tytso@mit.edu>, Neil Horman <nhorman@tuxdriver.com>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
-       a.zummo@towertech.it, jg@freedesktop.org
-In-Reply-To: <1154117532.19722.32.camel@localhost.localdomain>
-References: <44C67E1A.7050105@zytor.com>
-	 <20060725204736.GK4608@hmsreliant.homelinux.net>
-	 <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain>
-	 <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
-	 <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com>
-	 <20060726002043.GA5192@localhost.localdomain>
-	 <20060726144536.GA28597@thunk.org>
-	 <1154093606.19722.11.camel@localhost.localdomain>
-	 <20060728145210.GA3566@thunk.org>
-	 <1154104885.13509.142.camel@localhost.localdomain>
-	 <1154105089.19722.23.camel@localhost.localdomain>
-	 <1154116918.13509.162.camel@localhost.localdomain>
-	 <1154117532.19722.32.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 21:36:02 +0100
-Message-Id: <1154118962.13509.185.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Fri, 28 Jul 2006 16:18:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9143 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161274AbWG1USp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:18:45 -0400
+Date: Fri, 28 Jul 2006 13:18:14 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       alokk@calsoftinc.com
+Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
+In-Reply-To: <1154117501.10196.2.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0607281313310.20754@schroedinger.engr.sgi.com>
+References: <1154044607.27297.101.camel@localhost.localdomain> 
+ <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com> 
+ <1154067247.27297.104.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com>
+ <1154117501.10196.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-07-28 am 16:12 -0400, ysgrifennodd Steven Rostedt:
-> what the kernel does with wake_up.  That way you can sleep till another
-> process/thread is done with what it was doing and wake up the other task
-> when done, without the use of signals.  Or is there something that
-> already does this?
+On Fri, 28 Jul 2006, Thomas Gleixner wrote:
 
-futex and sys5 semaphore both do this. The latter is very portable but a
-bit less efficient.
+> On Fri, 2006-07-28 at 08:35 -0700, Christoph Lameter wrote:
+> > On Fri, 28 Jul 2006, Thomas Gleixner wrote:
+> > 
+> > > If you need more info, I can add debugs. It happens every bootup.
+> > 
+> > Could you tell me why _spin_lock and _spin_unlock seem 
+> > to be calling into the slab allocator? Also what is child_rip()? Cannot 
+> > find that function upstream.
+> 
+> arch/x86_64/kernel/entry.S
+
+Ah. Ok wrong arch. Why does _spin_unlock_irq call child_rip and then end 
+up in the slab allocator?
+
+Why does _spin_lock call kmem_cache_free?
+
+Is the stack trace an accurate representation of the calling sequence?
 
 

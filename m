@@ -1,59 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161222AbWG1SVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161217AbWG1SVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161222AbWG1SVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWG1SVJ
+	id S1161217AbWG1SVR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWG1SVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:21:09 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:57743 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1161219AbWG1SVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:21:08 -0400
-Subject: Re: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capability
-	checker
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Cc: vvs@sw.ru, akpm@osdl.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
-References: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
-Content-Type: text/plain
-Date: Fri, 28 Jul 2006 13:20:54 -0500
-Message-Id: <1154110854.9447.41.camel@mulgrave.il.steeleye.com>
+	Fri, 28 Jul 2006 14:21:17 -0400
+Received: from rune.pobox.com ([208.210.124.79]:44223 "EHLO rune.pobox.com")
+	by vger.kernel.org with ESMTP id S1161217AbWG1SVP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 14:21:15 -0400
+Date: Fri, 28 Jul 2006 13:20:41 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH -mm][resend] Disable CPU hotplug during suspend
+Message-ID: <20060728182041.GI19076@localdomain>
+References: <200607281015.30048.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607281015.30048.rjw@sisk.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-07-25 at 08:44 -0600, Ju, Seokmann wrote:
-> This patch contains 
-> - a fix for 64-bit DMA capability check in megaraid_{mm,mbox} driver.
-> - includes changes (going back to 32-bit DMA mask if 64-bit DMA mask
-> failes) suggested by James with previous patch.
-> - addition of SATA 150-4/6 as commented by Vasily Averin.
+Hi Rafael-
 
-Warning: trailing whitespace in lines 885,889 of
-drivers/scsi/megaraid/megaraid_mbox.c
-Warning: trailing whitespace in lines
-13,15,16,19,21,22,26,27,29,31,33,37,39,46 of
-Documentation/scsi/ChangeLog.megaraid
+A couple of minor comments:
 
-I'll fix it up this time, but in future could you trailing whitespace
-check your patches? (git will do this for you).
 
-Also, when you do a git workflow, the body of the email becomes the
-commit message, so things like this
+> +int cpu_down(unsigned int cpu)
+> +{
+> +	int err = 0;
+> +
+> +	mutex_lock(&cpu_add_remove_lock);
+> +	if (cpu_hotplug_disabled)
+> +		err = -EPERM;
+> +	else
+> +		err = __cpu_down(cpu);
+> +
+>  	mutex_unlock(&cpu_add_remove_lock);
+>  	return err;
+>  }
+> @@ -191,6 +203,11 @@ int __devinit cpu_up(unsigned int cpu)
+>  	void *hcpu = (void *)(long)cpu;
+>  
+>  	mutex_lock(&cpu_add_remove_lock);
+> +	if (cpu_hotplug_disabled) {
+> +		ret = -EPERM;
+> +		goto out;
+> +	}
 
-> This is a third patch which follows prevous two patches ([PATCH 1/3]
-> and
-> [PATCH 2/3]).
+I think -EBUSY would be more appropriate than -EPERM, perhaps?
 
-while no doubt being useful to the members of linux-scsi who are
-actually unable to count aren't actually useful in commit messages.
 
-James
+> +#ifdef CONFIG_SUSPEND_SMP
+> +static cpumask_t frozen_cpus;
+> +
+> +int disable_nonboot_cpus(void)
+> +{
+> +	int cpu, error = 0;
+> +
+> +	/* We take all of the non-boot CPUs down in one shot to avoid races
+> +	 * with the userspace trying to use the CPU hotplug at the same time
+> +	 */
+> +	mutex_lock(&cpu_add_remove_lock);
+> +	cpus_clear(frozen_cpus);
+> +	printk("Disabling non-boot CPUs ...\n");
+> +	for_each_online_cpu(cpu) {
+> +		if (cpu == 0)
+> +			continue;
 
+Assuming cpu 0 is online is not okay in generic code.  This should be
+something like:
+
+	int cpu, first_cpu, error = 0;
+
+	/* We take all of the non-boot CPUs down in one shot to avoid races
+	 * with the userspace trying to use the CPU hotplug at the same time
+	 */
+	mutex_lock(&cpu_add_remove_lock);
+	cpus_clear(frozen_cpus);
+	first_cpu = first_cpu(cpu_online_mask);
+	printk("Disabling non-boot CPUs ...\n");
+	for_each_online_cpu(cpu) {
+		if (cpu == first_cpu)
+			continue;
+
+
+> +		error = __cpu_down(cpu);
+> +		if (!error) {
+> +			cpu_set(cpu, frozen_cpus);
+> +			printk("CPU%d is down\n", cpu);
+> +		} else {
+> +			printk(KERN_ERR "Error taking CPU%d down: %d\n",
+> +				cpu, error);
+> +			break;
+> +		}
+> +	}
+> +	if (!error) {
+> +		BUG_ON(num_online_cpus() > 1);
+> +		BUG_ON(raw_smp_processor_id() != 0);
+
+Same problem here.
+
+Otherwise, I think the patch looks okay.
 

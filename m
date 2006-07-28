@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWG1Kf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbWG1Kfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbWG1Kf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 06:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWG1Kf2
+	id S932622AbWG1Kfg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 06:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbWG1Kfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 06:35:28 -0400
-Received: from colin.muc.de ([193.149.48.1]:55305 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932624AbWG1Kf2 (ORCPT
+	Fri, 28 Jul 2006 06:35:36 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:62389 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932622AbWG1Kff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 06:35:28 -0400
-Date: 28 Jul 2006 12:35:25 +0200
-Date: Fri, 28 Jul 2006 12:35:25 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Fw: Re: 2.6.18-rc2-mm1
-Message-ID: <20060728103525.GA75067@muc.de>
-References: <20060727224233.7fe3724a.akpm@osdl.org> <44C9ED37.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44C9ED37.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 28 Jul 2006 06:35:35 -0400
+Date: Fri, 28 Jul 2006 12:35:24 +0200 (MEST)
+Message-Id: <200607281035.k6SAZOJ3015670@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: davem@davemloft.net, mikpe@it.uu.se
+Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 09:55:51AM +0100, Jan Beulich wrote:
-> >>> Andrew Morton <akpm@osdl.org> 28.07.06 07:42 >>>
-> >
-> >fyi, Michael's dwarf unwinder seems to have broken.
-> >(please follow up on lkml).
+On Thu, 27 Jul 2006 20:38:59 -0700 (PDT), David Miller wrote:
+>I just confirmed that this is working properly with a debugging
+>patch included below.
+>
+>Mikael, can you put this debugging patch into a kernel that exhibits
+>the problem and post all the "FAULT: " debugging messages that appear
+>in your kernel log when the problem happens?
+>
+>Thanks a lot.
+>
+>diff --git a/mm/memory.c b/mm/memory.c
+>index 109e986..b129ae4 100644
+>--- a/mm/memory.c
+>+++ b/mm/memory.c
+>@@ -2270,6 +2270,12 @@ static inline int handle_pte_fault(struc
+> 	spinlock_t *ptl;
 > 
-> Hmm, not being able to unwind through sysenter_entry is no surprise
-> (this simply cannot be properly annotated, as the return address is not
-> explicit), but it'd end up in user mode anyway (and the inexact backtrace
-> doesn't go past it either). The fallback message is a little mis-leading as
-> what is shown is not the left-over backtrace, but the full one (Andi
-> probably knows better if/when/why this is supposed to be that way).
+> 	old_entry = entry = *pte;
+>+#if 1
+>+	if (pte_val(old_entry) & _PAGE_E_4U) {
+>+		printk("FAULT: write(%d) old_entry[%016lx]\n",
+>+		       write_access, pte_val(old_entry));
+>+	}
+>+#endif
+> 	if (!pte_present(entry)) {
+> 		if (pte_none(entry)) {
+> 			if (!vma->vm_ops || !vma->vm_ops->nopage)
+>@@ -2311,6 +2317,12 @@ static inline int handle_pte_fault(struc
+> 			flush_tlb_page(vma, address);
+> 	}
+> unlock:
+>+#if 1
+>+	if (pte_val(old_entry) & _PAGE_E_4U) {
+>+		printk("FAULT: After, entry[%016lx]\n",
+>+		       pte_val(entry));
+>+	}
+>+#endif
+> 	pte_unmap_unlock(pte, ptl);
+> 	return VM_FAULT_MINOR;
+> }
 
-Hmm, normally it should dump only the left over entries. On my testing
-it did that.
+Sure. Here's what 2.6.18-rc2 (vanilla) prints when I start X:
 
-> 
-> Likewise for the more puzzling case of not being able to unwind through
-> error_code - the left-over trace is again more like a full one. I'm not clear
-> why it can't unwind through error_code here; a sufficiently large piece
-> of the raw stack dump would be needed to check what's going on here,
-> and I just again (don't know how many times I already did this) verified
-> that in a similar scenario I get a proper unwind through that point.
+FAULT: write(1) old_entry[800001ffe2000788]
+FAULT: After, entry[800001ffe2000f8a]
+FAULT: write(1) old_entry[800001ffe2000788]
+FAULT: After, entry[800001ffe2000f8a]
+FAULT: write(1) old_entry[800001ffe2000788]
+FAULT: After, entry[800001ffe2000f8a]
+FAULT: write(1) old_entry[800001ffe2000788]
+FAULT: After, entry[800001ffe2000f8a]
+FAULT: write(1) old_entry[800001ffe2000788]
+FAULT: After, entry[800001ffe2000f8a]
+FAULT: write(1) old_entry[800001ffe13fe788]
+FAULT: After, entry[800001ffe13fef8a]
+FAULT: write(1) old_entry[e00001ffe1978788]
+FAULT: After, entry[e00001ffe1978f8a]
+FAULT: write(1) old_entry[e00001ffe1970788]
+FAULT: After, entry[e00001ffe1970f8a]
+FAULT: write(1) old_entry[e00001ffe1970f8a]
+FAULT: After, entry[e00001ffe1970f8a]
+FAULT: write(1) old_entry[e00001ffe1970f8a]
+FAULT: After, entry[e00001ffe1970f8a]
 
-Yes I've also seen valid stack traces through error_code
+The last two lines then repeat semi-infinitely, and they
+were generated at an extremely high rate.
 
-> 
-> The third one, getting stuck at __down_failed, is due to the still
-> unresolved issue of improper (from the perspective of stack unwinding)
-> instruction ordering include/asm-i386/semaphore.h.
-
-I'll fix that. Guess we'll just drop the lock sections.
-
--Andi
-
+/Mikael

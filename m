@@ -1,101 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161394AbWG1XxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWG1X4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161394AbWG1XxU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWG1XxU
+	id S1751331AbWG1X4n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWG1X4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:53:20 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:12047 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161394AbWG1XxT (ORCPT
+	Fri, 28 Jul 2006 19:56:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43437 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751331AbWG1X4n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:53:19 -0400
-Date: Fri, 28 Jul 2006 19:52:58 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org, paulus@au.ibm.com
-Subject: Re: [KJ] audit return code handling for kernel_thread [1/11]
-Message-ID: <20060728235258.GB4899@hmsreliant.homelinux.net>
-References: <200607282007.k6SK75MK009573@ra.tuxdriver.com> <44CAA26D.7030809@yahoo.com.au>
+	Fri, 28 Jul 2006 19:56:43 -0400
+Date: Fri, 28 Jul 2006 19:55:34 -0400
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: Nathan Scott <nathans@sgi.com>, stable@kernel.org,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
+Subject: Re: [stable] 2.6.17.[1-6] XFS Filesystem Corruption, Where is 2.6.17.7?
+Message-ID: <20060728235534.GE3217@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
+	Nathan Scott <nathans@sgi.com>, stable@kernel.org,
+	Justin Piszcz <jpiszcz@lucidpixels.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0607241224010.10896@p34.internal.lan> <20060725084624.C2090627@wobbly.melbourne.sgi.com> <20060725210716.GC4807@merlin.emma.line.org> <20060725210919.GD4807@merlin.emma.line.org> <20060728232654.GB2140@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CAA26D.7030809@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060728232654.GB2140@kroah.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 09:49:01AM +1000, Nick Piggin wrote:
-> nhorman@tuxdriver.com wrote:
-> >Audit/Cleanup of kernel_thread calls, specifically checking of return 
-> >codes.
-> >    Problems seemed to fall into 3 main categories:
-> >    
-> 
-> Thanks for doing this. Nitpick: this should be all one patch, or at most 3
-> patches (then each of the below 3 items would become individual changelogs).
-> 
-You're welcome. I specifically split it into multiple little patches, as each file has a
-different maintainer, but if the consensus is for one patch (or three), so be it, I'll do
-that in the future.
+On Fri, Jul 28, 2006 at 04:26:54PM -0700, Greg Kroah-Hartman wrote:
 
-> Each patch should have a unique changelog, each should have a unique subject
-> (sans the sequence number).
-> 
-> cc'ing Andrew is also a good idea, if you want them to get merged ;)
-> 
-I can do that :)
+ > > OK, 2.6.17.7 is out, but still - is this suggestion worthwhile
+ > > considering for future -stable release engineering or just crap?
+ > 
+ > .7 took a bit longer than expected, due to some security bugs that
+ > needed to be added to the queue, combined with the fact that both Chris
+ > and I were busy with OLS stuff.  Normally we both aren't travelling at
+ > the same time, but right then, we were, so we couldn't respond as
+ > quickly as it seems some people felt we should have.
+ > 
+ > Sorry about this, we'll try to do better next time.
 
-> One coding style comment:
-> if (...)
->     multi line
->         statement
-> 
-> Could use braces around the outermost if statement, for clarity.
-> 
-If you ack this, I'll post a follow on patch to clean that up next week.  I've already
-received a suggestion to use the same failure to start thread warning message to
-save string table space, so I've got some extra clean up to do anyway.
+The flipside to this is that those patches had been posted for around a
+week before you released .7, and *no-one* caught this problem until
+after the release.
 
-Regards
-Neil
+The burden of testing shouldn't solely be on the -stable team.
+Perhaps a -pre release at the time of review would be a good idea.
+Just a roll-up of the proposed patches, to save testers having
+to save and apply 30 patches seperately ?
 
-> 
-> >    1) callers of kernel_thread were inconsistent about meaning of a zero 
-> >    return
-> >    code.  Some callers considered a zero return code to mean success, 
-> >    others took
-> >    it to mean failure.  a zero return code, while not actually possible 
-> >    in the
-> >    current implementation, should be considered a success (pid 0 
-> >    is/should be
-> >    valid). fixed all callers to treat zero return as success
-> >    
-> >    2) caller of kernel_thread saved return code of kernel_thread for 
-> >    later use
-> >    without ever checking its value.  Callers who did this tended to 
-> >    assume a
-> >    non-zero return was success, and would often wait for a completion 
-> >    queue to be
-> >    woken up, implying that an error (negative return code) from 
-> >    kernel_thread could
-> >    lead to deadlock.  Repaired by checking return code at call time, and 
-> >    setting
-> >    saved return code to zero in the event of an error.
-> >    
-> >    3) callers of kernel_thread never bothered to check the return code at 
-> >    all.
-> >    This can lead to seemingly unrelated errors later in execution.  Fixed 
-> >    by
-> >    checking return code at call time and printing a warning message on 
-> >    failure.
-> 
-> -- 
-> SUSE Labs, Novell Inc.
-> Send instant messages to your online friends http://au.messenger.yahoo.com 
+		Dave
 
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+http://www.codemonkey.org.uk

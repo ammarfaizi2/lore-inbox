@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161270AbWG1UJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161273AbWG1UIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161270AbWG1UJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161264AbWG1UIt
+	id S1161273AbWG1UIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWG1UIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:08:49 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:43787 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161270AbWG1UIT (ORCPT
+	Fri, 28 Jul 2006 16:08:14 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:37643 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1161262AbWG1UHu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:08:19 -0400
-Date: Fri, 28 Jul 2006 16:08:05 -0400
+	Fri, 28 Jul 2006 16:07:50 -0400
+Date: Fri, 28 Jul 2006 16:07:35 -0400
 From: nhorman@tuxdriver.com
-Message-Id: <200607282008.k6SK85lh009691@ra.tuxdriver.com>
+Message-Id: <200607282007.k6SK7ZN7009626@ra.tuxdriver.com>
 To: fpavlic@de.ibm.com, kernel-janitors@osdl.org, linux-kernel@vger.kernel.org,
        nhorman@tuxdriver.com
-Subject: [KJ] audit return code handling for kernel_thread [9/11]
+Subject: [KJ] audit return code handling for kernel_thread [5/11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -44,25 +44,24 @@ Neil
 Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
 
- drivers/s390/net/qeth_main.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
---- a/drivers/s390/net/qeth_main.c
-+++ b/drivers/s390/net/qeth_main.c
-@@ -1048,11 +1048,14 @@ qeth_start_kernel_thread(struct qeth_car
- 		return;
- 
- 	if (qeth_do_start_thread(card, QETH_SET_IP_THREAD))
--		kernel_thread(qeth_register_ip_addresses, (void *)card,SIGCHLD);
-+		if (kernel_thread(qeth_register_ip_addresses, (void *)card,SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start qeth register thread\n");
- 	if (qeth_do_start_thread(card, QETH_SET_PROMISC_MODE_THREAD))
--		kernel_thread(qeth_set_promisc_mode, (void *)card, SIGCHLD);
-+		if (kernel_thread(qeth_set_promisc_mode, (void *)card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start qeth prmisc thread\n");
- 	if (qeth_do_start_thread(card, QETH_RECOVER_THREAD))
--		kernel_thread(qeth_recover, (void *) card, SIGCHLD);
-+		if (kernel_thread(qeth_recover, (void *) card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start qeth recovery thread\n");
+ drivers/s390/net/lcs.c         |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1729,11 +1729,13 @@ lcs_start_kernel_thread(struct lcs_card 
+ {
+ 	LCS_DBF_TEXT(5, trace, "krnthrd");
+ 	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD))
+-		kernel_thread(lcs_recovery, (void *) card, SIGCHLD);
++		if (kernel_thread(lcs_recovery, (void *) card, SIGCHLD) < 0)
++			printk(KERN_WARNING "Could not start lcs recovery thread\n");
+ #ifdef CONFIG_IP_MULTICAST
+ 	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD))
+-		kernel_thread(lcs_register_mc_addresses,
+-				(void *) card, SIGCHLD);
++		if (kernel_thread(lcs_register_mc_addresses,
++				(void *) card, SIGCHLD) < 0)
++			printk(KERN_WARNING "Could not start lcs mc thread\n");
+ #endif
  }
- 
  

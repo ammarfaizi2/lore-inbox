@@ -1,64 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWG1BN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWG1BRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWG1BN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 21:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1BN7
+	id S1751759AbWG1BRu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 21:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1BRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 21:13:59 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32934
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751276AbWG1BN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 21:13:58 -0400
-Date: Thu, 27 Jul 2006 18:13:56 -0700 (PDT)
-Message-Id: <20060727.181356.71087770.davem@davemloft.net>
-To: mikpe@it.uu.se
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060707.000524.112600047.davem@davemloft.net>
-References: <200607060937.k669bZT3017256@harpo.it.uu.se>
-	<20060707.000524.112600047.davem@davemloft.net>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 27 Jul 2006 21:17:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:41441 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751285AbWG1BRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 21:17:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XrX+jPSXei2vsBJqhiVtMOaMWifvMGhJRCreD9QlzGcg1UtJn29WqB8cCDnteek/qxIU7mH42vkNi22uu35P+q07Gbw1mzpUntWkXyJtGHSSStwoKRJaHsoQG5ZUP8z/NARV1YGHtltjryf4acQYXMI+LaDFaElpwsXH+5Wvo3o=
+Message-ID: <787b0d920607271817u4978d2bdiac261d916971c1b3@mail.gmail.com>
+Date: Thu, 27 Jul 2006 21:17:48 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Albert Cahalan" <acahalan@gmail.com>, torvalds@osdl.org,
+       alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
+       arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       roland@redhat.com
+Subject: Re: ptrace bugs and related problems
+In-Reply-To: <20060727203128.GA26390@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <787b0d920607262355x3f669f0ap544e3166be2dca21@mail.gmail.com>
+	 <20060727203128.GA26390@nevyn.them.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Miller <davem@davemloft.net>
-Date: Fri, 07 Jul 2006 00:05:24 -0700 (PDT)
+On 7/27/06, Daniel Jacobowitz <dan@debian.org> wrote:
+> On Thu, Jul 27, 2006 at 02:55:17AM -0400, Albert Cahalan wrote:
+> > Many of these bugs are generic, some are pure i386, some are for
+> > i386 binaries on the x86-64 kernel, and some apply to a bit more.
+> > Some bugs may involve race conditions: I use a 2-core AMD system.
+> > Kernels vary, but are generally quite recent. (stock 2.6.17.7,
+> > FC5's latest update, etc.)
+>
+> Reporting bugs individually, and with a bit more detail, has the
+> advantage that people can actually keep track of them and
+> recognize them; I highly recommend it.  And how are we supposed to
+> answer bugs that apply individually to kernels of unspecified origin?
 
-> I'll have to figure out how the writeable bits get lost
-> in the call chain.
+I think the detail is enough to be useful, which is better
+than no bug reports at all.
 
-Actually, I digged further, things seem correct.
+I've been taking notes as I encounter the bugs at work.
+I just recently got an OK to post them. While trying to
+find workarounds so I can ship a product, I certainly did
+not have an excess of time to play with the bugs.
 
-Initially we only set the SW-writable bit, and this is the right thing
-to do for a MAP_SHARED writable mapping.
+> > There is a ptrace option to follow vfork, and an option to get a
+> > message when the parent is released by the child. In kernel/fork.c
+> > there is a bad attempt at optimization which prevents the release
+> > message (PTRACE_EVENT_VFORK_DONE) from being sent unless the ptrace
+> > user also chose the option to follow the vfork child.
+>
+> This doesn't make sense.  Example?
+>
+>      wait_for_completion(&vfork);
+>      if (unlikely (current->ptrace & PT_TRACE_VFORK_DONE))
+>             ptrace_notify ((PTRACE_EVENT_VFORK_DONE << 8) | SIGTRAP);
+>
+> When the parent's vfork is done, the parent's debugger gets a
+> notification.
 
-If the process actually tries to write to the mapping, the page fault
-path will set the two bits that actually enable writes, namely the
-HW-writable bit and the SW-dirty bit.
+Minor correction: the message is sent with bad data.
+Here at home I happen to have 2.6.17-rc5, so
+looking in the kernel/fork.c file there:
 
-This occurs when pte_mkdirty() is called on the PTE during the
-execution of mm/memory.c:handle_pte_fault(), right here:
+The fork_traceflag function looks only at the flags
+used to follow processes, including PT_TRACE_VFORK.
 
-	if (write_access) {
-		if (!pte_write(entry))
-			return do_wp_page(mm, vma, address,
-					pte, pmd, ptl, entry);
-		entry = pte_mkdirty(entry);
-	}
+In do_fork, the result of fork_traceflag is assigned
+to the "trace" variable. Note that PT_TRACE_VFORK_DONE
+does not cause "trace" to be non-zero.
 
-pte_write() will return true, since the SW-writable bit is set.  So we
-don't should not invoke do_wp_page(), and we'll just set the dirty bit
-on the existing PTE.
+Then we hit this code:
 
-For some reason that isn't happening properly, or something keeps
-clearing the HW-writable bit on us.  Another possibility is that
-one of these operations sets the cacheable bits, or clears the
-side-effect bit, either of which would cause corruption or other
-problems when accessing the ATI card through such a mapping.
+                if (unlikely (trace)) {
+                        current->ptrace_message = nr;
+                        ptrace_notify ((trace << 8) | SIGTRAP);
+                }
 
-I wonder why.... I'll try to run some experiments on my system to try
-and get to the bottom of this.
+That doesn't run. The ptrace_message is thus not set when
+ptrace_notify is called to send the PTRACE_EVENT_VFORK_DONE
+message. You get random stale data from a previous message.
+
+> > The PTRACE_EVENT_EXEC messages are just plain unreliable. They don't
+> > always arrive. Things get especially ugly when a non-leader task
+> > does an execve.
+>
+> This is what I meant by vague bug reports.  The code for sending this
+> event is quite simple.  Things do get ugly when non-leader tasks exec;
+> I don't know whether the forced exits of other threads are clearly
+> visible from the debugger.
+
+The forced exits show up, oddly. I see one for each task,
+except for the task which called execve(). The task calling
+execve() will silently go away. The leader task, despite
+being reported as dead, returns from execve. Ouch. It would
+be much more friendly to have the task calling execve()
+send a (new) PTRACE_EVENT_TID_CHANGE message with the new ID
+as the ptrace_message. If this is the very last message sent
+by the task doing execve and is made to arrive in proper order,
+the debugger can renumber the structures it uses to track tasks.
+
+I don't get WIFEXITED with waitpid for any of this.
+
+> > Suppose my debugger has a few threads. PTRACE_ATTACH will not share.
+> > All ptrace calls fail for all threads other than the one that attached.
+> > It really sucks to have to funnel everything through one thread.
+>
+> This is a known limit of ptrace.  It's discussed periodically.
+
+It's a known bug. More trouble:
+
+Note that the new unshare() system call will need to send
+ptrace events for all tasks affected. Sending the event from
+one task is no good because the event might arrive after the
+debugger has responded to some other task. Consider breakpoints
+in a shared mm, with the mm suddenly becoming unshared.
+
+There is also no way to find all the tasks which share an mm.
+This is needed so that tasks don't die if the debugger attaches
+to a pre-existing task and sets a breakpoint.
+
+The /proc/*/auxv files don't work immediately after starting
+a process via the usual fork,PTRACE_TRACEME,exec method.
+One has to wait some undetermined amount of time.
+
+PTRACE_GETSIGINFO has 0x0605 as si_code when a process exits.
+This is not defined anywhere.

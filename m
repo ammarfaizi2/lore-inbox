@@ -1,72 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161294AbWG1Uol@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161295AbWG1Uoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161294AbWG1Uol (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWG1Uol
+	id S1161295AbWG1Uoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWG1Uoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:44:41 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62597 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161294AbWG1Uok (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:44:40 -0400
-Subject: Re: 2.6.18-rc2-mm1
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>
-In-Reply-To: <6bffcb0e0607281253j28e04ba2icec85589e9390b3e@mail.gmail.com>
-References: <20060727015639.9c89db57.akpm@osdl.org>
-	 <6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com>
-	 <6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com>
-	 <20060728013442.6fabae54.akpm@osdl.org> <1154112567.21787.2522.camel@stark>
-	 <6bffcb0e0607281253j28e04ba2icec85589e9390b3e@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 28 Jul 2006 13:39:50 -0700
-Message-Id: <1154119190.21787.2528.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Fri, 28 Jul 2006 16:44:44 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:42129 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S1161295AbWG1Uon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:44:43 -0400
+Message-ID: <44CA7738.4050102@bootc.net>
+Date: Fri, 28 Jul 2006 21:44:40 +0100
+From: Chris Boot <bootc@bootc.net>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: [RFC] Proposal: common kernel-wide GPIO interface
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 21:53 +0200, Michal Piotrowski wrote:
-> On 28/07/06, Matt Helsley <matthltc@us.ibm.com> wrote:
-> > On Fri, 2006-07-28 at 01:34 -0700, Andrew Morton wrote:
-> > > On Fri, 28 Jul 2006 10:17:44 +0200
-> > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-> > >
-> > > > Matt, can you look at this?
-> > > >
-> > > > My hunt file shows me, that this patches are causing oops.
-> > > > GOOD
-> > > > #
-> > > > #
-> > > > task-watchers-task-watchers.patch
-> > > > task-watchers-register-process-events-task-watcher.patch
-> > > > task-watchers-refactor-process-events.patch
-> > > > task-watchers-make-process-events-configurable-as.patch
-> > > > task-watchers-allow-task-watchers-to-block.patch
-> > > > task-watchers-register-audit-task-watcher.patch
-> > > > task-watchers-register-per-task-delay-accounting.patch
-> > > > task-watchers-register-profile-as-a-task-watcher.patch
-> > > > task-watchers-add-support-for-per-task-watchers.patch
-> > > > task-watchers-register-semundo-task-watcher.patch
-> > > > task-watchers-register-per-task-semundo-watcher.patch
-> > > > BAD
-> > >
-> > > Thanks for working that out.
-> >
-> >         I noticed the delay accounting functions in the stack trace. Perhaps
-> > task-watchers-register-per-task-delay-accounting.patch is causing the
-> > problem.
-> 
-> Confirmed.
+Hello all,
 
-Excellent, thanks for the rapid confirmation. I'll work with Shailabh
-and Balbir to fix this. In the meantime perhaps
-task-watchers-register-per-task-delay-accounting.patch should be dropped
-from -mm.
+More and more devices these days come with some sort of GPIO interface, and more 
+and more drivers within the kernel could make use of a common way of accessing 
+pins on such an interface, not to mention userspace apps. For example, we have 
+the I2C, LED, and SPI subsystems that each could drive a device that's actually 
+connected to some GPIO pins somewhere.
 
-Cheers,
-	-Matt Helsley
+I propose to develop a common way of registering and accessing GPIO pins on 
+various devices. Now I'm no hardware expert, but I do like to dabble a bit and 
+would love to see such a system be developed. Most people tend to attach stuff 
+like LCD displays to their parallel ports, but GPIOs are much better suited to 
+such a purpose than a parallel port. Some (out of tree) drivers even emulate a 
+parallel interface in order that userspace software can be fooled to use the 
+GPIO pins as a parallel port. In my view, this is ugly.
 
+As far as I can tell, GPIO interfaces all share the following attributes:
+- One or more ports made up of one or more individual pins
+- Value on input or output depending on configuration
+- Various configuration bits might be available to influence the pin's behaviour
+   - Direction
+   - Push-pull / Open drain
+   - Pull-up enable
+   - Possibly others
+
+We'll need some way of assigning pins to different functions I'm guessing as 
+well, especially when we come to write drivers for the interface. It might not 
+fit right into the GPIO driver, but as far as I can see the I2C, LED, and SPI 
+subsystem drivers would need such a method to create generic 
+GPIO<=>{I2C,LED,SPI} drivers.
+
+As well as a kernel interface I propose a userspace interface of some kind. I'm 
+not entirely sure what might be the most efficient way of doing this, but the 
+current standard way seems to be to create a sysfs class interface, although an 
+old-fashioned device interface with IOCTLs and so on might be the best way 
+forward. Any suggestions?
+
+As for drivers, to start with I suggest a parallel port driver as well as 
+drivers for the NSC SCx200 and PC8736x (since I own a board with both of those).
+
+So, if anyone likes this idea and/or has some comments, please voice your 
+opinions! With a little guidance from the masters, I'm willing to put the effort 
+in to code such a system, but I'd really like to hear what people involved both 
+in the hardware side and software side of GPIOs and the kernel have to say about 
+such an interface.
+
+Many thanks,
+Chris
+
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/

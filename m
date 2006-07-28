@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161370AbWG1XSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161364AbWG1Xfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161370AbWG1XSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161368AbWG1XSM
+	id S1161364AbWG1Xfg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161367AbWG1Xfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:18:12 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5557 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1161365AbWG1XSL (ORCPT
+	Fri, 28 Jul 2006 19:35:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17059 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161364AbWG1Xff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:18:11 -0400
-Date: Sat, 29 Jul 2006 01:17:56 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>
-Subject: Re: Generic battery interface
-Message-ID: <20060728231756.GA4230@elf.ucw.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com> <20060728202359.GB5313@suse.cz> <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
-MIME-Version: 1.0
+	Fri, 28 Jul 2006 19:35:35 -0400
+Date: Fri, 28 Jul 2006 19:35:33 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: use after free on ctrl-alt-del
+Message-ID: <20060728233533.GC3217@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With 2.6.18-rc2-git6, I see this when I hit ctrl-alt-del
+on one of my machines (oddly on no others though).
 
-> >> And then we have to maintain both a kernel side and a userspace side.
-> >> And what do I, poor author of tp_smapi, do if I want to add a
-> >> non-standard attribute? Tell people to patch and overwrite their
-> >> disto's batstate binary too?
-> >
-> >How often do you plan to do that?
-> 
-> With tp_smapi, I did it about 10 times over half a year. And there's
-> probably more to come.
+BUG: unable to handle kernel paging request at virtual address 6b6b6b6b
+ printing eip:
+6b6b6b6b
+*pde = 00000000
+Oops: 0000 [#2]    <-- The other oopsen were from SATA, more bugs to follow.
+eax: dfa4d49c ebx: 6b6b6b6b ecx: 00000000 edx: 00000001
+esi: dfa4d49c edi: 00000000 ebp: c1858e7c esp: c1858e68
+...
+Call Trace:
+show_stack_log_lvl+0x8a
+show_registers
+die
+do_page_fault
+error_code
+blocking_notifier_call_chain
+kernel_restart_prepare
+kernek_restart
+sys_reboot
+syscall_call
 
-I still like /sys approach a bit more, but a word of warning: "it is
-hard to change kernel<->user interface" is actually a feature.
-
-It sucks when you are the one doing the work, but maybe it will mean
-reusing interfaces where possible.
-
-								Pavel
+		Dave
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+http://www.codemonkey.org.uk

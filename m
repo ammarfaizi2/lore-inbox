@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161269AbWG1UIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161266AbWG1UIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161269AbWG1UIK (ORCPT <rfc822;willy@w.ods.org>);
+	id S1161266AbWG1UIK (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 28 Jul 2006 16:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161266AbWG1UHn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWG1UHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:07:43 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:34571 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161262AbWG1UHf (ORCPT
+	Fri, 28 Jul 2006 16:07:42 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:35595 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1161264AbWG1UHj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:07:35 -0400
-Date: Fri, 28 Jul 2006 16:07:21 -0400
+	Fri, 28 Jul 2006 16:07:39 -0400
+Date: Fri, 28 Jul 2006 16:07:28 -0400
 From: nhorman@tuxdriver.com
-Message-Id: <200607282007.k6SK7Lb4009598@ra.tuxdriver.com>
+Message-Id: <200607282007.k6SK7SW2009612@ra.tuxdriver.com>
 To: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org,
-       marcel@holtmann.org, nhorman@tuxdriver.com
-Subject: [KJ] audit return code handling for kernel_thread [3/11]
+       nhorman@tuxdriver.com, torvalds@osdl.org
+Subject: [KJ] audit return code handling for kernel_thread [4/11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -44,24 +44,16 @@ Neil
 Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
 
- core.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -2052,11 +2052,15 @@ static CLASS_ATTR(rfcomm_dlc, S_IRUGO, r
- /* ---- Initialization ---- */
- static int __init rfcomm_init(void)
- {
-+	int ret;
- 	l2cap_load();
+ init/do_mounts_initrd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--- a/init/do_mounts_initrd.c
++++ b/init/do_mounts_initrd.c
+@@ -57,7 +57,7 @@ static void __init handle_initrd(void)
  
- 	hci_register_cb(&rfcomm_cb);
- 
--	kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
-+	ret = kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
-+	
-+	if (ret < 0)
-+		return ret;
- 
- 	class_create_file(bt_class, &class_attr_rfcomm_dlc);
- 
+ 	current->flags |= PF_NOFREEZE;
+ 	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+-	if (pid > 0) {
++	if (pid >= 0) {
+ 		while (pid != sys_wait4(-1, NULL, 0, NULL))
+ 			yield();
+ 	}

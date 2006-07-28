@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751924AbWG1Ey6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWG1E4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751924AbWG1Ey6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 00:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751950AbWG1Ey6
+	id S932573AbWG1E4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 00:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWG1E4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 00:54:58 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:52536 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751924AbWG1Ey6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 00:54:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=idRpFmyR6T++NIUNKlBsf+iAzoRiLqYv3YO1OurUqTjYabVM5hPMb5fN+i86KZjRSruAR6b9mpajpdijyDxQCzptEGHHjec9la7NVeoilNaXdnMrAqKq05JlsZmdvbED1V7NFhxbSlvb/nNb/itVwraXdAubnLuKxwArHTVivpA=
-Message-ID: <787b0d920607272154i44fea139pdff9f7395079779d@mail.gmail.com>
-Date: Fri, 28 Jul 2006 00:54:56 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: adobriyan@gmail.com, linux-kernel@vger.kernel.org,
-       jsipek@fsl.cs.sunysb.edu, B.Steinbrink@gmx.de
-Subject: Re: [RFC] #define rwxr_xr_x 0755
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jul 2006 00:56:14 -0400
+Received: from 1wt.eu ([62.212.114.60]:2573 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S932573AbWG1E4M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 00:56:12 -0400
+Date: Fri, 28 Jul 2006 06:55:07 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Grant Coady <gcoady.lk@gmail.com>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, linux-kernel@vger.kernel.org,
+       mtosatti@redhat.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: Linux v2.4.33-rc3 (and a new v2.4 maintainer)
+Message-ID: <20060728045507.GC17478@1wt.eu>
+References: <200607280216.k6S2GgiJ009955@harpo.it.uu.se> <nbuic2ljd8n5g43k74tussq2hm5nvrn04e@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <nbuic2ljd8n5g43k74tussq2hm5nvrn04e@4ax.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan writes:
+On Fri, Jul 28, 2006 at 12:46:31PM +1000, Grant Coady wrote:
+> On Fri, 28 Jul 2006 04:16:42 +0200 (MEST), Mikael Pettersson <mikpe@it.uu.se> wrote:
+> 
+> >On Thu, 27 Jul 2006 18:30:19 -0300, Marcelo Tosatti wrote:
+> >>Here goes the third (and hopefully last) release candidate of v2.4.33.
+> >
+> >http://www.kernel.org/pub/linux/kernel/v2.4/testing/patch-2.4.33-rc3.bz2
+> >is only 854 bytes long, and once bunzip2:ed it looks like it's the
+> >incremental diff between rc2 and rc3. Usually the full pre/rc patches
+> >go in testing/ with the incrementals going into testing/incr/.
+> >
+> >No big deal, but it would feel better with a proper -rc3 patch there.
+> >
+> 
+> Yeah, stuff happens ;)  
 
-> Every time I try to decipher S_I* combos I cry in pain. Often I just
-> refer to include/linux/stat.h defines to find out what mode it is
-> because numbers are actually quickier to understand.
->
-> Compare and contrast:
->
->       0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
-> I'd say #2 really sucks.
+I will let Marcelo fix it.
 
-Damn right.
+> At the moment one needs 2.4.32 plus patches -rc2 and -rc3, like you 
+> say, very obvious from patch file sizes ;)
+> 
+> At least -rc3 goes okay on 7 of 7 test boxen here: 
+>   <http://bugsplatter.mine.nu/test/linux-2.4/>
 
-I'd be very happy to remove (or #ifndef __KERNEL__ as needed) the
-dreadful S_FOO macros. I'd be much happier with plain old octal,
-as is normally used for both syscalls and the chmod command.
+Fine, thanks for the test, Grant. I expect to release hf32.7 soon, all
+the patches are already waiting in the git tree. But I won't announce
+a date anymore, everytime I did so I did not respect it at all.
 
-(the non-octal nonsense was probably invented for porting
-software to non-UNIX systems)
+> Cheers,
+> Grant.
 
-If you like the ls way though, you might as well add the file
-type notation:  drwxr_xr_x, _r__r__r__, _rw_r__r__, etc.
-That's not too bad. Plain octal is best though.
+Cheers,
+Willy
+

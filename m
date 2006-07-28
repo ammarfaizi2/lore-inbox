@@ -1,66 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161390AbWG1Xvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161394AbWG1XxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161390AbWG1Xvz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161392AbWG1Xvz
+	id S1161394AbWG1XxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161396AbWG1XxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:51:55 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:50908 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161390AbWG1Xvz (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:51:55 -0400
-Message-Id: <200607282351.k6SNpinN017263@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: David Miller <davem@davemloft.net>
-Cc: arjan@linux.intel.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
-In-Reply-To: Your message of "Fri, 28 Jul 2006 16:12:15 PDT."
-             <20060728.161215.98863664.davem@davemloft.net>
-From: Valdis.Kletnieks@vt.edu
-References: <200607282045.05292.ak@suse.de> <1154112511.6416.46.camel@laptopd505.fenrus.org> <200607282305.k6SN5e0k015125@turing-police.cc.vt.edu>
-            <20060728.161215.98863664.davem@davemloft.net>
+	Fri, 28 Jul 2006 19:53:20 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:12047 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1161394AbWG1XxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 19:53:19 -0400
+Date: Fri, 28 Jul 2006 19:52:58 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org, paulus@au.ibm.com
+Subject: Re: [KJ] audit return code handling for kernel_thread [1/11]
+Message-ID: <20060728235258.GB4899@hmsreliant.homelinux.net>
+References: <200607282007.k6SK75MK009573@ra.tuxdriver.com> <44CAA26D.7030809@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1154130703_4779P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 19:51:44 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CAA26D.7030809@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1154130703_4779P
-Content-Type: text/plain; charset=us-ascii
+On Sat, Jul 29, 2006 at 09:49:01AM +1000, Nick Piggin wrote:
+> nhorman@tuxdriver.com wrote:
+> >Audit/Cleanup of kernel_thread calls, specifically checking of return 
+> >codes.
+> >    Problems seemed to fall into 3 main categories:
+> >    
+> 
+> Thanks for doing this. Nitpick: this should be all one patch, or at most 3
+> patches (then each of the below 3 items would become individual changelogs).
+> 
+You're welcome. I specifically split it into multiple little patches, as each file has a
+different maintainer, but if the consensus is for one patch (or three), so be it, I'll do
+that in the future.
 
-On Fri, 28 Jul 2006 16:12:15 PDT, David Miller said:
+> Each patch should have a unique changelog, each should have a unique subject
+> (sans the sequence number).
+> 
+> cc'ing Andrew is also a good idea, if you want them to get merged ;)
+> 
+I can do that :)
 
-> Your gcc-4.1.1 includes the -fstack-protector feature, but it might
-> not have the gcc bug fix necessary to make that feature work on the
-> kernel compile, which is why the version check is necessary.
+> One coding style comment:
+> if (...)
+>     multi line
+>         statement
+> 
+> Could use braces around the outermost if statement, for clarity.
+> 
+If you ack this, I'll post a follow on patch to clean that up next week.  I've already
+received a suggestion to use the same failure to start thread warning message to
+save string table space, so I've got some extra clean up to do anyway.
 
-Whee.  A busticated feature - how annoying.
+Regards
+Neil
 
-Do you happen to know the exact PR# for that one?  Looking at the gcc RPM
-changelog, there's a *lot* of backported fixes in the Fedora compiler, so it
-may in fact be in there already.  I'm mentioning this mostly as a practical
-"increase the number of testers" - as far as I can tell, what will ship in
-Fedora Core 6 is going to call itself gcc 4.1.1, and I'm pretty sure I'm not
-the only person who isn't ambitious enough to build a whole new gcc just to
-test this.  So a lot of people won't be able to easily use this until FC7.
+> 
+> >    1) callers of kernel_thread were inconsistent about meaning of a zero 
+> >    return
+> >    code.  Some callers considered a zero return code to mean success, 
+> >    others took
+> >    it to mean failure.  a zero return code, while not actually possible 
+> >    in the
+> >    current implementation, should be considered a success (pid 0 
+> >    is/should be
+> >    valid). fixed all callers to treat zero return as success
+> >    
+> >    2) caller of kernel_thread saved return code of kernel_thread for 
+> >    later use
+> >    without ever checking its value.  Callers who did this tended to 
+> >    assume a
+> >    non-zero return was success, and would often wait for a completion 
+> >    queue to be
+> >    woken up, implying that an error (negative return code) from 
+> >    kernel_thread could
+> >    lead to deadlock.  Repaired by checking return code at call time, and 
+> >    setting
+> >    saved return code to zero in the event of an error.
+> >    
+> >    3) callers of kernel_thread never bothered to check the return code at 
+> >    all.
+> >    This can lead to seemingly unrelated errors later in execution.  Fixed 
+> >    by
+> >    checking return code at call time and printing a warning message on 
+> >    failure.
+> 
+> -- 
+> SUSE Labs, Novell Inc.
+> Send instant messages to your online friends http://au.messenger.yahoo.com 
 
-Having said that, I have *no* idea how best to code "gcc 4.2 or patched Fedora
-4.1.1"...
-
-
---==_Exmh_1154130703_4779P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEyqMPcC3lWbTT17ARAui8AKC3ZQoPjsJFRN5XHTO4yRYhnDTMYQCg7+01
-CYIx9zMOnQxAM/DZuLqsxsM=
-=krFc
------END PGP SIGNATURE-----
-
---==_Exmh_1154130703_4779P--
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

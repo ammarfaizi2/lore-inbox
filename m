@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751733AbWG1EEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWG1EeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751733AbWG1EEt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 00:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbWG1EEt
+	id S1750870AbWG1EeG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 00:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWG1EeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 00:04:49 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:7400 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751733AbWG1EEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 00:04:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=KI5koMdUJly8FxexSAu6+CgKibHn+pTHfPURUKWyBDb219OkgFAvQo3YMlaLJPT8ic76dlOx7/gZ4aDbz3XpMe3cIfOLZVgv+Gc+J4J8lbKn8L7qtgZYZDh9BYRnawjfZnDAJINCXaqCOXBN2gpNre9U8ajd1hrZlmK/6On9x34=
-Date: Fri, 28 Jul 2006 08:04:46 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Alex Dubov <oakad@yahoo.com>
+	Fri, 28 Jul 2006 00:34:06 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:11161 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1750870AbWG1EeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 00:34:04 -0400
+Date: Fri, 28 Jul 2006 00:34:03 -0400
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-Message-ID: <20060728040446.GD5356@martell.zuzino.mipt.ru>
-References: <20060728033406.40478.qmail@web36712.mail.mud.yahoo.com>
-Mime-Version: 1.0
+Subject: Re: BUG() on apm resume in 2.6.18-rc2
+Message-ID: <20060728043403.GA21441@fieldses.org>
+References: <20060727033819.GA368@fieldses.org> <20060726231049.e9a0346e.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060728033406.40478.qmail@web36712.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060726231049.e9a0346e.akpm@osdl.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 08:34:06PM -0700, Alex Dubov wrote:
-> The driver is called tifmxx and available from:
-> http://developer.berlios.de/projects/tifmxx/
+On Wed, Jul 26, 2006 at 11:10:49PM -0700, Andrew Morton wrote:
+> This?
 
-1. Usual name for spinlocking flags is
+Yep.  With 2.6.18-rc2 + that patch, the BUG() is gone and suspend-resume
+works fine.
 
-	unsigned long flags;
+Thanks!--b.
 
-2. Preferred CS for if statements is
-
-	if (foo)
-		bar; /* two lines no matter how short */
-
-3. Check for NULL at the start of tifm_7xx1_remove is unnecessary.
-   You've saved valid fm at probe time, right?
-
-4. If ->suspend and ->resume are not implemented why add dummy ones?
-
-5. 
-
+> --- a/./arch/i386/kernel/cpu/mcheck/mce.h~mce-section-fix
+> +++ a/./arch/i386/kernel/cpu/mcheck/mce.h
+> @@ -9,6 +9,6 @@ void winchip_mcheck_init(struct cpuinfo_
+>  /* Call the installed machine check handler for this CPU setup. */
+>  extern fastcall void (*machine_check_vector)(struct pt_regs *, long error_code);
+>  
+> -extern int mce_disabled __initdata;
+> +extern int mce_disabled;
+>  extern int nr_mce_banks;
+>  
+> _
+> 

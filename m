@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWG1XOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161370AbWG1XSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161363AbWG1XOx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161364AbWG1XOx
+	id S1161370AbWG1XSM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161368AbWG1XSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:14:53 -0400
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:57559 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1161363AbWG1XOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:14:52 -0400
-Subject: Re: [RFC] /dev/itimer
-From: Nicholas Miell <nmiell@comcast.net>
-To: Edgar Toernig <froese@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060729004459.11a85a27.froese@gmx.de>
-References: <20060728235951.7de534eb.froese@gmx.de>
-	 <1154126015.2451.13.camel@entropy>  <20060729004459.11a85a27.froese@gmx.de>
-Content-Type: text/plain
-Date: Fri, 28 Jul 2006 16:14:51 -0700
-Message-Id: <1154128491.2451.19.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jul 2006 19:18:12 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5557 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161365AbWG1XSL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 19:18:11 -0400
+Date: Sat, 29 Jul 2006 01:17:56 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
+       Henrique de Moraes Holschuh <hmh@debian.org>
+Subject: Re: Generic battery interface
+Message-ID: <20060728231756.GA4230@elf.ucw.cz>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com> <20060728202359.GB5313@suse.cz> <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-29 at 00:44 +0200, Edgar Toernig wrote:
-> Nicholas Miell wrote:
+Hi!
+
+> >> And then we have to maintain both a kernel side and a userspace side.
+> >> And what do I, poor author of tp_smapi, do if I want to add a
+> >> non-standard attribute? Tell people to patch and overwrite their
+> >> disto's batstate binary too?
 > >
-> > Solaris lets you specify SIGEV_PORT in your struct sigevent which then
-> > queues timer completions (or anything else that takes a struct sigevent,
-> > like POSIX AIO) to a port and then all types of queued events (including
-> > fd polling and user generated events) can be waited on and fetched with
-> > a single function call.
+> >How often do you plan to do that?
 > 
-> There must be a reason that I haven't seen that used in the wild yet ...
+> With tp_smapi, I did it about 10 times over half a year. And there's
+> probably more to come.
 
-It's fairly new (Solaris 10 only), so nobody knows about it, and
-(anecdotally) it's full of bugs. The interface looks nice on paper,
-though.
+I still like /sys approach a bit more, but a word of warning: "it is
+hard to change kernel<->user interface" is actually a feature.
 
-It's documented at
-http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrir?a=view
-but docs.sun.com has gone to hell lately, so you might have trouble
-accessing it.
+It sucks when you are the one doing the work, but maybe it will mean
+reusing interfaces where possible.
 
-http://partneradvantage.sun.com/protected/solaris10/adoptionkit/tech/man/port_create.txt
-seems to work right now, but it doesn't have nice hyperlinks to the
-related pages.
+								Pavel
 
 -- 
-Nicholas Miell <nmiell@comcast.net>
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

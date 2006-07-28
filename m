@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWG1TY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWG1Tev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161095AbWG1TY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWG1TY5
+	id S1161149AbWG1Tev (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030306AbWG1Teu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:24:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15016 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030286AbWG1TY4 (ORCPT
+	Fri, 28 Jul 2006 15:34:50 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:5519 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030286AbWG1Teu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:24:56 -0400
-Date: Fri, 28 Jul 2006 12:24:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: linux-kernel@vger.kernel.org, dsd@gentoo.org, alan@lxorguk.ukuu.org.uk,
-       cw@f00f.org, greg@kroah.com, jeff@garzik.org, harmon@ksu.edu
-Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode Take 2
-Message-Id: <20060728122405.02305b69.akpm@osdl.org>
-In-Reply-To: <1154091662.7200.9.camel@localhost.localdomain>
-References: <1154091662.7200.9.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 28 Jul 2006 15:34:50 -0400
+Message-ID: <44CA66D8.3010404@oracle.com>
+Date: Fri, 28 Jul 2006 12:34:48 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: Benjamin LaHaise <bcrl@kvack.org>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com> <20060727220238.GE16971@kvack.org> <44CA5F08.3080500@oracle.com> <20060728192403.GA13690@2ka.mipt.ru>
+In-Reply-To: <20060728192403.GA13690@2ka.mipt.ru>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jul 2006 14:01:01 +0100
-Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> wrote:
+Evgeniy Polyakov wrote:
+> On Fri, Jul 28, 2006 at 12:01:28PM -0700, Zach Brown (zach.brown@oracle.com) wrote:
+>> Clearly we should port httpd to kevents and take some measurements :)
+> 
+> One of my main kevent benchmarks (socket notifications for
+> accept/receive) is handmade http server.
 
-> Hi, this patch (now for 2.6.18-rc2) is more readable.
+Yeah, so I noticed.  That's a good starting point but I'm more
+interested in seeing the work integrated with servers that have to
+survive outside of benchmarking runs.
 
-It has no changelog, and this sort of patch does need a lenghty one, please.
-
-What relationship does it have to
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/broken-out/pci-quirk_via_irq-behaviour-change.patch?
- If it is better, why?
+- z

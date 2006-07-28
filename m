@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161328AbWG1Wbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWG1Wdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161328AbWG1Wbj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 18:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbWG1Wbj
+	id S1161330AbWG1Wdi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 18:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161336AbWG1Wdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 18:31:39 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:31975 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1161328AbWG1Wbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 18:31:38 -0400
-Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20060728215852.GA1164@mars.ravnborg.org>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org>
-	 <200607282045.05292.ak@suse.de>
-	 <1154112511.6416.46.camel@laptopd505.fenrus.org>
-	 <200607282100.01783.ak@suse.de> <20060728212643.GA32455@mars.ravnborg.org>
-	 <1154122845.6416.61.camel@laptopd505.fenrus.org>
-	 <20060728215852.GA1164@mars.ravnborg.org>
+	Fri, 28 Jul 2006 18:33:37 -0400
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:51106 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1161330AbWG1Wdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 18:33:37 -0400
+Subject: Re: [RFC] /dev/itimer
+From: Nicholas Miell <nmiell@comcast.net>
+To: Edgar Toernig <froese@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060728235951.7de534eb.froese@gmx.de>
+References: <20060728235951.7de534eb.froese@gmx.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 29 Jul 2006 00:31:30 +0200
-Message-Id: <1154125890.6416.68.camel@laptopd505.fenrus.org>
+Date: Fri, 28 Jul 2006 15:33:35 -0700
+Message-Id: <1154126015.2451.13.camel@entropy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 23:58 +0200, Sam Ravnborg wrote:
-> On Fri, Jul 28, 2006 at 11:40:45PM +0200, Arjan van de Ven wrote:
-> > On Fri, 2006-07-28 at 23:26 +0200, Sam Ravnborg wrote:
-> > > On Fri, Jul 28, 2006 at 09:00:01PM +0200, Andi Kleen wrote:
-> > > > On Friday 28 July 2006 20:48, Arjan van de Ven wrote:
-> > > > > On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
-> > > > > > > +ifdef CONFIG_CC_STACKPROTECTOR
-> > > > > > > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
-> > > > > > > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
-> > > > > >
-> > > > > > Why can't you just use the normal call cc-option for this?
-> > > > >
-> > > > > this requires gcc 4.2; cc-option is not useful for that.
-> > > > 
-> > > > The CC option thing is also very ugly.
-> > > The check is executed once pr. kernel compile - or at least once pr.
-> > > line. The reson to use cc-ifversion is that we need to check for a
-> > > specific gcc version and not just support for a specific argument type.
-> > > 
-> > > That said - checking for a version is not as reliable as checking if a
-> > > certain feature is really supported but Arjan suggested testing for
-> > > version >= 4.2 should do it.
-> > 
-> > 
-> > it's not hard to run a shell script that returns supported or not. I can
-> > do the shell script no problem... but I would prefer that you then do
-> > the Makefile foo for it :)
-> > Would that work?
-> Yep - no problem. If you give me a day or two to do it.
+On Fri, 2006-07-28 at 23:59 +0200, Edgar Toernig wrote:
+> Hi,
+> 
+> this is a simple driver which provides interval timers via
+> file descriptors.
+> 
+> Everytime I have to write code to do something at regular
+> intervals I face the problem that the time routines on Unix 
+> are pretty archaic.  Only a single process wide timer which
+> notifies via signals.  The single timer asks for a dedicated
+> roll-your-own timer infrastructur, usually implemented via
+> a lot of gettimeofday calls and appropriate select timeouts.
+> But even if the single timer is enough, the delivery via
+> signals is error prone and breaks a lot of (i.e. library)
+> code, especially when the timer rate is high.  One common
+> work around is forking a separate task which gets the signals
+> and a pipe to notify the main process which may select/poll
+> the other and of the pipe.  But this is pretty heavy-weight
+> and not easy to get right either.  Recently, people started
+> to use the real time clock driver (/dev/rtc) to get an fd
+> to sleep on.  But this is even worse as there's (usually)
+> only a single one in the whole system and you have to decide
+> whether i.e. mplayer, artsd, timidity, or vdr gets it.
 
-sure no problem.
+Pretty much everything in this paragraph is wrong, except for the part
+about the difficulty of making a single unified event loop and the
+resulting pipe hack that everybody uses to get around that.
 
-the following line is enough actually:
+Solaris lets you specify SIGEV_PORT in your struct sigevent which then
+queues timer completions (or anything else that takes a struct sigevent,
+like POSIX AIO) to a port and then all types of queued events (including
+fd polling and user generated events) can be waited on and fetched with
+a single function call.
 
-echo "int foo(void) { char X[200]; return 3; }" | gcc -S -xc -c -O0 -mcmodel=kernel -fstack-protector - -o - | grep -q "%gs"
+Something similar could probably worked up in Linux which queues timer
+completions to an AIO context.
 
-echo $? (eg return value) gives 0 for the "works" case, "1" for the
-"wrong gcc" case...
+You might also want to look into the event channel / kevent discussion
+that's currently in progress.
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

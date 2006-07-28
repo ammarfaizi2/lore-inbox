@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWG1KL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbWG1KOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbWG1KL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 06:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWG1KL6
+	id S932613AbWG1KOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 06:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWG1KOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 06:11:58 -0400
-Received: from styx.suse.cz ([82.119.242.94]:5354 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932607AbWG1KL5 (ORCPT
+	Fri, 28 Jul 2006 06:14:16 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:8069 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932613AbWG1KOO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 06:11:57 -0400
-Date: Fri, 28 Jul 2006 12:11:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Pavel Machek <pavel@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-Subject: Re: Generic battery interface
-Message-ID: <20060728101153.GC25372@suse.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <20060727221632.GE3797@elf.ucw.cz> <20060727233154.GB4907@suse.cz> <41840b750607271735v4330fd62yf37fdd418cab97e4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41840b750607271735v4330fd62yf37fdd418cab97e4@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Fri, 28 Jul 2006 06:14:14 -0400
+Message-ID: <44C9E369.7070703@pobox.com>
+Date: Fri, 28 Jul 2006 06:14:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jesse Huang <jesse@icplus.com.tw>
+CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Create IP100A Driver
+References: <1154030065.5967.15.camel@localhost.localdomain> <20060727125421.GB22935@tuxdriver.com> <044901c6b1ec$d0f5b680$4964a8c0@icplus.com.tw>
+In-Reply-To: <044901c6b1ec$d0f5b680$4964a8c0@icplus.com.tw>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 03:35:10AM +0300, Shem Multinymous wrote:
-> On 7/28/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >  note: It's absolutely necessary to limit the API to a well usable
-> >        SUBSET of a superset of the features of all drivers/devices,
-> >        even sacrificing obscure features to keep the API sane. One
-> >        example would be the HID Power spec, which simply can't be
-> >        supported to full extent by any sane API.
+Jesse Huang wrote:
+> Hi John:
 > 
-> Non-standard functions must be handled reasonably within the
-> framework, otherwise drivers will have to build duplicate interfaces.
+> I will try mutt or mail when i want to send next patch. Most different of
+> ip100a.c
+> and sundance.c are almost same only fix some bugs. The different of ip100a
+> and ip100 is in phy. We can use one driver to support those two device, I
+> want
+> to know what is better for kernel:
 > 
-> How about
->  /sys/whatever/battery0/voltage for standard attributes
-> and
->  /sys/whatever/battery0/thinkpad/inhibit-charge-minutes
-> for non-standard ones?
-
-I think the thinkpad features actually fall into the 'standard API', if
-not for any other reason, then because some 80% of kernel developers use
-ThinkPads. ;)
-
-> >  + and the kernel can change the polling frequency based on power
-> >        saving state changes
+> 1. Only updata sundance.c to support IP100A
+> 2. Release ip100a.c which support ip100(sundance) to kernel 2.6.x and ask to
+> remove sundance.c.
+> 3. Release ip100a.c with sundance.c both to kernel 2.6.x
 > 
-> Likewise for cached attributes (query hardware only if N jiffies
-> passed since last querry, other return cached value). And that way,
-> hardware query frequency is never higher than what userspace actually
-> needs.
- 
+> We hope to use IP100a.c as our product driver, so 2. and 3. will better for
+> IC Plus. But we will still follow your suggestion, if you feel 1. was better
+> for kernel.
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+Although it is occasionally OK to duplicate a driver, I do not see a 
+compelling case with ip100a.
+
+The stronger case for a single codebase is won on the strengths of lower 
+long-term maintenance costs, increased strength of review, doesn't break 
+existing sundance driver uses, and re-use of existing testing benefits.
+
+If you feel strongly about not showing "sundance" to your users, you can 
+always submit a one-line MODULE_ALIAS() change which permits users to 
+load "ip100a" (really sundance.c).  Using MODULE_ALIAS() seems quite 
+reasonable, given that IC Plus appears to be taking the lead in future 
+Sundance-like chip development.
+
+So, please resubmit as changes to the existing sundance.c.  This is 
+better for the standard Linux kernel engineering process.
+
+Thanks,
+
+	Jeff
+
+

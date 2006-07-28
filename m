@@ -1,57 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWG1SNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161218AbWG1SRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161210AbWG1SNx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161211AbWG1SNw
+	id S1161218AbWG1SRG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161215AbWG1SQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:13:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:10652 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161210AbWG1SNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:13:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MVpZmb8iPncmQmKUUMvhK6oFc+vnVjHxrmYLx6DGmlZ/b7OnMCdGmeJNF0nO798FQUoBNoPwF9AN4Ghjm8MuY5faT+u8RCsmJXyxW2r46OSlU/EQIGVDKANg+HK3bhD+IXwaRM2FB615fBGxBmQmb1OAOE6OjLhCaeY4Mdz1ewk=
-Message-ID: <6de39a910607281113hb657981jce19f15806e82104@mail.gmail.com>
-Date: Fri, 28 Jul 2006 11:13:48 -0700
-From: "Handle X" <xhandle@gmail.com>
-To: "Robert Hancock" <hancockr@shaw.ca>
-Subject: Re: Can we ignore errors in mcelog if the server is running fine
-Cc: "Vikas Kedia" <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <44C9CC21.9040609@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <fa.5uWgnVpIOBN4Pb1aWwNzF8P2OA0@ifi.uio.no>
-	 <fa.9M8mPetEI5HZ8L2RMGPhKPm3gJA@ifi.uio.no> <44C9CC21.9040609@shaw.ca>
+	Fri, 28 Jul 2006 14:16:44 -0400
+Received: from mga01.intel.com ([192.55.52.88]:53796 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161213AbWG1SQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 14:16:36 -0400
+X-IronPort-AV: i="4.07,193,1151910000"; 
+   d="scan'208"; a="106710912:sNHT1096867219"
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH rev2 4/4] dmaengine: add memset as an asynchronous dma operation
+Date: Fri, 28 Jul 2006 11:16:35 -0700
+To: davem@davemloft.net, linux-kernel@vger.kernel.org
+Cc: neilb@suse.de, galak@kernel.crashing.org, christopher.leech@intel.com,
+       alan@lxorguk.ukuu.org.uk, dan.j.williams@intel.com
+Message-Id: <20060728181634.5948.67248.stgit@dwillia2-linux.ch.intel.com>
+In-Reply-To: <20060728181618.5948.27138.stgit@dwillia2-linux.ch.intel.com>
+References: <20060728181618.5948.27138.stgit@dwillia2-linux.ch.intel.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [root@turyxsrv ~]# mcelog
-> > MCE 0
-> > HARDWARE ERROR. This is *NOT* a software problem!
-> > Please contact your hardware vendor
-> > CPU 1 4 northbridge TSC 89a560bb249
-> > ADDR 1dfa49690
-> >  Northbridge Chipkill ECC error
-> >  Chipkill ECC syndrome = 2021
-> >       bit46 = corrected ecc error
-> >  bus error 'local node response, request didn't time out
-> >      generic read mem transaction
-> >      memory access, level generic'
-> > STATUS 9410c00020080a13 MCGSTATUS 0
->
-> > Repeats whenever I do any kind of operations...
-> > How severe is ChipKill errors? Should I consider throwing away CPU 1
-> > and get another one.
->
-> That sounds to me more like some of the RAM attached to CPU1 is bad..
-I took out CPU1. Errors went away. But so is half of the RAM
-(accessible only to CPU1)
-Okay, I would test with swapping the RAM of CPU0 to CPU1 and test. If
-I get messages again, I would change the RAM.
+From: Dan Williams <dan.j.williams@intel.com>
 
-Thanks.
-Om.
+version 2: make the dmaengine api EXPORT_SYMBOL_GPL
+
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+
+ drivers/dma/dmaengine.c   |   15 ++++++++++
+ drivers/dma/ioatdma.c     |    5 +++
+ include/linux/dmaengine.h |   68 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 88 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
+index ff01e3a..3b1ac94 100644
+--- a/drivers/dma/dmaengine.c
++++ b/drivers/dma/dmaengine.c
+@@ -605,6 +605,17 @@ dma_cookie_t dma_async_do_xor_err(struct
+ 	return -ENXIO;
+ }
+ 
++/**
++ * dma_async_do_memset_err - default function for dma devices that
++ *      do not support memset
++ */
++dma_cookie_t dma_async_do_memset_err(struct dma_chan *chan,
++                union dmaengine_addr dest, unsigned int dest_off,
++                int val, size_t len, unsigned long flags)
++{
++        return -ENXIO;
++}
++
+ static int __init dma_bus_init(void)
+ {
+ 	mutex_init(&dma_list_mutex);
+@@ -622,6 +633,9 @@ EXPORT_SYMBOL_GPL(dma_async_memcpy_pg_to
+ EXPORT_SYMBOL_GPL(dma_async_memcpy_dma_to_dma);
+ EXPORT_SYMBOL_GPL(dma_async_memcpy_pg_to_dma);
+ EXPORT_SYMBOL_GPL(dma_async_memcpy_dma_to_pg);
++EXPORT_SYMBOL_GPL(dma_async_memset_buf);
++EXPORT_SYMBOL_GPL(dma_async_memset_page);
++EXPORT_SYMBOL_GPL(dma_async_memset_dma);
+ EXPORT_SYMBOL_GPL(dma_async_xor_pgs_to_pg);
+ EXPORT_SYMBOL_GPL(dma_async_xor_dma_list_to_dma);
+ EXPORT_SYMBOL_GPL(dma_async_operation_complete);
+@@ -630,6 +644,7 @@ EXPORT_SYMBOL_GPL(dma_async_device_regis
+ EXPORT_SYMBOL_GPL(dma_async_device_unregister);
+ EXPORT_SYMBOL_GPL(dma_chan_cleanup);
+ EXPORT_SYMBOL_GPL(dma_async_do_xor_err);
++EXPORT_SYMBOL_GPL(dma_async_do_memset_err);
+ EXPORT_SYMBOL_GPL(dma_async_chan_init);
+ EXPORT_SYMBOL_GPL(dma_async_map_page);
+ EXPORT_SYMBOL_GPL(dma_async_map_single);
+diff --git a/drivers/dma/ioatdma.c b/drivers/dma/ioatdma.c
+index c7bae96..5133e3d 100644
+--- a/drivers/dma/ioatdma.c
++++ b/drivers/dma/ioatdma.c
+@@ -638,6 +638,10 @@ extern dma_cookie_t dma_async_do_xor_err
+ 	unsigned int src_off, size_t len, u32 *result,
+ 	unsigned long flags);
+ 
++extern dma_cookie_t dma_async_do_memset_err(struct dma_chan *chan,
++	union dmaengine_addr dest, unsigned int dest_off,
++	int val, size_t size, unsigned long flags);
++
+ static dma_addr_t ioat_map_page(struct dma_chan *chan, struct page *page,
+ 					unsigned long offset, size_t size,
+ 					int direction)
+@@ -749,6 +753,7 @@ #endif
+ 	device->common.capabilities = DMA_MEMCPY;
+ 	device->common.device_do_dma_memcpy = do_ioat_dma_memcpy;
+ 	device->common.device_do_dma_xor = dma_async_do_xor_err;
++	device->common.device_do_dma_memset = dma_async_do_memset_err;
+ 	device->common.map_page = ioat_map_page;
+ 	device->common.map_single = ioat_map_single;
+ 	device->common.unmap_page = ioat_unmap_page;
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+index 33699be..02c09fa 100644
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -260,6 +260,7 @@ struct dma_chan_client_ref {
+  * @device_issue_pending: push appended descriptors to hardware
+  * @device_do_dma_memcpy: perform memcpy with a dma engine
+  * @device_do_dma_xor: perform block xor with a dma engine
++ * @device_do_dma_memset: perform block fill with a dma engine
+  */
+ struct dma_device {
+ 
+@@ -284,6 +285,9 @@ struct dma_device {
+ 			union dmaengine_addr src, unsigned int src_cnt,
+ 			unsigned int src_off, size_t len, u32 *result,
+ 			unsigned long flags);
++	dma_cookie_t (*device_do_dma_memset)(struct dma_chan *chan,
++			union dmaengine_addr dest, unsigned int dest_off,
++			int value, size_t len, unsigned long flags);
+ 	enum dma_status (*device_operation_complete)(struct dma_chan *chan,
+ 			dma_cookie_t cookie, dma_cookie_t *last,
+ 			dma_cookie_t *used);
+@@ -478,6 +482,70 @@ static inline dma_cookie_t dma_async_mem
+ }
+ 
+ /**
++ * dma_async_memset_buf - offloaded memset
++ * @chan: DMA channel to offload memset to
++ * @buf: destination buffer
++ * @val: value to initialize the buffer
++ * @len: length
++ */
++static inline dma_cookie_t dma_async_memset_buf(struct dma_chan *chan,
++	void *buf, int val, size_t len)
++{
++	unsigned long flags = DMA_DEST_BUF;
++	union dmaengine_addr dest_addr = { .buf = buf };
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_do_dma_memset(chan, dest_addr, 0, val,
++						len, flags);
++}
++
++/**
++ * dma_async_memset_page - offloaded memset
++ * @chan: DMA channel to offload memset to
++ * @page: destination page
++ * @offset: offset into the destination
++ * @val: value to initialize the buffer
++ * @len: length
++ */
++static inline dma_cookie_t dma_async_memset_page(struct dma_chan *chan,
++	struct page *page, unsigned int offset, int val, size_t len)
++{
++	unsigned long flags = DMA_DEST_PAGE;
++	union dmaengine_addr dest_addr = { .pg = page };
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_do_dma_memset(chan, dest_addr, offset, val,
++						len, flags);
++}
++
++/**
++ * dma_async_memset_dma - offloaded memset
++ * @chan: DMA channel to offload memset to
++ * @page: destination dma address
++ * @val: value to initialize the buffer
++ * @len: length
++ */
++static inline dma_cookie_t dma_async_memset_dma(struct dma_chan *chan,
++	dma_addr_t dma, int val, size_t len)
++{
++	unsigned long flags = DMA_DEST_DMA;
++	union dmaengine_addr dest_addr = { .dma = dma };
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_do_dma_memset(chan, dest_addr, 0, val,
++						len, flags);
++}
++
++/**
+  * dma_async_xor_pgs_to_pg - offloaded xor from pages to page
+  * @chan: DMA channel to offload xor to
+  * @dest_page: destination page

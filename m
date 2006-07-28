@@ -1,169 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161296AbWG1UuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161289AbWG1UwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161296AbWG1UuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161297AbWG1UuM
+	id S1161289AbWG1UwE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161297AbWG1UwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:50:12 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:21265 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1161296AbWG1UuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:50:11 -0400
-Date: Fri, 28 Jul 2006 16:50:09 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SCSI: early detection of medium not present, updated
-Message-ID: <Pine.LNX.4.44L0.0607281633100.5679-100000@iolanthe.rowland.org>
+	Fri, 28 Jul 2006 16:52:04 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:6864 "EHLO pickle.fieldses.org")
+	by vger.kernel.org with ESMTP id S1161289AbWG1UwC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:52:02 -0400
+Date: Fri, 28 Jul 2006 16:51:56 -0400
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] knfsd: Fix stale file handle problem with subtree_checking.
+Message-ID: <20060728205156.GB12183@fieldses.org>
+References: <20060728194103.7245.patches@notabene> <1060728094255.7278@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060728094255.7278@suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (as757) is meant to apply on top of the
-scsi-core-and-sd-early-detection-of-medium-not-present patch currently in
-2.6.18-rc2-mm1.  It updates the way the scsi_test_unit_ready() routine
-reports medium not present, using the technique recommended by James
-Bottomley.
+On Fri, Jul 28, 2006 at 07:42:55PM +1000, NeilBrown wrote:
+> The following patch fixes a bug that was introduced since 2.6.17,
+> and should go in 2.6.18.
+> 
+> ### Comments for Changeset
+> 
+> A recent patch:
+> 
+>   h=7fc90ec93a5eb71f4b08403baf5ba7176b3ec6b1
+> 
+> moved the call to nfsd_setuser out of the 'find a dentry for a
+> filehandle' branch of fh_verify so that it would always be called.
+> 
+> This had the unfortunately side-effect of moving *after* the call
+> to decode_fh, so the prober fsuid was not set when nfsd_acceptable
+> was called, the 'permission' check did the wrong thing.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Argh, sorry, thanks for the fix.
 
----
+It'd be great if we could deprecate subtree checking some day in the
+distant future....
 
-If James would prefer, I could submit this in a different form: first 
-revert the earlier SCSI patch and then add the new stuff from this one.
+Would it be feasible to add filesystem support for some sort of
+subvolume-like thing that acted like a mountpoint (in the sense that it
+restricted hardlinks and renames) but that didn't require setting aside
+a separate partition?  I imagine that'd probably do what most people
+exporting subtrees want without forcing us to do dubious tricks with
+filehandles.
 
-In a brief conversation during OLS, Jens said that he saw no problem with
-allowing the block layer to accept -ENOMEDIUM as a return code from the 
-media_changed method.  The patch is already in -mm, named
-block-layer-early-detection-of-medium-not-present.
-
-In principle cdrom drivers could use a similar technique to avoid calling 
-the revalidate method when no disc is loaded, but that would require more 
-far-reaching changes.  For now it's easier to confine this to disk drives.
-
-
-Index: 2.6.18-rc2-mm1/drivers/scsi/sd.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/drivers/scsi/sd.c
-+++ 2.6.18-rc2-mm1/drivers/scsi/sd.c
-@@ -733,6 +733,7 @@ static int sd_media_changed(struct gendi
- 	struct scsi_disk *sdkp = scsi_disk(disk);
- 	struct scsi_device *sdp = sdkp->device;
- 	int retval;
-+	int media_not_present = 0;
- 
- 	SCSI_LOG_HLQUEUE(3, printk("sd_media_changed: disk=%s\n",
- 						disk->disk_name));
-@@ -760,7 +761,8 @@ static int sd_media_changed(struct gendi
- 	 */
- 	retval = -ENODEV;
- 	if (scsi_block_when_processing_errors(sdp))
--		retval = scsi_test_unit_ready(sdp, SD_TIMEOUT, SD_MAX_RETRIES);
-+		retval = scsi_test_unit_ready(sdp, SD_TIMEOUT, SD_MAX_RETRIES,
-+				&media_not_present);
- 
- 	/*
- 	 * Unable to test, unit probably not ready.   This usually
-@@ -768,7 +770,7 @@ static int sd_media_changed(struct gendi
- 	 * and we will figure it out later once the drive is
- 	 * available again.
- 	 */
--	if (retval || sdp->medium_not_present)
-+	if (retval || media_not_present)
- 		 goto not_present;
- 	/*
- 	 * For removable scsi disk we have to recognise the presence
-Index: 2.6.18-rc2-mm1/include/scsi/scsi_device.h
-===================================================================
---- 2.6.18-rc2-mm1.orig/include/scsi/scsi_device.h
-+++ 2.6.18-rc2-mm1/include/scsi/scsi_device.h
-@@ -92,7 +92,6 @@ struct scsi_device {
- 	unsigned writeable:1;
- 	unsigned removable:1;
- 	unsigned changed:1;	/* Data invalid due to media change */
--	unsigned medium_not_present:1;	/* Set by scsi_test_unit_ready() */
- 	unsigned busy:1;	/* Used to prevent races */
- 	unsigned lockable:1;	/* Able to prevent media removal */
- 	unsigned locked:1;      /* Media removal disabled */
-@@ -268,7 +267,7 @@ extern int scsi_mode_select(struct scsi_
- 			    struct scsi_mode_data *data,
- 			    struct scsi_sense_hdr *);
- extern int scsi_test_unit_ready(struct scsi_device *sdev, int timeout,
--				int retries);
-+				int retries, int *media_not_present);
- extern int scsi_device_set_state(struct scsi_device *sdev,
- 				 enum scsi_device_state state);
- extern int scsi_device_quiesce(struct scsi_device *sdev);
-Index: 2.6.18-rc2-mm1/drivers/scsi/sr.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/drivers/scsi/sr.c
-+++ 2.6.18-rc2-mm1/drivers/scsi/sr.c
-@@ -178,14 +178,16 @@ static int sr_media_change(struct cdrom_
- {
- 	struct scsi_cd *cd = cdi->handle;
- 	int retval;
-+	int media_not_present = 0;
- 
- 	if (CDSL_CURRENT != slot) {
- 		/* no changer support */
- 		return -EINVAL;
- 	}
- 
--	retval = scsi_test_unit_ready(cd->device, SR_TIMEOUT, MAX_RETRIES);
--	if (retval) {
-+	retval = scsi_test_unit_ready(cd->device, SR_TIMEOUT, MAX_RETRIES,
-+			&media_not_present);
-+	if (retval || media_not_present) {
- 		/* Unable to test, unit probably not ready.  This usually
- 		 * means there is no disc in the drive.  Mark as changed,
- 		 * and we will figure it out later once the drive is
-Index: 2.6.18-rc2-mm1/drivers/scsi/scsi_lib.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/drivers/scsi/scsi_lib.c
-+++ 2.6.18-rc2-mm1/drivers/scsi/scsi_lib.c
-@@ -1867,7 +1867,8 @@ scsi_mode_sense(struct scsi_device *sdev
- EXPORT_SYMBOL(scsi_mode_sense);
- 
- int
--scsi_test_unit_ready(struct scsi_device *sdev, int timeout, int retries)
-+scsi_test_unit_ready(struct scsi_device *sdev, int timeout, int retries,
-+		int *media_not_present)
- {
- 	char cmd[] = {
- 		TEST_UNIT_READY, 0, 0, 0, 0, 0,
-@@ -1878,7 +1879,6 @@ scsi_test_unit_ready(struct scsi_device 
- 	result = scsi_execute_req(sdev, cmd, DMA_NONE, NULL, 0, &sshdr,
- 				  timeout, retries);
- 
--	sdev->medium_not_present = 0;
- 	if ((driver_byte(result) & DRIVER_SENSE) && sdev->removable) {
- 
- 		if ((scsi_sense_valid(&sshdr)) &&
-@@ -1887,8 +1887,8 @@ scsi_test_unit_ready(struct scsi_device 
- 			sdev->changed = 1;
- 			result = 0;
- 
--			if (sshdr.asc == 0x3A)
--				sdev->medium_not_present = 1;
-+			if (sshdr.asc == 0x3A && media_not_present != NULL)
-+				*media_not_present = 1;
- 		}
- 	}
- 	return result;
-Index: 2.6.18-rc2-mm1/drivers/scsi/scsi_ioctl.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/drivers/scsi/scsi_ioctl.c
-+++ 2.6.18-rc2-mm1/drivers/scsi/scsi_ioctl.c
-@@ -242,7 +242,7 @@ int scsi_ioctl(struct scsi_device *sdev,
- 		return scsi_set_medium_removal(sdev, SCSI_REMOVAL_ALLOW);
- 	case SCSI_IOCTL_TEST_UNIT_READY:
- 		return scsi_test_unit_ready(sdev, IOCTL_NORMAL_TIMEOUT,
--					    NORMAL_RETRIES);
-+					    NORMAL_RETRIES, NULL);
- 	case SCSI_IOCTL_START_UNIT:
- 		scsi_cmd[0] = START_STOP;
- 		scsi_cmd[1] = 0;
-
+--b.

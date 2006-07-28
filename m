@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161146AbWG1Nu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWG1Nym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161146AbWG1Nu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 09:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbWG1Nu5
+	id S1161152AbWG1Nym (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 09:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161153AbWG1Nym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 09:50:57 -0400
-Received: from mx1.suse.de ([195.135.220.2]:51680 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161146AbWG1Nu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 09:50:56 -0400
-To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Reorganize the cpufreq cpu hotplug locking to not be totally bizare
-References: <20060726141531.A22927@unix-os.sc.intel.com>
-	<84EA05E2CA77634C82730353CBE3A84303218F19@SAUSEXMB1.amd.com>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Jul 2006 15:50:54 +0200
-In-Reply-To: <84EA05E2CA77634C82730353CBE3A84303218F19@SAUSEXMB1.amd.com>
-Message-ID: <p73slkl4z41.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 28 Jul 2006 09:54:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26376 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161152AbWG1Nym
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 09:54:42 -0400
+Date: Fri, 28 Jul 2006 13:54:29 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: liyu <liyu@ccoss.com.cn>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Peter <peter@maubp.freeserve.co.uk>,
+       The Doctor <thedoctor@tardis.homelinux.org>
+Subject: Re: [PATCH 1/3] usbhid: Driver for microsoft natural ergonomic keyboard 4000
+Message-ID: <20060728135428.GC4623@ucw.cz>
+References: <44C74708.6090907@ccoss.com.cn>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44C74708.6090907@ccoss.com.cn>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Langsdorf, Mark" <mark.langsdorf@amd.com> writes:
+Hi!
+
+>     This new version get some improvements:
 > 
-> If there's a better way to hop to a specific core, I'll
-> gladly rewrite the code in question.
+>     2. Support left paren key "(", right paren key ")", equal key "=" on
+> right-top keypad. In fact, this keyboard generate KEYPAD_XXX usage code
+> for them, but I find many applications can not handle them on default
+> configuration, especially X.org. To get the most best usability, I use a
+> bit magic here: map them to "Shift+9" and "Shift+0".
 
-You could use smp_call_function_single() 
+That is hardly 'improvement'. 'X is broken, so lets break input, too'.
 
-(i386 version might be only in -mm* so far)
 
--Andi
+
+-- 
+Thanks for all the (sleeping) penguins.

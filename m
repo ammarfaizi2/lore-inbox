@@ -1,44 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161243AbWG1TBb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWG1TFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161243AbWG1TBb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:01:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161242AbWG1TBb
+	id S1161242AbWG1TFg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWG1TFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:01:31 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:5099 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1161239AbWG1TB3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:01:29 -0400
-Message-ID: <44CA5F08.3080500@oracle.com>
-Date: Fri, 28 Jul 2006 12:01:28 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: David Miller <davem@davemloft.net>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com> <20060727220238.GE16971@kvack.org>
-In-Reply-To: <20060727220238.GE16971@kvack.org>
-Content-Type: text/plain; charset=UTF-8
+	Fri, 28 Jul 2006 15:05:36 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:26811 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161242AbWG1TFf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 15:05:35 -0400
+Subject: Re: [RFC][PATCH 3/6] SLIM main patch
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060728060134.GB4623@ucw.cz>
+References: <1153763487.5171.17.camel@localhost.localdomain>
+	 <20060728060134.GB4623@ucw.cz>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 12:05:31 -0700
+Message-Id: <1154113531.4695.59.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-07-28 at 06:01 +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > SLIM is an LSM module which provides an enhanced low water-mark
+> > integrity and high water-mark secrecy mandatory access control
+> > model.
+> 
+> Still no Documentation/ changes. Uses // comments to comment out code.
+> 
+We'll add a description similar to what was in the Patch 3 email to file
+slim.txt in Documentation and make sure to remove all // comments in the
+next release.
 
-> Things were like that at one point in time, but file descriptors turn out 
-> to introduce a huge gaping security hole with SUID programs.  The problem 
-> is that any event context is closely tied to the address space of the 
-> thread issuing the syscalls, and file descriptors do not have this close 
-> binding.
+> > +static char *get_token(char *buf_start, char *buf_end, char delimiter,
+> > +		       int *token_len)
+> > +{
+> > +	char *bufp = buf_start;
+> > +	char *token = NULL;
+> > +
+> > +	while (!token && (bufp < buf_end)) {	/* Get start of token */
+> > +		switch (*bufp) {
+> > +		case ' ':
+> > +		case '\n':
+> > +		case '\t':
+> > +			bufp++;
+> > +			break;
+> > +		case '#':
+> > +			while ((*bufp != '\n') && (bufp++ < buf_end)) ;
+> > +			bufp++;
+> > +			break;
+> > +		default:
+> > +			token = bufp;
+> > +			break;
+> > +		}
+> > +	}
+> > +	if (!token)
+> > +		return NULL;
+> > +
+> > +	*token_len = 0;
+> > +	while ((*token_len == 0) && (bufp <= buf_end)) {
+> > +		if ((*bufp == delimiter) || (*bufp == '\n'))
+> > +			*token_len = bufp - token;
+> > +		if (bufp == buf_end)
+> > +			*token_len = bufp - token;
+> > +		bufp++;
+> > +	}
+> > +	if (*token_len == 0)
+> > +		token = NULL;
+> > +	return token;
+> > +}
+> 
+> What are these tokens and why do we want to play with strings in
+> kernel?
+> 
+The xattrs must be parsed.  They are strings for portability and
+readability.  SELinux does this as well.  Note: we are in the process of
+removing the time stuff from the xattr for the next release for this
+reason as well.
 
-Can you go into that hole in more detail?
+Thanks,
+Kylie
 
-> Except that you're not usually pulling a full ring worth of events at a 
-> time, more often just one.
+> 							Pavel
+> 
 
-OK, but then to wait for it you were already sleeping in the kernel, right?
-
-Clearly we should port httpd to kevents and take some measurements :)
-
-- z

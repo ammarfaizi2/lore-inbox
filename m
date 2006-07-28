@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752052AbWG1RNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbWG1RO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752052AbWG1RNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752055AbWG1RNI
+	id S1161187AbWG1RO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161186AbWG1RO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:13:08 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:2705 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1752052AbWG1RNG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:13:06 -0400
-Date: Fri, 28 Jul 2006 19:11:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: ProfiHost - Stefan Priebe <s.priebe@profihost.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Nathan Scott <nathans@sgi.com>, Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: XFS / Quota Bug in  2.6.17.x and 2.6.18x
-In-Reply-To: <44C8A5F1.7060604@profihost.com>
-Message-ID: <Pine.LNX.4.61.0607281909080.4972@yvahk01.tjqt.qr>
-References: <44C8A5F1.7060604@profihost.com>
+	Fri, 28 Jul 2006 13:14:27 -0400
+Received: from smtp.reflexsecurity.com ([72.54.64.74]:1742 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id S1161098AbWG1RO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 13:14:26 -0400
+Date: Fri, 28 Jul 2006 13:13:57 -0400
+From: Jason Lunz <lunz@falooley.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] amd74xx: implement suspend-to-ram
+Message-ID: <20060728171357.GB17549@knob.reflex>
+References: <200607281646.31207.rjw@sisk.pl> <1154105517.13509.153.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154105517.13509.153.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 28, 2006 at 05:51:55PM +0100, Alan Cox wrote:
+> This beings in the IDE power step code. You should do that as a step
+> before the win_idleimmediate I suspect. Theory is right, diagnosis is
+> right, implementation is in the wrong place.
+> 
+> You'll make a lot more people happy by fixing it in ide-io
 
-> The crash only occurs if you use quota and IDE without barrier support.
+OK, I'll see about moving it there. Will this still be
+controller-specific, or are you suggesting this is something ide ought
+to do globally?
 
-I don't quite get this. I do use quota, and have barriers turned 
-off (either explicitly or because the drive does not support it),
-but yet no error message like you posted. Do I just have luck?
+I poked around in ide-io.c a little while writing the patch, but my
+assumption so far has been that the core ide suspend is OK wrt s2ram,
+since I never hear IDE cited as the reason for s2ram failure. Usually
+it's ACPI or video problems.
 
-> The Problem is, that on a new mount of a root filesystem - the flag VFS_RDONLY
-> is set - and so no barrier check is done before checking quota. With this patch
-> barrier check is done always. The partition should not be mounted at that
-> moment. For mount -o remount, rw or something like this it uses another
-> function where VFS_RDONLY is checked.
+I'm beginning to suspect that the real problem is that everyone who
+experiences ide-related hangs when attempting s2ram switches to s2disk,
+which sidesteps ide problems since the ide controller stays alive
+throughout the process and gets reinitialized on resume. So I guess
+ide/s2ram problems could be more common than is widely known.
 
-Jan Engelhardt
--- 
+Jason

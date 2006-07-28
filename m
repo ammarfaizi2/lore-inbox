@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWG1Nc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWG1Nd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbWG1Nc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 09:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbWG1Nc0
+	id S1030264AbWG1Nd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 09:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWG1Nd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 09:32:26 -0400
-Received: from styx.suse.cz ([82.119.242.94]:23178 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1030262AbWG1Nc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 09:32:26 -0400
-Date: Fri, 28 Jul 2006 15:32:23 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
-Subject: Re: [RFC/RFT] Remove polling timer from i8042
-Message-ID: <20060728133223.GB29217@suse.cz>
-References: <200607270029.05066.dtor@insightbb.com> <20060727234423.GC4907@suse.cz> <d120d5000607280557w2aa476b2y45d8cfc866296adf@mail.gmail.com>
+	Fri, 28 Jul 2006 09:33:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48580 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030264AbWG1Nd1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 09:33:27 -0400
+Date: Fri, 28 Jul 2006 14:33:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 000 of 2] knfsd: Don't allow bad file handles to cause extX to go readonly
+Message-ID: <20060728133321.GA439@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+	nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060728102713.15132.patches@notabene>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000607280557w2aa476b2y45d8cfc866296adf@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20060728102713.15132.patches@notabene>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 08:57:31AM -0400, Dmitry Torokhov wrote:
-
-> On 7/27/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >On Thu, Jul 27, 2006 at 12:29:04AM -0400, Dmitry Torokhov wrote:
-> >> Hi,
-> >>
-> >> OK, I had it in works for quite some time and Dave's talk in Ottawa
-> >> made me finish it ;)
-> >
-> >Good work.
-> >
-> >However I believe you need to test the AUX IRQ in this case before you
-> >use it, otherwise you'll have a lot of people with non-working keyboards
-> >(the input queue is shared), and probably also non-working PCI cards
-> >(BIOSes like to assign IRQ12 to PCI if no mouse is detected by the
-> >BIOS).
-> >
+On Fri, Jul 28, 2006 at 10:31:20AM +1000, NeilBrown wrote:
+> Currently, and file handle with a bad inode number in it can cause
+> ext2 to go to readonly (as it looks like a corrupted filesystem)
+> and could allow remote access to ext3 special files like the journal.
 > 
-> What do you mean by testing AUX IRQ? Use I8042_CMD_AUX_LOOP to see if
-> interrupt fires off? The new code releases IRQ if it can't find a
-> working AUX port...
-
-Exactly. Not that a character arrives and can be polled for, but that
-the interrupt actually gets raised. It can be routed to nowhere and
-we'll never know, our buffers will be full and keyboard will be stuck.
-
-> >You'll see whether this test is necessary if a lot of people report
-> >problems without i8042.noaux.
-> >
-> >That can only be seen after extensive testing on a lot of machines,
-> >though. Fortunately 386's and 486's are more or less extinct now, and
-> >with them a lot of the weirder keyboard controllers.
+> These patches give ext2/3 their own get_dentry method which checks the
+> inode number early before other bits of the code can be freaked out by
+> it.
 > 
-> I think I will forward the patch to Andrew and we will see how bad it
-> is. It works on couple of boxes here but I don't have a lot of
-> hardware to test on...
+> These are revised versions of earlier patches.  Rather than exporting
+> export_iget, we open code it and simplify it slightly.  This avoids
+> and extra module dependancy.
 
-Yup.
+This looks much better, agreed.  Long-term we should switch ext2/ext2
+to use iget_locked so we can propagate errors in finding the inode much
+better.
 
--- 
-Vojtech Pavlik
-Director SuSE Labs

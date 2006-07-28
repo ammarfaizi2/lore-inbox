@@ -1,50 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWG1TQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWG1TQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWG1TQV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWG1TQV
+	id S1030263AbWG1TQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWG1TQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:16:21 -0400
-Received: from wasp.net.au ([203.190.192.17]:8883 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S1030179AbWG1TQV (ORCPT
+	Fri, 28 Jul 2006 15:16:26 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:12007 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030263AbWG1TQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:16:21 -0400
-Message-ID: <44CA627A.7060509@wasp.net.au>
-Date: Fri, 28 Jul 2006 23:16:10 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060615)
+	Fri, 28 Jul 2006 15:16:25 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: [PATCH -mm][resend] Disable CPU hotplug during suspend
+Date: Fri, 28 Jul 2006 21:15:45 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <200607281015.30048.rjw@sisk.pl> <20060728182041.GI19076@localdomain>
+In-Reply-To: <20060728182041.GI19076@localdomain>
 MIME-Version: 1.0
-To: Jason Lunz <lunz@falooley.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] amd74xx: implement suspend-to-ram
-References: <200607281646.31207.rjw@sisk.pl> <1154105517.13509.153.camel@localhost.localdomain> <20060728171357.GB17549@knob.reflex>
-In-Reply-To: <20060728171357.GB17549@knob.reflex>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607282115.45407.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Lunz wrote:
+Hi Nathan,
 
+On Friday 28 July 2006 20:20, Nathan Lynch wrote:
+> Hi Rafael-
 > 
-> I poked around in ide-io.c a little while writing the patch, but my
-> assumption so far has been that the core ide suspend is OK wrt s2ram,
-> since I never hear IDE cited as the reason for s2ram failure. Usually
-> it's ACPI or video problems.
+> A couple of minor comments:
+> 
+> 
+> > +int cpu_down(unsigned int cpu)
+> > +{
+> > +	int err = 0;
+> > +
+> > +	mutex_lock(&cpu_add_remove_lock);
+> > +	if (cpu_hotplug_disabled)
+> > +		err = -EPERM;
+> > +	else
+> > +		err = __cpu_down(cpu);
+> > +
+> >  	mutex_unlock(&cpu_add_remove_lock);
+> >  	return err;
+> >  }
+> > @@ -191,6 +203,11 @@ int __devinit cpu_up(unsigned int cpu)
+> >  	void *hcpu = (void *)(long)cpu;
+> >  
+> >  	mutex_lock(&cpu_add_remove_lock);
+> > +	if (cpu_hotplug_disabled) {
+> > +		ret = -EPERM;
+> > +		goto out;
+> > +	}
+> 
+> I think -EBUSY would be more appropriate than -EPERM, perhaps?
 
-Actually I had exactly your issue on an ICH6 and ended up working around it by moving to Alan's 
-latest libata code.
+Sure, why not.
+ 
+> > +#ifdef CONFIG_SUSPEND_SMP
+> > +static cpumask_t frozen_cpus;
+> > +
+> > +int disable_nonboot_cpus(void)
+> > +{
+> > +	int cpu, error = 0;
+> > +
+> > +	/* We take all of the non-boot CPUs down in one shot to avoid races
+> > +	 * with the userspace trying to use the CPU hotplug at the same time
+> > +	 */
+> > +	mutex_lock(&cpu_add_remove_lock);
+> > +	cpus_clear(frozen_cpus);
+> > +	printk("Disabling non-boot CPUs ...\n");
+> > +	for_each_online_cpu(cpu) {
+> > +		if (cpu == 0)
+> > +			continue;
+> 
+> Assuming cpu 0 is online is not okay in generic code.
 
-0000:00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE Controller 
-(rev 03)
+Absolutely.  Thanks for pointing this out.
 
-If you were to patch up IDE I'd be happy to run up a couple of test kernels and test it out on an 
-Intel chipset also.
+> This should be something like:
+> 
+> 	int cpu, first_cpu, error = 0;
+> 
+> 	/* We take all of the non-boot CPUs down in one shot to avoid races
+> 	 * with the userspace trying to use the CPU hotplug at the same time
+> 	 */
+> 	mutex_lock(&cpu_add_remove_lock);
+> 	cpus_clear(frozen_cpus);
+> 	first_cpu = first_cpu(cpu_online_mask);
+> 	printk("Disabling non-boot CPUs ...\n");
+> 	for_each_online_cpu(cpu) {
+> 		if (cpu == first_cpu)
+> 			continue;
 
-Brad
--- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+I'm not quite sure if we can finish with CPU0 offline.  Perhaps it's better to
+check if CPU0 is online and bring it up if not and then continue or return
+an error if that fails?
+
+Rafael

@@ -1,188 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752028AbWG1QPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751985AbWG1QX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752028AbWG1QPb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 12:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752033AbWG1QPb
+	id S1751985AbWG1QX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 12:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751989AbWG1QX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 12:15:31 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:54659 "EHLO
+	Fri, 28 Jul 2006 12:23:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:22422 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752028AbWG1QPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 12:15:30 -0400
+	id S1751985AbWG1QX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 12:23:28 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=YCx6uZQH3/n4463Aya+7piQJAnZ5ccSzxnsKYAG8TzmFw0UvFkxHn4LEf1jm1U6q9qaRgKjrryTdLjA6xS635y/jUNRXOqrBLqA3gpecaGTSHNdZ10U+2ZkcbpVwwSlhIuLTiGVJG5S1adCUjHCoAwGR92mcpZQa2v/vLEJDUzY=
-Date: Fri, 28 Jul 2006 18:15:17 +0200
+        b=bbbQngjAX4IGbXXVdVq9oTpWgYw3xzIaI+HGXaqjAmHDwqoPhsKgOwre/CZlrWu6xEhsezJT1DGIWfa5LjEJ/N/xljeBx8FopvCFBav/OcGRlNRl0uBOBNKzofGAvMGHXLpGwHf5DVLLWHDs+HQB0LOh4jiuTHaRqHaoMu2NXvY=
+Date: Fri, 28 Jul 2006 18:23:20 +0200
 From: Frederik Deweerdt <deweerdt@free.fr>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, acme@mandriva.com, marcel@holtmann.org, jet@gyve.org
-Subject: [01/04 mm-patch, rfc] Add lightweight rwlock (was Re: [mm-patch] bluetooth: use GFP_ATOMIC in *_sock_create's sk_alloc)
-Message-ID: <20060728161515.GA1227@slug>
-References: <20060728083532.GA311@slug> <20060728.181756.135980869.jet@gyve.org> <20060728123246.GB311@slug> <20060728.221252.265353941.jet@gyve.org>
+Subject: [02/04 mm-patch, rfc] Add lightweight rwlock (was Re: [mm-patch] bluetooth: use GFP_ATOMIC in *_sock_create's sk_alloc)
+Message-ID: <20060728162320.GB1227@slug>
+References: <20060728083532.GA311@slug> <20060728.181756.135980869.jet@gyve.org> <20060728123246.GB311@slug> <20060728.221252.265353941.jet@gyve.org> <20060728161515.GA1227@slug>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="DKU6Jbt7q3WqK7+M"
+Content-Type: multipart/mixed; boundary="bKyqfOwhbdpXa4YI"
 Content-Disposition: inline
-In-Reply-To: <20060728.221252.265353941.jet@gyve.org>
+In-Reply-To: <20060728161515.GA1227@slug>
 User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jul 28, 2006 at 10:12:52PM +0900, Masatake YAMATO wrote:
-> Hi,
-> > On Fri, Jul 28, 2006 at 06:17:56PM +0900, Masatake YAMATO wrote:
-> > > > I think that the bluetooth-guard-bt_proto-with-rwlock.patch introduced the following
-> > > > BUG:
-> > > > [   43.232000] BUG: sleeping function called from invalid context at mm/slab.c:2903
-> > > > [   43.232000] in_atomic():1, irqs_disabled():0
-> > > > [   43.232000]  [<c0104114>] show_trace_log_lvl+0x197/0x1ba
-> > > > [   43.232000]  [<c010415e>] show_trace+0x27/0x29
-> > > > [   43.232000]  [<c010426e>] dump_stack+0x26/0x28
-> > > > [   43.232000]  [<c011ad1c>] __might_sleep+0xa2/0xaa
-> > > > [   43.232000]  [<c0173085>] __kmalloc+0x9c/0xb3
-> > > > [   43.232000]  [<c02f9295>] sk_alloc+0x1bc/0x1de
-> > > > [   43.232000]  [<c036d689>] hci_sock_create+0x42/0x8a
-> > > > [   43.236000]  [<c0366f40>] bt_sock_create+0xb5/0x154
-> > > > [   43.236000]  [<c02f69dc>] __sock_create+0x131/0x356
-> > > > [   43.236000]  [<c02f6c2f>] sock_create+0x2e/0x30
-> > > > [   43.236000]  [<c02f6c88>] sys_socket+0x27/0x53
-> > > > [   43.240000]  [<c02f7db5>] sys_socketcall+0xa9/0x277
-> > > > [   43.240000]  [<c0103131>] sysenter_past_esp+0x56/0x8d
-> > > > [   43.240000]  [<b7f38410>] 0xb7f38410
-> > > > 
-> > > > 
-> > > > This patch makes sk_alloc GFP_ATOMIC, because we are holding the bt_proto_rwlock, for
-> > > > the following functions:
-> > > > - bnep_sock_create
-> > > > - cmtp_sock_create
-> > > > - hci_sock_create
-> > > > - hidp_sock_create
-> > > > - l2cap_sock_create
-> > > > - rfcomm_sock_create
-> > > > - sco_sock_create
-> > > 
-> > > There is very similar code in i net/socket.c(I guess some part of
-> > > bluetooth/af_bluetooth.c is derived from net/socket.c):
-> > > 
-> > [... skip net/socket.c code ...]
-> > > 
-> > > So there are two ways to avoid the bug:
-> > > 1. As proposed by Frederik, use sk_alloc with GFP_ATOMIC or
-> > > 2. use net_family_{read|writ}_{lock|unlock} in af_bluetooth.c.
-> > > 
-> > I'd say that using a net_family_* like function set is much better,
-> > if only in terms of preemptibility. 
-> > 
-> > I'll write an implementation that allows to use the same code
-> > in socket.c and in af_bluetooth.c
-> > 
-> I found one more similar code set at net/dccp/ccid.c for the same purpose:
-OK, thanks, I modified it too.
-
-The following set of patches adds a struct lw_rwlock (for lightweight
-rwlock) which contains a spin_lock_t and an atomic_t. It is defined
-in include/linux/lw_rwlock.h.
-
-This lw_rwlock aims at protecting structures that are modified very rarely
-and quickly. This assumptions allow the reader to merely increment the
-atomic_t, allowing it to sleep why the lw_rwlock is help.
-
-There were already two users of this kind of API: net/socket.c to protect
-'net_families' and net/dccp/ccid.c to protect 'ccids'. As suggested
-by Masatake YAMATO, this looked like good way to protect 'bt_proto'
-in net/bluetooth/af_bluetooth.c as well. This patchset aims at having
-only one implementation in the kernel.
+This patch is part of the lw_rwlock patchset, it removes the
+net_family_{read,write}_{lock,unlock} functions which have been moved
+to linux/lw_rwlock.h and made more generic.
 
 Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
 
- include/linux/lw_rwlock.h    |   71 +++++++++++++++++++++++++++++++++++++++++++
- net/bluetooth/af_bluetooth.c |   15 ++++-----
- net/dccp/ccid.c              |   63 +++++++-------------------------------
- net/socket.c                 |   58 ++++-------------------------------
- 4 files changed, 100 insertions(+), 107 deletions(-)
-
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="lw_rwlock-include-file.patch"
+Content-Disposition: inline; filename="net_socket.c-use-lw_rwlocks.patch"
 
---- v2.6.18-rc2-mm1~ori/include/linux/lw_rwlock.h	1970-01-01 01:00:00.000000000 +0100
-+++ v2.6.18-rc2-mm1/include/linux/lw_rwlock.h	2006-07-28 17:25:04.000000000 +0200
-@@ -0,0 +1,71 @@
-+#ifndef __LINUX_LW_RWLOCK_H
-+#define __LINUX_LW_RWLOCK_H
-+
-+/*
-+ * LightWeight readwriter lock.
-+ * The strategy is: modifications while the lock is held are short, do not
-+ * sleep and veeery rare, but read access should be free of any exclusive
-+ * locks.
-+ * The original implementation was written for net/socket.c
-+ */
-+
-+#include <linux/spinlock.h>
-+
-+
-+struct lw_rwlock {
-+	/* tracks down the number of current readers */
-+	atomic_t readers;
-+	/* the actual lock, only held by writers */
-+	spinlock_t lock;
-+};
-+
-+#define __LW_RWLOCK_UNLOCKED(lockname) \
-+		 { { 0 }, __SPIN_LOCK_UNLOCKED(lockname) }
-+
-+#define lw_rwlock_init(x) \
-+		do { *(x) = (lw_rwlock_t) __LW_RWLOCK_UNLOCKED(x); } while (0)
-+
-+#define DEFINE_LW_RWLOCK(x) \
-+		struct lw_rwlock x = __LW_RWLOCK_UNLOCKED(x)
-+
-+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
-+
-+static inline void lw_write_lock(struct lw_rwlock *l)
-+{
-+	spin_lock(&l->lock);
-+	while (atomic_read(&l->readers) != 0) {
-+		spin_unlock(&l->lock);
-+
-+		yield();
-+
-+		spin_lock(&l->lock);
-+	}
-+}	
-+
-+static inline void lw_write_unlock(struct lw_rwlock *l) 
-+{
-+	spin_unlock(&l->lock);
-+}
-+
-+static inline void lw_read_lock(struct lw_rwlock *l)
-+{
-+	atomic_inc(&l->readers);
-+	spin_unlock_wait(&l->lock);
-+}
-+
-+static inline void lw_read_unlock(struct lw_rwlock *l)
-+{
-+	atomic_dec(&l->readers);
-+}
-+
-+#else
-+
-+#define lw_write_lock(x) do { } while(0)
-+#define lw_write_unlock(x) do { } while(0)
-+#define lw_read_lock(x) do { } while(0)
-+#define lw_read_unlock() do { } while(0)
-+
-+#endif /* CONFIG_SMP || CONFIG_PREEMPT */
-+
-+
-+#endif /* __LINUX_LW_RWLOCK_H */
+--- v2.6.18-rc2-mm1~ori/net/socket.c	2006-07-27 11:46:12.000000000 +0200
++++ v2.6.18-rc2-mm1/net/socket.c	2006-07-28 15:50:06.000000000 +0200
+@@ -85,6 +85,7 @@
+ #include <linux/kmod.h>
+ #include <linux/audit.h>
+ #include <linux/wireless.h>
++#include <linux/lw_rwlock.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -143,50 +144,7 @@ static struct file_operations socket_fil
+ 
+ static struct net_proto_family *net_families[NPROTO];
+ 
+-#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
+-static atomic_t net_family_lockct = ATOMIC_INIT(0);
+-static DEFINE_SPINLOCK(net_family_lock);
+-
+-/* The strategy is: modifications net_family vector are short, do not
+-   sleep and veeery rare, but read access should be free of any exclusive
+-   locks.
+- */
+-
+-static void net_family_write_lock(void)
+-{
+-	spin_lock(&net_family_lock);
+-	while (atomic_read(&net_family_lockct) != 0) {
+-		spin_unlock(&net_family_lock);
+-
+-		yield();
+-
+-		spin_lock(&net_family_lock);
+-	}
+-}
+-
+-static __inline__ void net_family_write_unlock(void)
+-{
+-	spin_unlock(&net_family_lock);
+-}
+-
+-static __inline__ void net_family_read_lock(void)
+-{
+-	atomic_inc(&net_family_lockct);
+-	spin_unlock_wait(&net_family_lock);
+-}
+-
+-static __inline__ void net_family_read_unlock(void)
+-{
+-	atomic_dec(&net_family_lockct);
+-}
+-
+-#else
+-#define net_family_write_lock() do { } while(0)
+-#define net_family_write_unlock() do { } while(0)
+-#define net_family_read_lock() do { } while(0)
+-#define net_family_read_unlock() do { } while(0)
+-#endif
+-
++static DEFINE_LW_RWLOCK(net_family_lock);
+ 
+ /*
+  *	Statistics counters of the socket lists
+@@ -1125,7 +1083,7 @@ static int __sock_create(int family, int
+ 	}
+ #endif
+ 
+-	net_family_read_lock();
++	lw_read_lock(&net_family_lock);
+ 	if (net_families[family] == NULL) {
+ 		err = -EAFNOSUPPORT;
+ 		goto out;
+@@ -1176,7 +1134,7 @@ static int __sock_create(int family, int
+ 	security_socket_post_create(sock, family, type, protocol, kern);
+ 
+ out:
+-	net_family_read_unlock();
++	lw_read_unlock(&net_family_lock);
+ 	return err;
+ out_module_put:
+ 	module_put(net_families[family]->owner);
+@@ -2025,13 +1983,13 @@ int sock_register(struct net_proto_famil
+ 		printk(KERN_CRIT "protocol %d >= NPROTO(%d)\n", ops->family, NPROTO);
+ 		return -ENOBUFS;
+ 	}
+-	net_family_write_lock();
++	lw_write_lock(&net_family_lock);
+ 	err = -EEXIST;
+ 	if (net_families[ops->family] == NULL) {
+ 		net_families[ops->family]=ops;
+ 		err = 0;
+ 	}
+-	net_family_write_unlock();
++	lw_write_unlock(&net_family_lock);
+ 	printk(KERN_INFO "NET: Registered protocol family %d\n",
+ 	       ops->family);
+ 	return err;
+@@ -2048,9 +2006,9 @@ int sock_unregister(int family)
+ 	if (family < 0 || family >= NPROTO)
+ 		return -1;
+ 
+-	net_family_write_lock();
++	lw_write_lock(&net_family_lock);
+ 	net_families[family]=NULL;
+-	net_family_write_unlock();
++	lw_write_unlock(&net_family_lock);
+ 	printk(KERN_INFO "NET: Unregistered protocol family %d\n",
+ 	       family);
+ 	return 0;
 
---DKU6Jbt7q3WqK7+M--
+--bKyqfOwhbdpXa4YI--

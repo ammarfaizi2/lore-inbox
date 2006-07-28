@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWG1Sos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752055AbWG1Ssi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161233AbWG1Sos (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161238AbWG1Sor
+	id S1752055AbWG1Ssi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752056AbWG1Ssi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:44:47 -0400
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:20878
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1161233AbWG1Soq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:44:46 -0400
-Subject: 2.6.18-rc2-mm1 timer int 0 doesn't work
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
-References: <20060727015639.9c89db57.akpm@osdl.org>
+	Fri, 28 Jul 2006 14:48:38 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:15745 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1752055AbWG1Ssh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 14:48:37 -0400
+Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <200607282045.05292.ak@suse.de>
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org>
+	 <1154102736.6416.19.camel@laptopd505.fenrus.org>
+	 <200607282045.05292.ak@suse.de>
 Content-Type: text/plain
-Date: Fri, 28 Jul 2006 13:44:36 -0500
-Message-Id: <1154112276.3530.3.camel@amdx2.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Jul 2006 20:48:31 +0200
+Message-Id: <1154112511.6416.46.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-rc2-mm1 causes boot to fail early with:
-kernel panic: IO_APIC timer interrupt 0 doesn't work
+On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
+> > +ifdef CONFIG_CC_STACKPROTECTOR
+> > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
+> > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
+> 
+> Why can't you just use the normal call cc-option for this?
 
-2.6.18-rc2 works.
-
-2.6.18-rc2-mm1 kernel config located at:
-http://www.microgate.com/ftp/linux/test/config
-
-syslog from working 2.6.18-rc2 located at:
-http://www.microgate.com/ftp/linux/test/syslog
-
--- 
-Paul Fulghum
-Microgate Systems, Ltd
-
+this requires gcc 4.2; cc-option is not useful for that.

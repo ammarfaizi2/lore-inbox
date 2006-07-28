@@ -1,134 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWG1HmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbWG1HnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWG1HmR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 03:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWG1HmQ
+	id S1161087AbWG1HnG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 03:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbWG1HnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 03:42:16 -0400
-Received: from styx.suse.cz ([82.119.242.94]:16351 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1030207AbWG1HmP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 03:42:15 -0400
-Date: Fri, 28 Jul 2006 09:42:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-Subject: Re: Generic battery interface
-Message-ID: <20060728074202.GA4757@suse.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Jul 2006 03:43:05 -0400
+Received: from [220.198.34.209] ([220.198.34.209]:18626 "EHLO
+	localhost.100cd.com") by vger.kernel.org with ESMTP id S932586AbWG1HnD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 03:43:03 -0400
+Message-Id: <2750565.002102Ann@mailit.com.au>
+Date: Fri, 28 Jul 2006 02:33:23 -0500
+From: "SELMA QUEIROZ" <Ann@mailit.com.au>
+To: <mh@vgei.com>
+Subject: [TREINAMENTO ESPECIAL] BUSINESS INTELLIGENCE NO EXCEL ghh
+MIME-Version: 1.0
+Content-Type: text/plain;; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 03:27:00AM +0300, Shem Multinymous wrote:
+======================================================================================
+BUSINESS INTELLIGENCE NO EXCEL 
+2ª EDIÇÃO
 
-> >You're joking, right? On quite a number of laptops, it takes quite a
-> >while to read the battery, spent in BIOS through SMI, polling the I2C
-> >bus while talking to the battery. The less often this is done, the
-> >better.
-> 
-> Yes, I know -- tp_smapi does that too. And it's still negligible,
-> usually a few microseconds.
+01 e 02 de Agosto de 2006 - São Paulo
 
-The load isn't the problem. The incurred latencies - both interrupt and
-scheduling - are. Audio playback skips, mice losing sync, keyboards
-losing keystrokes, these are the nasty effects I've seen so far.
+======================================================================================
 
-> Heck, the hdaps driver polls that same I2C bus 50 times per seconds
-> and still doesn't tickle the load average.
+Inscrições e Informações: (11) 2626-3756 / 2626-3761
 
-The Analog Devices ADXL2xx sensors in the HDAPS are not implementing
-I2C, only having analog and PWM outputs. I doubt they're connected over
-I2C to the EC.
+ATENÇÃO! ÚLTIMAS VAGAS!
 
-> >The applets that were doing it (yes, up to 100 times per second)
-> >corrected their ways pretty quickly, because some machines became
-> >unusable with the applet enabled.
-> 
-> Exactly -- and they've been working merrily ever since.
-> And if you don't want to trust applet developers, cache the latest
-> reads and refresh them only if X jiffies have passed.
 
-The timer interrupt still has to happen every time their select() or
-sleep() expires, with the system having to wake up, even when nothing
-happened. Polling from userspace is bad.
+Há muito tempo o Excel é uma das ferramentas mais utilizadas pelos executivos para as mais variadas aplicações:
+orçamento, projeções, análise de projetos, avaliação de negócios, etc.
 
-> >You could, trivially, mirror the behavior of current applets: Not report
-> >the changes to the battery status more often than each N seconds, except
-> >for critical events.
-> 
-> You're taking a polling-based hardware, exposing it as an event-based
-> interface, and then and kludging it so that it behaves like polling
-> again...
+Um tema relativamente recente é o do Business Intelligence, que significa nada mais do que
+conseguir extrair conhecimento de uma infinidade de dados disponíveis.
 
-Every (I2C, direct ADC and more) sensor is polling-based by nature. The
-eventization can happen in the EC, the BIOS, or later in the chain -
-kernel or userspace. The earlier you stop it, the better for your power
-consumption.
+O mercado oferece dezenas (senão centenas) de soluções neste sentido, 
+muitas delas custando centenas de milhares de dólares.
 
-On event-based interface, the program using it doesn't have to use
-events (it still can read the immediate values explicitly), on a
-polling-based interface nobody can use events.
+Porém, da mesma forma que as empresas muitas vezes preferem o Excel a sistemas de orçamento, 
+por que então também não ter soluções de BI e, Excel?
 
-The event-based interface can even signal a certain device will not
-supply any events and needs to be polled. This would the interface to
-match the hardware better at the expense of making it more complex.
+Obviamente que o uso do Excel para desenvolver uma solução de BI pode não ser da complexidade 
+e abrangência de um sistema estruturado de BI, mas como sabemos, nem sempre as empresas dispõem de recursos
+e tempo para ter a melhor solução, ou ainda, prefereM soluções mais rápidas e fáceis de implementar,
+sem a necessidade de interferência da área de TI.
 
-> So, in this scheme, how many lines of code does is the equivalent of
-> "cat /sys/devices/platform/smapi/BAT0/voltage"?
+Neste treinamento abordaremos exatamente esse ponto: a possibilidade de, com pouco tempo e recursos ínfimos,
+desenvolver uma solução eficiente de Business Intelligence, permitindo às empresas identificar as ameaças e oportunidades
+de seus negócios e assim, poderem converter as ameaças em oportunidades e maximizar as oportunidades. 
 
-NOTE: I'm arguing event-based vs poll-based here. This is orthogonal to
-the /dev vs /sys - both can supply or not supply events.
 
-It's two lines in C, if you omit error checking.
+-----------------------------------------------------------------------------------------
+PORQUE FAZER ESTE TREINAMENTO
+-----------------------------------------------------------------------------------------
 
-	fd = open("/dev/bat0", O_RDONLY);
-	ioctl(fd, BATCGVOLTAGE, &voltage);
+• É exclusivo e inédito. Você não verá no Brasil um treinamento parecido;
 
-for the sysfs implementation (for comparison), you'll need (at minimum):
+• Este treinamento é 100% prático - você usa o Excel desde o 1º minuto de aula e não precisa dividir o computador,
+ você terá equipamento individual.
 
-	fd = open("/dev/bat0", O_RDONLY);
-	read(fd, buf, MAX_LEN);
-	voltage = strtol(buf, buf + MAX_LEN, 10);
+• O consultor Fábio Vianna tem mais de 9 anos de experiência em montagem de planilhas para as mais variadas situações:
+ projeções financeiras, preço de venda, valorização de empresas, análise de demonstrações financeiras, budget, etc; 
 
-If you want a shell script, you'd use a small utility supplied with the
-reference implementation:
+• O treinamento é focado para executivos de empresas, assegurando um alto nível de qualidade para o treinamento;
 
-	batstate -t voltage /dev/bat0
+• Terá à disposição após o treinamento CD com exemplos e exercícios adicionais; 
 
-And it'd of course give you the same output as the 'cat' line.
+-----------------------------------------------------------------------------------------
+PÚBLICO ALVO
+-----------------------------------------------------------------------------------------
 
-> >> And you'll need to identify devices in a useful way, a problem that's
-> >> not yet solved even for input devices... You see where it's going.
-> >
-> >May you be more specific here? I'm not aware of any problems in this
-> >area. This may be my fault: What needs to be fixed there?
-> 
-> "Generic interface for accelerometers (AMS, HDAPS, ...)" on LKML, a
-> few weeks ago, about moving accelerator-based hard disk parking from
-> sysfs polling to the the input infrastructure. One unresolved issue
-> was how to find which input device happens to be the relevant
-> accelerometer.
+Este curso destina-se a gestores financeiros, de planejamento, comerciais e de tecnologia da informação ou profissionais
+ técnicos que estejam envolvidos em projetos de desenvolvimento de sistemas de informação em Business Intelligence.
 
-The current well known methods are:
+Os participantes devem estar habituados à utilização de ferramentas de automatização como planilhas,
+ processadores de textos e utilização da Internet. 
 
-	1) udev/hotplug. It can create device nodes and symlinks based on the
-		capabilities and IDs of an input device.
-	1a) HAL. It has all the info from hotplug as well.
-	2) open them all and do the capability checks / IDs yourself.
-	3) (obsolete, deprecated) parse /proc/bus/input/devices, which
-		lists all the input devices
 
-Any problems with that?
+-----------------------------------------------------------------------------------------
+PROGRAMA
+-----------------------------------------------------------------------------------------
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+Introdução:
+
+· O que é e importância do business intelligence. 
+· Principais utilizações do BI. 
+· Quem disse que você não precisa. 
+· Quem disse que não dá para fazer no Excel ? 
+
+Parte I - Como acessar os dados
+
+Dados Externos
+
+· Tipos de dados externos 
+· Pré-Requisitos para sua importação 
+· Instalando drivers compatíveis com os dados a serem importados 
+
+Importando os dados 
+
+· Passo-a-passo para a importação de dados externos das principais fontes 
+· Bancos de dados (Acess, SQL, Oracle, Dbase) 
+· Outras planilhas excel 
+· Arquivos texto 
+· Páginas de Internet 
+
+Organizando os dados 
+
+· Criação de tabelas e consultas interativas 
+· Definindo a periodicidade de atualizzação dos dados 
+· Como utilizar o Microsoft Query para melhorar as consultas 
+· Como utilizar o Microsoft Query para criar cubos OLAP 
+
+Parte II - Como trabalhar os dados
+
+Data mining 
+
+· O que é e para que serve 
+· Os seis passos do data mining 
+· Quem pode se beneficiar do data mining 
+· Como montar procurar por padrões e comportamentos significativos 
+· Fazendo previsões 
+
+Estatística no Excel 
+
+· As principais funções e recursos disponíveis para data mining 
+· Exemplos e casos práticos 
+· Suplementos disponíveis para serem incorporados 
+
+Parte III - Como automatizar as consultas e análises
+
+· Como minimizar o tamanho dos arquivos com consultas 
+· Como criar uma rotina diária de extração e atualização 
+· Como automatizar a identificação e criação de previsões 
+· Compartilhando as consultas via Web e e-mail 
+· Utilizando todo o potencial do Excel para criar um verdadeiro sistema de BI 
+· Macros e VBA para a criação de formulários de consultas 
+· Gráficos profissionais para serem usados em consultas de BI 
+· Como lidar com diferentes versões de Excel 
+· Impedindo o acesso de usuários não autorizados 
+
+Importante: todos os tópicos serão acompanhados de exercícios e exemplos, todos disponibilizados no CD. 
+
+
+Carga Horária:
+
+· 16 horas
+
+
+-----------------------------------------------------------------------------------------
+APRESENTAÇÃO DO EXPOSITOR	
+-----------------------------------------------------------------------------------------
+
+Fábio Vianna
+
+• Bacharel em Administração de Empresas pela EAESP/FGV 
+
+• É consultor financeiro há mais de 9 anos, trabalhando na modelagem de planilhas para projeções financeiras,
+ cálculo do preço de venda, valuation, avaliação de projetos de investimento. 
+
+• Ministra treinamentos há mais de 5 anos nas áreas de:projeções financeiras, análise de projetos,
+ cálculo dopreço de venda,orçamento empresarial,avaliação de empresas,análise de demonstrações financeiras e
+ utilização de recursos avançados de Excel.
+
+• Já ministrou mais de 100 treinamentos e treinou mais de 1.900 executivos. 
+
+• Elaborou mais de uma centena de planilhas para as mais variadas empresas, dos mais diversos portes e ramos e atuação. 
+
+• É criador do Treinamento “Finanças em Excel”, treinamentos que aborda o uso de Excel 
+para a área de finanças mais renomado no mercado, tendo treinado mais de 1.300 executivos somente neste treinamento.
+
+• É criador do treinamento “Como criar gráficos profissionais em Excel”, treinamento inédito no Brasil.
+
+• É criador do e-zine gratuito finanças_em_excel, distribuído para mais de 400 empresas e que aborda
+ como utilizar criativamente recursos do Excel no dia-a-dia das empresas, recomendado pela revista INFO ESPECIAL – Excel.
+
+• É autor dos livros “Excel aplicado a finanças” e “Gráficos Profissionais em Excel” (no prelo).
+
+• É Sócio-Diretor da Argos Consulting, empresa de Consultoria especializada em oferecer soluções 
+em planilhas eletrônicas para as mais variadas utilizações em finanças.
+
+
+
+
+-----------------------------------------------------------------------------------------
+INFORMAÇÕES
+-----------------------------------------------------------------------------------------
+
+Data: 01 e 02 de Agosto de 2006
+
+Horário: 8:30hrs às 17:45hrs
+
+Inscrições e Informações: (11) 2626-3756 / 2626-3761
+Horário de Atendimento: 9:00hrs as 18:00hrs
+
+ 
+Consulte sobre desconto especial para grupos. 
+Os pagamentos podem ser feitos por meio de depósito ou boleto bancário. 
+Estão inclusos custos de material, coffee break e estacionamento. 
+
+  
+ 
+Essa mensagem foi gerada automaticamente e não pode ser respondida.
+Para alterar ou descadastrar o seu e-mail, clique no link "Cadastre seu e-mail", 
+localizado na página inicial do site. Em caso de dúvidas entre em contato com a Central de Serviços
+pelo telefone (11) 2626-3756, de segunda a sexta-feira, das 9h30 às 17:30h, horário de Brasília. 
+Atenção: o Canal Executivo passou a adotar a política de não inserir links nos e-mails
+enviados aos seus clientes.
+
+
+

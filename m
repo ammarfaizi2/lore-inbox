@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161098AbWG1ROd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161181AbWG1ROK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161098AbWG1ROd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161186AbWG1ROd
+	id S1161181AbWG1ROK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161098AbWG1ROK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:14:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51911 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161098AbWG1ROb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:14:31 -0400
-Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, alokk@calsoftinc.com,
-       tglx@linutronix.de, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060728171155.GA3739@localhost.localdomain>
-References: <1154044607.27297.101.camel@localhost.localdomain>
-	 <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com>
-	 <Pine.LNX.4.64.0607280744530.18198@schroedinger.engr.sgi.com>
-	 <20060728171155.GA3739@localhost.localdomain>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 28 Jul 2006 19:14:19 +0200
-Message-Id: <1154106859.6416.31.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 28 Jul 2006 13:14:10 -0400
+Received: from unassigned-87.236.194.20.coolhousing.net ([87.236.194.20]:43024
+	"EHLO mail.agmk.net") by vger.kernel.org with ESMTP
+	id S1161181AbWG1ROI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 13:14:08 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
+Date: Fri, 28 Jul 2006 19:13:37 +0200
+User-Agent: KMail/1.9.3
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <1154102627.6416.13.camel@laptopd505.fenrus.org> <1154103895.18669.5.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+In-Reply-To: <1154103895.18669.5.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200607281913.37889.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 28 July 2006 18:24, Daniel Walker wrote:
+> On Fri, 2006-07-28 at 18:03 +0200, Arjan van de Ven wrote:
+> > ---
+> >  arch/x86_64/Kconfig |   25 +++++++++++++++++++++++++
+> >  1 file changed, 25 insertions(+)
+>
+> Could this be supported on more than just x86_64, it seems fairly
+> generic ?
 
-> cache_free_alien could get called, but there is no recursion here:
-> 
-> 1. reap_alien tries dropping remote objects freed by local node (A) to the 
-> remote node (B) shared array cache (choosing a remote node as indicated by the 
-> node rotor), to do this, it takes the local alien cache lock (A), and calls 
-> __drain_alien_cache. The remote object comes from a slab cache X say.
-> 
-> 2. __drain_alien_cache. takes the remote node l3 lock (B), transfers as many
-> objects as shared array cache of the remote node can hold, and calls
-> free_block to free remaining objects that could not be dropped in into the
-> shared array cache of remote node (B).  Now free_block is being called from
-> (A) to free objects on (B). 
-> 
-> 3. free_block calls slab_destroy for the slab belonging to B. calls
-> kmem_cache_free for the slab management, which calls __cache_free, and 
-> hence cache_free_alien().  Now since this is being called from A for a local
-> object of B, the check in cache_free_alien fails, and cache_free_alien
-> *does* get executed.  Since slab management of a slab from B, local to B is
-> freed from A, A tries to write to the local alien cache corresponding to B,
-> which comes from a slab cache Y.  There is a recursion if X and Y are the
-> same caches.   But that is not a possibility at all, as the off slab management
-> for a slab cache cannot come from the same slab cache.  So this looks like a
-> false positive from lockdep.  
-actually lockdep doesn't see normal slabs and the slabs where off-slab
-management comes from as the same lock, so it really shouldn't complain
-about this specific case.
+yes, it could.
 
+gcc supports stack protection at so called tree-level (it means
+it's architecture-independent). i've just tested a simple userland-code:
 
+#include <stdlib.h>
+#include <string.h>
+int main()
+{
+	char c;
+	memset( &c, 0, 512 );
+	return 0;
+}
+
+and stack protection works fine on {ix86,x86-64,powerpc}-linux.
+i can test it on {alpha,sparc}-linux later but i'm pretty sure
+it'll work too on these archs.

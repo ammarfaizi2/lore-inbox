@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWG1J1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751988AbWG1Jkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161126AbWG1J1E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 05:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWG1J1D
+	id S1751988AbWG1Jkn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 05:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751990AbWG1Jkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 05:27:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:24765 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161123AbWG1J1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 05:27:01 -0400
-Subject: Re: Hello, We have IP100A Linux driver need to submit to 2.6.x
-	kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jesse Huang <jesse@icplus.com.tw>
-Cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <040401c6b1e8$e8b14ae0$4964a8c0@icplus.com.tw>
-References: <02fb01c6b147$b15b8fc0$4964a8c0@icplus.com.tw>
-	 <20060727190707.GA24157@electric-eye.fr.zoreil.com>
-	 <040401c6b1e8$e8b14ae0$4964a8c0@icplus.com.tw>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 28 Jul 2006 11:26:40 +0200
-Message-Id: <1154078800.3117.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 28 Jul 2006 05:40:42 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:36587 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751988AbWG1Jkm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 05:40:42 -0400
+Message-ID: <44C97913.6000607@namesys.com>
+Date: Thu, 27 Jul 2006 20:40:19 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Grzegorz Kulewski <kangur@polcom.net>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <44C12F0A.1010008@namesys.com> <44C28A8F.1050408@garzik.org> <44C32348.8020704@namesys.com> <200607230212.55293.lkml@lpbproductions.com> <44C44622.9050504@namesys.com> <20060724085455.GD24299@merlin.emma.line.org> <44C4813E.2030907@namesys.com> <20060726131709.GB5270@ucw.cz> <Pine.LNX.4.63.0607271732010.8976@alpha.polcom.net> <20060727172852.GA11321@merlin.emma.line.org>
+In-Reply-To: <20060727172852.GA11321@merlin.emma.line.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 09:55 +0800, Jesse Huang wrote:
-> Hi Francois:
-> 
->     Sorry, I don't know this patch before. IP100A is a new version of IP100
-> (sundance.c). I don't know what is you suggestion of IP100A driver? Should
-> I...
-> 
-> 1. Only updata sundance.c to support IP100A
-> 2. Release ip100a.c which support ip100(sundance) to kernel 2.6.x and ask to
-> remove sundance.c.
-> 3. Release ip100a.c with sundance.c both to kernel 2.6.x
-> 
-> We hope to use IP100a.c as our product driver, so 2. and 3. will better for
-> IC Plus. But we will still follow your suggestion, if you feel 1. was better
-> for kernel.
+Matthias Andree wrote:
 
+>I wonder what makes the hash overflow issue so complicated (other than
+>differing business plans, that is) that upgrading in place isn't
+>possible. Changes introduce instability, but namesys were proud of their
+>regression testing - so how sustainable is their internal test suite?
+>  
+>
+>
+Never met a test suite the equal of a few million users.....
 
-Hello,
+People have this image of Namesys as some large corporation that has
+large resources.  We just barely are going to be able to ship reiser4,
+at the cost of a LOT of financial pain.  We can't afford to go in two
+directions at once.  We can add bugfixes to V3, but adding features, I
+have to tell you that we ain't got the staff for both that and shipping
+V4.  Our whole corporation has a budget about what most corporations
+spend on two programmers.   We have 5 developers, including me, and
+making little bits of money is a constant distraction from the main work.
 
-in general the policy for Linux is that if adding support for a new
-device is only minor changes to an existing driver, it is better to
-update this existing driver with those changes. The reason for that is
-that this makes it possible to share bugfixes and testing between both
-devices. Now there is a point where it no longer makes sense to share,
-for example when the devices are really very, very different. 
-
-Greetings,
-   Arjan van de Ven
-
+Hans

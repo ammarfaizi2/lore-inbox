@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbWG1RRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161188AbWG1RUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161186AbWG1RRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 13:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161188AbWG1RRT
+	id S1161188AbWG1RUW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 13:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161189AbWG1RUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 13:17:19 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:7838 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161186AbWG1RRS (ORCPT
+	Fri, 28 Jul 2006 13:20:22 -0400
+Received: from outbound-kan.frontbridge.com ([63.161.60.23]:50730 "EHLO
+	outbound1-kan-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1161188AbWG1RUV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 13:17:18 -0400
-Date: Fri, 28 Jul 2006 18:57:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Paul Jackson <pj@sgi.com>
-cc: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       jeff@garzik.org, adobriyan@gmail.com, vlobanov@speakeasy.net,
-       getshorty_@hotmail.com, pwil3058@bigpond.net.au, mb@bu3sch.de,
-       penberg@cs.helsinki.fi, stefanr@s5r6.in-berlin.de, larsbj@gullik.net
-Subject: Re: [RFC][PATCH] A generic boolean (version 6)
-In-Reply-To: <20060726180622.63be9e55.pj@sgi.com>
-Message-ID: <Pine.LNX.4.61.0607281849000.4972@yvahk01.tjqt.qr>
-References: <1153341500.44be983ca1407@portal.student.luth.se>
- <1153945705.44c7d069c5e18@portal.student.luth.se> <20060726180622.63be9e55.pj@sgi.com>
+	Fri, 28 Jul 2006 13:20:21 -0400
+X-BigFish: V
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Subject: RE: [patch] Reorganize the cpufreq cpu hotplug locking to not
+ be totally bizare
+Date: Fri, 28 Jul 2006 12:09:00 -0500
+Message-ID: <84EA05E2CA77634C82730353CBE3A84303218F26@SAUSEXMB1.amd.com>
+In-Reply-To: <p73slkl4z41.fsf@verdi.suse.de>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] Reorganize the cpufreq cpu hotplug locking to not
+ be totally bizare
+Thread-Index: AcayTOIcWg8XhSm2TLKupFxc24RkmgAG5UgA
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: ak@suse.de
+cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Jul 2006 17:09:02.0003 (UTC)
+ FILETIME=[85EF4030:01C6B268]
+X-WSS-ID: 68D49B270Y8699157-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I'm delighted that this favors "true, false and bool",
->over "TRUE, FALSE and various spellings of BOOLEAN".
->
->Fun stuff to do in the future:
+> > If there's a better way to hop to a specific core, I'll 
+> gladly rewrite 
+> > the code in question.
+> 
+> You could use smp_call_function_single() 
+> 
+> (i386 version might be only in -mm* so far)
 
-Make people actually accept bool.
-http://lkml.org/lkml/2006/5/1/123 was like a hit in the face wrt. bool.
+I'll wait and submit for 2.6.20, I guess.
+
+-Mark Langsdorf
+AMD, Inc.
 
 
-PS: Can *anybody* tell me why lkml.org is so slow recently?
-
-
-Jan Engelhardt
--- 

@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161155AbWG1N5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbWG1OBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161155AbWG1N5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 09:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161156AbWG1N5Z
+	id S1161159AbWG1OBa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 10:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbWG1OB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 09:57:25 -0400
-Received: from [212.76.86.78] ([212.76.86.78]:4621 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1161155AbWG1N5Y (ORCPT
+	Fri, 28 Jul 2006 10:01:29 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:56448 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1161159AbWG1OB3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 09:57:24 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: patch for Documentation/initrd.txt?
-Date: Fri, 28 Jul 2006 16:58:40 +0300
-User-Agent: KMail/1.5
+	Fri, 28 Jul 2006 10:01:29 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Where does kernel/resource.c.1 file come from?
+Date: Fri, 28 Jul 2006 16:03:38 +0200
+User-Agent: KMail/1.9.3
 Cc: linux-kernel@vger.kernel.org
-References: <200607272026.57695.a1426z@gawab.com> <200607272335.36819.a1426z@gawab.com> <44C9244B.1020708@zytor.com>
-In-Reply-To: <44C9244B.1020708@zytor.com>
+References: <200607251554.50484.eike-kernel@sf-tec.de> <20060725151520.GA15681@mars.ravnborg.org>
+In-Reply-To: <20060725151520.GA15681@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
+Content-Type: multipart/signed;
+  boundary="nextPart1881937.GiZ8PCy4V6";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607281658.40771.a1426z@gawab.com>
+Message-Id: <200607281603.38978.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Al Boldi wrote:
-> > H. Peter Anvin wrote:
-> >> Al Boldi wrote:
-> >>> Thanks for your very useful docPatch!
-> >>>
-> >>> OT, but your docPatch made me think of another way to init the kernel;
-> >>> via tmpfs, i.e. initTmpFS.
-> >>>
-> >>> Can anybody see how that could be useful?
-> >>
-> >> Useful, yes, but this has turned out to be fairly complex.
+--nextPart1881937.GiZ8PCy4V6
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Am Dienstag, 25. Juli 2006 17:15 schrieb Sam Ravnborg:
+> On Tue, Jul 25, 2006 at 03:54:45PM +0200, Rolf Eike Beer wrote:
+> > Hi,
 > >
-> > Sounds like somebody tried this before?
->
-> Several people, yes.
-
-This http://marc.theaimsgroup.com/?l=linux-kernel&m=107013630212011&w=4 looks 
-rather trivial.
-
-What am I missing here?
-
-> >> tmpfs needs
-> >> a *LOT* more of the system to be fully operational than ramfs, and the
-> >> rootfs is initialized very early on, since one of its purposes is to
-> >> eliminate special cases.
+> > I'm playing around with my local copy of linux-2.6 git tree. I'm building
+> > everything to a separate directory using O= to keep "git status" silent.
 > >
-> > So would it be possible to remap rootfs from ramfs to tmpfs, once tmpfs
-> > is initialized, without actually doing another cpio?
+> > After building I sometimes find a file kernel/resource.c.1 in my git tree
+> > that doesn't really belong there. Who is generating this file, for what
+> > reason and why doesn't it get created in my output directory?
 >
-> That sounds nasty.
+> Can you also try to make sure that this file is generated as part of the
+> build process. git status before and after should do it.
 
-I would call it an obvious hack, if it is necessary at all.  Plus it's only 
-to kickstart things.
+I did a full rebuild and did not see the file again. Weird.
 
-BTW, your pxebooter is great!
+Eike
 
-Thanks!
+--nextPart1881937.GiZ8PCy4V6
+Content-Type: application/pgp-signature
 
---
-Al
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
+iD8DBQBEyhk6XKSJPmm5/E4RAqhVAKCjgQ8KFc0dQxpdIGhpaCJQDn2z7ACfa0Ip
+1AmbG8OwkrvZLtj4gzhuCts=
+=YpTD
+-----END PGP SIGNATURE-----
+
+--nextPart1881937.GiZ8PCy4V6--

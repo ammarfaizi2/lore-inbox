@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161311AbWG1V1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161310AbWG1V0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161311AbWG1V1F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 17:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161313AbWG1V1F
+	id S1161310AbWG1V0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 17:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161311AbWG1V0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 17:27:05 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:58059 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161311AbWG1V1C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 17:27:02 -0400
-Date: Fri, 28 Jul 2006 23:26:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
-Message-ID: <20060728212643.GA32455@mars.ravnborg.org>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607282045.05292.ak@suse.de> <1154112511.6416.46.camel@laptopd505.fenrus.org> <200607282100.01783.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607282100.01783.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 28 Jul 2006 17:26:50 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:27808 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161310AbWG1V0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 17:26:49 -0400
+Date: Fri, 28 Jul 2006 14:26:16 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: Thomas Gleixner <tglx@linutronix.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, alokk@calsoftinc.com
+Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
+In-Reply-To: <20060728211227.GB3739@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0607281422370.21238@schroedinger.engr.sgi.com>
+References: <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com>
+ <1154067247.27297.104.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com>
+ <1154117501.10196.2.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607281313310.20754@schroedinger.engr.sgi.com>
+ <1154118476.10196.5.camel@localhost.localdomain> <1154118947.10196.10.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607281332190.20754@schroedinger.engr.sgi.com>
+ <1154119658.10196.17.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0607281344410.20754@schroedinger.engr.sgi.com>
+ <20060728211227.GB3739@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 09:00:01PM +0200, Andi Kleen wrote:
-> On Friday 28 July 2006 20:48, Arjan van de Ven wrote:
-> > On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
-> > > > +ifdef CONFIG_CC_STACKPROTECTOR
-> > > > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
-> > > > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
-> > >
-> > > Why can't you just use the normal call cc-option for this?
-> >
-> > this requires gcc 4.2; cc-option is not useful for that.
+On Fri, 28 Jul 2006, Ravikiran G Thirumalai wrote:
+
+> Why should there be any problem taking the remote l3 lock?  If the remote
+> node does not have cpu that does not mean we cannot take a lock from the
+> local node!!! 
 > 
-> The CC option thing is also very ugly.
-The check is executed once pr. kernel compile - or at least once pr.
-line. The reson to use cc-ifversion is that we need to check for a
-specific gcc version and not just support for a specific argument type.
+> I think current git does not teach lockdep to ignore recursion for
+> array_cache->lock when the array_cache->lock are from different cases.  As
+> Arjan pointed out, I can see that l3->list_lock is special cased, but I
+> cannot find where array_cache->lock is taken care of.
 
-That said - checking for a version is not as reliable as checking if a
-certain feature is really supported but Arjan suggested testing for
-version >= 4.2 should do it.
-Also we do not have any helpers in kbuild to do so -that could be worked
-out so we could do something almost as elegant as 
-$(call cc-ifversion ...)
+Ok.
+ 
+> Again, if this is indeed a problem (recursion) machine should not boot even,
+> when compiled without lockdep, tglx, can you please verify this?
 
-	Sam
+We seem to be fine on that level.
+
+I would still like to see someone thinking through this a bit more.
+
+Allocations via page_alloc_node() may be redirected by cpusets and 
+because nodes are low on memory. This means that we get memory on a 
+different node than we requested. How does that impact the alien lock 
+situation? In particular what happens if the off slab allocation for 
+the management object was on a different node from the slab data?

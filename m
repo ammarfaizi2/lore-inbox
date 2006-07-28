@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161289AbWG1UwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161297AbWG1Uwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161289AbWG1UwE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161297AbWG1UwE
+	id S1161297AbWG1Uwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161299AbWG1Uwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:52:04 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:6864 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S1161289AbWG1UwC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:52:02 -0400
-Date: Fri, 28 Jul 2006 16:51:56 -0400
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] knfsd: Fix stale file handle problem with subtree_checking.
-Message-ID: <20060728205156.GB12183@fieldses.org>
-References: <20060728194103.7245.patches@notabene> <1060728094255.7278@suse.de>
+	Fri, 28 Jul 2006 16:52:31 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:4846 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161297AbWG1Uwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:52:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XHrNepfuKk8wneq17vJplEziCuyofidyj9sWMM9NA7x5yQS2GRmmQJdsBlixlmItJs1UI0k2mPad80s3Vraj6K2U7JwcE5nNPd3NbQER3Q7V6uhQCISsKwtqRi1xytdvu5OMj4pgkaNduWecGtS/CtxyusM6IiuAIo4L8iKxEEk=
+Message-ID: <41840b750607281352q715ad417l927f868aff306410@mail.gmail.com>
+Date: Fri, 28 Jul 2006 23:52:28 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] DMI: Decode and save OEM String information
+Cc: "Henrique de Moraes Holschuh" <hmh@debian.org>,
+       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
+       "Matt Domsch" <Matt_Domsch@dell.com>,
+       "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <200607281237.45576.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1060728094255.7278@suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: "J. Bruce Fields" <bfields@fieldses.org>
+References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
+	 <200607272127.14689.bjorn.helgaas@hp.com>
+	 <20060728124940.GA26735@khazad-dum.debian.net>
+	 <200607281237.45576.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 07:42:55PM +1000, NeilBrown wrote:
-> The following patch fixes a bug that was introduced since 2.6.17,
-> and should go in 2.6.18.
-> 
-> ### Comments for Changeset
-> 
-> A recent patch:
-> 
->   h=7fc90ec93a5eb71f4b08403baf5ba7176b3ec6b1
-> 
-> moved the call to nfsd_setuser out of the 'find a dentry for a
-> filehandle' branch of fh_verify so that it would always be called.
-> 
-> This had the unfortunately side-effect of moving *after* the call
-> to decode_fh, so the prober fsuid was not set when nfsd_acceptable
-> was called, the 'permission' check did the wrong thing.
+On 7/28/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> And there are no other devices that consume 0x1600-0x161F?  Interesting.
+> I wonder what Windows does to bind drivers to the LPC devices?  Do they
+> have to do the same SMBIOS OEM string hack?
 
-Argh, sorry, thanks for the fix.
+We don't know. Maybe they check the ThinkPad part number (of which
+there are many hundreds but IBM/Lenovo has the full list and can
+update the driver whenever a new model comes out); or maybe just
+assume you won't install it on the wrong hardware.
 
-It'd be great if we could deprecate subtree checking some day in the
-distant future....
 
-Would it be feasible to add filesystem support for some sort of
-subvolume-like thing that acted like a mountpoint (in the sense that it
-restricted hardlinks and renames) but that didn't require setting aside
-a separate partition?  I imagine that'd probably do what most people
-exporting subtrees want without forcing us to do dubious tricks with
-filehandles.
+> I guess as long as they change the OEM string the same time they change
+> the EC/accelerometer/battery/kitchen-sink implementation, you're OK :-)
+> It just feels like living on borrowed time.
 
---b.
+Yes. But it's the best we've been able to come up with, after
+considerable community effort.
+
+Anyway, this patch is independent of the ThinkPad case; DMI
+information is there for drivers to see it, after all, so the kernel
+should make it possible. Can I get a Signed-off-by?
+
+  Shem

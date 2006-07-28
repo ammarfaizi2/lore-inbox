@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWG1BKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWG1BN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWG1BKn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 21:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWG1BKn
+	id S932091AbWG1BN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 21:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1BN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 21:10:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26245 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751035AbWG1BKm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 21:10:42 -0400
-Date: Thu, 27 Jul 2006 21:10:40 -0400
-From: Dave Jones <davej@redhat.com>
-To: Patrick McFarland <diablod3@gmail.com>
-Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: The ondemand CPUFreq code -- I hope the functionality stays
-Message-ID: <20060728011040.GO5687@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Patrick McFarland <diablod3@gmail.com>,
-	Miles Lane <miles.lane@gmail.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com> <200607272104.24088.diablod3@gmail.com>
+	Thu, 27 Jul 2006 21:13:59 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32934
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751276AbWG1BN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 21:13:58 -0400
+Date: Thu, 27 Jul 2006 18:13:56 -0700 (PDT)
+Message-Id: <20060727.181356.71087770.davem@davemloft.net>
+To: mikpe@it.uu.se
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060707.000524.112600047.davem@davemloft.net>
+References: <200607060937.k669bZT3017256@harpo.it.uu.se>
+	<20060707.000524.112600047.davem@davemloft.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607272104.24088.diablod3@gmail.com>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 09:04:23PM -0400, Patrick McFarland wrote:
+From: David Miller <davem@davemloft.net>
+Date: Fri, 07 Jul 2006 00:05:24 -0700 (PDT)
 
- > I think you've gotten confused. Ondemand is a horrible governor that only 
- > flips between two cpu frequencies, the lowest and the highest.
+> I'll have to figure out how the writeable bits get lost
+> in the call chain.
 
-That isn't true.  I just double checked, and saw my core-duo changing
-between all 4 states it offers.
+Actually, I digged further, things seem correct.
 
- > Use the Conservative governor instead.
+Initially we only set the SW-writable bit, and this is the right thing
+to do for a MAP_SHARED writable mapping.
 
-This governor is based on the same code as on-demand with some subtle
-tweaks to make it not change the frequency as often.  If anything *this*
-one should be less 'active' for you than ondemand.
+If the process actually tries to write to the mapping, the page fault
+path will set the two bits that actually enable writes, namely the
+HW-writable bit and the SW-dirty bit.
 
-What driver are you using ?
+This occurs when pte_mkdirty() is called on the PTE during the
+execution of mm/memory.c:handle_pte_fault(), right here:
 
-		Dave
+	if (write_access) {
+		if (!pte_write(entry))
+			return do_wp_page(mm, vma, address,
+					pte, pmd, ptl, entry);
+		entry = pte_mkdirty(entry);
+	}
 
--- 
-http://www.codemonkey.org.uk
+pte_write() will return true, since the SW-writable bit is set.  So we
+don't should not invoke do_wp_page(), and we'll just set the dirty bit
+on the existing PTE.
+
+For some reason that isn't happening properly, or something keeps
+clearing the HW-writable bit on us.  Another possibility is that
+one of these operations sets the cacheable bits, or clears the
+side-effect bit, either of which would cause corruption or other
+problems when accessing the ATI card through such a mapping.
+
+I wonder why.... I'll try to run some experiments on my system to try
+and get to the bottom of this.

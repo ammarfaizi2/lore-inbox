@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWG1OI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWG1OJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWG1OI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 10:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWG1OI3
+	id S1751207AbWG1OJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 10:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWG1OJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 10:08:29 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:42953 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1750991AbWG1OI2 (ORCPT
+	Fri, 28 Jul 2006 10:09:08 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:32901 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751207AbWG1OJG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 10:08:28 -0400
-Message-Id: <200607281405.k6SE5HHq004786@laptop13.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Adrian Bunk <bunk@stusta.de>, Luigi Genoni <genoni@sns.it>,
-       andrea@cpushare.com, "J. Bruce Fields" <bfields@fieldses.org>,
-       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: the ' 'official' point of view' expressed by kernelnewbies.org regarding reiser4 inclusion 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Thu, 27 Jul 2006 20:25:23 CST." <44C97593.6030808@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Fri, 28 Jul 2006 10:05:17 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 28 Jul 2006 10:05:22 -0400 (CLT)
+	Fri, 28 Jul 2006 10:09:06 -0400
+Date: Fri, 28 Jul 2006 16:09:03 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Petr Baudis <pasky@suse.cz>
+Subject: Re: [PATCH/RFC] kconfig/lxdialog: make lxdialof a built-in
+In-Reply-To: <20060727202726.GA3900@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0607281348420.6761@scrub.home>
+References: <20060727202726.GA3900@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Adrian Bunk wrote:
+Hi,
 
-> >But you can not tell based on klive data whether the ratio of 
-> >reiser4:ext3 users in the world is more like 1:5, 1:500 or 1:50000.
-> >
-> ><--  snip  -->
-> >
-> >I can't prove that the 1:5 ratio is wrong, but the point is that 
-> >claiming a 1:5 ratio was true based on the klive data is not better than 
-> >claiming it based on no data. 
+On Thu, 27 Jul 2006, Sam Ravnborg wrote:
 
-> Yes, but I have been surprised that linux conference attendees all know
-> about reiser4, so I think it is consistent with the notion that reiser4
-> usage may well be much much higher than one would expect of a filesystem
-> that is not in the main tree, and which requires a lot of hassle to
-> install.  It is a datapoint.  I think the level of hobbyist enthusiasm
-> seen suggests that distros may gain market advantage by adding reiser4
-> support.....
+> Dedided to take another stamp on an old TODO item of making lxdialog
+> a built-in. Following patch is first step to do so.
+> The patch makes it a built-in - but with two open issues that I yet
+> have to address.
 
-Great! Then /sit down and do the work to get it into the vanilla
-kernel/. You know then it is not a wasted effort... and you /do/ know by
-now (or should) that playing the "politics"/"whining" card goes nowhere.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Looks good. :)
+There is a NULL pointer problem with empty menus, item_cur is NULL and a 
+select or exit will cause a segfault in item_set_selected().
+
+> I will during the weekend try to address the resize issue.
+
+Wasn't it working at some point?
+Anyway, it doesn't has to be overly complex either, e.g. if you delay it 
+to the next key event, it's fine too. The signal handler would just set a 
+flag and when wgetch returns, the display is reinitialized.
+
+> The double ESC ESC thing I dunno how to fix.
+
+I think the easiest would be to just ignore the first ESC, it matches the 
+documented behaviour and e.g. mc has the same behaviour. The delay of the 
+single ESC makes it a bit annoying/confusing to use, so that sticking to 
+the double ESC is IMO safer.
+I played with it a little and below is an example, which implements this 
+behaviour for the menu window. 
+
+bye, Roman
+
+
+Index: linux-2.6-git/scripts/kconfig/lxdialog/menubox.c
+===================================================================
+--- linux-2.6-git.orig/scripts/kconfig/lxdialog/menubox.c	2006-07-28 14:54:49.000000000 +0200
++++ linux-2.6-git/scripts/kconfig/lxdialog/menubox.c	2006-07-28 15:50:15.000000000 +0200
+@@ -265,6 +265,14 @@ int dialog_menu(const char *title, const
+ 
+ 	while (key != ESC) {
+ 		key = wgetch(menu);
++		if (key == ESC) {
++			notimeout(menu, TRUE);
++			keypad(menu, FALSE);
++			key = wgetch(menu);
++			notimeout(menu, FALSE);
++			keypad(menu, TRUE);
++		}
++		
+ 
+ 		if (key < 256 && isalpha(key))
+ 			key = tolower(key);

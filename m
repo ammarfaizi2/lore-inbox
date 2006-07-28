@@ -1,104 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWG1TQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752064AbWG1TYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWG1TQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWG1TQ0
+	id S1752064AbWG1TYY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWG1TYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:16:26 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:12007 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030263AbWG1TQZ (ORCPT
+	Fri, 28 Jul 2006 15:24:24 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:55255 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751998AbWG1TYX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:16:25 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nathan Lynch <ntl@pobox.com>
-Subject: Re: [PATCH -mm][resend] Disable CPU hotplug during suspend
-Date: Fri, 28 Jul 2006 21:15:45 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200607281015.30048.rjw@sisk.pl> <20060728182041.GI19076@localdomain>
-In-Reply-To: <20060728182041.GI19076@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jul 2006 15:24:23 -0400
+Date: Fri, 28 Jul 2006 23:24:03 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060728192403.GA13690@2ka.mipt.ru>
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com> <20060727220238.GE16971@kvack.org> <44CA5F08.3080500@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200607282115.45407.rjw@sisk.pl>
+In-Reply-To: <44CA5F08.3080500@oracle.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 28 Jul 2006 23:24:09 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan,
+On Fri, Jul 28, 2006 at 12:01:28PM -0700, Zach Brown (zach.brown@oracle.com) wrote:
+> Clearly we should port httpd to kevents and take some measurements :)
 
-On Friday 28 July 2006 20:20, Nathan Lynch wrote:
-> Hi Rafael-
-> 
-> A couple of minor comments:
-> 
-> 
-> > +int cpu_down(unsigned int cpu)
-> > +{
-> > +	int err = 0;
-> > +
-> > +	mutex_lock(&cpu_add_remove_lock);
-> > +	if (cpu_hotplug_disabled)
-> > +		err = -EPERM;
-> > +	else
-> > +		err = __cpu_down(cpu);
-> > +
-> >  	mutex_unlock(&cpu_add_remove_lock);
-> >  	return err;
-> >  }
-> > @@ -191,6 +203,11 @@ int __devinit cpu_up(unsigned int cpu)
-> >  	void *hcpu = (void *)(long)cpu;
-> >  
-> >  	mutex_lock(&cpu_add_remove_lock);
-> > +	if (cpu_hotplug_disabled) {
-> > +		ret = -EPERM;
-> > +		goto out;
-> > +	}
-> 
-> I think -EBUSY would be more appropriate than -EPERM, perhaps?
+One of my main kevent benchmarks (socket notifications for
+accept/receive) is handmade http server.
+I compared it with FreeBSD kqueue, epoll and kevent_poll
+(this is generic poll/select notifications ported to kevent)
+based (it is the same server but with different event functions.
 
-Sure, why not.
- 
-> > +#ifdef CONFIG_SUSPEND_SMP
-> > +static cpumask_t frozen_cpus;
-> > +
-> > +int disable_nonboot_cpus(void)
-> > +{
-> > +	int cpu, error = 0;
-> > +
-> > +	/* We take all of the non-boot CPUs down in one shot to avoid races
-> > +	 * with the userspace trying to use the CPU hotplug at the same time
-> > +	 */
-> > +	mutex_lock(&cpu_add_remove_lock);
-> > +	cpus_clear(frozen_cpus);
-> > +	printk("Disabling non-boot CPUs ...\n");
-> > +	for_each_online_cpu(cpu) {
-> > +		if (cpu == 0)
-> > +			continue;
-> 
-> Assuming cpu 0 is online is not okay in generic code.
+Client was httperf, I ran it with 30k connections in bursts of 3k
+connection with 1 second timeout between bursts.
 
-Absolutely.  Thanks for pointing this out.
 
-> This should be something like:
-> 
-> 	int cpu, first_cpu, error = 0;
-> 
-> 	/* We take all of the non-boot CPUs down in one shot to avoid races
-> 	 * with the userspace trying to use the CPU hotplug at the same time
-> 	 */
-> 	mutex_lock(&cpu_add_remove_lock);
-> 	cpus_clear(frozen_cpus);
-> 	first_cpu = first_cpu(cpu_online_mask);
-> 	printk("Disabling non-boot CPUs ...\n");
-> 	for_each_online_cpu(cpu) {
-> 		if (cpu == first_cpu)
-> 			continue;
+Here are results:
 
-I'm not quite sure if we can finish with CPU0 offline.  Perhaps it's better to
-check if CPU0 is online and bring it up if not and then continue or return
-an error if that fails?
+kevent:	more than 2600 requests/second
+epoll and kevent_poll: about 1600-1800 requests/second
+kqueue: enormous number of connection reset errors (only 62% of
+successfull connections) (likely misconfiguration, default FreeBSD
+6-something does not allow such rates at all).
 
-Rafael
+More info can be found on kevent homepage:
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=kevent
+
+> - z
+
+-- 
+	Evgeniy Polyakov

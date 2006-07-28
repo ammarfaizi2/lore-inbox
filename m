@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWG1Eux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751924AbWG1Ey6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWG1Eux (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 00:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWG1Eux
+	id S1751924AbWG1Ey6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 00:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751950AbWG1Ey6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 00:50:53 -0400
-Received: from 1wt.eu ([62.212.114.60]:1293 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1750971AbWG1Euw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 00:50:52 -0400
-Date: Fri, 28 Jul 2006 06:49:39 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux v2.4.33-rc3 (and a new v2.4 maintainer)
-Message-ID: <20060728044939.GB17478@1wt.eu>
-References: <20060727213019.GA10677@dmt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Jul 2006 00:54:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:52536 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751924AbWG1Ey6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 00:54:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=idRpFmyR6T++NIUNKlBsf+iAzoRiLqYv3YO1OurUqTjYabVM5hPMb5fN+i86KZjRSruAR6b9mpajpdijyDxQCzptEGHHjec9la7NVeoilNaXdnMrAqKq05JlsZmdvbED1V7NFhxbSlvb/nNb/itVwraXdAubnLuKxwArHTVivpA=
+Message-ID: <787b0d920607272154i44fea139pdff9f7395079779d@mail.gmail.com>
+Date: Fri, 28 Jul 2006 00:54:56 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: adobriyan@gmail.com, linux-kernel@vger.kernel.org,
+       jsipek@fsl.cs.sunysb.edu, B.Steinbrink@gmx.de
+Subject: Re: [RFC] #define rwxr_xr_x 0755
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060727213019.GA10677@dmt>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Alexey Dobriyan writes:
 
-On Thu, Jul 27, 2006 at 06:30:19PM -0300, Marcelo Tosatti wrote:
- 
-> Willy Tarreau has stepped up to maintain the mainline v2.4 tree, and
-> will do so starting from v2.4.34.
-> 
-> He has devoted great effort to help maintenance for the past few years.
-> His -hotfix tree is quite popular amongst v2.4 users, for instance.
-> 
-> I feel very confident in his competence for the job, knowing his good
-> common sense and great technical/communication skills.
-> 
-> Thanks Willy!
+> Every time I try to decipher S_I* combos I cry in pain. Often I just
+> refer to include/linux/stat.h defines to find out what mode it is
+> because numbers are actually quickier to understand.
+>
+> Compare and contrast:
+>
+>       0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
+> I'd say #2 really sucks.
 
-Hmmm... Like I once told you, I felt like you were trying to sell me
-your car, but you seem to have maintained it in very good state so I
-am confident it will not break after a few miles. I still hope that
-if I have any problem with it, you will come with your breakdown
-truck to rescue me :-)
+Damn right.
 
-I hope I will get criticisms if I do things wrong. It's frustrating
-to work without feedback (either positive or negative).
+I'd be very happy to remove (or #ifndef __KERNEL__ as needed) the
+dreadful S_FOO macros. I'd be much happier with plain old octal,
+as is normally used for both syscalls and the chmod command.
 
-Best regards,
-Willy
+(the non-octal nonsense was probably invented for porting
+software to non-UNIX systems)
 
+If you like the ls way though, you might as well add the file
+type notation:  drwxr_xr_x, _r__r__r__, _rw_r__r__, etc.
+That's not too bad. Plain octal is best though.

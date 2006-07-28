@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161264AbWG1UMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161277AbWG1UNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161264AbWG1UMz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161267AbWG1UMy
+	id S1161277AbWG1UNO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161267AbWG1UNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:12:54 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:50336 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1161264AbWG1UMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:12:54 -0400
-Date: Fri, 28 Jul 2006 16:07:56 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: ptrace bugs and related problems
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607281609_MC3-1-C65B-2D1A@compuserve.com>
-MIME-Version: 1.0
+	Fri, 28 Jul 2006 16:13:13 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:40945 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161275AbWG1UNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:13:10 -0400
+Subject: Re: A better interface, perhaps: a timed signal flag
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Theodore Tso <tytso@mit.edu>, Neil Horman <nhorman@tuxdriver.com>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <1154116918.13509.162.camel@localhost.localdomain>
+References: <44C67E1A.7050105@zytor.com>
+	 <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain>
+	 <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+	 <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com>
+	 <20060726002043.GA5192@localhost.localdomain>
+	 <20060726144536.GA28597@thunk.org>
+	 <1154093606.19722.11.camel@localhost.localdomain>
+	 <20060728145210.GA3566@thunk.org>
+	 <1154104885.13509.142.camel@localhost.localdomain>
+	 <1154105089.19722.23.camel@localhost.localdomain>
+	 <1154116918.13509.162.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 16:12:12 -0400
+Message-Id: <1154117532.19722.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060728034741.GA3372@nevyn.them.org>
-
-(cc: trimmed)
-
-On Thu, 27 Jul 2006 23:47:41 -0400, Daniel Jacobowitz wrote:
+On Fri, 2006-07-28 at 21:01 +0100, Alan Cox wrote:
+> Ar Gwe, 2006-07-28 am 12:44 -0400, ysgrifennodd Steven Rostedt:
+> > But for real-time applications, the signal handling has a huge latency.
 > 
-> > In do_fork, the result of fork_traceflag is assigned
-> > to the "trace" variable. Note that PT_TRACE_VFORK_DONE
-> > does not cause "trace" to be non-zero.
-> > 
-> > Then we hit this code:
-> > 
-> >                if (unlikely (trace)) {
-> >                        current->ptrace_message = nr;
-> >                        ptrace_notify ((trace << 8) | SIGTRAP);
-> >                }
-> > 
-> > That doesn't run. The ptrace_message is thus not set when
-> > ptrace_notify is called to send the PTRACE_EVENT_VFORK_DONE
-> > message. You get random stale data from a previous message.
+> For real-time you want a thread. Our thread switching is extremely fast
+> and threads unlike signals can have RT priorities of their own
 > 
-> Why do you want the message data anyway?
-> 
-> FORK/VFORK/CLONE events have a message: it says what the new process's
-> PID is.  VFORK_DONE doesn't have a message, because it only indicates
-> that the current process is about to resume; it's an event that only
-> has one process associated with it.
-> 
-> I really don't think this is a bug.
 
-Maybe not a bug, but this would be a nice enhancement.  It would cost
-exactly one line of code.  I looked at user code I had written and it
-assumed the message was available (it was, because I was also tracing
-EVENT_VFORK and it happens to be left over from that.)  If we make this
-a part of the API, future kernel changes wouldn't break this (erroneous)
-assumption, which otherwise might give someone a nasty surprise in
-currently-working code.
+You mean to have a thread that does a nanosleep till the expected
+timeout, then write some variable that the other high prio thread can
+see that the timeout has expired?
 
-Otherwise we should zero it out and see what breaks. :)
+Hmm, so that register_timeout can be implemented with at thread that
+does a nanosleep then updates the flag.
 
--- 
-Chuck
+The only problem is that the thread needs to go up to a higher priority
+(perhaps the highest), which means that this can only be implemented
+with special capabilities. Then again, pretty much all RT tasks are
+special, and usually run with privileged capabilities.
+
+
+There's also something else that would be a nice addition to the kernel
+API.  A sleep and wakeup that is implemented without signals. Similar to
+what the kernel does with wake_up.  That way you can sleep till another
+process/thread is done with what it was doing and wake up the other task
+when done, without the use of signals.  Or is there something that
+already does this?
+
+-- Steve
+
 

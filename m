@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752029AbWG1QGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752031AbWG1QK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752029AbWG1QGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 12:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752034AbWG1QGo
+	id S1752031AbWG1QK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 12:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752028AbWG1QK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 12:06:44 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:30136 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1752029AbWG1QGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 12:06:44 -0400
-Subject: [patch 1/5] Add comments to the PDA structure to annotate offsets
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, ak@suse.de
-In-Reply-To: <1154102546.6416.9.camel@laptopd505.fenrus.org>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
+	Fri, 28 Jul 2006 12:10:59 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:42361 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1752031AbWG1QK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 12:10:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=II92KBuvbPUsXcEVBcNj8CHdPx+LEBym6OQZdoPhAEFeI+333KhI+XTUpFSh7/EOldBXo/yW3bBOeIrxnI/cbNi4AGNUULXfLJvAZe0gXrXUJaV3A/o8UK44+cW9aIJkhIXh9MI6SA+t9YPBkIERn6q0MVLWANBz75oZidzqUSs=
+Message-ID: <d120d5000607280910t458fb6e0hdb81367b888a46db@mail.gmail.com>
+Date: Fri, 28 Jul 2006 12:10:43 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Shem Multinymous" <multinymous@gmail.com>
+Subject: Re: Generic battery interface
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       "Pavel Machek" <pavel@suse.cz>, "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+In-Reply-To: <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 18:03:10 +0200
-Message-Id: <1154102590.6416.11.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz>
+	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
+	 <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch 1/5] Add comments to the PDA structure to annotate offsets
-From: Arjan van de Ven <arjan@linux.intel.com>
+On 7/28/06, Shem Multinymous <multinymous@gmail.com> wrote:
+> On 7/28/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > 4) sysfs - all capabilities, IDs, etc for input devices exported there as well.
+>
+> Forgive my ignorance, but how do I conncet a sysfs directory with a /dev device?
+> So far the only way I found is to compare /sys/whatever/dev with the
+> major+minor of the dev file, which requires brute-force enumeration on
+> at least one side.
+>
 
-Change the comments in the pda structure to make the first fields to have
-their offset documented (the rest of the fields follows in a later patch)
-and to have the comments aligned.
+Can't we have udev make a symlink when it creates device node? Kernel
+can't provide this link since it knows nothing about naming. You could
+either have a symlink from /sys/ or maybe /dev/enum/<name matching
+print_dev_t() output>
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-CC: Andi Kleen <ak@suse.de>
----
- include/asm-x86_64/pda.h |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
-
-Index: linux-2.6.18-rc2-git5-stackprot/include/asm-x86_64/pda.h
-===================================================================
---- linux-2.6.18-rc2-git5-stackprot.orig/include/asm-x86_64/pda.h
-+++ linux-2.6.18-rc2-git5-stackprot/include/asm-x86_64/pda.h
-@@ -9,14 +9,12 @@
- 
- /* Per processor datastructure. %gs points to it while the kernel runs */ 
- struct x8664_pda {
--	struct task_struct *pcurrent;	/* Current process */
--	unsigned long data_offset;	/* Per cpu data offset from linker address */
--	unsigned long kernelstack;  /* top of kernel stack for current */ 
--	unsigned long oldrsp; 	    /* user rsp for system call */
--#if DEBUG_STKSZ > EXCEPTION_STKSZ
--	unsigned long debugstack;   /* #DB/#BP stack. */
--#endif
--        int irqcount;		    /* Irq nesting counter. Starts with -1 */  	
-+	struct task_struct *pcurrent;	/*  0 */  /* Current process */
-+	unsigned long data_offset;	/*  8 */  /* Per cpu data offset from linker address */
-+	unsigned long kernelstack;	/* 16 */  /* top of kernel stack for current */
-+	unsigned long oldrsp;		/* 24 */  /* user rsp for system call */
-+	unsigned long debugstack;	/* 32 */  /* #DB/#BP stack. */
-+	int irqcount;			/* 40 */  /* Irq nesting counter. Starts with -1 */
- 	int cpunumber;		    /* Logical CPU number */
- 	char *irqstackptr;	/* top of irqstack */
- 	int nodenumber;		    /* number of current node */
-
+-- 
+Dmitry

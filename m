@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWG1Th5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWG1TmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWG1Th5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161158AbWG1Th5
+	id S1161247AbWG1TmX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:42:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWG1TmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:37:57 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:2795 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1030301AbWG1Th4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:37:56 -0400
-Message-ID: <44CA6792.8030605@zabbo.net>
-Date: Fri, 28 Jul 2006 12:37:54 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Zach Brown <zach.brown@oracle.com>
-CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Benjamin LaHaise <bcrl@kvack.org>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com> <20060727220238.GE16971@kvack.org> <44CA5F08.3080500@oracle.com> <20060728192403.GA13690@2ka.mipt.ru> <44CA66D8.3010404@oracle.com>
-In-Reply-To: <44CA66D8.3010404@oracle.com>
-Content-Type: text/plain; charset=koi8-r
+	Fri, 28 Jul 2006 15:42:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64907 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030286AbWG1TmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 15:42:23 -0400
+Subject: Re: [PATCH] amd74xx: implement suspend-to-ram
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jason Lunz <lunz@falooley.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20060728171357.GB17549@knob.reflex>
+References: <200607281646.31207.rjw@sisk.pl>
+	 <1154105517.13509.153.camel@localhost.localdomain>
+	 <20060728171357.GB17549@knob.reflex>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Jul 2006 21:00:26 +0100
+Message-Id: <1154116826.13509.160.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Gwe, 2006-07-28 am 13:13 -0400, ysgrifennodd Jason Lunz:
+> OK, I'll see about moving it there. Will this still be
+> controller-specific, or are you suggesting this is something ide ought
+> to do globally?
 
->>> Clearly we should port httpd to kevents and take some measurements :)
+It should be done globally. In many cases the chips start up from power
+on configured for PIO 0 so that side happens to work, but not all chips
+do this as you've found out. Setting the PIO side correctly is a fix
+even if its not a bug people hit a lot.
 
-oh, I see, I forgot the 't' in 'thttpd'.  My mistake.
+Alan
 
-- z

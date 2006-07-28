@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161290AbWG1UhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161291AbWG1UlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161290AbWG1UhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161291AbWG1UhS
+	id S1161291AbWG1UlP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWG1UlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:37:18 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29081 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161290AbWG1UhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:37:16 -0400
-Date: Fri, 28 Jul 2006 13:36:41 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
-       alokk@calsoftinc.com, kiran@scalex86.org
-Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
-In-Reply-To: <1154118947.10196.10.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0607281332190.20754@schroedinger.engr.sgi.com>
-References: <1154044607.27297.101.camel@localhost.localdomain> 
- <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com> 
- <1154067247.27297.104.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com> 
- <1154117501.10196.2.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0607281313310.20754@schroedinger.engr.sgi.com> 
- <1154118476.10196.5.camel@localhost.localdomain> <1154118947.10196.10.camel@localhost.localdomain>
+	Fri, 28 Jul 2006 16:41:15 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:59565 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1161291AbWG1UlP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:41:15 -0400
+Message-ID: <44CA13E3.4060208@namesys.com>
+Date: Fri, 28 Jul 2006 07:40:51 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hua Zhong <hzhong@gmail.com>
+CC: "'David Masover'" <ninja@slaphack.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Horst H. von Brand'" <vonbrand@inf.utfsm.cl>,
+       "'Jeff Garzik'" <jeff@garzik.org>, "'Andrew Morton'" <akpm@osdl.org>,
+       "'Theodore Tso'" <tytso@mit.edu>,
+       "'LKML'" <linux-kernel@vger.kernel.org>,
+       "'ReiserFS List'" <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
+ by kernelnewbies.org regarding reiser4 inclusion)
+References: <005e01c6b282$7eb372e0$493d010a@nuitysystems.com>
+In-Reply-To: <005e01c6b282$7eb372e0$493d010a@nuitysystems.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jul 2006, Thomas Gleixner wrote:
+Hua Zhong wrote:
 
-> Let me know, if you need more info
-
-What type of NUMA system is this? How many nodes? Is memory exhausted on 
-some so that allocations are redirected? Are cpusets or memory policies
-used to redirect allocations?
- 
-Maybe we get confused about local and remote objects due to fallback and 
-contamination of the per node lists with foreign node objects. I have a 
-patch here that make the slab allocations not fall back and insures that 
-cpuset do not interfere but it involves patching the page 
-allocator to not do fallback for slab allocations.
-
-Lets see if we can figure this one out first.
+>I remember someone said something along the lines of "Linux is evolution, not revolution". To me it seems unreasonable to put all
+>the "revolutionary" VFS burden upon reiserfs team. It's not practical.
+>
+>  
+>
+>
+Thanks for saying that Hua.  We have a guy named Nate Diller, who
+probably could fix VFS up pretty nicely if Namesys did not have him
+earning the consulting income the rest of the team lives on (he is doing
+io scheduler work at the moment).   That said, he would need a lot of
+time, and stopping reiser4 inclusion to await his work merely ensures
+his work will never happen.

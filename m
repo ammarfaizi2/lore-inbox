@@ -1,153 +1,48 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751783AbWG1BzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932105AbWG1B6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751783AbWG1BzR (ORCPT <rfc822;akpm@zip.com.au>);
-	Thu, 27 Jul 2006 21:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751790AbWG1BzR
+	id S932105AbWG1B6m (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 27 Jul 2006 21:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWG1B6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 21:55:17 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:52968 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S1751783AbWG1BzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 21:55:14 -0400
+	Thu, 27 Jul 2006 21:58:42 -0400
+Received: from smtp2.netcabo.pt ([212.113.174.29]:59981 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S932105AbWG1B6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 21:58:41 -0400
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AcwMAC4LyUSBT4dPgTQBgRc
+X-IronPort-Anti-Spam-Result: AT0KAC4LyUSBT4dPgTQB
 X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.17.217):SA:1(10.3/5.0):. Processed in 2.422004 secs Process 29511)
-Subject: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode take 1 was [PATCH]
-	Add SATA device to VIA IRQ quirk fixup list
+X-Antivirus-bastov: 1.25-st-qms (Clear:RC:0(213.22.17.217):SA:1(10.3/5.0):. Processed in 1.742359 secs Process 29596)
+Subject: Re: [PATCH] VIA IRQ quirk fixup only in XT_PIC mode take 1 was
+	[PATCH] Add SATA device to VIA IRQ quirk fixup list
 From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
 Reply-To: sergio@sergiomb.no-ip.org
 To: linux-kernel@vger.kernel.org
 Cc: Daniel Drake <dsd@gentoo.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Andrew Morton <akpm@osdl.org>, Chris Wedgwood <cw@f00f.org>,
         greg@kroah.com, jeff@garzik.org, harmon@ksu.edu
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-vfBYCDLWG1Hgp0w110xm"
-Date: Fri, 28 Jul 2006 02:55:01 +0100
-Message-Id: <1154051701.7668.23.camel@localhost.portugal>
+In-Reply-To: <1154051701.7668.23.camel@localhost.portugal>
+References: <1154051701.7668.23.camel@localhost.portugal>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-wgtOjKCAV8D3s6+vHJio"
+Date: Fri, 28 Jul 2006 02:58:36 +0100
+Message-Id: <1154051916.7668.26.camel@localhost.portugal>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
-X-OriginalArrivalTime: 28 Jul 2006 01:55:12.0177 (UTC) FILETIME=[DCCFC210:01C6B1E8]
+X-OriginalArrivalTime: 28 Jul 2006 01:58:40.0256 (UTC) FILETIME=[58D61800:01C6B1E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-vfBYCDLWG1Hgp0w110xm
-Content-Type: multipart/mixed; boundary="=-ZifgCtnyiH5FfQCRIN8t"
-
-
---=-ZifgCtnyiH5FfQCRIN8t
+--=-wgtOjKCAV8D3s6+vHJio
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Hi ,=20
-Ok here is my first try against 2.6.17, I like the solution , but I have
-time to test it, because I have to build the kernel again, I test if
-compiles.=20
-Just though that I should send this patch soon as possible.
-Any feed-back is welcome !
-Thanks,=20
-=20
+On Fri, 2006-07-28 at 02:55 +0100, Sergio Monteiro Basto wrote:
+> but I have
+> time to test it=20
+Sorry, I want to write, "but I haven't time to test it "
 
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Scott J. Harmon" <harmon@ksu.edu>
-Cc: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>
-Cc: Greg KH <greg@kroah.com>
-Signed-off-by: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
----
-
- quirks.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
-
---- linux-2.6.17.orig/drivers/pci/quirks.c	2006-06-18 02:49:35.000000000 +0=
-100
-+++ linux-2.6.17/drivers/pci/quirks.c	2006-07-28 02:20:00.000000000 +0100
-@@ -642,22 +653,18 @@ static void quirk_via_irq(struct pci_dev
- {
- 	u8 irq, new_irq;
-=20
--	new_irq =3D dev->irq & 0xf;
--	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
--	if (new_irq !=3D irq) {
--		printk(KERN_INFO "PCI: VIA IRQ fixup for %s, from %d to %d\n",
--			pci_name(dev), irq, new_irq);
--		udelay(15);	/* unknown if delay really needed */
--		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
--	}
--}
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_0, qu=
-irk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_1, qu=
-irk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, qu=
-irk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3, qu=
-irk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quir=
-k_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, qu=
-irk_via_irq);
--DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, qu=
-irk_via_irq);
-+	if (!smp_found_config && !cpu_has_apic) {
-+		new_irq =3D dev->irq & 0xf;
-+		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
-+		if (new_irq !=3D irq) {
-+			printk(KERN_INFO "PCI: VIA IRQ fixup for %s, from %d to %d\n",
-+				pci_name(dev), irq, new_irq);
-+			udelay(15);	/* unknown if delay really needed */
-+			pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
-+		}
-+	}
-+}
-+DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
-=20
- /*
-  * VIA VT82C598 has its device ID settable and many BIOSes
-
-
-
---=-ZifgCtnyiH5FfQCRIN8t
-Content-Disposition: attachment; filename=VIAIRQfixup_onlyonXT_PIC.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=VIAIRQfixup_onlyonXT_PIC.patch; charset=ISO-8859-15
-
-LS0tIGxpbnV4LTIuNi4xNy5vcmlnL2RyaXZlcnMvcGNpL3F1aXJrcy5jCTIwMDYtMDYtMTggMDI6
-NDk6MzUuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjE3L2RyaXZlcnMvcGNpL3F1aXJr
-cy5jCTIwMDYtMDctMjggMDI6MjA6MDAuMDAwMDAwMDAwICswMTAwDQpAQCAtNjQyLDIyICs2NTMs
-MTggQEAgc3RhdGljIHZvaWQgcXVpcmtfdmlhX2lycShzdHJ1Y3QgcGNpX2Rldg0KIHsNCiAJdTgg
-aXJxLCBuZXdfaXJxOw0KIA0KLQluZXdfaXJxID0gZGV2LT5pcnEgJiAweGY7DQotCXBjaV9yZWFk
-X2NvbmZpZ19ieXRlKGRldiwgUENJX0lOVEVSUlVQVF9MSU5FLCAmaXJxKTsNCi0JaWYgKG5ld19p
-cnEgIT0gaXJxKSB7DQotCQlwcmludGsoS0VSTl9JTkZPICJQQ0k6IFZJQSBJUlEgZml4dXAgZm9y
-ICVzLCBmcm9tICVkIHRvICVkXG4iLA0KLQkJCXBjaV9uYW1lKGRldiksIGlycSwgbmV3X2lycSk7
-DQotCQl1ZGVsYXkoMTUpOwkvKiB1bmtub3duIGlmIGRlbGF5IHJlYWxseSBuZWVkZWQgKi8NCi0J
-CXBjaV93cml0ZV9jb25maWdfYnl0ZShkZXYsIFBDSV9JTlRFUlJVUFRfTElORSwgbmV3X2lycSk7
-DQotCX0NCi19DQotREVDTEFSRV9QQ0lfRklYVVBfRU5BQkxFKFBDSV9WRU5ET1JfSURfVklBLCBQ
-Q0lfREVWSUNFX0lEX1ZJQV84MkM1ODZfMCwgcXVpcmtfdmlhX2lycSk7DQotREVDTEFSRV9QQ0lf
-RklYVVBfRU5BQkxFKFBDSV9WRU5ET1JfSURfVklBLCBQQ0lfREVWSUNFX0lEX1ZJQV84MkM1ODZf
-MSwgcXVpcmtfdmlhX2lycSk7DQotREVDTEFSRV9QQ0lfRklYVVBfRU5BQkxFKFBDSV9WRU5ET1Jf
-SURfVklBLCBQQ0lfREVWSUNFX0lEX1ZJQV84MkM1ODZfMiwgcXVpcmtfdmlhX2lycSk7DQotREVD
-TEFSRV9QQ0lfRklYVVBfRU5BQkxFKFBDSV9WRU5ET1JfSURfVklBLCBQQ0lfREVWSUNFX0lEX1ZJ
-QV84MkM1ODZfMywgcXVpcmtfdmlhX2lycSk7DQotREVDTEFSRV9QQ0lfRklYVVBfRU5BQkxFKFBD
-SV9WRU5ET1JfSURfVklBLCBQQ0lfREVWSUNFX0lEX1ZJQV84MkM2ODYsIHF1aXJrX3ZpYV9pcnEp
-Ow0KLURFQ0xBUkVfUENJX0ZJWFVQX0VOQUJMRShQQ0lfVkVORE9SX0lEX1ZJQSwgUENJX0RFVklD
-RV9JRF9WSUFfODJDNjg2XzQsIHF1aXJrX3ZpYV9pcnEpOw0KLURFQ0xBUkVfUENJX0ZJWFVQX0VO
-QUJMRShQQ0lfVkVORE9SX0lEX1ZJQSwgUENJX0RFVklDRV9JRF9WSUFfODJDNjg2XzUsIHF1aXJr
-X3ZpYV9pcnEpOw0KKwlpZiAoIXNtcF9mb3VuZF9jb25maWcgJiYgIWNwdV9oYXNfYXBpYykgew0K
-KwkJbmV3X2lycSA9IGRldi0+aXJxICYgMHhmOw0KKwkJcGNpX3JlYWRfY29uZmlnX2J5dGUoZGV2
-LCBQQ0lfSU5URVJSVVBUX0xJTkUsICZpcnEpOw0KKwkJaWYgKG5ld19pcnEgIT0gaXJxKSB7DQor
-CQkJcHJpbnRrKEtFUk5fSU5GTyAiUENJOiBWSUEgSVJRIGZpeHVwIGZvciAlcywgZnJvbSAlZCB0
-byAlZFxuIiwNCisJCQkJcGNpX25hbWUoZGV2KSwgaXJxLCBuZXdfaXJxKTsNCisJCQl1ZGVsYXko
-MTUpOwkvKiB1bmtub3duIGlmIGRlbGF5IHJlYWxseSBuZWVkZWQgKi8NCisJCQlwY2lfd3JpdGVf
-Y29uZmlnX2J5dGUoZGV2LCBQQ0lfSU5URVJSVVBUX0xJTkUsIG5ld19pcnEpOw0KKwkJfQ0KKwl9
-DQorfQ0KK0RFQ0xBUkVfUENJX0ZJWFVQX0VOQUJMRShQQ0lfVkVORE9SX0lEX1ZJQSwgUENJX0FO
-WV9JRCwgcXVpcmtfdmlhX2lycSk7DQogDQogLyoNCiAgKiBWSUEgVlQ4MkM1OTggaGFzIGl0cyBk
-ZXZpY2UgSUQgc2V0dGFibGUgYW5kIG1hbnkgQklPU2VzDQo=
-
-
---=-ZifgCtnyiH5FfQCRIN8t--
-
---=-vfBYCDLWG1Hgp0w110xm
+--=-wgtOjKCAV8D3s6+vHJio
 Content-Type: application/x-pkcs7-signature; name=smime.p7s
 Content-Disposition: attachment; filename=smime.p7s
 Content-Transfer-Encoding: base64
@@ -184,13 +79,13 @@ C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
 0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
 c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
 dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA3MjgwMTU0NTdaMCMGCSqGSIb3DQEJBDEWBBSHVBd5X7leiHeuzoD6NV5K
-pZB69jANBgkqhkiG9w0BAQEFAASCAQAb1HuP8pf/fCMwC2t3mcJMtwY+FES4Dd9H725VNoM8aTum
-dhLoglsv6tgB07a2bwmMfDLuzVaeLtiUFJdDKSBhHYDt5lG6ezQznYVmfwrNlWqecQGG5RKQ9hR3
-tOAI+PzzELLBdwUELwBvCbgE6vVW3MUmucMilywu2o3eyvJ5vehlwn3Zcci/7SqxvNns+vE52x8B
-pY5i86vJOPX+RA/reNCELqJKUiLUA8ubQIP1XW1JdRmOEapAL5Hf36bLjmyEnoryrIxMC3TpLHuj
-sP73kyw6YmJ3XbGKhisvDfuiqDUmirbdlKoN5UfslnZ5jcPJEw27NxFztRMCRmv3/Hb/AAAAAAAA
+SIb3DQEJBTEPFw0wNjA3MjgwMTU4MzZaMCMGCSqGSIb3DQEJBDEWBBQQxlx/PNWuuxBkYTxin1He
+/+mHGzANBgkqhkiG9w0BAQEFAASCAQBZfX5G3/eSZJDXBbnN/NkdCYQlhjfzDSGVdxyf6nf+beX6
+TSmCSCo5u1MnNHDM9Y3kYzxrDYju3SABbkw5KmmZ15z24oZi88WfqMtcnzHbatyfsfyQMHPYU2NP
+/A1JyTVwv7qTs22Fv8xmiR1DKrd22pY2jMagBigJ9AnZ2jNWLAaedPbLUN7hJpsrd2Q3/qA26zn5
+/d7/mkY0ClRX/rCGOx0vK6j87Vf//xsedt/QB42KNwc1EnIgpHxmtNpU2oMZljjFmnPM14Bd4It3
+GPF64sgMA+SU6N5bap1Tu0dbSSCvkYKpwAfRJXNYZ6MXfWS5NurhsfA10UjrzkybWDlwAAAAAAAA
 
 
 
---=-vfBYCDLWG1Hgp0w110xm--
+--=-wgtOjKCAV8D3s6+vHJio--

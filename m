@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161284AbWG1UcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161285AbWG1UcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161284AbWG1UcN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbWG1UcM
+	id S1161285AbWG1UcE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbWG1UcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:32:12 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59087 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161284AbWG1UcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:32:11 -0400
-Date: Fri, 28 Jul 2006 13:27:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Theodore Bullock <tbullock@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Areca arcmsr kernel integration
-Message-ID: <20060728202749.GA23662@kroah.com>
-References: <25E284CCA9C9A14B89515B116139A94D0C6DF1A4@zrtphxm0.corp.nortel.com>
+	Fri, 28 Jul 2006 16:32:04 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:17652 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161284AbWG1UcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:32:02 -0400
+Subject: Re: A better interface, perhaps: a timed signal flag
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Theodore Tso <tytso@mit.edu>, Neil Horman <nhorman@tuxdriver.com>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <1154118962.13509.185.camel@localhost.localdomain>
+References: <44C67E1A.7050105@zytor.com>
+	 <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain>
+	 <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+	 <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com>
+	 <20060726002043.GA5192@localhost.localdomain>
+	 <20060726144536.GA28597@thunk.org>
+	 <1154093606.19722.11.camel@localhost.localdomain>
+	 <20060728145210.GA3566@thunk.org>
+	 <1154104885.13509.142.camel@localhost.localdomain>
+	 <1154105089.19722.23.camel@localhost.localdomain>
+	 <1154116918.13509.162.camel@localhost.localdomain>
+	 <1154117532.19722.32.camel@localhost.localdomain>
+	 <1154118962.13509.185.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 16:31:16 -0400
+Message-Id: <1154118676.19722.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <25E284CCA9C9A14B89515B116139A94D0C6DF1A4@zrtphxm0.corp.nortel.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 02:07:12PM -0400, Theodore Bullock wrote:
-> It would be really nice to see the arcmsr driver integrated into the
-> mainline kernel in the nearish future.
-> 
-> Ideally, the driver would be available before the next major
-> distribution is published so that the hardware can be officially
-> supported by the distribution developers eg. Novell, Red Hat, Canonical
-> ... etc.
-> 
-> After a brief review of upcoming schedules, Fedora Core looks to be
-> updated next in October with the last test release currently scheduled
-> for October. After that it will probably be SuSE.
-> 
-> We have a good number of workstations with this hardware here, but
-> support isn't available from our distribution.
-> 
-> Checking the recent posts it seems that there are two outstanding issues
-> 
-> > - PAE (cast of dma_addr_t to unsigned long) issues. 
-> > - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
-> 
-> > shutdown notifier isn't sufficient.
-> 
-> That said, we have been using an older version of the driver off the
-> Areca website for some time now with no major issues (other than kernel
-> update problems). 
-> 
-> Is it possible to get the driver integrated and fix these problems
-> after?
+On Fri, 2006-07-28 at 21:36 +0100, Alan Cox wrote:
+> Ar Gwe, 2006-07-28 am 16:12 -0400, ysgrifennodd Steven Rostedt:
 
-Why not fix them up and submit the corrected driver?  If no one wants to
-put the effort into fixing these issues now, why would they do the work
-later?
+So what language does the above come from ;-) "Ar Gwe" "ysgrifennodd" ?
 
-thanks,
+> > what the kernel does with wake_up.  That way you can sleep till another
+> > process/thread is done with what it was doing and wake up the other task
+> > when done, without the use of signals.  Or is there something that
+> > already does this?
+> 
+> futex and sys5 semaphore both do this. The latter is very portable but a
+> bit less efficient.
 
-greg k-h
+semaphore is a bit awkward for this (I have implemented it for this type
+of purpose and it really feels like a hack).
+
+How can this be implemented with futex??  Let me make another scenario.
+If you have a task sleeping and it needs to be woken when some other
+task needs it (kind of like a kthread) but it doesn't know what task
+will wake it.  A futex is like a mutex where it has one owner, so you
+can sleep till the owner awakes it, but you don't know who the owner is.
+
+I really like the way the kernel has the wake_up_process function, and
+it is vary handy to have for even user space.  Right now the most common
+way to do it is semaphores (yuck!) or signals.  Both are very heavy and
+I don't really see why a new interface can't be introduced.  Yes, it
+breaks portability, but it if becomes a standard, then others  will port
+to it (and maybe it will become a new POSIX standard :)
+
+-- Steve
+
+

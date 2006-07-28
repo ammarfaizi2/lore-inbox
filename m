@@ -1,36 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWG1JA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbWG1JTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161104AbWG1JA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 05:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161105AbWG1JA5
+	id S1161107AbWG1JTw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 05:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161110AbWG1JTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 05:00:57 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:54171 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S1161104AbWG1JA4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 05:00:56 -0400
+	Fri, 28 Jul 2006 05:19:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51610 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161107AbWG1JTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 05:19:51 -0400
+Date: Fri, 28 Jul 2006 18:17:56 +0900 (JST)
+Message-Id: <20060728.181756.135980869.jet@gyve.org>
+To: deweerdt@free.fr
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [mm-patch] bluetooth: use GFP_ATOMIC in *_sock_create's
-	sk_alloc
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, jet@gyve.org
+ sk_alloc
+From: Masatake YAMATO <jet@gyve.org>
 In-Reply-To: <20060728083532.GA311@slug>
 References: <20060727015639.9c89db57.akpm@osdl.org>
-	 <20060728083532.GA311@slug>
-Content-Type: text/plain
-Date: Fri, 28 Jul 2006 11:00:09 +0200
-Message-Id: <1154077209.2298.9.camel@localhost>
+	<20060728083532.GA311@slug>
+X-Mailer: Mew version 4.2.53 on Emacs 22.0.50 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.4 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frederik,
-
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
-> > 
-> 
 > I think that the bluetooth-guard-bt_proto-with-rwlock.patch introduced the following
 > BUG:
 > [   43.232000] BUG: sleeping function called from invalid context at mm/slab.c:2903
@@ -49,23 +44,64 @@ Hi Frederik,
 > [   43.240000]  [<c02f7db5>] sys_socketcall+0xa9/0x277
 > [   43.240000]  [<c0103131>] sysenter_past_esp+0x56/0x8d
 > [   43.240000]  [<b7f38410>] 0xb7f38410
+> 
+> 
+> This patch makes sk_alloc GFP_ATOMIC, because we are holding the bt_proto_rwlock, for
+> the following functions:
+> - bnep_sock_create
+> - cmtp_sock_create
+> - hci_sock_create
+> - hidp_sock_create
+> - l2cap_sock_create
+> - rfcomm_sock_create
+> - sco_sock_create
 
-the comment from Max Krasnyansky (the original author) I got was this:
+There is very similar code in i net/socket.c(I guess some part of
+bluetooth/af_bluetooth.c is derived from net/socket.c):
 
-  As far as I remember there was some upper level locking that ensured
-  that protected registration stuff. But it's been awhile so I may be
-  completely wrong.
+    static int __sock_create(int family, int type, int protocol, struct socket **res, int kern)
+    {
+	    ...
+	    net_family_read_lock();
+	    ...
+	    if ((err = net_families[family]->create(sock, protocol)) < 0) {
+		    sock->ops = NULL;
+		    goto out_module_put;
+	    }
+	    ...	
+	    net_family_read_unlock();
+	    return err;
+    }
 
-And Masatake YAMATO mentioned:
+I can find GFP_KERNEL is used to allocate object in 
+net_families[family]->create(sock, protocol). e.g.:
 
-  It seems that lock_kernel/unlock_kernel was used in sys_init_module.
-  However, now it is gone.
+    net/ipv4/af_inet.c:
+    static int inet_create(struct socket *sock, int protocol)
+    {
+    ...
+	    sk = sk_alloc(PF_INET, GFP_KERNEL, answer_prot, 1);
+    ...
+    }
 
-I haven't looked at the new module loading code to verify if we really
-need to protect our socket registration or not.
+Tricks are in net_family_read_lock and net_family_read_unlock:
 
-Regards
+    net/socket.c:
+    static __inline__ void net_family_read_lock(void)
+    {
+	    atomic_inc(&net_family_lockct);
+	    spin_unlock_wait(&net_family_lock);
+    }
 
-Marcel
+    static __inline__ void net_family_read_unlock(void)
+    {
+	    atomic_dec(&net_family_lockct);
+    }
 
+So there are two ways to avoid the bug:
+1. As proposed by Frederik, use sk_alloc with GFP_ATOMIC or
+2. use net_family_{read|writ}_{lock|unlock} in af_bluetooth.c.
 
+I wonder which is better.
+
+Masatake YAMATO

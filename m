@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWG1PZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161105AbWG1PgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbWG1PZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 11:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752017AbWG1PZJ
+	id S1161105AbWG1PgN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 11:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161124AbWG1PgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 11:25:09 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:52940 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751986AbWG1PZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 11:25:06 -0400
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: linux-kernel@vger.kernel.org
-Subject: linus' git tree not available ATM?
-Date: Fri, 28 Jul 2006 17:24:53 +0200
-User-Agent: KMail/1.9.4
+	Fri, 28 Jul 2006 11:36:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40610 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161105AbWG1PgL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 11:36:11 -0400
+Date: Fri, 28 Jul 2006 08:35:42 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Pekka Enberg <penberg@cs.helsinki.fi>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       alokk@calsoftinc.com
+Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
+In-Reply-To: <1154067247.27297.104.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com>
+References: <1154044607.27297.101.camel@localhost.localdomain> 
+ <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com>
+ <1154067247.27297.104.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607281724.54045.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:18d01dd0a2a377f0376b761557b5e99a
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 28 Jul 2006, Thomas Gleixner wrote:
 
-since today, I get: 
-~> git pull
-fatal: unexpected EOF
-Fetch failure: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-using git-1.4.1.1.
+> If you need more info, I can add debugs. It happens every bootup.
 
-stracing it shows an empty answer from git-upload-pack request:
+Could you tell me why _spin_lock and _spin_unlock seem 
+to be calling into the slab allocator? Also what is child_rip()? Cannot 
+find that function upstream.
 
-29312 socket(PF_INET, SOCK_STREAM, IPPROTO_TCP) = 3
-29312 connect(3, {sa_family=AF_INET, sin_port=htons(9418), sin_addr=inet_addr("204.152.191.5")}, 16) = 0
-29312 write(3, "0059git-upload-pack /pub/scm/linux/kernel/git/torvalds/linux-2.6.git\0host=git.kernel.org\0", 89) = 89
-29312 read(3, "", 4)                    = 0
-29312 write(2, "fatal: ", 7)            = 7
-29312 write(2, "unexpected EOF", 14)    = 14
-
-Any idea, what's wrong here?
-
-Pete
+There should be no lock recursion here because we are talking about alien 
+cache arrays on different nodes.

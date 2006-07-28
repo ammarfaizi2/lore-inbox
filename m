@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWG1AfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWG1Ag1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWG1AfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 20:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWG1AfQ
+	id S932087AbWG1Ag1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 20:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWG1Ag0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 20:35:16 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:35230 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750919AbWG1AfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 20:35:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OshVM5qj4MYNukC9UkuJgmjg/qC9o90c+nU6eIQU4SgDge24xUKrQwzKThRrFT14zvsCnGeXmOSrI5rq4VJb7R6FiO15nJucga72O+PVmzSJ+jIUn5Bo8PLNl2kUxh2h78sJVbBS+ll7EUpwBdxY6yAYT2XZH0vg8qOmu9xQWOg=
-Message-ID: <41840b750607271735v4330fd62yf37fdd418cab97e4@mail.gmail.com>
-Date: Fri, 28 Jul 2006 03:35:10 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: Generic battery interface
-Cc: "Pavel Machek" <pavel@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
+	Thu, 27 Jul 2006 20:36:26 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:43661 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932071AbWG1AgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 20:36:25 -0400
+Date: Fri, 28 Jul 2006 01:36:15 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
        linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-In-Reply-To: <20060727233154.GB4907@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Generic battery interface
+Message-ID: <20060728003615.GA23477@srcf.ucam.org>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <20060727221632.GE3797@elf.ucw.cz> <20060727233154.GB4907@suse.cz>
+In-Reply-To: <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
->   note: It's absolutely necessary to limit the API to a well usable
->         SUBSET of a superset of the features of all drivers/devices,
->         even sacrificing obscure features to keep the API sane. One
->         example would be the HID Power spec, which simply can't be
->         supported to full extent by any sane API.
+On Fri, Jul 28, 2006 at 03:27:00AM +0300, Shem Multinymous wrote:
 
-Non-standard functions must be handled reasonably within the
-framework, otherwise drivers will have to build duplicate interfaces.
+> Yes, I know -- tp_smapi does that too. And it's still negligible,
+> usually a few microseconds.
 
-How about
-  /sys/whatever/battery0/voltage for standard attributes
-and
-  /sys/whatever/battery0/thinkpad/inhibit-charge-minutes
-for non-standard ones?
+With ACPI "smart" batteries, we're currently spending long enough on 
+querying batteries that people are losing keystrokes. The same is true 
+of several crummy APM implementations. On the other hand, I agree that 
+it makes sense to leave polling in userspace rather than the kernel. 
+Once we go tickless on portable hardware, there's going to be a pretty 
+huge incentive to fix userspace in any case.
 
-
->   + and the kernel can change the polling frequency based on power
->         saving state changes
-
-Likewise for cached attributes (query hardware only if N jiffies
-passed since last querry, other return cached value). And that way,
-hardware query frequency is never higher than what userspace actually
-needs.
-
-  Shem
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

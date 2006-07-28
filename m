@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWG1SdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161224AbWG1SgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161225AbWG1SdS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161223AbWG1SdS
+	id S1161224AbWG1SgR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161226AbWG1SgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:33:18 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:62950 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1161220AbWG1SdR (ORCPT
+	Fri, 28 Jul 2006 14:36:17 -0400
+Received: from ns2.suse.de ([195.135.220.15]:59585 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161224AbWG1SgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:33:17 -0400
-Message-ID: <44CA586C.4010205@oracle.com>
-Date: Fri, 28 Jul 2006 11:33:16 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Fri, 28 Jul 2006 14:36:17 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 1/2] i386: add CFI macros for stack manipulation
+Date: Fri, 28 Jul 2006 20:36:45 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Jan Beulich <jbeulich@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+References: <200607281353_MC3-1-C662-536D@compuserve.com>
+In-Reply-To: <200607281353_MC3-1-C662-536D@compuserve.com>
 MIME-Version: 1.0
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-CC: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru> <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru>
-In-Reply-To: <20060728052312.GB11210@2ka.mipt.ru>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607282036.45608.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 28 July 2006 19:50, Chuck Ebbert wrote:
+> Add macros to dwarf2.h to simplify pushing and popping stack
+> variables.
 
-> I completely agree that existing kevent interface is not the best, so
-> I'm opened for any suggestions.
-> Should kevent creation/removing/modification be separated too?
+I feared someone would do that patch. I've thought about it myself.
 
-Yeah, I think so.
+However it's not a good idea. I've already had complaints that some code in 
+x86-64 is too hard to read/debug because it uses too many macros. I think 
+it's better  if the core core still uses "real" instructions and keep the 
+CFI_* stuff as annotation that most people can just ignore.
 
->>> Hmm, it looks like I'm lost here...
->> Yeah, it seems my description might not have sunk in :).  We're giving
->> userspace a way to collect events without performing a system call.
-> 
-> And why do we want this?
+With your change that wouldn't be the case and everybody hacking
+the code would need to know all of CFI too, which is still quite arcane
+stuff.
 
-So that event collection can be very efficient.
+So while it would make the source shorter and require less typing 
+I don't think it's good for readability.
 
-> How glibc is supposed to determine, that some events already fired and
-> such requests will return immediately, or for example how timer events
-> will be managed?
+What would be a good thing if someone could write it up would
+be a short tutorial for Documentation/* on CFI
 
-...
-
-That was what my previous mail was all about!
-
-- z
+-Andi

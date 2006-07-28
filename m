@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWG1FLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWG1FTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbWG1FLC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 01:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWG1FK6
+	id S1750953AbWG1FTM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 01:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWG1FTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 01:10:58 -0400
-Received: from ns.suse.de ([195.135.220.2]:15008 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932583AbWG1FKk (ORCPT
+	Fri, 28 Jul 2006 01:19:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4075 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750953AbWG1FTL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 01:10:40 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 28 Jul 2006 15:09:57 +1000
-Message-Id: <1060728050957.503@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 003 of 4] knfsd: Move makesock failed warning into make_socks.
-References: <20060728150606.29533.patches@notabene>
+	Fri, 28 Jul 2006 01:19:11 -0400
+Date: Thu, 27 Jul 2006 22:19:00 -0700
+From: Paul Jackson <pj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mm-commits@vger.kernel.org, npiggin@suse.de, mingo@elte.hu,
+       sivanich@sgi.com
+Subject: Re: + sched-force-sbin-init-off-isolated-cpus.patch added to -mm
+ tree
+Message-Id: <20060727221900.d87afdcc.pj@sgi.com>
+In-Reply-To: <200607280451.k6S4pEY9027994@shell0.pdx.osdl.net>
+References: <200607280451.k6S4pEY9027994@shell0.pdx.osdl.net>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick wrote:
+> Force /sbin/init off isolated cpus (unless every CPU is specified as an
+> isolcpu).
 
-Thus it is printed for any path that leads to failure (make_socks is
-called from two places).
+For our big honkin NUMA iron SGI customers, who are serious about this
+sort of thing, we actually already do this, entirely in user space.  I
+use the init= kernel command line boot option to run a pre-init program,
+that sets up a configurable (by a config file in /etc) cpuset, then
+exec's the real init in that cpuset.  This feature is known to SGI
+customers as the "bootcpuset."
 
-Cc: "J. Bruce Fields" <bfields@fieldses.org>
+But Nick's patch looks ok to me.  It seems harmless enough for our NUMA
+power users - as the bootcpuset they configured will just override what
+Nick's code did a few milliseconds (to read the pre-init executable off
+the disk) earlier, harmlessly.  Meanwhile, the remaining (and likely
+vast majority of) isolcpu users will get the behaviour they prefer.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Acked-by: Paul Jackson <pj@sgi.com>
 
-### Diffstat output
- ./fs/lockd/svc.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
-
-diff .prev/fs/lockd/svc.c ./fs/lockd/svc.c
---- .prev/fs/lockd/svc.c	2006-07-28 15:00:55.000000000 +1000
-+++ ./fs/lockd/svc.c	2006-07-28 15:01:30.000000000 +1000
-@@ -227,15 +227,19 @@ static int make_socks(struct svc_serv *s
- 	 * If nlm_udpport or nlm_tcpport were set as module
- 	 * options, make those sockets unconditionally
- 	 */
-+	static int		warned;
- 	int err = 0;
- 	if (proto == IPPROTO_UDP || nlm_udpport)
- 		if (!find_socket(serv, IPPROTO_UDP))
- 			err = svc_makesock(serv, IPPROTO_UDP, nlm_udpport);
--	if (err)
--		return err;
--	if (proto == IPPROTO_TCP || nlm_tcpport)
-+	if (err == 0 && (proto == IPPROTO_TCP || nlm_tcpport))
- 		if (!find_socket(serv, IPPROTO_TCP))
- 			err= svc_makesock(serv, IPPROTO_TCP, nlm_tcpport);
-+	if (!err)
-+		warned = 0;
-+	else if (warned++ == 0)
-+		printk(KERN_WARNING
-+		       "lockd_up: makesock failed, error=%d\n", err);
- 	return err;
- }
- 
-@@ -245,7 +249,6 @@ static int make_socks(struct svc_serv *s
- int
- lockd_up(int proto) /* Maybe add a 'family' option when IPv6 is supported ?? */
- {
--	static int		warned;
- 	struct svc_serv *	serv;
- 	int			error = 0;
- 
-@@ -278,13 +281,8 @@ lockd_up(int proto) /* Maybe add a 'fami
- 		goto out;
- 	}
- 
--	if ((error = make_socks(serv, proto)) < 0) {
--		if (warned++ == 0) 
--			printk(KERN_WARNING
--				"lockd_up: makesock failed, error=%d\n", error);
-+	if ((error = make_socks(serv, proto)) < 0)
- 		goto destroy_and_out;
--	} 
--	warned = 0;
- 
- 	/*
- 	 * Create the kernel thread and wait for it to start.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

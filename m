@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWG1DPM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWG1DWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWG1DPM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 23:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWG1DPM
+	id S1751399AbWG1DWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 23:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWG1DWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 23:15:12 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:37565 "EHLO
+	Thu, 27 Jul 2006 23:22:44 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:958 "EHLO
 	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751328AbWG1DPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 23:15:11 -0400
-Date: Thu, 27 Jul 2006 23:14:55 -0400
+	id S1751399AbWG1DWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 23:22:44 -0400
+Date: Thu, 27 Jul 2006 23:22:40 -0400
 From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Some const for linux/time.h
-Message-ID: <20060728031455.GG24452@filer.fsl.cs.sunysb.edu>
-References: <Pine.LNX.4.61.0607272239001.14351@yvahk01.tjqt.qr>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] #define rwxr_xr_x 0755
+Message-ID: <20060728032240.GH24452@filer.fsl.cs.sunysb.edu>
+References: <20060727205911.GB5356@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0607272239001.14351@yvahk01.tjqt.qr>
+In-Reply-To: <20060727205911.GB5356@martell.zuzino.mipt.ru>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 10:40:47PM +0200, Jan Engelhardt wrote:
-> Hello,
+On Fri, Jul 28, 2006 at 12:59:11AM +0400, Alexey Dobriyan wrote:
+> Every time I try to decipher S_I* combos I cry in pain. Often I just
+> refer to include/linux/stat.h defines to find out what mode it is
+> because numbers are actually quickier to understand.
 > 
+> Compare and contrast:
 > 
-> time compare functions do not modify their arguments, so they can 
-> be marked as const (like some of the functions in time.h are already).
+> 	0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
 > 
-> Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
-> 
-> diff --fast -Ndpru linux-2.6.17.7~/include/linux/time.h linux-2.6.17.7+/include/linux/time.h
-> --- linux-2.6.17.7~/include/linux/time.h	2006-06-06 02:57:02.000000000 +0200
-> +++ linux-2.6.17.7+/include/linux/time.h	2006-07-27 22:35:53.308571000 +0200
-> @@ -33,7 +33,8 @@ struct timezone {
->  #define NSEC_PER_SEC		1000000000L
->  #define NSEC_PER_USEC		1000L
->  
-> -static inline int timespec_equal(struct timespec *a, struct timespec *b)
-> +static inline int timespec_equal(const struct timespec *a,
-> + const struct timespec *b)
-
-As per CodingStyle, the second line should be "placed substantially to the
-right."
+> I'd say #2 really sucks.
+ 
+Yep. I like the idea, but I think some kind of prefix is in order.
 
 Josef Sipek.
 
 -- 
-Humans were created by water to transport it upward.
+"Memory is like gasoline. You use it up when you are running. Of course you
+get it all back when you reboot..."; Actual explanation obtained from the
+Micro$oft help desk. 

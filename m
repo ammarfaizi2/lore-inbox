@@ -1,72 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161177AbWG1OUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161170AbWG1OVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161177AbWG1OUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 10:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbWG1OUF
+	id S1161170AbWG1OVa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 10:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbWG1OVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 10:20:05 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:50256 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161170AbWG1OUB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 10:20:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=C+WkdKmMTeyx9qtZD357fdpyT3fO/Mu954V/A/V6P//3QQxwCq9kCKbdXvy5RVIyqwU765K03Q8n0ysVyakl4ObjPjFZcIikSwC7SxN7Q2Xpq4qXtyGbl8hL0utcIPsK+Ifs5vZ5oPOBHssOJNQiYEOMFQYyOTaJp6rB6vf+ywA=
-Message-ID: <d120d5000607280720u3db9b7dmb7f05cb7e9424934@mail.gmail.com>
-Date: Fri, 28 Jul 2006 10:20:00 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: [RFC/RFT] Remove polling timer from i8042
-Cc: linux-kernel@vger.kernel.org, "Dave Jones" <davej@redhat.com>
-In-Reply-To: <20060728133223.GB29217@suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Jul 2006 10:21:30 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:26600 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1161170AbWG1OV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 10:21:29 -0400
+Message-Id: <1154096492.24729.267092120@webmail.messagingengine.com>
+X-Sasl-Enc: KkSGXQ+Vo/6dKhmPnPKuD+zDb8tO5Y1fdeHC0dx/p7ek 1154096492
+From: "Komal Shah" <komal_shah802003@yahoo.com>
+To: akpm@osdl.org, juha.yrjola@solidboot.com, tony@atomide.com,
+       ext-timo.teras@nokia.com
+Cc: r-woodruff2@ti.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, dbrownell@users.sourceforge.net,
+       kjh@hilman.org, rmk+lkml@arm.linux.org.uk
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200607270029.05066.dtor@insightbb.com>
-	 <20060727234423.GC4907@suse.cz>
-	 <d120d5000607280557w2aa476b2y45d8cfc866296adf@mail.gmail.com>
-	 <20060728133223.GB29217@suse.cz>
+Content-Type: multipart/mixed; boundary="_----------=_1154096492247290"; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Subject: [PATCH 2/2] OMAP: Update OMAP1/2 boards to give keymapsize and other
+   pdata.
+Date: Fri, 28 Jul 2006 19:51:32 +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Fri, Jul 28, 2006 at 08:57:31AM -0400, Dmitry Torokhov wrote:
->
-> > On 7/27/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > >On Thu, Jul 27, 2006 at 12:29:04AM -0400, Dmitry Torokhov wrote:
-> > >> Hi,
-> > >>
-> > >> OK, I had it in works for quite some time and Dave's talk in Ottawa
-> > >> made me finish it ;)
-> > >
-> > >Good work.
-> > >
-> > >However I believe you need to test the AUX IRQ in this case before you
-> > >use it, otherwise you'll have a lot of people with non-working keyboards
-> > >(the input queue is shared), and probably also non-working PCI cards
-> > >(BIOSes like to assign IRQ12 to PCI if no mouse is detected by the
-> > >BIOS).
-> > >
-> >
-> > What do you mean by testing AUX IRQ? Use I8042_CMD_AUX_LOOP to see if
-> > interrupt fires off? The new code releases IRQ if it can't find a
-> > working AUX port...
->
-> Exactly. Not that a character arrives and can be polled for, but that
-> the interrupt actually gets raised. It can be routed to nowhere and
-> we'll never know, our buffers will be full and keyboard will be stuck.
->
+This is a multi-part message in MIME format.
 
-Riiiight. OK, I'll add this check - should be simple enough if we just
-have interrupt handler set a flag when it sees AUX irq and have
-probing code sleep for a 1/4 of a second in 50 msec intervals to see
-if the flag was set. Don't want to use completion in main IRQ
-handler... Or do you think it is better to initially register
-i8042_aux_test_irq() that would signal completion and after successful
-testing for IRQ delivery free_irq/request_irq with normal handler?
-Tooo bad we don't have replace_irq...
+--_----------=_1154096492247290
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="ISO-8859-1"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Fri, 28 Jul 2006 14:21:32 UT
+
+Andrew/Tony/Russell/Dmitry,
+
+This is a revised patch as per the review comments from the RMK
+on thread:
+
+http://lkml.org/lkml/2006/7/27/28
+
+Please review it and give me the Ack if looks ok.
+
+This patch adds keymapsize, delay and debounce flag in the
+keypad platform data for various TI OMAP1/2 based boards like F-sample,
+H2, H3, Innovator, Nokia770, OSK, Perseus and H4.
+
+---Komal Shah
+http://komalshah.blogspot.com
 
 -- 
-Dmitry
+http://www.fastmail.fm - Access your email from home and the web
+
+
+--_----------=_1154096492247290
+Content-Disposition: attachment; filename="0002-OMAP-Update-OMAP1-2-boards-to-give-keymapsize.patch"
+Content-Transfer-Encoding: base64
+Content-Type: application/octet-stream; name="0002-OMAP-Update-OMAP1-2-boards-to-give-keymapsize.patch"
+MIME-Version: 1.0
+X-Mailer: MessagingEngine.com Webmail Interface
+Date: Fri, 28 Jul 2006 14:21:32 UT
+
+RnJvbSBub2JvZHkgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IEtv
+bWFsIFNoYWggPGtvbWFsX3NoYWg4MDIwMDNAeWFob28uY29tPgpEYXRlOiBG
+cmksIDI4IEp1bCAyMDA2IDE4OjA1OjExICswNTMwClN1YmplY3Q6IFtQQVRD
+SCAyLzJdIE9NQVA6IFVwZGF0ZSBPTUFQMS8yIGJvYXJkcyB0byBnaXZlIGtl
+eW1hcHNpemUgYW5kIG90aGVyIHBkYXRhLgoKVGhpcyBwYXRjaCBhZGRzIGtl
+eW1hcHNpemUsIGRlbGF5IGFuZCBkZWJvdW5jZSBmbGFnIGluIHRoZQprZXlw
+YWQgcGxhdGZvcm0gZGF0YSBmb3IgdmFyaW91cyBUSSBPTUFQMS8yIGJhc2Vk
+IGJvYXJkcyBsaWtlIEYtc2FtcGxlLApIMiwgSDMsIElubm92YXRvciwgTm9r
+aWE3NzAsIE9TSywgUGVyc2V1cyBhbmQgSDQuCgpTaWduZWQtb2ZmLWJ5OiBL
+b21hbCBTaGFoIDxrb21hbF9zaGFoODAyMDAzQHlhaG9vLmNvbT4KCi0tLQoK
+IGFyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtZnNhbXBsZS5jICAgfCAgICA4
+ICsrKysrLS0tCiBhcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgyLmMgICAg
+ICAgIHwgICAxMSArKysrKysrLS0tLQogYXJjaC9hcm0vbWFjaC1vbWFwMS9i
+b2FyZC1oMy5jICAgICAgICB8ICAgMTEgKysrKysrKy0tLS0KIGFyY2gvYXJt
+L21hY2gtb21hcDEvYm9hcmQtaW5ub3ZhdG9yLmMgfCAgICA4ICsrKysrLS0t
+CiBhcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLW5va2lhNzcwLmMgIHwgICAg
+OCArKysrKy0tLQogYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1vc2suYyAg
+ICAgICB8ICAgIDggKysrKystLS0KIGFyY2gvYXJtL21hY2gtb21hcDEvYm9h
+cmQtcGVyc2V1czIuYyAgfCAgICA5ICsrKysrKy0tLQogYXJjaC9hcm0vbWFj
+aC1vbWFwMi9ib2FyZC1oNC5jICAgICAgICB8ICAgIDEgKwogOCBmaWxlcyBj
+aGFuZ2VkLCA0MSBpbnNlcnRpb25zKCspLCAyMyBkZWxldGlvbnMoLSkKCjQ5
+ZTY0NzEyZTNiN2JiM2YwMjczZWQyYTY4MGQ0M2U2YzY0YzAzZTAKZGlmZiAt
+LWdpdCBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtZnNhbXBsZS5jIGIv
+YXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1mc2FtcGxlLmMKaW5kZXggYzc1
+M2EzYy4uNjJlNDJjNyAxMDA2NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFw
+MS9ib2FyZC1mc2FtcGxlLmMKKysrIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9i
+b2FyZC1mc2FtcGxlLmMKQEAgLTE3Miw5ICsxNzIsMTEgQEAgc3RhdGljIHN0
+cnVjdCByZXNvdXJjZSBrcF9yZXNvdXJjZXNbXSA9IAogfTsKIAogc3RhdGlj
+IHN0cnVjdCBvbWFwX2twX3BsYXRmb3JtX2RhdGEga3BfZGF0YSA9IHsKLQku
+cm93cwk9IDgsCi0JLmNvbHMJPSA4LAotCS5rZXltYXAgPSBmc2FtcGxlX2tl
+eW1hcCwKKwkucm93cwkJPSA4LAorCS5jb2xzCQk9IDgsCisJLmtleW1hcAkJ
+PSBmc2FtcGxlX2tleW1hcCwKKwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUo
+ZnNhbXBsZV9rZXltYXApLAorCS5kZWxheQkJPSA0LAogfTsKIAogc3RhdGlj
+IHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2Uga3BfZGV2aWNlID0gewpkaWZmIC0t
+Z2l0IGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1oMi5jIGIvYXJjaC9h
+cm0vbWFjaC1vbWFwMS9ib2FyZC1oMi5jCmluZGV4IGNkM2EwNmQuLjZlMTEz
+MDcgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtaDIu
+YworKysgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWgyLmMKQEAgLTE2
+NywxMCArMTY3LDEzIEBAIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgaDJfa3Bf
+cmVzb3VyY2VzW10KIH07CiAKIHN0YXRpYyBzdHJ1Y3Qgb21hcF9rcF9wbGF0
+Zm9ybV9kYXRhIGgyX2twX2RhdGEgPSB7Ci0JLnJvd3MJPSA4LAotCS5jb2xz
+CT0gOCwKLQkua2V5bWFwID0gaDJfa2V5bWFwLAotCS5yZXAJPSAxLAorCS5y
+b3dzCQk9IDgsCisJLmNvbHMJCT0gOCwKKwkua2V5bWFwCQk9IGgyX2tleW1h
+cCwKKwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUoaDJfa2V5bWFwKSwKKwku
+cmVwCQk9IDEsCisJLmRlbGF5CQk9IDksCisJLmRib3VuY2UJPSAxLAogfTsK
+IAogc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgaDJfa3BfZGV2aWNl
+ID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1o
+My5jIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1oMy5jCmluZGV4IDdi
+MjA2MTEuLmYyMjVhMDggMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtL21hY2gtb21h
+cDEvYm9hcmQtaDMuYworKysgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJk
+LWgzLmMKQEAgLTI0NywxMCArMjQ3LDEzIEBAIHN0YXRpYyBzdHJ1Y3QgcmVz
+b3VyY2UgaDNfa3BfcmVzb3VyY2VzW10KIH07CiAKIHN0YXRpYyBzdHJ1Y3Qg
+b21hcF9rcF9wbGF0Zm9ybV9kYXRhIGgzX2twX2RhdGEgPSB7Ci0JLnJvd3MJ
+PSA4LAotCS5jb2xzCT0gOCwKLQkua2V5bWFwID0gaDNfa2V5bWFwLAotCS5y
+ZXAJPSAxLAorCS5yb3dzCQk9IDgsCisJLmNvbHMJCT0gOCwKKwkua2V5bWFw
+CQk9IGgzX2tleW1hcCwKKwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUoaDNf
+a2V5bWFwKSwKKwkucmVwCQk9IDEsCisJLmRlbGF5CQk9IDksCisJLmRib3Vu
+Y2UJPSAxLAogfTsKIAogc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2Ug
+aDNfa3BfZGV2aWNlID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1v
+bWFwMS9ib2FyZC1pbm5vdmF0b3IuYyBiL2FyY2gvYXJtL21hY2gtb21hcDEv
+Ym9hcmQtaW5ub3ZhdG9yLmMKaW5kZXggNGNiYzYyZC4uY2IwMDUzMCAxMDA2
+NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1pbm5vdmF0b3Iu
+YworKysgYi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLWlubm92YXRvci5j
+CkBAIC0xNTksOSArMTU5LDExIEBAIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2Ug
+aW5ub3ZhdG9yX2twX3Jlc28KIH07CiAKIHN0YXRpYyBzdHJ1Y3Qgb21hcF9r
+cF9wbGF0Zm9ybV9kYXRhIGlubm92YXRvcl9rcF9kYXRhID0gewotCS5yb3dz
+CT0gOCwKLQkuY29scwk9IDgsCi0JLmtleW1hcCA9IGlubm92YXRvcl9rZXlt
+YXAsCisJLnJvd3MJCT0gOCwKKwkuY29scwkJPSA4LAorCS5rZXltYXAJCT0g
+aW5ub3ZhdG9yX2tleW1hcCwKKwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUo
+aW5ub3ZhdG9yX2tleW1hcCksCisJLmRlbGF5CQk9IDQsCiB9OwogCiBzdGF0
+aWMgc3RydWN0IHBsYXRmb3JtX2RldmljZSBpbm5vdmF0b3Jfa3BfZGV2aWNl
+ID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1u
+b2tpYTc3MC5jIGIvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1ub2tpYTc3
+MC5jCmluZGV4IDAyYjk4MGQuLmRiYzU1NWQgMTAwNjQ0Ci0tLSBhL2FyY2gv
+YXJtL21hY2gtb21hcDEvYm9hcmQtbm9raWE3NzAuYworKysgYi9hcmNoL2Fy
+bS9tYWNoLW9tYXAxL2JvYXJkLW5va2lhNzcwLmMKQEAgLTcxLDkgKzcxLDEx
+IEBAIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2Ugbm9raWE3NzBfa3BfcmVzb3UK
+IH07CiAKIHN0YXRpYyBzdHJ1Y3Qgb21hcF9rcF9wbGF0Zm9ybV9kYXRhIG5v
+a2lhNzcwX2twX2RhdGEgPSB7Ci0JLnJvd3MgICA9IDgsCi0JLmNvbHMgICA9
+IDgsCi0JLmtleW1hcCA9IG5va2lhNzcwX2tleW1hcAorCS5yb3dzCQk9IDgs
+CisJLmNvbHMJCT0gOCwKKwkua2V5bWFwCQk9IG5va2lhNzcwX2tleW1hcCwK
+Kwkua2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUobm9raWE3NzBfa2V5bWFwKQor
+CS5kZWxheQkJPSA0LAogfTsKIAogc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9k
+ZXZpY2Ugbm9raWE3NzBfa3BfZGV2aWNlID0gewpkaWZmIC0tZ2l0IGEvYXJj
+aC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1vc2suYyBiL2FyY2gvYXJtL21hY2gt
+b21hcDEvYm9hcmQtb3NrLmMKaW5kZXggYjc0MjI2MS4uNmIwNTY0NyAxMDA2
+NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1vc2suYworKysg
+Yi9hcmNoL2FybS9tYWNoLW9tYXAxL2JvYXJkLW9zay5jCkBAIC0yNjYsOSAr
+MjY2LDExIEBAIHN0YXRpYyBjb25zdCBpbnQgb3NrX2tleW1hcFtdID0gewog
+fTsKIAogc3RhdGljIHN0cnVjdCBvbWFwX2twX3BsYXRmb3JtX2RhdGEgb3Nr
+X2twX2RhdGEgPSB7Ci0JLnJvd3MJPSA4LAotCS5jb2xzCT0gOCwKLQkua2V5
+bWFwID0gKGludCAqKSBvc2tfa2V5bWFwLAorCS5yb3dzCQk9IDgsCisJLmNv
+bHMJCT0gOCwKKwkua2V5bWFwCQk9IChpbnQgKikgb3NrX2tleW1hcCwKKwku
+a2V5bWFwc2l6ZQk9IEFSUkFZX1NJWkUob3NrX2tleW1hcCksCisJLmRlbGF5
+CQk9IDksCiB9OwogCiBzdGF0aWMgc3RydWN0IHJlc291cmNlIG9zazU5MTJf
+a3BfcmVzb3VyY2VzW10gPSB7CmRpZmYgLS1naXQgYS9hcmNoL2FybS9tYWNo
+LW9tYXAxL2JvYXJkLXBlcnNldXMyLmMgYi9hcmNoL2FybS9tYWNoLW9tYXAx
+L2JvYXJkLXBlcnNldXMyLmMKaW5kZXggNjRiNDVkOC4uZmE0YmU5NiAxMDA2
+NDQKLS0tIGEvYXJjaC9hcm0vbWFjaC1vbWFwMS9ib2FyZC1wZXJzZXVzMi5j
+CisrKyBiL2FyY2gvYXJtL21hY2gtb21hcDEvYm9hcmQtcGVyc2V1czIuYwpA
+QCAtMTcxLDkgKzE3MSwxMiBAQCBzdGF0aWMgc3RydWN0IHJlc291cmNlIGtw
+X3Jlc291cmNlc1tdID0gCiB9OwogCiBzdGF0aWMgc3RydWN0IG9tYXBfa3Bf
+cGxhdGZvcm1fZGF0YSBrcF9kYXRhID0gewotCS5yb3dzCT0gOCwKLQkuY29s
+cwk9IDgsCi0JLmtleW1hcCA9IHAyX2tleW1hcCwKKwkucm93cwkJPSA4LAor
+CS5jb2xzCQk9IDgsCisJLmtleW1hcAkJPSBwMl9rZXltYXAsCisJLmtleW1h
+cHNpemUJPSBBUlJBWV9TSVpFKHAyX2tleW1hcCksCisJLmRlbGF5CQk9IDQs
+CisJLmRib3VuY2UJPSAxLAogfTsKIAogc3RhdGljIHN0cnVjdCBwbGF0Zm9y
+bV9kZXZpY2Uga3BfZGV2aWNlID0gewpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0v
+bWFjaC1vbWFwMi9ib2FyZC1oNC5jIGIvYXJjaC9hcm0vbWFjaC1vbWFwMi9i
+b2FyZC1oNC5jCmluZGV4IGZjOGM1NmEuLjlmMzQwMTEgMTAwNjQ0Ci0tLSBh
+L2FyY2gvYXJtL21hY2gtb21hcDIvYm9hcmQtaDQuYworKysgYi9hcmNoL2Fy
+bS9tYWNoLW9tYXAyL2JvYXJkLWg0LmMKQEAgLTI1MSw2ICsyNTEsNyBAQCBz
+dGF0aWMgc3RydWN0IG9tYXBfa3BfcGxhdGZvcm1fZGF0YSBoNF9rCiAJLnJv
+d3MJCT0gNiwKIAkuY29scwkJPSA3LAogCS5rZXltYXAgCT0gaDRfa2V5bWFw
+LAorCS5rZXltYXBzaXplIAk9IEFSUkFZX1NJWkUoaDRfa2V5bWFwKSwKIAku
+cmVwCQk9IDEsCiAJLnJvd19ncGlvcyAJPSByb3dfZ3Bpb3MsCiAJLmNvbF9n
+cGlvcyAJPSBjb2xfZ3Bpb3MsCi0tIAoxLjMuMwoK
+
+--_----------=_1154096492247290--
+

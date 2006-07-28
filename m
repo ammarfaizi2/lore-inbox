@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161214AbWG1SUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161222AbWG1SVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161214AbWG1SUR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 14:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161217AbWG1SUR
+	id S1161222AbWG1SVK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 14:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWG1SVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 14:20:17 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:38606 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1161214AbWG1SUP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 14:20:15 -0400
-Message-Id: <200607281820.k6SIK9Vb003499@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc2-mm1 - hard lockups on Dell C840
-In-Reply-To: Your message of "Thu, 27 Jul 2006 01:56:39 PDT."
-             <20060727015639.9c89db57.akpm@osdl.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060727015639.9c89db57.akpm@osdl.org>
+	Fri, 28 Jul 2006 14:21:09 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:57743 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1161219AbWG1SVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 14:21:08 -0400
+Subject: Re: [PATCH 1/3] scsi : megaraid_{mm,mbox}: 64-bit DMA capability
+	checker
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Cc: vvs@sw.ru, akpm@osdl.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Patro, Sumant" <Sumant.Patro@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>
+In-Reply-To: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
+References: <890BF3111FB9484E9526987D912B261932E2CF@NAMAIL3.ad.lsil.com>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 13:20:54 -0500
+Message-Id: <1154110854.9447.41.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1154110809_3129P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 14:20:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1154110809_3129P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2006-07-25 at 08:44 -0600, Ju, Seokmann wrote:
+> This patch contains 
+> - a fix for 64-bit DMA capability check in megaraid_{mm,mbox} driver.
+> - includes changes (going back to 32-bit DMA mask if 64-bit DMA mask
+> failes) suggested by James with previous patch.
+> - addition of SATA 150-4/6 as commented by Vasily Averin.
 
-On Thu, 27 Jul 2006 01:56:39 PDT, Andrew Morton said:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
+Warning: trailing whitespace in lines 885,889 of
+drivers/scsi/megaraid/megaraid_mbox.c
+Warning: trailing whitespace in lines
+13,15,16,19,21,22,26,27,29,31,33,37,39,46 of
+Documentation/scsi/ChangeLog.megaraid
 
-I'm seeing pseudorandom hard lockups soon after boot on a Dell Latitude C840.
-It just siezes up, even alt-sysrq is totally wedged, need to power cycle to
-recover.  There doesn't seem to be a really obvious trigger - the first time it
-died after all the /etc/rc5.d scripts, while trying to start the X server. The
-second, I brought it up single-user, and it didn't even live long enough to
-give me a prompt.  Multiple attempts hung at different places, but always
-within 2-3 minutes.
+I'll fix it up this time, but in future could you trailing whitespace
+check your patches? (git will do this for you).
 
-2.6.18-rc1-mm1 works fine, as does 2.6.18-rc2 plus origin.patch and git-libata-all.patch
-(vanilla -rc2 won't recognize my piix controller, not in a mood to reconfigure
-to use ide rather than libata).
+Also, when you do a git workflow, the body of the email becomes the
+commit message, so things like this
 
-Off to go play bisect-the-mm, though it may be later in weekend before I
-finish that...
+> This is a third patch which follows prevous two patches ([PATCH 1/3]
+> and
+> [PATCH 2/3]).
 
---==_Exmh_1154110809_3129P
-Content-Type: application/pgp-signature
+while no doubt being useful to the members of linux-scsi who are
+actually unable to count aren't actually useful in commit messages.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+James
 
-iD8DBQFEylVZcC3lWbTT17ARAlRVAKC7NYGT3vI1MYDVoa0+Li4UKgr3CgCg+RSO
-1JOQaxlyHYboIScv/H/TCZw=
-=yST8
------END PGP SIGNATURE-----
 
---==_Exmh_1154110809_3129P--

@@ -1,139 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWG1FaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751977AbWG1Fji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWG1FaO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 01:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1FaN
+	id S1751977AbWG1Fji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 01:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751975AbWG1Fji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 01:30:13 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15847
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751285AbWG1FaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 01:30:11 -0400
-Date: Thu, 27 Jul 2006 22:30:10 -0700 (PDT)
-Message-Id: <20060727.223010.63131639.davem@davemloft.net>
-To: gerrit@erg.abdn.ac.uk
-Cc: akpm@osdl.org, yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru,
-       jmorris@namei.org, kaber@coreworks.de, pekkas@netcore.fi,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv2 2.6.18-rc1-mm2 1/3] net: UDP-Lite generic support
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200607141719.02766@strip-the-willow>
-References: <200607141719.02766@strip-the-willow>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 28 Jul 2006 01:39:38 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:10710 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751285AbWG1Fjh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 01:39:37 -0400
+Date: Fri, 28 Jul 2006 09:39:12 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Zach Brown <zach.brown@oracle.com>, David Miller <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060728053912.GC11210@2ka.mipt.ru>
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727205806.GD16971@kvack.org> <44C933D2.4040406@oracle.com> <20060727220238.GE16971@kvack.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060727220238.GE16971@kvack.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 28 Jul 2006 09:39:14 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-Date: Fri, 14 Jul 2006 17:19:02 +0100
+On Thu, Jul 27, 2006 at 06:02:38PM -0400, Benjamin LaHaise (bcrl@kvack.org) wrote:
+> On Thu, Jul 27, 2006 at 02:44:50PM -0700, Zach Brown wrote:
+> > 
+> > >> 	int kevent_getevents(int event_fd, struct ukevent *events,
+> > >> 		int min_events, int max_events,
+> > >> 		struct timeval *timeout);
+> > > 
+> > > You've just reinvented io_getevents().
+> > 
+> > Well, that's certainly one inflammatory way to put it.  I would describe
+> > it as suggesting that the kevents collection interface not lose the
+> > nicer properties of io_getevents().
+> 
+> Perhaps, but there seems to be a lot of talk about introducing new APIs 
+> where it isn't entirely clear that it is needed.  Sorry if that sounded 
+> rather acerbic.
 
-> Generic support (header files, configuration, and documentation) for
-> the UDP-Lite protocol (RFC 3828).
+Except that kevent has completely different structures and it is
+possible to have a lot of more types of event than AIO has and there is
+no need to specially have bytes, offsets and so on.
+Magic pointer returned from aio syscall is no pollable too.
 
-Gerrit, I tried to bring myself over the edge to accept this
-work and push it into my net-2.6.19 tree,  but I simply can't
-The amount of code duplication is absolutely enormous and
-totally unnecessary.
+> > > What exactly are we getting from 
+> > > reinventing this (aside from breaking existing apps and creating more of 
+> > > an API mess)?
+> > 
+> > A generic event collection interface that isn't so strongly bound to the
+> > existing semantics of io_setup() and io_submit().  It can be a file
+> > descriptor instead of a mysterious cookie/pointer to the mapped region,
+> > to start.
+> 
+> Things were like that at one point in time, but file descriptors turn out 
+> to introduce a huge gaping security hole with SUID programs.  The problem 
+> is that any event context is closely tied to the address space of the 
+> thread issuing the syscalls, and file descriptors do not have this close 
+> binding.
 
-With proper abstractions, you can easily add UDP-lite support to the
-existing UDP code.  And I would really like it to be in that format
-before we put it into the tree.
+It is true for all shared resources no matter if it is file descriptor or 
+mapped area.
 
-Then all you need to do is something like add:
+> > Sure, so maybe we experiment with these things in the context of the
+> > kevent patches and maybe merge them back into the AIO paths if in the
+> > end that's the right thing to do.  I see no problem with separating
+> > development from the existing code.
+> 
+> Excellent!
+> 
+> > >> epoll and kevent both have the notion of an event type that always
+> > >> creates an event at the time of the collection syscall while the event
+> > >> source is on a ready list.  Think of epoll calling ->poll(POLLOUT) for
+> > >> an empty socket buffer at every sys_epoll_wait() call.  We can't have
+> > >> some source constantly spewing into the ring :/.  We could fix this by
+> > >> the API requiring that level events can *only* be collected through the
+> > >> syscall interface.  userspace could call into the collection syscall
+> > >> every N events collected through the ring, say.  N would be tuned to
+> > >> amortize the syscall cost and still provide fairness or latency for the
+> > >> level sources.  I'd be fine with that, especially when it's hidden off
+> > >> in glibc.
+> > > 
+> > > This is exactly why I think level triggered events are nasty.  It's 
+> > > impossible to do cleanly without requiring a syscall.
+> > 
+> > I'm not convinced that it isn't possible to get a sufficiently clean
+> > interface that involves the mix.
+> 
+> My arguement is that this approach introduces a slow path into the heavily 
+> loaded server case.  If you can show me how to avoid that, I'd be happy to 
+> see such an implementation. =-)
 
-	__u16             pcslen;
-	__u16             pcrlen;
-/* checksum coverage set indicators used by pcflag */
-#define UDPLITE_SEND_CC   0x1
-#define UDPLITE_RECV_CC   0x2
-	__u8              pcflag;
+If I understand you correct you are talking about level triggering
+events, which arrive continuously? Such events are handled by only one
+kevent, if iti is ready, that means that at least one such event was
+fired. One can add a number of fired events as a hints inside kevent.
 
-to struct udp_sock.
+> > > As soon as you allow queueing events up in kernel space, it becomes 
+> > > necessary to do another syscall after pulling events out of the queue, 
+> > > which is a waste of CPU cycles when you're under heavy load (exactly the 
+> > > point at which you want the system to be its most efficient).
+> > 
+> > If we've just consumed a full ring worth of events, and done real work
+> > with them, I'm not convinced that an empty syscall is going to be that
+> > painful.  If we're really under load it might well return some newly
+> > arrived events.  It becomes a mix of ring completions and syscall
+> > completions.
+> 
+> Except that you're not usually pulling a full ring worth of events at a 
+> time, more often just one.  One of the driving forces behind AIO use is 
+> in realtime apps where you don't want to eat occasional spikes in the 
+> latency of request processing, one just wants to eat the highest priority 
+> event then work on the next.  By keeping each step small and managable, 
+> the properties of the system are much easier to predict.  Yes, batching 
+> can be helpful performance-wise, but it is somewhat opposite to the design 
+> criteria that need to be considered.  The right way to cope with that may 
+> be to have two different modes of operation that trade off one way or the 
+> other on the batching question.
 
-Add the seperate udp_port_rover and udlite_hash[] table to udp.c, make
-the latter sized by UDP_HTABLE_SIZE, with suitable exports, and share
-the udp_hash_lock for mutual exclusion.  Finally, parameterize all the
-UDP hash table routines to take a hash table base and a port rover
-pointer so that they can operate on both UDP and UDP-Lite sockets
-transparently.
+It is user who should decide either he wants one, all or at least one
+eventt. kevent supports all types of requests, it's behaviour depends on
+parameters.
 
-Next make 2 top-level routines for things like udp_err() etc.
-So that you can go:
+> 		-ben
 
-/* Common code */
-static void __udp_err(struct sock *sk, struct sk_buff *skb, int type, int code, u32 info)
-{
-	struct inet_sock *inet;
-	int type = skb->h.icmph->type;
-	int code = skb->h.icmph->code;
-	int harderr, err;
-
-	if (sk == NULL) {
-		ICMP_INC_STATS_BH(ICMP_MIB_INERRORS);
-    	  	return;	/* No socket for error */
-	}
-
-	err = 0;
-	harderr = 0;
-	inet = inet_sk(sk);
-
-	switch (type) {
- ...
-	}
-
-	/*
-	 *      RFC1122: OK.  Passes ICMP errors back to application, as per 
-	 *	4.1.3.3.
-	 */
-	if (!inet->recverr) {
-		if (!harderr || sk->sk_state != TCP_ESTABLISHED)
-			goto out;
-	} else {
-		ip_icmp_error(sk, skb, err, uh->dest, info, (u8*)(uh+1));
-	}
-	sk->sk_err = err;
-	sk->sk_error_report(sk);
-out:
-	sock_put(sk);
-}
-
-void udp_err(struct sk_buff *skb, u32 info)
-{
-	struct iphdr *iph = (struct iphdr*)skb->data;
-	struct udphdr *uh = (struct udphdr*)(skb->data+(iph->ihl<<2));
-	int type = skb->h.icmph->type;
-	int code = skb->h.icmph->code;
-	struct sock *sk;
-
-	sk = udp_v4_lookup(udp_hash,
-			   iph->daddr, uh->dest, iph->saddr,
-			   uh->source, skb->dev->ifindex);
-	__udp_err(sk, skb, type, code, info);
-}
-
-void udplite_err(struct sk_buff *skb, u32 info)
-{
-	struct iphdr *iph = (struct iphdr*)skb->data;
-	struct udphdr *uh = (struct udphdr*)(skb->data+(iph->ihl<<2));
-	int type = skb->h.icmph->type;
-	int code = skb->h.icmph->code;
-	struct sock *sk;
-
-	sk = udp_v4_lookup(udplite_hash,
-			   iph->daddr, uh->dest, iph->saddr,
-			   uh->source, skb->dev->ifindex);
-	__udp_err(sk, skb, type, code, info);
-}
-
-Make similar abstractions for the send and recive path processing,
-substituting in the specific UDP vs. UDP-Lite header and
-checksum semantic handling along the way.
-
-It's mostly clerical work, but it will mean that we will have one
-copy of all this code and as a result we won't even need a config
-option for UDP-Lite.
-
-Thanks.
-
+-- 
+	Evgeniy Polyakov

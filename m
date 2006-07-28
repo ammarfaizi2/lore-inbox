@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161360AbWG1XIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161362AbWG1XMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161360AbWG1XIz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWG1XIz
+	id S1161362AbWG1XMU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWG1XMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:08:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:47003 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1161360AbWG1XIy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:08:54 -0400
-Message-ID: <44CA98F9.1040900@garzik.org>
-Date: Fri, 28 Jul 2006 19:08:41 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Andrew Morton <akpm@osdl.org>, Theodore Tso <tytso@mit.edu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
- by kernelnewbies.org regarding reiser4 inclusion)
-References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com>
-In-Reply-To: <44CA126C.7050403@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Jul 2006 19:12:20 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:27567
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161362AbWG1XMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 19:12:19 -0400
+Date: Fri, 28 Jul 2006 16:12:15 -0700 (PDT)
+Message-Id: <20060728.161215.98863664.davem@davemloft.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: arjan@linux.intel.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607282305.k6SN5e0k015125@turing-police.cc.vt.edu>
+References: <200607282045.05292.ak@suse.de>
+	<1154112511.6416.46.camel@laptopd505.fenrus.org>
+	<200607282305.k6SN5e0k015125@turing-police.cc.vt.edu>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> As for this "we are all too grand to be bothered with money to feed our
-> families" business, building a system in which those who contribute can
-> find a way to be rewarded is what managers do.   Free software
-> programmers may be willing to live on less than others, but they cannot
-> live on nothing, and code that does not ever ship means living on nothing.
+From: Valdis.Kletnieks@vt.edu
+Date: Fri, 28 Jul 2006 19:05:40 -0400
 
-Using guilt as an argument in a technical discussion is a flashing red 
-sign that says "I have no technical rebuttal"
+> On Fri, 28 Jul 2006 20:48:31 +0200, Arjan van de Ven said:
+> > On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
+> > > > +ifdef CONFIG_CC_STACKPROTECTOR
+> > > > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
+> > > > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
+> > > 
+> > > Why can't you just use the normal call cc-option for this?
+> > 
+> > this requires gcc 4.2; cc-option is not useful for that.
+> 
+> At least some things calling themselves 4.1.1 include it.  On a Fedora
 
-
-> If reiser4 is delayed enough, for reasons that have nothing to do with
-> its needs, and without it having encumbered anyone else, it won't be
-> ahead of the other filesystems when it ships.
-
-What delay?  This is open source.  There is nothing stopping you from 
-worldwide distribution of the coolest Linux filesystem in the world.
-
-	Jeff
-
-
+Your gcc-4.1.1 includes the -fstack-protector feature, but it might
+not have the gcc bug fix necessary to make that feature work on the
+kernel compile, which is why the version check is necessary.

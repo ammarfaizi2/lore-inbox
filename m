@@ -1,129 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWG1CdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWG1Cng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWG1CdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 22:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWG1CdK
+	id S1751821AbWG1Cng (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 22:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWG1Cng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 22:33:10 -0400
-Received: from mx2.suse.de ([195.135.220.15]:62147 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751286AbWG1CdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 22:33:09 -0400
-From: Neil Brown <neilb@suse.de>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Date: Fri, 28 Jul 2006 12:32:13 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17609.30509.387670.585340@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, Steve Dickson <SteveD@redhat.com>,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 005 of 9] knfsd: Be more selective in which
-	sockets lockd listens on.
-In-Reply-To: message from J. Bruce Fields on Wednesday July 26
-References: <20060725114207.21779.patches@notabene>
-	<1060725015447.21957@suse.de>
-	<20060726191714.GE31172@fieldses.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Thu, 27 Jul 2006 22:43:36 -0400
+Received: from wx-out-0102.google.com ([66.249.82.198]:54970 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751821AbWG1Cng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jul 2006 22:43:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=NFHBdIJQRxKWjTcHiN1Felkew727JxEItxi+mpFD4uU4PlkONcoD13E0++Wb4GyeawHaUWSPB/DkST522VkB0BvrxAE3DMVgHQ7d4wfMDTVLMad7abgqxg0LkwaLuJEmxIP8UggSiCuPM/PPIt85FcRG9VwcUdOLhBVFcBy9msA=
+Date: Thu, 27 Jul 2006 22:43:34 -0400
+From: Thomas Tuttle <thinkinginbinary@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: The ondemand CPUFreq code -- I hope the functionality stays
+Message-ID: <20060728024334.GA12142@phoenix>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com> <200607272104.24088.diablod3@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Content-Disposition: inline
+In-Reply-To: <200607272104.24088.diablod3@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday July 26, bfields@fieldses.org wrote:
-> On Tue, Jul 25, 2006 at 11:54:47AM +1000, NeilBrown wrote:
-> > @@ -112,6 +114,7 @@ lockd(struct svc_rqst *rqstp)
-> >  	 * Let our maker know we're running.
-> >  	 */
-> >  	nlmsvc_pid = current->pid;
-> > +	nlmsvc_serv = serv;
-> 
-> Nitpick: any reason not to just get rid of the local variable "serv"
-> after that?
 
-Well... it is used two more times in that function.... but in both
-those cases it isn't really needed because we pass it to a function that
-also gets rqstp, serv is always rqstp->rq_server.  So there is room
-for cleaning up there ... patch to follow.
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > @@ -224,8 +259,10 @@ lockd_up(void)
-> >  	/*
-> >  	 * Check whether we're already up and running.
-> >  	 */
-> > -	if (nlmsvc_pid)
-> > +	if (nlmsvc_pid) {
-> > +		error = make_socks(nlmsvc_serv, proto);
-> >  		goto out;
-> 
-> ...
-> 
-> > +	if ((error = make_socks(serv, proto)) < 0) {
-> >  		if (warned++ == 0) 
-> >  			printk(KERN_WARNING
-> >  				"lockd_up: makesock failed, error=%d\n", error);
-> 
-> The warning is printk'ed a little inconsistently.  (If we care, maybe it
-> should just go inside make_socks?)
+On July 27 at 21:04 EDT, Patrick McFarland hastily scribbled:
+> On Thursday 27 July 2006 04:54, Miles Lane wrote:
+> > Hello,
+> >
+> > It sounds, from comments in the discussion of CPU Hotplug locking
+> > problems, as though you are considering deleting the ondemand CPUFreq
+> > code.  If this happens, I hope that something that provides the same
+> > functionality replaces it.  I really appreciate having my power
+> > consumption automatically modulated on an as needed basis.  Power
+> > management seems to be one of the areas where there is a lot of room
+> > for improvement.
+>=20
+> I think you've gotten confused. Ondemand is a horrible governor that only=
+=20
+> flips between two cpu frequencies, the lowest and the highest. Use the=20
+> Conservative governor instead.
 
-So.  Do we care?  That's a hard one...  I guess we do.  I'll move the
-message into make_socks.
+AFAIK, ondemand implements the following.
 
-> 
-> By the way, why don't most callers use the error returned from
-> lockd_up()?
+Many times per second, do the following:
+	Calculate CPU usage since last check.
+	If CPU usage > high threshold, set frequency to maximum.
+	If CPU usage < low threshold, lower frequency by one level.
 
-Most?  I could 2 out of 5.
-One of those is just getting an extra ref-count so it cannot fail.
-The other - in nfsctl - is simply carelessness on my part.
-I should fix that.... patch to follow.
+So it will immediately jump to the highest frequency, in order to
+provide low latency, but will slowly decrease it until it finds the
+lowest frequency that provides enough CPU power to support the current
+load.
 
-However...
- One would expect that if lockd_up fails, a matching lockd_down
-wouldn't be needed.  However nlmsvc_users is unconditionally
-increased by lockd_up.  That's a worry.
+Personally, I prefer conservative, because it isn't as "jumpy", but I
+can see ondemand being necessary in a server environment where the
+several second lag time to peak performance would hurt response time
+when load is low.
 
- - The nfs client will only call lockd_down if lockd_up succeeded.
- - NFSD currently will call lockd_down either way.
- - The lockd reclaimer ignores the return value and always calls
-    lockd_down.
+--Thomas Tuttle
 
-So the most common usage is to always call lockd_down, but I cannot
-help feeling that is wrong.  And 'fixing' the client code to do it
-that way would make it very ugly....
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Patch to follow :-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-> 
-> > diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
-> > --- .prev/fs/nfsd/nfssvc.c	2006-07-24 15:14:31.000000000 +1000
-> > +++ ./fs/nfsd/nfssvc.c	2006-07-24 15:15:04.000000000 +1000
-> > @@ -134,6 +134,9 @@ static int killsig = 0; /* signal that w
-> >  static void nfsd_last_thread(struct svc_serv *serv)
-> >  {
-> >  	/* When last nfsd thread exits we need to do some clean-up */
-> > +	struct svc_sock *svsk;
-> > +	list_for_each_entry(svsk, &serv->sv_permsocks, sk_list)
-> > +		lockd_down();
-> 
-> So I guess it's a minor point, but: we take the trouble to only open tcp
-> or udp sockets as necessary, but then won't close them down till all the
-> mounts and nfsd's go away at which point we close them all down.
+iD8DBQFEyXnW/UG6u69REsYRAi2XAJwP+HPH1q7wpWVTJO5xdCxJvVYQBgCePvYD
+TeQZ1vKCFeM+diu1cbvyClA=
+=ZvhE
+-----END PGP SIGNATURE-----
 
-I thought about making that cleaner but couldn't quite motivate myself
-to do it.... and it can always be done later (?).
-
-> 
-> Would it be that bad just to always listen on both?
-
-Some people seem to want to only listen on one.
-Why?  Maybe a security thing?  
-So once you have opened a protocol once, the "horse has bolted" and
-closing it is no big deal?
-
-dunno... any else go opinions on this?
-
-Steve?
-
-NeilBrown
+--NzB8fVQJ5HfG6fxh--

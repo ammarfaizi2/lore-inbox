@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161374AbWG1Xjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161373AbWG1XtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161374AbWG1Xjx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161373AbWG1Xjw
+	id S1161373AbWG1XtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 19:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161389AbWG1XtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:39:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54693 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161374AbWG1Xjw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:39:52 -0400
-Date: Fri, 28 Jul 2006 19:39:50 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: via sata oops on init
-Message-ID: <20060728233950.GD3217@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+	Fri, 28 Jul 2006 19:49:08 -0400
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:34933 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161373AbWG1XtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 19:49:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=NkrS7i1w17FF6r/QyDACsspaVdELssvEqafss+sv4mcgQkNJ0tjZ7sezykQlubjADcXLGLTti/e/B004j+KC4aDRbwMY00yWKXa7P1Z2P84fya/71TaSp4hqucEKuQ10XTlF8S7fB97r2wAlXLufes8kqOFCJ6s/2Zz+MzeSiwU=  ;
+Message-ID: <44CAA26D.7030809@yahoo.com.au>
+Date: Sat, 29 Jul 2006 09:49:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: nhorman@tuxdriver.com
+CC: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org, paulus@au.ibm.com
+Subject: Re: [KJ] audit return code handling for kernel_thread [1/11]
+References: <200607282007.k6SK75MK009573@ra.tuxdriver.com>
+In-Reply-To: <200607282007.k6SK75MK009573@ra.tuxdriver.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.18-rc2-git6
+nhorman@tuxdriver.com wrote:
+> Audit/Cleanup of kernel_thread calls, specifically checking of return codes.
+>     Problems seemed to fall into 3 main categories:
+>     
 
-BUG: unable to handle kernel NULL pointer dereference at 00000000
-EIP is at make_class_name+0x27
-eax: 00000000 ebx: ffffffff ecx: ffffffff edx: 00000009
-esi: f8d16cc2 edi: 00000000 ebp: f7fa9d3c esp: f7fa9d2c
+Thanks for doing this. Nitpick: this should be all one patch, or at most 3
+patches (then each of the below 3 items would become individual changelogs).
 
-Call Trace:
-class_device_del+0xac
-class_device_unregister
-scsi_remove_host
-ata_host_remove
-ata_device_add
-svia_init_one
-pci_device_probe
-driver_probe_device
-__driver_attach
-bus_for_each_dev
-driver_attach
-bus_add_driver
-driver_register
-__pci_register_driver
-svia_init
-sys_init_module
-syscall_call
+Each patch should have a unique changelog, each should have a unique subject
+(sans the sequence number).
+
+cc'ing Andrew is also a good idea, if you want them to get merged ;)
+
+One coding style comment:
+if (...)
+     multi line
+         statement
+
+Could use braces around the outermost if statement, for clarity.
 
 
-		Dave
+>     1) callers of kernel_thread were inconsistent about meaning of a zero return
+>     code.  Some callers considered a zero return code to mean success, others took
+>     it to mean failure.  a zero return code, while not actually possible in the
+>     current implementation, should be considered a success (pid 0 is/should be
+>     valid). fixed all callers to treat zero return as success
+>     
+>     2) caller of kernel_thread saved return code of kernel_thread for later use
+>     without ever checking its value.  Callers who did this tended to assume a
+>     non-zero return was success, and would often wait for a completion queue to be
+>     woken up, implying that an error (negative return code) from kernel_thread could
+>     lead to deadlock.  Repaired by checking return code at call time, and setting
+>     saved return code to zero in the event of an error.
+>     
+>     3) callers of kernel_thread never bothered to check the return code at all.
+>     This can lead to seemingly unrelated errors later in execution.  Fixed by
+>     checking return code at call time and printing a warning message on failure.
 
 -- 
-http://www.codemonkey.org.uk
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

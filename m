@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751981AbWG1Ieq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751982AbWG1Iex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751981AbWG1Ieq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 04:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWG1Ieq
+	id S1751982AbWG1Iex (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 04:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751983AbWG1Iew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 04:34:46 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:27938 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751981AbWG1Iep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 04:34:45 -0400
-Date: Fri, 28 Jul 2006 02:34:41 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Can we ignore errors in mcelog if the server is running fine
-In-reply-to: <fa.9M8mPetEI5HZ8L2RMGPhKPm3gJA@ifi.uio.no>
-To: Handle X <xhandle@gmail.com>
-Cc: Vikas Kedia <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
-Message-id: <44C9CC21.9040609@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <fa.5uWgnVpIOBN4Pb1aWwNzF8P2OA0@ifi.uio.no>
- <fa.9M8mPetEI5HZ8L2RMGPhKPm3gJA@ifi.uio.no>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 28 Jul 2006 04:34:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40109 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751982AbWG1Iew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 04:34:52 -0400
+Date: Fri, 28 Jul 2006 01:34:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+Cc: matthltc@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc2-mm1
+Message-Id: <20060728013442.6fabae54.akpm@osdl.org>
+In-Reply-To: <6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	<6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com>
+	<6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Handle X wrote:
-> On 7/27/06, Robert Hancock <hancockr@shaw.ca> wrote:
->> Vikas Kedia wrote:
->> > The server seems to be running fine. A. can I ignore the following
->> > mcelog errors ? B. If not what should i do to stop the server from
->> > reporting mcelog errors.
->>
->> Looks like data cache ECC errors, meaning the CPU 0 is faulty.
->> Eventually if it's not replaced there will likely be some uncorrectable
->> errors and the system will likely crash.
+On Fri, 28 Jul 2006 10:17:44 +0200
+"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+
+> Matt, can you look at this?
 > 
-> I am facing similar, but different errors.
-> 
-> [root@turyxsrv ~]# mcelog
-> MCE 0
-> HARDWARE ERROR. This is *NOT* a software problem!
-> Please contact your hardware vendor
-> CPU 1 4 northbridge TSC 89a560bb249
-> ADDR 1dfa49690
->  Northbridge Chipkill ECC error
->  Chipkill ECC syndrome = 2021
->       bit46 = corrected ecc error
->  bus error 'local node response, request didn't time out
->      generic read mem transaction
->      memory access, level generic'
-> STATUS 9410c00020080a13 MCGSTATUS 0
+> My hunt file shows me, that this patches are causing oops.
+> GOOD
+> #
+> #
+> task-watchers-task-watchers.patch
+> task-watchers-register-process-events-task-watcher.patch
+> task-watchers-refactor-process-events.patch
+> task-watchers-make-process-events-configurable-as.patch
+> task-watchers-allow-task-watchers-to-block.patch
+> task-watchers-register-audit-task-watcher.patch
+> task-watchers-register-per-task-delay-accounting.patch
+> task-watchers-register-profile-as-a-task-watcher.patch
+> task-watchers-add-support-for-per-task-watchers.patch
+> task-watchers-register-semundo-task-watcher.patch
+> task-watchers-register-per-task-semundo-watcher.patch
+> BAD
 
-> Repeats whenever I do any kind of operations...
-> How severe is ChipKill errors? Should I consider throwing away CPU 1
-> and get another one.
+Thanks for working that out.
 
-That sounds to me more like some of the RAM attached to CPU1 is bad..
+I've actually been thinking that we shouldn't proceed with those patches.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+They're a nice cleanup and make the kernel code _look_ better and I really
+like them because of this.  But the cost is potentially significant.  We
+replace N direct calls with a walk of a notifier chain, more than N
+indirect calls, demultiplexing at the other end and then a direct call. 
+That's a significant amount of additional overhead to make the kernel
+source look nicer.
+
+Plus, ugly though it is, you can look at the current code and see what it's
+doing.  With a notifier chain you have to grep around the tree and work out
+what might be hooking into the chain, which is harder.
+
+Finally, the consolidation into a notifier chain forces all the
+fork/exit/exec hooks into an one-size-fits-all model.  What happens if one
+subsystem wants to hook in before exit_mmap() and another one wants to hook
+in after exit_mmap() (for example)?
+
 

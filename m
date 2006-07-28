@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161298AbWG1VKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161306AbWG1VKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161298AbWG1VKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 17:10:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161305AbWG1VKI
+	id S1161306AbWG1VKv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 17:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161305AbWG1VKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 17:10:08 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:4317 "EHLO pickle.fieldses.org")
-	by vger.kernel.org with ESMTP id S1161298AbWG1VKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 17:10:07 -0400
-Date: Fri, 28 Jul 2006 17:10:00 -0400
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 4] knfsd: Introduction
-Message-ID: <20060728211000.GA19563@fieldses.org>
-References: <20060728150606.29533.patches@notabene>
-MIME-Version: 1.0
+	Fri, 28 Jul 2006 17:10:51 -0400
+Received: from server99.tchmachines.com ([72.9.230.178]:50890 "EHLO
+	server99.tchmachines.com") by vger.kernel.org with ESMTP
+	id S1161306AbWG1VKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 17:10:50 -0400
+Date: Fri, 28 Jul 2006 14:12:27 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>, alokk@calsoftinc.com
+Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
+Message-ID: <20060728211227.GB3739@localhost.localdomain>
+References: <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com> <1154067247.27297.104.camel@localhost.localdomain> <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com> <1154117501.10196.2.camel@localhost.localdomain> <Pine.LNX.4.64.0607281313310.20754@schroedinger.engr.sgi.com> <1154118476.10196.5.camel@localhost.localdomain> <1154118947.10196.10.camel@localhost.localdomain> <Pine.LNX.4.64.0607281332190.20754@schroedinger.engr.sgi.com> <1154119658.10196.17.camel@localhost.localdomain> <Pine.LNX.4.64.0607281344410.20754@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060728150606.29533.patches@notabene>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: "J. Bruce Fields" <bfields@fieldses.org>
+In-Reply-To: <Pine.LNX.4.64.0607281344410.20754@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 03:09:40PM +1000, NeilBrown wrote:
-> Following are 4 patches for knfsd in 2.6-mm-latest.  They address some
-> issues found by Bruce Fields greatly appreciated patch review.  Thanks Bruce.
-> They (like the patches they build on) are *not* 2.6.18 material.
+On Fri, Jul 28, 2006 at 01:48:33PM -0700, Christoph Lameter wrote:
+> On Fri, 28 Jul 2006, Thomas Gleixner wrote:
+> 
+> > On Fri, 2006-07-28 at 13:36 -0700, Christoph Lameter wrote:
+> > > On Fri, 28 Jul 2006, Thomas Gleixner wrote:
+> > > 
+> > > > Let me know, if you need more info
+> > > 
+> > > What type of NUMA system is this? How many nodes? Is memory exhausted on 
+> > > some so that allocations are redirected? Are cpusets or memory policies
+> > > used to redirect allocations?
+> > 
+> > Dual dual core opteron board, only one CPU brought up. This happens
+> > during bootup, so no special settings involved.
+> 
+> One cpu with two nodes?
+> 
+> > [    0.000000] Bootmem setup node 0 0000000000000000-0000000080000000
+> > [    0.000000] Bootmem setup node 1 0000000080000000-00000000fbff0000
+> 
+> Right two nodes. We may have a special case here of one cpu having to 
+> manage remote memory. Alien cache freeing is likely screwed up in that 
+> case because we cannot have the idea of one processor local to the node 
+> doing the alien cache draining . We have to take the remote lock (no cpu 
+> dedicate to that node).
 
-By the way, the one thing that looked to me like a real bug was the
-failure to do a lockd_down() when the user deletes a socket (comments
-resent below), which these patches don't seem to deal with.  Of course,
-it's entirely possible I just didn't understand something....
+Why should there be any problem taking the remote l3 lock?  If the remote
+node does not have cpu that does not mean we cannot take a lock from the
+local node!!! 
 
---b.
+I think current git does not teach lockdep to ignore recursion for
+array_cache->lock when the array_cache->lock are from different cases.  As
+Arjan pointed out, I can see that l3->list_lock is special cased, but I
+cannot find where array_cache->lock is taken care of.
 
+Again, if this is indeed a problem (recursion) machine should not boot even,
+when compiled without lockdep, tglx, can you please verify this?
 
-On Tue, Jul 25, 2006 at 11:55:08AM +1000, NeilBrown wrote:
-> +		err = nfsd_create_serv();
-> +		if (!err) {
-> +			int proto = 0;
-> +			err = svc_addsock(nfsd_serv, fd, buf, &proto);
-> +			/* Decrease the count, but don't shutdown the
-> +			 * the service
-> +			 */
-> +			if (err >= 0)
-> +				lockd_up(proto);
-> +			nfsd_serv->sv_nrthreads--;
-....
-> @@ -211,8 +211,6 @@ static inline int nfsd_create_serv(void)
->  			       nfsd_last_thread);
->  	if (nfsd_serv == NULL)
->  		err = -ENOMEM;
-> -	else
-> -		nfsd_serv->sv_nrthreads++;
-
-I don't understand these sv_nrthreads changes.
-
-> @@ -449,18 +450,23 @@ int one_sock_name(char *buf, struct svc_
->  }
->  
->  int
-> -svc_sock_names(char *buf, struct svc_serv *serv)
-> +svc_sock_names(char *buf, struct svc_serv *serv, char *toclose)
->  {
-> -	struct svc_sock *svsk;
-> +	struct svc_sock *svsk, *closesk = NULL;
->  	int len = 0;
->  
->  	if (!serv) return 0;
->  	spin_lock(&serv->sv_lock);
->  	list_for_each_entry(svsk, &serv->sv_permsocks, sk_list) {
->  		int onelen = one_sock_name(buf+len, svsk);
-> -		len += onelen;
-> +		if (toclose && strcmp(toclose, buf+len) == 0)
-> +			closesk = svsk;
-> +		else
-> +			len += onelen;
->  	}
->  	spin_unlock(&serv->sv_lock);
-> +	if (closesk)
-> +		svc_delete_socket(closesk);
-
-Am I missing something, or do we end up missing a lockd_down() in this
-case?  (Because nfsd_last_thread() isn't going to be calling
-lockd_down() for this thread now that we've removed it from
-sv_permsocks).
-
---b.
+Thanks,
+Kiran

@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161297AbWG1Uwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWG1U65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161297AbWG1Uwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161299AbWG1Uwb
+	id S1161300AbWG1U65 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:58:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWG1U65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:52:31 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:4846 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1161297AbWG1Uwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:52:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XHrNepfuKk8wneq17vJplEziCuyofidyj9sWMM9NA7x5yQS2GRmmQJdsBlixlmItJs1UI0k2mPad80s3Vraj6K2U7JwcE5nNPd3NbQER3Q7V6uhQCISsKwtqRi1xytdvu5OMj4pgkaNduWecGtS/CtxyusM6IiuAIo4L8iKxEEk=
-Message-ID: <41840b750607281352q715ad417l927f868aff306410@mail.gmail.com>
-Date: Fri, 28 Jul 2006 23:52:28 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH] DMI: Decode and save OEM String information
-Cc: "Henrique de Moraes Holschuh" <hmh@debian.org>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Brown, Len" <len.brown@intel.com>
-In-Reply-To: <200607281237.45576.bjorn.helgaas@hp.com>
+	Fri, 28 Jul 2006 16:58:57 -0400
+Received: from [212.70.37.8] ([212.70.37.8]:26637 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1161300AbWG1U65 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:58:57 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: swsusp hangs on headless resume-from-ram
+Date: Sat, 29 Jul 2006 00:00:16 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200607262206.48801.a1426z@gawab.com> <200607281623.55290.rjw@sisk.pl> <200607282042.51831.rjw@sisk.pl>
+In-Reply-To: <200607282042.51831.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
-	 <200607272127.14689.bjorn.helgaas@hp.com>
-	 <20060728124940.GA26735@khazad-dum.debian.net>
-	 <200607281237.45576.bjorn.helgaas@hp.com>
+Message-Id: <200607290000.16933.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/28/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> And there are no other devices that consume 0x1600-0x161F?  Interesting.
-> I wonder what Windows does to bind drivers to the LPC devices?  Do they
-> have to do the same SMBIOS OEM string hack?
+Rafael J. Wysocki wrote:
+> On Friday 28 July 2006 16:23, Rafael J. Wysocki wrote:
+> > On Friday 28 July 2006 15:58, Al Boldi wrote:
+> > > Rafael J. Wysocki wrote:
+> > > > On Wednesday 26 July 2006 23:34, Al Boldi wrote:
+> > > > > Rafael J. Wysocki wrote:
+> > > > > > On Wednesday 26 July 2006 21:06, Al Boldi wrote:
+> > > > > > > swsusp is really great, most of the time.  But sometimes it
+> > > > > > > hangs after coming out of STR.  I suspect it's got something
+> > > > > > > to do with display access, as this problem seems hw related. 
+> > > > > > > So I removed the display card, and it positively does not
+> > > > > > > resume from ram on 2.6.16+.
+> > > > > > >
+> > > > > > > Any easy fix for this?
+> > > > > >
+> > > > > > I have one idea, but you'll need a patch to test.  I'll try to
+> > > > > > prepare it tomorrow.
+> > > > > >
+> > > > > > I guess your box is an i386?
+> > > > >
+> > > > > That should be assumed by default :)
+> > > >
+> > > > I had hoped I would be able to test it somewhere, but I couldn't.  I
+> > > > hope it will compile. :-)
+> > > >
+> > > > If it does, please send me the output of dmesg after a fresh boot.
+> > >
+> > > See attached.  patched against 2.6.17.
+> >
+> > Well, the nosave ranges are the same in both cases, so it doesn't look
+> > very promising.
+> >
+> > Have you tried to suspend with the patch applied?
+>
+> Ouch, sorry, it won't work.  It will have a chance to work with the
+> appended patch applied.
+>
+> However, I've just noticed you said it didn't resume from RAM and these
+> two patches could only fix the resume from disk. ;-)
 
-We don't know. Maybe they check the ThinkPad part number (of which
-there are many hundreds but IBM/Lenovo has the full list and can
-update the driver whenever a new model comes out); or maybe just
-assume you won't install it on the wrong hardware.
+Actually, I'm using suspend-to-disk to work around this STR problem, and STD 
+seems to work fine.  It's STR that sometimes hangs after resuming.
 
+> As far as the
+> resume from RAM is concerned, I can only advise you to use a
+> newest possible kernel and see if the problem is still there.
 
-> I guess as long as they change the OEM string the same time they change
-> the EC/accelerometer/battery/kitchen-sink implementation, you're OK :-)
-> It just feels like living on borrowed time.
+Have there been patches that address this issue?
 
-Yes. But it's the best we've been able to come up with, after
-considerable community effort.
+Thanks!
 
-Anyway, this patch is independent of the ThinkPad case; DMI
-information is there for drivers to see it, after all, so the kernel
-should make it possible. Can I get a Signed-off-by?
+--
+Al
 
-  Shem

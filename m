@@ -1,119 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWG1Tnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWG1ToM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161248AbWG1Tnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWG1Tnd
+	id S1161251AbWG1ToM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWG1ToM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:43:33 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:44908 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030286AbWG1Tnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:43:33 -0400
-Date: Fri, 28 Jul 2006 21:41:04 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] bootmem: use MAX_DMA_ADDRESS instead of LOW32LIMIT
-Message-ID: <20060728194104.GA11622@osiris.ibm.com>
-References: <20060728130852.GB9559@osiris.boeblingen.de.ibm.com> <20060728131306.GA32513@elte.hu> <1154098725.3211.5.camel@localhost>
+	Fri, 28 Jul 2006 15:44:12 -0400
+Received: from 63-162-81-169.lisco.net ([63.162.81.169]:43477 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1161251AbWG1ToK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 15:44:10 -0400
+Message-ID: <44CA6905.4050002@slaphack.com>
+Date: Fri, 28 Jul 2006 14:44:05 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.4 (Macintosh/20060530)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154098725.3211.5.camel@localhost>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Hans Reiser <reiser@namesys.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
+ by kernelnewbies.org regarding reiser4 inclusion)
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com>
+In-Reply-To: <44C9FB93.9040201@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 04:58:45PM +0200, Martin Schwidefsky wrote:
-> On Fri, 2006-07-28 at 15:13 +0200, Ingo Molnar wrote:
-> > > -#define LOW32LIMIT 0xffffffff
-> > 
-> > >  		if ((ptr = __alloc_bootmem_core(bdata, size,
-> > > -						 align, goal, LOW32LIMIT)))
-> > > +						 align, goal, MAX_DMA_ADDRESS)))
-> > 
-> > but this limits things to 16MB on i686. Are you sure this wont break 
-> > anything?
+Hans Reiser wrote:
+> Linus Torvalds wrote:
 > 
-> That is something we should not do. MAX_DMA_ADDRESS is not the correct
-> value, it says something about the DMA limitations. LOW32LIMIT says
-> something about the cpu addressing limitations which is a completly
-> different thing. I think it would be best to introduce an architecture
-> overridable define like LOW_ADDRESS_LIMIT. The default is 4GB-1, for
-> s390 it is 2GB-1. The current name is misleading LOW32LIMIT indicates
-> that the address for alloc_bootmem_low objects has 32 bits, which isn't
-> true for s390.
+>>
+>> In other words, if a filesystem wants to do something fancy, it needs to 
+>> do so WITH THE VFS LAYER, not as some plugin architecture of its own.
+>>
 
-Hm... how about this one then:
+> (Let us try to avoid arguments over whether if you extend VFS it is
+> still called VFS or is called reiser4's plugin layer, agreed?)
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Ok, assuming you actually extend the VFS.  The point is that if we want 
+plugins, we don't have to implement them in ext3, but we have to put the 
+plugin interface somewhere standard that is obviously not part of one 
+filesystem (the VFS is the place) so that ext3 can implement a plugin 
+system without having to read or touch a line of reiser4 code, and 
+without compiling reiser4 into the kernel.
 
-Introduce ARCH_LOW_ADDRESS_LIMIT which can be set per architecture to
-override the 4GB default limit used by the bootmem allocater within
-__alloc_bootmem_low() and __alloc_bootmem_low_node().
-E.g. s390 needs a 2GB limit instead of 4GB.
+It may ultimately not be any different, technically.  This seems more 
+like an organizational and political thing.  But that doesn't make it 
+less important or valid.
 
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+> Regarding copyright, these plugins are compiled in.  I have resisted
+> dynamically loaded plugins for now, for reasons I will not go into here.
 
- include/asm-s390/processor.h |    2 ++
- mm/bootmem.c                 |   11 ++++++++---
- 2 files changed, 10 insertions(+), 3 deletions(-)
+Good point, there's no GPL issue here.  Plugins will either not be 
+distributed (used internally) or distributed as GPL.
 
-diff --git a/include/asm-s390/processor.h b/include/asm-s390/processor.h
-index 5b71d37..a21d2c5 100644
---- a/include/asm-s390/processor.h
-+++ b/include/asm-s390/processor.h
-@@ -337,6 +337,8 @@ struct notifier_block;
- int register_idle_notifier(struct notifier_block *nb);
- int unregister_idle_notifier(struct notifier_block *nb);
- 
-+#define ARCH_LOW_ADDRESS_LIMIT	0x7fffffffUL
-+
- #endif
- 
- #endif                                 /* __ASM_S390_PROCESSOR_H           */
-diff --git a/mm/bootmem.c b/mm/bootmem.c
-index 50353e0..bf99002 100644
---- a/mm/bootmem.c
-+++ b/mm/bootmem.c
-@@ -19,6 +19,7 @@
- #include <linux/module.h>
- #include <asm/dma.h>
- #include <asm/io.h>
-+#include <asm/processor.h>
- #include "internal.h"
- 
- /*
-@@ -436,7 +437,9 @@ void * __init __alloc_bootmem_node(pg_da
- 	return __alloc_bootmem(size, align, goal);
- }
- 
--#define LOW32LIMIT 0xffffffff
-+#ifndef ARCH_LOW_ADDRESS_LIMIT
-+#define ARCH_LOW_ADDRESS_LIMIT	0xffffffffUL
-+#endif
- 
- void * __init __alloc_bootmem_low(unsigned long size, unsigned long align, unsigned long goal)
- {
-@@ -445,7 +448,8 @@ void * __init __alloc_bootmem_low(unsign
- 
- 	list_for_each_entry(bdata, &bdata_list, list)
- 		if ((ptr = __alloc_bootmem_core(bdata, size,
--						 align, goal, LOW32LIMIT)))
-+						align, goal,
-+						ARCH_LOW_ADDRESS_LIMIT)))
- 			return(ptr);
- 
- 	/*
-@@ -459,5 +463,6 @@ void * __init __alloc_bootmem_low(unsign
- void * __init __alloc_bootmem_low_node(pg_data_t *pgdat, unsigned long size,
- 				       unsigned long align, unsigned long goal)
- {
--	return __alloc_bootmem_core(pgdat->bdata, size, align, goal, LOW32LIMIT);
-+	return __alloc_bootmem_core(pgdat->bdata, size, align, goal,
-+				    ARCH_LOW_ADDRESS_LIMIT);
- }
+> If you agree with taking it to the next level, then it is only to be
+> expected that there are things that aren't well suited as they are, like
+> parsing /etc/fstab when you have a trillion files.  It is not very
+> feasible to do it for all of the filesystems all at once given finite
+> resources, it needs a prototype. 
+
+Doesn't have to be in fstab, I hope, but think of it this way:  ext3 
+uses JBD for its journaling.  As I understand it, any other filesystem 
+can also use JBD, and ext3 is mostly ext2 + JDB.
+
+So, make the plugin interface generic enough that it compliments the 
+VFS, doesn't duplicate it, and doesn't exist as part of Reiser4 (and 
+requires Reiser4 to be present).  This may be just a bunch of renaming 
+or a lot of work, I don't know, but I suspect it would make a lot of 
+people a lot happier.
+
+> We have finite resources.  We can give you a working filesystem with
+> roughly twice the IO performance of the next fastest you have that does
+> not disturb other filesystems,.  (4x once the compression plugin is
+> fully debugged).  It also fixes various V3 bugs without disturbing that
+> code with deep fixes.  We cannot take every advantage reiser4 has and
+> port it to every other filesystem in the form of genericized code as a
+> prerequisite for going in, we just don't have the finances.
+
+This is a very compelling argument to me, but that's preaching to the 
+choir, I've been running Reiser4 since before it was released, and 
+before it looked like it was going to be stable anytime soon.
+
+It may be bold of me to speak for the LKML, but I think the general 
+consensus is:
+
+The speed of a nonworking program is irrelevant -- no one cares how fast 
+it is if it breaks things, either now or in the future.  Currently, the 
+concern is that it breaks things in the future, like adding plugin 
+support to other filesystems.
+
+And no one else cares what your finances are.  Not out of compassion, 
+but out of practicality.  For instance, it would be a huge financial 
+benefit to me if the kernel displayed, in big bold letters while 
+booting, that DAVID MASOVER WROTE THIS!  (I'm sure Linus knows what I'm 
+talking about.)  It would also be untrue in my case, and pointless for 
+everyone else in the kernel, so I have to find another way to make money.
+
+This is because one way Linux stays ahead of the competition 
+(technologically) is by having quality be a much greater motivation than 
+money.
+
+> Without
+> plugins our per file compression plugins and encryption plugins cannot
+> work.  We can however let other filesystems use our code, and cooperate
+> as they extend it and genericize it for their needs.  Imposing code on
+> other development teams is not how one best leads in open source, one
+> sets an example and sees if others copy it.  That is what I propose to
+> do with our plugins.  If no one copies, then we have harmed no one. 
+> Reasonable?
+
+Someone still has to maintain the FS.  Anyway, like I said, this is a 
+very compelling argument for me, but code speaks louder than words. 
+Maybe, if you insist it's not in the VFS, maybe use some insanely simple 
+FS like RomFS to demonstrate another FS using plugins?
+
+Do that, and put it in the VFS.  Maybe implement something like cramfs 
+as a romfs plugin (another demo).  Maybe even per-file -- implement 
+zisofs as isofs + compression plugin.  I think that would effectively 
+kill any argument that plugins are bad because they are only in Reiser4.
+
+Beyond that is all marketing, I guess.  The word "plugin" is not helping 
+here, too many people remember Plugins like Macromedia Flash...

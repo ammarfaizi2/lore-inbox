@@ -1,91 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161324AbWG1W1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161328AbWG1Wbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161324AbWG1W1b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 18:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161327AbWG1W1b
+	id S1161328AbWG1Wbj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 18:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbWG1Wbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 18:27:31 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:5818
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1161324AbWG1W1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 18:27:30 -0400
-Date: Fri, 28 Jul 2006 15:27:16 -0700
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, rostedt@goodmis.org, dipankar@in.ibm.com,
-       mingo@elte.hu, tytso@us.ibm.com, dvhltc@us.ibm.com,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [RFC, PATCH, -rt] Early prototype RCU priority-boost patch
-Message-ID: <20060728222716.GA13794@gnuppy.monkey.org>
-References: <20060728001918.GA2634@us.ibm.com> <Pine.LNX.4.64.0607281222580.10047@localhost.localdomain> <20060728155220.GC1289@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060728155220.GC1289@us.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Fri, 28 Jul 2006 18:31:39 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:31975 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1161328AbWG1Wbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 18:31:38 -0400
+Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20060728215852.GA1164@mars.ravnborg.org>
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org>
+	 <200607282045.05292.ak@suse.de>
+	 <1154112511.6416.46.camel@laptopd505.fenrus.org>
+	 <200607282100.01783.ak@suse.de> <20060728212643.GA32455@mars.ravnborg.org>
+	 <1154122845.6416.61.camel@laptopd505.fenrus.org>
+	 <20060728215852.GA1164@mars.ravnborg.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 29 Jul 2006 00:31:30 +0200
+Message-Id: <1154125890.6416.68.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 08:52:20AM -0700, Paul E. McKenney wrote:
-> I must defer to Ingo, Thomas, and Steve Rostedt on what the right thing
-> to do is here, but I do much appreciate the pointers!
-> 
-> If I understand what you are getting at, this is what I would need to
-> do to in order to have a synchronize_rcu() priority-boost RCU readers?
-> Or is this what I need to legitimately priority-boost RCU readers in
-> any case (for example, to properly account for other boosting and
-> deboosting that might happen while the RCU reader is priority boosted)?
-> 
-> Here are the RCU priority-boost situations I see:
-> 
-> 1.	"Out of nowhere" RCU-reader priority boost.  This is what
-> 	the patch I submitted was intended to cover.  If I need your
-> 	prio_booster struct in this case, then I would need to put
-> 	one in the task structure, right?
-> 
-> 	Would another be needed to handle a second boost?  My guess
-> 	is that the first could be reused.
+On Fri, 2006-07-28 at 23:58 +0200, Sam Ravnborg wrote:
+> On Fri, Jul 28, 2006 at 11:40:45PM +0200, Arjan van de Ven wrote:
+> > On Fri, 2006-07-28 at 23:26 +0200, Sam Ravnborg wrote:
+> > > On Fri, Jul 28, 2006 at 09:00:01PM +0200, Andi Kleen wrote:
+> > > > On Friday 28 July 2006 20:48, Arjan van de Ven wrote:
+> > > > > On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
+> > > > > > > +ifdef CONFIG_CC_STACKPROTECTOR
+> > > > > > > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
+> > > > > > > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
+> > > > > >
+> > > > > > Why can't you just use the normal call cc-option for this?
+> > > > >
+> > > > > this requires gcc 4.2; cc-option is not useful for that.
+> > > > 
+> > > > The CC option thing is also very ugly.
+> > > The check is executed once pr. kernel compile - or at least once pr.
+> > > line. The reson to use cc-ifversion is that we need to check for a
+> > > specific gcc version and not just support for a specific argument type.
+> > > 
+> > > That said - checking for a version is not as reliable as checking if a
+> > > certain feature is really supported but Arjan suggested testing for
+> > > version >= 4.2 should do it.
+> > 
+> > 
+> > it's not hard to run a shell script that returns supported or not. I can
+> > do the shell script no problem... but I would prefer that you then do
+> > the Makefile foo for it :)
+> > Would that work?
+> Yep - no problem. If you give me a day or two to do it.
 
-What is that ? like randomly boosting without tracking which thread is
-inside an RCU critical section ?
+sure no problem.
 
-> 2.	RCU reader boosting a lock holder.  This ends up being a
-> 	combination of #1 (because the act of blocking on a lock implies
-> 	an "out of nowhere" priority boost) and normal lock boosting.
+the following line is enough actually:
 
-Lock holder as in mutex held below and RCU critical section ?
+echo "int foo(void) { char X[200]; return 3; }" | gcc -S -xc -c -O0 -mcmodel=kernel -fstack-protector - -o - | grep -q "%gs"
 
-> 3.	A call_rcu() or synchronize_rcu() boosting all readers.  I am
-> 	not sure we really need this, but in case we do...  One would
-> 	need an additional prio_booster for each task to be boosted,
-> 	right?  This would seem to require an additional prio_booster
-> 	struct in each task structure.
- 
-This needs a notion of RCU read side ownership to boost those preempted
-threads.
-
-> Or am I off the mark here?
-
-The scary thing about what you're doing is that all of the techniques
-you've named (assuming that I understand you correctly) requires a
-notion of an owner and ownership tracking. That's just going to kill
-RCU read side performance if you do that whether it be a list per reader
-or something else like that. It's a tough problem.
-
-Don't know what to think about it other than some kind of tracking or
-boosting logic in the per CPU run queue or the task struct itself during
-the boost operation. But you're still stuck with the problem of what
-to boost and how to find that out during an RCU sync side. It's still
-an ownership problem unless Esben can think of another way of getting
-around that problem.
-
-That's why I suggested a priority ceiling or per CPU priority threshold
-tracking (+ CPU binding) the priority of the irq-threads and stuff. It's
-a simple hack to restore the cheesy preempt count stuff without having
-to revert to invasive ownership tracking for each reader.
-
-It's just an idea. Maybe it'll be useful to you.
-
-bill
+echo $? (eg return value) gives 0 for the "works" case, "1" for the
+"wrong gcc" case...
 

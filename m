@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161288AbWG1Ucn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161284AbWG1UcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161288AbWG1Ucn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:32:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWG1Ucn
+	id S1161284AbWG1UcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbWG1UcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:32:43 -0400
-Received: from mga05.intel.com ([192.55.52.89]:60827 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1161288AbWG1Ucm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:32:42 -0400
-X-IronPort-AV: i="4.07,193,1151910000"; 
-   d="scan'208"; a="106776973:sNHT14658315"
-Message-ID: <44CA7450.6090203@linux.intel.com>
-Date: Fri, 28 Jul 2006 22:32:16 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 1/5] Add comments to the PDA structure to annotate offsets
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607282041.38506.ak@suse.de> <1154112207.6416.44.camel@laptopd505.fenrus.org> <200607282052.20559.ak@suse.de>
-In-Reply-To: <200607282052.20559.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Jul 2006 16:32:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:59087 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161284AbWG1UcL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 16:32:11 -0400
+Date: Fri, 28 Jul 2006 13:27:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Theodore Bullock <tbullock@nortel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Areca arcmsr kernel integration
+Message-ID: <20060728202749.GA23662@kroah.com>
+References: <25E284CCA9C9A14B89515B116139A94D0C6DF1A4@zrtphxm0.corp.nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <25E284CCA9C9A14B89515B116139A94D0C6DF1A4@zrtphxm0.corp.nortel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> that is 
->> documented in the later patch
+On Fri, Jul 28, 2006 at 02:07:12PM -0400, Theodore Bullock wrote:
+> It would be really nice to see the arcmsr driver integrated into the
+> mainline kernel in the nearish future.
 > 
-> I still hate the numbers. Perhaps do them only before your canary.
+> Ideally, the driver would be available before the next major
+> distribution is published so that the hardware can be officially
+> supported by the distribution developers eg. Novell, Red Hat, Canonical
+> ... etc.
+> 
+> After a brief review of upcoming schedules, Fedora Core looks to be
+> updated next in October with the last test release currently scheduled
+> for October. After that it will probably be SuSE.
+> 
+> We have a good number of workstations with this hardware here, but
+> support isn't available from our distribution.
+> 
+> Checking the recent posts it seems that there are two outstanding issues
+> 
+> > - PAE (cast of dma_addr_t to unsigned long) issues. 
+> > - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
+> 
+> > shutdown notifier isn't sufficient.
+> 
+> That said, we have been using an older version of the driver off the
+> Areca website for some time now with no major issues (other than kernel
+> update problems). 
+> 
+> Is it possible to get the driver integrated and fix these problems
+> after?
 
-that's what the patch does
+Why not fix them up and submit the corrected driver?  If no one wants to
+put the effort into fixing these issues now, why would they do the work
+later?
 
-> Also you should have a BUILD_BUG_ON() for this somewhere
+thanks,
 
-fair enough
+greg k-h

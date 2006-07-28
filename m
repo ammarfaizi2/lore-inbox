@@ -1,48 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161115AbWG1JYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWG1J0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161115AbWG1JYP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 05:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWG1JYN
+	id S1161117AbWG1J0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 05:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbWG1J0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 05:24:13 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21437 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161113AbWG1JYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 05:24:11 -0400
-Subject: Re: The ondemand CPUFreq code -- I hope the functionality stays
-From: Arjan van de Ven <arjan@infradead.org>
-To: Thomas Tuttle <thinkinginbinary@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060728024334.GA12142@phoenix>
-References: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com>
-	 <200607272104.24088.diablod3@gmail.com>  <20060728024334.GA12142@phoenix>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 28 Jul 2006 11:24:04 +0200
-Message-Id: <1154078644.3117.17.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 28 Jul 2006 05:26:04 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:28644 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1161117AbWG1J0B
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Fri, 28 Jul 2006 05:26:01 -0400
+Message-ID: <44C975A2.8050006@namesys.com>
+Date: Thu, 27 Jul 2006 20:25:38 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andrea@cpushare.com
+CC: Adrian Bunk <bunk@stusta.de>, "J. Bruce Fields" <bfields@fieldses.org>,
+       Nikita Danilov <nikita@clusterfs.com>, Rene Rebe <rene@exactcode.de>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <20060726172029.GS32243@opteron.random> <20060726205022.GI23701@stusta.de> <20060726211741.GU32243@opteron.random> <20060727065603.GJ23701@stusta.de> <20060727115229.GD32243@opteron.random> <20060727121811.GN23701@stusta.de> <20060727131032.GE32243@opteron.random> <20060727135823.GA19718@stusta.de> <20060727144529.GB6877@opteron.random> <20060727150508.GB19718@stusta.de> <20060727161153.GD6877@opteron.random>
+In-Reply-To: <20060727161153.GD6877@opteron.random>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian and Andrea, you both write a lot of useful patches, so let's
+remember that, and try to all get along.....
 
-> Personally, I prefer conservative, because it isn't as "jumpy", but I
-> can see ondemand being necessary in a server environment where the
-> several second lag time to peak performance would hurt response time
-> when load is low.
-
-
-jumpy is fine though; at least on the processors my employer makes
-changing frequency is really really fast, so you get maximum savings by
-switching often (you can switch down more aggressively if you know
-you'll switch back up quickly). So switching often is a good policy if
-you want both good response AND good power savings... 
-I don't know about other cpu makers; my frequency switching machines are
-all Intel.
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Hans

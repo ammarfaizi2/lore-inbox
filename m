@@ -1,101 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWG1F2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWG1FaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751973AbWG1F2U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 01:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1F2U
+	id S1161075AbWG1FaO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 01:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1FaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 01:28:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:21861 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751285AbWG1F2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 01:28:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TwSVkd4esF8HuH8bPkzQkQ7do9f3Ia1VucQ9Z6Ls9iwXTaDlw0xCDq37rz/Aw4jcuQRxGN6NIIHZoy3MnFYZ/NmQ3KNlfzN3lFP8GSnSbW73hvku3ChgK53d2CF4iTXAhrT10W0intLS0BU2eMVHBnXoO4jC2NHrxmUjgWc7B28=
-Message-ID: <6de39a910607272228o26ab51cbw8aaa7215f5fadb8@mail.gmail.com>
-Date: Thu, 27 Jul 2006 22:28:18 -0700
-From: "Handle X" <xhandle@gmail.com>
-To: "Robert Hancock" <hancockr@shaw.ca>
-Subject: Re: Can we ignore errors in mcelog if the server is running fine
-Cc: "Vikas Kedia" <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <44C9155D.5060102@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Jul 2006 01:30:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15847
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751285AbWG1FaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 01:30:11 -0400
+Date: Thu, 27 Jul 2006 22:30:10 -0700 (PDT)
+Message-Id: <20060727.223010.63131639.davem@davemloft.net>
+To: gerrit@erg.abdn.ac.uk
+Cc: akpm@osdl.org, yoshfuji@linux-ipv6.org, kuznet@ms2.inr.ac.ru,
+       jmorris@namei.org, kaber@coreworks.de, pekkas@netcore.fi,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2 2.6.18-rc1-mm2 1/3] net: UDP-Lite generic support
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607141719.02766@strip-the-willow>
+References: <200607141719.02766@strip-the-willow>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <fa.2RkKSvRvPsGNSGCsUHQ9gQ8qlrg@ifi.uio.no>
-	 <44C9155D.5060102@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/27/06, Robert Hancock <hancockr@shaw.ca> wrote:
-> Vikas Kedia wrote:
-> > The server seems to be running fine. A. can I ignore the following
-> > mcelog errors ? B. If not what should i do to stop the server from
-> > reporting mcelog errors.
->
-> Looks like data cache ECC errors, meaning the CPU 0 is faulty.
-> Eventually if it's not replaced there will likely be some uncorrectable
-> errors and the system will likely crash.
+From: Gerrit Renker <gerrit@erg.abdn.ac.uk>
+Date: Fri, 14 Jul 2006 17:19:02 +0100
 
-I am facing similar, but different errors.
+> Generic support (header files, configuration, and documentation) for
+> the UDP-Lite protocol (RFC 3828).
 
-[root@turyxsrv ~]# mcelog
-MCE 0
-HARDWARE ERROR. This is *NOT* a software problem!
-Please contact your hardware vendor
-CPU 1 4 northbridge TSC 89a560bb249
-ADDR 1dfa49690
-  Northbridge Chipkill ECC error
-  Chipkill ECC syndrome = 2021
-       bit46 = corrected ecc error
-  bus error 'local node response, request didn't time out
-      generic read mem transaction
-      memory access, level generic'
-STATUS 9410c00020080a13 MCGSTATUS 0
-MCE 1
-HARDWARE ERROR. This is *NOT* a software problem!
-Please contact your hardware vendor
-CPU 1 4 northbridge TSC a6550f2d4de
-ADDR 1de74b670
-  Northbridge Chipkill ECC error
-  Chipkill ECC syndrome = 2021
-       bit32 = err cpu0
-       bit46 = corrected ecc error
-  bus error 'local node origin, request didn't time out
-      generic read mem transaction
-      memory access, level generic'
-STATUS 9410c00120080813 MCGSTATUS 0
-MCE 2
-HARDWARE ERROR. This is *NOT* a software problem!
-Please contact your hardware vendor
-CPU 1 4 northbridge TSC afe4eba238a
-ADDR 1d8049698
-  Northbridge Chipkill ECC error
-  Chipkill ECC syndrome = 2021
-       bit46 = corrected ecc error
-  bus error 'local node response, request didn't time out
-      generic read mem transaction
-      memory access, level generic'
-STATUS 9410c00020080a13 MCGSTATUS 0
-MCE 3
-HARDWARE ERROR. This is *NOT* a software problem!
-Please contact your hardware vendor
-CPU 1 4 northbridge TSC cc945738d0a
-ADDR 194c4b670
-  Northbridge Chipkill ECC error
-  Chipkill ECC syndrome = 2021
-       bit40 = error found by scrub
-       bit46 = corrected ecc error
-  bus error 'local node response, request didn't time out
-      generic read mem transaction
-      memory access, level generic'
-STATUS 9410c10020080a13 MCGSTATUS 0
+Gerrit, I tried to bring myself over the edge to accept this
+work and push it into my net-2.6.19 tree,  but I simply can't
+The amount of code duplication is absolutely enormous and
+totally unnecessary.
 
-Repeats whenever I do any kind of operations...
-How severe is ChipKill errors? Should I consider throwing away CPU 1
-and get another one.
+With proper abstractions, you can easily add UDP-lite support to the
+existing UDP code.  And I would really like it to be in that format
+before we put it into the tree.
 
-Regards,
-Om.
+Then all you need to do is something like add:
+
+	__u16             pcslen;
+	__u16             pcrlen;
+/* checksum coverage set indicators used by pcflag */
+#define UDPLITE_SEND_CC   0x1
+#define UDPLITE_RECV_CC   0x2
+	__u8              pcflag;
+
+to struct udp_sock.
+
+Add the seperate udp_port_rover and udlite_hash[] table to udp.c, make
+the latter sized by UDP_HTABLE_SIZE, with suitable exports, and share
+the udp_hash_lock for mutual exclusion.  Finally, parameterize all the
+UDP hash table routines to take a hash table base and a port rover
+pointer so that they can operate on both UDP and UDP-Lite sockets
+transparently.
+
+Next make 2 top-level routines for things like udp_err() etc.
+So that you can go:
+
+/* Common code */
+static void __udp_err(struct sock *sk, struct sk_buff *skb, int type, int code, u32 info)
+{
+	struct inet_sock *inet;
+	int type = skb->h.icmph->type;
+	int code = skb->h.icmph->code;
+	int harderr, err;
+
+	if (sk == NULL) {
+		ICMP_INC_STATS_BH(ICMP_MIB_INERRORS);
+    	  	return;	/* No socket for error */
+	}
+
+	err = 0;
+	harderr = 0;
+	inet = inet_sk(sk);
+
+	switch (type) {
+ ...
+	}
+
+	/*
+	 *      RFC1122: OK.  Passes ICMP errors back to application, as per 
+	 *	4.1.3.3.
+	 */
+	if (!inet->recverr) {
+		if (!harderr || sk->sk_state != TCP_ESTABLISHED)
+			goto out;
+	} else {
+		ip_icmp_error(sk, skb, err, uh->dest, info, (u8*)(uh+1));
+	}
+	sk->sk_err = err;
+	sk->sk_error_report(sk);
+out:
+	sock_put(sk);
+}
+
+void udp_err(struct sk_buff *skb, u32 info)
+{
+	struct iphdr *iph = (struct iphdr*)skb->data;
+	struct udphdr *uh = (struct udphdr*)(skb->data+(iph->ihl<<2));
+	int type = skb->h.icmph->type;
+	int code = skb->h.icmph->code;
+	struct sock *sk;
+
+	sk = udp_v4_lookup(udp_hash,
+			   iph->daddr, uh->dest, iph->saddr,
+			   uh->source, skb->dev->ifindex);
+	__udp_err(sk, skb, type, code, info);
+}
+
+void udplite_err(struct sk_buff *skb, u32 info)
+{
+	struct iphdr *iph = (struct iphdr*)skb->data;
+	struct udphdr *uh = (struct udphdr*)(skb->data+(iph->ihl<<2));
+	int type = skb->h.icmph->type;
+	int code = skb->h.icmph->code;
+	struct sock *sk;
+
+	sk = udp_v4_lookup(udplite_hash,
+			   iph->daddr, uh->dest, iph->saddr,
+			   uh->source, skb->dev->ifindex);
+	__udp_err(sk, skb, type, code, info);
+}
+
+Make similar abstractions for the send and recive path processing,
+substituting in the specific UDP vs. UDP-Lite header and
+checksum semantic handling along the way.
+
+It's mostly clerical work, but it will mean that we will have one
+copy of all this code and as a result we won't even need a config
+option for UDP-Lite.
+
+Thanks.
+

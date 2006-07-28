@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWG1Ki3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWG1Kiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWG1Ki3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 06:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWG1Ki2
+	id S932626AbWG1Kiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 06:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbWG1Kiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 06:38:28 -0400
-Received: from colin.muc.de ([193.149.48.1]:22791 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932626AbWG1Ki1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 06:38:27 -0400
-Date: 28 Jul 2006 12:38:26 +0200
-Date: Fri, 28 Jul 2006 12:38:26 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Fw: Re: 2.6.18-rc2-mm1
-Message-ID: <20060728103826.GB75067@muc.de>
-References: <20060728011938.fc6c2d6e.akpm@osdl.org> <44C9FB60.76E4.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Jul 2006 06:38:50 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:56996 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932627AbWG1Kit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 06:38:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L5XmgejbrGjvlt9rqVs7A2NGtGN7wiQ7bWFj9qDBiYTtUDE5WeFOw3FBE8RPntarZm/XztemZ/2n2VEG6zjadX6ftQqanQVXh0u6yV+Fq8ABT+ZsEtvBz4o9sJ+TkKcXrJNLV5j4Mwiw7VmzK1Yj14uP4c9gEmmEyM8mpW+EThI=
+Message-ID: <a44ae5cd0607280338x674aa92agb49f38a494bf8923@mail.gmail.com>
+Date: Fri, 28 Jul 2006 12:38:49 +0200
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, "Patrick McFarland" <diablod3@gmail.com>,
+       "Miles Lane" <miles.lane@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: The ondemand CPUFreq code -- I hope the functionality stays
+In-Reply-To: <20060728011040.GO5687@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44C9FB60.76E4.0078.0@novell.com>
-User-Agent: Mutt/1.4.1i
+References: <a44ae5cd0607270154p50c2c7fcx734bfea026dc69a9@mail.gmail.com>
+	 <200607272104.24088.diablod3@gmail.com>
+	 <20060728011040.GO5687@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 10:56:16AM +0100, Jan Beulich wrote:
-> >>> Andrew Morton <akpm@osdl.org> 28.07.06 10:19 >>>
-> >
-> >More unwinder problems.  Seems to be specific to -mm.
-> >(Followups on-list are preferred, thanks).
-> 
-> That's another of the lose ends - while Andi and I had decided to put
-> a proper stack frame in place for the switch to the irq stack in the
-> interrupt macro, we had forgotten about doing something similar for
-> call_softirq() - as the code is written currently, there simply is now
-> way of annotating the code properly. If Andi is agreeable to this,
-> then I'll just change the code so that it'll have a proper stack frame.
+On 7/28/06, Dave Jones <davej@redhat.com> wrote:
+> On Thu, Jul 27, 2006 at 09:04:23PM -0400, Patrick McFarland wrote:
+>
+>  > I think you've gotten confused. Ondemand is a horrible governor that only
+>  > flips between two cpu frequencies, the lowest and the highest.
+>
+> That isn't true.  I just double checked, and saw my core-duo changing
+> between all 4 states it offers.
 
-Fine by me. I'll just fix it up.
+Yep, the ondemand governor switches between all frequencies on my
+Pentium 4 M laptop.  It's a HP Pavillion dv1240us.
 
-> 
-> The recursive traces appear to result from the fact that when we
-> did the change to the interrupt macro, we neglected the fact that
-> show_trace() expects to find the old stack pointer as the very first
-> item on the interrupt stack, which isn't the case anymore. The value
-> of where the subsequent stack access fails is a little strange, though.
-> Making this assumption be true again would, however, require adding
-> a push to both the interrupt macro and call_softirq. I'm afraid Andi's
-> not going to be too happy about that, but on the other hand I can't
-> see any other possible way that would get away without adding
-> some code to these paths.
+>  > Use the Conservative governor instead.
+>
+> This governor is based on the same code as on-demand with some subtle
+> tweaks to make it not change the frequency as often.  If anything *this*
+> one should be less 'active' for you than ondemand.
 
-I can just add the push.
+I have tried the other governers (albeit a while ago) and found they
+didn't manage power anywhere near as well as ondemand.  Perhaps
+results vary for each governor according to CPU and chipset.
 
--Andi
+      Miles

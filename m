@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161313AbWG1Vk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWG1VsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161313AbWG1Vk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 17:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161316AbWG1Vk7
+	id S1161318AbWG1VsX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 17:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161319AbWG1VsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 17:40:59 -0400
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:19384 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1161313AbWG1Vk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 17:40:58 -0400
-Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20060728212643.GA32455@mars.ravnborg.org>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org>
-	 <200607282045.05292.ak@suse.de>
-	 <1154112511.6416.46.camel@laptopd505.fenrus.org>
-	 <200607282100.01783.ak@suse.de>  <20060728212643.GA32455@mars.ravnborg.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 23:40:45 +0200
-Message-Id: <1154122845.6416.61.camel@laptopd505.fenrus.org>
+	Fri, 28 Jul 2006 17:48:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9405 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1161318AbWG1VsW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 17:48:22 -0400
+Date: Sat, 29 Jul 2006 07:48:03 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Christian Kujau <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: XFS breakage in 2.6.18-rc1
+Message-ID: <20060729074803.A2222647@wobbly.melbourne.sgi.com>
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607221722500.8407@prinz64.housecafe.de> <20060724090138.C2083275@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607281526220.1882@sheep.housecafe.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.64.0607281526220.1882@sheep.housecafe.de>; from evil@g-house.de on Fri, Jul 28, 2006 at 05:01:24PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 23:26 +0200, Sam Ravnborg wrote:
-> On Fri, Jul 28, 2006 at 09:00:01PM +0200, Andi Kleen wrote:
-> > On Friday 28 July 2006 20:48, Arjan van de Ven wrote:
-> > > On Fri, 2006-07-28 at 20:45 +0200, Andi Kleen wrote:
-> > > > > +ifdef CONFIG_CC_STACKPROTECTOR
-> > > > > +CFLAGS += $(call cc-ifversion, -lt, 0402, -fno-stack-protector)
-> > > > > +CFLAGS += $(call cc-ifversion, -ge, 0402, -fstack-protector)
-> > > >
-> > > > Why can't you just use the normal call cc-option for this?
-> > >
-> > > this requires gcc 4.2; cc-option is not useful for that.
-> > 
-> > The CC option thing is also very ugly.
-> The check is executed once pr. kernel compile - or at least once pr.
-> line. The reson to use cc-ifversion is that we need to check for a
-> specific gcc version and not just support for a specific argument type.
-> 
-> That said - checking for a version is not as reliable as checking if a
-> certain feature is really supported but Arjan suggested testing for
-> version >= 4.2 should do it.
+On Fri, Jul 28, 2006 at 05:01:24PM +0000, Christian Kujau wrote:
+> I had two xfs filesystems and I first noticed that /data/Scratch was 
+> befallen from this bug. I did not care much about this (hence the
+> name :)) and I wanted to postpone the xfs_db surgery.
+> ...
+> found more and more errors. I decided to mkfs the partition and make use 
+> of my backups. my other "scratch" partition is still XFS but mounted ro 
+> and I'll try the xfsprogs fixes Nathan published on this one.
 
+Barry sent an xfs_repair patch to resolve this issue to the xfs@oss.sgi.com
+list yesterday; please give that a go and let us know how it fares.
 
-it's not hard to run a shell script that returns supported or not. I can
-do the shell script no problem... but I would prefer that you then do
-the Makefile foo for it :)
-Would that work?
+cheers.
 
+-- 
+Nathan

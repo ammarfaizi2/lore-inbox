@@ -1,95 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWG1TFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161252AbWG1TK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161242AbWG1TFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 15:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWG1TFg
+	id S1161252AbWG1TK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 15:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161251AbWG1TK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 15:05:36 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:26811 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161242AbWG1TFf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 15:05:35 -0400
-Subject: Re: [RFC][PATCH 3/6] SLIM main patch
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-In-Reply-To: <20060728060134.GB4623@ucw.cz>
-References: <1153763487.5171.17.camel@localhost.localdomain>
-	 <20060728060134.GB4623@ucw.cz>
-Content-Type: text/plain
-Date: Fri, 28 Jul 2006 12:05:31 -0700
-Message-Id: <1154113531.4695.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Fri, 28 Jul 2006 15:10:57 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:46029 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1161183AbWG1TK5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 15:10:57 -0400
+Message-ID: <44CA613F.9080806@oracle.com>
+Date: Fri, 28 Jul 2006 12:10:55 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+CC: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru> <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru> <44CA586C.4010205@oracle.com> <20060728184445.GA10797@2ka.mipt.ru>
+In-Reply-To: <20060728184445.GA10797@2ka.mipt.ru>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-28 at 06:01 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > SLIM is an LSM module which provides an enhanced low water-mark
-> > integrity and high water-mark secrecy mandatory access control
-> > model.
-> 
-> Still no Documentation/ changes. Uses // comments to comment out code.
-> 
-We'll add a description similar to what was in the Patch 3 email to file
-slim.txt in Documentation and make sure to remove all // comments in the
-next release.
 
-> > +static char *get_token(char *buf_start, char *buf_end, char delimiter,
-> > +		       int *token_len)
-> > +{
-> > +	char *bufp = buf_start;
-> > +	char *token = NULL;
-> > +
-> > +	while (!token && (bufp < buf_end)) {	/* Get start of token */
-> > +		switch (*bufp) {
-> > +		case ' ':
-> > +		case '\n':
-> > +		case '\t':
-> > +			bufp++;
-> > +			break;
-> > +		case '#':
-> > +			while ((*bufp != '\n') && (bufp++ < buf_end)) ;
-> > +			bufp++;
-> > +			break;
-> > +		default:
-> > +			token = bufp;
-> > +			break;
-> > +		}
-> > +	}
-> > +	if (!token)
-> > +		return NULL;
-> > +
-> > +	*token_len = 0;
-> > +	while ((*token_len == 0) && (bufp <= buf_end)) {
-> > +		if ((*bufp == delimiter) || (*bufp == '\n'))
-> > +			*token_len = bufp - token;
-> > +		if (bufp == buf_end)
-> > +			*token_len = bufp - token;
-> > +		bufp++;
-> > +	}
-> > +	if (*token_len == 0)
-> > +		token = NULL;
-> > +	return token;
-> > +}
-> 
-> What are these tokens and why do we want to play with strings in
-> kernel?
-> 
-The xattrs must be parsed.  They are strings for portability and
-readability.  SELinux does this as well.  Note: we are in the process of
-removing the time stuff from the xattr for the next release for this
-reason as well.
+> So, I'm going to create kevent_create/destroy/control and kevent_get_events()
+> Or any better names?
 
-Thanks,
-Kylie
+Yeah, that sounds good.
 
-> 							Pavel
-> 
+> Some events are impossible to create in userspace (like timer
+> notification, which requires timer start and check when timer
+> completed).
 
+We're not talking about *creating* events in userspace, we're talking
+about checking for their completion events in the ring.
+
+> and get ready), and I do not see how, for exmple, glibc can avoid them
+> when user requested POLLIN or similar event for network dataflow?
+
+There are events that can be generated by kernel code paths as the event
+completes.  Network sockets have the hooks to do this with SIGIO, it's
+very natural for the storage completion paths, etc.  So that kernel code
+would update the ring which userspace could check.  AIO does this today.
+ Userspace would still have to use the syscall to sleep waiting for new
+events when the ring is empty.
+
+> According to syscall speed on Linux, last time I checked empty syscall 
+> took about 100ns on AMD Athlon 3500+.
+
+Oh, sure, but still nice to avoid.
+
+I'm mostly pursuing this because Ulrich seemed so insistent on it in his
+paper and talk.  I will be very sad if we don't have aggressive glibc
+support for this generic event collection interface and so I want very
+much to keep him engaged.  Ulrich, would you be satisfied if we didn't
+have the userspace mapped ring on the first pass and only had a
+collection syscall?
+
+- z

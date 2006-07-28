@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWG1PAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751997AbWG1PFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751994AbWG1PAP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 11:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWG1PAP
+	id S1751997AbWG1PFz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 11:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752009AbWG1PFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 11:00:15 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:43678 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751994AbWG1PAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 11:00:13 -0400
-Date: Fri, 28 Jul 2006 16:59:47 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Petr Baudis <pasky@suse.cz>
-Subject: Re: [PATCH/RFC] kconfig/lxdialog: make lxdialof a built-in
-Message-ID: <20060728145947.GA29095@mars.ravnborg.org>
-References: <20060727202726.GA3900@mars.ravnborg.org> <Pine.LNX.4.64.0607281348420.6761@scrub.home>
+	Fri, 28 Jul 2006 11:05:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:31921 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751997AbWG1PFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 11:05:54 -0400
+Subject: Re: A better interface, perhaps: a timed signal flag
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Theodore Tso <tytso@mit.edu>
+Cc: Neil Horman <nhorman@tuxdriver.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org,
+       a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <20060728145210.GA3566@thunk.org>
+References: <44C67E1A.7050105@zytor.com>
+	 <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <44C6842C.8020501@zytor.com> <20060725222547.GA3973@localhost.localdomain>
+	 <70FED39F-E2DF-48C8-B401-97F8813B988E@kernel.crashing.org>
+	 <20060725235644.GA5147@localhost.localdomain> <44C6B117.80300@zytor.com>
+	 <20060726002043.GA5192@localhost.localdomain>
+	 <20060726144536.GA28597@thunk.org>
+	 <1154093606.19722.11.camel@localhost.localdomain>
+	 <20060728145210.GA3566@thunk.org>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 11:05:16 -0400
+Message-Id: <1154099116.19722.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607281348420.6761@scrub.home>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 04:09:03PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Thu, 27 Jul 2006, Sam Ravnborg wrote:
-> 
-> > Dedided to take another stamp on an old TODO item of making lxdialog
-> > a built-in. Following patch is first step to do so.
-> > The patch makes it a built-in - but with two open issues that I yet
-> > have to address.
-> 
-> Looks good. :)
-> There is a NULL pointer problem with empty menus, item_cur is NULL and a 
-> select or exit will cause a segfault in item_set_selected().
-Fixed. Introduced a dummy variable "item_nil" that item_cur points to in
-the empty case. So no need for special cases all over.
+On Fri, 2006-07-28 at 10:52 -0400, Theodore Tso wrote:
 
-> 
-> > I will during the weekend try to address the resize issue.
-> 
-> Wasn't it working at some point?
-> Anyway, it doesn't has to be overly complex either, e.g. if you delay it 
-> to the next key event, it's fine too. The signal handler would just set a 
-> flag and when wgetch returns, the display is reinitialized.
-My experiments so far tells me that a resize generates KEY_RESIZE so it
-is a simple matter of handling KEY_RESIZE correct in the different
-dialog_* functions - and no signal handler needed. Thats looks like the
-approach taken in the dialog package too.
+> Good point, and limiting this facility to one such timeout per
+> task_struct seems like a reasonable restriction.  The downsides I can
+> see about about mapping the tasks' own task struct would be (a) a
+> potential security leak either now or in the future if some field in
+> the task_struct shouldn't be visible to a non-privileged userspace
+> program, and (b) exposing the task_struct might cause some (stupid)
+> programs to depend on the task_struct layout.  Allocating an otherwise
+> empty 4k page just for this purpose wouldn't be all that horrible,
+> though, and would avoid these potential problems.
+
+Actually, if you are going to map a page, then allow the user to do
+PAGE_SIZE / sizeof(*flag) timers.  That way the user gets a single page
+mapped for this purpose, and can have multiple flags.
+
+I would only limit it to one page though. Since this page can not be
+swapped out, if you allow for more than one page, a non privileged user
+can map in a bunch of non swappable pages and might be able to perform a
+DoS attack.
+
+-- Steve
 
 
-> 
-> > The double ESC ESC thing I dunno how to fix.
-> 
-> I think the easiest would be to just ignore the first ESC, it matches the 
-> documented behaviour and e.g. mc has the same behaviour. The delay of the 
-> single ESC makes it a bit annoying/confusing to use, so that sticking to 
-> the double ESC is IMO safer.
-> I played with it a little and below is an example, which implements this 
-> behaviour for the menu window. 
-
-Thanks - will implment this for all the dialog_* functions.
-
-	Sam

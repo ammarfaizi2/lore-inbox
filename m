@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWG1I6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWG1I5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbWG1I6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 04:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbWG1I6Q
+	id S932592AbWG1I5w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 04:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWG1I5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 04:58:16 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:25109 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161100AbWG1I6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 04:58:14 -0400
-Date: Fri, 28 Jul 2006 10:58:25 +0200
+	Fri, 28 Jul 2006 04:57:52 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:8424 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932592AbWG1I5v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 04:57:51 -0400
+Date: Fri, 28 Jul 2006 10:58:01 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, cornelia.huck@de.ibm.com
-Subject: [patch] s390: duplicate ccw devices in ccwgroup.
-Message-ID: <20060728085825.GB19478@skybase>
+To: linux-kernel@vger.kernel.org, peter.oberparleiter@de.ibm.com
+Subject: [patch] s390: permanent subchannel busy conditions may cause I/O stall
+Message-ID: <20060728085801.GA19478@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,59 +21,34 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-[S390] duplicate ccw devices in ccwgroup.
+[S390] permanent subchannel busy conditions may cause I/O stall
 
-Fail to create a ccwgroup device if a ccw device is passed in twice.
+In special conditions where a subchannel rejects the HALT I/O-
+instruction with a busy indication (cc 2), I/O may stall.
+I/O request termination logic retries HALT I/O indefinitely
+because it expects HALT I/O to alter the subchannel status which
+is not true when cc 2 is returned.
+In case of a busy indication, try CLEAR I/O instruction immediately.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/ccwgroup.c |   10 +++-------
- 1 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/s390/cio/device_fsm.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-patched/drivers/s390/cio/ccwgroup.c
---- linux-2.6/drivers/s390/cio/ccwgroup.c	2006-07-27 13:52:22.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/ccwgroup.c	2006-07-27 13:52:40.000000000 +0200
-@@ -152,7 +152,6 @@ ccwgroup_create(struct device *root,
- 	struct ccwgroup_device *gdev;
- 	int i;
- 	int rc;
--	int del_drvdata;
- 
- 	if (argc > 256) /* disallow dumb users */
- 		return -EINVAL;
-@@ -163,7 +162,6 @@ ccwgroup_create(struct device *root,
- 
- 	atomic_set(&gdev->onoff, 0);
- 
--	del_drvdata = 0;
- 	for (i = 0; i < argc; i++) {
- 		gdev->cdev[i] = get_ccwdev_by_busid(cdrv, argv[i]);
- 
-@@ -180,10 +178,8 @@ ccwgroup_create(struct device *root,
- 			rc = -EINVAL;
- 			goto free_dev;
+diff -urpN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-patched/drivers/s390/cio/device_fsm.c
+--- linux-2.6/drivers/s390/cio/device_fsm.c	2006-07-27 13:52:22.000000000 +0200
++++ linux-2.6-patched/drivers/s390/cio/device_fsm.c	2006-07-27 13:52:39.000000000 +0200
+@@ -152,7 +152,8 @@ ccw_device_cancel_halt_clear(struct ccw_
+ 		if (cdev->private->iretry) {
+ 			cdev->private->iretry--;
+ 			ret = cio_halt(sch);
+-			return (ret == 0) ? -EBUSY : ret;
++			if (ret != -EBUSY)
++				return (ret == 0) ? -EBUSY : ret;
  		}
--	}
--	for (i = 0; i < argc; i++)
- 		gdev->cdev[i]->dev.driver_data = gdev;
--	del_drvdata = 1;
-+	}
- 
- 	gdev->creator_id = creator_id;
- 	gdev->count = argc;
-@@ -226,9 +222,9 @@ error:
- free_dev:
- 	for (i = 0; i < argc; i++)
- 		if (gdev->cdev[i]) {
--			put_device(&gdev->cdev[i]->dev);
--			if (del_drvdata)
-+			if (gdev->cdev[i]->dev.driver_data == gdev)
- 				gdev->cdev[i]->dev.driver_data = NULL;
-+			put_device(&gdev->cdev[i]->dev);
- 		}
- 	kfree(gdev);
- 	return rc;
+ 		/* halt io unsuccessful. */
+ 		cdev->private->iretry = 255;	/* 255 clear retries. */

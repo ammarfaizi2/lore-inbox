@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWG1GUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWG1GW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751818AbWG1GUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 02:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751979AbWG1GUq
+	id S1751842AbWG1GW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 02:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751969AbWG1GW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 02:20:46 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:6042 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751818AbWG1GUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 02:20:45 -0400
-Message-ID: <44C9ACB3.7090002@de.ibm.com>
-Date: Fri, 28 Jul 2006 08:20:35 +0200
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
+	Fri, 28 Jul 2006 02:22:57 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:48734 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751842AbWG1GW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 02:22:56 -0400
+Date: Fri, 28 Jul 2006 08:20:28 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
+       manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: respect architecture and caller mandated alignment
+Message-ID: <20060728062028.GA9559@osiris.boeblingen.de.ibm.com>
+References: <Pine.LNX.4.58.0607271514310.2172@sbz-30.cs.Helsinki.FI> <Pine.LNX.4.64.0607271909580.15840@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/2] CPU hotplug compatible alloc_percpu
-References: <1153761414.2986.136.camel@dyn-9-152-230-71.boeblingen.de.ibm.com> <20060725230259.f5a27306.akpm@osdl.org>
-In-Reply-To: <20060725230259.f5a27306.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0607271909580.15840@schroedinger.engr.sgi.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 24 Jul 2006 19:16:54 +0200
-> Martin Peschke <mp3@de.ibm.com> wrote:
+On Thu, Jul 27, 2006 at 07:25:56PM -0700, Christoph Lameter wrote:
+> On Thu, 27 Jul 2006, Pekka J Enberg wrote:
 > 
->> This patch splits alloc_percpu() up into two phases. Likewise for
->> free_percpu(). This allows clients to limit initial allocations to
->> online cpu's, and to populate or depopulate per-cpu data at run time as
->> needed:
->>
->>   struct my_struct *obj;
->>
->>   /* initial allocation for online cpu's */
->>   obj = percpu_alloc(sizeof(struct my_struct), GFP_KERNEL);
->>
->>   ...
->>
->>   /* populate per-cpu data for cpu coming online */
->>   ptr = percpu_populate(obj, sizeof(struct my_struct), GFP_KERNEL, cpu);
->>
->>   ...
->>
->>   /* access per-cpu object */
->>   ptr = percpu_ptr(obj, smp_processor_id());
->>
->>   ...
->>
->>   /* depopulate per-cpu data for cpu going offline */
->>   percpu_depopulate(obj, cpu);
->>
->>   ...
->>
->>   /* final removal */
->>   percpu_free(obj);
+> > As explained by Heiko, on s390 (32-bit) ARCH_KMALLOC_MINALIGN is set to eight
+> > because their common I/O layer allocates data structures that need to have an
+> > eight byte alignment. This does not work when CONFIG_SLAB_DEBUG is enabled
+> > because kmem_cache_create will override alignment to BYTES_PER_WORD which is
+> > four.
+> > 
+> > So change kmem_cache_create to ensure cache alignment is always at minimum
+> > what the architecture or caller mandates even if slab debugging is enabled.
 > 
-> That looks pretty thorough.
+> Note that this will disable SLAB_RED_ZONE and SLAB_STORE_USER 
+> for the following SLAB_DEBUG cases:
 > 
-> The one little nit I'd have is that the code passes cpumasks by value.  See
-> the tricks in <linux/cpumask.h> which pretend to take the caller's cpumask
-> by value but which instead pass it via const reference to the callee.
+> 1. For all slabs if an arch sets ARCH_SLAB_MINALIGN > BYTES_PER_WORD
+> [...]
+> 2. For all general (kmalloc) slabs if an arch sets
+>    ARCH_KMALLOC_MINALIGN > BYTES_PER_WORD
+> [...]
+> F.e. S/390 will not be able to use slab debug for the general slabs.
 > 
-> CONFIG_NR_CPUS=1024 leads to a 128-byte cpumask_t.  It's worth doing.
+> You may want to document that change somewhere.
 
-Oops. I will send a patch.
-
+It is already documented (see top of slab.c). The only thing that was wrong was
+that ARCH_SLAB_MINALIGN and ARCH_KMALLOC_MINALIGN didn't have the effect like
+one would expect from the documentation.

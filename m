@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbWG1UIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161276AbWG1UJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161268AbWG1UIt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 16:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWG1UIs
+	id S1161276AbWG1UJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 16:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161270AbWG1UIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 16:08:48 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:46347 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161272AbWG1UIb (ORCPT
+	Fri, 28 Jul 2006 16:08:51 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:43275 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1161262AbWG1UIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 16:08:31 -0400
-Date: Fri, 28 Jul 2006 16:08:12 -0400
+	Fri, 28 Jul 2006 16:08:18 -0400
+Date: Fri, 28 Jul 2006 16:07:57 -0400
 From: nhorman@tuxdriver.com
-Message-Id: <200607282008.k6SK8C0A009703@ra.tuxdriver.com>
-To: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org,
-       nhorman@tuxdriver.com, paulus@au.ibm.com
-Subject: [KJ] audit return code handling for kernel_thread [10/11]
+Message-Id: <200607282007.k6SK7v9j009670@ra.tuxdriver.com>
+To: bcollins@debian.org, kernel-janitors@osdl.org,
+       linux-kernel@vger.kernel.org, nhorman@tuxdriver.com
+Subject: [KJ] audit return code handling for kernel_thread [8/11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -44,18 +44,17 @@ Neil
 Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
 
- drivers/macintosh/therm_pm72.c |    4 ++++
- 1 file changed, 4 insertions(+)
---- a/drivers/macintosh/therm_pm72.c
-+++ b/drivers/macintosh/therm_pm72.c
-@@ -1769,6 +1769,10 @@ static void start_control_loops(void)
- 	init_completion(&ctrl_complete);
+ drivers/ieee1394/nodemgr.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+--- a/drivers/ieee1394/nodemgr.c
++++ b/drivers/ieee1394/nodemgr.c
+@@ -426,7 +426,8 @@ static ssize_t fw_set_rescan(struct bus_
+ 	 * something stupid and spawn this a lot of times, but that's
+ 	 * root's fault. */
+ 	if (state == 1)
+-		kernel_thread(nodemgr_rescan_bus_thread, NULL, CLONE_KERNEL);
++		if (kernel_thread(nodemgr_rescan_bus_thread, NULL, CLONE_KERNEL) < 0)
++			printk(KERN_WARNING "Could not start 1394 bus rescan thread\n");
  
- 	ctrl_task = kernel_thread(main_control_loop, NULL, SIGCHLD | CLONE_KERNEL);
-+	if (ctrl_task < 0) {
-+		printk(KERN_CRIT "could not start control thread\n");
-+		ctrl_task = 0;
-+	}
+ 	return count;
  }
- 
- /*

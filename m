@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWG1WHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161329AbWG1WKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWG1WHv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 18:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWG1WHv
+	id S1161329AbWG1WKo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 18:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752006AbWG1WKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 18:07:51 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:15480 "EHLO
+	Fri, 28 Jul 2006 18:10:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:4220 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751326AbWG1WHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 18:07:50 -0400
+	id S1751365AbWG1WKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 18:10:42 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ocK3jrkxJgCIiogD/aBMccsplxsbEuPAKgbNKiBm2s5NiCPX1gxmzKVBE6jqW+YbmuLERJ2vjPDo0Cd/aPLbYv1asxt7dff0Nuchmj9S9Ua7qu/l/0itA+wL/VvcYtwDx6dWpylDdyiwd+mi6ysGOe5KU7se3ZVYzu4zIF2wKjw=
-Message-ID: <41840b750607281507x35ff597bi7158758685159bab@mail.gmail.com>
-Date: Sat, 29 Jul 2006 01:07:48 +0300
+        b=m5Mvmt8yL7s/dkg9MhEkROIGXbtaVeKk9zGgShwgJuR2jwdn+2v3ZTDNw66uDBzu62Z+8zmmMM3oJEvHB9itMbh9AkAjjC+Se8HfEqD0+ZR8C6rk3S7i0TGRfJ29SgbkFhH9tvNVo1hbglmBFr5CWai0RghdDIJqljcs3UWIxus=
+Message-ID: <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com>
+Date: Sat, 29 Jul 2006 01:10:40 +0300
 From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH] DMI: Decode and save OEM String information
-Cc: "Henrique de Moraes Holschuh" <hmh@debian.org>,
-       "linux kernel mailing list" <linux-kernel@vger.kernel.org>,
-       "Matt Domsch" <Matt_Domsch@dell.com>,
-       "Brown, Len" <len.brown@intel.com>
-In-Reply-To: <200607281508.21312.bjorn.helgaas@hp.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: Generic battery interface
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Pavel Machek" <pavel@suse.cz>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+In-Reply-To: <200607281557.k6SFvn09022794@turing-police.cc.vt.edu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
-	 <200607281237.45576.bjorn.helgaas@hp.com>
-	 <41840b750607281352q715ad417l927f868aff306410@mail.gmail.com>
-	 <200607281508.21312.bjorn.helgaas@hp.com>
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz>
+	 <20060728134307.GD29217@suse.cz>
+	 <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com>
+	 <200607281557.k6SFvn09022794@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Going off lists)
+On 7/28/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> Is there a reliable (or hack-worthy) way for the kernel to determine how
+> often the values are re-posted by the hardware?
 
-On 7/29/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> On Friday 28 July 2006 14:52, Shem Multinymous wrote:
-> > Anyway, this patch is independent of the ThinkPad case; DMI
-> > information is there for drivers to see it, after all, so the kernel
-> > should make it possible. Can I get a Signed-off-by?
->
-> If you're the author, you're the one to supply the "Signed-off-by";
-> see Documentation/SubmittingPatches for exactly what it means.
-
-Sorry, I misunderstood the protocol. I guess I'm asking for an
-Acked-by, except I don't see that one mentioned in Documentation/*.
-
-Anyway, if there are no more comments I'll repost with the missing
-"Signed-off-by: Shem Multinymous <multinymous@gmail.com>".
+That's hardware-specific. Some drivers can know, others may just
+assume 1sec or 0.1sec or whatever.
 
   Shem

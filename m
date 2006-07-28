@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWG1F4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751838AbWG1GJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751832AbWG1F4S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 01:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751975AbWG1F4S
+	id S1751838AbWG1GJv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 02:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWG1GJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 01:56:18 -0400
-Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:27313 "EHLO
-	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751832AbWG1F4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 01:56:17 -0400
-Date: Fri, 28 Jul 2006 01:56:14 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Ingo Molnar <mingo@elte.hu>
-cc: Alexey Dobriyan <adobriyan@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] ipc/msg.c: clean up coding style
-In-Reply-To: <20060727162434.GA29489@elte.hu>
-Message-ID: <Pine.LNX.4.64.0607280153490.13981@d.namei>
-References: <20060727135321.GA24644@elte.hu> <20060727144659.GC6825@martell.zuzino.mipt.ru>
- <20060727162434.GA29489@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Jul 2006 02:09:51 -0400
+Received: from www.osadl.org ([213.239.205.134]:47521 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751838AbWG1GJu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 02:09:50 -0400
+Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Christoph Lameter <clameter@sgi.com>
+In-Reply-To: <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com>
+References: <1154044607.27297.101.camel@localhost.localdomain>
+	 <84144f020607272222o7b1d0270p997b8e3bf07e39e7@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 08:14:07 +0200
+Message-Id: <1154067247.27297.104.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006, Ingo Molnar wrote:
-
-> > Let's not go BSD way.
+On Fri, 2006-07-28 at 08:22 +0300, Pekka Enberg wrote:
+> Hi Thomas,
+> Looks bad.
 > 
-> again, lets not have overlong line 80 prototypes.
+>   cache_reap
+>   reap_alien	(grabs l3->alien[node]->lock)
+>   __drain_alien_cache
+>   free_block
+>   slab_destroy	(slab management off slab)
+>   kmem_cache_free
+>   __cache_free
+>   cache_free_alien (recursive attempt on l3->alien[node] lock)
+> 
+> Christoph?
 
-I thought Linus gave his blessing for long lines for prototypes (up to 120 
-chars?), to make it easier to grep the code for function prototypes.
+If you need more info, I can add debugs. It happens every bootup.
+
+	tglx
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>

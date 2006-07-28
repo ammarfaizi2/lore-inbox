@@ -1,268 +1,697 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWG1CBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWG1CP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWG1CBT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jul 2006 22:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWG1CBT
+	id S932565AbWG1CP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jul 2006 22:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWG1CP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jul 2006 22:01:19 -0400
-Received: from msr22.hinet.net ([168.95.4.122]:50869 "EHLO msr22.hinet.net")
-	by vger.kernel.org with ESMTP id S932113AbWG1CBS (ORCPT
+	Thu, 27 Jul 2006 22:15:29 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:36836 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S932565AbWG1CP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jul 2006 22:01:18 -0400
-Message-ID: <041701c6b1e9$aa23b140$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <1154029172.5967.8.camel@localhost.localdomain> <1153988890.3039.37.camel@laptopd505.fenrus.org>
-Subject: Re: [PATCH] Create IP100A Driver
-Date: Fri, 28 Jul 2006 10:00:56 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Thu, 27 Jul 2006 22:15:28 -0400
+Date: Fri, 28 Jul 2006 04:15:20 +0200
+From: Petr Vandrovec <petr@vandrovec.name>
+To: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] ncpfs: move ioctl32 code to fs/ncpfs/ioctl.c
+Message-ID: <20060728021520.GA23831@vana.vc.cvut.cz>
+References: <20060710085142.GB9440@osiris.boeblingen.de.ibm.com> <200607270456.48014.arnd.bergmann@de.ibm.com> <44C83480.6000102@vandrovec.name> <200607270745.42622.arnd.bergmann@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200607270745.42622.arnd.bergmann@de.ibm.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-Thanks for those suggestion. We will update to our driver.
-After update I will submit it again.
+On Thu, Jul 27, 2006 at 07:45:41AM +0200, Arnd Bergmann wrote:
+> On Thursday 27 July 2006 05:35, Petr Vandrovec wrote:
+> > Yes, tomorrow (on amd64).
+> 
+> No need to hurry, I was sitting on my patch for more than a year now ;-)
 
-Thanks.
+Seems to work, both natively 64bit and also through compat layer.
+ 
+> > Or what about 
+> > 
+> > #ifdef CONFIG_COMPAT
+> >      if (cmd == NCP_IOC_GETPRIVATEDATA_32) {
+> >         struct ...
+> >      } else
+> > #endif
+> >      if (copy_to_user(argp, &user, sizeof(user)))
+> >         return -EFAULT;
+> 
+> Yes, that should be clearer than my approach.
 
-Jesse
------ Original Message ----- 
-From: "Arjan van de Ven" <arjan@infradead.org>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, July 27, 2006 4:28 PM
-Subject: Re: [PATCH] Create IP100A Driver
-
-
-On Thu, 2006-07-27 at 15:39 -0400, Jesse Huang wrote:
-> From: Jesse Huang <jesse@icplus.com.tw>
->
-> This is the first version of IP100A Linux Driver.
-
-Hi,
-
-we appreciate your efforts in making a Linux driver a lot!
-I assume you are familiar with the process a bit; if not; a few of us
-will do a code review of the driver. The goal is just to avoid common
-mistakes and to assure a sort of consistent look/feel of the code with
-the rest of the kernel. These comments are not a reflection of you not
-doing something good, but please see them as suggestions for improving
-even further.
-
->
->
->  drivers/net/ipf.c | 1378
-> +++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-your email program has wrapped the longer lines of your email. I see
-that you are using Evolution; I use evolution as well and what works for
-me to avoid this problem is to set the text to "preformat". You can do
-this by clicking on the "Normal" box in the area just above the place
-where you type your email text; it will show a series of settings,
-preformat will be one of them. When you pick that the patch will come
-through undamaged.
-(it's not a big deal for review but for merging it into the tree it is a
-problem; the patch program cannot deal with line wrapped emails)
-
->  drivers/net/ipf.h |  267 ++++++++++
->  2 files changed, 1644 insertions(+), 1 deletions(-)
->
-> 5e4c20f6799411d9262fc281b5ab1834c85c532a
-> diff --git a/drivers/net/ipf.c b/drivers/net/ipf.c
-> index 8b13789..6e610bd 100644
-> --- a/drivers/net/ipf.c
-> +++ b/drivers/net/ipf.c
-
-what would you think of calling your driver ip100a.c instead of ipf.c?
-> \
-
-> +/* Work-around for Kendin chip bugs. */
-> +#define CONFIG_SUNDANCE_MMIO // use MMIO
-> +#ifndef CONFIG_SUNDANCE_MMIO
-> +#define USE_IO_OPS 1
-> +#endif
-
-is this relevant for your driver as well?
-> +
-> +#ifndef __KERNEL__
-> +#define __KERNEL__
-> +#endif
-
-this is not needed at all, __KERNEL__ is always set; it's better to
-remove this, it's redundant and looks strange
-
-> +#if !defined(__OPTIMIZE__)
-> +#warning  You must compile this file with the correct options!
-> +#warning  See the last lines of the source file.
-> +#error You must compile this driver with "-O".
-> +#endif
-
-same for this
+I've updated your diff as outlined above, and I've removed ncp_fs.h include from
+compat_ioctl, as it is not needed anymore.  I've also removed one 
+#include <linux/config.h> you introduced...
+					Thanks,
+						Petr
 
 
-> I/O (MDIO) interfaces. */
-> +static int __devinit eeprom_read(void __iomem * ioaddr, int location)
-> +{
-> + int boguscnt = 1000; /* Typical 190 ticks. */
-> + iowr16(0x0200 | (location & 0xff), ioaddr + EECtrl);
-> + do {
-> + if (! (iord16(ioaddr + EECtrl) & 0x8000)) {
-> + return iord16(ioaddr + EEData);
-> + }
+>From Arnd Bergmann <arnd@arndb.de>
 
-do you want some sort of timeout for this? This would be an infinite
-hang if the hardware ever does weird things
+The ncp specific compat ioctls are clearly local to one
+file system, so the code can better live there.
 
-> +static int change_mtu(struct net_device *dev, int new_mtu)
-> +{
-> + if ((new_mtu < 68) || (new_mtu > 8191)) /* Set by RxDMAFrameLen */
-> + return -EINVAL;
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Petr Vandrovec <petr@vandrovec.name>
 
-I think the network layer already checks 68, but it's no problem to be
-double sure
-
-
-> +static struct ethtool_ops ipf_ethtool_ops = {
-> + .get_settings = ipf_get_settings,
-> + .set_settings = ipf_set_settings,
-> + .nway_reset   = ipf_nway_reset,
-> +};
-
-you probably want a few more ethtool_ops; at least the "get driver info"
-one is used by userspace distribution installation programs
-
-
-
-
-> +static int reset_tx (struct net_device *dev)
-> +{
-> + struct netdev_private *np = (struct netdev_private*) dev->priv;
-> + void __iomem * ioaddr = ipf_ioaddr(dev);
-> + struct sk_buff *skb;
-> + int i;
-> + int irq = in_interrupt();
-
-this sets of warning lights for me; in_interrupt() very often doesn't do
-what people think it does...
-however you don't seem to use it in your driver so it might as well go
-away
-
-> \+ if (intr_status & IntrPCIErr) {
-> + printk(KERN_ERR "%s: Something Wicked happened! %4.4x.\n",
-> +    dev->name, intr_status);
-> + /* We must do a global reset of DMA to continue. */
-> + }
-
-the comment says you need to do something, but I don't see the code
-doing that... is that correct?
-
-
-> +static irqreturn_t intr_handler(int irq, void *dev_instance, struct
-> pt_regs *rgs)
-> +{
-> + struct net_device *dev = (struct net_device *)dev_instance;
-> + struct netdev_private *np=dev->priv;
-> + void __iomem * ioaddr = ipf_ioaddr(dev);
-> + int hw_frame_id;
-> + int tx_cnt;
-> + int tx_status;
-> +    irqreturn_t intr_handled=IRQ_HANDLED;//IRQ_NONE;
-
-this looks like you return IRQ_HANDLED even when the hardware didn't
-have any work for you; that's not a good idea, you really ought to only
-return that if you did work, and use IRQ_NONE otherwise.
-> + if (tx_status & 0x1e) {
-> + /* It could fail to restart the tx when MaxCollions, need to try
-> more times */
-> + int i = 10;
-> + do {
-> + iowr16 (iord16(ioaddr + MACCtrl1) | TxEnable, ioaddr +
-> MACCtrl1);
-> + if (iord16(ioaddr + MACCtrl1) & TxEnabled) break;
-> + mdelay(1);
-
-are you really sure you want to do mdelay() in interrupt context?
-Especially if you do it 10 times that will give a HUGE latency
-
-
-> +static int netdev_open(struct net_device *dev)
-> +{
-> + struct netdev_private *np = dev->priv;
-> + void __iomem * ioaddr = ipf_ioaddr(dev);
-> + int i;
-> +
-> +   for(i=0;i<10;i++)
-> +   {
-> +   if(np->ProbeDone==1)break;//For Mandrake10.x multi-cpu
-> +   mdelay(1000);
-> +   }
-
-ouch! what is this about?
-
-> + // 04/19/2005 Jesse fix for complete initial step
-> + spin_lock(&np->lock);
-
-this lock is used in the IRQ handler, right? you really want to use
-spin_lock_irq or spin_lock_irqsave then!
-> +static void tx_timeout(struct net_device *dev)
-> +{
-> + struct netdev_private *np = dev->priv;
-> + void __iomem * ioaddr = ipf_ioaddr(dev);
-> + ULONG  flag;
-
-please do not use ULONG but just use "unsigned long"
-
-> + /* Increment cur_tx before tasklet_schedule() */
-> + np->cur_tx++;
-> + mb();
-
-would this need an atomic increment?
-
-
-> +
-> +    for(i=2000;i> 0;i--) {
-> + if((iord32(ioaddr + DMACtrl)&0xC000) == 0)break;
-> + mdelay(1);
-> +    }
-
-you really do like mdelay :)
-it's however quite evil since it is busy wait.... you may want to
-investigate using msleep() instead in the places that you can sleep
-> +   //20040817Jesse_ChangeSpeed: Add
-> +   for(i=1000;i;i--)
-> +   {
-> +    mdelay(1);
-> +      if(mdio_read(dev,np->phys[0],MII_BMSR)&0x20)break;
-> +   }
-
-and another one of these ;)
-
-
-> +/* when a module, this is printed whether or not devices are found in
-> probe */
-> +#ifdef MODULE
-> + printk(version);
-> +#endif
-
-hmm such ifdef is uncommon
-
-> + INT  msg_enable;
-> + UINT cur_rx, dirty_rx; /* Producer/consumer ring indices */
-> + UINT rx_buf_sz; /* Based on MTU+slack. */
-> + struct netdev_desc *last_tx; /* Last Tx descriptor used. */
-> + UINT cur_tx, dirty_tx;
-
-please use linux natural types (eg "int" and "unsigned int") rather than
-such defines.\
-
-Greetings,
-   Arjan van de Ven
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
-
+diff -uprdN -X .exclude vger/fs/compat_ioctl.c linux/fs/compat_ioctl.c
+--- linux/fs/compat_ioctl.c	2006-07-26 18:38:16.000000000 +0200
++++ linux/fs/compat_ioctl.c	2006-07-28 03:54:17.000000000 +0200
+@@ -65,7 +65,6 @@
+ #include <linux/ctype.h>
+ #include <linux/ioctl32.h>
+ #include <linux/syscalls.h>
+-#include <linux/ncp_fs.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-dev.h>
+ #include <linux/wireless.h>
+@@ -2507,193 +2506,6 @@ static int rtc_ioctl(unsigned fd, unsign
+ 	}
+ }
+ 
+-#if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
+-struct ncp_ioctl_request_32 {
+-	u32 function;
+-	u32 size;
+-	compat_caddr_t data;
+-};
+-
+-struct ncp_fs_info_v2_32 {
+-	s32 version;
+-	u32 mounted_uid;
+-	u32 connection;
+-	u32 buffer_size;
+-
+-	u32 volume_number;
+-	u32 directory_id;
+-
+-	u32 dummy1;
+-	u32 dummy2;
+-	u32 dummy3;
+-};
+-
+-struct ncp_objectname_ioctl_32
+-{
+-	s32		auth_type;
+-	u32		object_name_len;
+-	compat_caddr_t	object_name;	/* an userspace data, in most cases user name */
+-};
+-
+-struct ncp_privatedata_ioctl_32
+-{
+-	u32		len;
+-	compat_caddr_t	data;		/* ~1000 for NDS */
+-};
+-
+-#define	NCP_IOC_NCPREQUEST_32		_IOR('n', 1, struct ncp_ioctl_request_32)
+-#define NCP_IOC_GETMOUNTUID2_32		_IOW('n', 2, u32)
+-#define NCP_IOC_GET_FS_INFO_V2_32	_IOWR('n', 4, struct ncp_fs_info_v2_32)
+-#define NCP_IOC_GETOBJECTNAME_32	_IOWR('n', 9, struct ncp_objectname_ioctl_32)
+-#define NCP_IOC_SETOBJECTNAME_32	_IOR('n', 9, struct ncp_objectname_ioctl_32)
+-#define NCP_IOC_GETPRIVATEDATA_32	_IOWR('n', 10, struct ncp_privatedata_ioctl_32)
+-#define NCP_IOC_SETPRIVATEDATA_32	_IOR('n', 10, struct ncp_privatedata_ioctl_32)
+-
+-static int do_ncp_ncprequest(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct ncp_ioctl_request_32 n32;
+-	struct ncp_ioctl_request __user *p = compat_alloc_user_space(sizeof(*p));
+-
+-	if (copy_from_user(&n32, compat_ptr(arg), sizeof(n32)) ||
+-	    put_user(n32.function, &p->function) ||
+-	    put_user(n32.size, &p->size) ||
+-	    put_user(compat_ptr(n32.data), &p->data))
+-		return -EFAULT;
+-
+-	return sys_ioctl(fd, NCP_IOC_NCPREQUEST, (unsigned long)p);
+-}
+-
+-static int do_ncp_getmountuid2(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	__kernel_uid_t kuid;
+-	int err;
+-
+-	cmd = NCP_IOC_GETMOUNTUID2;
+-
+-	set_fs(KERNEL_DS);
+-	err = sys_ioctl(fd, cmd, (unsigned long)&kuid);
+-	set_fs(old_fs);
+-
+-	if (!err)
+-		err = put_user(kuid,
+-			       (unsigned int __user *) compat_ptr(arg));
+-
+-	return err;
+-}
+-
+-static int do_ncp_getfsinfo2(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct ncp_fs_info_v2_32 n32;
+-	struct ncp_fs_info_v2 n;
+-	int err;
+-
+-	if (copy_from_user(&n32, compat_ptr(arg), sizeof(n32)))
+-		return -EFAULT;
+-	if (n32.version != NCP_GET_FS_INFO_VERSION_V2)
+-		return -EINVAL;
+-	n.version = NCP_GET_FS_INFO_VERSION_V2;
+-
+-	set_fs(KERNEL_DS);
+-	err = sys_ioctl(fd, NCP_IOC_GET_FS_INFO_V2, (unsigned long)&n);
+-	set_fs(old_fs);
+-
+-	if (!err) {
+-		n32.version = n.version;
+-		n32.mounted_uid = n.mounted_uid;
+-		n32.connection = n.connection;
+-		n32.buffer_size = n.buffer_size;
+-		n32.volume_number = n.volume_number;
+-		n32.directory_id = n.directory_id;
+-		n32.dummy1 = n.dummy1;
+-		n32.dummy2 = n.dummy2;
+-		n32.dummy3 = n.dummy3;
+-		err = copy_to_user(compat_ptr(arg), &n32, sizeof(n32)) ? -EFAULT : 0;
+-	}
+-	return err;
+-}
+-
+-static int do_ncp_getobjectname(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct ncp_objectname_ioctl_32 n32, __user *p32 = compat_ptr(arg);
+-	struct ncp_objectname_ioctl __user *p = compat_alloc_user_space(sizeof(*p));
+-	s32 auth_type;
+-	u32 name_len;
+-	int err;
+-
+-	if (copy_from_user(&n32, p32, sizeof(n32)) ||
+-	    put_user(n32.object_name_len, &p->object_name_len) ||
+-	    put_user(compat_ptr(n32.object_name), &p->object_name))
+-		return -EFAULT;
+-
+-	err = sys_ioctl(fd, NCP_IOC_GETOBJECTNAME, (unsigned long)p);
+-        if (err)
+-		return err;
+-
+-	if (get_user(auth_type, &p->auth_type) ||
+-	    put_user(auth_type, &p32->auth_type) ||
+-	    get_user(name_len, &p->object_name_len) ||
+-	    put_user(name_len, &p32->object_name_len))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static int do_ncp_setobjectname(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct ncp_objectname_ioctl_32 n32, __user *p32 = compat_ptr(arg);
+-	struct ncp_objectname_ioctl __user *p = compat_alloc_user_space(sizeof(*p));
+-
+-	if (copy_from_user(&n32, p32, sizeof(n32)) ||
+-	    put_user(n32.auth_type, &p->auth_type) ||
+-	    put_user(n32.object_name_len, &p->object_name_len) ||
+-	    put_user(compat_ptr(n32.object_name), &p->object_name))
+-		return -EFAULT;
+-
+-	return sys_ioctl(fd, NCP_IOC_SETOBJECTNAME, (unsigned long)p);
+-}
+-
+-static int do_ncp_getprivatedata(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct ncp_privatedata_ioctl_32 n32, __user *p32 = compat_ptr(arg);
+-	struct ncp_privatedata_ioctl __user *p =
+-		compat_alloc_user_space(sizeof(*p));
+-	u32 len;
+-	int err;
+-
+-	if (copy_from_user(&n32, p32, sizeof(n32)) ||
+-	    put_user(n32.len, &p->len) ||
+-	    put_user(compat_ptr(n32.data), &p->data))
+-		return -EFAULT;
+-
+-	err = sys_ioctl(fd, NCP_IOC_GETPRIVATEDATA, (unsigned long)p);
+-        if (err)
+-		return err;
+-
+-	if (get_user(len, &p->len) ||
+-	    put_user(len, &p32->len))
+-		return -EFAULT;
+-
+-	return 0;
+-}
+-
+-static int do_ncp_setprivatedata(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	struct ncp_privatedata_ioctl_32 n32;
+-	struct ncp_privatedata_ioctl_32 __user *p32 = compat_ptr(arg);
+-	struct ncp_privatedata_ioctl __user *p =
+-		compat_alloc_user_space(sizeof(*p));
+-
+-	if (copy_from_user(&n32, p32, sizeof(n32)) ||
+-	    put_user(n32.len, &p->len) ||
+-	    put_user(compat_ptr(n32.data), &p->data))
+-		return -EFAULT;
+-
+-	return sys_ioctl(fd, NCP_IOC_SETPRIVATEDATA, (unsigned long)p);
+-}
+-#endif
+-
+ static int
+ lp_timeout_trans(unsigned int fd, unsigned int cmd, unsigned long arg)
+ {
+@@ -2920,16 +2732,6 @@ HANDLE_IOCTL(RTC_IRQP_SET32, rtc_ioctl)
+ HANDLE_IOCTL(RTC_EPOCH_READ32, rtc_ioctl)
+ HANDLE_IOCTL(RTC_EPOCH_SET32, rtc_ioctl)
+ 
+-#if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
+-HANDLE_IOCTL(NCP_IOC_NCPREQUEST_32, do_ncp_ncprequest)
+-HANDLE_IOCTL(NCP_IOC_GETMOUNTUID2_32, do_ncp_getmountuid2)
+-HANDLE_IOCTL(NCP_IOC_GET_FS_INFO_V2_32, do_ncp_getfsinfo2)
+-HANDLE_IOCTL(NCP_IOC_GETOBJECTNAME_32, do_ncp_getobjectname)
+-HANDLE_IOCTL(NCP_IOC_SETOBJECTNAME_32, do_ncp_setobjectname)
+-HANDLE_IOCTL(NCP_IOC_GETPRIVATEDATA_32, do_ncp_getprivatedata)
+-HANDLE_IOCTL(NCP_IOC_SETPRIVATEDATA_32, do_ncp_setprivatedata)
+-#endif
+-
+ /* dvb */
+ HANDLE_IOCTL(VIDEO_GET_EVENT, do_video_get_event)
+ HANDLE_IOCTL(VIDEO_STILLPICTURE, do_video_stillpicture)
+diff -uprdN -X .exclude vger/fs/ncpfs/dir.c linux/fs/ncpfs/dir.c
+--- linux/fs/ncpfs/dir.c	2006-07-26 18:38:17.000000000 +0200
++++ linux/fs/ncpfs/dir.c	2006-07-27 05:43:07.000000000 +0200
+@@ -53,6 +53,9 @@ const struct file_operations ncp_dir_ope
+ 	.read		= generic_read_dir,
+ 	.readdir	= ncp_readdir,
+ 	.ioctl		= ncp_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= ncp_compat_ioctl,
++#endif
+ };
+ 
+ struct inode_operations ncp_dir_inode_operations =
+diff -uprdN -X .exclude vger/fs/ncpfs/file.c linux/fs/ncpfs/file.c
+--- linux/fs/ncpfs/file.c	2006-07-26 18:38:17.000000000 +0200
++++ linux/fs/ncpfs/file.c	2006-07-27 05:43:07.000000000 +0200
+@@ -289,6 +289,9 @@ const struct file_operations ncp_file_op
+ 	.read		= ncp_file_read,
+ 	.write		= ncp_file_write,
+ 	.ioctl		= ncp_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl	= ncp_compat_ioctl,
++#endif
+ 	.mmap		= ncp_mmap,
+ 	.release	= ncp_release,
+ 	.fsync		= ncp_fsync,
+diff -uprdN -X .exclude vger/fs/ncpfs/ioctl.c linux/fs/ncpfs/ioctl.c
+--- linux/fs/ncpfs/ioctl.c	2006-07-26 18:38:18.000000000 +0200
++++ linux/fs/ncpfs/ioctl.c	2006-07-28 03:17:26.000000000 +0200
+@@ -7,19 +7,21 @@
+  *
+  */
+ 
+-
+-#include <asm/uaccess.h>
+ #include <linux/capability.h>
++#include <linux/compat.h>
+ #include <linux/errno.h>
+ #include <linux/fs.h>
+ #include <linux/ioctl.h>
+ #include <linux/time.h>
+ #include <linux/mm.h>
+ #include <linux/highuid.h>
++#include <linux/smp_lock.h>
+ #include <linux/vmalloc.h>
+ 
+ #include <linux/ncp_fs.h>
+ 
++#include <asm/uaccess.h>
++
+ #include "ncplib_kernel.h"
+ 
+ /* maximum limit for ncp_objectname_ioctl */
+@@ -89,6 +91,82 @@ ncp_get_fs_info_v2(struct ncp_server * s
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_COMPAT
++struct compat_ncp_objectname_ioctl
++{
++	s32		auth_type;
++	u32		object_name_len;
++	compat_caddr_t	object_name;	/* an userspace data, in most cases user name */
++};
++
++struct compat_ncp_fs_info_v2 {
++	s32 version;
++	u32 mounted_uid;
++	u32 connection;
++	u32 buffer_size;
++
++	u32 volume_number;
++	u32 directory_id;
++
++	u32 dummy1;
++	u32 dummy2;
++	u32 dummy3;
++};
++
++struct compat_ncp_ioctl_request {
++	u32 function;
++	u32 size;
++	compat_caddr_t data;
++};
++
++struct compat_ncp_privatedata_ioctl
++{
++	u32		len;
++	compat_caddr_t	data;		/* ~1000 for NDS */
++};
++
++#define NCP_IOC_GET_FS_INFO_V2_32	_IOWR('n', 4, struct compat_ncp_fs_info_v2)
++#define NCP_IOC_NCPREQUEST_32		_IOR('n', 1, struct compat_ncp_ioctl_request)
++#define NCP_IOC_GETOBJECTNAME_32	_IOWR('n', 9, struct compat_ncp_objectname_ioctl)
++#define NCP_IOC_SETOBJECTNAME_32	_IOR('n', 9, struct compat_ncp_objectname_ioctl)
++#define NCP_IOC_GETPRIVATEDATA_32	_IOWR('n', 10, struct compat_ncp_privatedata_ioctl)
++#define NCP_IOC_SETPRIVATEDATA_32	_IOR('n', 10, struct compat_ncp_privatedata_ioctl)
++
++static int
++ncp_get_compat_fs_info_v2(struct ncp_server * server, struct file *file,
++		   struct compat_ncp_fs_info_v2 __user * arg)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	struct compat_ncp_fs_info_v2 info2;
++
++	if ((file_permission(file, MAY_WRITE) != 0)
++	    && (current->uid != server->m.mounted_uid)) {
++		return -EACCES;
++	}
++	if (copy_from_user(&info2, arg, sizeof(info2)))
++		return -EFAULT;
++
++	if (info2.version != NCP_GET_FS_INFO_VERSION_V2) {
++		DPRINTK("info.version invalid: %d\n", info2.version);
++		return -EINVAL;
++	}
++	info2.mounted_uid   = server->m.mounted_uid;
++	info2.connection    = server->connection;
++	info2.buffer_size   = server->buffer_size;
++	info2.volume_number = NCP_FINFO(inode)->volNumber;
++	info2.directory_id  = NCP_FINFO(inode)->DosDirNum;
++	info2.dummy1 = info2.dummy2 = info2.dummy3 = 0;
++
++	if (copy_to_user(arg, &info2, sizeof(info2)))
++		return -EFAULT;
++	return 0;
++}
++#endif
++
++#define NCP_IOC_GETMOUNTUID16		_IOW('n', 2, u16)
++#define NCP_IOC_GETMOUNTUID32		_IOW('n', 2, u32)
++#define NCP_IOC_GETMOUNTUID64		_IOW('n', 2, u64)
++
+ #ifdef CONFIG_NCPFS_NLS
+ /* Here we are select the iocharset and the codepage for NLS.
+  * Thanks Petr Vandrovec for idea and many hints.
+@@ -192,12 +270,24 @@ int ncp_ioctl(struct inode *inode, struc
+ 	void __user *argp = (void __user *)arg;
+ 
+ 	switch (cmd) {
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_NCPREQUEST_32:
++#endif
+ 	case NCP_IOC_NCPREQUEST:
+-
+ 		if ((file_permission(filp, MAY_WRITE) != 0)
+ 		    && (current->uid != server->m.mounted_uid)) {
+ 			return -EACCES;
+ 		}
++#ifdef CONFIG_COMPAT
++		if (cmd == NCP_IOC_NCPREQUEST_32) {
++			struct compat_ncp_ioctl_request request32;
++			if (copy_from_user(&request32, argp, sizeof(request32)))
++				return -EFAULT;
++			request.function = request32.function;
++			request.size = request32.size;
++			request.data = compat_ptr(request32.data);
++		} else
++#endif
+ 		if (copy_from_user(&request, argp, sizeof(request)))
+ 			return -EFAULT;
+ 
+@@ -254,19 +344,35 @@ int ncp_ioctl(struct inode *inode, struc
+ 	case NCP_IOC_GET_FS_INFO_V2:
+ 		return ncp_get_fs_info_v2(server, filp, argp);
+ 
+-	case NCP_IOC_GETMOUNTUID2:
+-		{
+-			unsigned long tmp = server->m.mounted_uid;
+-
+-			if ((file_permission(filp, MAY_READ) != 0)
+-			    && (current->uid != server->m.mounted_uid))
+-			{
+-				return -EACCES;
+-			}
+-			if (put_user(tmp, (unsigned long __user *)argp)) 
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_GET_FS_INFO_V2_32:
++		return ncp_get_compat_fs_info_v2(server, filp, argp);
++#endif
++	/* we have too many combinations of CONFIG_COMPAT,
++	 * CONFIG_64BIT and CONFIG_UID16, so just handle
++	 * any of the possible ioctls */
++	case NCP_IOC_GETMOUNTUID16:
++	case NCP_IOC_GETMOUNTUID32:
++	case NCP_IOC_GETMOUNTUID64:
++		if ((file_permission(filp, MAY_READ) != 0)
++			&& (current->uid != server->m.mounted_uid)) {
++			return -EACCES;
++		}
++		if (cmd == NCP_IOC_GETMOUNTUID16) {
++			u16 uid;
++			SET_UID(uid, server->m.mounted_uid);
++			if (put_user(uid, (u16 __user *)argp))
++				return -EFAULT;
++		} else if (cmd == NCP_IOC_GETMOUNTUID32) {
++			if (put_user(server->m.mounted_uid,
++						(u32 __user *)argp))
++				return -EFAULT;
++		} else {
++			if (put_user(server->m.mounted_uid,
++						(u64 __user *)argp))
+ 				return -EFAULT;
+-			return 0;
+ 		}
++		return 0;
+ 
+ 	case NCP_IOC_GETROOT:
+ 		{
+@@ -476,6 +582,32 @@ outrel:			
+ 		}
+ #endif	/* CONFIG_NCPFS_IOCTL_LOCKING */
+ 
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_GETOBJECTNAME_32:
++		if (current->uid != server->m.mounted_uid) {
++			return -EACCES;
++		}
++		{
++			struct compat_ncp_objectname_ioctl user;
++			size_t outl;
++
++			if (copy_from_user(&user, argp, sizeof(user)))
++				return -EFAULT;
++			user.auth_type = server->auth.auth_type;
++			outl = user.object_name_len;
++			user.object_name_len = server->auth.object_name_len;
++			if (outl > user.object_name_len)
++				outl = user.object_name_len;
++			if (outl) {
++				if (copy_to_user(compat_ptr(user.object_name),
++						 server->auth.object_name,
++						 outl)) return -EFAULT;
++			}
++			if (copy_to_user(argp, &user, sizeof(user)))
++				return -EFAULT;
++			return 0;
++		}
++#endif
+ 	case NCP_IOC_GETOBJECTNAME:
+ 		if (current->uid != server->m.mounted_uid) {
+ 			return -EACCES;
+@@ -500,6 +632,9 @@ outrel:			
+ 				return -EFAULT;
+ 			return 0;
+ 		}
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_SETOBJECTNAME_32:
++#endif
+ 	case NCP_IOC_SETOBJECTNAME:
+ 		if (current->uid != server->m.mounted_uid) {
+ 			return -EACCES;
+@@ -512,8 +647,19 @@ outrel:			
+ 			void* oldprivate;
+ 			size_t oldprivatelen;
+ 
++#ifdef CONFIG_COMPAT
++			if (cmd == NCP_IOC_SETOBJECTNAME_32) {
++				struct compat_ncp_objectname_ioctl user32;
++				if (copy_from_user(&user32, argp, sizeof(user32)))
++					return -EFAULT;
++				user.auth_type = user32.auth_type;
++				user.object_name_len = user32.object_name_len;
++				user.object_name = compat_ptr(user32.object_name);
++			} else
++#endif
+ 			if (copy_from_user(&user, argp, sizeof(user)))
+ 				return -EFAULT;
++
+ 			if (user.object_name_len > NCP_OBJECT_NAME_MAX_LEN)
+ 				return -ENOMEM;
+ 			if (user.object_name_len) {
+@@ -544,6 +690,9 @@ outrel:			
+ 			kfree(oldname);
+ 			return 0;
+ 		}
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_GETPRIVATEDATA_32:
++#endif
+ 	case NCP_IOC_GETPRIVATEDATA:
+ 		if (current->uid != server->m.mounted_uid) {
+ 			return -EACCES;
+@@ -552,8 +701,18 @@ outrel:			
+ 			struct ncp_privatedata_ioctl user;
+ 			size_t outl;
+ 
++#ifdef CONFIG_COMPAT
++			if (cmd == NCP_IOC_GETPRIVATEDATA_32) {
++				struct compat_ncp_privatedata_ioctl user32;
++				if (copy_from_user(&user32, argp, sizeof(user32)))
++					return -EFAULT;
++				user.len = user32.len;
++				user.data = compat_ptr(user32.data);
++			} else
++#endif
+ 			if (copy_from_user(&user, argp, sizeof(user)))
+ 				return -EFAULT;
++
+ 			outl = user.len;
+ 			user.len = server->priv.len;
+ 			if (outl > user.len) outl = user.len;
+@@ -562,10 +721,23 @@ outrel:			
+ 						 server->priv.data,
+ 						 outl)) return -EFAULT;
+ 			}
++#ifdef CONFIG_COMPAT
++			if (cmd == NCP_IOC_GETPRIVATEDATA_32) {
++				struct compat_ncp_privatedata_ioctl user32;
++				user32.len = user.len;
++				user32.data = (unsigned long) user.data;
++				if (copy_to_user(&user32, argp, sizeof(user32)))
++					return -EFAULT;
++			} else
++#endif
+ 			if (copy_to_user(argp, &user, sizeof(user)))
+ 				return -EFAULT;
++
+ 			return 0;
+ 		}
++#ifdef CONFIG_COMPAT
++	case NCP_IOC_SETPRIVATEDATA_32:
++#endif
+ 	case NCP_IOC_SETPRIVATEDATA:
+ 		if (current->uid != server->m.mounted_uid) {
+ 			return -EACCES;
+@@ -576,8 +748,18 @@ outrel:			
+ 			void* old;
+ 			size_t oldlen;
+ 
++#ifdef CONFIG_COMPAT
++			if (cmd == NCP_IOC_SETPRIVATEDATA_32) {
++				struct compat_ncp_privatedata_ioctl user32;
++				if (copy_from_user(&user32, argp, sizeof(user32)))
++					return -EFAULT;
++				user.len = user32.len;
++				user.data = compat_ptr(user32.data);
++			} else
++#endif
+ 			if (copy_from_user(&user, argp, sizeof(user)))
+ 				return -EFAULT;
++
+ 			if (user.len > NCP_PRIVATE_DATA_MAX_LEN)
+ 				return -ENOMEM;
+ 			if (user.len) {
+@@ -636,20 +818,19 @@ outrel:			
+ 		}
+ 
+ 	}
+-/* #ifdef CONFIG_UID16 */
+-	/* NCP_IOC_GETMOUNTUID may be same as NCP_IOC_GETMOUNTUID2,
+-           so we have this out of switch */
+-	if (cmd == NCP_IOC_GETMOUNTUID) {
+-		__kernel_uid_t uid = 0;
+-		if ((file_permission(filp, MAY_READ) != 0)
+-		    && (current->uid != server->m.mounted_uid)) {
+-			return -EACCES;
+-		}
+-		SET_UID(uid, server->m.mounted_uid);
+-		if (put_user(uid, (__kernel_uid_t __user *)argp))
+-			return -EFAULT;
+-		return 0;
+-	}
+-/* #endif */
+ 	return -EINVAL;
+ }
++
++#ifdef CONFIG_COMPAT
++long ncp_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	struct inode *inode = file->f_dentry->d_inode;
++	int ret;
++
++	lock_kernel();
++	arg = (unsigned long) compat_ptr(arg);
++	ret = ncp_ioctl(inode, file, cmd, arg);
++	unlock_kernel();
++	return ret;
++}
++#endif
+diff -uprdN -X .exclude vger/include/linux/compat_ioctl.h linux/include/linux/compat_ioctl.h
+--- linux/include/linux/compat_ioctl.h	2006-07-26 18:38:30.000000000 +0200
++++ linux/include/linux/compat_ioctl.h	2006-07-27 05:43:07.000000000 +0200
+@@ -572,18 +572,6 @@ COMPATIBLE_IOCTL(RAW_SETBIND)
+ COMPATIBLE_IOCTL(RAW_GETBIND)
+ /* SMB ioctls which do not need any translations */
+ COMPATIBLE_IOCTL(SMB_IOC_NEWCONN)
+-/* NCP ioctls which do not need any translations */
+-COMPATIBLE_IOCTL(NCP_IOC_CONN_LOGGED_IN)
+-COMPATIBLE_IOCTL(NCP_IOC_SIGN_INIT)
+-COMPATIBLE_IOCTL(NCP_IOC_SIGN_WANTED)
+-COMPATIBLE_IOCTL(NCP_IOC_SET_SIGN_WANTED)
+-COMPATIBLE_IOCTL(NCP_IOC_LOCKUNLOCK)
+-COMPATIBLE_IOCTL(NCP_IOC_GETROOT)
+-COMPATIBLE_IOCTL(NCP_IOC_SETROOT)
+-COMPATIBLE_IOCTL(NCP_IOC_GETCHARSETS)
+-COMPATIBLE_IOCTL(NCP_IOC_SETCHARSETS)
+-COMPATIBLE_IOCTL(NCP_IOC_GETDENTRYTTL)
+-COMPATIBLE_IOCTL(NCP_IOC_SETDENTRYTTL)
+ /* Little a */
+ COMPATIBLE_IOCTL(ATMSIGD_CTRL)
+ COMPATIBLE_IOCTL(ATMARPD_CTRL)
+diff -uprdN -X .exclude vger/include/linux/ncp_fs.h linux/include/linux/ncp_fs.h
+--- linux/include/linux/ncp_fs.h	2006-07-26 18:38:30.000000000 +0200
++++ linux/include/linux/ncp_fs.h	2006-07-27 05:43:07.000000000 +0200
+@@ -215,6 +215,7 @@ void ncp_date_unix2dos(int unix_date, __
+ 
+ /* linux/fs/ncpfs/ioctl.c */
+ int ncp_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
++long ncp_compat_ioctl(struct file *, unsigned int, unsigned long);
+ 
+ /* linux/fs/ncpfs/sock.c */
+ int ncp_request2(struct ncp_server *server, int function,

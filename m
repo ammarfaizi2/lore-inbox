@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWG1NCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWG1NLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWG1NCM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 09:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWG1NCM
+	id S1751206AbWG1NLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 09:11:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWG1NLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 09:02:12 -0400
-Received: from web36710.mail.mud.yahoo.com ([209.191.85.44]:28296 "HELO
-	web36710.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030229AbWG1NCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 09:02:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Ar5gsoPDFsinP3dqEl227SmmdVFYiXffCt9jHVq9fhaONcOA/o3sn0Uln3r/KXFT1Xhu2V1a/mLca3aGuL0AzRZtijUaivgd9XMq81rl5Ux38hS96PLp7ZR2+einLzd1pbu60bc8cySWtxikrCMzGDxUFEW1zuCDT2evElq9fT0=  ;
-Message-ID: <20060728130211.63649.qmail@web36710.mail.mud.yahoo.com>
-Date: Fri, 28 Jul 2006 06:02:11 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: Andrey Panin <pazke@donpac.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060728114645.GC16961@pazke.donpac.ru>
+	Fri, 28 Jul 2006 09:11:10 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:3087 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751206AbWG1NLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 09:11:09 -0400
+Date: Fri, 28 Jul 2006 15:08:52 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: [patch] bootmem: use MAX_DMA_ADDRESS instead of LOW32LIMIT
+Message-ID: <20060728130852.GB9559@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The exact condition is (irq_status!=0 &&
-irq_status!=0xffffffff). I think it is not any better
-that what I have.
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
---- Andrey Panin <pazke@donpac.ru> wrote:
+__alloc_bootmem_low() and __alloc_bootmem_low_node() should use
+MAX_DMA_ADDRESS as limit which is per architecture instead of a global
+LOW32LIMIT. Otherwise the bootmem allocator may return addresses
+to memory regions which cannot be used for DMA access.
 
-> On 208, 07 27, 2006 at 08:34:06PM -0700, Alex Dubov
-> wrote:
-> 
-> What this strange line (in tifm_7xx1_isr function)
-> is supposed to do:
-> 
->         if(irq_status && (~irq_status))
-> 
-> check for nonzero irq_status in most obfuscated way
-> ?
-> Please replace it with something readable.
-> 
-> > I would like to announce the availability of the
-> > driver for TI FlashMedia flash card readers.
-> Currently
-> > supported pci ids:
-> > 1. 104c:8033.3
-> > 2. 104c:803b.2
-> > 
-> > Device with id 8033 also features sdhci interface
-> (as
-> > subfunction 4). However, sdhci is disabled on many
-> > laptops (notably Acer's), while FlashMedia
-> interface
-> > is available.
-> > 
-> > The driver is called tifmxx and available from:
-> > http://developer.berlios.de/projects/tifmxx/
-> > 
-> > Only mmc/sd cards are supported at present, via
-> mmc
-> > subsystem. Provisions for other card types (Sony
-> MS,
-> > xD and such) are in place, but no support is
-> available
-> > due to lack of hardware and interest.
-> > 
-> > 
-> > __________________________________________________
-> > Do You Yahoo!?
-> > Tired of spam?  Yahoo! Mail has the best spam
-> protection around 
-> > http://mail.yahoo.com 
-> > -
-> > To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -- 
-> Andrey Panin		| Linux and UNIX system administrator
-> pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-> 
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
+ mm/bootmem.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+diff --git a/mm/bootmem.c b/mm/bootmem.c
+index 50353e0..541bbe9 100644
+--- a/mm/bootmem.c
++++ b/mm/bootmem.c
+@@ -436,8 +436,6 @@ void * __init __alloc_bootmem_node(pg_da
+ 	return __alloc_bootmem(size, align, goal);
+ }
+ 
+-#define LOW32LIMIT 0xffffffff
+-
+ void * __init __alloc_bootmem_low(unsigned long size, unsigned long align, unsigned long goal)
+ {
+ 	bootmem_data_t *bdata;
+@@ -445,7 +443,7 @@ void * __init __alloc_bootmem_low(unsign
+ 
+ 	list_for_each_entry(bdata, &bdata_list, list)
+ 		if ((ptr = __alloc_bootmem_core(bdata, size,
+-						 align, goal, LOW32LIMIT)))
++						 align, goal, MAX_DMA_ADDRESS)))
+ 			return(ptr);
+ 
+ 	/*
+@@ -459,5 +457,6 @@ void * __init __alloc_bootmem_low(unsign
+ void * __init __alloc_bootmem_low_node(pg_data_t *pgdat, unsigned long size,
+ 				       unsigned long align, unsigned long goal)
+ {
+-	return __alloc_bootmem_core(pgdat->bdata, size, align, goal, LOW32LIMIT);
++	return __alloc_bootmem_core(pgdat->bdata, size, align, goal,
++				    MAX_DMA_ADDRESS);
+ }

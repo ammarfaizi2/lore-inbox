@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751979AbWG1Ia4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751981AbWG1Ieq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751979AbWG1Ia4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 04:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751980AbWG1Ia4
+	id S1751981AbWG1Ieq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 04:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWG1Ieq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 04:30:56 -0400
-Received: from www.nabble.com ([72.21.53.35]:38103 "EHLO talk.nabble.com")
-	by vger.kernel.org with ESMTP id S1751979AbWG1Ia4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 04:30:56 -0400
-Message-ID: <5535638.post@talk.nabble.com>
-Date: Fri, 28 Jul 2006 01:30:55 -0700 (PDT)
-From: "heavenscape (sent by Nabble.com)" <lists@nabble.com>
-Reply-To: heavenscape <masonduan1@sina.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to port a legacy device driver to a new Linux platform?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Nabble-Sender: lists@nabble.com
-X-Nabble-From: heavenscape <masonduan1@sina.com>
+	Fri, 28 Jul 2006 04:34:46 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:27938 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751981AbWG1Iep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 04:34:45 -0400
+Date: Fri, 28 Jul 2006 02:34:41 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Can we ignore errors in mcelog if the server is running fine
+In-reply-to: <fa.9M8mPetEI5HZ8L2RMGPhKPm3gJA@ifi.uio.no>
+To: Handle X <xhandle@gmail.com>
+Cc: Vikas Kedia <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
+Message-id: <44C9CC21.9040609@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.5uWgnVpIOBN4Pb1aWwNzF8P2OA0@ifi.uio.no>
+ <fa.9M8mPetEI5HZ8L2RMGPhKPm3gJA@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.4 (Windows/20060516)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Handle X wrote:
+> On 7/27/06, Robert Hancock <hancockr@shaw.ca> wrote:
+>> Vikas Kedia wrote:
+>> > The server seems to be running fine. A. can I ignore the following
+>> > mcelog errors ? B. If not what should i do to stop the server from
+>> > reporting mcelog errors.
+>>
+>> Looks like data cache ECC errors, meaning the CPU 0 is faulty.
+>> Eventually if it's not replaced there will likely be some uncorrectable
+>> errors and the system will likely crash.
+> 
+> I am facing similar, but different errors.
+> 
+> [root@turyxsrv ~]# mcelog
+> MCE 0
+> HARDWARE ERROR. This is *NOT* a software problem!
+> Please contact your hardware vendor
+> CPU 1 4 northbridge TSC 89a560bb249
+> ADDR 1dfa49690
+>  Northbridge Chipkill ECC error
+>  Chipkill ECC syndrome = 2021
+>       bit46 = corrected ecc error
+>  bus error 'local node response, request didn't time out
+>      generic read mem transaction
+>      memory access, level generic'
+> STATUS 9410c00020080a13 MCGSTATUS 0
 
-Hi all,
+> Repeats whenever I do any kind of operations...
+> How severe is ChipKill errors? Should I consider throwing away CPU 1
+> and get another one.
 
-I have a legacy PCI fiber card running under Red Hat Linux 7.3, and I have
-all the source code of its driver developped by others. Please see the
-attachment.
+That sounds to me more like some of the RAM attached to CPU1 is bad..
 
-http://www.nabble.com/user-files/135/cyport71.tar cyport71.tar 
-
-It is working fine right now. But I am going to upgrade my OS to Rea Hat
-Enterprise Linux AS 4, I am not sure how can I recompile and install this
-fiber card in the new OS.  I am new to Linux and have minimal experience in
-programming Linux. But this card is very important to me.
-
-Any suggestion is highly appreciated!!  Thanks!!
-
-Mason
 -- 
-View this message in context: http://www.nabble.com/How-to-port-a-legacy-device-driver-to-a-new-Linux-platform--tf2014157.html#a5535638
-Sent from the linux-kernel forum at Nabble.com.
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

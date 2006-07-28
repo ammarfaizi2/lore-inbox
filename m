@@ -1,67 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751972AbWG1FXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWG1F2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751972AbWG1FXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 01:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWG1FXd
+	id S1751973AbWG1F2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 01:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWG1F2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 01:23:33 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:17328 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751773AbWG1FXc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 01:23:32 -0400
-Date: Fri, 28 Jul 2006 09:23:12 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060728052312.GB11210@2ka.mipt.ru>
-References: <20060709132446.GB29435@2ka.mipt.ru> <20060724.231708.01289489.davem@davemloft.net> <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru> <44C930D5.9020704@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Fri, 28 Jul 2006 01:28:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:21861 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751285AbWG1F2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 01:28:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TwSVkd4esF8HuH8bPkzQkQ7do9f3Ia1VucQ9Z6Ls9iwXTaDlw0xCDq37rz/Aw4jcuQRxGN6NIIHZoy3MnFYZ/NmQ3KNlfzN3lFP8GSnSbW73hvku3ChgK53d2CF4iTXAhrT10W0intLS0BU2eMVHBnXoO4jC2NHrxmUjgWc7B28=
+Message-ID: <6de39a910607272228o26ab51cbw8aaa7215f5fadb8@mail.gmail.com>
+Date: Thu, 27 Jul 2006 22:28:18 -0700
+From: "Handle X" <xhandle@gmail.com>
+To: "Robert Hancock" <hancockr@shaw.ca>
+Subject: Re: Can we ignore errors in mcelog if the server is running fine
+Cc: "Vikas Kedia" <kedia.vikas@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <44C9155D.5060102@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44C930D5.9020704@oracle.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 28 Jul 2006 09:23:14 +0400 (MSD)
+References: <fa.2RkKSvRvPsGNSGCsUHQ9gQ8qlrg@ifi.uio.no>
+	 <44C9155D.5060102@shaw.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 02:32:05PM -0700, Zach Brown (zach.brown@oracle.com) wrote:
-> 
-> >> 	int kevent_getevents(int event_fd, struct ukevent *events,
-> >> 		int min_events, int max_events,
-> >> 		struct timeval *timeout);
-> > 
-> > I used only one syscall for all operations, above syscall is
-> > essentially what kevent_user_wait() does.
-> 
-> Essentially, yes, but the differences are important.  It's important to
-> have a clear syscall interface instead of nesting through multiplexers.
->  And we should get the batching/latency inputs right.  (I'm for both
-> min/max elements and arguably timeouts, but I could understand not
-> wanting to go *that* far.)
+On 7/27/06, Robert Hancock <hancockr@shaw.ca> wrote:
+> Vikas Kedia wrote:
+> > The server seems to be running fine. A. can I ignore the following
+> > mcelog errors ? B. If not what should i do to stop the server from
+> > reporting mcelog errors.
+>
+> Looks like data cache ECC errors, meaning the CPU 0 is faulty.
+> Eventually if it's not replaced there will likely be some uncorrectable
+> errors and the system will likely crash.
 
-I completely agree that existing kevent interface is not the best, so
-I'm opened for any suggestions.
-Should kevent creation/removing/modification be separated too?
+I am facing similar, but different errors.
 
-> > Hmm, it looks like I'm lost here...
-> 
-> Yeah, it seems my description might not have sunk in :).  We're giving
-> userspace a way to collect events without performing a system call.
+[root@turyxsrv ~]# mcelog
+MCE 0
+HARDWARE ERROR. This is *NOT* a software problem!
+Please contact your hardware vendor
+CPU 1 4 northbridge TSC 89a560bb249
+ADDR 1dfa49690
+  Northbridge Chipkill ECC error
+  Chipkill ECC syndrome = 2021
+       bit46 = corrected ecc error
+  bus error 'local node response, request didn't time out
+      generic read mem transaction
+      memory access, level generic'
+STATUS 9410c00020080a13 MCGSTATUS 0
+MCE 1
+HARDWARE ERROR. This is *NOT* a software problem!
+Please contact your hardware vendor
+CPU 1 4 northbridge TSC a6550f2d4de
+ADDR 1de74b670
+  Northbridge Chipkill ECC error
+  Chipkill ECC syndrome = 2021
+       bit32 = err cpu0
+       bit46 = corrected ecc error
+  bus error 'local node origin, request didn't time out
+      generic read mem transaction
+      memory access, level generic'
+STATUS 9410c00120080813 MCGSTATUS 0
+MCE 2
+HARDWARE ERROR. This is *NOT* a software problem!
+Please contact your hardware vendor
+CPU 1 4 northbridge TSC afe4eba238a
+ADDR 1d8049698
+  Northbridge Chipkill ECC error
+  Chipkill ECC syndrome = 2021
+       bit46 = corrected ecc error
+  bus error 'local node response, request didn't time out
+      generic read mem transaction
+      memory access, level generic'
+STATUS 9410c00020080a13 MCGSTATUS 0
+MCE 3
+HARDWARE ERROR. This is *NOT* a software problem!
+Please contact your hardware vendor
+CPU 1 4 northbridge TSC cc945738d0a
+ADDR 194c4b670
+  Northbridge Chipkill ECC error
+  Chipkill ECC syndrome = 2021
+       bit40 = error found by scrub
+       bit46 = corrected ecc error
+  bus error 'local node response, request didn't time out
+      generic read mem transaction
+      memory access, level generic'
+STATUS 9410c10020080a13 MCGSTATUS 0
 
-And why do we want this?
-How glibc is supposed to determine, that some events already fired and
-such requests will return immediately, or for example how timer events
-will be managed?
+Repeats whenever I do any kind of operations...
+How severe is ChipKill errors? Should I consider throwing away CPU 1
+and get another one.
 
-> > I especially like idea about world happinness in a week or so :)
-> 
-> A few weeks! :)
-
-No matter after couple of millions of years of human evolution :)
-
-> - z
-
--- 
-	Evgeniy Polyakov
+Regards,
+Om.

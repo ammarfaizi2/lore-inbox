@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWG2Twk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWG2T5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWG2Twk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWG2Twj
+	id S932224AbWG2T5o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWG2T5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:52:39 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20423 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932225AbWG2Twj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:52:39 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.18-rc2-mm1 timer int 0 doesn't work
-References: <20060727015639.9c89db57.akpm@osdl.org>
-	<1154112276.3530.3.camel@amdx2.microgate.com>
-	<20060728144854.44c4f557.akpm@osdl.org>
-	<20060728233851.GA35643@muc.de>
-	<1154187239.3404.2.camel@amdx2.microgate.com>
-Date: Sat, 29 Jul 2006 13:50:46 -0600
-In-Reply-To: <1154187239.3404.2.camel@amdx2.microgate.com> (Paul Fulghum's
-	message of "Sat, 29 Jul 2006 10:33:59 -0500")
-Message-ID: <m1lkqc9omh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 Jul 2006 15:57:44 -0400
+Received: from halon.profiwh.com ([85.93.165.2]:27374 "EHLO orfeus.profiwh.com")
+	by vger.kernel.org with ESMTP id S932224AbWG2T5n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 15:57:43 -0400
+Message-id: <fbdc1c0c5508c52eeb27a182b661ac1c460d91c0@hohoho>
+Subject: [PATCH 1/1] net: correct-Traffic-shaper-Kconfig
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: netdev@vger.kernel.org, jgarzik@pobox.com
+X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Date: Sat, 29 Jul 2006 15:57:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> writes:
+correct-Traffic-shaper-Kconfig
 
-> On Sat, 2006-07-29 at 01:38 +0200, Andi Kleen wrote:
->
->> It's remove-timer-fallback likely. I was working on that already.
->> 
->> Some boards go into the timer fallback path since 2.6.17/64bit for so 
->> far unknown reasons and that doesn't work anymore because I removed the 
->> fallback path.
->
-> remove-timer-fallback did not reverse cleanly against 2.6.18-rc2-mm1
->
-> I tried to patch it up and got it to compile without
-> errors or warnings. The result was a hard freeze early in
-> the boot, so I suspect more is necessary to restore that
-> function.
+Correct traffic shaper Kconfig text.
 
-Any chance you can post the your reversed version of remove-timer-fallback
-so we can have a clue about what happened.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-Eric
+---
+commit fbdc1c0c5508c52eeb27a182b661ac1c460d91c0
+tree 84995c9113a19ae1c104579b96e311f34a94bda9
+parent fb63c3d00f6990e66752e05f98f13ff464e97b42
+author Jiri Slaby <ku@bellona.localdomain> Sat, 08 Apr 2006 15:20:41 +0159
+committer Jiri Slaby <ku@bellona.localdomain> Sat, 08 Apr 2006 15:20:41 +0159
+
+ drivers/net/Kconfig |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
+index 15d4161..c5030db 100644
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -2802,9 +2802,9 @@ config SHAPER
+ 	  these virtual devices. See
+ 	  <file:Documentation/networking/shaper.txt> for more information.
+ 
+-	  An alternative to this traffic shaper is the experimental
+-	  Class-Based Queuing (CBQ) scheduling support which you get if you
+-	  say Y to "QoS and/or fair queuing" above.
++	  An alternative to this traffic shaper is the Class-Based Queuing
++	  (CBQ) scheduling support which you get if you say Y to
++	  "QoS and/or fair queuing" in "Networking options".
+ 
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called shaper.  If unsure, say N.

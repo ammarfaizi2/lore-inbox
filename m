@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWG2QUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWG2Q3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWG2QUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 12:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWG2QUi
+	id S1751300AbWG2Q3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 12:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWG2Q3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 12:20:38 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:54157 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751296AbWG2QUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 12:20:37 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44CB8A30.2080809@s5r6.in-berlin.de>
-Date: Sat, 29 Jul 2006 18:17:52 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sat, 29 Jul 2006 12:29:55 -0400
+Received: from mail.gmx.net ([213.165.64.21]:6540 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751300AbWG2Q3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 12:29:54 -0400
+Cc: hmh@debian.org, len.brown@intel.com, Matt_Domsch@dell.com,
+       bjorn.helgaas@hp.com
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sat, 29 Jul 2006 18:29:53 +0200
+From: "Carl-Daniel U. Hailfinger" <c-d.hailfinger.devel.2006@gmx.net>
+In-Reply-To: <41840b750607290555j3e46aab4vb28efdebea2cc9a8@mail.gmail.com>
+Message-ID: <20060729162953.25770@gmx.net>
 MIME-Version: 1.0
-To: nhorman@tuxdriver.com
-CC: bcollins@debian.org, kernel-janitors@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] audit return code handling for kernel_thread [8/11]
-References: <200607282007.k6SK7v9j009670@ra.tuxdriver.com>
-In-Reply-To: <200607282007.k6SK7v9j009670@ra.tuxdriver.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
+ <41840b750607290555j3e46aab4vb28efdebea2cc9a8@mail.gmail.com>
+Subject: Re: Re: [PATCH] DMI: Decode and save OEM String information
+To: "Shem Multinymous" <multinymous@gmail.com>, linux-kernel@vger.kernel.org
+X-Authenticated: #31060655
+X-Flags: 0001
+X-Mailer: WWW-Mail 6100 (Global Message Exchange)
+X-Priority: 3
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nhorman@tuxdriver.com wrote:
-> --- a/drivers/ieee1394/nodemgr.c
-> +++ b/drivers/ieee1394/nodemgr.c
-> @@ -426,7 +426,8 @@ static ssize_t fw_set_rescan(struct bus_
->  	 * something stupid and spawn this a lot of times, but that's
->  	 * root's fault. */
->  	if (state == 1)
-> -		kernel_thread(nodemgr_rescan_bus_thread, NULL, CLONE_KERNEL);
-> +		if (kernel_thread(nodemgr_rescan_bus_thread, NULL, CLONE_KERNEL) < 0)
-> +			printk(KERN_WARNING "Could not start 1394 bus rescan thread\n");
->  
->  	return count;
->  }
+Hi!
 
-Thanks, but (a) we don't need the warnig and (b) we even don't need to 
-spawn a thread at this point. This call to kernel_thread has been 
-removed from git-ieee1394 and -mm earlier this month.
-http://www.kernel.org/git/?p=linux/kernel/git/bcollins/linux1394-2.6.git;a=commitdiff_plain;h=40fd89cc54a8a67c81b5aa40b22c4f40b39e47b9
-http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115189722112717
+Shem Multinymous wrote:
+> 
+> Signed-off-by: Shem Multinymous <multinymous@gmail.com>
+
+I can't help but notice that you have an interesting name which sounds a bit "synthetic" to me (no offense). IIRC some time ago it was stated that the Signed-off-by line should contain a real name. If that is really your name, I wish to apologize.
+
+Regards,
+Carl-Daniel
 -- 
-Stefan Richter
--=====-=-==- -=== ===-=
-http://arcgraph.de/sr/
+
+
+Echte DSL-Flatrate dauerhaft für 0,- Euro*. Nur noch kurze Zeit!
+"Feel free" mit GMX DSL: http://www.gmx.net/de/go/dsl

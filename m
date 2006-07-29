@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWG2Ka7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWG2Kbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422738AbWG2Ka7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 06:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWG2Ka7
+	id S1422739AbWG2Kbe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 06:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422742AbWG2Kbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 06:30:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:62128 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1422738AbWG2Ka5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 06:30:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AWBfLwuWV06PfA1bgxh8qNz80QfH7MIzOleMB/iBnMXIdoYv6eTMjvF8hAvT5vyk3KVMak0T4oLYsSRi++y9mJLLxzIOlq+m6V1zY000+H3lb5l4c1Za+Ht6GefWrqU7WvJVqozBoLjTFCQMeK7pHjcMDMIQHF6EhXesQvXw9zo=
-Message-ID: <41840b750607290330t35eab99fscef30fb46fdf4ec0@mail.gmail.com>
-Date: Sat, 29 Jul 2006 13:30:56 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: Generic battery interface
-Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
-       "Pavel Machek" <pavel@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-In-Reply-To: <20060729101730.GA7438@suse.cz>
+	Sat, 29 Jul 2006 06:31:34 -0400
+Received: from abfc190.neoplus.adsl.tpnet.pl ([83.7.40.190]:57543 "EHLO
+	pcserwis") by vger.kernel.org with ESMTP id S1422741AbWG2Kbd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 06:31:33 -0400
+Date: Sat, 29 Jul 2006 12:30:44 +0200
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion)
+From: =?iso-8859-2?B?o3VrYXN6IE1pZXJ6d2E=?= <prymitive@pcserwis.hopto.org>
+Organization: PC Serwis
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060727232427.GA4907@suse.cz> <20060728074202.GA4757@suse.cz>
-	 <20060728122508.GC4158@elf.ucw.cz> <20060728134307.GD29217@suse.cz>
-	 <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com>
-	 <200607281557.k6SFvn09022794@turing-police.cc.vt.edu>
-	 <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com>
-	 <200607282314.k6SNESSg019274@turing-police.cc.vt.edu>
-	 <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com>
-	 <20060729101730.GA7438@suse.cz>
+In-Reply-To: <44CA126C.7050403@namesys.com>
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com>
+Content-Transfer-Encoding: 8bit
+Message-ID: <op.tdf4tigjd4os1z@localhost>
+User-Agent: Opera Mail/9.00 (Linux)
+X-PCSerwis-MailScanner-Information: Please contact the ISP for more information
+X-PCSerwis-MailScanner: Found to be clean
+X-PCSerwis-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-14.843, required 6, autolearn=not spam, ALL_TRUSTED -1.80,
+	AWL 1.96, BAYES_00 -15.00)
+X-MailScanner-From: prymitive@pcserwis.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/29/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > The lazy polling approach I described in my last post to Vojtech
-> > ("block until there's  a new readout or N milliseconds have passed,
-> > whichever is later") looks like a more general, accurate and efficient
-> > interface.
+Dnia Fri, 28 Jul 2006 15:34:36 +0200, Hans Reiser <reiser@namesys.com>
+napisa³:
+
+> Let me put it from my perspective and stop pretending to be unbiased, so
+> others can see where I am coming from.  No one was interested in our
+> plugins.  We put the design on a website, spoke at conferences, no one
+> but users were interested.  No one would have conceived of having
+> plugins if not for us.  Our plugins affect no one else.  Our
+> self-contained code should not be delayed because other people delayed
+> getting interested in our ideas and now they don't want us to have an
+> advantage from leading.  If they want to some distant day implement
+> generic plugins, for which they have written not one line of code to
+> date, fine, we'll use it when it exists, but right now those who haven't
+> coded should get out of the way of people with working code.  It is not
+> fair or just to do otherwise.  It also prevents users from getting
+> advances they could be getting today, for no reason.  Our code will not
+> be harder to change once it is in the kernel, it will be easier, because
+> there will be more staff funded to work on it.
 >
-> If "N" is given by the kernel, then it's identical to an event-based
-> approach. ;) Just described in different words.
+> As for this "we are all too grand to be bothered with money to feed our
+> families" business, building a system in which those who contribute can
+> find a way to be rewarded is what managers do.   Free software
+> programmers may be willing to live on less than others, but they cannot
+> live on nothing, and code that does not ever ship means living on  
+> nothing.
+>
+> If reiser4 is delayed enough, for reasons that have nothing to do with
+> its needs, and without it having encumbered anyone else, it won't be
+> ahead of the other filesystems when it ships.
+>
 
-No, N is given separately by each userspace client, on every call.
-That's the whole point. The kernel driver then does the minimal
-hardware querying and event generation that (a) makes sense for the
-hardware and (b) satisfies all userspace clients.
-
-  Shem
+It just hited me that 90% of mails (those I've read and remember) in which
+You guys are talking why r4 should or should not be merged did not contain
+a patch or not even a line of code as a reference, most of complains feels
+so abstract and ahead of time, there is nothing wrong with planing ahead
+but does it still makes sense when nobody else actually said that he would
+want to use it in future? Can't it be pusshed up to vfs later if it proves
+itself and there is demand for it?
+My question is what does it break now? It's been in mm for some time now,
+what troubles does it couse? Did anyone complained that it breaks mm and
+should be dropped?
+I'm just a end user and have no idea of linux internals, but all the fuzz
+about r4 seems so political and it's not just me who things so.

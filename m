@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161411AbWG2Cwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161426AbWG2DBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161411AbWG2Cwy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 22:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161410AbWG2Cwx
+	id S1161426AbWG2DBH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 23:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161428AbWG2DBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 22:52:53 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:45031 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161408AbWG2Cwp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 22:52:45 -0400
-Subject: [Patch] 3/5 in support of hot-add memory x86_64 arch_find_node
-	x86_64
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: lhms-devel <lhms-devel@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       andrew <akpm@osdl.org>, kame <kamezawa.hiroyu@jp.fujitsu.com>,
-       dave hansen <haveblue@us.ibm.com>, discuss <discuss@x86-64.org>,
-       konrad <darnok@us.ibm.com>
-Content-Type: multipart/mixed; boundary="=-yqJ8PBk6GT7r4nthdHsP"
-Organization: Linux Technology Center IBM
-Date: Fri, 28 Jul 2006 19:52:41 -0700
-Message-Id: <1154141562.5874.147.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 28 Jul 2006 23:01:07 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35788 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161426AbWG2DBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 23:01:06 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Fulghum <paulkf@microgate.com>, ak@muc.de,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: 2.6.18-rc2-mm1 timer int 0 doesn't work
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	<1154112276.3530.3.camel@amdx2.microgate.com>
+	<20060728144854.44c4f557.akpm@osdl.org>
+	<20060728233851.GA35643@muc.de>
+	<1154132126.3349.8.camel@localhost.localdomain>
+	<1154135792.2557.7.camel@localhost.localdomain>
+	<20060728182450.8f5cbf76.akpm@osdl.org>
+Date: Fri, 28 Jul 2006 20:58:33 -0600
+In-Reply-To: <20060728182450.8f5cbf76.akpm@osdl.org> (Andrew Morton's message
+	of "Fri, 28 Jul 2006 18:24:50 -0700")
+Message-ID: <m1odv9azhi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
---=-yqJ8PBk6GT7r4nthdHsP
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> On Fri, 28 Jul 2006 20:16:32 -0500
+> Paul Fulghum <paulkf@microgate.com> wrote:
+>
+>> On Fri, 2006-07-28 at 19:15 -0500, Paul Fulghum wrote:
+>> > I'm doing a build on my home machine now to see if it
+>> > happens there also.
+>> 
+>> Well, the timer int 0 problem does not happen on my home machine.
+>> However, it still crashes in early boot for a different reason.
+>> 
+>> 2.6.18-rc2 works fine with same config.
+>> 
+>> In this case the error is:
+>> 
+>> No per-cpu room for modules
+>
+> yeah, sorry, that's a known problem which nobody appears to be doing
+> anything about.  The expansion of NR_IRQS gobbles all the percpu memory in
+> the kstat structure.
 
-Hello all
-  This is a enablement of the generic arch_find_node for x86_64. It uses
-the nodes_add date collected from the SRAT to do it's lookup. 
+Sorry I didn't realize it was so easy to trip over.
+It's on my todo list for sometime in the next couple of days.
 
-I suspect and i386 version will be needed when I get to that arch with
-my work. 
+> I assume you have a large NR_CPUS?  Decreasing it should help.
 
-This was built against 2.6.18-rc2.
-
-Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
-
---=-yqJ8PBk6GT7r4nthdHsP
-Content-Disposition: attachment; filename=patch-2.6.18-rc2-arch_find_node_x86_64
-Content-Type: text/x-patch; name=patch-2.6.18-rc2-arch_find_node_x86_64; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -urN orig/arch/x86_64/Kconfig work/arch/x86_64/Kconfig
---- orig/arch/x86_64/Kconfig	2006-07-28 13:57:35.000000000 -0400
-+++ work/arch/x86_64/Kconfig	2006-07-28 21:20:16.000000000 -0400
-@@ -343,6 +343,10 @@
- 	def_bool y
- 	depends on MEMORY_HOTPLUG
- 
-+config ARCH_FIND_NODE
-+	def_bool y
-+	depends on MEMORY_HOTPLUG
-+
- config ARCH_FLATMEM_ENABLE
- 	def_bool y
- 	depends on !NUMA
-diff -urN orig/arch/x86_64/mm/srat.c work/arch/x86_64/mm/srat.c
---- orig/arch/x86_64/mm/srat.c	2006-07-28 13:57:35.000000000 -0400
-+++ work/arch/x86_64/mm/srat.c	2006-07-28 21:19:01.000000000 -0400
-@@ -450,3 +450,15 @@
- }
- 
- EXPORT_SYMBOL(__node_distance);
-+
-+int arch_find_node(unsigned long start, unsigned long size) 
-+{
-+	int i, ret = 0;
-+	unsigned long end = start+size;
-+	
-+	for_each_node(i) {
-+		if (nodes_add[i].start <= start && nodes_add[i].end >= end)
-+			ret = i;
-+	}
-+	return ret;
-+}
-
---=-yqJ8PBk6GT7r4nthdHsP--
-
+Eric

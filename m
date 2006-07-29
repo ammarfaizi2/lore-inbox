@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWG2TnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWG2Tni@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752077AbWG2TnG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWG2Tm7
+	id S932227AbWG2Tni (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWG2TnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:42:59 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:62172 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752078AbWG2Tmx (ORCPT
+	Sat, 29 Jul 2006 15:43:12 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:57820 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752074AbWG2Tmj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:42:53 -0400
-Date: Sat, 29 Jul 2006 21:42:46 +0200
+	Sat, 29 Jul 2006 15:42:39 -0400
+Date: Sat, 29 Jul 2006 21:42:37 +0200
 From: "Andi Kleen" <ak@suse.de>
 To: torvalds@osdl.org
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, betak@mpdtxmail.amd.com
-Subject: [PATCH for 2.6.18] [5/8] x86_64: Revert k8-bus.c northbridge
- access change
-Message-ID: <44cbba36.ZnN1E1JhDUaqcCgm%ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: [PATCH for 2.6.18] [2/8] x86_64: On Intel systems when CPU has C3 don't use TSC
+Message-ID: <44cbba2d.ejpOKfo7QfGElmoT%ak@suse.de>
 User-Agent: nail 11.25 7/29/05
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,56 +23,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-As Travis Betak points out it accesses the wrong northbridge subfunction
-now. Switch back to the old code.
+On Intel systems generally the TSC stops in C3 or deeper, 
+so don't use it there. Follows similar logic on i386.
 
-Cc: "Travis Betak" <betak@mpdtxmail.amd.com>
+This should fix problems on Meroms.
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/pci/k8-bus.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+ arch/x86_64/kernel/time.c |   16 ++++++++++++----
+ 1 files changed, 12 insertions(+), 4 deletions(-)
 
-Index: linux-2.6.18-rc2-git7/arch/x86_64/pci/k8-bus.c
+Index: linux-2.6.18-rc2-git7/arch/x86_64/kernel/time.c
 ===================================================================
---- linux-2.6.18-rc2-git7.orig/arch/x86_64/pci/k8-bus.c
-+++ linux-2.6.18-rc2-git7/arch/x86_64/pci/k8-bus.c
-@@ -2,7 +2,6 @@
- #include <linux/pci.h>
- #include <asm/mpspec.h>
- #include <linux/cpumask.h>
--#include <asm/k8.h>
- 
- /*
-  * This discovers the pcibus <-> node mapping on AMD K8.
-@@ -19,6 +18,7 @@
- #define NR_LDT_BUS_NUMBER_REGISTERS 3
- #define SECONDARY_LDT_BUS_NUMBER(dword) ((dword >> 8) & 0xFF)
- #define SUBORDINATE_LDT_BUS_NUMBER(dword) ((dword >> 16) & 0xFF)
-+#define PCI_DEVICE_ID_K8HTCONFIG 0x1100
- 
- /**
-  * fill_mp_bus_to_cpumask()
-@@ -28,7 +28,8 @@
- __init static int
- fill_mp_bus_to_cpumask(void)
- {
--	int i, j, k;
-+	struct pci_dev *nb_dev = NULL;
-+	int i, j;
- 	u32 ldtbus, nid;
- 	static int lbnr[3] = {
- 		LDT_BUS_NUMBER_REGISTER_0,
-@@ -36,9 +37,8 @@ fill_mp_bus_to_cpumask(void)
- 		LDT_BUS_NUMBER_REGISTER_2
- 	};
- 
--	cache_k8_northbridges();
--	for (k = 0; k < num_k8_northbridges; k++) {
--		struct pci_dev *nb_dev = k8_northbridges[k];
-+	while ((nb_dev = pci_get_device(PCI_VENDOR_ID_AMD,
-+			PCI_DEVICE_ID_K8HTCONFIG, nb_dev))) {
- 		pci_read_config_dword(nb_dev, NODE_ID_REGISTER, &nid);
- 
- 		for (i = 0; i < NR_LDT_BUS_NUMBER_REGISTERS; i++) {
+--- linux-2.6.18-rc2-git7.orig/arch/x86_64/kernel/time.c
++++ linux-2.6.18-rc2-git7/arch/x86_64/kernel/time.c
+@@ -28,6 +28,7 @@
+ #include <linux/acpi.h>
+ #ifdef CONFIG_ACPI
+ #include <acpi/achware.h>	/* for PM timer frequency */
++#include <acpi/acpi_bus.h>
+ #endif
+ #include <asm/8253pit.h>
+ #include <asm/pgtable.h>
+@@ -953,11 +954,18 @@ __cpuinit int unsynchronized_tsc(void)
+ #ifdef CONFIG_SMP
+ 	if (apic_is_clustered_box())
+ 		return 1;
+- 	/* Intel systems are normally all synchronized. Exceptions
+- 	   are handled in the check above. */
+- 	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
+- 		return 0;
+ #endif
++	/* Most intel systems have synchronized TSCs except for
++	   multi node systems */
++ 	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++#ifdef CONFIG_ACPI
++		/* But TSC doesn't tick in C3 so don't use it there */
++		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 100)
++			return 1;
++#endif
++ 		return 0;
++	}
++
+  	/* Assume multi socket systems are not synchronized */
+  	return num_present_cpus() > 1;
+ }

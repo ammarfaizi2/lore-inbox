@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751999AbWG2BoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751992AbWG2BsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751999AbWG2BoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 21:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWG2BoD
+	id S1751992AbWG2BsH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 21:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWG2BsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 21:44:03 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:36770 "EHLO
-	asav05.manage.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751999AbWG2BoC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 21:44:02 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: Aa4HADRaykSBUw
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Subject: Re: [RFC] #define rwxr_xr_x 0755
-Date: Fri, 28 Jul 2006 21:43:57 -0400
-User-Agent: KMail/1.9.3
-Cc: Handle X <xhandle@gmail.com>,
-       =?iso-8859-1?q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>,
-       Alexey Dobriyan <adobriyan@gmail.com>, linux-kernel@vger.kernel.org
-References: <20060727205911.GB5356@martell.zuzino.mipt.ru> <6de39a910607280934t5c264b20w38c1f52c978b4e15@mail.gmail.com> <20060728164839.GA20974@filer.fsl.cs.sunysb.edu>
-In-Reply-To: <20060728164839.GA20974@filer.fsl.cs.sunysb.edu>
+	Fri, 28 Jul 2006 21:48:06 -0400
+Received: from paragon.brong.net ([66.232.154.163]:8681 "EHLO
+	paragon.brong.net") by vger.kernel.org with ESMTP id S1751992AbWG2BsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 21:48:05 -0400
+Date: Sat, 29 Jul 2006 11:48:01 +1000
+From: Bron Gondwana <brong@fastmail.fm>
+To: erich <erich@areca.com.tw>
+Cc: Greg KH <greg@kroah.com>, Robert Mueller <robm@fastmail.fm>,
+       Dax Kelson <dax@gurulabs.com>, Theodore Bullock <tbullock@nortel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Areca arcmsr kernel integration
+Message-ID: <20060729014801.GB5487@brong.net>
+References: <25E284CCA9C9A14B89515B116139A94D0C6DF1A4@zrtphxm0.corp.nortel.com> <20060728202749.GA23662@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607282143.58915.dtor@insightbb.com>
+In-Reply-To: <20060728202749.GA23662@kroah.com>
+Organization: brong.net
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 July 2006 12:48, Josef Sipek wrote:
-> On Fri, Jul 28, 2006 at 09:34:11AM -0700, Handle X wrote:
-> > On 7/27/06, Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-> > >On 2006.07.28 00:59:11 +0400, Alexey Dobriyan wrote:
-> > >> Every time I try to decipher S_I* combos I cry in pain. Often I just
-> > >> refer to include/linux/stat.h defines to find out what mode it is
-> > >> because numbers are actually quickier to understand.
-> > >>
-> > >> Compare and contrast:
-> > >>
-> > >>       0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
-> > >>
-> > >> I'd say #2 really sucks.
-> > >
-> > >IMHO #3 sucks more, it's not as easy to spot when glossing over the
-> > >code, the underscores make it quite ugly (think _r________) and it's
-> > >less "greppable". If I know that there's something that sets S_ISUID, I
-> > >can easily search for that, compare that to [_cpdbl]{1}[r_]{1}[w_]{1}s...
-> > I agree with Steinbink. But how about having macros like,
-> > S_I0700, S_I0070, S_I6444 ..etc. They combine visual appeal of octals,
-> > easy to grep, easy to decipher ...etc.
-> 
-> Even better!
-> 
+(adding Rob and Dax to CC and erich as primary recipient)
 
-So now tell me how is S_I0644 better than 0644? S_IRUGO et al at least hide
-implementation details.
+On Fri, Jul 28, 2006 at 01:27:49PM -0700, Greg KH wrote:
+> On Fri, Jul 28, 2006 at 02:07:12PM -0400, Theodore Bullock wrote:
+> > It would be really nice to see the arcmsr driver integrated into the
+> > mainline kernel in the nearish future.
+> > 
+> > Ideally, the driver would be available before the next major
+> > distribution is published so that the hardware can be officially
+> > supported by the distribution developers eg. Novell, Red Hat, Canonical
+> > ... etc.
+> > 
+> > After a brief review of upcoming schedules, Fedora Core looks to be
+> > updated next in October with the last test release currently scheduled
+> > for October. After that it will probably be SuSE.
+> > 
+> > We have a good number of workstations with this hardware here, but
+> > support isn't available from our distribution.
+> > 
+> > Checking the recent posts it seems that there are two outstanding issues
+> > 
+> > > - PAE (cast of dma_addr_t to unsigned long) issues. 
+> > > - SYNCHRONIZE_CACHE is ignored.  This is wrong.  The sync cache in the
+> > 
+> > > shutdown notifier isn't sufficient.
+> > 
+> > That said, we have been using an older version of the driver off the
+> > Areca website for some time now with no major issues (other than kernel
+> > update problems). 
+> > 
+> > Is it possible to get the driver integrated and fix these problems
+> > after?
+> 
+> Why not fix them up and submit the corrected driver?  If no one wants to
+> put the effort into fixing these issues now, why would they do the work
+> later?
+> 
+> thanks,
+> 
+> greg k-h
 
--- 
-Dmitry
+Hi erich and other interested parties,
+
+I agree with Theodore that it would be a great idea to get the arcmsr
+driver and I'm sure we'd all be happy to help you with whatever you need
+to make this happen.
+
+Is any of the technical hardware documentation available to us so we can
+help you with the driver design?  I'm certainly happy to help with
+testing and/or documentation, and I have some C programming skills,
+though I haven't done any serious kernel programming.
+
+Regards,
+
+Bron.

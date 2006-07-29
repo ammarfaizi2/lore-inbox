@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWG2RNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWG2RVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWG2RNi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 13:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWG2RNi
+	id S932153AbWG2RVB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 13:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWG2RVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 13:13:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18861 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751405AbWG2RNh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 13:13:37 -0400
-Date: Sat, 29 Jul 2006 13:13:18 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386: Do backtrace fallback too
-Message-ID: <20060729171318.GF16946@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <200607290300.k6T306Fc003168@hera.kernel.org> <200607291835.54379.ak@suse.de> <20060729164238.GB16946@redhat.com> <200607291903.10969.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607291903.10969.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
+	Sat, 29 Jul 2006 13:21:01 -0400
+Received: from server077.de-nserver.de ([62.27.12.245]:25507 "EHLO
+	server077.de-nserver.de") by vger.kernel.org with ESMTP
+	id S1751213AbWG2RVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 13:21:00 -0400
+X-User-Auth: Auth by hostmaster@profihost.com through 84.133.217.26
+Message-ID: <44CB98F7.9070900@profihost.com>
+Date: Sat, 29 Jul 2006 19:20:55 +0200
+From: ProfiHost - Stefan Priebe <s.priebe@profihost.com>
+Organization: ProfiHost
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Nathan Scott <nathans@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>
+Subject: Re: XFS / Quota Bug in  2.6.17.x and 2.6.18x
+References: <44C8A5F1.7060604@profihost.com> <Pine.LNX.4.61.0607281909080.4972@yvahk01.tjqt.qr> <20060729075054.B2222647@wobbly.melbourne.sgi.com> <Pine.LNX.4.61.0607290953480.20234@yvahk01.tjqt.qr> <44CB158B.1050209@profihost.com> <Pine.LNX.4.61.0607291001370.20234@yvahk01.tjqt.qr> <44CB1D07.8010104@profihost.com> <Pine.LNX.4.61.0607291714070.24901@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0607291714070.24901@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 07:03:10PM +0200, Andi Kleen wrote:
- > 
- > >  > > 	print_symbol("DWARF2 unwinder stuck at %s\n",
- > >  > > 		UNW_PC(info.regs));
- > >  > >
- > >  > > be using %p ?
- > >  >
- > >  > Yes good catch.
- > >
- > > The x86-64 equivalent also has an instance of the same bug.
- > 
- > Actually on double checking the %s is correct because it's print_symbol
+Hi!
 
-Ah, of course. Somehow I missed that on two separate readings of the code.
+Correct - it only happens, if you use rootflags=quota without initrd.
 
-		Dave
+Stefan
 
--- 
-http://www.codemonkey.org.uk
+
+Jan Engelhardt schrieb:
+>>1.) You need a Kernel, where barriers are on by default:
+>>so something like: 2.6.16.2x or 2.6.17.x
+>>I'm not shure of the minimal version for the 2.6.16.x Kernel tree.
+> 
+> 
+> 2.6.17.6
+> 
+> 
+>>3.) you boot your system with kernel option rootflags=quota
+> 
+> 
+> Ah I think there it is. I do boot with rootflags=, but since the initrd 
+> does the interpreting of rootflags= and mounting of /dev/hda2(/), that 
+> should pose a different situation?
+> 
+> 
+> Jan Engelhardt

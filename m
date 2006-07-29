@@ -1,114 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWG2Xiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWG2Xp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWG2Xiv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 19:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWG2Xiu
+	id S1750785AbWG2Xp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 19:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWG2Xp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 19:38:50 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:49121 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750771AbWG2Xiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 19:38:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nw5avyLYrKGMrsuF96RF7NoPXED3h/Kltoq8hdvkLMCAhfa3mf5a+M7c1BQRklR4T8WwTZUP29fecVf4JMA5NORXNSfAsRuSdLAGSebdKAc+zu0CVBuf+/yhAYYnh9gBzaNPfSNcYvUfE1rsbvt/BtdkO3dZ38EdIMydQNusVDg=
-Message-ID: <6bffcb0e0607291638p49d4190cx6d6a39ae84ecff99@mail.gmail.com>
-Date: Sun, 30 Jul 2006 01:38:49 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Shailabh Nagar" <nagar@watson.ibm.com>
-Subject: Re: 2.6.18-rc2-mm1
-Cc: "Matt Helsley" <matthltc@us.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, "Balbir Singh" <balbir@in.ibm.com>
-In-Reply-To: <44CBE26D.5090901@watson.ibm.com>
+	Sat, 29 Jul 2006 19:45:59 -0400
+Received: from mail1.cenara.com ([193.111.152.3]:33163 "EHLO
+	kingpin.cenara.com") by vger.kernel.org with ESMTP id S1750785AbWG2Xp7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 19:45:59 -0400
+From: Magnus =?iso-8859-1?q?Vigerl=F6f?= <wigge@bigfoot.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] input: Wacom tablet driver for simple X hotplugging
+Date: Sun, 30 Jul 2006 01:45:44 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       "Ping Cheng" <pingc@wacom.com>
+References: <20060721211341.5366.93270.sendpatchset@pipe> <20060725120645.b4dc98ab.akpm@osdl.org>
+In-Reply-To: <20060725120645.b4dc98ab.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060727015639.9c89db57.akpm@osdl.org>
-	 <6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com>
-	 <6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com>
-	 <20060728013442.6fabae54.akpm@osdl.org>
-	 <1154112567.21787.2522.camel@stark>
-	 <6bffcb0e0607281253j28e04ba2icec85589e9390b3e@mail.gmail.com>
-	 <1154119190.21787.2528.camel@stark> <44CBE26D.5090901@watson.ibm.com>
+Message-Id: <200607300145.45158.wigge@bigfoot.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Thanks for the comments. They are appreciated even though the module never 
+will be submitted to the kernel.
 
-On 30/07/06, Shailabh Nagar <nagar@watson.ibm.com> wrote:
-> Matt Helsley wrote:
-> > On Fri, 2006-07-28 at 21:53 +0200, Michal Piotrowski wrote:
-> >
-> >>On 28/07/06, Matt Helsley <matthltc@us.ibm.com> wrote:
-> >>
-> >>>On Fri, 2006-07-28 at 01:34 -0700, Andrew Morton wrote:
-> >>>
-> >>>>On Fri, 28 Jul 2006 10:17:44 +0200
-> >>>>"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-> >>>>
-> >>>>
-> >>>>>Matt, can you look at this?
-> >>>>>
-> >>>>>My hunt file shows me, that this patches are causing oops.
-> >>>>>GOOD
-> >>>>>#
-> >>>>>#
-> >>>>>task-watchers-task-watchers.patch
-> >>>>>task-watchers-register-process-events-task-watcher.patch
-> >>>>>task-watchers-refactor-process-events.patch
-> >>>>>task-watchers-make-process-events-configurable-as.patch
-> >>>>>task-watchers-allow-task-watchers-to-block.patch
-> >>>>>task-watchers-register-audit-task-watcher.patch
-> >>>>>task-watchers-register-per-task-delay-accounting.patch
-> >>>>>task-watchers-register-profile-as-a-task-watcher.patch
-> >>>>>task-watchers-add-support-for-per-task-watchers.patch
-> >>>>>task-watchers-register-semundo-task-watcher.patch
-> >>>>>task-watchers-register-per-task-semundo-watcher.patch
-> >>>>>BAD
-> >>>>
-> >>>>Thanks for working that out.
-> >>>
-> >>>        I noticed the delay accounting functions in the stack trace. Perhaps
-> >>>task-watchers-register-per-task-delay-accounting.patch is causing the
-> >>>problem.
-> >>
-> >>Confirmed.
-> >
-> >
-> > Excellent, thanks for the rapid confirmation. I'll work with Shailabh
-> > and Balbir to fix this. In the meantime perhaps
-> > task-watchers-register-per-task-delay-accounting.patch should be dropped
-> > from -mm.
-> >
-> > Cheers,
-> >       -Matt Helsley
-> >
+On Tuesday 25 July 2006 21:06, Andrew Morton wrote:
+[...]
+> > Note, the patch is included for idea visualization and not by any
+> > means something I consider ready to be submitted. I know I have a few
+> > issues that I must sort out first, however it does work in its current
+> > state.
 >
->
-> The error is almost certainly because delayacct_tsk_init is being
-> called at WATCH_TASK_CLONE (which is triggered after the task has been
-> added to the tasklist) rather than WATCH_INIT (before).
->
-> __delayacct_tsk_init, which gets notified by WATCH_TASK_* initializes
-> the spinlock tsk->delays_lock which could get used as soon as task is
-> present in tasklist. The lockup is very likely due to use of this
-> uninitialized spinlock.
->
-> So the fix should be to change WATCH_TASK_CLONE to WATCH_TASK_INIT
-> in the delayacct_watch_task function created by this patch.
+> The patch adds rather a lot of trailing whitespace.  I trim that off when
+> applying; others do not.
 
-Problem solved. Thanks.
+Hmm... These I can't see.. For me trailing WS can be two things; WS between 
+the last real character and newline and empty lines at the end of the file. I 
+hate these two cases of trailing WS myself and I can't see any of them in the 
+patch, so what is it I'm missing here? (Ok, I see one space at the beginning 
+of one line, but that's not 'a lot' so it can't be that.)
 
+> > +#include <asm/semaphore.h
 >
-> --Shailabh
+> Semaphores are deprecated.  Unless you actually _need_ the sempahore's
+> counting feature, please use mutexes.
 >
+> > +static int exclusivegrab = 0;
+> > +static int debugconnect = 0;
+> > +static short openfailcount = 0;
+>
+> Avoid the initialisation-to-zero.  The C runtime will zero these anyway,
+> and the explicit initialisation will move these variables into the data
+> section and hence into the on-disk vmlinux inage.
+>
+> > +#ifdef OPENFAILCOUNT
+> > +module_param(openfailcount, short, 0644);
+> > +MODULE_PARM_DESC(openfailcount, "Number of upcoming open that will fail"
+> > +		 " with -ENODEV.");
+> > +#endif
+>
+> What is this??
 
-Regards,
-Michal
+I should have put a note on this. It is something that enables me to force X 
+to fail to open and to read from the device. That way it will be possible to 
+reload the module without restarting X. Useful while developing and would 
+have been removed if I ever would have released it to the kernel.
 
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+> > +static int str_to_user(const char *str, unsigned int maxlen,
+> > +		       void __user *p)
+> > +{
+> > +	int len;
+> > +
+> > +	if (!str)
+> > +		return -ENOENT;
+> > +
+> > +	len = strlen(str) + 1;
+> > +	if (len > maxlen)
+> > +		len = maxlen;
+> > +
+> > +	return copy_to_user(p, str, len) ? -EFAULT : len;
+> > +}
+>
+> If (len > maxlen) this will send userspace a non-null-terminated string.
+>
+> > +/* ###################################################################
+> > */ +/*                  Module File Methods                              
+> >  */ +/*
+> > ################################################################### */
+> > +static int wp_open(struct inode *inodp, struct file *filp)
+> > +{
+> > +	struct wp_filenode *list;
+> > +
+> > +	if (openfailcount > 0) {
+> > +		openfailcount--;
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	if (!(list = kzalloc(sizeof(*list), GFP_KERNEL)))
+> > +		return -ENOMEM;
+> > +
+> > +	filp->private_data = list;
+> > +	list->tabletid = wp_proxyhndl.tabletid;
+> > +
+> > +	down(&wp_sema);
+> > +	list_add_tail(&list->node, &wp_users);
+> > +	if (wp_currenthndl != &wp_proxyhndl) {
+> > +		if (!(wp_currenthndl->flags & WP_FLAG_OPEN)) {
+> > +			if (!input_open_device(&wp_currenthndl->handle))
+> > +				wp_currenthndl->flags |= WP_FLAG_OPEN;
+> > +			else
+> > +				printk(KERN_WARNING WP_MODNAME
+> > +				       ": Failed to open '%s'\n",
+> > +				       wp_currenthndl->devdesc);
+> > +		}
+> > +	}
+> > +	up(&wp_sema);
+> > +	return 0;
+> > +}
+>
+> If input_open_device() fails then the whole open() should fail.  That way
+> there will be no close(), flush() or release().
+
+Yes, that would be the correct behavior. It could however result in some 
+inconsistent behavior. As applications that open the device before attaching 
+the tablet succeeds, and applications that opens it after the tablet is 
+attached will fail (if input_open_device fails as well).
+
+Maybe only opening the device when connecting it or if it is the first one 
+that opens it would be the best way to handle it?
+
+> > +		if(copy_to_user(ip, &wp_proxydev.id, sizeof(struct input_id)))
+>
+> We put a space between the `if' and the `(' (review the entire patch for
+> this).
+>
+> > +	/* the id as all must close/reopen again anyway. */
+> > +	else if (!list_empty(&wp_users)) {
+> > +		if (!input_open_device(&devh->handle)) {
+> > +			devh->flags |= WP_FLAG_OPEN;
+> > +			if (wp_devgrabcount > 0) {
+> > +				if (!input_grab_device(&devh->handle))
+> > +					devh->flags |= WP_FLAG_GRAB;
+> > +				else
+> > +					printk(KERN_WARNING WP_MODNAME
+> > +					       ": Failed to grab '%s'\n",
+> > +					       dev->name);
+> > +			}
+> > +		}
+> > +		else
+> > +			printk(KERN_WARNING WP_MODNAME
+> > +			       ": Failed to open '%s'\n", dev->name);
+> > +	}
+> > +}
+>
+> Again, just emitting a printk seems insufficient here.
+
+The above code is called when a new tablet is added/removed so it's not 
+possible to return something 'nice'. It might not even be the newly attached 
+tablet that it fails to open. So in this case is it really possible to do 
+anything else than a printk?
+
+Thanks
+ Magnus

@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161459AbWG2E2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWG2FBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161459AbWG2E2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 00:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161460AbWG2E2r
+	id S932614AbWG2FBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 01:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWG2FBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 00:28:47 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:45020
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1161459AbWG2E2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 00:28:47 -0400
-Date: Fri, 28 Jul 2006 21:28:20 -0700
-To: Jim Gettys <jg@laptop.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Neil Horman <nhorman@tuxdriver.com>,
-       Dave Airlie <airlied@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org,
-       Keith Packard <keithp@keithp.com>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-Message-ID: <20060729042820.GA16133@gnuppy.monkey.org>
-References: <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org> <20060725194733.GJ4608@hmsreliant.homelinux.net> <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com> <44C67E1A.7050105@zytor.com> <20060725204736.GK4608@hmsreliant.homelinux.net> <1153861094.1230.20.camel@localhost.localdomain> <44C6875F.4090300@zytor.com> <1153862087.1230.38.camel@localhost.localdomain> <44C68AA8.6080702@zytor.com> <1153863542.1230.41.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153863542.1230.41.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Sat, 29 Jul 2006 01:01:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12757 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932614AbWG2FBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 01:01:47 -0400
+Date: Fri, 28 Jul 2006 22:00:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org, Bart De Schuymer <bdschuym@pandora.be>
+Subject: Re: [PATCH] 2.6.18-rc2-mm1: unresolved symbol brnf_deferred_hooks
+ in xt_physdev module
+Message-Id: <20060728220043.43201c6b.akpm@osdl.org>
+In-Reply-To: <200607281338.22053.bero@arklinux.org>
+References: <200607281338.22053.bero@arklinux.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 25, 2006 at 05:39:01PM -0400, Jim Gettys wrote:
-> Keith's the expert (who wrote the smart scheduler): I'd take a wild ass
-> guess that 10ms is good enough.
+On Fri, 28 Jul 2006 13:38:21 +0200
+Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+
+> The (trivial) patch below fixes the unresolved symbol brnf_deferred_hooks in 
+> the xt_physdev module in 2.6.18-rc2-mm1.
 > 
-> Maybe people can keep him on the cc list this time...
+> Signed-off-by: Bernhard Rosenkraenzer <bero@arklinux.org>
+> 
+> ---
+> --- linux-2.6.17/net/netfilter/xt_physdev.c.ark	2006-07-28 13:34:31.000000000 
+> +0200
+> +++ linux-2.6.17/net/netfilter/xt_physdev.c	2006-07-28 13:34:48.000000000 
+> +0200
+> @@ -16,6 +16,8 @@
+>  #define MATCH   1
+>  #define NOMATCH 0
+>  
+> +extern int brnf_deferred_hooks;
+> +
+>  MODULE_LICENSE("GPL");
+>  MODULE_AUTHOR("Bart De Schuymer <bdschuym@pandora.be>");
+>  MODULE_DESCRIPTION("iptables bridge physical device match module");
 
-Not to poop on people's parade, but the last time I looked /dev/rtc was
-a single instance device, right ? If this reasoning is true, then mplayer
-and other apps that want to open it can't.
+OK, but please never put extern declarations in .c files.  They need to go
+in a header where the compiler can check that the variable's type is
+consistent at all usage sites.
 
-What's the story with this ?
+We already have such a declaration, so I guess this is the fix:
 
-bill
+--- a/net/netfilter/xt_physdev.c~xt_physdev-build-fix
++++ a/net/netfilter/xt_physdev.c
+@@ -10,6 +10,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
++#include <linux/netfilter/netfilter_bridge.h>
+ #include <linux/netfilter/xt_physdev.h>
+ #include <linux/netfilter/x_tables.h>
+ #include <linux/netfilter_bridge.h>
+_
 
+
+Your email client is wordwrapping patches, btw.  There's a lot of it going
+round at present.

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752074AbWG2Tni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWG2TnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752074AbWG2Tni (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752084AbWG2TnL
+	id S1752077AbWG2TnG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWG2Tm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:43:11 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:58588 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752075AbWG2Tmm (ORCPT
+	Sat, 29 Jul 2006 15:42:59 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:62172 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752078AbWG2Tmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:42:42 -0400
-Date: Sat, 29 Jul 2006 21:42:40 +0200
+	Sat, 29 Jul 2006 15:42:53 -0400
+Date: Sat, 29 Jul 2006 21:42:46 +0200
 From: "Andi Kleen" <ak@suse.de>
 To: torvalds@osdl.org
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, muli@il.ibm.com
-Subject: [PATCH for 2.6.18] [3/8] x86_64: Calgary IOMMU - fix off by one
- error
-Message-ID: <44cbba30.5S7ehjoofASZQI2O%ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, betak@mpdtxmail.amd.com
+Subject: [PATCH for 2.6.18] [5/8] x86_64: Revert k8-bus.c northbridge
+ access change
+Message-ID: <44cbba36.ZnN1E1JhDUaqcCgm%ak@suse.de>
 User-Agent: nail 11.25 7/29/05
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,56 +24,56 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-# HG changeset patch
-# User Muli Ben-Yehuda <muli@il.ibm.com>
-# Date 1153234988 -10800
-# Node ID 81635ec2e677165285c2a483958899217f9631d8
-# Parent  1b8d63e34819bac5b6aac0048ef79004fb243db9
-x86_64: Calgary IOMMU - fix off by one error
+As Travis Betak points out it accesses the wrong northbridge subfunction
+now. Switch back to the old code.
 
-Fixed off-by-one error in detect_calgary and calgary_init which will
-cause arrays to overflow.  Also, removed impossible to hit BUG_ON.
-
-Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
-Signed-Off-By: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: "Travis Betak" <betak@mpdtxmail.amd.com>
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/kernel/pci-calgary.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+ arch/x86_64/pci/k8-bus.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Index: linux-2.6.18-rc2-git7/arch/x86_64/kernel/pci-calgary.c
+Index: linux-2.6.18-rc2-git7/arch/x86_64/pci/k8-bus.c
 ===================================================================
---- linux-2.6.18-rc2-git7.orig/arch/x86_64/kernel/pci-calgary.c
-+++ linux-2.6.18-rc2-git7/arch/x86_64/kernel/pci-calgary.c
-@@ -812,7 +812,7 @@ static int __init calgary_init(void)
- 	int i, ret = -ENODEV;
- 	struct pci_dev *dev = NULL;
+--- linux-2.6.18-rc2-git7.orig/arch/x86_64/pci/k8-bus.c
++++ linux-2.6.18-rc2-git7/arch/x86_64/pci/k8-bus.c
+@@ -2,7 +2,6 @@
+ #include <linux/pci.h>
+ #include <asm/mpspec.h>
+ #include <linux/cpumask.h>
+-#include <asm/k8.h>
  
--	for (i = 0; i <= num_online_nodes() * MAX_NUM_OF_PHBS; i++) {
-+	for (i = 0; i < num_online_nodes() * MAX_NUM_OF_PHBS; i++) {
- 		dev = pci_get_device(PCI_VENDOR_ID_IBM,
- 				     PCI_DEVICE_ID_IBM_CALGARY,
- 				     dev);
-@@ -890,9 +890,8 @@ void __init detect_calgary(void)
- 	specified_table_size = determine_tce_table_size(end_pfn * PAGE_SIZE);
+ /*
+  * This discovers the pcibus <-> node mapping on AMD K8.
+@@ -19,6 +18,7 @@
+ #define NR_LDT_BUS_NUMBER_REGISTERS 3
+ #define SECONDARY_LDT_BUS_NUMBER(dword) ((dword >> 8) & 0xFF)
+ #define SUBORDINATE_LDT_BUS_NUMBER(dword) ((dword >> 16) & 0xFF)
++#define PCI_DEVICE_ID_K8HTCONFIG 0x1100
  
- 	for (bus = 0, table_idx = 0;
--	     bus <= num_online_nodes() * MAX_PHB_BUS_NUM;
-+	     bus < num_online_nodes() * MAX_PHB_BUS_NUM;
- 	     bus++) {
--		BUG_ON(bus > MAX_NUMNODES * MAX_PHB_BUS_NUM);
- 		if (read_pci_config(bus, 0, 0, 0) != PCI_VENDOR_DEVICE_ID_CALGARY)
- 			continue;
- 		if (test_bit(bus, translation_disabled)) {
-@@ -1002,7 +1001,7 @@ static int __init calgary_parse_options(
- 			if (p == endp)
- 				break;
+ /**
+  * fill_mp_bus_to_cpumask()
+@@ -28,7 +28,8 @@
+ __init static int
+ fill_mp_bus_to_cpumask(void)
+ {
+-	int i, j, k;
++	struct pci_dev *nb_dev = NULL;
++	int i, j;
+ 	u32 ldtbus, nid;
+ 	static int lbnr[3] = {
+ 		LDT_BUS_NUMBER_REGISTER_0,
+@@ -36,9 +37,8 @@ fill_mp_bus_to_cpumask(void)
+ 		LDT_BUS_NUMBER_REGISTER_2
+ 	};
  
--			if (bridge <= (num_online_nodes() * MAX_PHB_BUS_NUM)) {
-+			if (bridge < (num_online_nodes() * MAX_PHB_BUS_NUM)) {
- 				printk(KERN_INFO "Calgary: disabling "
- 				       "translation for PHB 0x%x\n", bridge);
- 				set_bit(bridge, translation_disabled);
+-	cache_k8_northbridges();
+-	for (k = 0; k < num_k8_northbridges; k++) {
+-		struct pci_dev *nb_dev = k8_northbridges[k];
++	while ((nb_dev = pci_get_device(PCI_VENDOR_ID_AMD,
++			PCI_DEVICE_ID_K8HTCONFIG, nb_dev))) {
+ 		pci_read_config_dword(nb_dev, NODE_ID_REGISTER, &nid);
+ 
+ 		for (i = 0; i < NR_LDT_BUS_NUMBER_REGISTERS; i++) {

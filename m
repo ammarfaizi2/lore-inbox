@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752033AbWG2AKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752065AbWG2APr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752033AbWG2AKf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 20:10:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWG2AKf
+	id S1752065AbWG2APr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 20:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWG2APr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 20:10:35 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:46222 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1752033AbWG2AKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 20:10:34 -0400
-Date: Fri, 28 Jul 2006 17:10:32 -0700
-From: Zach Brown <zach.brown@oracle.com>
-To: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Cc: Benjamin LaHaise <bcrl@kvack.org>, Arjan van de Ven <arjan@infradead.org>
-Subject: [RFC][PATCH] Fix lock inversion aio_kick_handler()
-Message-ID: <20060729001032.GA7885@tetsuo.zabbo.net>
+	Fri, 28 Jul 2006 20:15:47 -0400
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:20646
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1752065AbWG2APq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 20:15:46 -0400
+Subject: Re: 2.6.18-rc2-mm1 timer int 0 doesn't work
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <20060728233851.GA35643@muc.de>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	 <1154112276.3530.3.camel@amdx2.microgate.com>
+	 <20060728144854.44c4f557.akpm@osdl.org>  <20060728233851.GA35643@muc.de>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 19:15:26 -0500
+Message-Id: <1154132126.3349.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix lock inversion aio_kick_handler()
+On Sat, 2006-07-29 at 01:38 +0200, Andi Kleen wrote:
+> What happened to the new lines? It looks like a bad alphabet soup
 
-lockdep found a AB BC CA lock inversion in retry-based AIO:
+When I download and edit syslog from the specified URL, it has newlines.
 
-1) The task struct's alloc_lock (A) is acquired in process context with
-interrupts enabled.  An interrupt might arrive and call wake_up() which grabs
-the wait queue's q->lock (B).
+> Do you perhaps have a boot log from before 2.6.17 (e.g. 2.6.16)? 
 
-2) When performing retry-based AIO the AIO core registers aio_wake_function()
-as the wake funtion for iocb->ki_wait.  It is called with the wait queue's
-q->lock (B) held and then tries to add the iocb to the run list after acquiring
-the ctx_lock (C).
+I can get a syslog from < 2.6.17
+but not right now as that machine is at the office.
 
-3) aio_kick_handler() holds the ctx_lock (C) while acquiring the alloc_lock (A)
-via lock_task() and unuse_mm().  Lockdep emits a warning saying that we're
-trying to connect the irq-safe q->lock to the irq-unsafe alloc_lock via
-ctx_lock.
+> It's remove-timer-fallback likely. I was working on that already.
+> 
+> Some boards go into the timer fallback path since 2.6.17/64bit for so 
+> far unknown reasons and that doesn't work anymore because I removed the 
+> fallback path.
 
-This fixes the inversion by calling unuse_mm() in the AIO kick handing path
-after we've released the ctx_lock.
+I might burn some time tomorrow and go into the office
+to try removing that patch. By Monday at the latest.
 
-Signed-off-by: Zach Brown <zach.brown@oracle.com>
----
+I'm doing a build on my home machine now to see if it
+happens there also.
 
-Ben, can you remember why we put unuse_mm() inside the ctx_lock?  Is that
-intentional and still needed?
+--
+Paul
 
-Index: 2.6.18-rc2-mm1-cmdepoll/fs/aio.c
-===================================================================
---- 2.6.18-rc2-mm1-cmdepoll.orig/fs/aio.c
-+++ 2.6.18-rc2-mm1-cmdepoll/fs/aio.c
-@@ -598,9 +598,6 @@ static void use_mm(struct mm_struct *mm)
-  *	by the calling kernel thread
-  *	(Note: this routine is intended to be called only
-  *	from a kernel thread context)
-- *
-- * Comments: Called with ctx->ctx_lock held. This nests
-- * task_lock instead ctx_lock.
-  */
- static void unuse_mm(struct mm_struct *mm)
- {
-@@ -866,8 +863,8 @@ static void aio_kick_handler(void *data)
- 	use_mm(ctx->mm);
- 	spin_lock_irq(&ctx->ctx_lock);
- 	requeue =__aio_run_iocbs(ctx);
-- 	unuse_mm(ctx->mm);
- 	spin_unlock_irq(&ctx->ctx_lock);
-+ 	unuse_mm(ctx->mm);
- 	set_fs(oldfs);
- 	/*
- 	 * we're in a worker thread already, don't use queue_delayed_work,
+
+
+

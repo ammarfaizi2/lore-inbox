@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWG2TI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751947AbWG2TPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWG2TI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWG2TI1
+	id S1751947AbWG2TPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWG2TPD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:08:27 -0400
-Received: from ns.suse.de ([195.135.220.2]:1236 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751416AbWG2TI0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:08:26 -0400
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
-Date: Sat, 29 Jul 2006 21:04:18 +0200
-User-Agent: KMail/1.9.3
-Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607292050.37877.ak@suse.de> <20060729185737.GG26963@stusta.de>
-In-Reply-To: <20060729185737.GG26963@stusta.de>
+	Sat, 29 Jul 2006 15:15:03 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:56481 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751419AbWG2TPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 15:15:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QBcZfAMCAZHODPJPv0HT2j6QIh4kNcGe+ZKlnf/sgkvxVoYFb60Ln+QXJp3eL/GoPUIgP26SM/OWpESEyhLBBMEETO4gQ39dArlntijjYlNY6dvFZxmGZN8GDED/gsBB2bdi1ApKBA+3zY9Q7vkJ/Wpj1rb+uCxCjLhIqt/7My4=
+Message-ID: <6bffcb0e0607291215g54b64487gb24b4c6ff589d90b@mail.gmail.com>
+Date: Sat, 29 Jul 2006 21:15:00 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Jiri Slaby" <jirislaby@gmail.com>
+Subject: Re: test
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <44CBB21E.4050806@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607292104.18030.ak@suse.de>
+References: <44CBB21E.4050806@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jiri,
 
-> > It should be obsolete with autoprobing for the feature as earlier discussed.
-> 
-> That's not the point of the version information in the help text.
+On 29/07/06, Jiri Slaby <jirislaby@gmail.com> wrote:
+> just ignore
 
-The point in the current option is to select or not select it - 
-if the user gets it wrong it won't compile or worse miscompile.
+There is a simple vger test
 
-Once it is auto selected the user could be still informed about 
-it, but it doesn't matter much anymore (we don't inform the user
-about every possible trade off based on compiler version everywhere)
+"You can test email delivery between you, and VGER by sending an empty
+test letter to: <autoanswer@vger.kernel.org>"
+http://vger.kernel.org/majordomo-info.html
 
--Andi
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

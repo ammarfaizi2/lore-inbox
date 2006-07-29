@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWG2Rsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWG2Rs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWG2Rsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 13:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWG2Rsu
+	id S932187AbWG2Rs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 13:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWG2Rs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 13:48:50 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3858 "HELO
+	Sat, 29 Jul 2006 13:48:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:786 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932191AbWG2Rsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 13:48:40 -0400
-Date: Sat, 29 Jul 2006 19:48:40 +0200
+	id S932187AbWG2Rs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 13:48:28 -0400
+Date: Sat, 29 Jul 2006 19:48:28 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
-Message-ID: <20060729174840.GE26963@stusta.de>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <1154102627.6416.13.camel@laptopd505.fenrus.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] the scheduled removal of drivers/ieee1394/sbp2.c:force_inquiry_hack
+Message-ID: <20060729174828.GC26963@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1154102627.6416.13.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 06:03:46PM +0200, Arjan van de Ven wrote:
->...
-> --- linux-2.6.18-rc2-git5-stackprot.orig/arch/x86_64/Kconfig
-> +++ linux-2.6.18-rc2-git5-stackprot/arch/x86_64/Kconfig
-> @@ -522,6 +522,31 @@ config SECCOMP
->  
->  	  If unsure, say Y. Only embedded should say N here.
->  
-> +config CC_STACKPROTECTOR
-> +	bool "Enable -fstack-protector buffer overflow detection (EXPRIMENTAL)"
-> +	depends on EXPERIMENTAL
-> +	default n
+This patch contains the scheduled removal of the force_inquiry_hack 
+module parameter.
 
-You can remove the "default n".
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> +	help
-> +	  This option turns on the -fstack-protector GCC feature that is new
-> +	  in GCC version 4.1. This feature puts, at the beginning of
-> +	  critical functions, a canary value on the stack just before the return
-> +	  address, and validates the value just before actually returning.
-> +	  Stack based buffer overflows that need to overwrite this return
-> +	  address now also overwrite the canary, which gets detected.
-> +
-> +	  NOTE 
-> +	  This feature requires gcc version 4.2 or above, or a distribution
-> +	  gcc with the feature backported. For older gcc versions, this is a NOP.
+---
 
-After reading this thread, I do understand why you write once 
-"GCC version 4.1" and once "gcc version 4.2".
+ Documentation/feature-removal-schedule.txt |    9 ---------
+ drivers/ieee1394/sbp2.c                    |   10 ----------
+ 2 files changed, 19 deletions(-)
 
-But for the normal user this will be quite confusing.
-
-What about simply removing the first sentence of the help text since 
-it's anyway handled by the NOTE?
-
-> +config CC_STACKPROTECTOR_ALL
-> +	bool "Use stack-protector for all functions"
-> +	depends on CC_STACKPROTECTOR
-> +	default n
-
-You can remove the "default n".
-
-> +	help
-> +	  Normally, GCC only inserts the canary value protection for
-> +	  functions that use large-ish on-stack buffers. By enabling
-> +	  this option, GCC will be asked to do this for ALL functions.
-> +
-
-cu
-Adrian
-
--- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
+--- linux-2.6.18-rc2-mm1-full/Documentation/feature-removal-schedule.txt.old	2006-07-27 20:36:51.000000000 +0200
++++ linux-2.6.18-rc2-mm1-full/Documentation/feature-removal-schedule.txt	2006-07-27 20:37:00.000000000 +0200
+@@ -23,15 +23,6 @@
+ 
+ ---------------------------
+ 
+-What:	sbp2: module parameter "force_inquiry_hack"
+-When:	July 2006
+-Why:	Superceded by parameter "workarounds". Both parameters are meant to be
+-	used ad-hoc and for single devices only, i.e. not in modprobe.conf,
+-	therefore the impact of this feature replacement should be low.
+-Who:	Stefan Richter <stefanr@s5r6.in-berlin.de>
+-
+----------------------------
+-
+ What:	Video4Linux API 1 ioctls and video_decoder.h from Video devices.
+ When:	July 2006
+ Why:	V4L1 AP1 was replaced by V4L2 API. during migration from 2.4 to 2.6
+--- linux-2.6.18-rc2-mm1-full/drivers/ieee1394/sbp2.c.old	2006-07-27 20:37:10.000000000 +0200
++++ linux-2.6.18-rc2-mm1-full/drivers/ieee1394/sbp2.c	2006-07-27 20:37:23.000000000 +0200
+@@ -173,11 +173,6 @@
+ 	", override internal blacklist = " __stringify(SBP2_WORKAROUND_OVERRIDE)
+ 	", or a combination)");
+ 
+-/* legacy parameter */
+-static int force_inquiry_hack;
+-module_param(force_inquiry_hack, int, 0644);
+-MODULE_PARM_DESC(force_inquiry_hack, "Deprecated, use 'workarounds'");
+-
+ /*
+  * Export information about protocols/devices supported by this driver.
+  */
+@@ -1554,11 +1549,6 @@
+ 	}
+ 
+ 	workarounds = sbp2_default_workarounds;
+-	if (force_inquiry_hack) {
+-		SBP2_WARN("force_inquiry_hack is deprecated. "
+-			  "Use parameter 'workarounds' instead.");
+-		workarounds |= SBP2_WORKAROUND_INQUIRY_36;
+-	}
+ 
+ 	if (!(workarounds & SBP2_WORKAROUND_OVERRIDE))
+ 		for (i = 0; i < ARRAY_SIZE(sbp2_workarounds_table); i++) {
 

@@ -1,126 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422690AbWG2Hts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWG2HxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422690AbWG2Hts (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 03:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422689AbWG2Hts
+	id S932073AbWG2HxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 03:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWG2HxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 03:49:48 -0400
-Received: from mail.trixing.net ([87.230.125.58]:41375 "EHLO ds666.l4x.org")
-	by vger.kernel.org with ESMTP id S1422690AbWG2Htr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 03:49:47 -0400
-Message-ID: <44CB1303.7010303@l4x.org>
-Date: Sat, 29 Jul 2006 09:49:23 +0200
-From: Jan Dittmer <jdi@l4x.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: kernel <linux@idccenter.cn>
-CC: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-References: <44BF29CD.1000809@l4x.org> <44CB0BF7.6030204@idccenter.cn>
-In-Reply-To: <44CB0BF7.6030204@idccenter.cn>
-Content-Type: text/plain; charset=gb18030; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.1.3
-X-SA-Exim-Mail-From: jdi@l4x.org
-Subject: Re: XFS Bug null pointer dereference in xfs_free_ag_extent
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on ds666.l4x.org)
+	Sat, 29 Jul 2006 03:53:06 -0400
+Received: from science.horizon.com ([192.35.100.1]:38472 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932073AbWG2HxE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 03:53:04 -0400
+Date: 29 Jul 2006 02:56:12 -0400
+Message-ID: <20060729065612.8661.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, tytso@mit.edu
+Subject: Re: A better interface, perhaps: a timed signal flag
+Cc: linux@horizon.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel schrieb:
-> I have the same problem, but it seems not have a patch right now.
+> If we had such an interface, then the application would look like
+> this:
 > 
-
-No, I got zero feedback, but let's cc the correct
-mailing list. I also filed bug 6877 at kernel.org
-
-Regards,
-
-Jan
-
-> Jan Dittmer wrote:
+>	volatile int	flag = 0;
+>
+>	register_timout(&time_val, &flag);
+>	while (work to do) {
+>		do_a_bit_of_work();
+>		if (flag)
+>			break;
+>	}
+>
+> Finally, a note about tickless designs.  Very often such applications
+> don't need a constantly ticking design.  For example, the X server
+> only needs to have the memory location incremented while it is
+> processing events; if the laptop is idle, there's no reason to have
+> the RTC generating interrupts and incrementing memory locations.
+> Similarly, the Metronome garbage collector would only need to poll to
+> see if the timeout has expired while the garbage collector is running,
+> which is _not_ all of the time.  
 > 
->> Got the following oops from xfs. Afterwards lots of processes in D
->> state, probably trying to read the partition in question. Kernel
->> 2.6.18-rc2
->>
->> [196027.687020] BUG: unable to handle kernel NULL pointer dereference 
->> at virtual address 00000060
->> [196027.687216]  printing eip:
->> [196027.687273] c01acc00
->> [196027.687275] *pde = 00000000
->> [196027.687337] Oops: 0000 [#1]
->> [196027.687395] SMP
->> [196027.687458] Modules linked in: rfcomm l2cap bluetooth nfsd 
->> exportfs lockd nfs_acl sunrpc pppoe pppox ipv6 ppp_generic slhc 
->> twofish serpent aes blowfish sha256 crypto_null ipt_LOG ipt_recent 
->> ipt_TCPMSS xt_tcpmss xt_tcpudp xt_state iptable_filter ipt_MASQUERADE 
->> iptable_nat ip_tables x_tables dm_mod ip_nat_ftp ip_nat 
->> ip_conntrack_ftp ip_conntrack nfnetlink tun vfat fat loop lp eeprom 
->> i2c_dev i2c_isa usb_storage button processor ac e100 snd_seq_dummy 
->> snd_seq_oss snd_seq_midi snd_seq_midi_event snd_seq cx88_dvb 
->> cx88_vp3054_i2c mt352 dvb_pll or51132 video_buf_dvb dvb_core nxt200x 
->> isl6421 zl10353 cx24123 lgdt330x cx22702 cx8802 snd_via82xx 
->> firmware_class snd_ac97_codec cx2341x snd_ac97_bus cx88xx snd_pcm_oss 
->> ir_common snd_mixer_oss video_buf tveeprom compat_ioctl32 snd_pcm 
->> snd_timer snd_page_alloc snd_mpu401_uart via_agp btcx_risc snd_rawmidi 
->> snd_seq_device videodev agpgart v4l1_compat snd ehci_hcd via_rhine 
->> v4l2_common uhci_hcd soundcore usbcore parport_pc parport floppy rtc
->> [196027.690285] CPU:    0
->> [196027.690286] EIP:    0060:[<c01acc00>]    Not tainted VLI
->> [196027.690288] EFLAGS: 00210293   (2.6.18-rc2-ds666-via #9)
->> [196027.690545] EIP is at xfs_btree_init_cursor+0x2f/0x171
->> [196027.690645] eax: d42b3834   ebx: de835000   ecx: d42b3834   edx: 
->> 0000008c
->> [196027.690771] esi: 00000000   edi: cb701038   ebp: 00000000   esp: 
->> cfb20c68
->> [196027.690896] ds: 007b   es: 007b   ss: 0068
->> [196027.690978] Process imap (pid: 14978, ti=cfb20000 task=d4d5a570 
->> task.ti=cfb20000)
->> [196027.691119] Stack: 00000000 00000017 cb701038 00000017 c0193c67 
->> 00000005 00000000 00000000
->> [196027.691389]        00000000 00000005 00000000 cb701038 cd848f04 
->> de835000 0000007a 00000000
->> [196027.692097]        0004e1d8 df2e18e0 de835000 df2e18e0 c01c9645 
->> 00000000 00000017 cb701038
->> [196027.692805] Call Trace:
->> [196027.693104]  [<c0193c67>] xfs_free_ag_extent+0x32/0x5e2
->> [196027.693445]  [<c01c9645>] xlog_grant_push_ail+0x30/0xfe
->> [196027.693771]  [<c01954a7>] xfs_free_extent+0xbc/0xd9
->> [196027.694094]  [<c01c9773>] xfs_log_reserve+0x60/0x5a8
->> [196027.694436]  [<c01b9376>] xfs_efd_init+0x2f/0x5a
->> [196027.694741]  [<c01a35c8>] xfs_bmap_finish+0xe6/0x167
->> [196027.695070]  [<c01d19ab>] xfs_rename+0x866/0xa33
->> [196027.695412]  [<c01e3d2d>] xfs_vn_rename+0x24/0x64
->> [196027.695707]  [<c0162d39>] mntput_no_expire+0x11/0x5d
->> [196027.696029]  [<c01594d1>] link_path_walk+0xb3/0xbd
->> [196027.696356]  [<c013979b>] pagevec_lookup_tag+0x1b/0x22
->> [196027.696681]  [<c013bd2a>] kstrdup+0x26/0x60
->> [196027.696993]  [<c01580bb>] vfs_rename+0x1b6/0x2ef
->> [196027.697313]  [<c015834d>] __lookup_hash+0x4a/0xc5
->> [196027.697632]  [<c01599a0>] sys_renameat+0x155/0x1b9
->> [196027.697961]  [<c013979b>] pagevec_lookup_tag+0x1b/0x22
->> [196027.698281]  [<c013493b>] wait_on_page_writeback_range+0xa6/0xf1
->> [196027.698637]  [<c01e1ba5>] xfs_file_fsync+0x3f/0x48
->> [196027.698953]  [<c0159a15>] sys_rename+0x11/0x15
->> [196027.699265]  [<c0102795>] sysenter_past_esp+0x56/0x79
->> [196027.699600] Code: 89 d7 ba 01 00 00 00 56 53 89 c3 8b 74 24 18 a1 
->> c8 86 4a c0 e8 2b 13 03 00 83 fe 02 89 c1 74 16 72 09 31 c0 83 fe 03 
->> 75 78 eb 51 <8b> 45 60 8b 44 b0 1c 0f c8 eb 6b 83 7c 24 20 00 75 09 8b 
->> 44 24
->> [196027.701445] EIP: [<c01acc00>] xfs_btree_init_cursor+0x2f/0x171 
->> SS:ESP 0068:cfb20c68
->> [196027.705801]
->>
->> Jan
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
-> 
+> Yes, you could use ioctl's to start and stop the RTC interrupt
+> handler, but that's just ugly, and points out that maybe the interface
+> should not be one of programming the RTC interrupt frequency directly,
+> but rather one of "increment this flag after X units of
+> (CPU/wallclock) time, and I don't care how it is implemented at the
+> hardware level."
 
+Actually, unless you want the kernel to have to poll the timeout_flag
+periodically, it's more like:
+
+	volatile bool	timeout_flag = false, armed_flag = false;
+
+	register_timout(&time_val, &flag);
+	while (work to do) {
+		if (!armed_flag) {
+			rearm_timeout();
+			armed_flag = true;
+		}
+		do_a_bit_of_work();
+		if (timeout_flag) {
+			armed_flag = false;
+			timeout_flag = false;
+			break;
+		}
+	}
+
+Personally, I use setitimer() for this.  You can maintain the flags in
+software, and be slightly lazy about disarming it.  If you get a signal
+while you shouldn't be armed, *then* disarm the timer in the kernel.
+Likewise, when rearming, set the user-disarmed flag and chec if kernel-level
+rearming is required.
+
+volatile bool timeout_flag = false, armed_flag = false, sys_armed_flag = false;
+
+void
+sigalrm(int sig)
+{
+	(void)sig;
+	if (!armed_flag) {
+		static const struct itimerval it_zero = {{0,0},{0,0}};
+		if (sys_armed_flag)
+			warn_unexpected_sigalrm();
+		setitimer(ITIMER_REAL, &it_zero, 0);
+		
+	} else if (timeout_flag)
+		warn_gc_is_slow();
+	else
+		timeout_flag = true;
+}
+
+void
+arm_timer()
+{
+	static const struct itimerval it_interval = { time_val, time_val };
+
+	armed_flag = true;
+	if (!sys_armed_flag) {
+		setitimer(ITIMER_REAL, &it_interval, 0);
+		sys_armed_flag = true;
+	}
+}
+
+main_loop()
+{
+	signal(SIGALRM, sigalrm);
+
+	while (work to do) {
+		arm_timer();
+		do_a_bit_of_work();
+		if (timeout_flag) {
+			gc();
+			armed_flag = false;
+			timeout_flag = false;
+		}
+	}
+}
+
+... where only do_a_bit_of_work can prompt the need for more gc() calls.
+This really tries to minimize the number of system calls.

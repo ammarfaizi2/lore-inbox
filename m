@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422680AbWG2HV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWG2HmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422680AbWG2HV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 03:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422688AbWG2HT7
+	id S1422683AbWG2HmA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 03:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422687AbWG2HmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 03:19:59 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:31360 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1422684AbWG2HTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 03:19:54 -0400
-From: sam@ravnborg.org
-To: linux-kernel@vger.kernel.org
-Cc: Sam Ravnborg <sam@mars.ravnborg.org>, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] kbuild: -fno-stack-protector is not good
-Reply-To: sam@ravnborg.org
-Date: Sat, 29 Jul 2006 09:19:38 +0200
-Message-Id: <11541575811787-git-send-email-sam@ravnborg.org>
-X-Mailer: git-send-email 1.4.1.rc2.gfc04
-In-Reply-To: <11541575813138-git-send-email-sam@ravnborg.org>
-References: <20060729071540.GA6738@mars.ravnborg.org> <11541575812597-git-send-email-sam@ravnborg.org> <11541575813716-git-send-email-sam@ravnborg.org> <11541575811267-git-send-email-sam@ravnborg.org> <1154157581409-git-send-email-sam@ravnborg.org> <11541575813138-git-send-email-sam@ravnborg.org>
+	Sat, 29 Jul 2006 03:42:00 -0400
+Received: from mga08.intel.com ([134.134.136.24]:12134 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422683AbWG2HmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 03:42:00 -0400
+X-IronPort-AV: i="4.07,194,1151910000"; 
+   d="scan'208"; a="98165195:sNHT14971089"
+Message-ID: <44CB1139.1060403@linux.intel.com>
+Date: Sat, 29 Jul 2006 09:41:45 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: David Miller <davem@davemloft.net>, ak@suse.de,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 5/5] Add the -fstack-protector option to the CFLAGS
+References: <200607282045.05292.ak@suse.de> <1154112511.6416.46.camel@laptopd505.fenrus.org> <200607282305.k6SN5e0k015125@turing-police.cc.vt.edu>            <20060728.161215.98863664.davem@davemloft.net> <200607282351.k6SNpinN017263@turing-police.cc.vt.edu>
+In-Reply-To: <200607282351.k6SNpinN017263@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sam Ravnborg <sam@mars.ravnborg.org>
+Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 28 Jul 2006 16:12:15 PDT, David Miller said:
+> 
+>> Your gcc-4.1.1 includes the -fstack-protector feature, but it might
+>> not have the gcc bug fix necessary to make that feature work on the
+>> kernel compile, which is why the version check is necessary.
+> 
+> Whee.  A busticated feature - how annoying.
 
-Ubuntu gcc has hardcoded -fstack-protector - but does not understand
--fno-stack-protector-all. So only try -fno-stack-protector.
+actually it's the kernel that has a differnet ABI than userspace, so it's not entirely gcc
+that is to blame.
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
----
- Makefile |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Do you happen to know the exact PR# for that one? 
 
-diff --git a/Makefile b/Makefile
-index 60e09f2..07b8f34 100644
---- a/Makefile
-+++ b/Makefile
-@@ -310,8 +310,8 @@ CPPFLAGS        := -D__KERNEL__ $(LINUXI
- CFLAGS          := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
-                    -fno-strict-aliasing -fno-common
- # Force gcc to behave correct even for buggy distributions
--CFLAGS          += $(call cc-option, -fno-stack-protector-all \
--                                     -fno-stack-protector)
-+CFLAGS          += $(call cc-option, -fno-stack-protector)
-+
- AFLAGS          := -D__ASSEMBLY__
- 
- # Read KERNELRELEASE from include/config/kernel.release (if it exists)
--- 
-1.4.1.rc2.gfc04
-
+it's gcc PR 28281

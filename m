@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422729AbWG2K2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422738AbWG2Ka7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422729AbWG2K2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 06:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422734AbWG2K2N
+	id S1422738AbWG2Ka7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 06:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422739AbWG2Ka7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 06:28:13 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:63848 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1422729AbWG2K2M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 06:28:12 -0400
-Date: Sat, 29 Jul 2006 12:28:10 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386: Do backtrace fallback too
-Message-ID: <20060729102810.GA26709@harddisk-recovery.com>
-References: <200607290300.k6T306Fc003168@hera.kernel.org> <20060729075414.GA16118@redhat.com>
+	Sat, 29 Jul 2006 06:30:59 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:62128 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422738AbWG2Ka5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 06:30:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AWBfLwuWV06PfA1bgxh8qNz80QfH7MIzOleMB/iBnMXIdoYv6eTMjvF8hAvT5vyk3KVMak0T4oLYsSRi++y9mJLLxzIOlq+m6V1zY000+H3lb5l4c1Za+Ht6GefWrqU7WvJVqozBoLjTFCQMeK7pHjcMDMIQHF6EhXesQvXw9zo=
+Message-ID: <41840b750607290330t35eab99fscef30fb46fdf4ec0@mail.gmail.com>
+Date: Sat, 29 Jul 2006 13:30:56 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: Generic battery interface
+Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       "Pavel Machek" <pavel@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+In-Reply-To: <20060729101730.GA7438@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060729075414.GA16118@redhat.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.12-2006-07-14
+References: <20060727232427.GA4907@suse.cz> <20060728074202.GA4757@suse.cz>
+	 <20060728122508.GC4158@elf.ucw.cz> <20060728134307.GD29217@suse.cz>
+	 <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com>
+	 <200607281557.k6SFvn09022794@turing-police.cc.vt.edu>
+	 <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com>
+	 <200607282314.k6SNESSg019274@turing-police.cc.vt.edu>
+	 <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com>
+	 <20060729101730.GA7438@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 03:54:14AM -0400, Dave Jones wrote:
-> On Sat, Jul 29, 2006 at 03:00:06AM +0000, Linux Kernel wrote:
->  > commit c97d20a6c51067a38f53680d9609b4cf2867d077
+On 7/29/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > The lazy polling approach I described in my last post to Vojtech
+> > ("block until there's  a new readout or N milliseconds have passed,
+> > whichever is later") looks like a more general, accurate and efficient
+> > interface.
+>
+> If "N" is given by the kernel, then it's identical to an event-based
+> approach. ;) Just described in different words.
 
-[...]
+No, N is given separately by each userspace client, on every call.
+That's the whole point. The kernel driver then does the minimal
+hardware querying and event generation that (a) makes sense for the
+hardware and (b) satisfies all userspace clients.
 
-> Hmm, this breaks the build for me..
-> 
-> arch/i386/kernel/traps.c: In function 'show_trace_log_lvl':
-> arch/i386/kernel/traps.c:195: error: invalid type argument of '->'
-> arch/i386/kernel/traps.c:198: error: invalid type argument of '->'
-> arch/i386/kernel/traps.c:199: error: invalid type argument of '->'
-> make[1]: *** [arch/i386/kernel/traps.o] Error 1
-> 
-> (The line numbers are different to mainline due to some unrelated
-> patches, they point to the UNW_PC/UNW_SP usages),
-> 
-> 
-> Also, shouldn't this..
-> 
-> 	print_symbol("DWARF2 unwinder stuck at %s\n",
-> 		UNW_PC(info.regs));
-> 
-> be using %p ?
-
-It should be UNWP_PC(&info), just like in the functions above. Here's a
-patch:
-
-Signed-off-by: Erik Mouw <erik@harddisk-recovery.com>
-
-diff --git a/arch/i386/kernel/traps.c b/arch/i386/kernel/traps.c
-index 3facc8f..017c015 100644
---- a/arch/i386/kernel/traps.c
-+++ b/arch/i386/kernel/traps.c
-@@ -190,11 +190,11 @@ static void show_trace_log_lvl(struct ta
- 		if (unw_ret > 0 && !arch_unw_user_mode(&info)) {
- #ifdef CONFIG_STACK_UNWIND
- 			print_symbol("DWARF2 unwinder stuck at %s\n",
--				     UNW_PC(info.regs));
-+				     UNW_PC(&info));
- 			if (call_trace == 1) {
- 				printk("Leftover inexact backtrace:\n");
--				if (UNW_SP(info.regs))
--					stack = (void *)UNW_SP(info.regs);
-+				if (UNW_SP(&info))
-+					stack = (void *)UNW_SP(&info);
- 			} else if (call_trace > 1)
- 				return;
- 			else
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+  Shem

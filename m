@@ -1,81 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWG2Mc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWG2Mdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWG2Mc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 08:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWG2Mc4
+	id S932124AbWG2Mdv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 08:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWG2Mdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 08:32:56 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:7933 "EHLO gepetto.dc.ltu.se")
-	by vger.kernel.org with ESMTP id S932119AbWG2Mcz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 08:32:55 -0400
-Message-ID: <1154176331.44cb554b633ef@portal.student.luth.se>
-Date: Sat, 29 Jul 2006 14:32:11 +0200
-From: ricknu-0@student.ltu.se
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
-Subject: [PATCH 1/2] include/linux: Defining bool, false and true
-References: <1154175570.44cb5252d3f09@portal.student.luth.se>
-In-Reply-To: <1154175570.44cb5252d3f09@portal.student.luth.se>
+	Sat, 29 Jul 2006 08:33:51 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:58067 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932124AbWG2Mdu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 08:33:50 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17611.21640.208153.492074@gargle.gargle.HOWL>
+Date: Sat, 29 Jul 2006 16:28:56 +0400
+To: Hans Reiser <reiser@namesys.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion)
+Newsgroups: gmane.comp.file-systems.reiserfs.general,gmane.linux.kernel
+In-Reply-To: <44CABB87.3050509@namesys.com>
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl>
+	<44CA31D2.70203@slaphack.com>
+	<Pine.LNX.4.64.0607280859380.4168@g5.osdl.org>
+	<44C9FB93.9040201@namesys.com>
+	<44CA6905.4050002@slaphack.com>
+	<44CA126C.7050403@namesys.com>
+	<44CA8771.1040708@slaphack.com>
+	<44CABB87.3050509@namesys.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+X-SystemSpamProbe: GOOD 0.0000019 96dd843a5e5211f1f70afe9fec471e0b
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch defines:
-* a generic boolean-type, named "bool"
-* aliases to 0 and 1, named "false" and "true"
+Hans Reiser writes:
+ > David Masover wrote:
+ > 
+ > >
+ > > If indeed it can be changed easily at all.  I think the burden is on
+ > > you to prove that you can change it to be more generic, rather than
+ > > saying "Well, we could do it later, if people want us to..."
+ > 
+ > None of the filesystems other than reiser4 have any interest in using
+ > plugins, and this whole argument over how it should be in VFS is
+ > nonsensical because nobody but us has any interest in using the
+ > functionality.  The burden is on the generic code authors to prove that
+ > they will ever ever do anything at all besides complain.  Frankly, I
+ > don't think they will.  I think they will never produce one line of code.
+ > 
+ > Please cite one ext3 developer who is signed up to implement ext3 using
+ > plugins if they are supported by VFS.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+In fact, they all do:
 
----
+struct inode_operations ext2_file_inode_operations;
+struct inode_operations ext2_dir_inode_operations;
+struct inode_operations ext2_special_inode_operations;
+struct inode_operations ext2_symlink_inode_operations;
+struct inode_operations ext2_fast_symlink_inode_operations;
 
- stddef.h |    5 +++++
- types.h  |    2 ++
- 2 files changed, 7 insertions(+)
+As you see, ext2 code already has multiple file "plugins", with
+persistent "plugin id" (stored in i_mode field of on-disk struct
+ext2_inode).
 
+ > 
+ > Hans
+ > 
 
-diff --git a/include/linux/stddef.h b/include/linux/stddef.h
-index b3a2cad..0382065 100644
---- a/include/linux/stddef.h
-+++ b/include/linux/stddef.h
-@@ -10,6 +10,11 @@ #else
- #define NULL ((void *)0)
- #endif
- 
-+enum {
-+	false	= 0,
-+	true	= 1
-+};
-+
- #undef offsetof
- #ifdef __compiler_offsetof
- #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
-diff --git a/include/linux/types.h b/include/linux/types.h
-index 3f23566..406d4ae 100644
---- a/include/linux/types.h
-+++ b/include/linux/types.h
-@@ -33,6 +33,8 @@ typedef __kernel_clockid_t	clockid_t;
- typedef __kernel_mqd_t		mqd_t;
- 
- #ifdef __KERNEL__
-+typedef _Bool			bool;
-+
- typedef __kernel_uid32_t	uid_t;
- typedef __kernel_gid32_t	gid_t;
- typedef __kernel_uid16_t        uid16_t;
+Nikita.
 

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWG2WWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWG2W2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWG2WWD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 18:22:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWG2WWD
+	id S1750728AbWG2W2l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 18:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750711AbWG2W2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 18:22:03 -0400
-Received: from mx2.suse.de ([195.135.220.15]:27627 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750703AbWG2WWB (ORCPT
+	Sat, 29 Jul 2006 18:28:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:16287 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750728AbWG2W2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 18:22:01 -0400
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: iforone <floydstestemail@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: BIOS detects 4 GB RAM, but kernel does not
-References: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
-	<1153933737.200164.160870@m73g2000cwd.googlegroups.com>
-	<1154007393.940693.259680@i42g2000cwa.googlegroups.com>
-	<1154112339.037481.119210@p79g2000cwp.googlegroups.com>
-	<44CAC249.1010605@shaw.ca>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Jul 2006 00:21:59 +0200
-In-Reply-To: <44CAC249.1010605@shaw.ca>
-Message-ID: <p73bqr83vco.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 29 Jul 2006 18:28:40 -0400
+Message-ID: <44CBE0F5.3050201@melbourne.sgi.com>
+Date: Sun, 30 Jul 2006 08:28:05 +1000
+From: David Chatterton <chatz@melbourne.sgi.com>
+Reply-To: chatz@melbourne.sgi.com
+Organization: SGI
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nathan Scott <nathans@sgi.com>, Christian Kujau <evil@g-house.de>,
+       linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: XFS breakage in 2.6.18-rc1
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607221722500.8407@prinz64.housecafe.de> <20060724090138.C2083275@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607281526220.1882@sheep.housecafe.de> <20060729074803.A2222647@wobbly.melbourne.sgi.com> <20060729202223.GD20039@charite.de>
+In-Reply-To: <20060729202223.GD20039@charite.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock <hancockr@shaw.ca> writes:
 
-> Athlon 64/Opteron CPUs have support for moving this part of the RAM
-> above 4GB to allow it to be used. This is part of the CPU's on-die
-> memory controller so no special chipset support is needed.
 
-In cheap boards >3.5GB RAM configurations are usually not officially
-supported by the vendor (= not tested) and there are systems where it
-doesn't work when enabled in the BIOS (doesn't work = kernel crashes
-randomly when accessing bad memory ranges)
+Ralf Hildebrandt wrote:
+> * Nathan Scott <nathans@sgi.com>:
+> 
+>> Barry sent an xfs_repair patch to resolve this issue to the xfs@oss.sgi.com
+>> list yesterday; please give that a go and let us know how it fares.
+> 
+> Just to let you know, I did a cvs checkout of xfs-cmds
+> as described on http://oss.sgi.com/projects/xfs/source.html
+> 
+> Then I saved the patch from
+> http://oss.sgi.com/archives/xfs/2006-07/msg00374.html using the
+> "Original" link on hat page.
+> 
+> I build a xfs_Repair binary using that, transferred it onto an old
+> KLAX boot cd I had and repaired the XFS root on my laptop.
+> 
+> I got 5000 files in lost and found, mostly the whole manpages from my
+> system. Had to reinstall a few packages to restore lost binaries, but
+> that's all.
+> 
+> When will that horrible bug be fixed in 2.6.x? 
+> 
 
-I guess it's a subtle hint that above 3GB of RAM you should be using
-ECC DIMMs anyways, which need a more expensive workstation class
-board.
+The bug is fixed in 2.6.17.7.
 
--Andi
+David

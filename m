@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWG2T5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWG2UB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWG2T5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWG2T5o
+	id S932183AbWG2UB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 16:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWG2UB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:57:44 -0400
-Received: from halon.profiwh.com ([85.93.165.2]:27374 "EHLO orfeus.profiwh.com")
-	by vger.kernel.org with ESMTP id S932224AbWG2T5n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:57:43 -0400
-Message-id: <fbdc1c0c5508c52eeb27a182b661ac1c460d91c0@hohoho>
-Subject: [PATCH 1/1] net: correct-Traffic-shaper-Kconfig
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: netdev@vger.kernel.org, jgarzik@pobox.com
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
-Date: Sat, 29 Jul 2006 15:57:43 -0400
+	Sat, 29 Jul 2006 16:01:59 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:3973 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S932183AbWG2UB6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 16:01:58 -0400
+Message-ID: <44CBBEC5.7090908@drzeus.cx>
+Date: Sat, 29 Jul 2006 22:02:13 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: Alex Dubov <oakad@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
+ card readers
+References: <20060728033406.40478.qmail@web36712.mail.mud.yahoo.com>
+In-Reply-To: <20060728033406.40478.qmail@web36712.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-correct-Traffic-shaper-Kconfig
+Some comments from a MMC/SD perspective.
 
-Correct traffic shaper Kconfig text.
+On a general note, please replace all your constants with defines. Magic
+values are no fun (unless they are in fact a magic number ;)).
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Also, calling the struct "card" might be a bit misleading as it might be
+a bus in the MMC case.
 
----
-commit fbdc1c0c5508c52eeb27a182b661ac1c460d91c0
-tree 84995c9113a19ae1c104579b96e311f34a94bda9
-parent fb63c3d00f6990e66752e05f98f13ff464e97b42
-author Jiri Slaby <ku@bellona.localdomain> Sat, 08 Apr 2006 15:20:41 +0159
-committer Jiri Slaby <ku@bellona.localdomain> Sat, 08 Apr 2006 15:20:41 +0159
+In tifm_sd_o_flags(), try not to case on response types as the hardware
+shouldn't have to care about this. If you really, really, _really_ must
+do this, then make sure you have a default that prints something nasty
+and fails the request with an error.
 
- drivers/net/Kconfig |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+A default is also needed for cmd_flags in the same function.
 
-diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-index 15d4161..c5030db 100644
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -2802,9 +2802,9 @@ config SHAPER
- 	  these virtual devices. See
- 	  <file:Documentation/networking/shaper.txt> for more information.
- 
--	  An alternative to this traffic shaper is the experimental
--	  Class-Based Queuing (CBQ) scheduling support which you get if you
--	  say Y to "QoS and/or fair queuing" above.
-+	  An alternative to this traffic shaper is the Class-Based Queuing
-+	  (CBQ) scheduling support which you get if you say Y to
-+	  "QoS and/or fair queuing" in "Networking options".
- 
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called shaper.  If unsure, say N.
+In tifm_sd_exec(), you should only need to test for the presence of
+cmd->data, not that the command is of ADTC type.
+
+Rgds
+Pierre
+
+

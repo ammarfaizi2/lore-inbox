@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWG2CbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161403AbWG2Cgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWG2CbV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 22:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWG2CbV
+	id S1161403AbWG2Cgi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 22:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161404AbWG2Cgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 22:31:21 -0400
-Received: from hera.kernel.org ([140.211.167.34]:30179 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932239AbWG2CbU (ORCPT
+	Fri, 28 Jul 2006 22:36:38 -0400
+Received: from colin.muc.de ([193.149.48.1]:2057 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1161403AbWG2Cgh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 22:31:20 -0400
-Date: Fri, 28 Jul 2006 20:24:15 -0300
-From: Marcelo Tosatti <mtosatti@redhat.com>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux v2.4.33-rc3 (and a new v2.4 maintainer)
-Message-ID: <20060728232415.GA28545@dmt>
-References: <200607280216.k6S2GgiJ009955@harpo.it.uu.se>
+	Fri, 28 Jul 2006 22:36:37 -0400
+Date: 29 Jul 2006 04:36:34 +0200
+Date: Sat, 29 Jul 2006 04:36:34 +0200
+From: Andi Kleen <ak@muc.de>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: 2.6.18-rc2-mm1 timer int 0 doesn't work
+Message-ID: <20060729023634.GC35643@muc.de>
+References: <20060727015639.9c89db57.akpm@osdl.org> <1154112276.3530.3.camel@amdx2.microgate.com> <20060728144854.44c4f557.akpm@osdl.org> <20060728233851.GA35643@muc.de> <1154132126.3349.8.camel@localhost.localdomain> <1154135792.2557.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200607280216.k6S2GgiJ009955@harpo.it.uu.se>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1154135792.2557.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 04:16:42AM +0200, Mikael Pettersson wrote:
-> On Thu, 27 Jul 2006 18:30:19 -0300, Marcelo Tosatti wrote:
-> >Here goes the third (and hopefully last) release candidate of v2.4.33.
+On Fri, Jul 28, 2006 at 08:16:32PM -0500, Paul Fulghum wrote:
+> On Fri, 2006-07-28 at 19:15 -0500, Paul Fulghum wrote:
+> > I'm doing a build on my home machine now to see if it
+> > happens there also.
 > 
-> http://www.kernel.org/pub/linux/kernel/v2.4/testing/patch-2.4.33-rc3.bz2
-> is only 854 bytes long, and once bunzip2:ed it looks like it's the
-> incremental diff between rc2 and rc3. Usually the full pre/rc patches
-> go in testing/ with the incrementals going into testing/incr/.
+> Well, the timer int 0 problem does not happen on my home machine.
+
+Yes, it only happens on a few machines.
+
+> 2.6.18-rc2 works fine with same config.
 > 
-> No big deal, but it would feel better with a proper -rc3 patch there.
+> In this case the error is:
+> 
+> No per-cpu room for modules
 
-Fixed, sorry.
+That's also a known problem, but a different one.
 
+-Andi

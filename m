@@ -1,133 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161441AbWG2EYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161465AbWG2EdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161441AbWG2EYy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 00:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752073AbWG2EYy
+	id S1161465AbWG2EdF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 00:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161464AbWG2EdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 00:24:54 -0400
-Received: from server99.tchmachines.com ([72.9.230.178]:40356 "EHLO
-	server99.tchmachines.com") by vger.kernel.org with ESMTP
-	id S1751381AbWG2EYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 00:24:54 -0400
-Date: Fri, 28 Jul 2006 21:26:32 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@infradead.org>, alokk@calsoftinc.com
-Subject: Re: [BUG] Lockdep recursive locking in kmem_cache_free
-Message-ID: <20060729042632.GA3840@localhost.localdomain>
-References: <Pine.LNX.4.64.0607280833510.18635@schroedinger.engr.sgi.com> <1154117501.10196.2.camel@localhost.localdomain> <Pine.LNX.4.64.0607281313310.20754@schroedinger.engr.sgi.com> <1154118476.10196.5.camel@localhost.localdomain> <1154118947.10196.10.camel@localhost.localdomain> <Pine.LNX.4.64.0607281332190.20754@schroedinger.engr.sgi.com> <1154119658.10196.17.camel@localhost.localdomain> <Pine.LNX.4.64.0607281344410.20754@schroedinger.engr.sgi.com> <20060728211227.GB3739@localhost.localdomain> <Pine.LNX.4.64.0607281422370.21238@schroedinger.engr.sgi.com>
+	Sat, 29 Jul 2006 00:33:04 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:33196 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1161462AbWG2EdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 00:33:02 -0400
+Subject: Re: [RFC 1/4] kevent: core files.
+From: Nicholas Miell <nmiell@comcast.net>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Zach Brown <zach.brown@oracle.com>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <44CAD81A.9060401@redhat.com>
+References: <20060709132446.GB29435@2ka.mipt.ru>
+	 <20060724.231708.01289489.davem@davemloft.net>
+	 <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru>
+	 <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru>
+	 <44CA586C.4010205@oracle.com> <20060728184445.GA10797@2ka.mipt.ru>
+	 <44CA613F.9080806@oracle.com>  <44CAD81A.9060401@redhat.com>
+Content-Type: text/plain
+Date: Fri, 28 Jul 2006 21:32:42 -0700
+Message-Id: <1154147562.2451.30.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607281422370.21238@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 02:26:16PM -0700, Christoph Lameter wrote:
-> On Fri, 28 Jul 2006, Ravikiran G Thirumalai wrote:
+On Fri, 2006-07-28 at 20:38 -0700, Ulrich Drepper wrote:
+> Zach Brown wrote:
+> > Ulrich, would you be satisfied if we didn't
+> > have the userspace mapped ring on the first pass and only had a
+> > collection syscall?
 > 
-> > Why should there be any problem taking the remote l3 lock?  If the remote
-> > node does not have cpu that does not mean we cannot take a lock from the
-> > local node!!! 
-> > 
-> > I think current git does not teach lockdep to ignore recursion for
-> > array_cache->lock when the array_cache->lock are from different cases.  As
-> > Arjan pointed out, I can see that l3->list_lock is special cased, but I
-> > cannot find where array_cache->lock is taken care of.
-> 
-> Ok.
->  
-> > Again, if this is indeed a problem (recursion) machine should not boot even,
-> > when compiled without lockdep, tglx, can you please verify this?
-> 
-> We seem to be fine on that level.
+> I'm not the one to make a call but why rush things?  Let's do it right
+> from the start.  Later changes can only lead to problems with users of
+> the earlier interface.
 > 
 
-Since false positives due to off slab slab management seem to occur
-often of late, how about adding some comments to slab.c?
-
-Thanks,
-Kiran
-
----
-
-Adds some comments to slab.c.
-
-Also, checks if we get a valid slabp_cache for off slab slab-descriptors.
-We should always get this. If we don't, then in that case we,
-will have to disable off-slab descriptors for this cache and do the 
-calculations again. This is a rare case,  so add a BUG_ON, for now, 
-just in case.
+Speaking of API design choices, I saw your OLS paper and was wondering
+if you were familiar with the Solaris port APIs* and, if so, you could
+please comment on how your proposed event channels are different/better.
 
 
-Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+* http://docs.sun.com/app/docs/doc/816-5168/6mbb3hrir?a=view
 
-Index: linux-2.6.18-rc2.git/mm/slab.c
-===================================================================
---- linux-2.6.18-rc2.git.orig/mm/slab.c	2006-07-28 17:43:04.000000000 -0700
-+++ linux-2.6.18-rc2.git/mm/slab.c	2006-07-28 18:13:31.000000000 -0700
-@@ -2200,8 +2200,17 @@ kmem_cache_create (const char *name, siz
- 		cachep->gfpflags |= GFP_DMA;
- 	cachep->buffer_size = size;
- 
--	if (flags & CFLGS_OFF_SLAB)
-+	if (flags & CFLGS_OFF_SLAB) {
- 		cachep->slabp_cache = kmem_find_general_cachep(slab_size, 0u);
-+		/*
-+		 * This is a possibility for one of the malloc_sizes caches.
-+		 * But since we go off slab only for object size greater than
-+		 * PAGE_SIZE/8, and malloc_sizes gets created in ascending order,
-+		 * this should not happen at all.
-+		 * But leave a BUG_ON for some lucky dude.
-+		 */
-+		BUG_ON(!cachep->slabp_cache);
-+	}
- 	cachep->ctor = ctor;
- 	cachep->dtor = dtor;
- 	cachep->name = name;
-@@ -2435,7 +2444,17 @@ int kmem_cache_destroy(struct kmem_cache
- }
- EXPORT_SYMBOL(kmem_cache_destroy);
- 
--/* Get the memory for a slab management obj. */
-+/*
-+ * Get the memory for a slab management obj.
-+ * For a slab cache when the slab descriptor is off-slab, slab descriptors
-+ * always come from malloc_sizes caches.  The slab descriptor cannot 
-+ * come from the same cache which is getting created because,
-+ * when we are searching for an appropriate cache for these
-+ * descriptors in kmem_cache_create, we search through the malloc_sizes array.
-+ * If we are creating a malloc_sizes cache here it would not be visible to
-+ * kmem_find_general_cachep till the initialization is complete.
-+ * Hence we cannot have slabp_cache same as the original cache.
-+ */
- static struct slab *alloc_slabmgmt(struct kmem_cache *cachep, void *objp,
- 				   int colour_off, gfp_t local_flags,
- 				   int nodeid)
-@@ -3119,6 +3138,12 @@ static void free_block(struct kmem_cache
- 		if (slabp->inuse == 0) {
- 			if (l3->free_objects > l3->free_limit) {
- 				l3->free_objects -= cachep->num;
-+				/* No need to drop any previously held
-+				 * lock here, even if we have a off-slab slab
-+				 * descriptor it is guaranteed to come from
-+				 * a different cache, refer to comments before
-+				 * alloc_slabmgmt.
-+				 */
- 				slab_destroy(cachep, slabp);
- 			} else {
- 				list_add(&slabp->list, &l3->slabs_free);
+-- 
+Nicholas Miell <nmiell@comcast.net>
+

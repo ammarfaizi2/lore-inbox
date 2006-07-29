@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWG2GGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWG2Gnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWG2GGD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 02:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWG2GGB
+	id S1422650AbWG2Gnx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 02:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWG2Gnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 02:06:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34790 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422636AbWG2GGA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 02:06:00 -0400
-Date: Fri, 28 Jul 2006 23:05:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/30] Permit filesystem local caching and NFS
- superblock sharing  [try #11]
-Message-Id: <20060728230540.7358b435.akpm@osdl.org>
-In-Reply-To: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sat, 29 Jul 2006 02:43:53 -0400
+Received: from web36707.mail.mud.yahoo.com ([209.191.85.41]:30353 "HELO
+	web36707.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1422650AbWG2Gnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 02:43:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=axPJWoQCQ/sLHyC9/fiYWbe/ol9oCfg3d+hQlnnuwNUT2/tmqYmNgYcOV1Ocm7MwimJRNxdoiImjQRJkTTvi/gkGIjmyFLRlCfFvmYZSOOur6EFNe2xgZmbGB+6RVkvUdsTp2l1y0G/FooRTBCwhFxIUOQc3NF9JrbCQxDUE3fY=  ;
+Message-ID: <20060729064351.80412.qmail@web36707.mail.mud.yahoo.com>
+Date: Fri, 28 Jul 2006 23:43:51 -0700 (PDT)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
+To: Mikael Pettersson <mikpe@it.uu.se>
+Cc: linux-kernel@vger.kernel.org, pazke@donpac.ru
+In-Reply-To: <200607281604.k6SG4xV3021888@harpo.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jul 2006 21:52:22 +0100
-David Howells <dhowells@redhat.com> wrote:
+No optimization. I just thought both 0xffffffff and -1
+are ugly.
 
-> These patches make it possible to share NFS superblocks between related
-> mounts, where "related" means on the same server and FSID. Inodes and dentries
-> will be shared where the NFS filehandles are the same (for example if two NFS3
-> files come from the same export but from different mounts, such as is not
-> uncommon with autofs on /home).
+--- Mikael Pettersson <mikpe@it.uu.se> wrote:
 
-It's not clear why these were sent.  The first 25 patches are, as far as I
-can tell, already in Trond's tree.  Whether Trond has the correct versions
-of these is now anybody's guess...
+> On Fri, 28 Jul 2006 06:02:11 -0700 (PDT), Alex Dubov
+> wrote:
+> >The exact condition is (irq_status!=0 &&
+> >irq_status!=0xffffffff). I think it is not any
+> better
+> >that what I have.
+> >
+> >--- Andrey Panin <pazke@donpac.ru> wrote:
+> >
+> >> On 208, 07 27, 2006 at 08:34:06PM -0700, Alex
+> Dubov
+> >> wrote:
+> >> 
+> >> What this strange line (in tifm_7xx1_isr
+> function)
+> >> is supposed to do:
+> >> 
+> >>         if(irq_status && (~irq_status))
+> 
+> If you're chasing micro-optimisations, you could
+> write
+> 
+>     /* if irq_status is not 0 or ~0, do <blah> */
+>     if (((unsigned)irq_status + 1) >= 2)
+> 
+> which should reduce the number of conditional
+> branches
+> to a single one. (And drop the cast if irq_status is
+> declared as unsigned.)
+> 
+> But for long-term maintenance just spelling out the
+> exact
+> condition (irq_status != 0 && irq_status != ~0) is
+> preferable.
+> 
 
-"[PATCH 26/30] NFS: Use local caching" appears to be the first patch which
-isn't in Trond's tree, but it doesn't work due to significant changes in
-nfs_clear_inode().
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

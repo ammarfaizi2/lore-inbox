@@ -1,129 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWG2Xeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWG2XgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWG2Xeh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 19:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750771AbWG2Xeh
+	id S1750777AbWG2XgD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 19:36:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWG2XgC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 19:34:37 -0400
-Received: from smtp.reflexsecurity.com ([72.54.64.74]:24228 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id S1750767AbWG2Xeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 19:34:37 -0400
-Date: Sat, 29 Jul 2006 19:34:16 -0400
-From: Jason Lunz <lunz@falooley.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, B.Zolnierkiewicz@elka.pw.edu.pl
-Cc: "Rafael J\. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>,
-       Vojtech Pavlik <vojtech@suse.cz>, Brad Campbell <brad@wasp.net.au>,
-       David Brownell <david-b@pacbell.net>
-Subject: [patch, rft] ide: reprogram disk pio timings on resume
-Message-ID: <20060729233416.GA6346@opus.vpn-dev.reflex>
-References: <200607281646.31207.rjw@sisk.pl> <1154105517.13509.153.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1154105517.13509.153.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.12-2006-07-14
+	Sat, 29 Jul 2006 19:36:02 -0400
+Received: from rwcrmhc15.comcast.net ([216.148.227.155]:49650 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1750777AbWG2XgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 19:36:00 -0400
+Subject: Re: itimer again (Re: [PATCH] RTC: Add mmap method to rtc
+	character driver)
+From: Nicholas Miell <nmiell@comcast.net>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Edgar Toernig <froese@gmx.de>, Neil Horman <nhorman@tuxdriver.com>,
+       Jim Gettys <jg@laptop.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org,
+       Keith Packard <keithp@keithp.com>, Ingo Molnar <mingo@elte.hu>,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20060729225138.GA22390@gnuppy.monkey.org>
+References: <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <1153861094.1230.20.camel@localhost.localdomain>
+	 <44C6875F.4090300@zytor.com>
+	 <1153862087.1230.38.camel@localhost.localdomain>
+	 <44C68AA8.6080702@zytor.com>
+	 <1153863542.1230.41.camel@localhost.localdomain>
+	 <20060729042820.GA16133@gnuppy.monkey.org>
+	 <20060729125427.GA6669@localhost.localdomain>
+	 <20060729204107.GA20890@gnuppy.monkey.org>
+	 <20060729234948.0768dbf4.froese@gmx.de>
+	 <20060729225138.GA22390@gnuppy.monkey.org>
+Content-Type: text/plain
+Date: Sat, 29 Jul 2006 16:35:51 -0700
+Message-Id: <1154216151.2467.5.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2006-07-29 at 15:51 -0700, Bill Huey wrote:
+> On Sat, Jul 29, 2006 at 11:49:48PM +0200, Edgar Toernig wrote:
+> > Bill Huey (hui) wrote:
+> > > Well, this points out a serious problem with doing an mmap extension to
+> > > /dev/rtc. It would be better to have a page mapped by another device like
+> > > /dev/jiffy_counter, or something like that rather than to overload the
+> > > /dev/rtc with that functionality.
+> > 
+> > You mean something like this, /dev/itimer?
+> > 
+> >     http://marc.theaimsgroup.com/?m=115412412427996
+> 
+> [CCing Steve and Ingo on this thread]
+> 
+> It's a different topic than what Keith needs, but this is useful for another
+> set of purposes. It's something that's really useful in the RT patch since
+> there isn't a decent API to get at high resolution timers in userspace. What
+> you've written is something that I articulated to Steve Rostedt over a dinner
+> at OLS and is badly needed in the -rt patches IMO. I suggest targeting that
+> for some kind of inclusion to Ingo Molnar's patchset.
+> 
 
-Add a step to the IDE PM state machine that reprograms disk PIO timings
-as the first step on resume. This prevents ide deadlock on
-resume-from-ram on my nforce3-based laptop.
+Do you mind summarizing what's wrong with the existing interfaces for
+those of us who didn't have the opportunity to join you for dinner at
+OLS?
 
-An earlier implementation was written entirely within the amd74xx ide
-driver, but Alan helpfully pointed out that this is the correct thing to
-do globally. Still, I'm only calling hwif->tuneproc() for disks, based
-on two things:
+-- 
+Nicholas Miell <nmiell@comcast.net>
 
- - The existing state machine is already passed over for non-disk drives
- - Previous testing on my laptop shows that the hangs are related only
-   to the disk - suspend/resume from a livecd showed that there's no
-   need for this on the cdrom.
-
-Signed-off-by: Jason Lunz <lunz@falooley.org>
-
----
-
-Alan: I'm doing tuneproc() before WIN_IDLEIMMEDIATE as you said. It
-works. I'd otherwise have done it after, based solely on the name -
-thanks for the suggestion.
-
-David, Rafael: It would be helpful if you could verify that this patch
-cures your ide-relate hangs on s2ram as well (with my previous patch to
-amd74xx unapplied). 
-
-Brad: thanks for volunteering to test! You'll be the lucky first person
-to try this on a non-nforce ide chipset. good luck.
-
-Please be careful - I know next to nothing about IDE; I just know that
-this make s2ram work on my laptop. This patch means altering ide resume
-for all systems where it currently works already. I suppose there could
-be regressions.
-
- drivers/ide/ide-io.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
-
-Index: linux-2.6.18-rc2-git6/drivers/ide/ide-io.c
-===================================================================
---- linux-2.6.18-rc2-git6.orig/drivers/ide/ide-io.c
-+++ linux-2.6.18-rc2-git6/drivers/ide/ide-io.c
-@@ -135,7 +135,8 @@
- 	ide_pm_flush_cache	= ide_pm_state_start_suspend,
- 	idedisk_pm_standby,
- 
--	idedisk_pm_idle		= ide_pm_state_start_resume,
-+	idedisk_pm_restore_pio	= ide_pm_state_start_resume,
-+	idedisk_pm_idle,
- 	ide_pm_restore_dma,
- };
- 
-@@ -156,7 +157,10 @@
- 	case idedisk_pm_standby:	/* Suspend step 2 (standby) complete */
- 		pm->pm_step = ide_pm_state_completed;
- 		break;
--	case idedisk_pm_idle:		/* Resume step 1 (idle) complete */
-+	case idedisk_pm_restore_pio:	/* Resume step 1 complete */
-+		pm->pm_step = idedisk_pm_idle;
-+		break;
-+	case idedisk_pm_idle:		/* Resume step 2 (idle) complete */
- 		pm->pm_step = ide_pm_restore_dma;
- 		break;
- 	}
-@@ -170,8 +174,11 @@
- 	memset(args, 0, sizeof(*args));
- 
- 	if (drive->media != ide_disk) {
--		/* skip idedisk_pm_idle for ATAPI devices */
--		if (pm->pm_step == idedisk_pm_idle)
-+		/*
-+		 * skip idedisk_pm_restore_pio and idedisk_pm_idle for ATAPI
-+		 * devices
-+		 */
-+		if (pm->pm_step == idedisk_pm_restore_pio)
- 			pm->pm_step = ide_pm_restore_dma;
- 	}
- 
-@@ -198,13 +205,19 @@
- 		args->handler	   = &task_no_data_intr;
- 		return do_rw_taskfile(drive, args);
- 
--	case idedisk_pm_idle:		/* Resume step 1 (idle) */
-+	case idedisk_pm_restore_pio:	/* Resume step 1 (restore PIO) */
-+		if (drive->hwif->tuneproc != NULL)
-+			drive->hwif->tuneproc(drive, 255);
-+		ide_complete_power_step(drive, rq, 0, 0);
-+		return ide_stopped;
-+
-+	case idedisk_pm_idle:		/* Resume step 2 (idle) */
- 		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
- 		args->command_type = IDE_DRIVE_TASK_NO_DATA;
- 		args->handler = task_no_data_intr;
- 		return do_rw_taskfile(drive, args);
- 
--	case ide_pm_restore_dma:	/* Resume step 2 (restore DMA) */
-+	case ide_pm_restore_dma:	/* Resume step 3 (restore DMA) */
- 		/*
- 		 * Right now, all we do is call hwif->ide_dma_check(drive),
- 		 * we could be smarter and check for current xfer_speed

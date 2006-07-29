@@ -1,99 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWG2M1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWG2Mc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWG2M1x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 08:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWG2M1x
+	id S932119AbWG2Mc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 08:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWG2Mc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 08:27:53 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:53228 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750784AbWG2M1v (ORCPT
+	Sat, 29 Jul 2006 08:32:56 -0400
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:7933 "EHLO gepetto.dc.ltu.se")
+	by vger.kernel.org with ESMTP id S932119AbWG2Mcz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 08:27:51 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nathan Lynch <ntl@pobox.com>
-Subject: Re: [PATCH -mm][resend] Disable CPU hotplug during suspend
-Date: Sat, 29 Jul 2006 14:18:32 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-References: <200607281015.30048.rjw@sisk.pl> <200607282115.45407.rjw@sisk.pl> <20060728224028.GK19076@localdomain>
-In-Reply-To: <20060728224028.GK19076@localdomain>
+	Sat, 29 Jul 2006 08:32:55 -0400
+Message-ID: <1154176331.44cb554b633ef@portal.student.luth.se>
+Date: Sat, 29 Jul 2006 14:32:11 +0200
+From: ricknu-0@student.ltu.se
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
+Subject: [PATCH 1/2] include/linux: Defining bool, false and true
+References: <1154175570.44cb5252d3f09@portal.student.luth.se>
+In-Reply-To: <1154175570.44cb5252d3f09@portal.student.luth.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607291418.32366.rjw@sisk.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 130.240.42.170
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 July 2006 00:40, Nathan Lynch wrote:
-> Rafael J. Wysocki wrote:
-> > On Friday 28 July 2006 20:20, Nathan Lynch wrote:
-> > > > +#ifdef CONFIG_SUSPEND_SMP
-> > > > +static cpumask_t frozen_cpus;
-> > > > +
-> > > > +int disable_nonboot_cpus(void)
-> > > > +{
-> > > > +	int cpu, error = 0;
-> > > > +
-> > > > +	/* We take all of the non-boot CPUs down in one shot to avoid races
-> > > > +	 * with the userspace trying to use the CPU hotplug at the same time
-> > > > +	 */
-> > > > +	mutex_lock(&cpu_add_remove_lock);
-> > > > +	cpus_clear(frozen_cpus);
-> > > > +	printk("Disabling non-boot CPUs ...\n");
-> > > > +	for_each_online_cpu(cpu) {
-> > > > +		if (cpu == 0)
-> > > > +			continue;
-> > > 
-> > > Assuming cpu 0 is online is not okay in generic code.
-> > 
-> > Absolutely.  Thanks for pointing this out.
-> > 
-> > > This should be something like:
-> > > 
-> > > 	int cpu, first_cpu, error = 0;
-> > > 
-> > > 	/* We take all of the non-boot CPUs down in one shot to avoid races
-> > > 	 * with the userspace trying to use the CPU hotplug at the same time
-> > > 	 */
-> > > 	mutex_lock(&cpu_add_remove_lock);
-> > > 	cpus_clear(frozen_cpus);
-> > > 	first_cpu = first_cpu(cpu_online_mask);
-> > > 	printk("Disabling non-boot CPUs ...\n");
-> > > 	for_each_online_cpu(cpu) {
-> > > 		if (cpu == first_cpu)
-> > > 			continue;
-> >
-> > 
-> > I'm not quite sure if we can finish with CPU0 offline.  Perhaps it's
-> > better to check if CPU0 is online and bring it up if not and then
-> > continue or return an error if that fails?
-> 
-> You can't assume that cpu 0 is even present in generic code. :-)
+This patch defines:
+* a generic boolean-type, named "bool"
+* aliases to 0 and 1, named "false" and "true"
 
-Yes.  I should have said "the first present CPU" instead of "CPU0".
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
-> But maybe I'm misunderstanding the motivation for using cpu 0 here.  I
-> had assumed it was because on i386 (and others?) the BSP can't be
-> offlined.  Is there some other reason?
+---
 
-Yes.
+ stddef.h |    5 +++++
+ types.h  |    2 ++
+ 2 files changed, 7 insertions(+)
 
-First, the arch-dependent suspend code assumes implicitly that it will be
-running on the BSP, so some strange things may happen if it doesn't.
 
-Second, we have to make sure that this function will always leaves the
-same CPU online.  It's a bit difficult to explain, but I'll do my best.
-Suppose that disable_nonboot_cpus() exits running on CPU1, assuming it's
-possible.  Then the system memory state saved in the suspend image will
-reflect this situation.  Now the resume code will almost certainly run on the
-BSP (say it's CPU0), but when the system memory is restored from the suspend
-image the kernel will think it's running on CPU1.
+diff --git a/include/linux/stddef.h b/include/linux/stddef.h
+index b3a2cad..0382065 100644
+--- a/include/linux/stddef.h
++++ b/include/linux/stddef.h
+@@ -10,6 +10,11 @@ #else
+ #define NULL ((void *)0)
+ #endif
+ 
++enum {
++	false	= 0,
++	true	= 1
++};
++
+ #undef offsetof
+ #ifdef __compiler_offsetof
+ #define offsetof(TYPE,MEMBER) __compiler_offsetof(TYPE,MEMBER)
+diff --git a/include/linux/types.h b/include/linux/types.h
+index 3f23566..406d4ae 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -33,6 +33,8 @@ typedef __kernel_clockid_t	clockid_t;
+ typedef __kernel_mqd_t		mqd_t;
+ 
+ #ifdef __KERNEL__
++typedef _Bool			bool;
++
+ typedef __kernel_uid32_t	uid_t;
+ typedef __kernel_gid32_t	gid_t;
+ typedef __kernel_uid16_t        uid16_t;
 
-In the last patch I send yesterday I made disable_nonboot_cpus() check if the
-first present CPU, first_cpu(cpu_present_map), is online, try to bring it up
-if not and migrate itself to it before the loop over all online CPUs is run.
-
-I think that's general enough.

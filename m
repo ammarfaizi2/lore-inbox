@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWG2N6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWG2N7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWG2N6y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 09:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWG2N6x
+	id S932180AbWG2N7i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 09:59:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWG2N7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 09:58:53 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:59146 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932147AbWG2N6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 09:58:52 -0400
-Date: Sat, 29 Jul 2006 09:55:13 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com
-Subject: Re: [KJ] audit return code handling for kernel_thread [2/11]
-Message-ID: <20060729135513.GB6892@localhost.localdomain>
-References: <200607282007.k6SK7DhX009584@ra.tuxdriver.com> <20060729093704.GD26956@flint.arm.linux.org.uk> <20060729131419.GA6892@localhost.localdomain>
-Mime-Version: 1.0
+	Sat, 29 Jul 2006 09:59:38 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:42630 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932180AbWG2N7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 09:59:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=oVoxFMXEGteKK/qSmyJ69rUe1KnYS7nSv2BsMbYosMExEfy6FqEZYA6hR/7KxuGMEWlUyTcfj8f7+nHdhnQDvjfOd9S6qCaz/Jmo850GPrQ6lK43cSCplo+chDqZ4rNp9l0UYaXdO6NYb4cDPo8ECxMdSScoWS1BRl57eRsZZC0=
+Date: Sat, 29 Jul 2006 15:58:37 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] #define rwxr_xr_x 0755
+Message-ID: <20060729135837.GB28712@leiferikson.dystopia.lan>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060727205911.GB5356@martell.zuzino.mipt.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060729131419.GA6892@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060727205911.GB5356@martell.zuzino.mipt.ru>
+User-Agent: mutt-ng/devel-r804 (GNU/Linux)
+From: Johannes Weiner <hnazfoo@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 09:14:19AM -0400, Neil Horman wrote:
-> On Sat, Jul 29, 2006 at 10:37:04AM +0100, Russell King wrote:
-> > On Fri, Jul 28, 2006 at 04:07:13PM -0400, nhorman@tuxdriver.com wrote:
-> > > Audit/Cleanup of kernel_thread calls, specifically checking of return codes.
-> > >     Problems seemed to fall into 3 main categories:
-> > >     
-> > >     1) callers of kernel_thread were inconsistent about meaning of a zero return
-> > >     code.  Some callers considered a zero return code to mean success, others took
-> > >     it to mean failure.  a zero return code, while not actually possible in the
-> > >     current implementation, should be considered a success (pid 0 is/should be
-> > >     valid). fixed all callers to treat zero return as success
-> > >     
-> > >     2) caller of kernel_thread saved return code of kernel_thread for later use
-> > >     without ever checking its value.  Callers who did this tended to assume a
-> > >     non-zero return was success, and would often wait for a completion queue to be
-> > >     woken up, implying that an error (negative return code) from kernel_thread could
-> > >     lead to deadlock.  Repaired by checking return code at call time, and setting
-> > >     saved return code to zero in the event of an error.
-> > 
-> > This is inconsistent with your assertion that pid 0 "is/should be valid"
-> > above.  If you want '0' to mean "not valid" then it's not a valid return
-> > value from kernel_thread() (and arguably that's true, since pid 0 is
-> > permanently allocated to the idle thread.)
-> > 
-> No its, not, but I can see how my comments might be ambiguous. I want zero to be
-> a valid return code, since we never actually return zero, but we certainly could
-> if we wanted to.  Note that kernel_thread returns an int (not an unsigned int),
-> and as such assuming that a non-zero return code implies success ignores the
-> fact that kernel_thread can return a negative value, which indicates failure.
-> This is what I found, and what my patch fixes.
+Hi,
+
+On Fri, Jul 28, 2006 at 12:59:11AM +0400, Alexey Dobriyan wrote:
+> Every time I try to decipher S_I* combos I cry in pain. Often I just
+> refer to include/linux/stat.h defines to find out what mode it is
+> because numbers are actually quickier to understand.
 > 
-> > I don't particularly care whether you decide to that returning pid 0 from
-> > kernel_thread is valid or not, just that your two points above are at least
-> > consistent with each other.
-> > 
-> My comments in (2) should be made more clear by changing "assume a non-zero
-> return was success" to "assume a negative return was success".  This is what my
-> patch fixes.
+> Compare and contrast:
 > 
-> Thanks & Regards
-> Neil
+> 	0644 vs S_IRUGO|S_IWUSR vs rw_r__r__
 > 
+> I'd say #2 really sucks.
 
+I understood the octal notation at once. #2 took a second, I'd prefer
+writing it  S_IRUGO | S_IWUSR  which makes it slightly more obvious.
+#3 is even better than #2 but still sucks. What against octals?
 
-P.S. - Sorry, Russell, et al.  for the double post.  My network link went out and I accendentally
-sent two replies to your note
+> What people think? Should folks at Moscow call 03 ASAP?
+> 
+> --- a/fs/smbfs/inode.c
+> +++ b/fs/smbfs/inode.c
+> @@ -575,10 +575,8 @@ static int smb_fill_super(struct super_b
+>  		mnt->flags = (oldmnt->file_mode >> 9) | SMB_MOUNT_UID |
+>  			SMB_MOUNT_GID | SMB_MOUNT_FMODE | SMB_MOUNT_DMODE;
+>  	} else {
+> -		mnt->file_mode = S_IRWXU | S_IRGRP | S_IXGRP |
+> -				S_IROTH | S_IXOTH | S_IFREG;
+> -		mnt->dir_mode = S_IRWXU | S_IRGRP | S_IXGRP |
+> -				S_IROTH | S_IXOTH | S_IFDIR;
+> +		mnt->file_mode = rwxr_xr_x | S_IFREG;
 
-Neil
+0755 | S_IFREG is more readable I think.
 
-> > -- 
-> > Russell King
-> >  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-> >  maintainer of:  2.6 Serial core
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> +		mnt->dir_mode = rwxr_xr_x | S_IFDIR;
+
+0755 | S_IFDIR ; same here
+
+Hannes

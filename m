@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422635AbWG2Flh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWG2Fls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422635AbWG2Flh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 01:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWG2Flh
+	id S1422637AbWG2Fls (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 01:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWG2Fls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 01:41:37 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:20135 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1161379AbWG2Flg (ORCPT
+	Sat, 29 Jul 2006 01:41:48 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:22439 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1422637AbWG2Flr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 01:41:36 -0400
-Date: Sat, 29 Jul 2006 01:36:42 -0400
+	Sat, 29 Jul 2006 01:41:47 -0400
+Date: Sat, 29 Jul 2006 01:41:12 -0400
 From: Jeff Garzik <jeff@garzik.org>
 To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patches] net driver fixes
-Message-ID: <20060729053642.GA32299@havoc.gtf.org>
+Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: [git patches] libata fixes
+Message-ID: <20060729054112.GA32497@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,243 +24,231 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
 
 to receive the following updates:
 
- drivers/net/myri10ge/myri10ge.c               |    2 -
- drivers/net/skge.c                            |    5 ----
- drivers/net/via-velocity.c                    |   17 ++++++++++++---
- drivers/net/wireless/Kconfig                  |    1 
- drivers/net/wireless/bcm43xx/bcm43xx_main.c   |    2 -
- drivers/net/wireless/orinoco.c                |    4 +--
- drivers/net/wireless/zd1201.c                 |    2 +
- net/ieee80211/Kconfig                         |    1 
- net/ieee80211/softmac/ieee80211softmac_auth.c |   28 ++++++++++++++++++++------
- 9 files changed, 44 insertions(+), 18 deletions(-)
+ drivers/scsi/libata-eh.c    |   69 ++++++++++++++++++++++++++++----------------
+ drivers/scsi/sata_promise.c |    7 ++++
+ include/linux/libata.h      |    4 +-
+ 3 files changed, 54 insertions(+), 26 deletions(-)
 
-Brice Goglin:
-      myri10ge - Always do a dummy RDMA after loading the firmware
+Jeff Garzik:
+      [libata] sata_promise: comment out duplicate PCI ID
 
-Chuck Ebbert:
-      ieee80211: TKIP requires CRC32
+Tejun Heo:
+      libata: fix autopsy ehc->i.action and ehc->i.dev handling
+      libata: fix eh_skip_recovery condition
+      libata: improve EH action and EHI flag handling
 
-Dan Williams:
-      orinoco: fix setting transmit key only
-
-Daniel Drake:
-      softmac: do shared key auth in workqueue
-
-Jay Cliburn:
-      via-velocity: fix speed and link status reported by ethtool
-
-Pavel Machek:
-      zd1201: workaround interference problem
-
-Robert Schulze:
-      airo: should select crypto_aes
-
-Stephen Hemminger:
-      skge: chip clock rate typo
-
-diff --git a/drivers/net/myri10ge/myri10ge.c b/drivers/net/myri10ge/myri10ge.c
-index 07ca948..c3e52c8 100644
---- a/drivers/net/myri10ge/myri10ge.c
-+++ b/drivers/net/myri10ge/myri10ge.c
-@@ -620,7 +620,7 @@ static int myri10ge_load_firmware(struct
- 		return -ENXIO;
- 	}
- 	dev_info(&mgp->pdev->dev, "handoff confirmed\n");
--	myri10ge_dummy_rdma(mgp, mgp->tx.boundary != 4096);
-+	myri10ge_dummy_rdma(mgp, 1);
- 
- 	return 0;
- }
-diff --git a/drivers/net/skge.c b/drivers/net/skge.c
-index 82200bf..7de9a07 100644
---- a/drivers/net/skge.c
-+++ b/drivers/net/skge.c
-@@ -516,10 +516,7 @@ static int skge_set_pauseparam(struct ne
- /* Chip internal frequency for clock calculations */
- static inline u32 hwkhz(const struct skge_hw *hw)
+diff --git a/drivers/scsi/libata-eh.c b/drivers/scsi/libata-eh.c
+index 4b6aa30..29f5934 100644
+--- a/drivers/scsi/libata-eh.c
++++ b/drivers/scsi/libata-eh.c
+@@ -764,12 +764,27 @@ static void ata_eh_about_to_do(struct at
+ 			       unsigned int action)
  {
--	if (hw->chip_id == CHIP_ID_GENESIS)
--		return 53215; /* or:  53.125 MHz */
--	else
--		return 78215; /* or:  78.125 MHz */
-+	return (hw->chip_id == CHIP_ID_GENESIS) ? 53125 : 78125;
- }
+ 	unsigned long flags;
++	struct ata_eh_info *ehi = &ap->eh_info;
++	struct ata_eh_context *ehc = &ap->eh_context;
  
- /* Chip HZ to microseconds */
-diff --git a/drivers/net/via-velocity.c b/drivers/net/via-velocity.c
-index f5b0078..aa9cd92 100644
---- a/drivers/net/via-velocity.c
-+++ b/drivers/net/via-velocity.c
-@@ -2742,7 +2742,7 @@ static u32 check_connection_type(struct 
+ 	spin_lock_irqsave(ap->lock, flags);
  
- 	if (PHYSR0 & PHYSR0_SPDG)
- 		status |= VELOCITY_SPEED_1000;
--	if (PHYSR0 & PHYSR0_SPD10)
-+	else if (PHYSR0 & PHYSR0_SPD10)
- 		status |= VELOCITY_SPEED_10;
- 	else
- 		status |= VELOCITY_SPEED_100;
-@@ -2851,8 +2851,17 @@ static int velocity_get_settings(struct 
- 	u32 status;
- 	status = check_connection_type(vptr->mac_regs);
+-	ata_eh_clear_action(dev, &ap->eh_info, action);
++	/* Reset is represented by combination of actions and EHI
++	 * flags.  Suck in all related bits before clearing eh_info to
++	 * avoid losing requested action.
++	 */
++	if (action & ATA_EH_RESET_MASK) {
++		ehc->i.action |= ehi->action & ATA_EH_RESET_MASK;
++		ehc->i.flags |= ehi->flags & ATA_EHI_RESET_MODIFIER_MASK;
++
++		/* make sure all reset actions are cleared & clear EHI flags */
++		action |= ATA_EH_RESET_MASK;
++		ehi->flags &= ~ATA_EHI_RESET_MODIFIER_MASK;
++	}
++
++	ata_eh_clear_action(dev, ehi, action);
  
--	cmd->supported = SUPPORTED_TP | SUPPORTED_Autoneg | SUPPORTED_10baseT_Half | SUPPORTED_10baseT_Full | SUPPORTED_100baseT_Half | SUPPORTED_100baseT_Full | SUPPORTED_1000baseT_Half | SUPPORTED_1000baseT_Full;
--	if (status & VELOCITY_SPEED_100)
-+	cmd->supported = SUPPORTED_TP |
-+			SUPPORTED_Autoneg |
-+			SUPPORTED_10baseT_Half |
-+			SUPPORTED_10baseT_Full |
-+			SUPPORTED_100baseT_Half |
-+			SUPPORTED_100baseT_Full |
-+			SUPPORTED_1000baseT_Half |
-+			SUPPORTED_1000baseT_Full;
-+	if (status & VELOCITY_SPEED_1000)
-+		cmd->speed = SPEED_1000;
-+	else if (status & VELOCITY_SPEED_100)
- 		cmd->speed = SPEED_100;
- 	else
- 		cmd->speed = SPEED_10;
-@@ -2896,7 +2905,7 @@ static u32 velocity_get_link(struct net_
+-	if (!(ap->eh_context.i.flags & ATA_EHI_QUIET))
++	if (!(ehc->i.flags & ATA_EHI_QUIET))
+ 		ap->pflags |= ATA_PFLAG_RECOVERED;
+ 
+ 	spin_unlock_irqrestore(ap->lock, flags);
+@@ -790,6 +805,12 @@ static void ata_eh_about_to_do(struct at
+ static void ata_eh_done(struct ata_port *ap, struct ata_device *dev,
+ 			unsigned int action)
  {
- 	struct velocity_info *vptr = netdev_priv(dev);
- 	struct mac_regs __iomem * regs = vptr->mac_regs;
--	return BYTE_REG_BITS_IS_ON(PHYSR0_LINKGD, &regs->PHYSR0)  ? 0 : 1;
-+	return BYTE_REG_BITS_IS_ON(PHYSR0_LINKGD, &regs->PHYSR0) ? 1 : 0;
++	/* if reset is complete, clear all reset actions & reset modifier */
++	if (action & ATA_EH_RESET_MASK) {
++		action |= ATA_EH_RESET_MASK;
++		ap->eh_context.i.flags &= ~ATA_EHI_RESET_MODIFIER_MASK;
++	}
++
+ 	ata_eh_clear_action(dev, &ap->eh_context.i, action);
  }
  
- static void velocity_get_drvinfo(struct net_device *dev, struct ethtool_drvinfo *info)
-diff --git a/drivers/net/wireless/Kconfig b/drivers/net/wireless/Kconfig
-index fa9d2c4..2e8ac99 100644
---- a/drivers/net/wireless/Kconfig
-+++ b/drivers/net/wireless/Kconfig
-@@ -447,6 +447,7 @@ config AIRO_CS
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 PCMCIA cards"
- 	depends on NET_RADIO && PCMCIA && (BROKEN || !M32R)
- 	select CRYPTO
-+	select CRYPTO_AES
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet PCMCIA
- 	  802.11 wireless cards.  This driver is the same as the Aironet
-diff --git a/drivers/net/wireless/bcm43xx/bcm43xx_main.c b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-index 3889f79..df317c1 100644
---- a/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-+++ b/drivers/net/wireless/bcm43xx/bcm43xx_main.c
-@@ -3701,7 +3701,7 @@ static void bcm43xx_ieee80211_set_securi
+@@ -1276,8 +1297,6 @@ static int ata_eh_speed_down(struct ata_
+ static void ata_eh_autopsy(struct ata_port *ap)
+ {
+ 	struct ata_eh_context *ehc = &ap->eh_context;
+-	unsigned int action = ehc->i.action;
+-	struct ata_device *failed_dev = NULL;
+ 	unsigned int all_err_mask = 0;
+ 	int tag, is_io = 0;
+ 	u32 serror;
+@@ -1294,7 +1313,7 @@ static void ata_eh_autopsy(struct ata_po
+ 		ehc->i.serror |= serror;
+ 		ata_eh_analyze_serror(ap);
+ 	} else if (rc != -EOPNOTSUPP)
+-		action |= ATA_EH_HARDRESET;
++		ehc->i.action |= ATA_EH_HARDRESET;
+ 
+ 	/* analyze NCQ failure */
+ 	ata_eh_analyze_ncq_error(ap);
+@@ -1315,7 +1334,7 @@ static void ata_eh_autopsy(struct ata_po
+ 		qc->err_mask |= ehc->i.err_mask;
+ 
+ 		/* analyze TF */
+-		action |= ata_eh_analyze_tf(qc, &qc->result_tf);
++		ehc->i.action |= ata_eh_analyze_tf(qc, &qc->result_tf);
+ 
+ 		/* DEV errors are probably spurious in case of ATA_BUS error */
+ 		if (qc->err_mask & AC_ERR_ATA_BUS)
+@@ -1329,11 +1348,11 @@ static void ata_eh_autopsy(struct ata_po
+ 		/* SENSE_VALID trumps dev/unknown error and revalidation */
+ 		if (qc->flags & ATA_QCFLAG_SENSE_VALID) {
+ 			qc->err_mask &= ~(AC_ERR_DEV | AC_ERR_OTHER);
+-			action &= ~ATA_EH_REVALIDATE;
++			ehc->i.action &= ~ATA_EH_REVALIDATE;
+ 		}
+ 
+ 		/* accumulate error info */
+-		failed_dev = qc->dev;
++		ehc->i.dev = qc->dev;
+ 		all_err_mask |= qc->err_mask;
+ 		if (qc->flags & ATA_QCFLAG_IO)
+ 			is_io = 1;
+@@ -1342,25 +1361,22 @@ static void ata_eh_autopsy(struct ata_po
+ 	/* enforce default EH actions */
+ 	if (ap->pflags & ATA_PFLAG_FROZEN ||
+ 	    all_err_mask & (AC_ERR_HSM | AC_ERR_TIMEOUT))
+-		action |= ATA_EH_SOFTRESET;
++		ehc->i.action |= ATA_EH_SOFTRESET;
+ 	else if (all_err_mask)
+-		action |= ATA_EH_REVALIDATE;
++		ehc->i.action |= ATA_EH_REVALIDATE;
+ 
+ 	/* if we have offending qcs and the associated failed device */
+-	if (failed_dev) {
++	if (ehc->i.dev) {
+ 		/* speed down */
+-		action |= ata_eh_speed_down(failed_dev, is_io, all_err_mask);
++		ehc->i.action |= ata_eh_speed_down(ehc->i.dev, is_io,
++						   all_err_mask);
+ 
+ 		/* perform per-dev EH action only on the offending device */
+-		ehc->i.dev_action[failed_dev->devno] |=
+-			action & ATA_EH_PERDEV_MASK;
+-		action &= ~ATA_EH_PERDEV_MASK;
++		ehc->i.dev_action[ehc->i.dev->devno] |=
++			ehc->i.action & ATA_EH_PERDEV_MASK;
++		ehc->i.action &= ~ATA_EH_PERDEV_MASK;
  	}
- 	if (sec->flags & SEC_AUTH_MODE) {
- 		secinfo->auth_mode = sec->auth_mode;
--		dprintk(", .auth_mode = %d\n", sec->auth_mode);
-+		dprintk(", .auth_mode = %d", sec->auth_mode);
- 	}
- 	dprintk("\n");
- 	if (bcm43xx_status(bcm) == BCM43xx_STAT_INITIALIZED &&
-diff --git a/drivers/net/wireless/orinoco.c b/drivers/net/wireless/orinoco.c
-index d6ed578..317ace7 100644
---- a/drivers/net/wireless/orinoco.c
-+++ b/drivers/net/wireless/orinoco.c
-@@ -2875,7 +2875,7 @@ static int orinoco_ioctl_setiwencode(str
- 	if (orinoco_lock(priv, &flags) != 0)
- 		return -EBUSY;
  
--	if (erq->pointer) {
-+	if (erq->length > 0) {
- 		if ((index < 0) || (index >= ORINOCO_MAX_KEYS))
- 			index = priv->tx_key;
- 
-@@ -2918,7 +2918,7 @@ static int orinoco_ioctl_setiwencode(str
- 	if (erq->flags & IW_ENCODE_RESTRICTED)
- 		restricted = 1;
- 
--	if (erq->pointer) {
-+	if (erq->pointer && erq->length > 0) {
- 		priv->keys[index].len = cpu_to_le16(xlen);
- 		memset(priv->keys[index].data, 0,
- 		       sizeof(priv->keys[index].data));
-diff --git a/drivers/net/wireless/zd1201.c b/drivers/net/wireless/zd1201.c
-index 662ecc8..c52e9bc 100644
---- a/drivers/net/wireless/zd1201.c
-+++ b/drivers/net/wireless/zd1201.c
-@@ -1820,6 +1820,8 @@ static int zd1201_probe(struct usb_inter
- 	    zd->dev->name);
- 
- 	usb_set_intfdata(interface, zd);
-+	zd1201_enable(zd);	/* zd1201 likes to startup enabled, */
-+	zd1201_disable(zd);	/* interfering with all the wifis in range */
- 	return 0;
- 
- err_net:
-diff --git a/net/ieee80211/Kconfig b/net/ieee80211/Kconfig
-index dbb0852..f7e84e9 100644
---- a/net/ieee80211/Kconfig
-+++ b/net/ieee80211/Kconfig
-@@ -58,6 +58,7 @@ config IEEE80211_CRYPT_TKIP
- 	depends on IEEE80211 && NET_RADIO
- 	select CRYPTO
- 	select CRYPTO_MICHAEL_MIC
-+	select CRC32
- 	---help---
- 	Include software based cipher suites in support of IEEE 802.11i
- 	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with TKIP enabled
-diff --git a/net/ieee80211/softmac/ieee80211softmac_auth.c b/net/ieee80211/softmac/ieee80211softmac_auth.c
-index ebc33ca..4cef39e 100644
---- a/net/ieee80211/softmac/ieee80211softmac_auth.c
-+++ b/net/ieee80211/softmac/ieee80211softmac_auth.c
-@@ -116,6 +116,16 @@ ieee80211softmac_auth_queue(void *data)
- 	kfree(auth);
+-	/* record autopsy result */
+-	ehc->i.dev = failed_dev;
+-	ehc->i.action |= action;
+-
+ 	DPRINTK("EXIT\n");
  }
  
-+/* Sends a response to an auth challenge (for shared key auth). */
-+static void
-+ieee80211softmac_auth_challenge_response(void *_aq)
-+{
-+	struct ieee80211softmac_auth_queue_item *aq = _aq;
-+
-+	/* Send our response */
-+	ieee80211softmac_send_mgt_frame(aq->mac, aq->net, IEEE80211_STYPE_AUTH, aq->state);
-+}
-+
- /* Handle the auth response from the AP
-  * This should be registered with ieee80211 as handle_auth 
-  */
-@@ -197,24 +207,30 @@ ieee80211softmac_auth_resp(struct net_de
- 		case IEEE80211SOFTMAC_AUTH_SHARED_CHALLENGE:
- 			/* Check to make sure we have a challenge IE */
- 			data = (u8 *)auth->info_element;
--			if(*data++ != MFIE_TYPE_CHALLENGE){
-+			if (*data++ != MFIE_TYPE_CHALLENGE) {
- 				printkl(KERN_NOTICE PFX "Shared Key Authentication failed due to a missing challenge.\n");
- 				break;	
- 			}
- 			/* Save the challenge */
- 			spin_lock_irqsave(&mac->lock, flags);
- 			net->challenge_len = *data++; 	
--			if(net->challenge_len > WLAN_AUTH_CHALLENGE_LEN)
-+			if (net->challenge_len > WLAN_AUTH_CHALLENGE_LEN)
- 				net->challenge_len = WLAN_AUTH_CHALLENGE_LEN;
--			if(net->challenge != NULL)
-+			if (net->challenge != NULL)
- 				kfree(net->challenge);
- 			net->challenge = kmalloc(net->challenge_len, GFP_ATOMIC);
- 			memcpy(net->challenge, data, net->challenge_len);
- 			aq->state = IEEE80211SOFTMAC_AUTH_SHARED_RESPONSE; 
--			spin_unlock_irqrestore(&mac->lock, flags);
+@@ -1483,6 +1499,9 @@ static int ata_eh_reset(struct ata_port 
+ 	ata_reset_fn_t reset;
+ 	int i, did_followup_srst, rc;
  
--			/* Send our response */
--			ieee80211softmac_send_mgt_frame(mac, aq->net, IEEE80211_STYPE_AUTH, aq->state);
-+			/* We reuse the work struct from the auth request here.
-+			 * It is safe to do so as each one is per-request, and
-+			 * at this point (dealing with authentication response)
-+			 * we have obviously already sent the initial auth
-+			 * request. */
-+			cancel_delayed_work(&aq->work);
-+			INIT_WORK(&aq->work, &ieee80211softmac_auth_challenge_response, (void *)aq);
-+			schedule_work(&aq->work);
-+			spin_unlock_irqrestore(&mac->lock, flags);
- 			return 0;
- 		case IEEE80211SOFTMAC_AUTH_SHARED_PASS:
- 			kfree(net->challenge);
++	/* about to reset */
++	ata_eh_about_to_do(ap, NULL, ehc->i.action & ATA_EH_RESET_MASK);
++
+ 	/* Determine which reset to use and record in ehc->i.action.
+ 	 * prereset() may examine and modify it.
+ 	 */
+@@ -1531,8 +1550,7 @@ static int ata_eh_reset(struct ata_port 
+ 		ata_port_printk(ap, KERN_INFO, "%s resetting port\n",
+ 				reset == softreset ? "soft" : "hard");
+ 
+-	/* reset */
+-	ata_eh_about_to_do(ap, NULL, ATA_EH_RESET_MASK);
++	/* mark that this EH session started with reset */
+ 	ehc->i.flags |= ATA_EHI_DID_RESET;
+ 
+ 	rc = ata_do_reset(ap, reset, classes);
+@@ -1595,7 +1613,7 @@ static int ata_eh_reset(struct ata_port 
+ 			postreset(ap, classes);
+ 
+ 		/* reset successful, schedule revalidation */
+-		ata_eh_done(ap, NULL, ATA_EH_RESET_MASK);
++		ata_eh_done(ap, NULL, ehc->i.action & ATA_EH_RESET_MASK);
+ 		ehc->i.action |= ATA_EH_REVALIDATE;
+ 	}
+ 
+@@ -1848,15 +1866,16 @@ static int ata_eh_skip_recovery(struct a
+ 	for (i = 0; i < ata_port_max_devices(ap); i++) {
+ 		struct ata_device *dev = &ap->device[i];
+ 
+-		if (ata_dev_absent(dev) || ata_dev_ready(dev))
++		if (!(dev->flags & ATA_DFLAG_SUSPENDED))
+ 			break;
+ 	}
+ 
+ 	if (i == ata_port_max_devices(ap))
+ 		return 1;
+ 
+-	/* always thaw frozen port and recover failed devices */
+-	if (ap->pflags & ATA_PFLAG_FROZEN || ata_port_nr_enabled(ap))
++	/* thaw frozen port, resume link and recover failed devices */
++	if ((ap->pflags & ATA_PFLAG_FROZEN) ||
++	    (ehc->i.flags & ATA_EHI_RESUME_LINK) || ata_port_nr_enabled(ap))
+ 		return 0;
+ 
+ 	/* skip if class codes for all vacant slots are ATA_DEV_NONE */
+diff --git a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
+index 64631bd..4776f4e 100644
+--- a/drivers/scsi/sata_promise.c
++++ b/drivers/scsi/sata_promise.c
+@@ -269,8 +269,15 @@ static const struct pci_device_id pdc_at
+ 	{ PCI_VENDOR_ID_PROMISE, 0x6629, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_20619 },
+ 
++/* TODO: remove all associated board_20771 code, as it completely
++ * duplicates board_2037x code, unless reason for separation can be
++ * divined.
++ */
++#if 0
+ 	{ PCI_VENDOR_ID_PROMISE, 0x3570, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_20771 },
++#endif
++
+ 	{ }	/* terminate list */
+ };
+ 
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 6cc497a..66c3100 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -265,12 +265,14 @@ enum {
+ 
+ 	/* ata_eh_info->flags */
+ 	ATA_EHI_HOTPLUGGED	= (1 << 0),  /* could have been hotplugged */
+-	ATA_EHI_RESUME_LINK	= (1 << 1),  /* need to resume link */
++	ATA_EHI_RESUME_LINK	= (1 << 1),  /* resume link (reset modifier) */
+ 	ATA_EHI_NO_AUTOPSY	= (1 << 2),  /* no autopsy */
+ 	ATA_EHI_QUIET		= (1 << 3),  /* be quiet */
+ 
+ 	ATA_EHI_DID_RESET	= (1 << 16), /* already reset this port */
+ 
++	ATA_EHI_RESET_MODIFIER_MASK = ATA_EHI_RESUME_LINK,
++
+ 	/* max repeat if error condition is still set after ->error_handler */
+ 	ATA_EH_MAX_REPEAT	= 5,
+ 

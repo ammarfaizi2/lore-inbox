@@ -1,152 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWG2UTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWG2UW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWG2UTk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 16:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWG2UTk
+	id S1751423AbWG2UW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 16:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWG2UW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 16:19:40 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:18960 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751406AbWG2UTj (ORCPT
+	Sat, 29 Jul 2006 16:22:27 -0400
+Received: from mail.charite.de ([160.45.207.131]:3227 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1751423AbWG2UW1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 16:19:39 -0400
-Date: Sat, 29 Jul 2006 16:15:55 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, marcel@holtman.org,
-       fpavlic@de.ibm.com, paulus@au.ibm.com, bcollins@debian.org,
-       tony.luck@intel.com
-Subject: Re: [KJ] (re) audit return code handling for kernel_thread [1/3]
-Message-ID: <20060729201555.GB8574@localhost.localdomain>
-References: <20060729201139.GA8574@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 Jul 2006 16:22:27 -0400
+Date: Sat, 29 Jul 2006 22:22:24 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Christian Kujau <evil@g-house.de>, linux-kernel@vger.kernel.org,
+       xfs@oss.sgi.com
+Subject: Re: XFS breakage in 2.6.18-rc1
+Message-ID: <20060729202223.GD20039@charite.de>
+Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
+	Christian Kujau <evil@g-house.de>, linux-kernel@vger.kernel.org,
+	xfs@oss.sgi.com
+References: <20060718222941.GA3801@stargate.galaxy> <20060719085731.C1935136@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607221722500.8407@prinz64.housecafe.de> <20060724090138.C2083275@wobbly.melbourne.sgi.com> <Pine.LNX.4.64.0607281526220.1882@sheep.housecafe.de> <20060729074803.A2222647@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060729201139.GA8574@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060729074803.A2222647@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to audit return code checking of kernel_thread.  These fixes correct those
-callers who fail to check the return code of kernel_thread at all
+* Nathan Scott <nathans@sgi.com>:
 
-Thanks & Regards
-Neil
+> Barry sent an xfs_repair patch to resolve this issue to the xfs@oss.sgi.com
+> list yesterday; please give that a go and let us know how it fares.
 
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Just to let you know, I did a cvs checkout of xfs-cmds
+as described on http://oss.sgi.com/projects/xfs/source.html
 
+Then I saved the patch from
+http://oss.sgi.com/archives/xfs/2006-07/msg00374.html using the
+"Original" link on hat page.
 
- arch/s390/mm/cmm.c           |    6 +++++-
- drivers/macintosh/mediabay.c |    4 +++-
- drivers/s390/net/lcs.c       |   10 +++++++---
- drivers/s390/net/qeth_main.c |   12 +++++++++---
- init/main.c                  |    6 +++++-
- net/bluetooth/rfcomm/core.c  |    6 +++++-
- 6 files changed, 34 insertions(+), 10 deletions(-)
+I build a xfs_Repair binary using that, transferred it onto an old
+KLAX boot cd I had and repaired the XFS root on my laptop.
 
+I got 5000 files in lost and found, mostly the whole manpages from my
+system. Had to reinstall a few packages to restore lost binaries, but
+that's all.
 
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -161,7 +161,11 @@ cmm_thread(void *dummy)
- static void
- cmm_start_thread(void)
- {
--	kernel_thread(cmm_thread, NULL, 0);
-+	if (kernel_thread(cmm_thread, NULL, 0) < 0) {
-+		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+			__FUNCTION__,__LINE__);
-+		clear_bit(0,&cmm_thread_active);
-+	}
- }
- 
---- a/drivers/macintosh/mediabay.c
-+++ b/drivers/macintosh/mediabay.c
-@@ -699,7 +699,9 @@ static int __devinit media_bay_attach(st
- 
- 	/* Startup kernel thread */
- 	if (i == 0)
--		kernel_thread(media_bay_task, NULL, CLONE_KERNEL);
-+		if (kernel_thread(media_bay_task, NULL, CLONE_KERNEL) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__,__LINE__);
- 
- 	return 0;
- 
---- a/drivers/s390/net/lcs.c
-+++ b/drivers/s390/net/lcs.c
-@@ -1729,11 +1729,15 @@ lcs_start_kernel_thread(struct lcs_card 
- {
- 	LCS_DBF_TEXT(5, trace, "krnthrd");
- 	if (lcs_do_start_thread(card, LCS_RECOVERY_THREAD))
--		kernel_thread(lcs_recovery, (void *) card, SIGCHLD);
-+		if (kernel_thread(lcs_recovery, (void *) card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__, __LINE__);
- #ifdef CONFIG_IP_MULTICAST
- 	if (lcs_do_start_thread(card, LCS_SET_MC_THREAD))
--		kernel_thread(lcs_register_mc_addresses,
--				(void *) card, SIGCHLD);
-+		if (kernel_thread(lcs_register_mc_addresses,
-+				(void *) card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__, __LINE__);
- #endif
- }
- 
---- a/drivers/s390/net/qeth_main.c
-+++ b/drivers/s390/net/qeth_main.c
-@@ -1048,11 +1048,17 @@ qeth_start_kernel_thread(struct qeth_car
- 		return;
- 
- 	if (qeth_do_start_thread(card, QETH_SET_IP_THREAD))
--		kernel_thread(qeth_register_ip_addresses, (void *)card,SIGCHLD);
-+		if (kernel_thread(qeth_register_ip_addresses, (void *)card,SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__, __LINE__);
- 	if (qeth_do_start_thread(card, QETH_SET_PROMISC_MODE_THREAD))
--		kernel_thread(qeth_set_promisc_mode, (void *)card, SIGCHLD);
-+		if (kernel_thread(qeth_set_promisc_mode, (void *)card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__, __LINE__);
- 	if (qeth_do_start_thread(card, QETH_RECOVER_THREAD))
--		kernel_thread(qeth_recover, (void *) card, SIGCHLD);
-+		if (kernel_thread(qeth_recover, (void *) card, SIGCHLD) < 0)
-+			printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+				__FUNCTION__, __LINE__);
- }
- 
- 
---- a/init/main.c
-+++ b/init/main.c
-@@ -389,7 +389,11 @@ #endif
- static void noinline rest_init(void)
- 	__releases(kernel_lock)
- {
--	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
-+	if (kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND) < 0) {
-+		printk(KERN_CRIT "Unable to start kernel thread at %s:%d\n",
-+			__FUNCTION__, __LINE__);
-+		BUG();
-+	}
- 	numa_default_policy();
- 	unlock_kernel();
- 
---- a/net/bluetooth/rfcomm/core.c
-+++ b/net/bluetooth/rfcomm/core.c
-@@ -2052,11 +2052,15 @@ static CLASS_ATTR(rfcomm_dlc, S_IRUGO, r
- /* ---- Initialization ---- */
- static int __init rfcomm_init(void)
- {
-+	int ret;
- 	l2cap_load();
- 
- 	hci_register_cb(&rfcomm_cb);
- 
--	kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
-+	ret = kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
-+	
-+	if (ret < 0)
-+		return ret;
- 
- 	class_create_file(bt_class, &class_attr_rfcomm_dlc);
- 
+When will that horrible bug be fixed in 2.6.x? 
 
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

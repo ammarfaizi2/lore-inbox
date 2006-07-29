@@ -1,68 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWG2SM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWG2SLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWG2SM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 14:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWG2SM2
+	id S932202AbWG2SLX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 14:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWG2SLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 14:12:28 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:33955 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932083AbWG2SM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 14:12:27 -0400
-Date: Sat, 29 Jul 2006 12:12:22 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: BIOS detects 4 GB RAM, but kernel does not
-In-reply-to: <1154145714.279248.233230@m73g2000cwd.googlegroups.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: iforone <floydstestemail@yahoo.com>
-Message-id: <44CBA506.4040906@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <1154112339.037481.119210@p79g2000cwp.googlegroups.com>
- <fa.6TLi9h8OI9J6KX0+lv+D4/CEU0U@ifi.uio.no>
- <fa.adpnQx0XAWgd4+g2tR5HDa2qHDw@ifi.uio.no>
- <1154145714.279248.233230@m73g2000cwd.googlegroups.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Sat, 29 Jul 2006 14:11:22 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:49124 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932202AbWG2SLW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 14:11:22 -0400
+Message-ID: <44CBA4BF.80301@slaphack.com>
+Date: Sat, 29 Jul 2006 13:11:11 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060708)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view"	expressed
+ by kernelnewbies.org regarding reiser4 inclusion)
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl>	 <44CA31D2.70203@slaphack.com>	 <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org>	 <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com>	 <44CA126C.7050403@namesys.com> <44CA8771.1040708@slaphack.com>	 <44CABB87.3050509@namesys.com> <1154164364.2903.10.camel@laptopd505.fenrus.org>
+In-Reply-To: <1154164364.2903.10.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="------------enig8221BD0B50F43671F10ACC78"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iforone wrote:
-> If we take a quick look at (part of) the OP's 'dmesg' output;
->  ACPI: RSDT (v001 INTEL  D915GAV  0x20050429 MSFT 0x00000097) @
->  0x00000000c7730000
->  ACPI: FADT (v002 INTEL  D915GAV  0x20050429 MSFT 0x00000097) @
->  0x00000000c7730200
->  ACPI: MADT (v001 INTEL  D915GAV  0x20050429 MSFT 0x00000097) @
->  0x00000000c7730390
->  ACPI: MCFG (v001 INTEL  D915GAV  0x20050429 MSFT 0x00000097) @
->  0x00000000c7730400
->  ACPI: ASF! (v016 LEGEND I865PASF 0x00000001 INTL 0x02002026) @
->  0x00000000c7736020
->  ACPI: TCPA (v001 INTEL  TBLOEMID 0x00000001 MSFT 0x00000097) @
->  0x00000000c77360c0
->  ACPI: WDDT (v001 INTEL  OEMWDDT  0x00000001 INTL 0x02002026) @
->  0x00000000c77360f4
->  ACPI: DSDT (v001 INTEL  D915GAV  0x00000001 INTL 0x02002026) @
->  0x0000000000000000
->  No NUMA configuration found
->  Faking a node at 0000000000000000-00000000c772f000
->  Bootmem setup node 0 0000000000000000-00000000c772f000
->  No mptable found.
->  On node 0 totalpages: 816943
-> 
-> ===============
-> 
-> We see MSFT (Microsoft) all over the place as well as INTL (Intel ?) --
-> I suppose this machine may be a Dellio (perhaps HP or Compaq)? or
-> atleast one that has one of those stickers on the case that says
-> "Designed for use with MS Windows [version]"
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig8221BD0B50F43671F10ACC78
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I believe that indicates that the Microsoft ACPI compiler was used to 
-generate the ACPI tables in the BIOS..
+Arjan van de Ven wrote:
+>> Most users not only cannot patch a kernel, they don't know what a patc=
+h
+>> is.  It most certainly does.=20
+>=20
+>=20
+> obviously you can provide complete kernels, including precompiled ones.=
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> Most distros have a yum or apt or similar tool to suck down packages,
+> it's trivial for users to add a site to that, so you could provide
+> packages if you want and make it easy for them.
 
+What's more, many distros patch their kernels extensively.  They listen
+to their users, too.  So if there are a lot of users wanting this to be
+in the kernel, let them complain -- loudly -- to their distro to patch
+for Reiser4.
+
+It could be made even easier than that -- if Reiser4 is really so
+self-contained, it could be a whole separate set of modules, distributed
+on its own.  Most gamers have to be content with doing something similar
+with the nvidia drivers -- for different reasons (licensing) but with
+the same results.  I know Gentoo handles this automatically (emerge
+nvidia-kernel).
+
+Hmm, maybe it makes it a pain to have it as a root filesystem, so that
+really needs distro support.  And yet, we have a whole system designed
+specifically for being able to load modules and tweak settings before
+the root FS is available.  It's called initrd, or more recently,
+initramfs.  I use an old-style initrd on this box, because my root FS is
+on an nvidia RAID, so I have to run a program called "dmraid" before I
+mount my root FS -- it's really trivial for me to have Reiser4 as a
+module, and I do, despite it being a root FS.
+
+I suspect that, all technical, political, and "mine is bigger" arguments
+aside, being available as a root FS of a distro, especially a default
+FS, would go a long way towards inclusion in the kernel.  So all you
+have to do is find a reasonably popular and friendly distro, with people
+who are (for the moment) easier to deal with than kernel people.
+
+Most people, if they even know what a filesystem or a kernel is, still
+won't bother compiling their own kernel, you're right.  But that means
+they are more likely to be using a distro-patched kernel than a stock,
+vanilla one.
+
+Is this enough to be "in the jukebox", Hans?
+
+Of course, it's odd that I mention Gentoo, the Gentoo people (as a rule)
+hate ReiserFS, but there are far more distros than there are popular
+kernel forks.  I'm sure someone will be interested.
+
+That's assuming that making further changes (putting stuff in the VFS)
+is out of the question (for now).
+
+
+--------------enig8221BD0B50F43671F10ACC78
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRMukv3gHNmZLgCUhAQrPnA//YLY9OzgTjKOTKJyRL+0LybpycvkTY7SD
+SRPoLMqlBILU4LIn7U3ax3MWBA//KFAIVJ42X3tYVD2EaZGHAOVKYukZYt6Kf2UX
+/mvX8+ovnY703Zb0MrHBGbbQ6SklFOp8sPZvwLO3eg9ko08ZsNV+xIUAk8ewe0yO
+ccCJrDlswlOT4ARgg57K3Wfn1xoRrkc02VuFWwACs/wtilt1ScVP4lfkC+DWkIp8
+DSVjtCrp4wNOx+6ZlIq9MetPRwRwGzPpX449x0nlfXal0zyyx9SLl3K6P0bM9FEK
+J5EbytupN/jMH30gmMKqiZumjlnYm/dnnTHiza8NbGK27Qru2VtGfuM+7Ne/wPhf
+7r0sqAtZBxjmygaVRa2wLDB8EX+GpA5zBQ8SjdGcahmHiwZQmupAWL20ciw11ONW
+h0Hm766yZRH46OxHFgXQjqCcF7ykL8e2+HHWc23Fn78xFW+FigZvLYzVlYt9GNH3
+pPrFYDmZJQtU+RX188uRJZZGsAqmOaC4Swi1VPG566S2cUs+k4HjAGo5kxdvss+n
+LyNSbegZGJNnyhYuwjz4Nb3XtzADeG2twqp9GIkkF4kwc1H7mi8qiwfK97r+kgth
+5EkZQKxonAu4DASi4c2GQN4j9vfJLAnMeJNnwxLNsiSGjd09MhUOZsF2Aj2ea3vX
+uSNnOlCbLJM=
+=X/Jt
+-----END PGP SIGNATURE-----
+
+--------------enig8221BD0B50F43671F10ACC78--

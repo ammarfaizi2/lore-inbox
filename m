@@ -1,109 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWG2Mkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWG2Mvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWG2Mkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 08:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWG2Mkr
+	id S932131AbWG2Mvt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 08:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWG2Mvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 08:40:47 -0400
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:26365 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S932123AbWG2Mkr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 08:40:47 -0400
-Message-ID: <1154176573.44cb563d7ed2c@portal.student.luth.se>
-Date: Sat, 29 Jul 2006 14:36:13 +0200
-From: ricknu-0@student.ltu.se
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jeff@garzik.org>,
-       Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
-Subject: [PATCH 2/2] drivers: Removes colliding boolean definitions
-References: <1154175570.44cb5252d3f09@portal.student.luth.se>
-In-Reply-To: <1154175570.44cb5252d3f09@portal.student.luth.se>
+	Sat, 29 Jul 2006 08:51:48 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:8526 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932131AbWG2Mvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 08:51:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lCxbtW6NwXOEeikGPU2yT/7M6jw+AWuZPH+R9h72HzV++prr8rU+RK+tmb5ZXPxAY8tlR5yZlffeSBzIc1XYZmxhtYJt6z0LKygYrW5UEg5nwpo/4rSuRVSKaf/V2Ya/XCq0XtlHgbdLHos9NJs08eDHxGLIM8SaB06DGuKHeSg=
+Message-ID: <41840b750607290551kae4a7c7k9402c96e5b67e6a5@mail.gmail.com>
+Date: Sat, 29 Jul 2006 15:51:45 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Subject: Re: Generic battery interface
+Cc: "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@suse.cz>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
+       "Henrique de Moraes Holschuh" <hmh@debian.org>
+In-Reply-To: <20060729120411.GA8285@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 130.240.42.170
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz>
+	 <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com>
+	 <20060728202359.GB5313@suse.cz>
+	 <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
+	 <20060729103613.GB7438@suse.cz>
+	 <41840b750607290432m6d302cdoae7f3eef869279d4@mail.gmail.com>
+	 <20060729120411.GA8285@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removing definitions of bool, false and true, preventing collisions with the
-generic definition.
+On 7/29/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > I think what people want from device choice is a reasonable default
+> > plus a convenient way to override things. The former is handled nicely
+> > by distributions' udev rules, while the latter is best done by
+> > providing fixed paths. As an end-user, if I know my favorite joystick
+> > is on a specific USB port (hence a specific syfs directory), then I
+> > want to tell neverball "use that one" without setting up nasty udev
+> > rules or playing major:minor matchup. Yes, that's bypassing the Proper
+> > Udevian Way of Doing Things, but it's so much easier and Unix-like
+> > that we really should make it possible (though not by default!).
+>
+> IMO the right way here would be to have a nice GUI for configuring udev
+> included with the distro, that'd let you browse the sysfs tree and
+> point'n'click to create the rule you need.
 
-Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
-
----
-
- block/DAC960.h            |    2 +-
- media/video/cpia2/cpia2.h |    4 ----
- net/dgrs.c                |    1 -
- scsi/BusLogic.h           |    5 +----
- 4 files changed, 2 insertions(+), 10 deletions(-)
+That's still an extra level of indirection. You have to use the nice
+GUI to create a new /dev/something, and then point your at at dev
+/dev/something. And you have to be root to do that, whereas some sysfs
+stuff is world-readable.
 
 
-diff --git a/drivers/block/DAC960.h b/drivers/block/DAC960.h
-index a82f37f..f9217c3 100644
---- a/drivers/block/DAC960.h
-+++ b/drivers/block/DAC960.h
-@@ -71,7 +71,7 @@ #define DAC690_V2_PciDmaMask	0xfffffffff
-   Define a Boolean data type.
- */
- 
--typedef enum { false, true } __attribute__ ((packed)) boolean;
-+typedef bool boolean;
- 
- 
- /*
-diff --git a/drivers/media/video/cpia2/cpia2.h b/drivers/media/video/cpia2/cpia2.h
-index c5ecb2b..8d2dfc1 100644
---- a/drivers/media/video/cpia2/cpia2.h
-+++ b/drivers/media/video/cpia2/cpia2.h
-@@ -50,10 +50,6 @@ #define CPIA2_PATCH_VER	0
- /***
-  * Image defines
-  ***/
--#ifndef true
--#define true 1
--#define false 0
--#endif
- 
- /*  Misc constants */
- #define ALLOW_CORRUPT 0		/* Causes collater to discard checksum */
-diff --git a/drivers/net/dgrs.c b/drivers/net/dgrs.c
-index fa4f094..4dbc23d 100644
---- a/drivers/net/dgrs.c
-+++ b/drivers/net/dgrs.c
-@@ -110,7 +110,6 @@ static char version[] __initdata =
-  *	DGRS include files
-  */
- typedef unsigned char uchar;
--typedef unsigned int bool;
- #define vol volatile
- 
- #include "dgrs.h"
-diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
-index 9792e5a..d6d1d56 100644
---- a/drivers/scsi/BusLogic.h
-+++ b/drivers/scsi/BusLogic.h
-@@ -237,10 +237,7 @@ enum BusLogic_BIOS_DiskGeometryTranslati
-   Define a Boolean data type.
- */
- 
--typedef enum {
--	false,
--	true
--} PACKED boolean;
-+typedef bool boolean;
- 
- /*
-   Define a 10^18 Statistics Byte Counter data type.
+> > Security issues aside (for a moment):
+> > Is there any reason not to provide real device inodes on sysfs,
+> > instead of just a textual /sys/foo/dev? And then, maybe udev should
+> > symlink to those device files under /sys instead of creating its own?
+> > This would tie the two systems together rather elegantly.
+>
+> The reason behind this was to force people NOT use sysfs directly when
+> interfacing to the OS. ;)
+>
+> Because sysfs wasn't intended to be an API you can rely on, one that's
+> fixed in stone and cannot be changed for compatibility reasons. I
+> believe it failed in that respect.
 
+Is sysfs supposed to be a private" API that only "special services
+services" look at? It has definitely failed in this respect -- It's
+just too convenient and attractive. I'm not sure that's a bad thing...
+
+Given the current usage pattern of sysfs, is it still a bad idea for
+it to carry device inodes?
+
+  Shem

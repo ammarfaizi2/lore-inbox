@@ -1,106 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWG2MER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWG2MPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWG2MER (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 08:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWG2MER
+	id S932118AbWG2MPk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 08:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWG2MPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 08:04:17 -0400
-Received: from styx.suse.cz ([82.119.242.94]:40638 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750823AbWG2MEQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 08:04:16 -0400
-Date: Sat, 29 Jul 2006 14:04:11 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>
-Subject: Re: Generic battery interface
-Message-ID: <20060729120411.GA8285@suse.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com> <20060728202359.GB5313@suse.cz> <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com> <20060729103613.GB7438@suse.cz> <41840b750607290432m6d302cdoae7f3eef869279d4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 Jul 2006 08:15:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:62772 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932118AbWG2MPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 08:15:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Pv01jgIZO9fueYv2d31eOvsCmC0gzK487GmZYmciV5Ik2v34SmJleWMKcZaTgsBCIhSDStvA26kePro+9PvbejvcSyf0a3xrMLw0qVU/2jSz1z6F9wjpo+KnIWQbAQuVGyLo8YEAqYDzJika/YtlphWNQRsd9+tNjh1qNTZ8ntk=
+Message-ID: <6bffcb0e0607290515q50556634vf3121d8dd2431691@mail.gmail.com>
+Date: Sat, 29 Jul 2006 14:15:39 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-rc2-mm1
+Cc: "Dave Jones" <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <6bffcb0e0607271159y1ca4db0mb95854f626b1617a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41840b750607290432m6d302cdoae7f3eef869279d4@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	 <6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com>
+	 <6bffcb0e0607271159y1ca4db0mb95854f626b1617a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 02:32:02PM +0300, Shem Multinymous wrote:
-> On 7/29/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> >I think we're hitting a fundamental problem with sysfs/hotplug/udev
-> >here. It was created to get fixed, non-changing names of devices in
-> >/dev, so that they'd be easy to enter into configuration files.
-> >
-> >Yet applications today want automatic discovery of devices and don't
-> >want to rely on udev getting the names right.
-> >
-> >We should make our minds up, and decide whether we want the 'devices are
-> >in /dev and applications just need to open the filename' or the 'an
-> >application will find the device itself' approach.
-> 
-> I think what people want from device choice is a reasonable default
-> plus a convenient way to override things. The former is handled nicely
-> by distributions' udev rules, while the latter is best done by
-> providing fixed paths. As an end-user, if I know my favorite joystick
-> is on a specific USB port (hence a specific syfs directory), then I
-> want to tell neverball "use that one" without setting up nasty udev
-> rules or playing major:minor matchup. Yes, that's bypassing the Proper
-> Udevian Way of Doing Things, but it's so much easier and Unix-like
-> that we really should make it possible (though not by default!).
+Hi Dave,
 
-IMO the right way here would be to have a nice GUI for configuring udev
-included with the distro, that'd let you browse the sysfs tree and
-point'n'click to create the rule you need.
+On 27/07/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> Between
+> remove-incorrect-unlock_kernel-from-failure-path-in.patch
+> and
+> reiserfs-use-generic_file_open-for-open-checks.patch
+> I have noticed a lot of this bugs
 
-> Security issues aside (for a moment):
-> Is there any reason not to provide real device inodes on sysfs,
-> instead of just a textual /sys/foo/dev? And then, maybe udev should
-> symlink to those device files under /sys instead of creating its own?
-> This would tie the two systems together rather elegantly.
+I was wrong (as usually :)
 
-The reason behind this was to force people NOT use sysfs directly when
-interfacing to the OS. ;)
+git-cpufreq.patch is causing this error
 
-Because sysfs wasn't intended to be an API you can rely on, one that's
-fixed in stone and cannot be changed for compatibility reasons. I
-believe it failed in that respect.
+> Netfilter messages via NETLINK v0.30.
+> ip_conntrack version 2.4 (8192 buckets, 65536 max) - 224 bytes per conntrack
+> BUG: warning at /usr/src/linux-work1/kernel/cpu.c:51/unlock_cpu_hotplug()
+>  [<c0103f0a>] show_trace_log_lvl+0x58/0x152
+>  [<c010460e>] show_trace+0xd/0x10
+>  [<c010472d>] dump_stack+0x19/0x1b
+>  [<c013991e>] unlock_cpu_hotplug+0x2f/0x59
+>  [<f98fe1e8>] store_speed+0x8f/0x9b [cpufreq_userspace]
+>  [<c0287c7e>] store+0x37/0x48
+>  [<c0199cd3>] sysfs_write_file+0xa6/0xcc
+>  [<c0167567>] vfs_write+0xab/0x157
+>  [<c0167baa>] sys_write+0x3b/0x60
+>  [<c0102ea1>] sysenter_past_esp+0x56/0x8d
+> DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+> Leftover inexact backtrace:
+>  [<c010460e>] show_trace+0xd/0x10
+>  [<c010472d>] dump_stack+0x19/0x1b
+>  [<c013991e>] unlock_cpu_hotplug+0x2f/0x59
+>  [<f98fe1e8>] store_speed+0x8f/0x9b [cpufreq_userspace]
+>  [<c0287c7e>] store+0x37/0x48
+>  [<c0199cd3>] sysfs_write_file+0xa6/0xcc
+>  [<c0167567>] vfs_write+0xab/0x157
+>  [<c0167baa>] sys_write+0x3b/0x60
+>  [<c0102ea1>] sysenter_past_esp+0x56/0x8d
 
-> >This reminds me very much of the Joerg Schilling discussion (flamewar)
-> >of enumerating CD-burners. Most people on the kernel mailing list just
-> >wanted to enter the name of the device node on the cdrecord command
-> >line. Yet Joerg insisted that the application should do the discovery.
-> 
-> I think there's a lot more to *that* flamewar - such as unwavering
-> belief in generic scsi...
-
-Sure. It was just one of the points raised there.
-
-> >HDAPS, as explained above, doesn't have huge latency impact. The reason
-> >to have high update rates for input devices (mice nowadays run at 100 Hz
-> >refresh usually, gaming mice up to 1 kHz), is to not introduce
-> >additional delay to the user->computer->user closed control loop.
-> >
-> >The less delay, the better stability of the control loop and the better
-> >results in the game. The limiting factor is usually 3D rendering, but a
-> >10 Hz joystick will still kill the experience by inducing a much larger
-> >delay.
-> 
-> Yes, I understand. I just pointed out that in the specific case of
-> system accelerometer readouts, either the readouts change very slowly
-> or your laptop is being rattled into an early death.
-
-You want the frequent readouts even for slow changes of the direction of
-gravity there, that's what I wanted to say.
-
-> >Sort of a 'reverse select'.
-> 
-> Exactly.
+Regards,
+Michal
 
 -- 
-Vojtech Pavlik
-Director SuSE Labs
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

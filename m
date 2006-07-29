@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWG2TSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWG2TTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWG2TSy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWG2TSy
+	id S1751420AbWG2TTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752017AbWG2TTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:18:54 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:21457 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751419AbWG2TSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:18:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=FpKOJJl3QG2L6Sl1pHgxu4WUOHMUzY1CRZmkUyQJ+j7Z8x0D/vJMaycfGuNMSkHBMss3dxtYBehztleR5Is5ZypMfbIucwS56jaw33sVEAJm7gfLVTuTwtm6+hwtgQ4E5Um/nUFFMp9879uv+aW3ehcG+IMT0Wi9W8+9ooH+jA4=
-Message-ID: <44CBB4A0.7020508@gmail.com>
-Date: Sat, 29 Jul 2006 21:18:33 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+	Sat, 29 Jul 2006 15:19:39 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:36882 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751420AbWG2TTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 15:19:38 -0400
+Date: Sat, 29 Jul 2006 21:19:38 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
+Message-ID: <20060729191938.GH26963@stusta.de>
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607292050.37877.ak@suse.de> <20060729185737.GG26963@stusta.de> <200607292104.18030.ak@suse.de>
 MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test
-References: <44CBB21E.4050806@gmail.com> <6bffcb0e0607291215g54b64487gb24b4c6ff589d90b@mail.gmail.com>
-In-Reply-To: <6bffcb0e0607291215g54b64487gb24b4c6ff589d90b@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607292104.18030.ak@suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski napsal(a):
-> Hi Jiri,
+On Sat, Jul 29, 2006 at 09:04:18PM +0200, Andi Kleen wrote:
 > 
-> On 29/07/06, Jiri Slaby <jirislaby@gmail.com> wrote:
->> just ignore
+> > > It should be obsolete with autoprobing for the feature as earlier discussed.
+> > 
+> > That's not the point of the version information in the help text.
 > 
-> There is a simple vger test
-> 
-> "You can test email delivery between you, and VGER by sending an empty
-> test letter to: <autoanswer@vger.kernel.org>"
-> http://vger.kernel.org/majordomo-info.html
+> The point in the current option is to select or not select it - 
+> if the user gets it wrong it won't compile or worse miscompile.
 
-Wow, thnaks, sorry for the noise!
+That was never true in Arjan's patches.
 
-thanks,
+The only change is from a gcc version check to a feature check.
+
+In both cases, a gcc 4.1 without the appropriate patch applied will 
+result in this option not being set.
+
+> Once it is auto selected the user could be still informed about 
+> it, but it doesn't matter much anymore (we don't inform the user
+> about every possible trade off based on compiler version everywhere)
+
+If an option might possible have zero effect, we do always inform the 
+user. If not, please tell me which options this are so we can fix them.
+
+We don't inform users about internal compiler version dependent things 
+like -fno-unit-at-a-time on i386 with neither a config option nor any 
+user visible effect (except for kernel size and speed).
+
+> -Andi
+
+cu
+Adrian
+
 -- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

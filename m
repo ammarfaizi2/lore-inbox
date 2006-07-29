@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWG2UZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWG2U1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWG2UZH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 16:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWG2UZH
+	id S932186AbWG2U1U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 16:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWG2U1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 16:25:07 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:24848 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751376AbWG2UZF (ORCPT
+	Sat, 29 Jul 2006 16:27:20 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:27152 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932186AbWG2U1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 16:25:05 -0400
-Date: Sat, 29 Jul 2006 16:18:09 -0400
+	Sat, 29 Jul 2006 16:27:19 -0400
+Date: Sat, 29 Jul 2006 16:20:24 -0400
 From: Neil Horman <nhorman@tuxdriver.com>
 To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
        torvalds@osdl.org, akpm@osdl.org, marcel@holtman.org,
        fpavlic@de.ibm.com, paulus@au.ibm.com, bcollins@debian.org,
        tony.luck@intel.com
-Subject: Re: [KJ] (re) audit return code handling for kernel_thread [2/3]
-Message-ID: <20060729201809.GC8574@localhost.localdomain>
+Subject: Re: [KJ] (re) audit return code handling for kernel_thread [3/3]
+Message-ID: <20060729202024.GD8574@localhost.localdomain>
 References: <20060729201139.GA8574@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,86 +26,40 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to audit return codes from kernel_thread.  This patch handles cases in
-which the return code was stored for later interrogations, but the later checks
-assumed that negative return codes were successful.
+Patch to audit return codes for kernel_thread.  This patch corrects callers who
+have differing assumptions about the meaning of a zero return code.  I've
+normalized all the callers to consider a zero return code a successful return.
 
-Thanks 
+Thanks & Regards
 Neil
 
 Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
 
- arch/s390/mm/cmm.c             |    6 +++++-
- drivers/macintosh/adb.c        |    7 +++++--
- drivers/macintosh/therm_pm72.c |    5 ++++-
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ arch/ia64/sn/kernel/xpc_main.c |    2 +-
+ init/do_mounts_initrd.c        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -161,7 +161,11 @@ cmm_thread(void *dummy)
- static void
- cmm_start_thread(void)
- {
--	kernel_thread(cmm_thread, NULL, 0);
-+	if (kernel_thread(cmm_thread, NULL, 0) < 0) {
-+		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+			__FUNCTION__,__LINE__);
-+		clear_bit(0,&cmm_thread_active);
-+	}
- }
+--- a/arch/ia64/sn/kernel/xpc_main.c
++++ b/arch/ia64/sn/kernel/xpc_main.c
+@@ -583,7 +583,7 @@ xpc_activate_partition(struct xpc_partit
  
- static void
---- a/drivers/macintosh/adb.c
-+++ b/drivers/macintosh/adb.c
-@@ -137,7 +137,7 @@ #endif
+ 	pid = kernel_thread(xpc_activating, (void *) ((u64) partid), 0);
  
- static __inline__ void adb_wait_ms(unsigned int ms)
- {
--	if (current->pid && adb_probe_task_pid &&
-+	if (current->pid && (adb_probe_task_pid >= 0) &&
- 	  adb_probe_task_pid == current->pid)
- 		msleep(ms);
- 	else
-@@ -270,6 +270,9 @@ static void
- __adb_probe_task(void *data)
- {
- 	adb_probe_task_pid = kernel_thread(adb_probe_task, NULL, SIGCHLD | CLONE_KERNEL);
-+	if (adb_probe_task_pid < 0)
-+		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-+			__FUNCTION__,__LINE__);
- }
+-	if (unlikely(pid <= 0)) {
++	if (unlikely(pid < 0)) {
+ 		spin_lock_irqsave(&part->act_lock, irq_flags);
+ 		part->act_state = XPC_P_INACTIVE;
+ 		XPC_SET_REASON(part, xpcCloneKThreadFailed, __LINE__);
+--- a/init/do_mounts_initrd.c
++++ b/init/do_mounts_initrd.c
+@@ -57,7 +57,7 @@ static void __init handle_initrd(void)
  
- static DECLARE_WORK(adb_reset_work, __adb_probe_task, NULL);
-@@ -494,7 +497,7 @@ adb_request(struct adb_request *req, voi
- 	 * block. Beware that the "done" callback will be overriden !
- 	 */
- 	if ((flags & ADBREQ_SYNC) &&
--	    (current->pid && adb_probe_task_pid &&
-+	    (current->pid && (adb_probe_task_pid >= 0) &&
- 	    adb_probe_task_pid == current->pid)) {
- 		req->done = adb_probe_wakeup;
- 		rc = adb_controller->send_request(req, 0);
---- a/drivers/macintosh/therm_pm72.c
-+++ b/drivers/macintosh/therm_pm72.c
-@@ -1769,6 +1769,9 @@ static void start_control_loops(void)
- 	init_completion(&ctrl_complete);
- 
- 	ctrl_task = kernel_thread(main_control_loop, NULL, SIGCHLD | CLONE_KERNEL);
-+	if (ctrl_task < 0)
-+		printk(KERN_CRIT "Could not start kernel thread at %s:%d\n",
-+			__FUNCTION__, __LINE__);
- }
- 
- /*
-@@ -1776,7 +1779,7 @@ static void start_control_loops(void)
-  */
- static void stop_control_loops(void)
- {
--	if (ctrl_task != 0)
-+	if (ctrl_task >= 0)
- 		wait_for_completion(&ctrl_complete);
- }
- 
-
+ 	current->flags |= PF_NOFREEZE;
+ 	pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
+-	if (pid > 0) {
++	if (pid >= 0) {
+ 		while (pid != sys_wait4(-1, NULL, 0, NULL))
+ 			yield();
+ 	}

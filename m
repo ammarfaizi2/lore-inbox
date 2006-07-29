@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWG2APp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161396AbWG2AaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752063AbWG2APp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 20:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWG2APp
+	id S1161396AbWG2AaO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 20:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161397AbWG2AaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 20:15:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:53289 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1752063AbWG2APp convert rfc822-to-8bit (ORCPT
+	Fri, 28 Jul 2006 20:30:13 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14018 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161396AbWG2AaM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 20:15:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZUFXAd+p6xw7xBpoqXAPmUcyhB/00Mf8AD74WdHvyaISdRccf0MolUs3BmQdnnp8RrFTqswayQGLSvmgy8Z2jlzX06W0/Y0rKelDY2fXQnXofFdXo2dy6W5UgRN7JkAnwCvk/lw9u9xEZTq9Kn8jxEnKxnrRNkb9VSSNMI6U5tU=
-Message-ID: <c526a04b0607281715h5652fbfs3caa4b9a5d3f7931@mail.gmail.com>
-Date: Sat, 29 Jul 2006 01:15:43 +0100
-From: "Adam Henley" <adamazing@gmail.com>
-To: "seb@frankengul.org" <seb@frankengul.org>
-Subject: Re: Weird kernel 2.6.17.[67] behaviour
-Cc: debian-sparc@lists.debian.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060727100727.GA8408@frankengul.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Fri, 28 Jul 2006 20:30:12 -0400
+Date: Fri, 28 Jul 2006 17:27:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, Nathan Scott <nathans@sgi.com>,
+       stable@kernel.org, Justin Piszcz <jpiszcz@lucidpixels.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] 2.6.17.[1-6] XFS Filesystem Corruption, Where is 2.6.17.7?
+Message-ID: <20060729002745.GA11170@kroah.com>
+References: <Pine.LNX.4.64.0607241224010.10896@p34.internal.lan> <20060725084624.C2090627@wobbly.melbourne.sgi.com> <20060725210716.GC4807@merlin.emma.line.org> <20060725210919.GD4807@merlin.emma.line.org> <20060728232654.GB2140@kroah.com> <20060728235534.GE3217@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060726135526.GA11310@frankengul.org>
-	 <44C7F794.3080304@frankengul.org>
-	 <c526a04b0607261641n7f09242h86025282153e4c91@mail.gmail.com>
-	 <20060727100727.GA8408@frankengul.org>
+In-Reply-To: <20060728235534.GE3217@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/07/06, seb@frankengul.org <seb@frankengul.org> wrote:
-> On Thu, Jul 27, 2006 at 12:41:56AM +0100, Adam Henley wrote:
-> > On 27/07/06, Sébastien Bernard <seb@frankengul.org> wrote:
-> > >seb@frankengul.org a écrit :
-> > >> I got a perfectly workable kernel 2.6.17.1 using mkinitramfs on my U60.
-> > >>
-> > >> Can you shed some lights on this dark corner of linux ?
-> > >>
-> > >>       Seb
-> >
-> > I can't shed any more light on it, but I can look too :o)
->
-> :). It was just a poetic licence.
+On Fri, Jul 28, 2006 at 07:55:34PM -0400, Dave Jones wrote:
+> On Fri, Jul 28, 2006 at 04:26:54PM -0700, Greg Kroah-Hartman wrote:
+> 
+>  > > OK, 2.6.17.7 is out, but still - is this suggestion worthwhile
+>  > > considering for future -stable release engineering or just crap?
+>  > 
+>  > .7 took a bit longer than expected, due to some security bugs that
+>  > needed to be added to the queue, combined with the fact that both Chris
+>  > and I were busy with OLS stuff.  Normally we both aren't travelling at
+>  > the same time, but right then, we were, so we couldn't respond as
+>  > quickly as it seems some people felt we should have.
+>  > 
+>  > Sorry about this, we'll try to do better next time.
+> 
+> The flipside to this is that those patches had been posted for around a
+> week before you released .7, and *no-one* caught this problem until
+> after the release.
+> 
+> The burden of testing shouldn't solely be on the -stable team.
+> Perhaps a -pre release at the time of review would be a good idea.
+> Just a roll-up of the proposed patches, to save testers having
+> to save and apply 30 patches seperately ?
 
-Me too :)
+I can do that, it's very simple to do using quilt.  Others have asked
+for this too.  I'll try it out with the next release.
 
-> Well, I'm not arguing that the fix is a wrong fix.
+thanks,
 
-And I'm *definitely* not ruling it out as a cause of your problems :)
-I don't have the know-how,  just trying to be helpful.Unfortunately I
-don't have access to your arch of choice, otherwise I wouldn't be busy
-installing Quake on my box in prep. for a company LAN party.
-
----
-adam
+greg k-h

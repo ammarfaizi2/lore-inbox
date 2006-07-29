@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWG2RFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWG2RJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWG2RFG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 13:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWG2RFG
+	id S932165AbWG2RJn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 13:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWG2RJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 13:05:06 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:59677 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751394AbWG2RFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 13:05:04 -0400
+	Sat, 29 Jul 2006 13:09:43 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:26000 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751405AbWG2RJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 13:09:43 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=DCDUjaVToHky/5SfwcHl4AdLwuFaBwo1nEuocFCbZUh0BV67JOg9kqfkZkB8eXqc0zB17XWtr0k5qsCkUB7qY9L/rGAJGRJ2sTwW6GK4RI+kKT3W5k047oVajxU9uQQ4xoI3p2najaq9qFAilb9LXMB54QEqZlC0DGWwEStODnU=
-Date: Sat, 29 Jul 2006 19:04:02 +0200
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via sata oops on init
-Message-ID: <20060729170402.GA20649@leiferikson.dystopia.lan>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060728233950.GD3217@redhat.com> <20060729144528.GD28712@leiferikson.dystopia.lan> <20060729164115.GA16946@redhat.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AkxQxl6n85ZdZv8DS18Ez3nGPLM9CPeXt1KQBpmcyoFN0/JPx0YZO1W902+cBTZcLTawpxzQiihH606XYvWeONyxRY/kZ18/Jirghau3/lPohH6AHMym85oFnkXbwJDEH24zv7we1dKz84HpXJOBWhsJEo9uP1P5wp9fKlwAJrM=
+Message-ID: <41840b750607291009s7c911425qf2a464881bf37200@mail.gmail.com>
+Date: Sat, 29 Jul 2006 20:09:41 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Carl-Daniel U. Hailfinger" <c-d.hailfinger.devel.2006@gmx.net>
+Subject: Re: Re: [PATCH] DMI: Decode and save OEM String information
+Cc: linux-kernel@vger.kernel.org, hmh@debian.org, len.brown@intel.com,
+       Matt_Domsch@dell.com, bjorn.helgaas@hp.com
+In-Reply-To: <20060729162953.25770@gmx.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060729164115.GA16946@redhat.com>
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+References: <41840b750607270647w5a05ad00r613dbaf42bf04771@mail.gmail.com>
+	 <41840b750607290555j3e46aab4vb28efdebea2cc9a8@mail.gmail.com>
+	 <20060729162953.25770@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7/29/06, Carl-Daniel U. Hailfinger <c-d.hailfinger.devel.2006@gmx.net> wrote:
+> I can't help but notice that you have an interesting name which sounds a bit
+> "synthetic" to me (no offense). IIRC some time ago it was stated that the
+> Signed-off-by line should contain a real name. If that is really your name, I wish to
+> apologize.
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I own the legal rights to this patch [1] and offer it under the GPL.
+This name and e-mail identify me uniquely, and form reliable contact
+address. Google my work on tp_smapi if you have doubts about this.
+What more do you need?
 
-Hi,
+  Shem
 
-On Sat, Jul 29, 2006 at 12:41:15PM -0400, Dave Jones wrote:
-> --- linux-2.6/drivers/scsi/libata-core.c~	2006-07-29 12:35:32.000000000 -0400
-> +++ linux-2.6/drivers/scsi/libata-core.c	2006-07-29 12:39:08.000000000 -0400
-> @@ -5419,10 +5419,10 @@ int ata_device_add(const struct ata_prob
->  		unsigned long xfer_mode_mask;
->  
->  		ap = ata_host_add(ent, host_set, i);
-> +		host_set->ports[i] = ap;
->  		if (!ap)
->  			goto err_out;
->  
-> -		host_set->ports[i] = ap;
->  		xfer_mode_mask =(ap->udma_mask << ATA_SHIFT_UDMA) |
->  				(ap->mwdma_mask << ATA_SHIFT_MWDMA) |
->  				(ap->pio_mask << ATA_SHIFT_PIO);
-> @@ -5532,6 +5532,8 @@ int ata_device_add(const struct ata_prob
->  
->  err_out:
->  	for (i = 0; i < count; i++) {
-> +		if (!host_set->ports[i])
-> +			break;
->  		ata_host_remove(host_set->ports[i], 1);
->  		scsi_host_put(host_set->ports[i]->host);
->  	}
-
-You jump into loop just to skip it.
-
-Signed-off-by: Johannes Weiner <hanzfoo@gmail.com>
-
-
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="libata-core.goto.patch"
-
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index 386e5f2..064ee85 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -5420,7 +5420,7 @@ int ata_device_add(const struct ata_prob
- 
- 		ap = ata_host_add(ent, host_set, i);
- 		if (!ap)
--			goto err_out;
-+			goto err_free_ret;
- 
- 		host_set->ports[i] = ap;
- 		xfer_mode_mask =(ap->udma_mask << ATA_SHIFT_UDMA) |
-
---SLDf9lqlvOQaIe6s--
+[1] Apart from the copyright on the mainline kernel source it
+modifies, of course, and maybe dmidecode's dmidecode.c; both are
+GPLed.

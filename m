@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWG2OgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWG2Oqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWG2OgG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 10:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWG2OgG
+	id S1751364AbWG2Oqa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 10:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWG2Oqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 10:36:06 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:37979 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751370AbWG2OgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 10:36:04 -0400
+	Sat, 29 Jul 2006 10:46:30 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:35557 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751364AbWG2Oq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 10:46:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=qyUzxsKWJA3opGsyecolkTngJgV0e2h2TYfiXQbYbrKqfyS6mQ14c23B1Aw4N7dszT/NOJWuCR34dO2PvgL+w55J/hYc4Ck5dNYW5LkLdzO/MwdE+6CPxS7v5Mig1WAMKUPCBidhUUmRe6CawxXVrhq40OBM/4VdWRBTjhbQH14=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Subject: Re: 2.6.18-rc2-git7 build error with CONFIG_STACK_UNWIND enabled
-Date: Sat, 29 Jul 2006 16:37:10 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <9a8748490607290641r51085a69vbea4192136f64e7c@mail.gmail.com> <20060729142648.GH6843@martell.zuzino.mipt.ru>
-In-Reply-To: <20060729142648.GH6843@martell.zuzino.mipt.ru>
+        s=beta; d=googlemail.com;
+        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=MnczqyJREdrD2F58mPB3FH8/WG6EOAsIqM7GHx0HE/dccyrCdSUEXCdB2Llqs3yBb6HOLM4PzaBCK+sXJ8iLfKC0TxsUGNP5tiw1C05dcMhAM2JV9lD7OC+2rvBu+HArK0HDAFCAuZTqlQ+0zkski9X+X2CUf0rpYs+CglsC0gs=
+Date: Sat, 29 Jul 2006 16:45:28 +0200
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: via sata oops on init
+Message-ID: <20060729144528.GD28712@leiferikson.dystopia.lan>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060728233950.GD3217@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607291637.10282.jesper.juhl@gmail.com>
+In-Reply-To: <20060728233950.GD3217@redhat.com>
+User-Agent: mutt-ng/devel-r804 (GNU/Linux)
+From: Johannes Weiner <hnazfoo@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 July 2006 16:26, Alexey Dobriyan wrote:
-> On Sat, Jul 29, 2006 at 03:41:46PM +0200, Jesper Juhl wrote:
-> > With 2.6.18-rc2-git7 I get the following build error if I have
-> > CONFIG_STACK_UNWIND enabled :
-> > 
-> >  CC      arch/i386/kernel/traps.o
-> > arch/i386/kernel/traps.c: In function `show_trace_log_lvl':
-> > arch/i386/kernel/traps.c:193: error: invalid type argument of `->'
-> > arch/i386/kernel/traps.c:196: error: invalid type argument of `->'
-> > arch/i386/kernel/traps.c:197: error: invalid type argument of `->'
-> 
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> 
-> --- a/arch/i386/kernel/traps.c
-> +++ b/arch/i386/kernel/traps.c
-> @@ -190,11 +190,11 @@ static void show_trace_log_lvl(struct ta
->  		if (unw_ret > 0 && !arch_unw_user_mode(&info)) {
->  #ifdef CONFIG_STACK_UNWIND
->  			print_symbol("DWARF2 unwinder stuck at %s\n",
-> -				     UNW_PC(info.regs));
-> +				     UNW_PC(&info));
->  			if (call_trace == 1) {
->  				printk("Leftover inexact backtrace:\n");
-> -				if (UNW_SP(info.regs))
-> -					stack = (void *)UNW_SP(info.regs);
-> +				if (UNW_SP(&info))
-> +					stack = (void *)UNW_SP(&info);
->  			} else if (call_trace > 1)
->  				return;
->  			else
-> 
-> 
-I can confirm that this fixes the build error.
-Thanks Alexey.
+Hi,
 
-/ Jesper Juhl <jesper.juhl@gmail.com> /
+On Fri, Jul 28, 2006 at 07:39:50PM -0400, Dave Jones wrote:
+> 2.6.18-rc2-git6
+> 
+> BUG: unable to handle kernel NULL pointer dereference at 00000000
+> EIP is at make_class_name+0x27
+> eax: 00000000 ebx: ffffffff ecx: ffffffff edx: 00000009
+> esi: f8d16cc2 edi: 00000000 ebp: f7fa9d3c esp: f7fa9d2c
+> 
+> Call Trace:
+> class_device_del+0xac
+> class_device_unregister
+> scsi_remove_host
+> ata_host_remove
+> ata_device_add
 
+I think the problem lays in scsi/libata-core.c:5423 in
+torvalds/linux-2.6 v2.6.18-rc2-g6482132, stating:
+
+[...]
+struct ata_host_set *host_set = kzalloc(...);
+[...]
+
+Initialization of some structure members, but not ports(!)
+
+for (...) {
+	struct ata_port *ap;
+
+	ap = ata_host_add(ent, host_set, i);
+	if (!ap)
+		goto err_out;
+	
+	host_set->ports[i] = ap;
+
+err_out:
+	for (i = 0; i < count; i++) {
+		ata_host_remove(host_set->ports[i], 1);
+[...]
+
+ata_device_add fails, calls ata_host_remove with pointers to unitialized
+memory.
+
+Hannes

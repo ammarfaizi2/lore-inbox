@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWG2X6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWG2X6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWG2X6D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 19:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWG2X6D
+	id S1750808AbWG2X6g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 19:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWG2X6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 19:58:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:3405 "EHLO
+	Sat, 29 Jul 2006 19:58:36 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:9038 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750806AbWG2X6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 19:58:01 -0400
+	id S1750808AbWG2X6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 19:58:35 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=U+J3gJjBHCCE3UJlTP++kba9SK6foLkK0Hd7xY/2oVYd1ry3+M4+2XN2t5rx38gmiXssbA+a9SJjutCggJBOl/MOM15PqPSzomiR/5LOQDCmRxQ28/TjvHLv/Yn+zoFRIeJyBF2iFLJ9/1zcqLBo9cH5Xpv+9q7fTEEqpHO/08A=
-Message-ID: <44CBF60C.3090508@gmail.com>
-Date: Sun, 30 Jul 2006 01:57:41 +0159
+        b=iY5nQGEWEro3lquAll+i6GFUBWF3dbzFGyt8AWo8P7pcmzdwNFnnqDd1e4FpvrMcvPKnQlxIOD1W1ETU7tPeqzDrhaYIAZ9TGRF/9aiHVqdswD1LydX5Wze7501Ou/OV5njHXJ265Ps7m2pCMnb7r7q1DQcadvB+9xyIqtcOdi8=
+Message-ID: <44CBF631.5070005@gmail.com>
+Date: Sun, 30 Jul 2006 01:58:18 +0159
 From: Jiri Slaby <jirislaby@gmail.com>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jiri Slaby <jirislaby@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org, linux-mm@kvack.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org,
+       linux-mm@kvack.org
 Subject: Re: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]
-References: <20060727015639.9c89db57.akpm@osdl.org> <44CBA1AD.4060602@gmail.com> <200607292059.59106.rjw@sisk.pl> <44CBE9D5.9030707@gmail.com> <20060729232216.GB1983@elf.ucw.cz>
-In-Reply-To: <20060729232216.GB1983@elf.ucw.cz>
+References: <20060727015639.9c89db57.akpm@osdl.org> <200607292059.59106.rjw@sisk.pl> <44CBE9D5.9030707@gmail.com> <200607300110.01943.rjw@sisk.pl>
+In-Reply-To: <200607300110.01943.rjw@sisk.pl>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek napsal(a):
-> Hi!
-> 
+Rafael J. Wysocki napsal(a):
+> On Sunday 30 July 2006 01:06, Jiri Slaby wrote:
+>> Rafael J. Wysocki napsal(a):
+>>> Hi,
+>>>
+>>> On Saturday 29 July 2006 19:58, Jiri Slaby wrote:
+>>>> Andrew Morton napsal(a):
+>>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
+>>>> Hello,
+>>>>
 >>>> I have problems with swsusp again. While suspending, the very last thing kernel
 >>>> writes is 'restoring higmem' and then hangs, hardly. No sysrq response at all.
 >>>> Here is a snapshot of the screen:
@@ -46,11 +53,11 @@ Pavel Machek napsal(a):
 >>> Does vanila .18-rc2 work?
 >> Yup, it does.
 > 
-> Can you try up kernel, no highmem? (mem=512M)?
+> Hm, in fact this may be a problem with any device driver.
+> 
+> Could you please boot the system with init=/bin/bash and try to suspend?
 
-It writes then:
-p16v: status 0xffffffff, mask 0x00001000, pvoice f7c04a20, use 0
-in endless loop when resuming -- after reading from swap.
+No change.
 
 regards,
 -- 

@@ -1,272 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161405AbWG2CwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161407AbWG2Cwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161405AbWG2CwL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 22:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161407AbWG2CwL
+	id S1161407AbWG2Cwa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 22:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161408AbWG2Cwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 22:52:11 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:33513 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161405AbWG2CwJ
+	Fri, 28 Jul 2006 22:52:30 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:54758 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161407AbWG2Cw1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 22:52:09 -0400
-Subject: [Patch] 0/5 in support of hot-add memory x86_64
+	Fri, 28 Jul 2006 22:52:27 -0400
+Subject: [Patch] 2/5 in support of hot-add memory x86_64 create
+	arch_find_node
 From: keith mannthey <kmannth@us.ibm.com>
 Reply-To: kmannth@us.ibm.com
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: lhms-devel <lhms-devel@lists.sourceforge.net>, discuss@x86-64.org,
-       Andi Kleen <ak@suse.de>, andrew <akpm@osdl.org>,
-       dave hansen <haveblue@us.ibm.com>,
-       kame <kamezawa.hiroyu@jp.fujitsu.com>, konrad <darnok@us.ibm.com>
-Content-Type: multipart/mixed; boundary="=-PB4pMrDjVb1m6x1TnDm+"
+Cc: lhms-devel <lhms-devel@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
+       andrew <akpm@osdl.org>, dave hansen <haveblue@us.ibm.com>,
+       kame <kamezawa.hiroyu@jp.fujitsu.com>, discuss <discuss@x86-64.org>,
+       konrad <darnok@us.ibm.com>
+Content-Type: multipart/mixed; boundary="=-o/3ydReDfSHscCeg17bk"
 Organization: Linux Technology Center IBM
-Date: Fri, 28 Jul 2006 19:52:06 -0700
-Message-Id: <1154141526.5874.144.camel@keithlap>
+Date: Fri, 28 Jul 2006 19:52:24 -0700
+Message-Id: <1154141545.5874.146.camel@keithlap>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-PB4pMrDjVb1m6x1TnDm+
+--=-o/3ydReDfSHscCeg17bk
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-Hello All,
+  With the advent of the new ACPI hot-plug memory driver and mechanism
+is needed to deal with ACPI add memory events that do not contain the
+pxm (node) information. I do not believe that the add-event is required
+to contain this information so I create a arch_find_node generic layer
+used in the generic add_memory function. 
 
- I would like to address the current state of hot-add memory and x86_64.
-Broken is the word, neither add-path is functional at this time.   This
-patch along with the rest of the series fixes up SPARSEMEM hot-add with
-x86_64.  RESERVE_HOTADD is in a non-building state right now (since
-2.6.18 or so) and I will have patches for this next.  
+  If add_memory is called with node < 0 arch_find_node is invoked to
+fine the correct node to add the memory. This created the generic
+construct of arch_find_node. 
 
- My hardware is x86_64 ACPI hot-add enabled numa system (IBM x460
-2node). 
+   
+This was built against 2.6.18-rc2.
 
-There are 4 main issues that I have addressed:
+Signed-off-by:  Keith Mannthey <kmannth@us.ibm.com>
 
-1.  Merge MEMORY_HOTPLUG and RESERVE_HOT in srat.c.  Both add paths need
-information from the SRAT as to node locality (RESERVE to reserve space
-and MEMORY_HOTPLUG to figure out what node memory belongs to at add
-time). I create a real config option for the RESERVE option in Kconfig
-and share the code path.
-
-2/3.  My hardware does not implement the optional passing along of the
-pxm (node) information with the add memory event as the current acpi
-driver expects.  I implement an arch_find_node call that will return the
-node memory belongs to.  It uses the information saved from the SRAT. 
-
-(Patches 1,2,3 allow intelligent numa additions of memory.  Presently
-the acpi memory driver hands down -1 and things break)
-
-4.  Kernel mapping fixup.  The kernel mapping (page table) code is
-broken x86_64 for memory that is not aligned on a pud entry (pmd page).
-I have fixed this limitation. 
-
-5. ACPI fix needed for my hardware.  
-
-There is another issue but I believe Kame already has a fix. It involves
-sysfs on-lining large amounts of memory at one time instead of just a
-section size. 
-
-All comments welcome.  
-
-keith mannthey <kmannth@us.ibm.com>
-Linux Technology Center IBM
-
---=-PB4pMrDjVb1m6x1TnDm+
-Content-Disposition: attachment; filename=patch-2.6.18-rc2-nodesadd
-Content-Type: text/x-patch; name=patch-2.6.18-rc2-nodesadd; charset=UTF-8
+--=-o/3ydReDfSHscCeg17bk
+Content-Disposition: attachment; filename=patch-2.6.18-rc2-arch_find_node_generic
+Content-Type: text/x-patch; name=patch-2.6.18-rc2-arch_find_node_generic; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-diff -urN orig/arch/x86_64/Kconfig work/arch/x86_64/Kconfig
---- orig/arch/x86_64/Kconfig	2006-07-28 13:57:35.000000000 -0400
-+++ work/arch/x86_64/Kconfig	2006-07-28 21:17:03.000000000 -0400
-@@ -349,6 +349,17 @@
- 
- source "mm/Kconfig"
- 
-+config RESERVE_HOTADD
-+	bool "Reserve based hot-add memory" 
-+	depends on DISCONTIGMEM && X86_64_ACPI_NUMA
-+	default n
-+	help
-+	  This allows a reserved based approach to hot add memory.
-+	  Select this option if your hardware supports hot-add memroy 
-+	  via ACPI and the SRAT table.  You will need to still build in 
-+	  the ACPI hot plug memory driver to do the actual add. 
-+
-+
- config HAVE_ARCH_EARLY_PFN_TO_NID
- 	def_bool y
- 	depends on NUMA
-diff -urN orig/arch/x86_64/mm/srat.c work/arch/x86_64/mm/srat.c
---- orig/arch/x86_64/mm/srat.c	2006-07-28 13:57:35.000000000 -0400
-+++ work/arch/x86_64/mm/srat.c	2006-07-28 21:17:23.000000000 -0400
-@@ -21,22 +21,13 @@
- #include <asm/numa.h>
- #include <asm/e820.h>
- 
--#if (defined(CONFIG_ACPI_HOTPLUG_MEMORY) || \
--	defined(CONFIG_ACPI_HOTPLUG_MEMORY_MODULE)) \
--		&& !defined(CONFIG_MEMORY_HOTPLUG)
--#define RESERVE_HOTADD 1
--#endif
--
- static struct acpi_table_slit *acpi_slit;
- 
- static nodemask_t nodes_parsed __initdata;
- static struct bootnode nodes[MAX_NUMNODES] __initdata;
- static struct bootnode nodes_add[MAX_NUMNODES] __initdata;
--static int found_add_area __initdata;
-+static int reserve_add_area __initdata;
- int hotadd_percent __initdata = 0;
--#ifndef RESERVE_HOTADD
--#define hotadd_percent 0	/* Ignore all settings */
--#endif
- 
- /* Too small nodes confuse the VM badly. Usually they result
-    from BIOS bugs. */
-@@ -66,7 +57,7 @@
- {
- 	struct bootnode *nd = &nodes[i];
- 
--	if (found_add_area)
-+	if (reserve_add_area)
- 		return;
- 
- 	if (nd->start < start) {
-@@ -86,7 +77,7 @@
- 	int i;
- 	printk(KERN_ERR "SRAT: SRAT not used.\n");
- 	acpi_numa = -1;
--	found_add_area = 0;
-+	reserve_add_area = 0;
- 	for (i = 0; i < MAX_LOCAL_APIC; i++)
- 		apicid_to_node[i] = NUMA_NO_NODE;
- 	for (i = 0; i < MAX_NUMNODES; i++)
-@@ -157,7 +148,7 @@
- 	       pxm, pa->apic_id, node);
+diff -urN orig/include/linux/memory_hotplug.h work/include/linux/memory_hotplug.h
+--- orig/include/linux/memory_hotplug.h	2006-07-28 13:57:37.000000000 -0400
++++ work/include/linux/memory_hotplug.h	2006-07-26 20:18:35.000000000 -0400
+@@ -132,7 +132,11 @@
  }
- 
--#ifdef RESERVE_HOTADD
-+#ifdef CONFIG_RESERVE_HOTADD
- /*
-  * Protect against too large hotadd areas that would fill up memory.
-  */
-@@ -200,15 +191,38 @@
- 	return 1;
- }
- 
-+int update_end_of_memory(unsigned long end) 
-+{
-+	reserve_add_area = 1;
-+ 	if ((end >> PAGE_SHIFT) > end_pfn)
-+		end_pfn = end >> PAGE_SHIFT;
-+	return 1;
-+}
-+
-+static inline int save_add_info(void) 
-+{
-+	return hotadd_percent > 0;
-+}
-+#else /* !CONFIG_RESERVE_HOTADD */
-+int update_end_of_memory(unsigned long end) {return 0;}
-+static int hotadd_enough_memory(struct bootnode *nd) {return 1;}
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+static inline int save_add_info(void) {return 1;}
-+#else /* !CONFIG_MEMORY_HOTPLUG */
-+static inline int save_add_info(void) {return 0;}
-+#endif 
-+#endif 
-+ 
- /*
-- * It is fine to add this area to the nodes data it will be used later
-+ * Udate nodes_add and decide if to save info in the real nodes sturcture
-+ * Both MEMORY_HOTPLUG and RESERVE_HOTADD need the nodes_add info
-  * This code supports one contigious hot add area per node.
-  */
- static int reserve_hotadd(int node, unsigned long start, unsigned long end)
- {
- 	unsigned long s_pfn = start >> PAGE_SHIFT;
- 	unsigned long e_pfn = end >> PAGE_SHIFT;
--	int changed = 0;
-+	int ret = 0 , changed = 0;
- 	struct bootnode *nd = &nodes_add[node];
- 
- 	/* I had some trouble with strange memory hotadd regions breaking
-@@ -235,7 +249,6 @@
- 
- 	/* Looks good */
- 
-- 	found_add_area = 1;
- 	if (nd->start == nd->end) {
-  		nd->start = start;
-  		nd->end = end;
-@@ -252,15 +265,14 @@
- 		if (!changed)
- 			printk(KERN_ERR "SRAT: Hotplug zone not continuous. Partly ignored\n");
-  	}
+ #endif /* CONFIG_NUMA */
+ #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
 -
-- 	if ((nd->end >> PAGE_SHIFT) > end_pfn)
-- 		end_pfn = nd->end >> PAGE_SHIFT;
++#ifdef CONFIG_ARCH_FIND_NODE
++	extern int arch_find_node(unsigned long, unsigned long);
++#else
++	static inline int arch_find_node(unsigned long a,  unsigned long b) {return 0;}
++#endif
+ #else /* ! CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Stub functions for when hotplug is off
+diff -urN orig/mm/memory_hotplug.c work/mm/memory_hotplug.c
+--- orig/mm/memory_hotplug.c	2006-07-28 13:57:38.000000000 -0400
++++ work/mm/memory_hotplug.c	2006-07-26 20:18:35.000000000 -0400
+@@ -233,12 +233,17 @@
+ 
+ 
+ 
+-int add_memory(int nid, u64 start, u64 size)
++int add_memory(int node, u64 start, u64 size)
+ {
+ 	pg_data_t *pgdat = NULL;
+ 	int new_pgdat = 0;
+-	int ret;
++	int ret,nid;
+ 
++	if (node < 0) 
++		nid = arch_find_node(start,size);
++	else
++		nid = node;
 +	
-+	ret = update_end_of_memory(nd->end);
- 
- 	if (changed)
--	 	printk(KERN_INFO "SRAT: hot plug zone found %Lx - %Lx\n", nd->start, nd->end);
--	return 0;
-+	 	printk(KERN_INFO "SRAT: hot plug zone found %Lx - %Lx\n",  
-+							nd->start, nd->end);
-+	return ret;
- }
--#endif
- 
- /* Callback for parsing of the Proximity Domain <-> Memory Area mappings */
- void __init
-@@ -279,7 +291,7 @@
- 	}
- 	if (ma->flags.enabled == 0)
- 		return;
-- 	if (ma->flags.hot_pluggable && hotadd_percent == 0)
-+ 	if (ma->flags.hot_pluggable && !save_add_info())
- 		return;
- 	start = ma->base_addr_lo | ((u64)ma->base_addr_hi << 32);
- 	end = start + (ma->length_lo | ((u64)ma->length_hi << 32));
-@@ -318,15 +330,13 @@
- 	printk(KERN_INFO "SRAT: Node %u PXM %u %Lx-%Lx\n", node, pxm,
- 	       nd->start, nd->end);
- 
--#ifdef RESERVE_HOTADD
-- 	if (ma->flags.hot_pluggable && reserve_hotadd(node, start, end) < 0) {
--		/* Ignore hotadd region. Undo damage */
-+ 	if (ma->flags.hot_pluggable && !reserve_hotadd(node, start, end)) {
-+		/* Don't reserve hotadd region. Undo damage */
- 		printk(KERN_NOTICE "SRAT: Hotplug region ignored\n");
- 		*nd = oldnode;
- 		if ((nd->start | nd->end) == 0)
- 			node_clear(node, nodes_parsed);
- 	}
--#endif
- }
- 
- /* Sanity check to catch more bad SRATs (they are amazingly common).
-@@ -342,7 +352,6 @@
- 		unsigned long e = nodes[i].end >> PAGE_SHIFT;
- 		pxmram += e - s;
- 		pxmram -= e820_hole_size(s, e);
--		pxmram -= nodes_add[i].end - nodes_add[i].start;
- 		if ((long)pxmram < 0)
- 			pxmram = 0;
- 	}
-@@ -422,7 +431,7 @@
- 
- void __init srat_reserve_add_area(int nodeid)
- {
--	if (found_add_area && nodes_add[nodeid].end) {
-+	if (reserve_add_area && nodes_add[nodeid].end) {
- 		u64 total_mb;
- 
- 		printk(KERN_INFO "SRAT: Reserving hot-add memory space "
+ 	if (!node_online(nid)) {
+ 		pgdat = hotadd_new_pgdat(nid, start);
+ 		if (!pgdat)
 
---=-PB4pMrDjVb1m6x1TnDm+--
+--=-o/3ydReDfSHscCeg17bk--
 

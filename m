@@ -1,120 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWG2HxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWG2Hym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWG2HxG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 03:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWG2HxG
+	id S932580AbWG2Hym (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 03:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932612AbWG2Hym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 03:53:06 -0400
-Received: from science.horizon.com ([192.35.100.1]:38472 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932073AbWG2HxE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 03:53:04 -0400
-Date: 29 Jul 2006 02:56:12 -0400
-Message-ID: <20060729065612.8661.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: A better interface, perhaps: a timed signal flag
-Cc: linux@horizon.com
+	Sat, 29 Jul 2006 03:54:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:25498 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932580AbWG2Hyl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 03:54:41 -0400
+Date: Sat, 29 Jul 2006 03:54:14 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386: Do backtrace fallback too
+Message-ID: <20060729075414.GA16118@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>
+References: <200607290300.k6T306Fc003168@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607290300.k6T306Fc003168@hera.kernel.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If we had such an interface, then the application would look like
-> this:
-> 
->	volatile int	flag = 0;
->
->	register_timout(&time_val, &flag);
->	while (work to do) {
->		do_a_bit_of_work();
->		if (flag)
->			break;
->	}
->
-> Finally, a note about tickless designs.  Very often such applications
-> don't need a constantly ticking design.  For example, the X server
-> only needs to have the memory location incremented while it is
-> processing events; if the laptop is idle, there's no reason to have
-> the RTC generating interrupts and incrementing memory locations.
-> Similarly, the Metronome garbage collector would only need to poll to
-> see if the timeout has expired while the garbage collector is running,
-> which is _not_ all of the time.  
-> 
-> Yes, you could use ioctl's to start and stop the RTC interrupt
-> handler, but that's just ugly, and points out that maybe the interface
-> should not be one of programming the RTC interrupt frequency directly,
-> but rather one of "increment this flag after X units of
-> (CPU/wallclock) time, and I don't care how it is implemented at the
-> hardware level."
+On Sat, Jul 29, 2006 at 03:00:06AM +0000, Linux Kernel wrote:
+ > commit c97d20a6c51067a38f53680d9609b4cf2867d077
+ > tree 59867ac01d1b752ba7e520e33f9f84cade6d024e
+ > parent b783fd925cdd56d24d164e5bdcb072f2a67aedf4
+ > author Andi Kleen <ak@suse.de> Fri, 28 Jul 2006 14:44:57 +0200
+ > committer Linus Torvalds <torvalds@g5.osdl.org> Sat, 29 Jul 2006 09:28:00 -0700
+ > 
+ > [PATCH] i386: Do backtrace fallback too
+ > 
+ > Similar patch to earlier x86-64 patch. When the dwarf2 unwinder fails
+ > dump the left over stack with the old unwinder.
+ > 
+ > Also some clarifications in the headers.
+ > 
+ > Signed-off-by: Andi Kleen <ak@suse.de>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+ > 
+ >  arch/i386/kernel/traps.c |   17 ++++++++++++++---
+ >  1 files changed, 14 insertions(+), 3 deletions(-)
 
-Actually, unless you want the kernel to have to poll the timeout_flag
-periodically, it's more like:
+Hmm, this breaks the build for me..
 
-	volatile bool	timeout_flag = false, armed_flag = false;
+arch/i386/kernel/traps.c: In function 'show_trace_log_lvl':
+arch/i386/kernel/traps.c:195: error: invalid type argument of '->'
+arch/i386/kernel/traps.c:198: error: invalid type argument of '->'
+arch/i386/kernel/traps.c:199: error: invalid type argument of '->'
+make[1]: *** [arch/i386/kernel/traps.o] Error 1
 
-	register_timout(&time_val, &flag);
-	while (work to do) {
-		if (!armed_flag) {
-			rearm_timeout();
-			armed_flag = true;
-		}
-		do_a_bit_of_work();
-		if (timeout_flag) {
-			armed_flag = false;
-			timeout_flag = false;
-			break;
-		}
-	}
+(The line numbers are different to mainline due to some unrelated
+patches, they point to the UNW_PC/UNW_SP usages),
 
-Personally, I use setitimer() for this.  You can maintain the flags in
-software, and be slightly lazy about disarming it.  If you get a signal
-while you shouldn't be armed, *then* disarm the timer in the kernel.
-Likewise, when rearming, set the user-disarmed flag and chec if kernel-level
-rearming is required.
 
-volatile bool timeout_flag = false, armed_flag = false, sys_armed_flag = false;
+Also, shouldn't this..
 
-void
-sigalrm(int sig)
-{
-	(void)sig;
-	if (!armed_flag) {
-		static const struct itimerval it_zero = {{0,0},{0,0}};
-		if (sys_armed_flag)
-			warn_unexpected_sigalrm();
-		setitimer(ITIMER_REAL, &it_zero, 0);
-		
-	} else if (timeout_flag)
-		warn_gc_is_slow();
-	else
-		timeout_flag = true;
-}
+	print_symbol("DWARF2 unwinder stuck at %s\n",
+		UNW_PC(info.regs));
 
-void
-arm_timer()
-{
-	static const struct itimerval it_interval = { time_val, time_val };
+be using %p ?
 
-	armed_flag = true;
-	if (!sys_armed_flag) {
-		setitimer(ITIMER_REAL, &it_interval, 0);
-		sys_armed_flag = true;
-	}
-}
+		Dave
 
-main_loop()
-{
-	signal(SIGALRM, sigalrm);
-
-	while (work to do) {
-		arm_timer();
-		do_a_bit_of_work();
-		if (timeout_flag) {
-			gc();
-			armed_flag = false;
-			timeout_flag = false;
-		}
-	}
-}
-
-... where only do_a_bit_of_work can prompt the need for more gc() calls.
-This really tries to minimize the number of system calls.
+-- 
+http://www.codemonkey.org.uk

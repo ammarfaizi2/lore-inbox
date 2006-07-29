@@ -1,99 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWG2We1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWG2WpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWG2We1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 18:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWG2We1
+	id S1750738AbWG2WpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 18:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWG2WpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 18:34:27 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.4.200]:15062 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1750730AbWG2We1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 18:34:27 -0400
-Date: Sat, 29 Jul 2006 18:34:21 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: 2.6.18-rc2-mm1
-In-reply-to: <1154119190.21787.2528.camel@stark>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Balbir Singh <balbir@in.ibm.com>
-Message-id: <44CBE26D.5090901@watson.ibm.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-References: <20060727015639.9c89db57.akpm@osdl.org>
- <6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com>
- <6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com>
- <20060728013442.6fabae54.akpm@osdl.org> <1154112567.21787.2522.camel@stark>
- <6bffcb0e0607281253j28e04ba2icec85589e9390b3e@mail.gmail.com>
- <1154119190.21787.2528.camel@stark>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Sat, 29 Jul 2006 18:45:25 -0400
+Received: from home.keithp.com ([63.227.221.253]:8715 "EHLO keithp.com")
+	by vger.kernel.org with ESMTP id S1750738AbWG2WpY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 18:45:24 -0400
+Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
+From: Keith Packard <keithp@keithp.com>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: keithp@keithp.com, Bill Huey <billh@gnuppy.monkey.org>,
+       Jim Gettys <jg@laptop.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Dave Airlie <airlied@gmail.com>,
+       Segher Boessenkool <segher@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
+In-Reply-To: <20060729214334.GA8624@localhost.localdomain>
+References: <44C67E1A.7050105@zytor.com>
+	 <20060725204736.GK4608@hmsreliant.homelinux.net>
+	 <1153861094.1230.20.camel@localhost.localdomain>
+	 <44C6875F.4090300@zytor.com>
+	 <1153862087.1230.38.camel@localhost.localdomain>
+	 <44C68AA8.6080702@zytor.com>
+	 <1153863542.1230.41.camel@localhost.localdomain>
+	 <20060729042820.GA16133@gnuppy.monkey.org>
+	 <20060729125427.GA6669@localhost.localdomain>
+	 <20060729204107.GA20890@gnuppy.monkey.org>
+	 <20060729214334.GA8624@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-J+9FAUi0dZspKFfzClxw"
+Date: Sat, 29 Jul 2006 15:45:19 -0700
+Message-Id: <1154213119.28839.76.camel@neko.keithp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Helsley wrote:
-> On Fri, 2006-07-28 at 21:53 +0200, Michal Piotrowski wrote:
-> 
->>On 28/07/06, Matt Helsley <matthltc@us.ibm.com> wrote:
->>
->>>On Fri, 2006-07-28 at 01:34 -0700, Andrew Morton wrote:
->>>
->>>>On Fri, 28 Jul 2006 10:17:44 +0200
->>>>"Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
->>>>
->>>>
->>>>>Matt, can you look at this?
->>>>>
->>>>>My hunt file shows me, that this patches are causing oops.
->>>>>GOOD
->>>>>#
->>>>>#
->>>>>task-watchers-task-watchers.patch
->>>>>task-watchers-register-process-events-task-watcher.patch
->>>>>task-watchers-refactor-process-events.patch
->>>>>task-watchers-make-process-events-configurable-as.patch
->>>>>task-watchers-allow-task-watchers-to-block.patch
->>>>>task-watchers-register-audit-task-watcher.patch
->>>>>task-watchers-register-per-task-delay-accounting.patch
->>>>>task-watchers-register-profile-as-a-task-watcher.patch
->>>>>task-watchers-add-support-for-per-task-watchers.patch
->>>>>task-watchers-register-semundo-task-watcher.patch
->>>>>task-watchers-register-per-task-semundo-watcher.patch
->>>>>BAD
->>>>
->>>>Thanks for working that out.
->>>
->>>        I noticed the delay accounting functions in the stack trace. Perhaps
->>>task-watchers-register-per-task-delay-accounting.patch is causing the
->>>problem.
->>
->>Confirmed.
-> 
-> 
-> Excellent, thanks for the rapid confirmation. I'll work with Shailabh
-> and Balbir to fix this. In the meantime perhaps
-> task-watchers-register-per-task-delay-accounting.patch should be dropped
-> from -mm.
-> 
-> Cheers,
-> 	-Matt Helsley
-> 
 
+--=-J+9FAUi0dZspKFfzClxw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The error is almost certainly because delayacct_tsk_init is being
-called at WATCH_TASK_CLONE (which is triggered after the task has been
-added to the tasklist) rather than WATCH_INIT (before).
+On Sat, 2006-07-29 at 17:43 -0400, Neil Horman wrote:
 
-__delayacct_tsk_init, which gets notified by WATCH_TASK_* initializes
-the spinlock tsk->delays_lock which could get used as soon as task is
-present in tasklist. The lockup is very likely due to use of this
-uninitialized spinlock.
+> Sure, an mmaped jiffy counter would certainly be usefull.  I think the on=
+ly
+> thing left to be determined in this thread is if adding mmap to the rtc d=
+river
+> has any merit regardless of any potential users (iow, would current users=
+ of
+> /dev/rtc find it helpful to have the rtc driver provide an mmap interface=
+.)
 
-So the fix should be to change WATCH_TASK_CLONE to WATCH_TASK_INIT
-in the delayacct_watch_task function created by this patch.
+A jiffy counter is sufficient for the X server; all I need is some
+indication that time has passed with a resolution of 10 to 20 ms. I
+check this after each X request is processed as that is the scheduling
+granularity. An X request can range in time from .1us to 100 seconds, so
+I really want to just check after each request rather than attempt some
+heuristic.
 
---Shailabh
+--=20
+keith.packard@intel.com
 
+--=-J+9FAUi0dZspKFfzClxw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
+iD8DBQBEy+T/Qp8BWwlsTdMRAh4WAKCdXKxUvYwHHKVCiIebXGMJUJJ09wCfQsr5
+3RK2EfUFYrx/kw1edUQihO0=
+=zOr2
+-----END PGP SIGNATURE-----
+
+--=-J+9FAUi0dZspKFfzClxw--

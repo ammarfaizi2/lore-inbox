@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWG2Rsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWG2RuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWG2Rsy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 13:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWG2Rsv
+	id S932200AbWG2RuA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 13:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWG2RuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 13:48:51 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1810 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932188AbWG2Rsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 13:48:30 -0400
-Date: Sat, 29 Jul 2006 19:48:30 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Venkat Yekkirala <vyekkirala@TrustedCS.com>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-       sds@tycho.nsa.gov, jmorris@namei.org
-Subject: [-mm patch] security/selinux/hooks.c: make 4 functions static
-Message-ID: <20060729174830.GD26963@stusta.de>
-References: <20060727015639.9c89db57.akpm@osdl.org>
+	Sat, 29 Jul 2006 13:50:00 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:29082 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932191AbWG2Rt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 13:49:59 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <44CB9F11.6080508@s5r6.in-berlin.de>
+Date: Sat, 29 Jul 2006 19:46:57 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
-User-Agent: Mutt/1.5.12-2006-07-14
+To: Tom Walter Dillig <tdillig@stanford.edu>
+CC: linux-kernel@vger.kernel.org, w@1wt.eul, kernel_org@digitalpeer.com,
+       security@kernel.org
+Subject: Re: Complete report of Null dereference errors in kernel 2.6.17.1
+References: <1153782637.44c5536e013a4@webmail>
+In-Reply-To: <1153782637.44c5536e013a4@webmail>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, 2006 at 01:56:39AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.18-rc2-mm1:
->...
->  git-net.patch
->...
->  git trees
->...
+Tom Walter Dillig wrote on 2006-07-25:
+> [276]
+> 1043, 1051, 1075, 1083, 1091, ... drivers/ieee1394/sbp2.c
+> Possible null dereference of variable "hi" checked at
+> (1096:drivers/ieee1394/sbp2.c).
 
-This patch makes four needlessly global functions static.
+Thanks for the report.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+"hi" is guaranteed to be nonzero and valid at these places. The 
+safeguards are the if clauses in lines 1042, 1050, 1074, 1082, 1090. 
+Their conditions will evaluate to false if "hi" was NULL. This is 
+because of the order of how members of struct scsi_id_instance_data are 
+initialized in sbp2_alloc_device() and sbp2_start_device().
 
----
-
- security/selinux/hooks.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
---- linux-2.6.18-rc2-mm1-full/security/selinux/hooks.c.old	2006-07-27 20:31:37.000000000 +0200
-+++ linux-2.6.18-rc2-mm1-full/security/selinux/hooks.c	2006-07-27 20:32:46.000000000 +0200
-@@ -3576,7 +3576,7 @@
- 	}
- }
- 
--void selinux_sock_graft(struct sock* sk, struct socket *parent)
-+static void selinux_sock_graft(struct sock* sk, struct socket *parent)
- {
- 	struct inode_security_struct *isec = SOCK_INODE(parent)->i_security;
- 	struct sk_security_struct *sksec = sk->sk_security;
-@@ -3584,8 +3584,8 @@
- 	isec->sid = sksec->sid;
- }
- 
--int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb, 
--					   struct request_sock *req)
-+static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb, 
-+				     struct request_sock *req)
- {
- 	struct sk_security_struct *sksec = sk->sk_security;
- 	int err;
-@@ -3603,7 +3603,8 @@
- 	return 0;
- }
- 
--void selinux_inet_csk_clone(struct sock *newsk, const struct request_sock *req)
-+static void selinux_inet_csk_clone(struct sock *newsk,
-+				   const struct request_sock *req)
- {
- 	struct sk_security_struct *newsksec = newsk->sk_security;
- 
-@@ -3614,7 +3615,8 @@
- 	   time it will have been created and available. */
- }
- 
--void selinux_req_classify_flow(const struct request_sock *req, struct flowi *fl)
-+static void selinux_req_classify_flow(const struct request_sock *req,
-+				      struct flowi *fl)
- {
- 	fl->secid = req->secid;
- }
-
+What other potential errors did your checker find in 
+drivers/ieee1394/sbp2.c?
+-- 
+Stefan Richter
+-=====-=-==- -=== ===-=
+http://arcgraph.de/sr/

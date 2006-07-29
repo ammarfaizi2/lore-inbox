@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752067AbWG2CFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbWG2CGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752067AbWG2CFI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 22:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752068AbWG2CFI
+	id S1030250AbWG2CGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 22:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030286AbWG2CGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 22:05:08 -0400
-Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:52164
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1752067AbWG2CFG (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 22:05:06 -0400
-Message-Id: <200607290204.k6T24kOO003208@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Balbir Singh <balbir@in.ibm.com>
-Subject: Re: 2.6.18-rc2-mm1
-In-Reply-To: Your message of "Fri, 28 Jul 2006 13:39:50 PDT."
-             <1154119190.21787.2528.camel@stark>
-From: Valdis.Kletnieks@vt.edu
-References: <20060727015639.9c89db57.akpm@osdl.org> <6bffcb0e0607270632i2ae56e21k40fb12c712980de0@mail.gmail.com> <6bffcb0e0607280117k68184559t531b737815b2c6e9@mail.gmail.com> <20060728013442.6fabae54.akpm@osdl.org> <1154112567.21787.2522.camel@stark> <6bffcb0e0607281253j28e04ba2icec85589e9390b3e@mail.gmail.com>
-            <1154119190.21787.2528.camel@stark>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1154138685_2988P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Jul 2006 22:04:46 -0400
+	Fri, 28 Jul 2006 22:06:22 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:25929 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030250AbWG2CGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jul 2006 22:06:21 -0400
+Date: Fri, 28 Jul 2006 20:04:57 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: BIOS detects 4 GB RAM, but kernel does not
+In-reply-to: <1154112339.037481.119210@p79g2000cwp.googlegroups.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: iforone <floydstestemail@yahoo.com>
+Message-id: <44CAC249.1010605@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <1153931278.034068.54630@h48g2000cwc.googlegroups.com>
+ <1153933737.200164.160870@m73g2000cwd.googlegroups.com>
+ <1154007393.940693.259680@i42g2000cwa.googlegroups.com>
+ <1154112339.037481.119210@p79g2000cwp.googlegroups.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1154138685_2988P
-Content-Type: text/plain; charset=us-ascii
+iforone wrote:
+> see why above (mostly)... That doesn't necessarily mean that some kind
+> of certain 'config' doesn't need to be compiled into the kernel. Yet
+> I'm not sure exactly which options are necessary, if any, nor am I sure
+> you can achieve your goal using what *seems* (Robert Hancock's
+> reponses) to be essentially an Intel DualCore 32bit CPU(s). I'm having
+> a bit of trouble understanding (or believing) that an EM64T system
+> isn't capable of seeing more than 4GB RAM (although the Mobo max for
+> that Desktop mobo is 4GB) -- BUT then again, that is not a Server grade
+> Mobo either -- it's a Desktop mobo (perhaps using an
+> unsupporting(cheaper) Chipset(?). Yet; the BIOS detects all 4GB (which
+> shoots down my chipset theory) - so maybe it's a kerenl specific issue
+> (harkens back to General S's response about 2.6.15+ kernels only).
+> In my earlier post, I hadn't realized you were using a 64bit kernel.
 
-On Fri, 28 Jul 2006 13:39:50 PDT, Matt Helsley said:
-> On Fri, 2006-07-28 at 21:53 +0200, Michal Piotrowski wrote:
-> > On 28/07/06, Matt Helsley <matthltc@us.ibm.com> wrote:
-> > >         I noticed the delay accounting functions in the stack trace. Perhaps
-> > > task-watchers-register-per-task-delay-accounting.patch is causing the
-> > > problem.
-> > 
-> > Confirmed.
-> 
-> Excellent, thanks for the rapid confirmation. I'll work with Shailabh
-> and Balbir to fix this. In the meantime perhaps
-> task-watchers-register-per-task-delay-accounting.patch should be dropped
-> from -mm.
+The BIOS can see that all 4GB of memory is there, but it has no way of 
+moving it out of the way to make room for the PCI/PCI-E memory-mapped IO 
+space, so it has to map that IO space over the RAM in that part of the 
+address space, rendering it inaccessible. There's no way that the kernel 
+can fix this, regardless of whether you are using 32 or 64 bit or what 
+configuration options are set.
 
-I finished a bisect on -mm - I ca confirm that this one patch is also
-responsible for the solid lockups I was seeing on a Dell C840.  Am now up
-and running on -rc2-mm1 with this one reverted.
+Athlon 64/Opteron CPUs have support for moving this part of the RAM 
+above 4GB to allow it to be used. This is part of the CPU's on-die 
+memory controller so no special chipset support is needed. On Intel 
+systems this support has to be provided by the chipset, and on the 
+desktop boards, it's not.
 
---==_Exmh_1154138685_2988P
-Content-Type: application/pgp-signature
+You can see what's going on from the BIOS e820 memory map that's printed 
+in the dmesg output at the start of bootup. If you calculate out the 
+amount of address space reported as "usable" then you will get your 
+value of 3.2GB or so which is all the kernel has access to. If the 
+system supported memory remapping then you would see another region 
+starting at 0x0000000100000000 (4GB) which would account for this 
+missing 800MB or so.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Probably the main reason Intel didn't bother including this support in 
+the desktop boards is that current non-server versions of Windows (at 
+least 32-bit) won't use any memory that is mapped above 4GB anyway even 
+though PAE is enabled - a purely artificial limit that MS put in place 
+to discourage using desktop Windows on such large memory machines..
 
-iD8DBQFEysI9cC3lWbTT17ARAmLiAKC+8qYBHi6JLTaLFPmz/Ay4JFrunACeLmuu
-sEoBPznXdSJu7b92kh9kcrs=
-=6LCw
------END PGP SIGNATURE-----
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
---==_Exmh_1154138685_2988P--

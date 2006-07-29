@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWG2RuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWG2R6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWG2RuA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 13:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWG2RuA
+	id S932198AbWG2R6F (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 13:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWG2R6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 13:50:00 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:29082 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932191AbWG2Rt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 13:49:59 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <44CB9F11.6080508@s5r6.in-berlin.de>
-Date: Sat, 29 Jul 2006 19:46:57 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sat, 29 Jul 2006 13:58:05 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:48470 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932198AbWG2R6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 13:58:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=T7cesYqpTVDcXzPf3X9q+Ddi5bd9kUmuMLeUWSxTHUU/BwvF5BRqrUtDJ0F1Wsb5RkmaCCjK0IflbJH9Tyn1V+6UYyaArl3L6mFLjB5/0j9+3Eo80lNniM3Lyw1mpnLAf6hmSRw0t76ZssAJJdj+FWXvUzbYLjtBRPAsfdjK3Cw=
+Message-ID: <44CBA1AD.4060602@gmail.com>
+Date: Sat, 29 Jul 2006 19:57:42 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
 MIME-Version: 1.0
-To: Tom Walter Dillig <tdillig@stanford.edu>
-CC: linux-kernel@vger.kernel.org, w@1wt.eul, kernel_org@digitalpeer.com,
-       security@kernel.org
-Subject: Re: Complete report of Null dereference errors in kernel 2.6.17.1
-References: <1153782637.44c5536e013a4@webmail>
-In-Reply-To: <1153782637.44c5536e013a4@webmail>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, pavel@suse.cz, linux-pm@osdl.org,
+       linux-mm@kvack.org
+Subject: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]
+References: <20060727015639.9c89db57.akpm@osdl.org>
+In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Walter Dillig wrote on 2006-07-25:
-> [276]
-> 1043, 1051, 1075, 1083, 1091, ... drivers/ieee1394/sbp2.c
-> Possible null dereference of variable "hi" checked at
-> (1096:drivers/ieee1394/sbp2.c).
+Andrew Morton napsal(a):
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
 
-Thanks for the report.
+Hello,
 
-"hi" is guaranteed to be nonzero and valid at these places. The 
-safeguards are the if clauses in lines 1042, 1050, 1074, 1082, 1090. 
-Their conditions will evaluate to false if "hi" was NULL. This is 
-because of the order of how members of struct scsi_id_instance_data are 
-initialized in sbp2_alloc_device() and sbp2_start_device().
+I have problems with swsusp again. While suspending, the very last thing kernel
+writes is 'restoring higmem' and then hangs, hardly. No sysrq response at all.
+Here is a snapshot of the screen:
+http://www.fi.muni.cz/~xslaby/sklad/swsusp_higmem.gif
 
-What other potential errors did your checker find in 
-drivers/ieee1394/sbp2.c?
+It's SMP system (HT), higmem enabled (1 gig of ram).
+
+regards,
 -- 
-Stefan Richter
--=====-=-==- -=== ===-=
-http://arcgraph.de/sr/
+<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

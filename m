@@ -1,88 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWG2SZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWG2SZ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWG2SZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 14:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWG2SZr
+	id S932203AbWG2SZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 14:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWG2SZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 14:25:47 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:52387 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932204AbWG2SZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 14:25:46 -0400
-Date: Sat, 29 Jul 2006 12:25:41 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: BIOS detects 4 GB RAM, but kernel does not
-In-reply-to: <1154143992.635239.225440@p79g2000cwp.googlegroups.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: iforone <floydstestemail@yahoo.com>
-Message-id: <44CBA825.3080609@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <1154112339.037481.119210@p79g2000cwp.googlegroups.com>
- <fa.6TLi9h8OI9J6KX0+lv+D4/CEU0U@ifi.uio.no>
- <fa.adpnQx0XAWgd4+g2tR5HDa2qHDw@ifi.uio.no>
- <1154143992.635239.225440@p79g2000cwp.googlegroups.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Sat, 29 Jul 2006 14:25:28 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:47069 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932203AbWG2SZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 14:25:27 -0400
+Message-ID: <44CBA814.7000906@slaphack.com>
+Date: Sat, 29 Jul 2006 13:25:24 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060708)
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
+ by kernelnewbies.org regarding reiser4 inclusion)
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com> <44CA8771.1040708@slaphack.com> <44CABB87.3050509@namesys.com>
+In-Reply-To: <44CABB87.3050509@namesys.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="------------enig87CFB6CF2548B78C9CC21640"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-iforone wrote:
->> Probably the main reason Intel didn't bother including this support in
->> the desktop boards is that current non-server versions of Windows (at
->> least 32-bit) won't use any memory that is mapped above 4GB anyway even
->> though PAE is enabled - a purely artificial limit that MS put in place
->> to discourage using desktop Windows on such large memory machines..
-> 
-> Agreed -- I _was_ going to inquire about XP x64 versions, and PAE also,
-> and I've read a bit about it (as microshaft has written on it's site),
-> but not in quite a while. I recall the semi-related  NoExec (NX) bit
-> stuff (though I forgot the mnemonic difference between AMD64 and Intel
-> concerning this "bit", which if set disallows execution of any code
-> above the 4GB boundary, IIRC).
-> 
-> to follow-up: Do the XP x64 versions do something else artificially to
-> enable addressing up to 16GB of RAM or thereabouts. Or - is it that PAE
-> (Physical Address Extensions) stuff again that allows or it?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig87CFB6CF2548B78C9CC21640
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-PAE is what allows an OS in 32-bit mode to access memory located above 
-4GB in the address space. On a 64-bit OS the CPU can access all the 
-memory directly so PAE is not needed or possible. Also, PAE is often 
-enabled on 32-bit systems even with less than 4GB of RAM as it allows 
-using the hardware NX bit, which was only added to the PAE versions of 
-the 32-bit page tables.
+Hans Reiser wrote:
+> David Masover wrote:
+>=20
+>> If indeed it can be changed easily at all.  I think the burden is on
+>> you to prove that you can change it to be more generic, rather than
+>> saying "Well, we could do it later, if people want us to..."
+>=20
+> None of the filesystems other than reiser4 have any interest in using
+> plugins, and this whole argument over how it should be in VFS is
+> nonsensical because nobody but us has any interest in using the
+> functionality.  The burden is on the generic code authors to prove that=
 
-That's a separate issue, though, from the original subject of the thread 
-(memory being mapped over by IO space), and from the artificial limit on 
-accessing memory above 4GB in at least 32-bit consumer Windows.
+> they will ever ever do anything at all besides complain.  Frankly, I
+> don't think they will.  I think they will never produce one line of cod=
+e.
 
-> 
-> More importantly -- I have (an as-yet-to-be-assembled system) : AMD64
-> s754 3000+ with a crappy mATX mobo here (VIA KTm800/8237) Chipset --
-> The RAM limit is 2GB total (2 x 1GB DIMM slots only). Do you think this
-> el-cheapo mobo would have problems accessing over 4GB *if* the Mobo was
-> designed for 4GB ?? IOW-- a Mobo perhaps such as General S uses (MSI,
-> ASUStek, etc) -- or do you know if there's something different between
-> the s754 and s939 models that I'm unaware of (besides the No Dual
-> Channel RAM in s754, since it's only 64bit Single-Channel capable, not
-> 128bit).
+I think it's fair to say that 5-10 years from now, with different ext3
+maintainers, when the Reiser4 concept has proven itself, people will
+want plugins for ext3, and the ext3 developers will like the idea.
 
-I don't think most S754 boards support physically installing that much 
-RAM, so it may be moot. If you could, you could likely access memory 
-above 4GB, though I'm not certain if the S754 CPUs support the memory 
-hole remapping to avoid some of that RAM being lost.
+ext* is one of those things that just refuses to die.  I use ext3 for my
+/boot fs, so that I don't have to patch Grub for Reiser4, and so that at
+least I can mess with the bootloader from any rescue CD if something
+goes wrong.  It's for kind of the same reason that Gentoo builds a
+32-bit Grub, even though I'm booting a 64-bit OS -- just in case.
 
-> Thanks for the continuing discussion -- I'm glad I didn't follow Intel
-> recently and become deceived again - as I'm sure MANY have -- you'd
-> think buying a spanking new Pentium-D (8xx) and a 'decent' Intel
-> Desktop mobo would allow access to more than 4GB RAM ...but no.... :-(
-> (especially when the specs for the mobo claim "4GB" - heck - might as
-> well remove 1 x 1GB DIMM, you'd only lose 200MB (yikes)).
+I also use ext2 for my initrd.
 
-Yeah, there is not much point in installing more than 3GB in such a board..
+There are other monstrosities that will likely never die, also.
+ISO9660, UDF, and VFAT probably all have worse storage characteristics
+than Reiser4, in that as I understand it, they won't pack multiple files
+into a block.  So Reiser4 might even make a good boot cd FS, storing
+things more efficiently -- but even if I'm right, those three
+filesystems will last forever, because they are currently well supported
+on every major OS, and I think one of ISO/UDF is required for DVDs.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+So for whatever reason someone's using another filesystem, even if all
+they need is the on-disk format (my reason for ext3 /boot and vfat on
+USB thumbdrives), I think it's reasonable to expect that they may one
+day want plugin functionality.  People who like Reiser filesystems will
+do just fine running Reiser4 with a (udf|iso|vfat) storage driver, but
+people who don't will just want the higher level stuff.
 
+You're probably right and this is years of work for something that may
+not be worth anything, but I think this is what is going through
+people's heads as they look at this plugin system.
+
+So see my comments about distro inclusion.
+
+
+--------------enig87CFB6CF2548B78C9CC21640
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iQIVAwUBRMuoFHgHNmZLgCUhAQpqZA//RXqhw8qAmmIr5vZNt3jVXjHMf/gz+ryp
+EQCSOgAMiNRCrrXucu/B/0+2ymJ/3zyyHgFEsEZ6SuWupkTeIKEpFnV62B7aGuvA
+mZMN7owThyRIfpYI06y3gc0DQfaFWiKaQAOUjxUiju05wrecAaSmx1nfOHiguWtJ
+/rf+w9DaM9MdtsOjBWKqC5uxZZZY6A2csLsx781MSsqgIrvu/r5+M2BnuYMFnhgG
+cnKQm19kELfwEXVjOs1QbjF8eiYtHhYyqnMxYEBHCP9z0jH0Nlp+v7RBjetQ0Lxj
+5Ijnt+vuXgMh6fLdhJrEONAxfQf8l3/SbI5azpxufxFymQBcOcVw4eLDbKYJx2Vr
+PiTsBA8LuDb0+jCHEVH5qH8hrRn/xO+7ZTz91/SAJht42Y6I/ObwXRXlzqJdn/Mu
+Zs2JiMVfTtBR5irJ5tOgs8TQQwWfxYNVsY9dGDzNKxvf8qV+f/3cYBVJG2L9wXj9
+quRwkY95El0vDV5lKg2e867mW33ZTq3frWsycdljFtycNsRYxA/TjOBp6fivJVqn
+4Yr2X/CON1o6MsKmgccGSCLi0xPLSW45GfjtIBPQfC5otMxLkrVjBSsMKBPGOvTV
+PNRsNQYTOUgIUhGzA8/TXWJavrSRf4qukkExuTXlfpLzaAbAfakhGPOOx0DhsZ4Y
+woFH+EDDTaU=
+=+8SP
+-----END PGP SIGNATURE-----
+
+--------------enig87CFB6CF2548B78C9CC21640--

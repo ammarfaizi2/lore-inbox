@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWG1X4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752033AbWG2AKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWG1X4n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jul 2006 19:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWG1X4n
+	id S1752033AbWG2AKf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jul 2006 20:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWG2AKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jul 2006 19:56:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43437 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751331AbWG1X4n (ORCPT
+	Fri, 28 Jul 2006 20:10:35 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:46222 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1752033AbWG2AKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jul 2006 19:56:43 -0400
-Date: Fri, 28 Jul 2006 19:55:34 -0400
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Nathan Scott <nathans@sgi.com>, stable@kernel.org,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
-Subject: Re: [stable] 2.6.17.[1-6] XFS Filesystem Corruption, Where is 2.6.17.7?
-Message-ID: <20060728235534.GE3217@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-	Nathan Scott <nathans@sgi.com>, stable@kernel.org,
-	Justin Piszcz <jpiszcz@lucidpixels.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0607241224010.10896@p34.internal.lan> <20060725084624.C2090627@wobbly.melbourne.sgi.com> <20060725210716.GC4807@merlin.emma.line.org> <20060725210919.GD4807@merlin.emma.line.org> <20060728232654.GB2140@kroah.com>
+	Fri, 28 Jul 2006 20:10:34 -0400
+Date: Fri, 28 Jul 2006 17:10:32 -0700
+From: Zach Brown <zach.brown@oracle.com>
+To: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Arjan van de Ven <arjan@infradead.org>
+Subject: [RFC][PATCH] Fix lock inversion aio_kick_handler()
+Message-ID: <20060729001032.GA7885@tetsuo.zabbo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060728232654.GB2140@kroah.com>
-User-Agent: Mutt/1.4.2.2i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 04:26:54PM -0700, Greg Kroah-Hartman wrote:
+Fix lock inversion aio_kick_handler()
 
- > > OK, 2.6.17.7 is out, but still - is this suggestion worthwhile
- > > considering for future -stable release engineering or just crap?
- > 
- > .7 took a bit longer than expected, due to some security bugs that
- > needed to be added to the queue, combined with the fact that both Chris
- > and I were busy with OLS stuff.  Normally we both aren't travelling at
- > the same time, but right then, we were, so we couldn't respond as
- > quickly as it seems some people felt we should have.
- > 
- > Sorry about this, we'll try to do better next time.
+lockdep found a AB BC CA lock inversion in retry-based AIO:
 
-The flipside to this is that those patches had been posted for around a
-week before you released .7, and *no-one* caught this problem until
-after the release.
+1) The task struct's alloc_lock (A) is acquired in process context with
+interrupts enabled.  An interrupt might arrive and call wake_up() which grabs
+the wait queue's q->lock (B).
 
-The burden of testing shouldn't solely be on the -stable team.
-Perhaps a -pre release at the time of review would be a good idea.
-Just a roll-up of the proposed patches, to save testers having
-to save and apply 30 patches seperately ?
+2) When performing retry-based AIO the AIO core registers aio_wake_function()
+as the wake funtion for iocb->ki_wait.  It is called with the wait queue's
+q->lock (B) held and then tries to add the iocb to the run list after acquiring
+the ctx_lock (C).
 
-		Dave
+3) aio_kick_handler() holds the ctx_lock (C) while acquiring the alloc_lock (A)
+via lock_task() and unuse_mm().  Lockdep emits a warning saying that we're
+trying to connect the irq-safe q->lock to the irq-unsafe alloc_lock via
+ctx_lock.
 
--- 
-http://www.codemonkey.org.uk
+This fixes the inversion by calling unuse_mm() in the AIO kick handing path
+after we've released the ctx_lock.
+
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
+
+Ben, can you remember why we put unuse_mm() inside the ctx_lock?  Is that
+intentional and still needed?
+
+Index: 2.6.18-rc2-mm1-cmdepoll/fs/aio.c
+===================================================================
+--- 2.6.18-rc2-mm1-cmdepoll.orig/fs/aio.c
++++ 2.6.18-rc2-mm1-cmdepoll/fs/aio.c
+@@ -598,9 +598,6 @@ static void use_mm(struct mm_struct *mm)
+  *	by the calling kernel thread
+  *	(Note: this routine is intended to be called only
+  *	from a kernel thread context)
+- *
+- * Comments: Called with ctx->ctx_lock held. This nests
+- * task_lock instead ctx_lock.
+  */
+ static void unuse_mm(struct mm_struct *mm)
+ {
+@@ -866,8 +863,8 @@ static void aio_kick_handler(void *data)
+ 	use_mm(ctx->mm);
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	requeue =__aio_run_iocbs(ctx);
+- 	unuse_mm(ctx->mm);
+ 	spin_unlock_irq(&ctx->ctx_lock);
++ 	unuse_mm(ctx->mm);
+ 	set_fs(oldfs);
+ 	/*
+ 	 * we're in a worker thread already, don't use queue_delayed_work,

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWG2NLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWG2NR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWG2NLj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 09:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWG2NLj
+	id S1751413AbWG2NR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 09:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWG2NR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 09:11:39 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:22282 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1751370AbWG2NLi (ORCPT
+	Sat, 29 Jul 2006 09:17:57 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:34570 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751413AbWG2NR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 09:11:38 -0400
-Date: Sat, 29 Jul 2006 09:00:58 -0400
+	Sat, 29 Jul 2006 09:17:56 -0400
+Date: Sat, 29 Jul 2006 09:14:19 -0400
 From: Neil Horman <nhorman@tuxdriver.com>
 To: kernel-janitors@osdl.org, linux-kernel@vger.kernel.org,
        schwidefsky@de.ibm.com
 Subject: Re: [KJ] audit return code handling for kernel_thread [2/11]
-Message-ID: <20060729130058.GB6669@localhost.localdomain>
+Message-ID: <20060729131419.GA6892@localhost.localdomain>
 References: <200607282007.k6SK7DhX009584@ra.tuxdriver.com> <20060729093704.GD26956@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -47,21 +47,22 @@ On Sat, Jul 29, 2006 at 10:37:04AM +0100, Russell King wrote:
 > value from kernel_thread() (and arguably that's true, since pid 0 is
 > permanently allocated to the idle thread.)
 > 
-I think you misread.  I want a return code of zero to be valid (and imply
-success).  However, kernel_thread returns an int (not an unsigned int), and
-there are/were callers who assumed that _any_ non-zero return values were
-success, including negative return values, which indicate a failure in
-kernel_thread.
+No its, not, but I can see how my comments might be ambiguous. I want zero to be
+a valid return code, since we never actually return zero, but we certainly could
+if we wanted to.  Note that kernel_thread returns an int (not an unsigned int),
+and as such assuming that a non-zero return code implies success ignores the
+fact that kernel_thread can return a negative value, which indicates failure.
+This is what I found, and what my patch fixes.
 
 > I don't particularly care whether you decide to that returning pid 0 from
 > kernel_thread is valid or not, just that your two points above are at least
 > consistent with each other.
 > 
-I should have been more clear above, point two is meant to indicate that there
-were callers of kernel_thread which assume a negative return code from
-kernel_thread meant success.  That is what I fixed.
+My comments in (2) should be made more clear by changing "assume a non-zero
+return was success" to "assume a negative return was success".  This is what my
+patch fixes.
 
-Regards
+Thanks & Regards
 Neil
 
 > -- 

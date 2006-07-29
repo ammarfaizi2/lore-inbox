@@ -1,117 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWG2SLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWG2SZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWG2SLX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 14:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWG2SLW
+	id S932209AbWG2SZr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 14:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWG2SZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 14:11:22 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:49124 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932202AbWG2SLW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 14:11:22 -0400
-Message-ID: <44CBA4BF.80301@slaphack.com>
-Date: Sat, 29 Jul 2006 13:11:11 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060708)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: metadata plugins (was Re: the " 'official' point of view"	expressed
- by kernelnewbies.org regarding reiser4 inclusion)
-References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl>	 <44CA31D2.70203@slaphack.com>	 <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org>	 <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com>	 <44CA126C.7050403@namesys.com> <44CA8771.1040708@slaphack.com>	 <44CABB87.3050509@namesys.com> <1154164364.2903.10.camel@laptopd505.fenrus.org>
-In-Reply-To: <1154164364.2903.10.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="------------enig8221BD0B50F43671F10ACC78"
+	Sat, 29 Jul 2006 14:25:47 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:52387 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932204AbWG2SZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 14:25:46 -0400
+Date: Sat, 29 Jul 2006 12:25:41 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: BIOS detects 4 GB RAM, but kernel does not
+In-reply-to: <1154143992.635239.225440@p79g2000cwp.googlegroups.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: iforone <floydstestemail@yahoo.com>
+Message-id: <44CBA825.3080609@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <1154112339.037481.119210@p79g2000cwp.googlegroups.com>
+ <fa.6TLi9h8OI9J6KX0+lv+D4/CEU0U@ifi.uio.no>
+ <fa.adpnQx0XAWgd4+g2tR5HDa2qHDw@ifi.uio.no>
+ <1154143992.635239.225440@p79g2000cwp.googlegroups.com>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8221BD0B50F43671F10ACC78
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+iforone wrote:
+>> Probably the main reason Intel didn't bother including this support in
+>> the desktop boards is that current non-server versions of Windows (at
+>> least 32-bit) won't use any memory that is mapped above 4GB anyway even
+>> though PAE is enabled - a purely artificial limit that MS put in place
+>> to discourage using desktop Windows on such large memory machines..
+> 
+> Agreed -- I _was_ going to inquire about XP x64 versions, and PAE also,
+> and I've read a bit about it (as microshaft has written on it's site),
+> but not in quite a while. I recall the semi-related  NoExec (NX) bit
+> stuff (though I forgot the mnemonic difference between AMD64 and Intel
+> concerning this "bit", which if set disallows execution of any code
+> above the 4GB boundary, IIRC).
+> 
+> to follow-up: Do the XP x64 versions do something else artificially to
+> enable addressing up to 16GB of RAM or thereabouts. Or - is it that PAE
+> (Physical Address Extensions) stuff again that allows or it?
 
-Arjan van de Ven wrote:
->> Most users not only cannot patch a kernel, they don't know what a patc=
-h
->> is.  It most certainly does.=20
->=20
->=20
-> obviously you can provide complete kernels, including precompiled ones.=
+PAE is what allows an OS in 32-bit mode to access memory located above 
+4GB in the address space. On a 64-bit OS the CPU can access all the 
+memory directly so PAE is not needed or possible. Also, PAE is often 
+enabled on 32-bit systems even with less than 4GB of RAM as it allows 
+using the hardware NX bit, which was only added to the PAE versions of 
+the 32-bit page tables.
 
-> Most distros have a yum or apt or similar tool to suck down packages,
-> it's trivial for users to add a site to that, so you could provide
-> packages if you want and make it easy for them.
+That's a separate issue, though, from the original subject of the thread 
+(memory being mapped over by IO space), and from the artificial limit on 
+accessing memory above 4GB in at least 32-bit consumer Windows.
 
-What's more, many distros patch their kernels extensively.  They listen
-to their users, too.  So if there are a lot of users wanting this to be
-in the kernel, let them complain -- loudly -- to their distro to patch
-for Reiser4.
+> 
+> More importantly -- I have (an as-yet-to-be-assembled system) : AMD64
+> s754 3000+ with a crappy mATX mobo here (VIA KTm800/8237) Chipset --
+> The RAM limit is 2GB total (2 x 1GB DIMM slots only). Do you think this
+> el-cheapo mobo would have problems accessing over 4GB *if* the Mobo was
+> designed for 4GB ?? IOW-- a Mobo perhaps such as General S uses (MSI,
+> ASUStek, etc) -- or do you know if there's something different between
+> the s754 and s939 models that I'm unaware of (besides the No Dual
+> Channel RAM in s754, since it's only 64bit Single-Channel capable, not
+> 128bit).
 
-It could be made even easier than that -- if Reiser4 is really so
-self-contained, it could be a whole separate set of modules, distributed
-on its own.  Most gamers have to be content with doing something similar
-with the nvidia drivers -- for different reasons (licensing) but with
-the same results.  I know Gentoo handles this automatically (emerge
-nvidia-kernel).
+I don't think most S754 boards support physically installing that much 
+RAM, so it may be moot. If you could, you could likely access memory 
+above 4GB, though I'm not certain if the S754 CPUs support the memory 
+hole remapping to avoid some of that RAM being lost.
 
-Hmm, maybe it makes it a pain to have it as a root filesystem, so that
-really needs distro support.  And yet, we have a whole system designed
-specifically for being able to load modules and tweak settings before
-the root FS is available.  It's called initrd, or more recently,
-initramfs.  I use an old-style initrd on this box, because my root FS is
-on an nvidia RAID, so I have to run a program called "dmraid" before I
-mount my root FS -- it's really trivial for me to have Reiser4 as a
-module, and I do, despite it being a root FS.
+> Thanks for the continuing discussion -- I'm glad I didn't follow Intel
+> recently and become deceived again - as I'm sure MANY have -- you'd
+> think buying a spanking new Pentium-D (8xx) and a 'decent' Intel
+> Desktop mobo would allow access to more than 4GB RAM ...but no.... :-(
+> (especially when the specs for the mobo claim "4GB" - heck - might as
+> well remove 1 x 1GB DIMM, you'd only lose 200MB (yikes)).
 
-I suspect that, all technical, political, and "mine is bigger" arguments
-aside, being available as a root FS of a distro, especially a default
-FS, would go a long way towards inclusion in the kernel.  So all you
-have to do is find a reasonably popular and friendly distro, with people
-who are (for the moment) easier to deal with than kernel people.
+Yeah, there is not much point in installing more than 3GB in such a board..
 
-Most people, if they even know what a filesystem or a kernel is, still
-won't bother compiling their own kernel, you're right.  But that means
-they are more likely to be using a distro-patched kernel than a stock,
-vanilla one.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Is this enough to be "in the jukebox", Hans?
-
-Of course, it's odd that I mention Gentoo, the Gentoo people (as a rule)
-hate ReiserFS, but there are far more distros than there are popular
-kernel forks.  I'm sure someone will be interested.
-
-That's assuming that making further changes (putting stuff in the VFS)
-is out of the question (for now).
-
-
---------------enig8221BD0B50F43671F10ACC78
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRMukv3gHNmZLgCUhAQrPnA//YLY9OzgTjKOTKJyRL+0LybpycvkTY7SD
-SRPoLMqlBILU4LIn7U3ax3MWBA//KFAIVJ42X3tYVD2EaZGHAOVKYukZYt6Kf2UX
-/mvX8+ovnY703Zb0MrHBGbbQ6SklFOp8sPZvwLO3eg9ko08ZsNV+xIUAk8ewe0yO
-ccCJrDlswlOT4ARgg57K3Wfn1xoRrkc02VuFWwACs/wtilt1ScVP4lfkC+DWkIp8
-DSVjtCrp4wNOx+6ZlIq9MetPRwRwGzPpX449x0nlfXal0zyyx9SLl3K6P0bM9FEK
-J5EbytupN/jMH30gmMKqiZumjlnYm/dnnTHiza8NbGK27Qru2VtGfuM+7Ne/wPhf
-7r0sqAtZBxjmygaVRa2wLDB8EX+GpA5zBQ8SjdGcahmHiwZQmupAWL20ciw11ONW
-h0Hm766yZRH46OxHFgXQjqCcF7ykL8e2+HHWc23Fn78xFW+FigZvLYzVlYt9GNH3
-pPrFYDmZJQtU+RX188uRJZZGsAqmOaC4Swi1VPG566S2cUs+k4HjAGo5kxdvss+n
-LyNSbegZGJNnyhYuwjz4Nb3XtzADeG2twqp9GIkkF4kwc1H7mi8qiwfK97r+kgth
-5EkZQKxonAu4DASi4c2GQN4j9vfJLAnMeJNnwxLNsiSGjd09MhUOZsF2Aj2ea3vX
-uSNnOlCbLJM=
-=X/Jt
------END PGP SIGNATURE-----
-
---------------enig8221BD0B50F43671F10ACC78--

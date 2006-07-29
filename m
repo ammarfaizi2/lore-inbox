@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWG2Tmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWG2Tm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWG2Tmh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 15:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWG2Tmg
+	id S932223AbWG2Tm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 15:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752082AbWG2Tm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 15:42:36 -0400
-Received: from ns1.suse.de ([195.135.220.2]:19415 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752076AbWG2Tmg (ORCPT
+	Sat, 29 Jul 2006 15:42:57 -0400
+Received: from ns1.suse.de ([195.135.220.2]:22231 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1752080AbWG2Tmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 15:42:36 -0400
-Date: Sat, 29 Jul 2006 21:42:34 +0200
+	Sat, 29 Jul 2006 15:42:54 -0400
+Date: Sat, 29 Jul 2006 21:42:52 +0200
 From: "Andi Kleen" <ak@suse.de>
 To: torvalds@osdl.org
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: [PATCH for 2.6.18] [1/8] x86_64: Update defconfig
-Message-ID: <44cbba2a.Uo232FiIZzQNdHEO%ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH for 2.6.18] [7/8] i386: Fix up backtrace fallback patch
+Message-ID: <44cbba3c.i0UP/Ku2zRdY6TMm%ak@suse.de>
 User-Agent: nail 11.25 7/29/05
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,58 +24,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Update defconfig
-
+I didn't test all compilation combinations. Shame on me.
+And fix a missing option in the boot option following x86-64 (Jan Beulich)
+ 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/x86_64/defconfig |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ arch/i386/kernel/traps.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
-Index: linux/arch/x86_64/defconfig
+Index: linux-2.6.18-rc2-git7/arch/i386/kernel/traps.c
 ===================================================================
---- linux.orig/arch/x86_64/defconfig
-+++ linux/arch/x86_64/defconfig
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.17-git22
--# Tue Jul  4 14:24:40 2006
-+# Linux kernel version: 2.6.18-rc2
-+# Tue Jul 18 17:13:20 2006
- #
- CONFIG_X86_64=y
- CONFIG_64BIT=y
-@@ -37,6 +37,7 @@ CONFIG_SWAP=y
- CONFIG_SYSVIPC=y
- CONFIG_POSIX_MQUEUE=y
- # CONFIG_BSD_PROCESS_ACCT is not set
-+# CONFIG_TASKSTATS is not set
- CONFIG_SYSCTL=y
- # CONFIG_AUDIT is not set
- CONFIG_IKCONFIG=y
-@@ -413,6 +414,7 @@ CONFIG_BLK_DEV_LOOP=y
- CONFIG_BLK_DEV_RAM=y
- CONFIG_BLK_DEV_RAM_COUNT=16
- CONFIG_BLK_DEV_RAM_SIZE=4096
-+CONFIG_BLK_DEV_RAM_BLOCKSIZE=1024
- CONFIG_BLK_DEV_INITRD=y
- # CONFIG_CDROM_PKTCDVD is not set
- # CONFIG_ATA_OVER_ETH is not set
-@@ -1195,7 +1197,7 @@ CONFIG_USB_MON=y
- # CONFIG_USB_LEGOTOWER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
--# CONFIG_USB_CY7C63 is not set
-+# CONFIG_USB_CYPRESS_CY7C63 is not set
- # CONFIG_USB_CYTHERM is not set
- # CONFIG_USB_PHIDGETKIT is not set
- # CONFIG_USB_PHIDGETSERVO is not set
-@@ -1373,7 +1375,6 @@ CONFIG_SUNRPC=y
- # CONFIG_RPCSEC_GSS_SPKM3 is not set
- # CONFIG_SMB_FS is not set
- # CONFIG_CIFS is not set
--# CONFIG_CIFS_DEBUG2 is not set
- # CONFIG_NCP_FS is not set
- # CONFIG_CODA_FS is not set
- # CONFIG_AFS_FS is not set
+--- linux-2.6.18-rc2-git7.orig/arch/i386/kernel/traps.c
++++ linux-2.6.18-rc2-git7/arch/i386/kernel/traps.c
+@@ -190,11 +190,11 @@ static void show_trace_log_lvl(struct ta
+ 		if (unw_ret > 0 && !arch_unw_user_mode(&info)) {
+ #ifdef CONFIG_STACK_UNWIND
+ 			print_symbol("DWARF2 unwinder stuck at %s\n",
+-				     UNW_PC(info.regs));
++				     UNW_PC(&info));
+ 			if (call_trace == 1) {
+ 				printk("Leftover inexact backtrace:\n");
+-				if (UNW_SP(info.regs))
+-					stack = (void *)UNW_SP(info.regs);
++				if (UNW_SP(&info))
++					stack = (void *)UNW_SP(&info);
+ 			} else if (call_trace > 1)
+ 				return;
+ 			else
+@@ -1249,8 +1249,10 @@ static int __init call_trace_setup(char 
+ 		call_trace = -1;
+ 	else if (strcmp(s, "both") == 0)
+ 		call_trace = 0;
+-	else if (strcmp(s, "new") == 0)
++	else if (strcmp(s, "newfallback") == 0)
+ 		call_trace = 1;
++	else if (strcmp(s, "new") == 2)
++		call_trace = 2;
+ 	return 1;
+ }
+ __setup("call_trace=", call_trace_setup);

@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWG3IS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWG3Ian@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWG3IS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 04:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWG3IS0
+	id S1750997AbWG3Ian (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 04:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWG3Ian
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 04:18:26 -0400
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:21681 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S1751089AbWG3ISZ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 04:18:25 -0400
-X-OB-Received: from unknown (205.158.62.51)
-  by wfilter2.us4.outblaze.com; 30 Jul 2006 08:18:25 -0000
+	Sun, 30 Jul 2006 04:30:43 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:29194 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750997AbWG3Ian (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 04:30:43 -0400
+Date: Sun, 30 Jul 2006 09:30:34 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.18-rc3
+Message-ID: <20060730083034.GA11360@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0607292320490.4168@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: "Simon White" <s_a_white@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 30 Jul 2006 03:18:24 -0500
-Subject: Re: Driver model ISA bus
-X-Originating-Ip: 82.9.64.190
-X-Originating-Server: ws1-5.us4.outblaze.com
-Message-Id: <20060730081824.2763A478088@ws1-5.us4.outblaze.com>
+In-Reply-To: <Pine.LNX.4.64.0607292320490.4168@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Jun 06, 2006 at 11:54:02PM +0200, Rene Herman wrote:
->> Hi Greg.
->> 
->> The below was sent a month ago and I haven't heard anything back. Saw 
->> you saying "it's getting there" about this thing on the kernelnewbies 
->> list but where's there?
->> 
-> 
-> Sorry for the delay.  It looks great to me so I've added it to my tree
-> and will push it upstream when I can.
+There's something weird in this release - object
+0021aad5db43ccc0d0356f2f5e4e28446c8b983a appears to change size (or it
+does for me.)
 
-Would it be better to have a name variable directly in isa_device and
-then copy that to driver in isa_register_device (like
-pci_register_device does)?
+Searching 'linux-2.6/.git/' and 'linux-2.6-mmc/.git/' for common objects and hardlinking them...
+ERROR: File sizes are not the same, cannot relink linux-2.6/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a to linux-2.6-mmc/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a.
+rmk@dyn-67:[git]:<1022> vdir linux-*/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r-- 1 rmk rmk 6891 Jul 25 19:57 linux-2.6/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r-- 1 rmk rmk 6862 Jul 25 20:29 linux-2.6-mmc/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r-- 1 rmk rmk 6862 Jul 25 20:30 linux-2.6-rmk/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r-- 1 rmk rmk 6862 Jul 25 20:30 linux-2.6-serial/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+rmk@dyn-67:[git]:<1025> md5sum linux-*/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+5607142215895de1d71abbff28e3d096  linux-2.6/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+3af2b33663ce5c53a336bd31d4b469e0  linux-2.6-mmc/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+3af2b33663ce5c53a336bd31d4b469e0  linux-2.6-rmk/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+3af2b33663ce5c53a336bd31d4b469e0  linux-2.6-serial/.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
 
-I was trying to look for use examples of this code in 2.6.18-rc2 but
-didn't see any.  Is the intent of name to be the cards address, and
-ndev to be the function on a specific card?  Would it be better to
-seperate name from the thing that ends up in bus_id?
+The first tree (linux-2.6) was fetched using rsync from a tree which also
+had been obtained via rsync:
 
-I only ask as was looking to use something similiar to other code
-I've seen in kernel in that it seemed the bus_type + bus_id would
-uniquely identify a particular card that would pretty much persist
-(on removal/addition of hardware?).  When a legacy isa device was
-found by this code they switched to mangling an id from the cards
-address.
+src@flint:[linux-2.6]:<1015> vdir .git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r--  1 src src 6891 Jul 25 19:57 .git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+src@flint:[linux-2.6]:<1016> md5sum .git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+5607142215895de1d71abbff28e3d096  .git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
 
-I think between that and a probe test you could make pretty sure
-you had exactly the same card.  Am wondering if this code allowed
-for something similiar, in that bus_type + bus_id could be stored
-and used later to locate the same card.
+And on hera:
 
-Regards,
-Simon
+[rmk@hera torvalds]$ vdir linux-2.6.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+-r--r--r--  1 torvalds torvalds 6891 Jul 22 00:45 linux-2.6.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+[rmk@hera torvalds]$ md5sum linux-2.6.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
+5607142215895de1d71abbff28e3d096  linux-2.6.git/objects/00/21aad5db43ccc0d0356f2f5e4e28446c8b983a
 
+So the act of git fetch-ing from dyn-67's linux-2.6 tree to linux-2.6-*
+appears to have changed this git object.
+
+git-1.4.0, Fedora Core 5.
+
+The actual contents of the object (git-cat-file blob
+0021aad5db43ccc0d0356f2f5e4e28446c8b983a) appears to be identical
+however.
 
 -- 
-___________________________________________________
-Play 100s of games for FREE! http://games.mail.com/
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

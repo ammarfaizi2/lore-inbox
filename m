@@ -1,160 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWG3AgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWG3Aws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWG3AgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 20:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWG3AgJ
+	id S1750910AbWG3Aws (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 20:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWG3Aws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 20:36:09 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:63361 "EHLO
-	several.ru") by vger.kernel.org with ESMTP id S1750887AbWG3AgG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 20:36:06 -0400
-Date: Sun, 30 Jul 2006 08:36:05 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Esben Nielsen <nielsen.esben@googlemail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: rt_mutex_timed_lock() vs hrtimer_wakeup() race ? 
-Message-ID: <20060730043605.GA2894@oleg>
+	Sat, 29 Jul 2006 20:52:48 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:35076 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750898AbWG3Awr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 20:52:47 -0400
+Date: Sat, 29 Jul 2006 20:48:50 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, marcel@holtman.org, fpavlic@de.ibm.com,
+       paulus@au.ibm.com, bcollins@debian.org, tony.luck@intel.com
+Subject: Re: [KJ] (re) audit return code handling for kernel_thread [1/3]
+Message-ID: <20060730004850.GA9344@localhost.localdomain>
+References: <20060729201139.GA8574@localhost.localdomain> <20060729201555.GB8574@localhost.localdomain> <20060729170333.a45efeaf.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060729170333.a45efeaf.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to get some understanding of rt_mutex, but I'm afraid it's
-not possible without your help...
-
-// runs on CPU 0
-rt_mutex_slowlock:
-
-	// main loop
-	for (;;) {
-		...
-
-			if (timeout && !timeout->task) {
-				ret = -ETIMEDOUT;
-				break;
-			}
-
-		...
-
-		schedule();
-
-		...
-
-		set_current_state(state);
-	}
-
-What if timeout->timer is fired on CPU 1 right before set_current_state() ?
-
-hrtimer_wakeup() does:
-
-	timeout->task = NULL;		<----- [1]
-
-	spin_lock(runqueues->lock);
-
-	task->state = TASK_RUNNING;	<----- [2]
-
-(task->array != NULL, so try_to_wake_up() just goes to out_running)
-
-If my understanding correct, [1] may slip into the critical section (because
-spin_lock() is not a wmb), so that CPU 0 will see [2] but not [1]. In that
-case rt_mutex_slowlock() can miss the timeout (set_current_state()->mb()
-doesn't help).
-
-Of course, this race (even _if_ I am right) is pure theoretical, but probably
-we need smp_wmb() after [1] in hrtimer_wakeup().
-
-Note that do_nanosleep() is ok, hrtimer_base->lock provides a necessary
-serialization. In fact, I think it can use __set_current_state(), because
-both hrtimer_start() and run_hrtimer_queue() do lock/unlock of base->lock.
+On Sat, Jul 29, 2006 at 05:03:33PM -0700, Andrew Morton wrote:
+> On Sat, 29 Jul 2006 16:15:55 -0400
+> Neil Horman <nhorman@tuxdriver.com> wrote:
+> 
+> > Patch to audit return code checking of kernel_thread.  These fixes correct those
+> > callers who fail to check the return code of kernel_thread at all
+> > 
+> > 
+> 
+> Various people are running around converting open-coded kernel_thread
+> callers over to the kthread API.  Generally that's a good thing, and error
+> checking should be incorporated at that time.
+> 
+> So there's probably not a lot of point in making these changes now - it'd
+> be better to work with the various subsystem owners on doing the kthread
+> conversion.
+> 
+> > --- a/arch/s390/mm/cmm.c
+> > +++ b/arch/s390/mm/cmm.c
+> > @@ -161,7 +161,11 @@ cmm_thread(void *dummy)
+> >  static void
+> >  cmm_start_thread(void)
+> >  {
+> > -	kernel_thread(cmm_thread, NULL, 0);
+> > +	if (kernel_thread(cmm_thread, NULL, 0) < 0) {
+> > +		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
+> > +			__FUNCTION__,__LINE__);
+> > +		clear_bit(0,&cmm_thread_active);
+> > +	}
+> >  }
+> 
+> This is OK as far as it goes.  But really we should propagate any failure
+> back up to cmm_init() and fail the whole thing, rather than leaving the
+> driver hanging around in a loaded-but-useless state.
 
 
+Understood, new patch attached, that removes most of the additional failure to
+check return code cases.  I've left the cmm_start_thread case and the
+rfcomm_init cases as is, because the cmm_start_thread case is called
+asynchronously from a work queue, fired from a timer, meaning we cannot
+propogate the error to prevent the module from loading, and the rfcomm_init case
+does precisely what you ask, in that it detects a failure to start the kernel
+thread, and fails the module load if the thread creation fails.
 
-Another question, task_blocks_on_rt_mutex() does get_task_struct() and checks
-owner->pi_blocked_on != NULL under owner->pi_lock. Why ? RT_MUTEX_HAS_WAITERS
-bit is set, we are holding ->wait_lock, so the 'owner' can't go away until
-we drop ->wait_lock. I think we can drop owner->pi_lock right after
-__rt_mutex_adjust_prio(owner), we can't miss owner->pi_blocked_on != NULL
-if it was true before we take owner->pi_lock, and this is the case we should
-worry about, yes?
+Thanks & Regards
+Neil
 
-In other words (because I myself can't parse the paragraph above :), could
-you explain me why this patch is not correct:
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
 
---- rtmutex.c~	2006-07-30 05:15:38.000000000 +0400
-+++ rtmutex.c	2006-07-30 05:41:44.000000000 +0400
-@@ -407,7 +407,7 @@ static int task_blocks_on_rt_mutex(struc
- 	struct task_struct *owner = rt_mutex_owner(lock);
- 	struct rt_mutex_waiter *top_waiter = waiter;
- 	unsigned long flags;
--	int boost = 0, res;
-+	int res;
+
+ arch/s390/mm/cmm.c          |    6 +++++-
+ net/bluetooth/rfcomm/core.c |    6 +++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -161,7 +161,11 @@
+ static void
+ cmm_start_thread(void)
+ {
+-	kernel_thread(cmm_thread, NULL, 0);
++	if (kernel_thread(cmm_thread, NULL, 0) < 0) {
++		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
++			__FUNCTION__,__LINE__);
++		clear_bit(0,&cmm_thread_active);
++	}
+ }
  
- 	spin_lock_irqsave(&current->pi_lock, flags);
- 	__rt_mutex_adjust_prio(current);
-@@ -431,24 +431,20 @@ static int task_blocks_on_rt_mutex(struc
- 		plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
  
- 		__rt_mutex_adjust_prio(owner);
--		if (owner->pi_blocked_on) {
--			boost = 1;
--			/* gets dropped in rt_mutex_adjust_prio_chain()! */
--			get_task_struct(owner);
--		}
- 		spin_unlock_irqrestore(&owner->pi_lock, flags);
-+
-+		if (owner->pi_blocked_on)
-+			goto boost;
- 	}
- 	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock)) {
--		spin_lock_irqsave(&owner->pi_lock, flags);
--		if (owner->pi_blocked_on) {
--			boost = 1;
--			/* gets dropped in rt_mutex_adjust_prio_chain()! */
--			get_task_struct(owner);
--		}
--		spin_unlock_irqrestore(&owner->pi_lock, flags);
-+		if (owner->pi_blocked_on)
-+			goto boost;
- 	}
--	if (!boost)
--		return 0;
-+
-+	return 0;
-+boost:
-+	/* gets dropped in rt_mutex_adjust_prio_chain()! */
-+	get_task_struct(owner);
+--- a/net/bluetooth/rfcomm/core.c
++++ b/net/bluetooth/rfcomm/core.c
+@@ -2052,11 +2052,15 @@
+ /* ---- Initialization ---- */
+ static int __init rfcomm_init(void)
+ {
++	int ret;
+ 	l2cap_load();
  
- 	spin_unlock(&lock->wait_lock);
+ 	hci_register_cb(&rfcomm_cb);
  
-----------------------------------------------------------
-The same question for remove_waiter()/rt_mutex_adjust_pi().
-
-
-The last (stupid) one,
-wake_up_new_task:
-
-		if (unlikely(!current->array))
-			__activate_task(p, rq);
-
-(offtopic) Is it really possible to have current->array == NULL here?
-
-		else {
-			p->prio = current->prio;
-
-What if current was pi-boosted so that rt_prio(current->prio) == 1,
-who will de-boost the child?
-
-			p->normal_prio = current->normal_prio;
-
-Why? p->normal_prio was calculated by effective_prio() above, could you
-explain why that value is not ok?
-
-Thanks,
-
-Oleg.
-
+-	kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
++	ret = kernel_thread(rfcomm_run, NULL, CLONE_KERNEL);
++	
++	if (ret < 0)
++		return ret;
+ 
+ 	class_create_file(bt_class, &class_attr_rfcomm_dlc);
+ 

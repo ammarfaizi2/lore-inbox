@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWG3RoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWG3RsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWG3RoF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 13:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWG3RoE
+	id S932392AbWG3RsI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 13:48:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWG3RsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 13:44:04 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18171 "EHLO
-	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932397AbWG3RoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 13:44:03 -0400
-Date: Sun, 30 Jul 2006 10:45:13 -0700 (PDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
-In-reply-to: <20060730160738.GB13377@irc.pl>
-To: Tomasz Torcz <zdzichu@irc.pl>
-Cc: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.64.0607301043070.7932@montezuma.fsmlabs.com>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-References: <20060730120844.GA18293@outpost.ds9a.nl>
- <20060730160738.GB13377@irc.pl>
+	Sun, 30 Jul 2006 13:48:07 -0400
+Received: from mga05.intel.com ([192.55.52.89]:3881 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932392AbWG3RsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 13:48:06 -0400
+X-IronPort-AV: i="4.07,196,1151910000"; 
+   d="scan'208"; a="107427638:sNHT14334747"
+Message-ID: <44CCF0BF.5050309@linux.intel.com>
+Date: Sun, 30 Jul 2006 19:47:43 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607292050.37877.ak@suse.de> <20060729185737.GG26963@stusta.de> <200607292104.18030.ak@suse.de>            <20060729191938.GH26963@stusta.de> <200607301614.k6UGEpIL023020@turing-police.cc.vt.edu>
+In-Reply-To: <200607301614.k6UGEpIL023020@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jul 2006, Tomasz Torcz wrote:
-
-> On Sun, Jul 30, 2006 at 02:08:44PM +0200, bert hubert wrote:
-> > Hi everybody,
-> > 
-> > Since 2.6.18-rc1, up to and including -rc3, cpufreq has died on me. It
-> > worked fine in 2.6.16.9.
-> > 
-> > # modprobe p4_clockmod
-> > FATAL: Error inserting p4_clockmod
-> > (/lib/modules/2.6.18-rc3/kernel/arch/i386/kernel/cpu/cpufreq/p4-clockmod.ko):
-> > Device or resource busy
-> > 
+Valdis.Kletnieks@vt.edu wrote:
+> On Sat, 29 Jul 2006 21:19:38 +0200, Adrian Bunk said:
 > 
->   I have similar problem with cpufreq-nforce2 -- http://lkml.org/lkml/2006/7/7/234
->   I haven't do a git-bisect yet.
+>> That was never true in Arjan's patches.
+>>
+>> The only change is from a gcc version check to a feature check.
+>>
+>> In both cases, a gcc 4.1 without the appropriate patch applied will 
+>> result in this option not being set.
+> 
+> What do you get if you have a gcc 4.1.1. that has the stack protector option
+> (so a feature check works), but not the fix for gcc PR 28281?
 
-Could you fellows try it without;
-
-CONFIG_X86_SPEEDSTEP_CENTRINO
-CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI
-CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE
-CONFIG_X86_SPEEDSTEP_ICH
-CONFIG_X86_SPEEDSTEP_SMI
-CONFIG_X86_ACPI_CPUFREQ
-
-It may likely be a driver registration thing.
-
-Thanks,
-	Zwane
-
+the feature check actually checks for a correctly operating gcc, not just for the "option exists"

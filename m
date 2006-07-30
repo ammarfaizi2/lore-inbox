@@ -1,89 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWG3Jw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWG3Jwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWG3Jw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWG3Jw5
+	id S932176AbWG3Jwz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWG3Jwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:52:57 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54677 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932171AbWG3Jwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 05:52:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:15312 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932179AbWG3Jwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 30 Jul 2006 05:52:54 -0400
-Date: Sun, 30 Jul 2006 11:52:42 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux ACPI <linux-acpi@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI-related problem with resuming from RAM
-Message-ID: <20060730095242.GD3801@elf.ucw.cz>
-References: <200607301140.09836.rjw@sisk.pl>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ieyEcXZxc7KJWV/AoNMlgOFmgg3O02+KNtTI5p+2GBBX7NXZCML6Bbw+66R1/v+15iFVSAui43yZWHtvrljJB4IafcotSOBQYue+xsxrzzeK2Gl+4nPqT5E512xmR8OJ+OivbE/d/qwFBquS8wE9hfXOR/GLICqNKq+O2j4MxVk=
+Message-ID: <41840b750607300252w445974b1udedf1a67114d1580@mail.gmail.com>
+Date: Sun, 30 Jul 2006 12:52:52 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: Generic battery interface
+Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Vojtech Pavlik" <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       "Pavel Machek" <pavel@suse.cz>, "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+In-Reply-To: <20060730085500.GB17759@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200607301140.09836.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz>
+	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
+	 <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
+	 <d120d5000607280910t458fb6e0hdb81367b888a46db@mail.gmail.com>
+	 <20060730085500.GB17759@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 7/30/06, Greg KH <greg@kroah.com> wrote:
+> > >Forgive my ignorance, but how do I conncet a sysfs directory with a /dev
+> > >device?
 
-> To make my box (Asus L5D, x86_64) resume from RAM, I have to unload all of the
-> ACPI-related modules and the ohci_hcd module before the suspend.
-> 
-> Also, I can't reload the ohci_hcd module after the resume, because if I try,
-> the system crashes with the appended trace.
+> Just look at the "dev" file in sysfs, which shows the major:minor
+> number.
 
-> irq 11: nobody cared (try booting with the "irqpoll" option)
+Then to find the match for a given device node you need to enumerate /sys.
+And to find a match for a given /sys device you need to enumerate
+/dev, or some its subdirectories (/dev/{snd,input,...), or whatever
+other random places people have decided to place their device nodes.
 
-Heh, does it work with irqpoll? :-).
 
-> Pid: 4908, comm: modprobe Tainted: G   M  2.6.18-rc2-mm1 #20
+> Or just look at the directory that you are in, and that's almost always
+> the /dev node name.
+>
+> For example, /sys/block/sda/sda1/ is /dev/sda1.
+> /sys/class/tty/ttyS1 is /dev/ttyS1.
 
-What is "tainted: M"?
+Yeah, and /sys/block/sr0 is /dev/scd0 (FC5 default udev rules).
 
-Strange, it seems that "screaming interrupt" detection went crazy and
-dump_stack() caused it to oops? Can you stub-out show_trace and see
-what happens?
 
-> RIP: 0010:[<ffffffff8020b362>]  [<ffffffff8020b362>] show_trace+0x2c2/0x330
-> RSP: 0018:ffffffff8061ecb0  EFLAGS: 00010002
-> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
-> RBP: ffffffff8061ed90 R08: 0000000000000002 R09: 0000000000000001
-> R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff827ffffd
-> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> FS:  00002b41c0925b00(0000) GS:ffffffff808c0000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: ffffffff82800000 CR3: 0000000056fc0000 CR4: 00000000000006e0
-> Process modprobe (pid: 4908, threadinfo ffff810056a46000, task ffff81005b88f040)
-> Stack:  0000000000000000 ffffffff880a6580 000000000000000a ffffffff8066a240
->  ffffffff8061eeb0 0000000000000022 0000000000000000 0000000000000000
->  0000000000000000 0000000000000000 0000000000000000 0000000000000000
-> Call Trace:
->  [<ffffffff8020b6b5>] dump_stack+0x15/0x20
->  [<ffffffff80263b48>] __report_bad_irq+0x38/0x90
->  [<ffffffff80263dca>] note_interrupt+0x22a/0x280
->  [<ffffffff80264a00>] handle_level_irq+0xf0/0x140
->  [<ffffffff8020ccdd>] do_IRQ+0x11d/0x140
->  [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
-> DWARF2 unwinder stuck at ret_from_intr+0x0/0xf
-> Leftover inexact backtrace:
->  <IRQ> [<ffffffff8020ab82>] call_softirq+0x1e/0x28
->  [<ffffffff8023389a>] __do_softirq+0x5a/0xf0
->  [<ffffffff8020ab82>] call_softirq+0x1e/0x28
->  [<ffffffff8020cb4d>] do_softirq+0x3d/0xb0
->  [<ffffffff8023370e>] irq_exit+0x4e/0x60
->  [<ffffffff8020ccf5>] do_IRQ+0x135/0x140
->  [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
->  <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP:
->  [<ffffffff8020b362>] show_trace+0x2c2/0x330
-> PGD 203027 PUD 205027 PMD 0
-> Oops: 0000 [2] PREEMPT
-> last sysfs file: /devices/pci0000:00/0000:00:02.0/usb2/serial
-> CPU 0
+> It's usually not that difficult to do the mapping :)
 
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Hmm, "usually"...
+
+
+Coming to think of it, to solve the dev->sys direction, maybe we
+should have symlinks like the following?
+/sys/dev/8/0 -> /sys/block/sda
+/sys/dev/11/0 -> /sys/block/sr0
+/sys/dev/116/24 -> /sys/class/sound/pcmC0D0c
+
+
+Put otherwise:
+Q:Quick, which io scheduler is used by /dev/scd0?
+A: cat /sys/dev/$((0x`stat -c%t /dev/scd0`))/\
+                $((0x`stat -c%T /dev/scd0`))/queue/scheduler
+
+(Please excuse the ugly hex to dec conversion.)
+
+
+  Shem

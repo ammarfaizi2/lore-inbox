@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWG3W3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWG3WoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWG3W3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 18:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWG3W3w
+	id S1751432AbWG3WoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 18:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWG3WoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 18:29:52 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:64937 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751421AbWG3W3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 18:29:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:to:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=iWFDLvcyKZYuxXXBkBYGi7IwoGkmmzZn5pCjW7Jy7AnkVSMDIbH8pX9dqkX9fme3GOeCQHCgP3kRnxgD0n2kCtaoEiQAJ2lZfPDladWwjyQClnfUEhrhDIhS8kP0850X/hPn9BnH1+JHapHXGqhMSnb2pE1CvX957vo5zp8+L9I=
-Date: Mon, 31 Jul 2006 00:28:14 +0200
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question about "Not Ready" SCSI error
-Message-ID: <20060730222814.GA17856@leiferikson.dystopia.lan>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060730181014.GA13456@oscar.prima.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730181014.GA13456@oscar.prima.de>
-User-Agent: mutt-ng/devel-r804 (GNU/Linux)
-From: Johannes Weiner <hnazfoo@googlemail.com>
+	Sun, 30 Jul 2006 18:44:08 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49285
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751428AbWG3WoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 18:44:07 -0400
+Date: Sun, 30 Jul 2006 15:44:16 -0700 (PDT)
+Message-Id: <20060730.154416.121293840.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: yoshfuji@linux-ipv6.org, Matt_Domsch@dell.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060729043325.GA7035@gondor.apana.org.au>
+References: <20060728194531.GA17744@lists.us.dell.com>
+	<20060729043325.GA7035@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Sat, 29 Jul 2006 14:33:25 +1000
 
-On Sun, Jul 30, 2006 at 08:10:19PM +0200, Patrick Mau wrote:
-> Jul 30 15:51:30 tony kernel: sd 0:0:0:0: Device not ready: <6>: Current: sense key=0x2
-> Jul 30 15:51:30 tony kernel: ASC=0x4 ASCQ=0x2
-> Jul 30 15:51:30 tony kernel: end_request: I/O error, dev sda, sector 617358
+> [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
 > 
-> Google revealed[1] that the drive is waiting for a START UNIT command,
-> but it seems that the kernel is not attempting to spin up the drive
-> again. 
+> The current users of ip6_dst_lookup can be divided into two classes:
+> 
+> 1) The caller holds no locks and is in user-context (UDP).
+> 2) The caller does not want to lookup the dst cache at all.
+> 
+> The second class covers everyone except UDP because most people do
+> the cache lookup directly before calling ip6_dst_lookup.  This patch
+> adds ip6_sk_dst_lookup for the first class.
+> 
+> Similarly ip6_dst_store users can be divded into those that need to
+> take the socket dst lock and those that don't.  This patch adds
+> __ip6_dst_store for those (everyone except UDP/datagram) that don't
+> need an extra lock.
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Further looking at all the involved struct's, I found that it might be
-possible to call the driver's rescan function explicitely in the occured
-case.
-
-Unfortunatly I don't have the appropriate hardware to test this :(
-
-Hannes
+Applied, thanks Herbert.

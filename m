@@ -1,150 +1,454 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWG3Jky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWG3Jlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbWG3Jky (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWG3Jky
+	id S932162AbWG3Jlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWG3Jlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:40:54 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:10884 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932155AbWG3Jkx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:40:53 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Linux ACPI <linux-acpi@vger.kernel.org>
-Subject: ACPI-related problem with resuming from RAM
-Date: Sun, 30 Jul 2006 11:40:09 +0200
-User-Agent: KMail/1.9.3
-Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
+	Sun, 30 Jul 2006 05:41:49 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17926 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932162AbWG3Jlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 05:41:46 -0400
+Date: Sun, 30 Jul 2006 11:41:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: coreteam@netfilter.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/*/nf_conntrack_*.c:possible cleanups
+Message-ID: <20060730094146.GJ26963@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607301140.09836.rjw@sisk.pl>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch contains the following possible cleanups:
+- make the following needlessly global functions static:
+  - net/netfilter/nf_conntrack_core.c: nf_conntrack_register_cache()
+  - net/netfilter/nf_conntrack_core.c: nf_conntrack_unregister_cache()
+  - net/netfilter/nf_conntrack_core.c: __nf_conntrack_attach()
+  - net/netfilter/nf_conntrack_core.c: set_hashsize()
+  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_proto_sctp_init()
+  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_proto_sctp_fini()
+- make the following needlessly global variables/locks/structs static:
+  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_secret_interval
+  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_mem
+  - net/netfilter/nf_conntrack_core.c: nf_ct_cache_lock
+  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_protocol_sctp4
+  - net/netfilter/nf_conntrack_proto_sctp.c: nf_conntrack_protocol_sctp6
+- #if 0 the following unused global functions:
+  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_kfree_frags()
+  - net/netfilter/nf_conntrack_core.c: nf_conntrack_tuple_taken()
+  - net/netfilter/nf_conntrack_core.c: nf_ct_helper_find_get()
+  - net/netfilter/nf_conntrack_core.c: nf_ct_helper_put()
+  - net/netfilter/nf_conntrack_core.c: nf_ct_invert_tuplepr()
+- remove the following unused or write-only variables:
+  - net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c: nat_module_is_loaded
+  - net/ipv6/netfilter/nf_conntrack_reasm.c: nf_ct_frag6_nqueues
+- remove the following unused hooks:
+  - net/netfilter/nf_conntrack_core.c: nf_conntrack_destroyed()
+  - net/netfilter/nf_conntrack_ftp.c: nf_nat_ftp_hook()
+- remove the following unused EXPORT_SYMBOL's:
+  - nf_ct_iterate_cleanup
+  - nf_ct_protos
+  - nf_ct_l3protos
 
-To make my box (Asus L5D, x86_64) resume from RAM, I have to unload all of the
-ACPI-related modules and the ohci_hcd module before the suspend.
+Please review which of these changes make sense and which might conflict 
+with pending patches.
 
-Also, I can't reload the ohci_hcd module after the resume, because if I try,
-the system crashes with the appended trace.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Greetings,
-Rafael
+---
 
+This patch was already sent on:
+- 11 Jul 2006
 
-irq 11: nobody cared (try booting with the "irqpoll" option)
+ include/net/netfilter/nf_conntrack.h           |   21 -------------
+ include/net/netfilter/nf_conntrack_core.h      |    2 -
+ net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c |    4 --
+ net/ipv6/netfilter/nf_conntrack_reasm.c        |    9 ++---
+ net/netfilter/nf_conntrack_core.c              |   25 +++++++++-------
+ net/netfilter/nf_conntrack_ftp.c               |   26 +++--------------
+ net/netfilter/nf_conntrack_proto_sctp.c        |    8 ++---
+ net/netfilter/nf_conntrack_standalone.c        |    9 -----
+ 8 files changed, 27 insertions(+), 77 deletions(-)
 
-Call Trace:
- [<ffffffff8020b145>] show_trace+0xa5/0x330
- [<ffffffff8020b6b5>] dump_stack+0x15/0x20
- [<ffffffff80263b48>] __report_bad_irq+0x38/0x90
- [<ffffffff80263dca>] note_interrupt+0x22a/0x280
- [<ffffffff80264a00>] handle_level_irq+0xf0/0x140
- [<ffffffff8020ccdd>] do_IRQ+0x11d/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
-DWARF2 unwinder stuck at ret_from_intr+0x0/0xf
-Leftover inexact backtrace:
- <IRQ> [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8023389a>] __do_softirq+0x5a/0xf0
- [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8020cb4d>] do_softirq+0x3d/0xb0
- [<ffffffff8023370e>] irq_exit+0x4e/0x60
- [<ffffffff8020ccf5>] do_IRQ+0x135/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
- <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP:
- [<ffffffff8020b362>] show_trace+0x2c2/0x330
-PGD 203027 PUD 205027 PMD 0
-Oops: 0000 [1] PREEMPT
-last sysfs file: /devices/pci0000:00/0000:00:02.0/usb2/serial
-CPU 0
-Modules linked in: ohci_hcd ehci_hcd usbserial snd_pcm_oss snd_mixer_oss snd_seq snd_seq_device af_packet ip6t_REJECT xt_tcpudp bcm43xx ieee8
-0211softmac pcmcia firmware_class ieee80211 ipt_REJECT ieee80211_crypt xt_state ohci1394 ieee1394 iptable_mangle iptable_nat ip_nat yenta_soc
-ket iptable_filter rsrc_nonstatic pcmcia_core ip6table_mangle ip_conntrack ip_tables skge ip6table_filter ip6_tables x_tables snd_intel8x0 sn
-d_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc i2c_nforce2 i2c_core parport_pc ipv6 lp parport dm_mod
-Pid: 4908, comm: modprobe Tainted: G   M  2.6.18-rc2-mm1 #20
-RIP: 0010:[<ffffffff8020b362>]  [<ffffffff8020b362>] show_trace+0x2c2/0x330
-RSP: 0018:ffffffff8061ecb0  EFLAGS: 00010002
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
-RBP: ffffffff8061ed90 R08: 0000000000000002 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff827ffffd
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-FS:  00002b41c0925b00(0000) GS:ffffffff808c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: ffffffff82800000 CR3: 0000000056fc0000 CR4: 00000000000006e0
-Process modprobe (pid: 4908, threadinfo ffff810056a46000, task ffff81005b88f040)
-Stack:  0000000000000000 ffffffff880a6580 000000000000000a ffffffff8066a240
- ffffffff8061eeb0 0000000000000022 0000000000000000 0000000000000000
- 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-Call Trace:
- [<ffffffff8020b6b5>] dump_stack+0x15/0x20
- [<ffffffff80263b48>] __report_bad_irq+0x38/0x90
- [<ffffffff80263dca>] note_interrupt+0x22a/0x280
- [<ffffffff80264a00>] handle_level_irq+0xf0/0x140
- [<ffffffff8020ccdd>] do_IRQ+0x11d/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
-DWARF2 unwinder stuck at ret_from_intr+0x0/0xf
-Leftover inexact backtrace:
- <IRQ> [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8023389a>] __do_softirq+0x5a/0xf0
- [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8020cb4d>] do_softirq+0x3d/0xb0
- [<ffffffff8023370e>] irq_exit+0x4e/0x60
- [<ffffffff8020ccf5>] do_IRQ+0x135/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
- <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP:
- [<ffffffff8020b362>] show_trace+0x2c2/0x330
-PGD 203027 PUD 205027 PMD 0
-Oops: 0000 [2] PREEMPT
-last sysfs file: /devices/pci0000:00/0000:00:02.0/usb2/serial
-CPU 0
-Modules linked in: ohci_hcd ehci_hcd usbserial snd_pcm_oss snd_mixer_oss snd_seq snd_seq_device af_packet ip6t_REJECT xt_tcpudp bcm43xx ieee8
-0211softmac pcmcia firmware_class ieee80211 ipt_REJECT ieee80211_crypt xt_state ohci1394 ieee1394 iptable_mangle iptable_nat ip_nat yenta_soc
-ket iptable_filter rsrc_nonstatic pcmcia_core ip6table_mangle ip_conntrack ip_tables skge ip6table_filter ip6_tables x_tables snd_intel8x0 sn
-d_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc i2c_nforce2 i2c_core parport_pc ipv6 lp parport dm_mod
-Pid: 4908, comm: modprobe Tainted: G   M  2.6.18-rc2-mm1 #20
-RIP: 0010:[<ffffffff8020b362>]  [<ffffffff8020b362>] show_trace+0x2c2/0x330
-RSP: 0018:ffffffff8061e958  EFLAGS: 00010002
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000001
-RBP: ffffffff8061ea38 R08: 0000000000000002 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff827ffffd
-R13: 0000000000000000 R14: ffffffff8061ec08 R15: 0000000000000000
-FS:  00002b41c0925b00(0000) GS:ffffffff808c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: ffffffff82800000 CR3: 0000000056fc0000 CR4: 00000000000006e0
-Process modprobe (pid: 4908, threadinfo ffff810056a46000, task ffff81005b88f040)
-Stack:  0000000000000000 ffffffff880a6580 000000000000000a ffffffff8066a240
- ffffffff8061eeb0 0000000000000022 0000000000000000 0000000000000000
- 0000000000000001 0000000000000002 0000000000000000 0000000000000000
-Call Trace:
- [<ffffffff8020b4be>] _show_stack+0xee/0x100
- [<ffffffff8020b55a>] show_registers+0x8a/0x110
- [<ffffffff8020b75f>] __die+0x9f/0xf0
- [<ffffffff8021db61>] do_page_fault+0x7c1/0x8f0
- [<ffffffff8020a659>] error_exit+0x0/0x96
-DWARF2 unwinder stuck at error_exit+0x0/0x96
-Leftover inexact backtrace:
- <IRQ> [<ffffffff8020b362>] show_trace+0x2c2/0x330
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
- [<ffffffff8020b6b5>] dump_stack+0x15/0x20
- [<ffffffff80263b48>] __report_bad_irq+0x38/0x90
- [<ffffffff80263dca>] note_interrupt+0x22a/0x280
- [<ffffffff80262c28>] handle_IRQ_event+0x58/0x70
- [<ffffffff80264a00>] handle_level_irq+0xf0/0x140
- [<ffffffff8020ccdd>] do_IRQ+0x11d/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
- [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8023389a>] __do_softirq+0x5a/0xf0
- [<ffffffff8020ab82>] call_softirq+0x1e/0x28
- [<ffffffff8020cb4d>] do_softirq+0x3d/0xb0
- [<ffffffff8023370e>] irq_exit+0x4e/0x60
- [<ffffffff8020ccf5>] do_IRQ+0x135/0x140
- [<ffffffff8020a23d>] ret_from_intr+0x0/0xf
- <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP:
- [<ffffffff8020b362>] show_trace+0x2c2/0x330
-PGD 203027 PUD 205027 PMD 0
+--- linux-2.6.18-rc1-mm1-full/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c.old	2006-07-09 19:20:35.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c	2006-07-09 19:20:46.000000000 +0200
+@@ -113,12 +113,8 @@
+ 	return NF_ACCEPT;
+ }
+ 
+-int nat_module_is_loaded = 0;
+ static u_int32_t ipv4_get_features(const struct nf_conntrack_tuple *tuple)
+ {
+-	if (nat_module_is_loaded)
+-		return NF_CT_F_NAT;
+-
+ 	return NF_CT_F_BASIC;
+ }
+ 
+--- linux-2.6.18-rc1-mm1-full/net/ipv6/netfilter/nf_conntrack_reasm.c.old	2006-07-09 19:21:08.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/ipv6/netfilter/nf_conntrack_reasm.c	2006-07-09 19:22:45.000000000 +0200
+@@ -99,13 +99,11 @@
+ static DEFINE_RWLOCK(nf_ct_frag6_lock);
+ static u32 nf_ct_frag6_hash_rnd;
+ static LIST_HEAD(nf_ct_frag6_lru_list);
+-int nf_ct_frag6_nqueues = 0;
+ 
+ static __inline__ void __fq_unlink(struct nf_ct_frag6_queue *fq)
+ {
+ 	hlist_del(&fq->list);
+ 	list_del(&fq->lru_list);
+-	nf_ct_frag6_nqueues--;
+ }
+ 
+ static __inline__ void fq_unlink(struct nf_ct_frag6_queue *fq)
+@@ -143,7 +141,7 @@
+ }
+ 
+ static struct timer_list nf_ct_frag6_secret_timer;
+-int nf_ct_frag6_secret_interval = 10 * 60 * HZ;
++static int nf_ct_frag6_secret_interval = 10 * 60 * HZ;
+ 
+ static void nf_ct_frag6_secret_rebuild(unsigned long dummy)
+ {
+@@ -173,7 +171,7 @@
+ 	mod_timer(&nf_ct_frag6_secret_timer, now + nf_ct_frag6_secret_interval);
+ }
+ 
+-atomic_t nf_ct_frag6_mem = ATOMIC_INIT(0);
++static atomic_t nf_ct_frag6_mem = ATOMIC_INIT(0);
+ 
+ /* Memory Tracking Functions. */
+ static inline void frag_kfree_skb(struct sk_buff *skb, unsigned int *work)
+@@ -331,7 +329,6 @@
+ 	hlist_add_head(&fq->list, &nf_ct_frag6_hash[hash]);
+ 	INIT_LIST_HEAD(&fq->lru_list);
+ 	list_add_tail(&fq->lru_list, &nf_ct_frag6_lru_list);
+-	nf_ct_frag6_nqueues++;
+ 	write_unlock(&nf_ct_frag6_lock);
+ 	return fq;
+ }
+@@ -842,6 +839,7 @@
+ 	nf_conntrack_put_reasm(skb);
+ }
+ 
++#if 0
+ int nf_ct_frag6_kfree_frags(struct sk_buff *skb)
+ {
+ 	struct sk_buff *s, *s2;
+@@ -856,6 +854,7 @@
+ 
+ 	return 0;
+ }
++#endif  /*  0  */
+ 
+ int nf_ct_frag6_init(void)
+ {
+--- linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack_core.h.old	2006-07-09 19:23:09.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack_core.h	2006-07-09 19:23:16.000000000 +0200
+@@ -68,8 +68,6 @@
+ 	return ret;
+ }
+ 
+-extern void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb);
+-
+ extern struct list_head *nf_conntrack_hash;
+ extern struct list_head nf_conntrack_expect_list;
+ extern rwlock_t nf_conntrack_lock ;
+--- linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack.h.old	2006-07-09 19:24:29.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/include/net/netfilter/nf_conntrack.h	2006-07-09 19:28:48.000000000 +0200
+@@ -177,12 +177,6 @@
+ nf_conntrack_alter_reply(struct nf_conn *conntrack,
+ 			 const struct nf_conntrack_tuple *newreply);
+ 
+-/* Is this tuple taken? (ignoring any belonging to the given
+-   conntrack). */
+-extern int
+-nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
+-			 const struct nf_conn *ignored_conntrack);
+-
+ /* Return conntrack_info and tuple hash for given skb. */
+ static inline struct nf_conn *
+ nf_ct_get(const struct sk_buff *skb, enum ip_conntrack_info *ctinfo)
+@@ -221,15 +215,8 @@
+ extern void nf_conntrack_flush(void);
+ 
+ extern struct nf_conntrack_helper *
+-nf_ct_helper_find_get( const struct nf_conntrack_tuple *tuple);
+-extern void nf_ct_helper_put(struct nf_conntrack_helper *helper);
+-
+-extern struct nf_conntrack_helper *
+ __nf_conntrack_helper_find_byname(const char *name);
+ 
+-extern int nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
+-				const struct nf_conntrack_tuple *orig);
+-
+ extern void __nf_ct_refresh_acct(struct nf_conn *ct,
+ 				 enum ip_conntrack_info ctinfo,
+ 				 const struct sk_buff *skb,
+@@ -260,9 +247,6 @@
+ 				    struct nf_conn *conntrack,
+ 				    int dir);
+ 
+-/* Call me when a conntrack is destroyed. */
+-extern void (*nf_conntrack_destroyed)(struct nf_conn *conntrack);
+-
+ /* Fake conntrack entry for untracked connections */
+ extern struct nf_conn nf_conntrack_untracked;
+ 
+@@ -380,11 +364,6 @@
+ #define	NF_CT_F_NAT	2
+ #define NF_CT_F_NUM	4
+ 
+-extern int
+-nf_conntrack_register_cache(u_int32_t features, const char *name, size_t size);
+-extern void
+-nf_conntrack_unregister_cache(u_int32_t features);
+-
+ /* valid combinations:
+  * basic: nf_conn, nf_conn .. nf_conn_help
+  * nat: nf_conn .. nf_conn_nat, nf_conn .. nf_conn_nat, nf_conn help
+--- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_core.c.old	2006-07-09 19:23:24.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_core.c	2006-07-09 19:30:55.000000000 +0200
+@@ -72,7 +72,6 @@
+ /* nf_conntrack_standalone needs this */
+ atomic_t nf_conntrack_count = ATOMIC_INIT(0);
+ 
+-void (*nf_conntrack_destroyed)(struct nf_conn *conntrack) = NULL;
+ LIST_HEAD(nf_conntrack_expect_list);
+ struct nf_conntrack_protocol **nf_ct_protos[PF_MAX];
+ struct nf_conntrack_l3proto *nf_ct_l3protos[PF_MAX];
+@@ -180,7 +179,7 @@
+ } nf_ct_cache[NF_CT_F_NUM];
+ 
+ /* protect members of nf_ct_cache except of "use" */
+-DEFINE_RWLOCK(nf_ct_cache_lock);
++static DEFINE_RWLOCK(nf_ct_cache_lock);
+ 
+ /* This avoids calling kmem_cache_create() with same name simultaneously */
+ static DEFINE_MUTEX(nf_ct_cache_mutex);
+@@ -285,8 +284,8 @@
+ 				nf_conntrack_hash_rnd);
+ }
+ 
+-int nf_conntrack_register_cache(u_int32_t features, const char *name,
+-				size_t size)
++static int nf_conntrack_register_cache(u_int32_t features, const char *name,
++				       size_t size)
+ {
+ 	int ret = 0;
+ 	char *cache_name;
+@@ -366,7 +365,7 @@
+ }
+ 
+ /* FIXME: In the current, only nf_conntrack_cleanup() can call this function. */
+-void nf_conntrack_unregister_cache(u_int32_t features)
++static void nf_conntrack_unregister_cache(u_int32_t features)
+ {
+ 	kmem_cache_t *cachep;
+ 	char *name;
+@@ -578,9 +577,6 @@
+ 	if (proto && proto->destroy)
+ 		proto->destroy(ct);
+ 
+-	if (nf_conntrack_destroyed)
+-		nf_conntrack_destroyed(ct);
+-
+ 	write_lock_bh(&nf_conntrack_lock);
+ 	/* Expectations will have been removed in clean_from_lists,
+ 	 * except TFTP can create an expectation on the first packet,
+@@ -762,6 +758,7 @@
+ 
+ /* Returns true if a connection correspondings to the tuple (required
+    for NAT). */
++#if 0
+ int
+ nf_conntrack_tuple_taken(const struct nf_conntrack_tuple *tuple,
+ 			 const struct nf_conn *ignored_conntrack)
+@@ -774,6 +771,7 @@
+ 
+ 	return h != NULL;
+ }
++#endif  /*  0  */
+ 
+ /* There's a small race here where we may free a just-assured
+    connection.  Too bad: we're in trouble anyway. */
+@@ -824,6 +822,8 @@
+ 			 tuple);
+ }
+ 
++#if 0
++
+ struct nf_conntrack_helper *
+ nf_ct_helper_find_get( const struct nf_conntrack_tuple *tuple)
+ {
+@@ -852,6 +852,8 @@
+ 	module_put(helper->me);
+ }
+ 
++#endif  /*  0  */
++
+ static struct nf_conn *
+ __nf_conntrack_alloc(const struct nf_conntrack_tuple *orig,
+ 		     const struct nf_conntrack_tuple *repl,
+@@ -1137,6 +1139,7 @@
+ 	return ret;
+ }
+ 
++#if 0
+ int nf_ct_invert_tuplepr(struct nf_conntrack_tuple *inverse,
+ 			 const struct nf_conntrack_tuple *orig)
+ {
+@@ -1145,6 +1148,7 @@
+ 				  __nf_ct_proto_find(orig->src.l3num,
+ 						     orig->dst.protonum));
+ }
++#endif  /*  0  */
+ 
+ /* Would two expected things clash? */
+ static inline int expect_clash(const struct nf_conntrack_expect *a,
+@@ -1482,8 +1486,7 @@
+ }
+ #endif
+ 
+-/* Used by ipt_REJECT and ip6t_REJECT. */
+-void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb)
++static void __nf_conntrack_attach(struct sk_buff *nskb, struct sk_buff *skb)
+ {
+ 	struct nf_conn *ct;
+ 	enum ip_conntrack_info ctinfo;
+@@ -1635,7 +1638,7 @@
+ 	return hash;
+ }
+ 
+-int set_hashsize(const char *val, struct kernel_param *kp)
++static int set_hashsize(const char *val, struct kernel_param *kp)
+ {
+ 	int i, bucket, hashsize, vmalloced;
+ 	int old_vmalloced, old_size;
+--- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_standalone.c.old	2006-07-09 19:23:54.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_standalone.c	2006-07-09 19:30:34.000000000 +0200
+@@ -851,26 +851,20 @@
+ EXPORT_SYMBOL(nf_conntrack_l3proto_unregister);
+ EXPORT_SYMBOL(nf_conntrack_protocol_register);
+ EXPORT_SYMBOL(nf_conntrack_protocol_unregister);
+-EXPORT_SYMBOL(nf_ct_invert_tuplepr);
+-EXPORT_SYMBOL(nf_conntrack_destroyed);
+ EXPORT_SYMBOL(need_conntrack);
+ EXPORT_SYMBOL(nf_conntrack_helper_register);
+ EXPORT_SYMBOL(nf_conntrack_helper_unregister);
+-EXPORT_SYMBOL(nf_ct_iterate_cleanup);
+ EXPORT_SYMBOL(__nf_ct_refresh_acct);
+-EXPORT_SYMBOL(nf_ct_protos);
+ EXPORT_SYMBOL(__nf_ct_proto_find);
+ EXPORT_SYMBOL(nf_ct_proto_find_get);
+ EXPORT_SYMBOL(nf_ct_proto_put);
+ EXPORT_SYMBOL(nf_ct_l3proto_find_get);
+ EXPORT_SYMBOL(nf_ct_l3proto_put);
+-EXPORT_SYMBOL(nf_ct_l3protos);
+ EXPORT_SYMBOL_GPL(nf_conntrack_checksum);
+ EXPORT_SYMBOL(nf_conntrack_expect_alloc);
+ EXPORT_SYMBOL(nf_conntrack_expect_put);
+ EXPORT_SYMBOL(nf_conntrack_expect_related);
+ EXPORT_SYMBOL(nf_conntrack_unexpect_related);
+-EXPORT_SYMBOL(nf_conntrack_tuple_taken);
+ EXPORT_SYMBOL(nf_conntrack_htable_size);
+ EXPORT_SYMBOL(nf_conntrack_lock);
+ EXPORT_SYMBOL(nf_conntrack_hash);
+@@ -883,13 +877,10 @@
+ EXPORT_SYMBOL(nf_ct_get_tuple);
+ EXPORT_SYMBOL(nf_ct_invert_tuple);
+ EXPORT_SYMBOL(nf_conntrack_in);
+-EXPORT_SYMBOL(__nf_conntrack_attach);
+ EXPORT_SYMBOL(nf_conntrack_alloc);
+ EXPORT_SYMBOL(nf_conntrack_free);
+ EXPORT_SYMBOL(nf_conntrack_flush);
+ EXPORT_SYMBOL(nf_ct_remove_expectations);
+-EXPORT_SYMBOL(nf_ct_helper_find_get);
+-EXPORT_SYMBOL(nf_ct_helper_put);
+ EXPORT_SYMBOL(__nf_conntrack_helper_find_byname);
+ EXPORT_SYMBOL(__nf_conntrack_find);
+ EXPORT_SYMBOL(nf_ct_unlink_expect);
+--- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_ftp.c.old	2006-07-09 19:31:09.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_ftp.c	2006-07-09 19:39:01.000000000 +0200
+@@ -45,15 +45,6 @@
+ static int loose;
+ module_param(loose, bool, 0600);
+ 
+-unsigned int (*nf_nat_ftp_hook)(struct sk_buff **pskb,
+-				enum ip_conntrack_info ctinfo,
+-				enum ip_ct_ftp_type type,
+-				unsigned int matchoff,
+-				unsigned int matchlen,
+-				struct nf_conntrack_expect *exp,
+-				u32 *seq);
+-EXPORT_SYMBOL_GPL(nf_nat_ftp_hook);
+-
+ #if 0
+ #define DEBUGP printk
+ #else
+@@ -602,18 +593,11 @@
+ 	exp->expectfn = NULL;
+ 	exp->flags = 0;
+ 
+-	/* Now, NAT might want to mangle the packet, and register the
+-	 * (possibly changed) expectation itself. */
+-	if (nf_nat_ftp_hook)
+-		ret = nf_nat_ftp_hook(pskb, ctinfo, search[dir][i].ftptype,
+-				      matchoff, matchlen, exp, &seq);
+-	else {
+-		/* Can't expect this?  Best to drop packet now. */
+-		if (nf_conntrack_expect_related(exp) != 0)
+-			ret = NF_DROP;
+-		else
+-			ret = NF_ACCEPT;
+-	}
++	/* Can't expect this?  Best to drop packet now. */
++	if (nf_conntrack_expect_related(exp) != 0)
++		ret = NF_DROP;
++	else
++		ret = NF_ACCEPT;
+ 
+ out_put_expect:
+ 	nf_conntrack_expect_put(exp);
+--- linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_proto_sctp.c.old	2006-07-09 19:32:45.000000000 +0200
++++ linux-2.6.18-rc1-mm1-full/net/netfilter/nf_conntrack_proto_sctp.c	2006-07-09 19:33:27.000000000 +0200
+@@ -508,7 +508,7 @@
+ 	return 1;
+ }
+ 
+-struct nf_conntrack_protocol nf_conntrack_protocol_sctp4 = { 
++static struct nf_conntrack_protocol nf_conntrack_protocol_sctp4 = { 
+ 	.l3proto	 = PF_INET,
+ 	.proto 		 = IPPROTO_SCTP, 
+ 	.name 		 = "sctp",
+@@ -522,7 +522,7 @@
+ 	.me 		 = THIS_MODULE 
+ };
+ 
+-struct nf_conntrack_protocol nf_conntrack_protocol_sctp6 = { 
++static struct nf_conntrack_protocol nf_conntrack_protocol_sctp6 = { 
+ 	.l3proto	 = PF_INET6,
+ 	.proto 		 = IPPROTO_SCTP, 
+ 	.name 		 = "sctp",
+@@ -620,7 +620,7 @@
+ static struct ctl_table_header *nf_ct_sysctl_header;
+ #endif
+ 
+-int __init nf_conntrack_proto_sctp_init(void)
++static int __init nf_conntrack_proto_sctp_init(void)
+ {
+ 	int ret;
+ 
+@@ -657,7 +657,7 @@
+ 	return ret;
+ }
+ 
+-void __exit nf_conntrack_proto_sctp_fini(void)
++static void __exit nf_conntrack_proto_sctp_fini(void)
+ {
+ 	nf_conntrack_protocol_unregister(&nf_conntrack_protocol_sctp6);
+ 	nf_conntrack_protocol_unregister(&nf_conntrack_protocol_sctp4);
+

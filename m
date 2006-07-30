@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWG3Sac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWG3ScA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWG3Sac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWG3Sac
+	id S932419AbWG3ScA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWG3ScA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:30:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54759 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932415AbWG3Sab (ORCPT
+	Sun, 30 Jul 2006 14:32:00 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:2489 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932419AbWG3Sb7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:30:31 -0400
-Date: Sun, 30 Jul 2006 11:29:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, nikita@clusterfs.com,
-       joe@perches.com, tali@admingilde.org, jbglaw@lug-owl.de,
-       hch@infradead.org, dwmw2@infradead.org, arjan@infradead.org,
-       dmitry.torokhov@gmail.com, Valdis.Kletnieks@vt.edu, sam@ravnborg.org,
-       rmk@arm.linux.org.uk, rusty@rustcorp.com.au, rdunlap@xenotime.net
-Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial
- step
-Message-Id: <20060730112917.88d9ae4e.akpm@osdl.org>
-In-Reply-To: <m3wt9vj94n.fsf@defiant.localdomain>
-References: <200607301830.01659.jesper.juhl@gmail.com>
-	<m3ac6rkp8c.fsf@defiant.localdomain>
-	<9a8748490607301014rf04b6cew9d991635a7834277@mail.gmail.com>
-	<m3wt9vj94n.fsf@defiant.localdomain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 30 Jul 2006 14:31:59 -0400
+Date: Sun, 30 Jul 2006 20:31:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, agruen@suse.de
+Subject: Re: Building external modules against objdirs
+Message-ID: <20060730183159.GA30278@mars.ravnborg.org>
+References: <200607301846.07797.ak@suse.de> <20060730175130.GA23665@mars.ravnborg.org> <200607301949.41165.ak@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607301949.41165.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jul 2006 19:27:36 +0200
-Krzysztof Halasa <khc@pm.waw.pl> wrote:
-
-> "Jesper Juhl" <jesper.juhl@gmail.com> writes:
+On Sun, Jul 30, 2006 at 07:49:41PM +0200, Andi Kleen wrote:
 > 
-> > I think it's a good thing that we have to take a little more care when
-> > choosing global function and variable names... Take up() for example -
-> > in my (very humble) oppinion that is a very bad name for a global
-> > function - it clashes too easily with local function and variable
-> > names, and a programmer who's not careful may end up calling the
-> > global up() when he wants the local and vice versa (a much better name
-> > would have been sem_up() - should we change that???).
+> > Can you check that you really did a 'make prepare' in the relevant
+> > output directory. Previously only the make *config step was needed.
 > 
-> Possibly, but it could then conflict with something else. Anytime we
-> add/change some global symbol, we would have to scan entire kernel
-> for conflicts (authors of (yet) off-tree things would hate us).
+> The output directory is a full build (configuration + make without any targets).
+> Is that not enough anymore? 
+> 
+> Anyways after a make prepare it seems to work - thanks - but I think that
+> should be really done as part of the standard build like it was in 2.6.17.
+'make prepare' is and has always been part of the standard build.
+So I really do not see what is going on.
 
-These things happen.  And it's only a warning.
+Can you please check that followign files exists in your output
+directory:
+.config
+include/config/auto.conf.cmd
+include/config/auto.conf
 
-> I don't think it's practical, especially with, IMHO, no real gain.
+the latter should be the latest of the three.
 
-While I don't recall any kernel bugs which -Wshadow would have saved us
-from, I think it's a sensible thing to do - it _might_ save us from a bug,
-and we need all the help we can get.
+Also try applying following patch to reveal why we trigger this rule:
 
-Plus it's often the case that if a local and a global clash, one of the
-identifiers was poorly chosen.
-
+diff --git a/Makefile b/Makefile
+index 1dd58d3..4c30ed5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -453,6 +453,7 @@ include/config/auto.conf: $(KCONFIG_CONF
+ ifeq ($(KBUILD_EXTMOD),)
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+ else
++	@echo triggered by - $? -
+ 	$(error kernel configuration not valid - run 'make prepare' in $(srctree) to update it)
+ endif
+ 

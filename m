@@ -1,120 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWG3SnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWG3SpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWG3SnI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:43:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWG3SnH
+	id S932424AbWG3SpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWG3SpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:43:07 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:56031 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932425AbWG3SnG (ORCPT
+	Sun, 30 Jul 2006 14:45:04 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:715 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S932424AbWG3SpD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:43:06 -0400
-Message-Id: <200607301841.k6UIfO1P004213@laptop13.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion) 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Fri, 28 Jul 2006 07:34:36 CST." <44CA126C.7050403@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Sun, 30 Jul 2006 14:41:24 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 30 Jul 2006 14:41:36 -0400 (CLT)
+	Sun, 30 Jul 2006 14:45:03 -0400
+Date: Sun, 30 Jul 2006 20:44:43 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, davej@redhat.com,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
+Message-ID: <20060730184443.GA30067@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	davej@redhat.com, venkatesh.pallipadi@intel.com, tony@atomide.com,
+	akpm@osdl.org, cpufreq@lists.linux.org.uk
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CCF556.2060505@linux.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
-> Let me put it from my perspective and stop pretending to be unbiased, so
-> others can see where I am coming from.
+On Sun, Jul 30, 2006 at 10:07:18PM +0400, Alexey Starikovskiy wrote:
+> Do I understand your logs right and acpi-cpufreq is already loaded and 
+> works on your processor?
 
-OK, but /that/ was pretty clear from day one...
+Yes, I can load it, but I'm unable to figure out what it is supposed to do,
+or if it is doing anything.
 
->                                         No one was interested in our
-> plugins.
+> Do you have any info in /sys/devices/system/cpu/cpu0/cpufreq ?
 
-Should tell you something...
+No, not with just acpi-cpufreq loaded. With the help of Zwane, I've
+discovered that if I unload acpi-cpufreq, I *can* load p4-clockmod, and then
+the directory you mention appears, and I can configure governors, and life
+is good. This all on 2.6.18-rc3.
 
->           We put the design on a website, spoke at conferences, no one
-> but users were interested.
+Do I understand correctly that acpi-cpufreq is supposed to offer comparable
+features?
 
-Again, should tell you something... "Look, a cool new gadget nobody ever
-imagined before" sure attracts lots of people. Intriguing. Play around a
-bit. Go for next "last novel gadget". Rinse, repeat.
+Perhaps acpi-cpufreq *has* loaded, but did not find the proper hooks, but
+has now registered itself, thus blocking p4-clockmod? When everything is
+in-kernel, acpi-cpufreq might register itself first, which would lead to the
+same thing.
 
->                             No one would have conceived of having
-> plugins if not for us.
+For completeness, lspci. This is a desktop system, but I need some kind of
+governer for quiet running.
 
-Perhaps because nobody else sees any sense in them?
+$ lspci
+0000:00:00.0 Host bridge: Intel Corporation 915G/P/GV/GL/PL/910GL Processor to I/O Controller (rev 04)
+0000:00:01.0 PCI bridge: Intel Corporation 915G/P/GV/GL/PL/910GL PCI Express Root Port (rev 04)
+0000:00:02.0 VGA compatible controller: Intel Corporation 82915G/GV/910GL Express Chipset Family Graphics Controller (rev 04)
+0000:00:1b.0 0403: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) High Definition Audio Controller (rev 03)
+0000:00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 1 (rev 03)
+0000:00:1c.1 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 2 (rev 03)
+0000:00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 3 (rev 03)
+0000:00:1c.3 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 4 (rev 03)
+0000:00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #1 (rev 03)
+0000:00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #2 (rev 03)
+0000:00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #3 (rev 03)
+0000:00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #4 (rev 03)
+0000:00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB2 EHCI Controller (rev 03)
+0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev d3)
+0000:00:1f.0 ISA bridge: Intel Corporation 82801FB/FR (ICH6/ICH6R) LPC Interface Bridge (rev 03)
+0000:00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE Controller (rev 03)
+0000:00:1f.2 IDE interface: Intel Corporation 82801FB/FW (ICH6/ICH6W) SATA Controller (rev 03)0000:00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus Controller (rev 03)
+0000:06:00.0 Network controller: Techsan Electronics Co Ltd B2C2 FlexCopII DVB chip / Technisat SkyStar2 DVB card (rev 02)
+0000:06:08.0 Ethernet controller: Intel Corporation 82562ET/EZ/GT/GZ - PRO/100 VE (LOM) Ethernet Controller (rev 01)
 
->                         Our plugins affect no one else.
+Thanks!
 
-Wrong. Others will want plugins if they are any use, at the very least. And
-then there is the possibility of /massive/ maintainance problems ("So, you
-/are/ using Reiser 4, the broken file has attached plugin A version 5.3,
-and is reached through a "directory" with plugin D 3.4rc5, and ..."). /I/
-wouldn't want to be at the receiving end of bug reports which after a dozen
-rounds boil down to this.
-
->                                                          Our
-> self-contained code should not be delayed
-
-Not your call to make.
-
->                                           because other people delayed
-> getting interested in our ideas and now they don't want us to have an
-> advantage from leading.
-
-Your problem, not Linux'.
-
->                          If they want to some distant day implement
-> generic plugins, for which they have written not one line of code to
-> date, fine, we'll use it when it exists, but right now those who haven't
-> coded should get out of the way of people with working code.
-
-But they are! Just branch the kernel, and be done with it.
-
->                                                               It is not
-> fair or just to do otherwise.
-
-/You/ are asking the kernel developers for a /huge/ favor. Even totally go
-out of their ways, and acting contrary to their set ways and beliefs.
-Saying "no" to that can't be called "unfair"...
-
->                                It also prevents users from getting
-> advances they could be getting today, for no reason.
-
-OK, so you have /never/ seen any reasons given here for not placing Reiser
-4 into the kernel? Strange...
-
->                                                       Our code will not
-> be harder to change once it is in the kernel, it will be easier, because
-> there will be more staff funded to work on it.
-
-Right. Just like Reiser 3 right now.
-
-> As for this "we are all too grand to be bothered with money to feed our
-> families" business, building a system in which those who contribute can
-> find a way to be rewarded is what managers do.   Free software
-> programmers may be willing to live on less than others, but they cannot
-> live on nothing, and code that does not ever ship means living on
-> nothing.
-
-Then go do something else...
-
-> If reiser4 is delayed enough, for reasons that have nothing to do with
-> its needs, and without it having encumbered anyone else, it won't be
-> ahead of the other filesystems when it ships.
-
-How is that important in any way for the Linux kernel? This is not (and has
-not been for quite some time now) an experimental operating system. And it
-has /never/ been a dumpling ground for the next grand idea, it has always
-been about sound engineering.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

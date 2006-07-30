@@ -1,99 +1,285 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWG3WVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWG3WXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWG3WVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 18:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWG3WVZ
+	id S1751402AbWG3WXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 18:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWG3WXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 18:21:25 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:58854
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751397AbWG3WVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 18:21:24 -0400
-Date: Sun, 30 Jul 2006 15:20:52 -0700
-To: Theodore Tso <tytso@mit.edu>, Nicholas Miell <nmiell@comcast.net>,
-       Edgar Toernig <froese@gmx.de>, Neil Horman <nhorman@tuxdriver.com>,
-       Jim Gettys <jg@laptop.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Dave Airlie <airlied@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org,
-       Keith Packard <keithp@keithp.com>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-Cc: "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: itimer again (Re: [PATCH] RTC: Add mmap method to rtc character driver)
-Message-ID: <20060730222052.GA3335@gnuppy.monkey.org>
-References: <20060729042820.GA16133@gnuppy.monkey.org> <20060729125427.GA6669@localhost.localdomain> <20060729204107.GA20890@gnuppy.monkey.org> <20060729234948.0768dbf4.froese@gmx.de> <20060729225138.GA22390@gnuppy.monkey.org> <1154216151.2467.5.camel@entropy> <20060730010020.GA23288@gnuppy.monkey.org> <1154222579.2467.12.camel@entropy> <20060730013936.GA23571@gnuppy.monkey.org> <20060730143341.GD23279@thunk.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730143341.GD23279@thunk.org>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+	Sun, 30 Jul 2006 18:23:54 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:31975 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932467AbWG3WXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 18:23:53 -0400
+Subject: Re: rt_mutex_timed_lock() vs hrtimer_wakeup() race ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060730043605.GA2894@oleg>
+References: <20060730043605.GA2894@oleg>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 18:23:38 -0400
+Message-Id: <1154298218.10074.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 10:33:42AM -0400, Theodore Tso wrote:
-> On Sat, Jul 29, 2006 at 06:39:36PM -0700, Bill Huey wrote:
-> > No, I really ment scheduling.
+On Sun, 2006-07-30 at 08:36 +0400, Oleg Nesterov wrote:
+> I am trying to get some understanding of rt_mutex, but I'm afraid it's
+> not possible without your help...
+
+Well, I'll give it a try :)
+
 > 
-> Bill, 
+> // runs on CPU 0
+> rt_mutex_slowlock:
 > 
-> Do you mean frequency-based scheduling?  This was mentioned, IIRC, in
-> Gallmeister's book (Programming for the Real World, a must-read for
-> those interested in Posix real-time interfaces) as a likely extension
-> to the SCHED_RR/SCHED_FIFO scheduling policies and future additions to
-> the struct sched_policy used by sched_setparam() at some future point.
+> 	// main loop
+> 	for (;;) {
+> 		...
+> 
+> 			if (timeout && !timeout->task) {
+> 				ret = -ETIMEDOUT;
+> 				break;
+> 			}
+> 
+> 		...
+> 
+> 		schedule();
+> 
+> 		...
+> 
+> 		set_current_state(state);
+> 	}
+> 
+> What if timeout->timer is fired on CPU 1 right before set_current_state() ?
+> 
+> hrtimer_wakeup() does:
+> 
+> 	timeout->task = NULL;		<----- [1]
+> 
+> 	spin_lock(runqueues->lock);
+> 
+> 	task->state = TASK_RUNNING;	<----- [2]
+> 
+> (task->array != NULL, so try_to_wake_up() just goes to out_running)
+> 
+> If my understanding correct, [1] may slip into the critical section (because
+> spin_lock() is not a wmb), so that CPU 0 will see [2] but not [1]. In that
+> case rt_mutex_slowlock() can miss the timeout (set_current_state()->mb()
+> doesn't help).
 
-Yes, I did.
+Hmm, that spin_lock and task->state = TASK_RUNNING is in try_to_wake_up,
+and at the bottom too.  I don't think there's a CPU that will slip a
+write after a call to a function and several branches.  I guess it could
+happen. I'm not an expert here. We're only dealing with SMP issues here,
+and not worried about PCI bus write outs or anything else.
 
-> sched_policy).  At least, that's the theory.  The exact semantics of
-> what would actually be useful to application is I believe a little
-> unclear, and of course there is the question of whether there is
+Does anyone know of a SMP machine that could have a CPU do a write to
+memory and postpone it till after several branches?
 
-It's really up to the RT application to decide what it really wants. The
-role of the kernel is to give it what it has requested within reason.
 
-> sufficient reason to try to do this as part of a system-wide
-> scheduler.  Alternatively, it might be sufficient to do this sort of
+> 
+> Of course, this race (even _if_ I am right) is pure theoretical, but probably
+> we need smp_wmb() after [1] in hrtimer_wakeup().
 
-It's it's basic form yes. It's a complicated topic and frequency based
-schedulers are only one type in a family of these schedulers. These kind
-of scheduler are still research-ish in nature and there isn't a real way
-of dealing with them in with regard to soft cycles effectively yet.
+Theoretically, you may be right, and I'm not sure how much a smp_wmb
+would hurt to prevent a theoretical problem.
 
-The control parameters to these systems vary from algorithm to algorithm
-and they all have different control knobs outside of traditional Posix APIs.
-People have written implementations based on EDF and stuff, but it seem
-that folks can do a better job with scheduling decision if you had a thread
-yield operation that was capable of telling the scheduler policy what to do
-next with next cycle or chunk of time, especially for softer periods that
-may give it's own allocated cycle to another process category. My
-suggestion was that a modified 'itimer' could cover the semantic expression
-of these kinds of schedulers, other kind of CPU bandwidth schedulers, as
-well as be a replacement for '/dev/rtc' if it conformed that device's API.
+> 
+> Note that do_nanosleep() is ok, hrtimer_base->lock provides a necessary
+> serialization. In fact, I think it can use __set_current_state(), because
+> both hrtimer_start() and run_hrtimer_queue() do lock/unlock of base->lock.
+> 
 
-The 'rtc' case would be a "harder", with respect time, expression of those
-schedulers since that drive doesn't understand soft execution periods
-and period of execution if strict. My terminology might need to be updated
-or clarified and I'm open to that from others.
+Hmm, that's probably true too.  But this really is a micro-optimization,
+since do_nanosleep isn't called that often (it's a syscall and not
+called at every schedule or interrupt).
 
-A new 'itimer' device with an extended API could also synchronously listen
-to certain interrupts and deliver that as a latency critical event.
-Another big topic of discussion.
+> 
+> 
+> Another question, task_blocks_on_rt_mutex() does get_task_struct() and checks
+> owner->pi_blocked_on != NULL under owner->pi_lock. Why ? RT_MUTEX_HAS_WAITERS
+> bit is set, we are holding ->wait_lock, so the 'owner' can't go away until
+> we drop ->wait_lock.
 
-> thing at the application level across cooperating threads, in which
-> case it wouldn't be necessary to try to add this kind of complicated
-> scheduling gorp into the kernel.
+That's probably true that the owner can't disappear before we let go of
+the wait_lock, since the owner should not be disappearing while holding
+locks.  But you are missing the point to why we are grabbing the
+pi_lock.  We are preventing a race that can have us do unneeded work
+(see below).
 
-Scheduling policies are limited in Linux and that's probably going to
-have to change in the future because of the RT patch and Xen, etc... Xen
-is going to need a gang scheduler (think sleeping on a spin lock in a guest
-OS).
 
-> In any case, I don't think this is particularly interesting to the X
-> folks, although there may very well be real-time applications that
-> would find this sort of thing useful.
+>  I think we can drop owner->pi_lock right after
+> __rt_mutex_adjust_prio(owner), we can't miss owner->pi_blocked_on != NULL
+> if it was true before we take owner->pi_lock, and this is the case we should
+> worry about, yes?
+> 
+> In other words (because I myself can't parse the paragraph above :), could
+> you explain me why this patch is not correct:
+> 
+> --- rtmutex.c~	2006-07-30 05:15:38.000000000 +0400
+> +++ rtmutex.c	2006-07-30 05:41:44.000000000 +0400
+> @@ -407,7 +407,7 @@ static int task_blocks_on_rt_mutex(struc
+>  	struct task_struct *owner = rt_mutex_owner(lock);
+>  	struct rt_mutex_waiter *top_waiter = waiter;
+>  	unsigned long flags;
+> -	int boost = 0, res;
+> +	int res;
+>  
+>  	spin_lock_irqsave(&current->pi_lock, flags);
+>  	__rt_mutex_adjust_prio(current);
+> @@ -431,24 +431,20 @@ static int task_blocks_on_rt_mutex(struc
+>  		plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
+>  
+>  		__rt_mutex_adjust_prio(owner);
+> -		if (owner->pi_blocked_on) {
+> -			boost = 1;
+> -			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+> -			get_task_struct(owner);
+> -		}
+>  		spin_unlock_irqrestore(&owner->pi_lock, flags);
+> +
+> +		if (owner->pi_blocked_on)
+> +			goto boost;
 
-Right, the original topic has shifted. It's more interesting to me now. :)
+OK, this is a little complicated. We might have just upped the owner's
+prio with the __rt_mutex_adjust_prio(owner).  Now we want to know if the
+owner is blocked on a lock or not.  If it isn't at this moment, we don't
+want to add the extra time in calling the rt_mutex_adjust_prio_chain.
+If we do the owner->pi_blocked_on test after letting go of the
+owner->pi_lock, the owner could than become blocked on a lock.
 
-bill
+This isn't a bug in logic, that is, it doesn't break the code, but since
+the owner already has been boosted, when it blocks it will do the work
+of rt_mutex_adjust_prio_chain too.  So we run the risk of calling
+rt_mutex_adjust_prio_chain when we really didn't need to because the
+owner already had it's prio boosted when it blocked.
+
+Make sense?
+
+
+>  	}
+>  	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock)) {
+> -		spin_lock_irqsave(&owner->pi_lock, flags);
+> -		if (owner->pi_blocked_on) {
+> -			boost = 1;
+> -			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+> -			get_task_struct(owner);
+> -		}
+> -		spin_unlock_irqrestore(&owner->pi_lock, flags);
+> +		if (owner->pi_blocked_on)
+> +			goto boost;
+>  	}
+> -	if (!boost)
+> -		return 0;
+> +
+> +	return 0;
+> +boost:
+> +	/* gets dropped in rt_mutex_adjust_prio_chain()! */
+> +	get_task_struct(owner);
+
+So the protection was probably more on that boost = 1 and if we _are_
+going to boost then we should grab the lock.  But, I think you are right
+that the get_task_struct is already protected by the wait_lock so
+perhaps this patch would work:
+
+
+
+
+Index: linux-2.6.18-rc2/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/rtmutex.c	2006-07-30 18:04:12.000000000 -0400
++++ linux-2.6.18-rc2/kernel/rtmutex.c	2006-07-30 18:07:08.000000000 -0400
+@@ -433,25 +433,26 @@ static int task_blocks_on_rt_mutex(struc
+ 		plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
+ 
+ 		__rt_mutex_adjust_prio(owner);
+-		if (owner->pi_blocked_on) {
++		if (owner->pi_blocked_on)
+ 			boost = 1;
+-			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-			get_task_struct(owner);
+-		}
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+ 	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock)) {
+ 		spin_lock_irqsave(&owner->pi_lock, flags);
+-		if (owner->pi_blocked_on) {
++		if (owner->pi_blocked_on)
+ 			boost = 1;
+-			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-			get_task_struct(owner);
+-		}
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+ 	if (!boost)
+ 		return 0;
+ 
++	/*
++	 * The owner can't disappear while holding a lock,
++	 * so the owner struct is protected by wait_lock.
++	 * Gets dropped in rt_mutex_adjust_prio_chain()!
++	 */
++	get_task_struct(owner);
++
+ 	spin_unlock(&lock->wait_lock);
+ 
+ 	res = rt_mutex_adjust_prio_chain(owner, detect_deadlock, lock, waiter,
+
+
+
+
+>  
+>  	spin_unlock(&lock->wait_lock);
+>  
+> ----------------------------------------------------------
+> The same question for remove_waiter()/rt_mutex_adjust_pi().
+> 
+
+Same answer. :)
+
+> 
+> The last (stupid) one,
+
+Well, the other questions were definitely not stupid!
+
+> wake_up_new_task:
+> 
+> 		if (unlikely(!current->array))
+> 			__activate_task(p, rq);
+> 
+> (offtopic) Is it really possible to have current->array == NULL here?
+
+  ** You know, I think you're right. I don't think current->array can 
+     ever be NULL outside of schedule. And here we are even holding the 
+     rq locks!
+
+     Perhaps this can happen on startup. Is the init thread on any run
+     queue on system boot up?
+
+
+> 
+> 		else {
+> 			p->prio = current->prio;
+> 
+> What if current was pi-boosted so that rt_prio(current->prio) == 1,
+> who will de-boost the child?
+
+Good point!  Perhaps this can cause a prio leak.
+
+> 
+> 			p->normal_prio = current->normal_prio;
+> 
+> Why? p->normal_prio was calculated by effective_prio() above, could you
+> explain why that value is not ok?
+
+I don't know this answer. So I can't help you here.  Seems that these
+were not "Stupid" questions after all. ;)
+
+
+-- Steve
+
 

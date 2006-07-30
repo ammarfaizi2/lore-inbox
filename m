@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWG3PV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWG3PXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWG3PV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 11:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWG3PVZ
+	id S932337AbWG3PXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 11:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWG3PXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 11:21:25 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:43788 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932336AbWG3PVZ (ORCPT
+	Sun, 30 Jul 2006 11:23:54 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:49164 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932337AbWG3PXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 11:21:25 -0400
-Message-ID: <44CCCE72.8030808@argo.co.il>
-Date: Sun, 30 Jul 2006 18:21:22 +0300
+	Sun, 30 Jul 2006 11:23:53 -0400
+Message-ID: <44CCCF06.4070406@argo.co.il>
+Date: Sun, 30 Jul 2006 18:23:50 +0300
 From: Avi Kivity <avi@argo.co.il>
 User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Jiri Slaby <jirislaby@gmail.com>,
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Arjan van de Ven <arjan@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: FP in kernelspace
-References: <1154271283.2941.27.camel@laptopd505.fenrus.org>
-In-Reply-To: <1154271283.2941.27.camel@laptopd505.fenrus.org>
+References: <44CCCB74.9010605@gmail.com>
+In-Reply-To: <44CCCB74.9010605@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jul 2006 15:21:23.0172 (UTC) FILETIME=[D0FF5A40:01C6B3EB]
+X-OriginalArrivalTime: 30 Jul 2006 15:23:51.0859 (UTC) FILETIME=[299F3030:01C6B3EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Jiri Slaby wrote:
 >
-> > > So 2 questions are:
-> > > 1) howto FP in kernel
-> > >
-> > kernel_fpu_begin();
-> > c = d * 3.14;
-> > kernel_fpu_end();
-> >
+> > unfortunately this only works for MMX not for real fpu (due to 
+> exception
+> > handling uglies)
 >
-> unfortunately this only works for MMX not for real fpu (due to exception
-> handling uglies)
+> concludes it's not multiplatform at all... For that reasen I (maybe) 
+> want some
+> "protocol" for communication with US, where I can easily compute it.
 >
-
-Perhaps there should be a comment to that effect?  Neither the code nor 
-Documentation/preemt-locking (which mentions the fpu) says anything 
-about this little fact.
-
-It's also broken for x86-64, which uses sse for floating point, not the 
-x87 fpu.
+Well, usually such a protocol is by means of read(2) and write(2) to a 
+character device provided by your driver: userspace reads some data, 
+does the fp ops, and writes it back.  If you want realtime you'll have 
+to use a realtime thread with the appropriate priority.
 
 -- 
 error compiling committee.c: too many arguments to function

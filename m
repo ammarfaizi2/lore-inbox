@@ -1,59 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWG3Q0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWG3Q26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWG3Q0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 12:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWG3Q0N
+	id S932352AbWG3Q26 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 12:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWG3Q26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 12:26:13 -0400
-Received: from mail.trixing.net ([87.230.125.58]:62613 "EHLO ds666.l4x.org")
-	by vger.kernel.org with ESMTP id S932351AbWG3Q0N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 12:26:13 -0400
-Message-ID: <44CCDD7E.3010207@l4x.org>
-Date: Sun, 30 Jul 2006 18:25:34 +0200
-From: Jan Dittmer <jdi@l4x.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: de-DE, de, en-us, en
+	Sun, 30 Jul 2006 12:28:58 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:48658 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932352AbWG3Q25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 12:28:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
+        b=qRhOM+aa0ch2A1HLiZeVVv+zW6vUcd6pierIn/oJu+AfMnzorDKCYU1Xxrf0pX+V5YJ56m3i1pe51h+dEYhDCXRpE7+mXsvC8H7ABxGBI6/aNWqZsETytAdHXZpuc3bYYpGnfHsvqVjvc00xnSzoAgDSZAK61s2E7jKAVsYhCps=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
+Date: Sun, 30 Jul 2006 18:30:01 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Nikita Danilov <nikita@clusterfs.com>,
+       Joe Perches <joe@perches.com>, Martin Waitz <tali@admingilde.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+       Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.org.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>
-CC: Kasper Sandberg <lkml@metanurb.dk>, Matthew Garrett <mjg59@srcf.ucam.org>,
-       Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-References: <20060730104042.GE1920@elf.ucw.cz> <20060730112827.GA25540@srcf.ucam.org> <44CC993B.6070309@l4x.org> <20060730114722.GA26046@srcf.ucam.org> <1154264478.13635.22.camel@localhost> <20060730145305.GE23279@thunk.org>
-In-Reply-To: <20060730145305.GE23279@thunk.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.1.3
-X-SA-Exim-Mail-From: jdi@l4x.org
-Subject: Re: ipw3945 status
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on ds666.l4x.org)
+Message-Id: <200607301830.01659.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso schrieb:
-> Personally, I don't see why the requirement of an external daemon is
-> really considered that evil.  We allow drivers that depend on firmware
+Ok, here we go again...
 
-Well the problem is more the fear that when one vendor gets this in
-the tree all others will follow. And there'll be several
-incompatible userspace daemons for every possible wireless card which
-you need to get the system to work (think boot cd, install over wlan).
+This is a series of patches that try to be an initial step towards making
+the kernel build -Wshadow clean.
 
-So if this is done, there should be a clearly abstracted interface
-for such a daemon. I don't see what the daemon is doing more than
-echo 1 4 7 8 > /sys/.../allowed_channels and a control circuit for
-tx/rx power.
+Yeah, I'm persisting with this since I get the impression, from the feedback
+I've been getting, that this effort is mostly looked upon favorably.
 
-> loaders, don't we?  I could imagine a device that required a digitally
-> signed message (using RSA) with a challenge/response protocol embedded
-> inside that was necessary to configure said device, which is
-> calculated in userspace and then passed down into the kernel to be
-> installed into the device so that it could function.  Do we really
-> want to consider that to be objectionable?
+The reasons why we should do this should be obvious, but I'll list the main
+reasons anyway.
+In the end the compiler will help us prevent new (and hard to find bugs)
+due to symbol shadowing.
+It'll help us keep our namespaces separate.
+We may find some bugs along the way - and even if it's just one it'll be
+worth it :)
 
-If it's done via a standard interface as the firmware loading
-is, no objection.
+I have recieved a lot of useful feedback to the previous patches I've
+posted and I've tried to incorporate all the feedback in this series.
 
-Jan
+There should be no change in behaviour from these patches and it's my hope
+that they are acceptable for merging so that, going forward, I will have 
+these 12 less to keep track of separately.
+
+A patch to add -Wshadow to the toplevel Makefile is not included since it's
+still a little early for that. There are still a lot of warnings that need 
+to be fixed, this series is just the first step (but as I think the numbers
+below will show, it's a pretty big first step).
+I'm only able to work against i386 at the moment, so the results below
+probably won't be as nice for other archs, but no need to worry, I do plan
+to clean up other archs as well - I just need to get a bunch of
+cross-compilers installed.
+My plan is to keep submitting new series of patches against -mm (assuming
+that these will get merged there) until we are down to less than 100 warnings
+for all the standard configs for all archs and then at that point submit a
+patch to add -Wshadow to the toplevel Makefile - if someone wants to help
+out I'd appreciate it - there are still lots of warnings left to work on, some
+of them I've just not gotten to yet, but some of them I'll definately need 
+help with as well.
+
+
+All of this is against 2.6.18-rc3.
+
+Without the patches, adding -Wshadow to the makefile results in these 
+warnings for a few different .config's :
+
+allnoconfig
+---
+$ grep warning build.log.allno | grep shadow | wc -l
+1267
+
+allmodconfig
+---
+$ grep warning build.log.allmod | grep shadow | wc -l
+39921
+
+allyesconfig
+---
+$ grep warning build.log.allyes | grep shadow | wc -l
+32477
+
+with my normal workstation config
+---
+$ grep warning build.log.juhl | grep shadow | wc -l
+5298
+
+
+After applying the patches in this series, quite a different picture
+emerges.
+
+allnoconfig :	124 warnings	(~10%)
+allmodconfig :	6508 warnings	(~16%)
+allyesconfig :	6522 warnings (~20%)
+my config :	958 warnings	(~18%)
+
+So with just 12 small patches the number of -Wshadow related warnings is
+reduced to between 10 and 20 percent of what they previously were. 
+Personally I'd say that's a pretty good first step.
+
+I've added a bunch of people to Cc: on this mail, trying to pick those that
+have either responded to my previous attempts or whoes code I'm changing.
+I may not have gotten it 100% right, so please bear with me.
+I'll not be sending the actual patches to all of you guys - don't want to 
+spam your inbox too much. Instead I'll send all 12 patches as a reply to
+this email to LKML with just akpm cc.   I hope that's OK with everyone.
+
+
+Patch series overview : 
+
+[PATCH 00/12] making the kernel -Wshadow clean - The initial step
+[PATCH 01/12] making the kernel -Wshadow clean - fix mconf
+[PATCH 02/12] making the kernel -Wshadow clean - fix lxdialog
+[PATCH 03/12] making the kernel -Wshadow clean - fix jiffies.h
+[PATCH 04/12] making the kernel -Wshadow clean - warnings related to 'up'
+[PATCH 05/12] making the kernel -Wshadow clean - warnings related to wbc and map_bh
+[PATCH 06/12] making the kernel -Wshadow clean - fix checksum
+[PATCH 07/12] making the kernel -Wshadow clean - fix vgacon
+[PATCH 08/12] making the kernel -Wshadow clean - fix keyboard.c
+[PATCH 09/12] making the kernel -Wshadow clean - neighbour.h and 'proc_handler'
+[PATCH 10/12] making the kernel -Wshadow clean - mm/truncate.c
+[PATCH 11/12] making the kernel -Wshadow clean - USB & completion
+[PATCH 12/12] making the kernel -Wshadow clean - 'irq' shadows local and global
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
+

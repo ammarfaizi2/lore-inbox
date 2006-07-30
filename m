@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWG3JvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWG3Jvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWG3JvN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWG3JvN
+	id S932181AbWG3Jvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWG3Jvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:51:13 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:31694 "EHLO smurf.noris.de")
-	by vger.kernel.org with ESMTP id S932164AbWG3JvM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:51:12 -0400
-Date: Sun, 30 Jul 2006 11:49:45 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: john stultz <johnstul@us.ibm.com>, ak@muc.de, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, bunk@stusta.de, lethal@linux-sh.org,
-       hirofumi@mail.parknet.co.jp, asit.k.mallick@intel.com
-Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
-Message-ID: <20060730094945.GW3662@kiste.smurf.noris.de>
-References: <20060722173649.952f909f.akpm@osdl.org> <20060723081604.GD27566@kiste.smurf.noris.de> <20060723044637.3857d428.akpm@osdl.org> <20060723120829.GA7776@kiste.smurf.noris.de> <20060723053755.0aaf9ce0.akpm@osdl.org> <1153756738.9440.14.camel@localhost> <20060724171711.GA3662@kiste.smurf.noris.de> <20060724175150.GD50320@muc.de> <1153774443.12836.6.camel@localhost> <20060730020346.5d301bb5.akpm@osdl.org>
+	Sun, 30 Jul 2006 05:51:40 -0400
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:15530 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932171AbWG3Jvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 05:51:39 -0400
+Message-ID: <44CC8213.6020201@keyaccess.nl>
+Date: Sun, 30 Jul 2006 11:55:31 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730020346.5d301bb5.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-From: Matthias Urlichs <smurf@smurf.noris.de>
-X-Smurf-Spam-Score: -2.6 (--)
-X-Smurf-Whitelist: +relay_from_hosts
+To: Simon White <s_a_white@email.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Driver model ISA bus
+References: <20060730081824.2763A478088@ws1-5.us4.outblaze.com>
+In-Reply-To: <20060730081824.2763A478088@ws1-5.us4.outblaze.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Simon White wrote:
 
-Andrew Morton:
-> I guess Matthias didn't test this patch.
+> Would it be better to have a name variable directly in isa_device and
+> then copy that to driver in isa_register_device (like
+> pci_register_device does)?
 
-Not yet, sorry -- the thing is my main server, and customers tend to
-dislike downtime.
+No, that wouldn't be useful. The point of this code is largely that the 
+devices belong to the driver; do not have a life of their own. As such, 
+naming them after the driver is the correct thibng to do.
 
-I've already got it scheduled for tonight.
+> I was trying to look for use examples of this code in 2.6.18-rc2 but
+> didn't see any.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-No matter where you go, there you are.
-		-- Buckaroo Banzai
+Yes, apologies. I was converting ALSA ISA drivers to use it but had (and 
+have) to deal with a few other matters first all of a sudden. I'll get 
+to it shortly. There is a usage example I posted on the kernelnewbies 
+list a while ago:
+
+http://www.spinics.net/lists/newbies/msg21845.html
+
+> Is the intent of name to be the cards address, and ndev to be the
+> function on a specific card?
+
+No, the name is just an identifier under which the driver (and devices) 
+show up in sysfs and ndev the number of devices we want to the driver 
+code to call our methods with -- given that ISA devices do not announce 
+themselves we have to tell the driver core this.
+
+By the way, please CC people on LKML. I'm still being busy and had to 
+pick this out of the trash where it caught my eye by chance...
+
+Rene.

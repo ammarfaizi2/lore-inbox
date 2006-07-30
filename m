@@ -1,94 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWG3TTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWG3TZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWG3TTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 15:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWG3TTx
+	id S932454AbWG3TZD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 15:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWG3TZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 15:19:53 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:50891 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S932445AbWG3TTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 15:19:52 -0400
-Date: Sun, 30 Jul 2006 21:19:32 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Dave Jones <davej@redhat.com>,
-       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
-       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
-       cpufreq@lists.linux.org.uk, len.brown@intel.com
-Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
-Message-ID: <20060730191932.GA31309@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Dave Jones <davej@redhat.com>,
-	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
-	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
-	venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
-	cpufreq@lists.linux.org.uk, len.brown@intel.com
-References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com> <20060730184443.GA30067@outpost.ds9a.nl> <20060730190133.GD18757@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 30 Jul 2006 15:25:01 -0400
+Received: from [72.14.214.204] ([72.14.214.204]:42951 "EHLO
+	hu-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932454AbWG3TZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 15:25:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=knkDksXgCyOk/IJNJ2VWCirP5wMSnNvyRJKe/a5WFp4JJdeu2t5LZzAuCjvXbKvxvyzyRNAoKKTAmelnTYOmKLebHtjPiEUXBHxsVbwNKqJYCI3XlE9In3Y5PogCrgI03N22bya7Ed7YbgK483c1J6nHkVky5L2qga/ZPbNsNXA=
+Message-ID: <9a8748490607301224y63e7e9ah895722efe4c6e371@mail.gmail.com>
+Date: Sun, 30 Jul 2006 21:24:59 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
+Cc: "Andrew Morton" <akpm@osdl.org>, "Nikita Danilov" <nikita@clusterfs.com>,
+       "Joe Perches" <joe@perches.com>, "Martin Waitz" <tali@admingilde.org>,
+       "Jan-Benedict Glaw" <jbglaw@lug-owl.de>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Valdis Kletnieks" <Valdis.Kletnieks@vt.edu>,
+       "Sam Ravnborg" <sam@ravnborg.org>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Rusty Russell" <rusty@rustcorp.com.au>,
+       "Randy Dunlap" <rdunlap@xenotime.net>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>
+In-Reply-To: <200607301830.01659.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060730190133.GD18757@redhat.com>
-User-Agent: Mutt/1.5.9i
+References: <200607301830.01659.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 03:01:33PM -0400, Dave Jones wrote:
+On 30/07/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> Ok, here we go again...
+>
+> This is a series of patches that try to be an initial step towards making
+> the kernel build -Wshadow clean.
+>
+Replying to myself here since I forgot one little bit.
 
-> Normally, if the necessary BIOS bits aren't there, then acpi-cpufreq will
-> fail to register.  For some reason it sounds like it believes that everything
-> went ok.  I wonder if something changed in acpi recently that caused this
-> change in behaviour ? Len ?
+It would be great if maintainers of the various areas that my patches
+touch would explicitly ack or nack patches - preferably giving reasons
+for nack's as well.
+That would help me a lot in updating the patch-set (if so needed).
 
-As far as I can see, acpi_cpufreq does not pass on any errors it sees during
-init:
-
-static int __init acpi_cpufreq_init (void)
-{
-        int                     result = 0;
-
-        dprintk("acpi_cpufreq_init\n");
-
-        result = acpi_cpufreq_early_init_acpi();
-...
-
-And from acpi_cpufreq_early_init_acpi():
-
-static int acpi_cpufreq_early_init_acpi(void)
-{
-        struct acpi_processor_performance       *data;
-        unsigned int                            i, j;
-
-        dprintk("acpi_cpufreq_early_init\n");
-
-	( some memory allocations, does not look at acpi or bios )
-	
-        /* Do initialization in ACPI core */
-        acpi_processor_preregister_performance(acpi_perf_data);
-        return 0;
-}
-
-Note how any error from acpi_processor_preregister_performance is ignored.
-
-Ghetto patch which "fixes" the problem for me:
-
---- ./arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c~orig  2006-07-30 21:14:43.000000000 +0200
-+++ ./arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c       2006-07-30 21:11:34.000000000 +0200
-@@ -384,8 +384,7 @@
-        }
-
-        /* Do initialization in ACPI core */
--       acpi_processor_preregister_performance(acpi_perf_data);
--       return 0;
-+       return acpi_processor_preregister_performance(acpi_perf_data);
- }
-
-
-But tonight I have no speedstep laptop available to check if this does not
-kill acpi_cpufreq when it can work.
-
-Thanks for the hint, dave!
+Thanks.
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

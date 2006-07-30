@@ -1,92 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWG3G3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWG3Gos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWG3G3n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 02:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWG3G3n
+	id S1751173AbWG3Gos (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 02:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWG3Gos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 02:29:43 -0400
-Received: from web36706.mail.mud.yahoo.com ([209.191.85.40]:3681 "HELO
-	web36706.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751177AbWG3G3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 02:29:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=KhM640W8Rw1mfaN3q5HyGrvbXju8eOrB7Uv5Alj2cZiN2UQ55Ar4+Wr5WCHFzmi0TC7g5s3KJJKoqs7ZxMYw2xf6XfPZsDF44HhfMO2dUoZgeBXueE/qHaWEjNgngUfEBl10RE4CqJee/ZzD2YsS6Tv/jbNX4/HGvnWWaumf/mk=  ;
-Message-ID: <20060730062942.29644.qmail@web36706.mail.mud.yahoo.com>
-Date: Sat, 29 Jul 2006 23:29:42 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44CBBEC5.7090908@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 30 Jul 2006 02:44:48 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:24513 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751173AbWG3Gor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 02:44:47 -0400
+Date: Sun, 30 Jul 2006 08:38:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christian Borntraeger <borntrae@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@timesys.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] bug in futex unqueue_me
+Message-ID: <20060730063821.GA8748@elte.hu>
+References: <200607271841.56342.borntrae@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200607271841.56342.borntrae@de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.3
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.3 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Pierre Ossman <drzeus-list@drzeus.cx> wrote:
 
-> Some comments from a MMC/SD perspective.
+* Christian Borntraeger <borntrae@de.ibm.com> wrote:
+
+> From: Christian Borntraeger <borntrae@de.ibm.com>
 > 
-> On a general note, please replace all your constants
-> with defines. Magic
-> values are no fun (unless they are in fact a magic
-> number ;)).
-They are magic numbers. I have only the vague idea on
-what most of these numbers mean. I digged them out
-from TI's/everest's binary driver.
+> This patch adds a barrier() in futex unqueue_me to avoid aliasing of 
+> two pointers.
+>
+> On my s390x system I saw the following oops:
 
-Luckily, Vayo's linux binary had every register
-accessed from separate function, so, at least,
-register names are known with certain confidence.
+> So the code becomes more or less:
+> if (q->lock_ptr != 0) spin_lock(q->lock_ptr)
+> instead of
+> if (lock_ptr != 0) spin_lock(lock_ptr)
+>
+> Which caused the oops from above.
 
-> 
-> Also, calling the struct "card" might be a bit
-> misleading as it might be
-> a bus in the MMC case.
-I already have "socket". "card" is something that is
-plugged into the "socket". It's hard to think about
-short name that fits here nicely.
+interesting, how is this possible? We do a spin_lock(lock_ptr), and 
+taking a spinlock is an implicit barrier(). So gcc must not delay 
+evaluating lock_ptr to inside the critical section. And as far as i can 
+see the s390 spinlock implementation goes through an 'asm volatile' 
+piece of code, which is a barrier already. So how could this have 
+happened? I have nothing against adding a barrier(), but we should first 
+investigate why the spin_lock() didnt act as a barrier - there might be 
+other, similar bugs hiding. (we rely on spin_lock()s barrier-ness in a 
+fair number of places)
 
-> 
-> In tifm_sd_o_flags(), try not to case on response
-> types as the hardware
-> shouldn't have to care about this. If you really,
-> really, _really_ must
-> do this, then make sure you have a default that
-> prints something nasty
-> and fails the request with an error.
+> As a general note, this code of unqueue_me seems a bit fishy. The 
+> retry logic of unqueue_me only works if we can guarantee, that the 
+> original value of q->lock_ptr is always a spinlock (Otherwise we 
+> overwrite kernel memory). We know that q->lock_ptr can change. I dont 
+> know what happens with the original spinlock, as I am not an expert 
+> with the futex code.
 
-Unfortunately, hardware does care. Output of
-tifm_sd_op_flag is set into upper half of command
-register. The fall-back is 0 (implied default for both
-switches).
+yes, it is always a pointer to a valid spinlock, or NULL. 
+futex_requeue() can change the spinlock from one to another, and 
+wake_futex() can change it to NULL. The futex unqueue_me() fastpath is 
+when a futex waiter was woken - in which case it's NULL. But it can 
+still be non-NULL if we timed out or a signal happened, in which case we 
+may race with a wakeup or a requeue. futex_requeue() changes the 
+spinlock pointer if it holds both the old and the new spinlock. So it's 
+race-free as far as i can see.
 
-> 
-> A default is also needed for cmd_flags in the same
-> function.
-> 
-> In tifm_sd_exec(), you should only need to test for
-> the presence of
-> cmd->data, not that the command is of ADTC type.
-
-The TI binary drivers tests for the command type
-before setting the appropriate bit in command register
-(similar to tifm_sd_op_flags).
-
-In general: while I'm using code flow different from
-this used in TI's binary drivers, I tried very hard to
-preserve register access semantics. When I failed to
-do so, very bad things happened - sporadic and brutal
-kernel crashes and run-aways. I think they were caused
-by device writing random junk to some memory address
-at arbitrary times.
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+	Ingo

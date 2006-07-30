@@ -1,84 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWG3Slx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWG3SnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWG3Slx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWG3Slx
+	id S932425AbWG3SnI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWG3SnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:41:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:27614 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932423AbWG3Slw (ORCPT
+	Sun, 30 Jul 2006 14:43:07 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:56031 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932425AbWG3SnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:41:52 -0400
-From: Andi Kleen <ak@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Building external modules against objdirs
-Date: Sun, 30 Jul 2006 20:37:02 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, agruen@suse.de
-References: <200607301846.07797.ak@suse.de> <200607301949.41165.ak@suse.de> <20060730183159.GA30278@mars.ravnborg.org>
-In-Reply-To: <20060730183159.GA30278@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607302037.02559.ak@suse.de>
+	Sun, 30 Jul 2006 14:43:06 -0400
+Message-Id: <200607301841.k6UIfO1P004213@laptop13.inf.utfsm.cl>
+To: Hans Reiser <reiser@namesys.com>
+cc: David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>,
+       Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Theodore Tso <tytso@mit.edu>, LKML <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion) 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Fri, 28 Jul 2006 07:34:36 CST." <44CA126C.7050403@namesys.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Sun, 30 Jul 2006 14:41:24 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 30 Jul 2006 14:41:36 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 July 2006 20:31, Sam Ravnborg wrote:
-> On Sun, Jul 30, 2006 at 07:49:41PM +0200, Andi Kleen wrote:
-> > 
-> > > Can you check that you really did a 'make prepare' in the relevant
-> > > output directory. Previously only the make *config step was needed.
-> > 
-> > The output directory is a full build (configuration + make without any targets).
-> > Is that not enough anymore? 
-> > 
-> > Anyways after a make prepare it seems to work - thanks - but I think that
-> > should be really done as part of the standard build like it was in 2.6.17.
-> 'make prepare' is and has always been part of the standard build.
-> So I really do not see what is going on.
+Hans Reiser <reiser@namesys.com> wrote:
+> Let me put it from my perspective and stop pretending to be unbiased, so
+> others can see where I am coming from.
 
-To reproduce (on x86-64 at least)
+OK, but /that/ was pretty clear from day one...
 
-mkdir obj
-cd obj
-make -C ../linux-2.6.18-... O=$(pwd) defconfig
-make 
+>                                         No one was interested in our
+> plugins.
 
+Should tell you something...
 
+>           We put the design on a website, spoke at conferences, no one
+> but users were interested.
 
-> Can you please check that followign files exists in your output
-> directory:
-> .config
-> include/config/auto.conf.cmd
-> include/config/auto.conf
-> 
-> the latter should be the latest of the three.
+Again, should tell you something... "Look, a cool new gadget nobody ever
+imagined before" sure attracts lots of people. Intriguing. Play around a
+bit. Go for next "last novel gadget". Rinse, repeat.
 
--rw-r--r--  1 andi users 28481 2006-07-29 19:01 .config
--rw-r--r--  1 andi users  7739 2006-07-29 19:07 include/config/auto.conf
--rw-r--r--  1 andi users  6867 2006-07-29 19:07 include/config/auto.conf.cmd
+>                             No one would have conceived of having
+> plugins if not for us.
 
- 
-> Also try applying following patch to reveal why we trigger this rule:
-> 
-> diff --git a/Makefile b/Makefile
-> index 1dd58d3..4c30ed5 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -453,6 +453,7 @@ include/config/auto.conf: $(KCONFIG_CONF
->  ifeq ($(KBUILD_EXTMOD),)
->  	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
->  else
-> +	@echo triggered by - $? -
->  	$(error kernel configuration not valid - run 'make prepare' in $(srctree) to update it)
->  endif
+Perhaps because nobody else sees any sense in them?
 
+>                         Our plugins affect no one else.
 
-The echo didn't output for some reason, but adding it to the error gives
+Wrong. Others will want plugins if they are any use, at the very least. And
+then there is the possibility of /massive/ maintainance problems ("So, you
+/are/ using Reiser 4, the broken file has attached plugin A version 5.3,
+and is reached through a "directory" with plugin D 3.4rc5, and ..."). /I/
+wouldn't want to be at the receiving end of bug reports which after a dozen
+rounds boil down to this.
 
-/home/lsrc/quilt/linux/Makefile:456: *** triggered by /home/lsrc/quilt/linux/drivers/net/wireless/Kconfig /home/lsrc/quilt/linux/drivers/message/fusion/Kconfig /home/lsrc/quilt/linux/net/ieee80211/Kconfig /home/lsrc/quilt/linux/net/netfilter/Kconfig kernel configuration not valid - run 'make prepare' in /home/lsrc/quilt/linux to update it.  Stop.
- 
--Andi
+>                                                          Our
+> self-contained code should not be delayed
+
+Not your call to make.
+
+>                                           because other people delayed
+> getting interested in our ideas and now they don't want us to have an
+> advantage from leading.
+
+Your problem, not Linux'.
+
+>                          If they want to some distant day implement
+> generic plugins, for which they have written not one line of code to
+> date, fine, we'll use it when it exists, but right now those who haven't
+> coded should get out of the way of people with working code.
+
+But they are! Just branch the kernel, and be done with it.
+
+>                                                               It is not
+> fair or just to do otherwise.
+
+/You/ are asking the kernel developers for a /huge/ favor. Even totally go
+out of their ways, and acting contrary to their set ways and beliefs.
+Saying "no" to that can't be called "unfair"...
+
+>                                It also prevents users from getting
+> advances they could be getting today, for no reason.
+
+OK, so you have /never/ seen any reasons given here for not placing Reiser
+4 into the kernel? Strange...
+
+>                                                       Our code will not
+> be harder to change once it is in the kernel, it will be easier, because
+> there will be more staff funded to work on it.
+
+Right. Just like Reiser 3 right now.
+
+> As for this "we are all too grand to be bothered with money to feed our
+> families" business, building a system in which those who contribute can
+> find a way to be rewarded is what managers do.   Free software
+> programmers may be willing to live on less than others, but they cannot
+> live on nothing, and code that does not ever ship means living on
+> nothing.
+
+Then go do something else...
+
+> If reiser4 is delayed enough, for reasons that have nothing to do with
+> its needs, and without it having encumbered anyone else, it won't be
+> ahead of the other filesystems when it ships.
+
+How is that important in any way for the Linux kernel? This is not (and has
+not been for quite some time now) an experimental operating system. And it
+has /never/ been a dumpling ground for the next grand idea, it has always
+been about sound engineering.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+

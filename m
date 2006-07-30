@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWG3JTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWG3J25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWG3JTq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWG3JTp
+	id S932140AbWG3J25 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWG3J25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:19:45 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31142 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932110AbWG3JTo (ORCPT
+	Sun, 30 Jul 2006 05:28:57 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:6788 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932140AbWG3J25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:19:44 -0400
-Date: Sun, 30 Jul 2006 11:18:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-Subject: Re: Generic battery interface
-Message-ID: <20060730091848.GC3801@elf.ucw.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz> <20060728134307.GD29217@suse.cz>
+	Sun, 30 Jul 2006 05:28:57 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]
+Date: Sun, 30 Jul 2006 11:28:04 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pm@osdl.org, linux-mm@kvack.org
+References: <20060727015639.9c89db57.akpm@osdl.org> <200607300931.07679.rjw@sisk.pl> <44CC68EE.1080208@gmail.com>
+In-Reply-To: <44CC68EE.1080208@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060728134307.GD29217@suse.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200607301128.04395.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I do not understand this. Any polling (in kernel or in userspace) will
-> > wake the CPU, wasting power.
+On Sunday 30 July 2006 10:08, Jiri Slaby wrote:
+> Rafael J. Wysocki napsal(a):
+> > On Sunday 30 July 2006 02:06, Pavel Machek wrote:
+> >> Hi!
+> >>
+> >>>>>>> I have problems with swsusp again. While suspending, the very last thing kernel
+> >>>>>>> writes is 'restoring higmem' and then hangs, hardly. No sysrq response at all.
+> >>>>>>> Here is a snapshot of the screen:
+> >>>>>>> http://www.fi.muni.cz/~xslaby/sklad/swsusp_higmem.gif
+> >>>>>>>
+> >>>>>>> It's SMP system (HT), higmem enabled (1 gig of ram).
+> >>>>>> Most probably it hangs in device_power_up(), so the problem seems to be
+> >>>>>> with one of the devices that are resumed with IRQs off.
+> >>>>>>
+> >>>>>> Does vanila .18-rc2 work?
+> >>>>> Yup, it does.
+> >>>> Can you try up kernel, no highmem? (mem=512M)?
+> >>> It writes then:
+> >>> p16v: status 0xffffffff, mask 0x00001000, pvoice f7c04a20, use 0
+> >>> in endless loop when resuming -- after reading from swap.
+> >> Okay, so we have two different problems here.
+> >>
+> >> One is "hang during suspend" with smp/highmem mode,
+> > 
+> > That one is "interesting".  I've no idea why the restoration of highmem would
+> > have caused the box to hang like that.  Jiri, could you please post the output
+> > of dmesg after a fresh boot?
 > 
-> The kernel, however, has all the gory details at hand, and can decide
-> much better about the polling frequency, than the (hopefully) hardware
-> agnostic userspace.
-> 
-> Imagine your Zaurus: You don't need to poll very often when you are on
-> the flat part of the LiIon discharge curve, you probably want more
-> detailed info near the end.
+> higmem is ok. ioapic0 is the culprit -- its class resume dies:
+>         if (cls->resume)
+>                 cls->resume(dev); <----
+> in __sysdev_resume
 
-OTOH some applications just want more frequent polling than
-others. Shem's "first update after N msec" solution looks most
-flexible here.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Ah, so my first guess was actually correct. :-)
+
+> >> and one is probably driver problem with p16v (whatever it is).
+> >>
+> >> /data/l/linux/sound/pci/emu10k1/irq.c:
+> >> snd_printk(KERN_ERR "p16v: status: 0x%08x, mask=0x%08x, pvoice=%p,
+> >> use=%d\n", status2, mask, pvoice, pvoice->use);
+> >>
+> >> ...aha, so you may want to unload emu10k1 for testing.
+> 
+> Sure, this helped.
+
+So, we have two different regressions here.
+
+Please try to revert git-alsa.patch and see if the emu10k1-related problem
+goes away.
+
+As far as the first one is concerned, the genirq-* patches look suspicious.
+
+Greetings,
+Rafael

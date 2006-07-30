@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWG3SLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWG3STO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWG3SLP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWG3SLP
+	id S932403AbWG3STO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWG3STO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:11:15 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:24338 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932399AbWG3SLO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:11:14 -0400
-Message-ID: <44CCF63B.6070906@argo.co.il>
-Date: Sun, 30 Jul 2006 21:11:07 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jiri Slaby <jirislaby@gmail.com>,
+	Sun, 30 Jul 2006 14:19:14 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:8665 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932403AbWG3STN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 14:19:13 -0400
+Date: Sun, 30 Jul 2006 20:17:39 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avi Kivity <avi@argo.co.il>
+cc: Andi Kleen <ak@suse.de>, Jiri Slaby <jirislaby@gmail.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: FP in kernelspace
-References: <p73u04z2dzu.fsf@verdi.suse.de>
-In-Reply-To: <p73u04z2dzu.fsf@verdi.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jul 2006 18:11:10.0325 (UTC) FILETIME=[89038A50:01C6B403]
+In-Reply-To: <44CCF63B.6070906@argo.co.il>
+Message-ID: <Pine.LNX.4.61.0607302016340.25626@yvahk01.tjqt.qr>
+References: <p73u04z2dzu.fsf@verdi.suse.de> <44CCF63B.6070906@argo.co.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
 >
-> Avi Kivity <avi@argo.co.il> writes:
-> >
-> > It's also broken for x86-64, which uses sse for floating point, not
-> > the x87 fpu.
+> Cannot work on x86-64, even disregarding fp exceptions, because
+> kernel_fpu_begin() doesn't save the sse state which is used by fp math.
 >
-> Sorry, that doesn't make sense.
->
+> No?
 
- > > kernel_fpu_begin();
- > > c = d * 3.14;
- > > kernel_fpu_end();
-
-Cannot work on x86-64, even disregarding fp exceptions, because 
-kernel_fpu_begin() doesn't save the sse state which is used by fp math.
+No. You can - if you want - exclusively use x87 math on x64 (at least for 
+userspace) and don't care about SSE. Otherwise, GCC having a -mfpmath=387 
+would be pretty useless.
 
 No?
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
+Jan Engelhardt
+-- 

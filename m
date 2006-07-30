@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWG3NRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWG3NUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWG3NRu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 09:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWG3NRu
+	id S932097AbWG3NUc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 09:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWG3NUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 09:17:50 -0400
-Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:25553 "EHLO
-	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S1750833AbWG3NRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 09:17:49 -0400
-Message-ID: <44CCB268.3080107@keyaccess.nl>
-Date: Sun, 30 Jul 2006 15:21:44 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
+	Sun, 30 Jul 2006 09:20:32 -0400
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:7351 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1750833AbWG3NUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 09:20:31 -0400
+Message-ID: <44CCB21C.1050206@lwfinger.net>
+Date: Sun, 30 Jul 2006 08:20:28 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-To: Simon White <s_a_white@email.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Driver model ISA bus
-References: <20060730122415.A17D31CE304@ws1-6.us4.outblaze.com> <44CCB087.8030804@keyaccess.nl>
-In-Reply-To: <44CCB087.8030804@keyaccess.nl>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: Re: V2.6.18-rc2-latest git compilation fails on i386
+References: <44CC18B2.4040309@lwfinger.net> <9a8748490607292127ncea6bcep89f9841a09411b3@mail.gmail.com>
+In-Reply-To: <9a8748490607292127ncea6bcep89f9841a09411b3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
+Jesper Juhl wrote:
+> On 30/07/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
+>> When compiling the latest i386 kernel from Linus's tree with 
+>> CONFIG_STACK_UNWIND
+>> defined, the following compilation error occurs:
+>>
+> I reported that problem yesterday and Alexey Dobriyan provided a fix :
+> http://lkml.org/lkml/2006/7/29/85
+> 
 
-> On the other hand, if you are really dead set against loading when
-> you can't immediately drive something that's up to you as well -- you
-> decide when to fail the match().
+I don't subscribe to LKML and I missed your report of this problem in the summary.
+Sorry for the noise.
 
-Oh, forgot to mention, if vice-versa you don't mind always loading you 
-don't _have_ to supply a match() method at all.
+Larry
 
-Maybe you make your port/irq/dma parameter variables in the driver 
-writable through sysfs or, heaven forbid, you do autoprobing meaning 
-that there's nothing left that could not be fixed while the driver is 
-loaded. If you don't provide a .match, your .probe is called always 
-directly.
-
-Rene.

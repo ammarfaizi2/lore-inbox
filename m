@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWG3S7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWG3TDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWG3S7L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWG3S7L
+	id S932430AbWG3TDM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 15:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWG3TDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:59:11 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:29387 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S932435AbWG3S7K (ORCPT
+	Sun, 30 Jul 2006 15:03:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:8166 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932430AbWG3TDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:59:10 -0400
-Date: Sun, 30 Jul 2006 20:58:51 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: Guillaume Chazarain <guichaz@yahoo.fr>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc3 does not like an old udev (071)
-Message-ID: <20060730185850.GA31155@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	Guillaume Chazarain <guichaz@yahoo.fr>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <44CCEC96.3020607@yahoo.fr>
+	Sun, 30 Jul 2006 15:03:10 -0400
+Date: Sun, 30 Jul 2006 15:01:33 -0400
+From: Dave Jones <davej@redhat.com>
+To: bert hubert <bert.hubert@netherlabs.nl>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk, len.brown@intel.com
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
+Message-ID: <20060730190133.GD18757@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	bert hubert <bert.hubert@netherlabs.nl>,
+	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+	cpufreq@lists.linux.org.uk, len.brown@intel.com
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com> <20060730184443.GA30067@outpost.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CCEC96.3020607@yahoo.fr>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060730184443.GA30067@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 07:29:58PM +0200, Guillaume Chazarain wrote:
+On Sun, Jul 30, 2006 at 08:44:43PM +0200, bert hubert wrote:
+ 
+ > > Do you have any info in /sys/devices/system/cpu/cpu0/cpufreq ?
+ > 
+ > No, not with just acpi-cpufreq loaded. With the help of Zwane, I've
+ > discovered that if I unload acpi-cpufreq, I *can* load p4-clockmod, and then
+ > the directory you mention appears, and I can configure governors, and life
+ > is good. This all on 2.6.18-rc3.
 
-> When updating only the kernel to 2.6.18-rc3 on Ubuntu Dapper/x86, 
-> /dev/usblp0
-> is no more created on boot. If I manually create it, it works fine.
+Right, cpufreq drivers aren't 'stackable'.
 
-I can confirm this exact problem.
+ > Do I understand correctly that acpi-cpufreq is supposed to offer comparable
+ > features?
 
-> git-bisect told me the culprit was
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
+If the BIOS supports the relevant ACPI tables.
 
-Thanks for doing the work, Guillaume! I was trying to find the time to do
-the same.
+ > Perhaps acpi-cpufreq *has* loaded, but did not find the proper hooks, but
+ > has now registered itself, thus blocking p4-clockmod? When everything is
+ > in-kernel, acpi-cpufreq might register itself first, which would lead to the
+ > same thing.
 
-> Updating udev to 096, and using a normal 2.6.18-rc3 kernel works too, so
-> maybe the correct (albeit unpopular) fix is to update the udev requirement
-> in Documentation/Changes?
+Normally, if the necessary BIOS bits aren't there, then acpi-cpufreq will
+fail to register.  For some reason it sounds like it believes that everything
+went ok.  I wonder if something changed in acpi recently that caused this
+change in behaviour ? Len ?
 
-I hope this won't be necessary..
-
-Thanks!
+		Dave
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+http://www.codemonkey.org.uk

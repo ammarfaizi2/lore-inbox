@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWG3NIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWG3NJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWG3NIe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 09:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWG3NIe
+	id S1750735AbWG3NJv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 09:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWG3NJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 09:08:34 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:63928 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750798AbWG3NId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 09:08:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=AR+tEv2OygNqwxbKww3o1tkchCtpKHSkslFD4IpXL++Rui4Cdh8Ah/wxLQuklosEfY5HshAfRtetrGRBc1EtbL2zlq5SVzCTYhM5qd4yBieUvCPXjn/POEbqYACGbbYrDO8maTIzMVGXk90put/Vcg21xAX62cDrwR+/t/8Ga0Y=
-Message-ID: <9a8748490607300608v65ce3bdcsbb47273bb82a2d6c@mail.gmail.com>
-Date: Sun, 30 Jul 2006 15:08:32 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-rc3 - ReiserFS - warning: vs-8115: get_num_ver: not directory or indirect item
-Cc: "Hans Reiser" <reiser@namesys.com>,
-       "ReiserFS List" <reiserfs-list@namesys.com>
+	Sun, 30 Jul 2006 09:09:50 -0400
+Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:29119 "EHLO
+	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1750735AbWG3NJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 09:09:50 -0400
+Message-ID: <44CCB087.8030804@keyaccess.nl>
+Date: Sun, 30 Jul 2006 15:13:43 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Simon White <s_a_white@email.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Driver model ISA bus
+References: <20060730122415.A17D31CE304@ws1-6.us4.outblaze.com>
+In-Reply-To: <20060730122415.A17D31CE304@ws1-6.us4.outblaze.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a warning message with 2.6.18-rc3 that I've never seen before :
+Simon White wrote:
 
-  ReiserFS: sda4: warning: vs-8115: get_num_ver: not directory or indirect item
+>> No, the name is just an identifier under which the driver (and 
+>> devices) show up in sysfs and ndev the number of devices we want to 
+>> the driver code to call our methods with -- given that ISA devices 
+>> do not announce themselves we have to tell the driver core this.
+> 
+> If I understood correctly, it is the maximum number of devices our
+> driver will support. 
 
-The message showed up twice in dmesg during two parallel "make -j3"
-builds of the 2.6.18-rc3 kernel source in two sepperate directories.
-I've tried to reproduce it but without luck.
+Yes.
 
-It would be nice if someone could tell me what the message means and
-wether or not I should be worried about it.
+> I got confused with an earlier version of this whereby devices were
+> to be registered with the isa bus on finding them.
+> 
+> One further thing I'd like to check.  In my case there can only be a
+> maximum of 4 cards, limited by the possible hardware addresses 
+> manually selectable.  Will the probe calls just happen or do they 
+> require some userspace activity to occur (referring to that echo bind
+> in the example).
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+If you provide a match() method as part of the isa_driver struct the 
+calls to that method will just happen and if it returns non-zero, 
+indicating a match between this driver and the device, the calls to the 
+probe method will just happen. On a non-match (0), the device is 
+unregistered again.
+
+The driver model ISA bus is meant to provide a framework for ISA drivers 
+close to the model from saner busses such as PCI. PCI drivers load 
+always (even without their PCI ID present) since the user could do 
+things such as supply a new PCI ID to the driver after it's loaded 
+through sysfs (the new_id file).
+
+As the example says, the match() method is intended only for things 
+which should make the device fail to register since it could never be 
+useful anymore -- in the example, if a port value hasn't been passed in 
+we can't do anything so fail the device registration. Due to the fact 
+that most other problems could be fixed later while the driver is loaded 
+(such as by unloading a different driver which was keeping our ports 
+busy) things such as that are also really the only things you should 
+check in the match method, and do everything else from the probe method.
+
+On the other hand, if you are really dead set against loading when you 
+can't immediately drive something that's up to you as well -- you decide 
+when to fail the match().
+
+Rene.

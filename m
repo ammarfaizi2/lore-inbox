@@ -1,81 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWG3UJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWG3UKR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWG3UJc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 16:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWG3UJc
+	id S932479AbWG3UKR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 16:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWG3UKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 16:09:32 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:16779 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S932474AbWG3UJb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 16:09:31 -0400
-From: Rene Rebe <rene@exactcode.de>
-Organization: ExactCODE
-To: Kasper Sandberg <lkml@metanurb.dk>
-Subject: Re: ipw3945 status
-Date: Sun, 30 Jul 2006 22:09:09 +0200
-User-Agent: KMail/1.9.3
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
-       Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-References: <20060730104042.GE1920@elf.ucw.cz> <200607301937.15414.rene@exactcode.de> <1154282618.13635.41.camel@localhost>
-In-Reply-To: <1154282618.13635.41.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 30 Jul 2006 16:10:17 -0400
+Received: from colin.muc.de ([193.149.48.1]:26886 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932475AbWG3UKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 16:10:15 -0400
+Date: 30 Jul 2006 22:10:05 +0200
+Date: Sun, 30 Jul 2006 22:10:05 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: john stultz <johnstul@us.ibm.com>, smurf@smurf.noris.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, bunk@stusta.de,
+       lethal@linux-sh.org, hirofumi@mail.parknet.co.jp,
+       asit.k.mallick@intel.com
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+Message-ID: <20060730201005.GA85093@muc.de>
+References: <20060722173649.952f909f.akpm@osdl.org> <20060723081604.GD27566@kiste.smurf.noris.de> <20060723044637.3857d428.akpm@osdl.org> <20060723120829.GA7776@kiste.smurf.noris.de> <20060723053755.0aaf9ce0.akpm@osdl.org> <1153756738.9440.14.camel@localhost> <20060724171711.GA3662@kiste.smurf.noris.de> <20060724175150.GD50320@muc.de> <1153774443.12836.6.camel@localhost> <20060730020346.5d301bb5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607302209.09735.rene@exactcode.de>
-X-Spam-Score: -101.4 (---------------------------------------------------)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  HI, On Sunday 30 July 2006 20:03, Kasper Sandberg wrote:
-	> > it would be totally ok if the kernel had a country= command line
-	switch > > and the driver limitting functionality due that. > or simply
-	state this in the help in Kconfig? > > > > People that want to violate
-	the local regulations would require to lie to > > the kernel as they
-	could install other country windows and drivers as > > well. > besides,
-	im not even sure that specifying in Kconfig is necessary, > wouldnt it
-	only be illegal in countries, if people actually modified the > source?
-	[...] 
-	Content analysis details:   (-101.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-100 USER_IN_WHITELIST      From: address is in the user's white-list
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+In-Reply-To: <20060730020346.5d301bb5.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI,
+> I guess Matthias didn't test this patch.  Can we get some obviously-correct
+> fix in place for 2.6.18?
 
-On Sunday 30 July 2006 20:03, Kasper Sandberg wrote:
+So far we don't have any idea what the problem is on that system.
 
-> > it would be totally ok if the kernel had a country= command line switch
-> > and the driver limitting functionality due that.
-> or simply state this in the help in Kconfig?
-> > 
-> > People that want to violate the local regulations would require to lie to
-> > the kernel as they could install other country windows and drivers as
-> > well.
-> besides, im not even sure that specifying in Kconfig is necessary,
-> wouldnt it only be illegal in countries, if people actually modified the
-> source?
+> It is a "CPU0: Intel(R) Xeon(TM) CPU 3.00GHz stepping 03".
 
-I proposed a kernel command so distributors have a way to run-time
-change this.
+Was that on that system? I guess it could be checked for and TSC 
+be forced off. It sounds like a real CPU bug however.
 
-However now that I think about it a bit more, a simple sysfs attribute
-would be way more useful so the gui tool of the the distribution can
-switch the country immediatly and do not require a windows-al-like reboot.
-
-Yours,
-
--- 
-  René Rebe - ExactCODE - Berlin (Europe / Germany)
-  http://exactcode.de | http://t2-project.org | http://rene.rebe.name
-  +49 (0)30 / 255 897 45
+-Andi

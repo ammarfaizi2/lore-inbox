@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWG3KsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWG3Kug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWG3KsT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 06:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWG3KsT
+	id S932255AbWG3Kug (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 06:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWG3Kug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 06:48:19 -0400
-Received: from zakalwe.fi ([80.83.5.154]:5578 "EHLO zakalwe.fi")
-	by vger.kernel.org with ESMTP id S932254AbWG3KsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 06:48:18 -0400
-Date: Sun, 30 Jul 2006 13:48:14 +0300
-From: Heikki Orsila <shd@zakalwe.fi>
-To: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Still broken sata (VIA) on Asus A8V (kernel 2.6.14+) with irqbalance
-Message-ID: <20060730104814.GB12840@zakalwe.fi>
-References: <20060201162800.GA32196@tentacle.sectorb.msk.ru> <20060728121210.GA8375@tentacle.sectorb.msk.ru> <20060728200250.GA12840@zakalwe.fi> <1154146089.10955.109.camel@bastov.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1154146089.10955.109.camel@bastov.localdomain>
-User-Agent: Mutt/1.5.11
+	Sun, 30 Jul 2006 06:50:36 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:34056 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932255AbWG3Kug
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 06:50:36 -0400
+Date: Sun, 30 Jul 2006 12:50:33 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>
+Cc: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org,
+       Antonino Daplas <adaplas@pol.net>
+Subject: Re: [PATCH] intelfbhw.c: intelfbhw_get_p1p2 defined but not used
+Message-Id: <20060730125033.efb0d87e.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.64.0607060154130.2027@gentoo.warudkars.net>
+References: <Pine.LNX.4.64.0607060154130.2027@gentoo.warudkars.net>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 05:08:09AM +0100, Sergio Monteiro Basto wrote:
-> cat DMESG | grep -i fixup
-> PCI: VIA IRQ fixup for 0000:00:0f.1, from 255 to 0
-> PCI: VIA IRQ fixup for 0000:00:10.0, from 11 to 3
-> PCI: VIA IRQ fixup for 0000:00:10.1, from 11 to 3
-> PCI: VIA IRQ fixup for 0000:00:10.2, from 10 to 3
+> intelfbhw_get_p1p2 is used only if REGDUMP is defined - compile it in only 
+> if REGDUMP is defined - one less compiler warning.
 > 
-> with IO-APIC working , you could try patches to not "VIA IRQ quirk
-> fixup", but could not be the main problem. 
-> 
-> I have a very experimental patch
-> http://lkml.org/lkml/2006/7/28/99
-> 
-> 
-> Which you can just apply and make bzImage, install and reboot  , don't
-> need to recompile all over again.
+> Patch against 2.6.18-rc1.
 
-Applied, tried and it worked! I couldn't reproduce the error in 30 
-minutes of stress testing. With a buggy kernel it only took a matter of 
-minutes to reproduce it. Thank you for your effort.
+Can we please have this patch merged in Linus' tree now?
 
-Heikki Orsila
+Thanks,
+-- 
+Jean Delvare

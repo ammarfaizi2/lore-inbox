@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWG3LyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWG3MBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWG3LyB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 07:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWG3LyB
+	id S932290AbWG3MBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 08:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWG3MBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 07:54:01 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54996 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932265AbWG3LyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 07:54:00 -0400
-Subject: Re: [v4l-dvb-maintainer] Re: [PATCH 00/23] V4L/DVB fixes
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Trent Piepho <xyzzy@speakeasy.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-dvb-maintainer@linuxtv.org,
-       akpm@osdl.org, Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0607292352490.32415@shell2.speakeasy.net>
-References: <20060725180311.PS54604900000@infradead.org>
-	 <1154222716.27019.39.camel@praia>
-	 <Pine.LNX.4.64.0607292300070.4168@g5.osdl.org>
-	 <Pine.LNX.4.58.0607292352490.32415@shell2.speakeasy.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 30 Jul 2006 08:53:10 -0300
-Message-Id: <1154260390.27019.45.camel@praia>
+	Sun, 30 Jul 2006 08:01:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24217 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932290AbWG3MBM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 08:01:12 -0400
+Date: Sun, 30 Jul 2006 05:01:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: CIJOML <cijoml@volny.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modprobe nsc-ircc dongle_id=0x08 doesn't find chip in
+ 2.6.18-rc2
+Message-Id: <20060730050109.16a967ea.akpm@osdl.org>
+In-Reply-To: <200607281229.04183.cijoml@volny.cz>
+References: <200607281229.04183.cijoml@volny.cz>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, 28 Jul 2006 12:29:04 +0200
+CIJOML <cijoml@volny.cz> wrote:
 
-Em Dom, 2006-07-30 às 00:11 -0700, Trent Piepho escreveu:
-> On Sat, 29 Jul 2006, Linus Torvalds wrote:
-> > On Sat, 29 Jul 2006, Mauro Carvalho Chehab wrote:
-> > >
-> > > Please pull these (and the other ones) from master branch at:
-> > >         kernel.org:/pub/scm/linux/kernel/git/mchehab/v4l-dvb.git
-> >
-> > I get a _huge_ diffstat with
-> >
-> >  135 files changed, 3056 insertions(+), 1562 deletions(-)
-I suspect Linus tried to merge from branch "devel", instead of "master".
+> Please have a lok at this bugreport:
 > 
-> There are mostly two things which did this.
+> http://bugzilla.kernel.org/show_bug.cgi?id=6916
 > 
-> One is that Mauro translated almost all of the V4L1 radio card drivers to
-> V4L2.  The changes are all very repetitive, but it made a huge diffstat:
-> 
->  15 files changed, 1758 insertions(+), 918 deletions(-)
-> 
-> The second source is the dvb_attach() system, which was not supposed to go
-> in 2.6.18, it was for 2.6.19.
-> 
->  74 files changed, 827 insertions(+), 622 deletions(-)
-> 
-> The dvb_attach() stuff isn't ready for 2.6.18, it hasn't been tested at all
-> and it's a very significant change.  The ISA radio card drivers....  I
-> don't think they are used very much anymore.
-No. The stuff to Linus is at branch "master" on my tree, with the bug
-fixes. V4L1 conversion, dvb_attach and other neat stuff are on branch
-"devel", and are meant to go to kernel 2.6.19 or upper.
 
-Cheers, 
-Mauro.
+It says:
 
+Most recent kernel where this bug did not occur: 2.6.18-rc2
+Distribution: Debian Testing
+Hardware Environment: Acer TravelMate 242
+Software Environment: kernel 2.6.18-rc2
+
+Which isn't correct.  What is the correct answer to the first question? 
+ie: the most recent not-buggy kernel version?

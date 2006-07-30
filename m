@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWG3XMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWG3XNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWG3XMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 19:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWG3XMm
+	id S964787AbWG3XNW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 19:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWG3XNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 19:12:42 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:7092 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964786AbWG3XMl (ORCPT
+	Sun, 30 Jul 2006 19:13:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55769 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964787AbWG3XNV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 19:12:41 -0400
-Date: Mon, 31 Jul 2006 01:11:51 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Avi Kivity <avi@argo.co.il>
-cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FP in kernelspace
-In-Reply-To: <44CCFA5A.2030605@argo.co.il>
-Message-ID: <Pine.LNX.4.61.0607310110180.11084@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0607302018110.25626@yvahk01.tjqt.qr>
- <44CCFA5A.2030605@argo.co.il>
+	Sun, 30 Jul 2006 19:13:21 -0400
+Date: Mon, 31 Jul 2006 01:12:51 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Theodore Tso <tytso@mit.edu>, Kasper Sandberg <lkml@metanurb.dk>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
+       Jirka Lenost Benc <jbenc@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ipw2100-admin@linux.intel.com
+Subject: Re: ipw3945 status
+Message-ID: <20060730231251.GB1800@elf.ucw.cz>
+References: <20060730104042.GE1920@elf.ucw.cz> <20060730112827.GA25540@srcf.ucam.org> <44CC993B.6070309@l4x.org> <20060730114722.GA26046@srcf.ucam.org> <1154264478.13635.22.camel@localhost> <20060730145305.GE23279@thunk.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060730145305.GE23279@thunk.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > kernel_fpu_begin();
->> > c = d * 3.14;
->> > kernel_fpu_end();
->> 
->> static inline void kernel_fpu_begin() {
->> ...
->> preempt_disable();
->> ...
->> }
->> 
-> Is the kernel allowed to clobber userspace's sse registers?
+Hi!
 
-As long as you save and restore it properly, and make it look like to all 
-other threads that nothing happened, you are (I hope) free to do anything.
+> > > Because it would involve a moderate rewriting of the driver, and we'd 
+> > > have to carry a delta against Intel's code forever.
+> >
+> > without knowing this for sure, dont you think that if a largely changed
+> > version of the driver appeared in the tree, intel may start developing
+> > on that? cause then they wouldnt be the ones that "broke" compliance
+> > with FCC(hah) by not doing binaryonly.
+> 
+> It's just as likely that their lawyers would tell them that they would
+> have to pretend that the modifications don't exist at all, and not
+> release any changes for any driver (like OpenBSD's) that bypassed the
+> regulatory daemon.  The bigger worry would be if they decided that
+> they couldn't risk supporting their current out-of-tree driver, and
+> couldn't release Linux drivers for their softmac wireless devices in
+> the future.
+> 
+> Personally, I don't see why the requirement of an external daemon is
+> really considered that evil.  We allow drivers that depend on firmware
+> loaders, don't we?  I could imagine a device that required a
+> digitally
 
-> What about interrupt code?
+Well, drivers that depend on external, non-redistributable firmware
+(aka ipw2200/ipw2100) already are evil, but at least I do not run
+untrusted code on my CPU. (And yes, firmware in ipw2200 crashes a
+_lot_).
 
-You do not want to go there...
+Plus, that regulatory daemon probably contains security hole (or two)
+inside, and I can't properly audit it. (Yes, firmware in ipw2200
+probably contains security holes, too, but at least those are more
+"interesting" to exploit).
 
-> xor.h at least appears to save the sse state before use.
->
-> -- 
-> Do not meddle in the internals of kernels, for they are subtle and quick to
-> panic.
+And... Intel will not even tell you WTF that daemon does. They claim
+it is for FCC, but it seems to be doing more than that. So maybe I'm
+not _that_ paranoid.
 
-Follow that advice, don't do FP. But OTOH......<long dots> there is already 
-an SSE player in the kernel: drivers/md/raid6sse*.c
+(Of course, binary-only kernel module would be even uglier).
 
-
-Jan Engelhardt
+Ouch and binary-only daemon will conviently prevent me from using that
+wireless card in ppc machine.
+								Pavel
 -- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

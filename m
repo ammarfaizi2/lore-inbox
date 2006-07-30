@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWG3R1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWG3R20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWG3R1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 13:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWG3R1j
+	id S932382AbWG3R20 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 13:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWG3R20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 13:27:39 -0400
-Received: from khc.piap.pl ([195.187.100.11]:31926 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932377AbWG3R1i (ORCPT
+	Sun, 30 Jul 2006 13:28:26 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:21157 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932376AbWG3R2Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 13:27:38 -0400
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "Nikita Danilov" <nikita@clusterfs.com>,
-       "Joe Perches" <joe@perches.com>, "Martin Waitz" <tali@admingilde.org>,
-       "Jan-Benedict Glaw" <jbglaw@lug-owl.de>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "David Woodhouse" <dwmw2@infradead.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       "Valdis Kletnieks" <Valdis.Kletnieks@vt.edu>,
-       "Sam Ravnborg" <sam@ravnborg.org>,
-       "Russell King" <rmk@arm.linux.org.uk>,
-       "Rusty Russell" <rusty@rustcorp.com.au>,
-       "Randy Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
-References: <200607301830.01659.jesper.juhl@gmail.com>
-	<m3ac6rkp8c.fsf@defiant.localdomain>
-	<9a8748490607301014rf04b6cew9d991635a7834277@mail.gmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 30 Jul 2006 19:27:36 +0200
-In-Reply-To: <9a8748490607301014rf04b6cew9d991635a7834277@mail.gmail.com> (Jesper Juhl's message of "Sun, 30 Jul 2006 19:14:06 +0200")
-Message-ID: <m3wt9vj94n.fsf@defiant.localdomain>
+	Sun, 30 Jul 2006 13:28:25 -0400
+Message-ID: <44CCEC96.3020607@yahoo.fr>
+Date: Sun, 30 Jul 2006 19:29:58 +0200
+From: Guillaume Chazarain <guichaz@yahoo.fr>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: 2.6.18-rc3 does not like an old udev (071)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jesper Juhl" <jesper.juhl@gmail.com> writes:
+Hi,
 
-> I think it's a good thing that we have to take a little more care when
-> choosing global function and variable names... Take up() for example -
-> in my (very humble) oppinion that is a very bad name for a global
-> function - it clashes too easily with local function and variable
-> names, and a programmer who's not careful may end up calling the
-> global up() when he wants the local and vice versa (a much better name
-> would have been sem_up() - should we change that???).
+When updating only the kernel to 2.6.18-rc3 on Ubuntu Dapper/x86, 
+/dev/usblp0
+is no more created on boot. If I manually create it, it works fine.
 
-Possibly, but it could then conflict with something else. Anytime we
-add/change some global symbol, we would have to scan entire kernel
-for conflicts (authors of (yet) off-tree things would hate us).
-I don't think it's practical, especially with, IMHO, no real gain.
+Vanilla udev from Dapper: version 079 (Documentation/Changes requires
+udev 071 ;-) ).
 
-> I don't agree with you and I don't know how to convince you, but I
-> still appreciate your feedback.
-> Thanks.
+git-bisect told me the culprit was
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bd00949647ddcea47ce4ea8bb2cfcfc98ebf9f2a
 
-You're welcome. I'd be more happy if I could say I like the idea :-(
+Reverting only this commit makes an Oopsing kernel.
 
-> I'll leave it to people higher in the hierarchy to decide if these
-> patches should be applied or not ;)
+This patch was next to last in its serie:
+http://www.mail-archive.com/linux-usb-devel@lists.sourceforge.net/msg44538.html
 
-Sure.
+Reverting the last patch in the serie (as well as the culprit found by 
+git bisect):
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=43104f1da88f5335e9a45695df92a735ad550dda
+fixes the problem.
+
+Updating udev to 096, and using a normal 2.6.18-rc3 kernel works too, so 
+maybe
+the correct (albeit unpopular) fix is to update the udev requirement in
+Documentation/Changes?
+
+Thanks.
+
 -- 
-Krzysztof Halasa
+Guillaume
+

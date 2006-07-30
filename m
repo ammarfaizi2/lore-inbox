@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWG3Qv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWG3Qya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWG3Qv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 12:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWG3Qv5
+	id S1751001AbWG3Qya (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 12:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWG3Qya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 12:51:57 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:456 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S1750807AbWG3Qv5 (ORCPT
+	Sun, 30 Jul 2006 12:54:30 -0400
+Received: from khc.piap.pl ([195.187.100.11]:41197 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750924AbWG3Qy3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 12:51:57 -0400
-Date: Sun, 30 Jul 2006 18:51:38 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, davej@redhat.com,
-       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
-       cpufreq@lists.linux.org.uk
-Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
-Message-ID: <20060730165137.GA26511@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
-	davej@redhat.com, venkatesh.pallipadi@intel.com, tony@atomide.com,
-	akpm@osdl.org, cpufreq@lists.linux.org.uk
-References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl>
-Mime-Version: 1.0
+	Sun, 30 Jul 2006 12:54:29 -0400
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Nikita Danilov <nikita@clusterfs.com>, Joe Perches <joe@perches.com>,
+       Martin Waitz <tali@admingilde.org>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Valdis Kletnieks <Valdis.Kletnieks@vt.edu>,
+       Sam Ravnborg <sam@ravnborg.org>, Russell King <rmk@arm.linux.org.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
+References: <200607301830.01659.jesper.juhl@gmail.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 30 Jul 2006 18:54:27 +0200
+In-Reply-To: <200607301830.01659.jesper.juhl@gmail.com> (Jesper Juhl's message of "Sun, 30 Jul 2006 18:30:01 +0200")
+Message-ID: <m3ac6rkp8c.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730160738.GB13377@irc.pl>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   I have similar problem with cpufreq-nforce2 -- http://lkml.org/lkml/2006/7/7/234
->   I haven't do a git-bisect yet.
+Hi,
 
-To recap, cpufreq died for at least two people (Tomasz Torcz and me) between
-2.6.17 and 2.6.18-rc1. I've cc'd everybody who touched cpufreq according to
-the shortlog.
+Jesper Juhl <jesper.juhl@gmail.com> writes:
 
-Abundant details are in:
+> This is a series of patches that try to be an initial step towards making
+> the kernel build -Wshadow clean.
 
-http://lkml.org/lkml/2006/7/30/87
+I'm not sure such patches improve situation.
 
-New information is that I've narrowed it down from between 2.6.16.9 and
-2.6.18-rc1 to between 2.6.17.7 (which works) and 2.6.18-rc1 (which doesn't).
+> It'll help us keep our namespaces separate.
 
-The problem exists both with cpufreq as modules and staticly, and both with
-P4 and nforce2.
+Nope, it's exactly opposite - now we have separate namespaces and
+-Wshadow reduces that separation.
 
-Please let me know how I can help you solve this problem. I'll try a git
-bisect but a lot of the cpufreq changes appear to be interrelated, so I'm
-unsure if it will work.
-
-Thanks!
-
+Currently you don't have to worry about the universe when you write
+a piece of code, and more importantly the universe doesn't have to
+worry about each function and each private variable. I'm not sure
+changing that is a good idea.
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+Krzysztof Halasa

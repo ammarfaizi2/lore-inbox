@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWG2XKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWG2XMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWG2XKU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jul 2006 19:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWG2XKT
+	id S1750753AbWG2XMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jul 2006 19:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWG2XMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jul 2006 19:10:19 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:50817 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750746AbWG2XKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jul 2006 19:10:18 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]
-Date: Sun, 30 Jul 2006 01:10:01 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       linux-pm@osdl.org, linux-mm@kvack.org
-References: <20060727015639.9c89db57.akpm@osdl.org> <200607292059.59106.rjw@sisk.pl> <44CBE9D5.9030707@gmail.com>
-In-Reply-To: <44CBE9D5.9030707@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607300110.01943.rjw@sisk.pl>
+	Sat, 29 Jul 2006 19:12:18 -0400
+Received: from host213-123-219-127.in-addr.btopenworld.com ([213.123.219.127]:56846
+	"HELO 47A8EBB8") by vger.kernel.org with SMTP id S1750750AbWG2XMR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jul 2006 19:12:17 -0400
+X-Apparently-To: almonstern@chocofan.com via 96.150.235.182; Sun, 30 Jul 2006 02:09:23 +0200
+X-Originating-IP: [18.33.96.59]
+Message-ID: <972301141618.AA1486081@client.comcast.net>
+Date: Sat, 29 Jul 2006 22:12:23 -0200
+From: "Your Mngr. janajoeann" <alictheofanis@chocofan.com>
+To: linux-kernel@vger.kernel.org
+X-Originating-Email: [alphonsoshannon@chocofan.com]
+X-Mozilla-Status: 1[1
+Subject: The Extender - the only Clinically Tested Pe-n-i-s Enlargement Product-Lourdes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 July 2006 01:06, Jiri Slaby wrote:
-> Rafael J. Wysocki napsal(a):
-> > Hi,
-> > 
-> > On Saturday 29 July 2006 19:58, Jiri Slaby wrote:
-> >> Andrew Morton napsal(a):
-> >>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
-> >> Hello,
-> >>
-> >> I have problems with swsusp again. While suspending, the very last thing kernel
-> >> writes is 'restoring higmem' and then hangs, hardly. No sysrq response at all.
-> >> Here is a snapshot of the screen:
-> >> http://www.fi.muni.cz/~xslaby/sklad/swsusp_higmem.gif
-> >>
-> >> It's SMP system (HT), higmem enabled (1 gig of ram).
-> > 
-> > Most probably it hangs in device_power_up(), so the problem seems to be
-> > with one of the devices that are resumed with IRQs off.
-> > 
-> > Does vanila .18-rc2 work?
-> 
-> Yup, it does.
+Finally!
 
-Hm, in fact this may be a problem with any device driver.
+I have always worried about the size of my penis.  When I have sex,
+even though she says that the sex is good, I know that what she really
+wants is an extra inch!
 
-Could you please boot the system with init=/bin/bash and try to suspend?
+3 months ago I found The Extender.  I just put it on whilst I'm driving
+the car and when I'm sleeping.  It stays hidden under my clothes and it 
+is really surprisingly comfortable and soft.
 
-Rafael
+I could tell that my penis was getting longer and heavier, but I
+thought that when I took it back off I would shrink back to original
+size.  I was really surprised!
+
+I have been 4.5" long since adolescence
+When I took off The Extender I was measuring 6.5"
+After not wearing the extender for a week, I am still 6" long!
+
+The lengthening is permanent!
+http://usegent.com/ex/
+
+I could not believe the results of this device.  I am back to wearing 
+it
+again and I'm still getting larger!  My girlfriend says it is the best
+product I've ever bought, and she ALWAYS reminds me to put it on if I
+forget!
+
+Take a peek... We know it works.  There's a total guarantee with it, 
+too.  If
+you are not completely satisfied with your length gain and comfort you 
+get your
+money back.  Every penny.  No-one sends them back!
+
+The Extender correct the curve of the penis too, straightening out 
+sharp bends
+as new cells grow!
+
+Check it out
+http://usegent.com/ex/

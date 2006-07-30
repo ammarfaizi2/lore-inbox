@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWG3Ql5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWG3Qmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWG3Ql5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 12:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWG3Ql5
+	id S932368AbWG3Qmj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 12:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWG3Qmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 12:41:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:54835 "EHLO
+	Sun, 30 Jul 2006 12:42:39 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:38197 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932366AbWG3Ql4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 12:41:56 -0400
+	id S932368AbWG3Qmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 12:42:38 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:references:in-reply-to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=P18iNvga8bxl5Uf/QqP1pEJz9YTDGuF6b77WNL7BzpH42+T3HeYMi6zYPkPn4zckibZlKdKzl0W5aRP+IAci+TqGJuSa0FfB5RpMswAaoDKWR2pD6GK1RxCM3+2XgnxGIsD0W9iP+KUNFShCWFaz+ueajyoNsIBy7mWvuAu1zuQ=
+        b=jjWMZ7OnfaOv32rMDThF12PWoAUPxoBFNZE9mRpRy762R839uoLIFc/yUVKB5a5mapoWa9oc3JoNwmAy/IetpLkaLzfh9TroPjkuK9g4Ba2JedT1S0j6Bmsnf+ijGXl1NikNG5I5wHCCv6evIljgAF0fd3VaaxB7eOQn++vHsIU=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 10/12] making the kernel -Wshadow clean - mm/truncate.c
-Date: Sun, 30 Jul 2006 18:42:56 +0200
+Subject: [PATCH 11/12] making the kernel -Wshadow clean - USB & completion
+Date: Sun, 30 Jul 2006 18:43:43 +0200
 User-Agent: KMail/1.9.3
 References: <200607301830.01659.jesper.juhl@gmail.com>
 In-Reply-To: <200607301830.01659.jesper.juhl@gmail.com>
@@ -26,86 +26,108 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607301842.56405.jesper.juhl@gmail.com>
+Message-Id: <200607301843.43487.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix -Wshadow warnings in mm/truncate.c
+include/linux/usb.h causes a lot of -Wshadow warnings - fix them.
+
+  include/linux/usb.h:901: warning: declaration of 'complete' shadows a global declaration
+  include/linux/completion.h:52: warning: shadowed declaration is here
+  include/linux/usb.h:932: warning: declaration of 'complete' shadows a global declaration
+  include/linux/completion.h:52: warning: shadowed declaration is here
+  include/linux/usb.h:967: warning: declaration of 'complete' shadows a global declaration
+  include/linux/completion.h:52: warning: shadowed declaration is here
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- mm/truncate.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+ include/linux/usb.h |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
---- linux-2.6.18-rc2-git7-orig/mm/truncate.c	2006-07-29 14:57:27.000000000 +0200
-+++ linux-2.6.18-rc2-git7/mm/truncate.c	2006-07-30 06:48:27.000000000 +0200
-@@ -127,15 +127,15 @@ void truncate_inode_pages_range(struct a
- 	       pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE)) {
- 		for (i = 0; i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
--			pgoff_t page_index = page->index;
-+			pgoff_t page_idx = page->index;
+--- linux-2.6.18-rc2-git7-orig/include/linux/usb.h	2006-07-29 14:57:26.000000000 +0200
++++ linux-2.6.18-rc2-git7/include/linux/usb.h	2006-07-30 06:55:24.000000000 +0200
+@@ -886,7 +886,7 @@ struct urb
+  * @setup_packet: pointer to the setup_packet buffer
+  * @transfer_buffer: pointer to the transfer buffer
+  * @buffer_length: length of the transfer buffer
+- * @complete: pointer to the usb_complete_t function
++ * @complete_fn: pointer to the usb_complete_t function
+  * @context: what to set the urb context to.
+  *
+  * Initializes a control urb with the proper information needed to submit
+@@ -898,7 +898,7 @@ static inline void usb_fill_control_urb 
+ 					 unsigned char *setup_packet,
+ 					 void *transfer_buffer,
+ 					 int buffer_length,
+-					 usb_complete_t complete,
++					 usb_complete_t complete_fn,
+ 					 void *context)
+ {
+ 	spin_lock_init(&urb->lock);
+@@ -907,7 +907,7 @@ static inline void usb_fill_control_urb 
+ 	urb->setup_packet = setup_packet;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = complete_fn;
+ 	urb->context = context;
+ }
  
--			if (page_index > end) {
--				next = page_index;
-+			if (page_idx > end) {
-+				next = page_idx;
- 				break;
- 			}
+@@ -918,7 +918,7 @@ static inline void usb_fill_control_urb 
+  * @pipe: the endpoint pipe
+  * @transfer_buffer: pointer to the transfer buffer
+  * @buffer_length: length of the transfer buffer
+- * @complete: pointer to the usb_complete_t function
++ * @complete_fn: pointer to the usb_complete_t function
+  * @context: what to set the urb context to.
+  *
+  * Initializes a bulk urb with the proper information needed to submit it
+@@ -929,7 +929,7 @@ static inline void usb_fill_bulk_urb (st
+ 				      unsigned int pipe,
+ 				      void *transfer_buffer,
+ 				      int buffer_length,
+-				      usb_complete_t complete,
++				      usb_complete_t complete_fn,
+ 				      void *context)
+ {
+ 	spin_lock_init(&urb->lock);
+@@ -937,7 +937,7 @@ static inline void usb_fill_bulk_urb (st
+ 	urb->pipe = pipe;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = complete_fn;
+ 	urb->context = context;
+ }
  
--			if (page_index > next)
--				next = page_index;
-+			if (page_idx > next)
-+				next = page_idx;
- 			next++;
- 			if (TestSetPageLocked(page))
- 				continue;
-@@ -298,7 +298,7 @@ int invalidate_inode_pages2_range(struct
- 			min(end - next, (pgoff_t)PAGEVEC_SIZE - 1) + 1)) {
- 		for (i = 0; !ret && i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
--			pgoff_t page_index;
-+			pgoff_t page_idx;
- 			int was_dirty;
- 
- 			lock_page(page);
-@@ -306,11 +306,11 @@ int invalidate_inode_pages2_range(struct
- 				unlock_page(page);
- 				continue;
- 			}
--			page_index = page->index;
--			next = page_index + 1;
-+			page_idx = page->index;
-+			next = page_idx + 1;
- 			if (next == 0)
- 				wrapped = 1;
--			if (page_index > end) {
-+			if (page_idx > end) {
- 				unlock_page(page);
- 				break;
- 			}
-@@ -321,8 +321,8 @@ int invalidate_inode_pages2_range(struct
- 					 * Zap the rest of the file in one hit.
- 					 */
- 					unmap_mapping_range(mapping,
--					   (loff_t)page_index<<PAGE_CACHE_SHIFT,
--					   (loff_t)(end - page_index + 1)
-+					   (loff_t)page_idx<<PAGE_CACHE_SHIFT,
-+					   (loff_t)(end - page_idx + 1)
- 							<< PAGE_CACHE_SHIFT,
- 					    0);
- 					did_range_unmap = 1;
-@@ -331,7 +331,7 @@ int invalidate_inode_pages2_range(struct
- 					 * Just zap this page
- 					 */
- 					unmap_mapping_range(mapping,
--					  (loff_t)page_index<<PAGE_CACHE_SHIFT,
-+					  (loff_t)page_idx<<PAGE_CACHE_SHIFT,
- 					  PAGE_CACHE_SIZE, 0);
- 				}
- 			}
-
+@@ -948,7 +948,7 @@ static inline void usb_fill_bulk_urb (st
+  * @pipe: the endpoint pipe
+  * @transfer_buffer: pointer to the transfer buffer
+  * @buffer_length: length of the transfer buffer
+- * @complete: pointer to the usb_complete_t function
++ * @complete_fn: pointer to the usb_complete_t function
+  * @context: what to set the urb context to.
+  * @interval: what to set the urb interval to, encoded like
+  *	the endpoint descriptor's bInterval value.
+@@ -964,7 +964,7 @@ static inline void usb_fill_int_urb (str
+ 				     unsigned int pipe,
+ 				     void *transfer_buffer,
+ 				     int buffer_length,
+-				     usb_complete_t complete,
++				     usb_complete_t complete_fn,
+ 				     void *context,
+ 				     int interval)
+ {
+@@ -973,7 +973,7 @@ static inline void usb_fill_int_urb (str
+ 	urb->pipe = pipe;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = complete_fn;
+ 	urb->context = context;
+ 	if (dev->speed == USB_SPEED_HIGH)
+ 		urb->interval = 1 << (interval - 1);
 
 

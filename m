@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWG3JFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWG3JKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWG3JFT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWG3JFS
+	id S932080AbWG3JKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWG3JKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:05:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:48555 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932076AbWG3JFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:05:17 -0400
-Date: Sun, 30 Jul 2006 02:00:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Shem Multinymous <multinymous@gmail.com>,
-       "Brown, Len" <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>
-Subject: Re: Generic battery interface
-Message-ID: <20060730090059.GC17759@kroah.com>
-References: <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com> <20060728202359.GB5313@suse.cz> <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com> <20060729103613.GB7438@suse.cz> <41840b750607290432m6d302cdoae7f3eef869279d4@mail.gmail.com> <20060729120411.GA8285@suse.cz> <41840b750607290551kae4a7c7k9402c96e5b67e6a5@mail.gmail.com> <20060729134225.GA4882@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060729134225.GA4882@suse.cz>
-User-Agent: Mutt/1.5.11
+	Sun, 30 Jul 2006 05:10:20 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:17056 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S932080AbWG3JKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 05:10:19 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.18-rc3
+Date: Sun, 30 Jul 2006 12:56:04 GMT
+Message-ID: <06ATVXG12@briare1.heliogroup.fr>
+X-Mailer: Pliant 96
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 03:42:25PM +0200, Vojtech Pavlik wrote:
-> On Sat, Jul 29, 2006 at 03:51:45PM +0300, Shem Multinymous wrote:
-> > Given the current usage pattern of sysfs, is it still a bad idea for
-> > it to carry device inodes?
->  
-> That remains an open question.
+Arjan van de Ven wrote:
+>
+> Which distribution and glibc version are you using?
 
-No, that's a closed question.  It simply will not happen.  Linus vetoed
-this years ago, for lots of different reasons that I can't recall at the
-moment (namespaces, permissions, groups, and other things from what I
-remember.)
+This is FullPliant, so not really a Unix like Linux distribution
+http://fullpliant.org/
 
-Search the lkml archives if you are really curious...
+'glibc' is not really used by Pliant which is mostly self contained (issues
+direct kernel calls)
+but Pliant has to link to 'libld' because Linux is a strange operating system
+where loading a DLL is not a kernel function, and it seems that 'libdl' requires
+'libc'
+As a result, FullPliant picks a fiew executables and DLLs from some Debian
+packages at install time.
+Also I keep track in a database of each Debian package I select at install time,
+it may well not be reliable because the database is not updated if I later 
+upgrade the system remotely.
+The Debian package number I have in the database for glibc is 2.3.2.ds1-18
 
-thanks,
+PS: I made a typo in my previous message: the kernel I have not tested is
+2.6.18-rc1, not 2.6.17-rc1
 
-greg k-h

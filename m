@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWG3RAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWG3RAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWG3RAa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 13:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWG3RAa
+	id S1751227AbWG3RAg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 13:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWG3RAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 13:00:30 -0400
-Received: from ns.suse.de ([195.135.220.2]:35042 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751227AbWG3RA3 (ORCPT
+	Sun, 30 Jul 2006 13:00:36 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34516 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751227AbWG3RAf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 13:00:29 -0400
+	Sun, 30 Jul 2006 13:00:35 -0400
 From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH for 2.6.18] [8/8] MM: Remove rogue readahead printk
-Date: Sun, 30 Jul 2006 18:48:56 +0200
+To: sam@ravnborg.org
+Subject: Building external modules against objdirs
+Date: Sun, 30 Jul 2006 18:46:07 +0200
 User-Agent: KMail/1.9.3
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, nate.diller@gmail.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <44cbba3f.mPUieUe31/EOZ6FZ%ak@suse.de> <20060729232625.c8bcac66.akpm@osdl.org> <1154275941.5784.131.camel@localhost>
-In-Reply-To: <1154275941.5784.131.camel@localhost>
+Cc: linux-kernel@vger.kernel.org, agruen@suse.de
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607301848.56121.ak@suse.de>
+Message-Id: <200607301846.07797.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Not necessarily. AFAICS, the spam could be triggered by perfectly
-> legitimate activity. For instance, someone on the server may have
-> revoked your read permissions to the file, or may have deleted it.
+Hi,
 
-I don't think any of this was the case in the cases I saw it.
+It looks like building external modules against separate objdirs doesn't work 
+anymore in 2.6.18.
 
-It would be probably good to investigate post 2.6.18, but for 2.6.18
-itself I think removing the printk was the best short term "fix".
+tmod is a simple module I use for some testing.
 
-> > Do we know why nfs's readpage isn't bringing the page up to date?
-> 
-> It may be that other lurking issues were also triggering the printk. For
-> instance I know of a couple of corner cases in the krb5 privacy code
-> that could result in readpage failing. Those issues are being looked
-> into.
+obj-* are objdirs tree built against separate source with make O=$(pwd) -C ../linux-...
 
-I don't use kerberos either.
+> cat Makefile 
+obj-m := tmod.o
+
+KERNELDIR := /lib/modules/`uname -r`/build
+
+all:
+        $(MAKE) -C ${KERNELDIR} M=`pwd`
+
+With 2.6.17 it works great:
+
+> make KERNELDIR=/home/lsrc/obj-2.6.17
+make -C /home/lsrc/obj-2.6.17 M=`pwd`
+make[1]: Entering directory `/home/lsrc/obj-2.6.17'
+make -C /home/lsrc/linux-2.6.17 O=/home/lsrc/obj-2.6.17
+  Building modules, stage 2.
+  MODPOST
+  CC      /home/andi/tsrc/tmod/tmod.mod.o
+  LD [M]  /home/andi/tsrc/tmod/tmod.ko
+make[1]: Leaving directory `/home/lsrc/obj-2.6.17'
+
+
+But with 2.6.18-rc3 it doesn't work anymore. I saw this for at least a few weeks already
+with 2.6.17-git*, but only realized now it wasn't some stupid mistake on my side.
+
+> make -C /home/lsrc/quilt/obj M=`pwd`
+make[1]: Entering directory `/home/lsrc/quilt/obj'
+make -C /basil/home/lsrc/quilt/linux O=/basil/home/lsrc/quilt/obj
+/home/lsrc/quilt/linux/Makefile:456: *** kernel configuration not valid - run 'make prepare' in /home/lsrc/quilt/linux to update it.  Stop.
+make[2]: *** [_all] Error 2
+make[1]: *** [all] Error 2
+make[1]: Leaving directory `/home/lsrc/quilt/obj'
+make: *** [all] Error 2
+
+Is there a workaround? It would be good to fix it for 2.6.18 because it will
+likely cause trouble for a lot of external projects.
 
 -Andi

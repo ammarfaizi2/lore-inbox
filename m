@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWG3SU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWG3SXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWG3SU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWG3SUZ
+	id S932401AbWG3SXu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWG3SXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:20:25 -0400
-Received: from mx1.suse.de ([195.135.220.2]:11242 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932406AbWG3SUZ (ORCPT
+	Sun, 30 Jul 2006 14:23:50 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:58345 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932401AbWG3SXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:20:25 -0400
-From: Andi Kleen <ak@suse.de>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: FP in kernelspace
-Date: Sun, 30 Jul 2006 20:15:33 +0200
-User-Agent: KMail/1.9.3
-Cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <p73u04z2dzu.fsf@verdi.suse.de> <44CCF63B.6070906@argo.co.il>
-In-Reply-To: <44CCF63B.6070906@argo.co.il>
+	Sun, 30 Jul 2006 14:23:50 -0400
+Date: Sun, 30 Jul 2006 20:22:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hans Reiser <reiser@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: 2.6.18-rc3 - ReiserFS - warning: vs-8115: get_num_ver: not
+ directory or indirect item
+In-Reply-To: <9a8748490607300608v65ce3bdcsbb47273bb82a2d6c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0607302019020.25626@yvahk01.tjqt.qr>
+References: <9a8748490607300608v65ce3bdcsbb47273bb82a2d6c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607302015.33684.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> I just got a warning message with 2.6.18-rc3 that I've never seen before :
 
-> 
-> Cannot work on x86-64, even disregarding fp exceptions, because 
-> kernel_fpu_begin() doesn't save the sse state which is used by fp math.
-> 
-> No?
+Interesting. I have seen this by chance on a plain Debian 3.1r2 (which I 
+already have deleted again in the meantime, because it was just that: a 
+test vm).
 
-It does - FXSAVE saves everything.
+> ReiserFS: sda4: warning: vs-8115: get_num_ver: not directory or indirect item
 
-BTW you can use x87 on x86-64 too, you just need to use long double.
 
--Andi
+Jan Engelhardt
+-- 

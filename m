@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWG3XlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWG3Xn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWG3XlI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 19:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWG3XlH
+	id S964793AbWG3Xn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 19:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964794AbWG3Xnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 19:41:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:40678 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932478AbWG3XlH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 19:41:07 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 01/12] making the kernel -Wshadow clean - fix mconf
-Date: Mon, 31 Jul 2006 01:41:29 +0200
-User-Agent: KMail/1.9.1
-Cc: "Paul Jackson" <pj@sgi.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <200607301830.01659.jesper.juhl@gmail.com> <20060730113416.7c1d8f80.pj@sgi.com> <9a8748490607301148q13992d9cr910a1dadb42e11fd@mail.gmail.com>
-In-Reply-To: <9a8748490607301148q13992d9cr910a1dadb42e11fd@mail.gmail.com>
+	Sun, 30 Jul 2006 19:43:55 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49930 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964793AbWG3Xnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 19:43:55 -0400
+Date: Mon, 31 Jul 2006 01:43:53 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: gregkh@suse.de
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Toralf =?iso-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
+Subject: [2.6 patch] fix the USB_GADGET_DUMMY_HCD dependencies
+Message-ID: <20060730234353.GB3658@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200607310141.30354.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sunday 30 July 2006 20:48 schrieb Jesper Juhl:
-> >     up
->
-> I'd *love* to change this one - and down() as well - to up_sem() &
-> down_sem(). But, making that change would be a pretty major and
-> somewhat disruptive api change, so I opted instead to change the local
-> variable names. I plan to introduce a sepperate patch set later on
-> that adds up_sem()/down_sem() wrappers around up()/down(), deprecate
-> the old names and add an entry to feature-removal.txt - but doing it
-> now as part of the -Wshadow cleanup would be too much pain.
+If USB=m, USB_GADGET=y, the option USB_GADGET_DUMMY_HCD mustn't be 
+offered since selecting it results in a compile error.
 
-The path for getting rid of up()/down() is more along the lines
-of replacing more semaphores with mutex variables. Once the only
-users of up()/down() are those that really rely on counting semaphores,
-it becomes much easier to do the change you proposed.
+This patch fixes kernel Bugzilla #6534 reported by Toralf Förster.
 
-	Arnd <><
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.18-rc2-mm1-full/drivers/usb/gadget/Kconfig.old	2006-07-29 03:58:25.000000000 +0200
++++ linux-2.6.18-rc2-mm1-full/drivers/usb/gadget/Kconfig	2006-07-29 03:59:15.000000000 +0200
+@@ -207,7 +207,7 @@
+ 
+ config USB_GADGET_DUMMY_HCD
+ 	boolean "Dummy HCD (DEVELOPMENT)"
+-	depends on USB && EXPERIMENTAL
++	depends on (USB=y || (USB=m && USB_GADGET=m)) && EXPERIMENTAL
+ 	select USB_GADGET_DUALSPEED
+ 	help
+ 	  This host controller driver emulates USB, looping all data transfer
+

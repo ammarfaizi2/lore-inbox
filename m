@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWG3R0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWG3R1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWG3R0E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 13:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWG3R0D
+	id S932377AbWG3R1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 13:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWG3R1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 13:26:03 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:62858 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932374AbWG3R0C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 13:26:02 -0400
-Subject: Re: ipw3945 status
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
-       Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-In-Reply-To: <44CCE521.7090705@superbug.co.uk>
-References: <20060730104042.GE1920@elf.ucw.cz>
-	 <20060730112827.GA25540@srcf.ucam.org> <44CC993B.6070309@l4x.org>
-	 <20060730114722.GA26046@srcf.ucam.org>
-	 <1154264478.13635.22.camel@localhost>  <44CCE521.7090705@superbug.co.uk>
-Content-Type: text/plain
-Date: Sun, 30 Jul 2006 19:25:37 +0200
-Message-Id: <1154280337.13635.38.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jul 2006 13:27:39 -0400
+Received: from khc.piap.pl ([195.187.100.11]:31926 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932377AbWG3R1i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 13:27:38 -0400
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Nikita Danilov" <nikita@clusterfs.com>,
+       "Joe Perches" <joe@perches.com>, "Martin Waitz" <tali@admingilde.org>,
+       "Jan-Benedict Glaw" <jbglaw@lug-owl.de>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Valdis Kletnieks" <Valdis.Kletnieks@vt.edu>,
+       "Sam Ravnborg" <sam@ravnborg.org>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Rusty Russell" <rusty@rustcorp.com.au>,
+       "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
+References: <200607301830.01659.jesper.juhl@gmail.com>
+	<m3ac6rkp8c.fsf@defiant.localdomain>
+	<9a8748490607301014rf04b6cew9d991635a7834277@mail.gmail.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 30 Jul 2006 19:27:36 +0200
+In-Reply-To: <9a8748490607301014rf04b6cew9d991635a7834277@mail.gmail.com> (Jesper Juhl's message of "Sun, 30 Jul 2006 19:14:06 +0200")
+Message-ID: <m3wt9vj94n.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 17:58 +0100, James Courtier-Dutton wrote:
-> Kasper Sandberg wrote:
-> >> Because it would involve a moderate rewriting of the driver, and we'd 
-> >> have to carry a delta against Intel's code forever.
-> > without knowing this for sure, dont you think that if a largely changed
-> > version of the driver appeared in the tree, intel may start developing
-> > on that? cause then they wouldnt be the ones that "broke" compliance
-> > with FCC(hah) by not doing binaryonly.
-> > 
-> 
-> Where can I find this FCC law that seems to be crippling open source 
-> wlan development?
-> 
-> I am not from the USA, so I don't have to comply with the FCC. Could we 
-> make a non-crippled totally open source driver for use by people outside 
-> the USA?
-as with encryption, arent some of the encryption stuff widely used in
-the opensource community also illegal in the united states?
+"Jesper Juhl" <jesper.juhl@gmail.com> writes:
 
-> 
-> For example, here in the UK one can own radios that can transmit on any 
-> frequency one likes, but if you actually press the TX button without a 
-> the appropriate License, you break the law.
-im quite certain this is also the case in for example Denmark.
-> 
-> James
-> 
+> I think it's a good thing that we have to take a little more care when
+> choosing global function and variable names... Take up() for example -
+> in my (very humble) oppinion that is a very bad name for a global
+> function - it clashes too easily with local function and variable
+> names, and a programmer who's not careful may end up calling the
+> global up() when he wants the local and vice versa (a much better name
+> would have been sem_up() - should we change that???).
 
+Possibly, but it could then conflict with something else. Anytime we
+add/change some global symbol, we would have to scan entire kernel
+for conflicts (authors of (yet) off-tree things would hate us).
+I don't think it's practical, especially with, IMHO, no real gain.
+
+> I don't agree with you and I don't know how to convince you, but I
+> still appreciate your feedback.
+> Thanks.
+
+You're welcome. I'd be more happy if I could say I like the idea :-(
+
+> I'll leave it to people higher in the hierarchy to decide if these
+> patches should be applied or not ;)
+
+Sure.
+-- 
+Krzysztof Halasa

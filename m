@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWG3JrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWG3JvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWG3JrD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:47:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWG3JrD
+	id S932164AbWG3JvN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWG3JvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:47:03 -0400
-Received: from ns2.suse.de ([195.135.220.15]:11182 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932166AbWG3JrB (ORCPT
+	Sun, 30 Jul 2006 05:51:13 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:31694 "EHLO smurf.noris.de")
+	by vger.kernel.org with ESMTP id S932164AbWG3JvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:47:01 -0400
-Date: Sun, 30 Jul 2006 02:42:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.18-rc3
-Message-ID: <20060730094244.GB18296@kroah.com>
-References: <06ATWAN12@briare1.heliogroup.fr>
-Mime-Version: 1.0
+	Sun, 30 Jul 2006 05:51:12 -0400
+Date: Sun, 30 Jul 2006 11:49:45 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: john stultz <johnstul@us.ibm.com>, ak@muc.de, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, bunk@stusta.de, lethal@linux-sh.org,
+       hirofumi@mail.parknet.co.jp, asit.k.mallick@intel.com
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+Message-ID: <20060730094945.GW3662@kiste.smurf.noris.de>
+References: <20060722173649.952f909f.akpm@osdl.org> <20060723081604.GD27566@kiste.smurf.noris.de> <20060723044637.3857d428.akpm@osdl.org> <20060723120829.GA7776@kiste.smurf.noris.de> <20060723053755.0aaf9ce0.akpm@osdl.org> <1153756738.9440.14.camel@localhost> <20060724171711.GA3662@kiste.smurf.noris.de> <20060724175150.GD50320@muc.de> <1153774443.12836.6.camel@localhost> <20060730020346.5d301bb5.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <06ATWAN12@briare1.heliogroup.fr>
+In-Reply-To: <20060730020346.5d301bb5.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
+From: Matthias Urlichs <smurf@smurf.noris.de>
+X-Smurf-Spam-Score: -2.6 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 01:03:59PM +0000, Hubert Tonneau wrote:
-> Greg KH wrote:
-> >
-> > On Sun, Jul 30, 2006 at 12:21:13PM  0000, Hubert Tonneau wrote:
-> > > Off topic information:
-> > > With 2.6.17, none of my USB sound cards works; all of them work with 2.6.16
-> > 
-> > That's not good at all.  Care to run 'git bisect' on the tree to find
-> > out what patch caused it?
-> 
-> Hard to do since I'm not a git user.
+Hi,
 
-How about just using the -rc versions on kernel.org with a binary
-search?  Then use the nightly snapshots that were inbetween them?
+Andrew Morton:
+> I guess Matthias didn't test this patch.
 
-> You know, I'm the crazy guy that rewrote everything ... but the kernel :-)
-> 
-> Anyway, would this log help you ?
+Not yet, sorry -- the thing is my main server, and customers tend to
+dislike downtime.
 
-Not really.  Odds are this is an ALSA issue, but I'm not sure.
+I've already got it scheduled for tonight.
 
-thanks,
-
-greg k-h
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+No matter where you go, there you are.
+		-- Buckaroo Banzai

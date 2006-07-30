@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWG3TGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWG3TG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbWG3TGi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 15:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbWG3TGh
+	id S932440AbWG3TG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 15:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWG3TG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 15:06:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12677 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932434AbWG3TGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 15:06:37 -0400
-Date: Sun, 30 Jul 2006 12:06:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/12] making the kernel -Wshadow clean - fix mconf
-Message-Id: <20060730120631.9ee1ab09.akpm@osdl.org>
-In-Reply-To: <9a8748490607301148q13992d9cr910a1dadb42e11fd@mail.gmail.com>
-References: <200607301830.01659.jesper.juhl@gmail.com>
-	<200607301835.35053.jesper.juhl@gmail.com>
-	<20060730113416.7c1d8f80.pj@sgi.com>
-	<9a8748490607301148q13992d9cr910a1dadb42e11fd@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 30 Jul 2006 15:06:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:44476 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932440AbWG3TG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 15:06:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NLTxbXz+lmDlr0zr8LjpEIjnpmLS9yioDVXSJLeGTKLNNwh0e1hLoFWwGCnWjgmRdxsuU5sC9dvtOO2QnFezXOr4FJJv3dyI62zHXDw0U4VxMQ3d8aTNpSCfCivZPUVnlxznq1E5opQG6GfGQoZdFBavNp/HowPsuEY48v4pXwE=
+Message-ID: <625fc13d0607301206h51694fe1n574efe1c61103b54@mail.gmail.com>
+Date: Sun, 30 Jul 2006 14:06:55 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: RFC: remove include/mtd/jffs2-user.h
+Cc: "David Woodhouse" <dwmw2@infradead.org>, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060723190239.GB25367@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060723190239.GB25367@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jul 2006 20:48:23 +0200
-"Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+On 7/23/06, Adrian Bunk <bunk@stusta.de> wrote:
+> include/mtd/jffs2-user.h is not used in the kernel, and depends on
+> user space providing a variable target_endian.
+>
+> I don't see it providing an interface between the kernel and user space.
+>
+> It seems this header should be part of the user space MTD tools instead
+> of headers provided by the kernel?
 
-> > Perhaps I am misreading this patch set?
-> >
-> i don't think you are. It's just that I want to take the least
-> intrusive route *now*, make us -Wshadow clean, get -Wshadow to be an
-> accepted part of the Makefile, *then* deal with the more
-> intrusive/controversial renamings, where I guess you'd have done
-> things in the opposite order - right?
+The mtd-utils already has a copy of this file.  I don't see a reason
+for it to stay in kernel.
 
-yup.  Experience tells us that it's better to get things right first time,
-because we don't get around to doing the intended second pass (looks at
-lock_cpu_hotplug())
-
-That being said, no, we can't go and rename up().  Let us go through the
-patches one-at-a-time..
+josh

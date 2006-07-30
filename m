@@ -1,178 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWG3VmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWG3VoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWG3VmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 17:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWG3VmG
+	id S932393AbWG3VoT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 17:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWG3VoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 17:42:06 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:10849 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S932312AbWG3VmF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 17:42:05 -0400
-Date: Sun, 30 Jul 2006 23:39:36 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: Andrew Morton <akpm@osdl.org>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, marcel@holtman.org,
-       fpavlic@de.ibm.com, paulus@au1.ibm.com, bcollins@debian.org,
-       tony.luck@intel.com
-Subject: Re: [KJ] (re) audit return code handling for kernel_thread [1/3]
-Message-ID: <20060730213936.GA10632@osiris.ibm.com>
-References: <20060729201139.GA8574@localhost.localdomain> <20060729201555.GB8574@localhost.localdomain> <20060729170333.a45efeaf.akpm@osdl.org> <20060730004850.GA9344@localhost.localdomain>
-MIME-Version: 1.0
+	Sun, 30 Jul 2006 17:44:19 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:59338 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932393AbWG3VoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 17:44:18 -0400
+Date: Sun, 30 Jul 2006 23:44:15 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>,
+       Petr Baudis <pasky@suse.cz>
+Subject: Re: [PATCH/RFC] kconfig/lxdialog: make lxdialof a built-in
+Message-ID: <20060730214415.GB9617@mars.ravnborg.org>
+References: <20060727202726.GA3900@mars.ravnborg.org> <Pine.LNX.4.64.0607281348420.6761@scrub.home> <20060728145947.GA29095@mars.ravnborg.org> <200607301442.07426.vda.linux@googlemail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060730004850.GA9344@localhost.localdomain>
-User-Agent: mutt-ng/devel-r804 (Linux)
+In-Reply-To: <200607301442.07426.vda.linux@googlemail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > --- a/arch/s390/mm/cmm.c
-> > > +++ b/arch/s390/mm/cmm.c
-> > > @@ -161,7 +161,11 @@ cmm_thread(void *dummy)
-> > >  static void
-> > >  cmm_start_thread(void)
-> > >  {
-> > > -	kernel_thread(cmm_thread, NULL, 0);
-> > > +	if (kernel_thread(cmm_thread, NULL, 0) < 0) {
-> > > +		printk(KERN_WARNING "Could not start kernel thread at %s:%d\n",
-> > > +			__FUNCTION__,__LINE__);
-> > > +		clear_bit(0,&cmm_thread_active);
-> > > +	}
-> > >  }
-> > 
-> > This is OK as far as it goes.  But really we should propagate any failure
-> > back up to cmm_init() and fail the whole thing, rather than leaving the
-> > driver hanging around in a loaded-but-useless state.
+On Sun, Jul 30, 2006 at 02:42:07PM +0200, Denis Vlasenko wrote:
 > 
+> I don't like "double ESC" idea at all.
 > 
-> Understood, new patch attached, that removes most of the additional failure to
-> check return code cases.  I've left the cmm_start_thread case and the
-> rfcomm_init cases as is, because the cmm_start_thread case is called
-> asynchronously from a work queue, fired from a timer, meaning we cannot
-> propogate the error to prevent the module from loading, and the rfcomm_init case
-> does precisely what you ask, in that it detects a failure to start the kernel
-> thread, and fails the module load if the thread creation fails.
+> I am a Midnight Commander user and I use "old ESC mode"
+> where single ESC works after a delay.
+> 
+> I patched mc to look at KEYBOARD_KEY_TIMEOUT_US environment variable 
+> so that delay is configurable (instead of hardcoded 0.5 second one).
+> Will push the patch to mc-devel.
+How did you tell ncurses to change timeout value?
+notimeout() and wnotimeout() did not work out when I tried it. Delay was
+still ~.5 seconds.
 
-The cmm stuff is a bit more broken than that it just doesn't take the return
-value of kernel_thread into account. I think this patch would be better:
+Any help aprpeciated.
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+	Sam
 
-[patch] s390: fix cmm kernel thread handling.
+My try:
 
-Convert cmm's usage of kernel_thread to kthread_create. Also create the
-cmmthread at module load time, so it is possible to check if creation of
-the thread fails.
-In addition the cmmthread now gets terminated when the module gets unloaded
-instead of leaving a stale kernel thread that would execute random data
-if it ever would run again.
-Also check the return values of other registration functions at module load
-and handle their return values appropriately.
-
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
-
- arch/s390/mm/cmm.c |   45 +++++++++++++++++++++++----------------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
-
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index ceea51c..5428689 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -15,6 +15,7 @@
- #include <linux/sched.h>
- #include <linux/sysctl.h>
- #include <linux/ctype.h>
-+#include <linux/kthread.h>
+diff --git a/scripts/kconfig/lxdialog/menubox.c b/scripts/kconfig/lxdialog/menubox.c
+index bf8052f..2b59657 100644
+--- a/scripts/kconfig/lxdialog/menubox.c
++++ b/scripts/kconfig/lxdialog/menubox.c
+@@ -198,6 +198,7 @@ int dialog_menu(const char *title, const
  
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -44,8 +45,7 @@ static long cmm_timeout_seconds = 0;
- static struct cmm_page_array *cmm_page_list = NULL;
- static struct cmm_page_array *cmm_timed_page_list = NULL;
+ 	dialog = newwin(height, width, y, x);
+ 	keypad(dialog, TRUE);
++	wtimeout(dialog, 25);
  
--static unsigned long cmm_thread_active = 0;
--static struct work_struct cmm_thread_starter;
-+static struct task_struct *cmm_thread_ptr;
- static wait_queue_head_t cmm_thread_wait;
- static struct timer_list cmm_timer;
+ 	draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+ 	wattrset(dialog, border_attr);
+@@ -221,6 +222,7 @@ int dialog_menu(const char *title, const
+ 	menu = subwin(dialog, menu_height, menu_width,
+ 		      y + box_y + 1, x + box_x + 1);
+ 	keypad(menu, TRUE);
++	wtimeout(menu, 25);
  
-@@ -124,16 +124,11 @@ cmm_free_pages(long pages, long *counter
- static int
- cmm_thread(void *dummy)
- {
--	int rc;
+ 	/* draw a box around the menu items */
+ 	draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
+diff --git a/scripts/kconfig/lxdialog/util.c b/scripts/kconfig/lxdialog/util.c
+index f82cebb..0973b53 100644
+--- a/scripts/kconfig/lxdialog/util.c
++++ b/scripts/kconfig/lxdialog/util.c
+@@ -142,7 +142,7 @@ void init_dialog(void)
+ 	keypad(stdscr, TRUE);
+ 	cbreak();
+ 	noecho();
 -
--	daemonize("cmmthread");
- 	while (1) {
--		rc = wait_event_interruptible(cmm_thread_wait,
--			(cmm_pages != cmm_pages_target ||
--			 cmm_timed_pages != cmm_timed_pages_target));
--		if (rc == -ERESTARTSYS) {
--			/* Got kill signal. End thread. */
--			clear_bit(0, &cmm_thread_active);
-+		wait_event(cmm_thread_wait,
-+			   (cmm_pages != cmm_pages_target ||
-+			    cmm_timed_pages != cmm_timed_pages_target));
-+		if (kthread_should_stop()) {
- 			cmm_pages_target = cmm_pages;
- 			cmm_timed_pages_target = cmm_timed_pages;
- 			break;
-@@ -159,16 +154,8 @@ cmm_thread(void *dummy)
- }
++	timeout(25);
+ 	if (use_colors)		/* Set up colors */
+ 		color_setup();
  
- static void
--cmm_start_thread(void)
--{
--	kernel_thread(cmm_thread, NULL, 0);
--}
--
--static void
- cmm_kick_thread(void)
- {
--	if (!test_and_set_bit(0, &cmm_thread_active))
--		schedule_work(&cmm_thread_starter);
- 	wake_up(&cmm_thread_wait);
- }
- 
-@@ -412,21 +399,35 @@ struct ctl_table_header *cmm_sysctl_head
- static int
- cmm_init (void)
- {
-+	int rc = 0;
-+
-+	cmm_thread_ptr = kthread_create(cmm_thread, NULL, "cmmthread");
-+	if (IS_ERR(cmm_thread_ptr))
-+		return PTR_ERR(cmm_thread_ptr);
- #ifdef CONFIG_CMM_PROC
- 	cmm_sysctl_header = register_sysctl_table(cmm_dir_table, 1);
-+	if (!cmm_sysctl_header) {
-+		kthread_stop(cmm_thread_ptr);
-+		return -ENOMEM;
-+	}
- #endif
- #ifdef CONFIG_CMM_IUCV
--	smsg_register_callback(SMSG_PREFIX, cmm_smsg_target);
-+	rc = smsg_register_callback(SMSG_PREFIX, cmm_smsg_target);
-+	if (rc < 0) {
-+		unregister_sysctl_table(cmm_sysctl_header);
-+		kthread_stop(cmm_thread_ptr);
-+		return rc;
-+	}
- #endif
--	INIT_WORK(&cmm_thread_starter, (void *) cmm_start_thread, NULL);
- 	init_waitqueue_head(&cmm_thread_wait);
- 	init_timer(&cmm_timer);
--	return 0;
-+	return rc;
- }
- 
- static void
- cmm_exit(void)
- {
-+	kthread_stop(cmm_thread_ptr);
- 	cmm_free_pages(cmm_pages, &cmm_pages, &cmm_page_list);
- 	cmm_free_pages(cmm_timed_pages, &cmm_timed_pages, &cmm_timed_page_list);
- #ifdef CONFIG_CMM_PROC

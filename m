@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWG3Hqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWG3IHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWG3Hqv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 03:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWG3Hqu
+	id S1751281AbWG3IHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 04:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWG3IHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 03:46:50 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:7614 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S1751277AbWG3Hqu (ORCPT
+	Sun, 30 Jul 2006 04:07:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34945 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751127AbWG3IHO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 03:46:50 -0400
-Message-ID: <44CC0161.60806@namesys.com>
-Date: Sat, 29 Jul 2006 18:46:25 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Sun, 30 Jul 2006 04:07:14 -0400
+Message-ID: <44CC690A.5030204@redhat.com>
+Date: Sun, 30 Jul 2006 01:08:42 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Viro <viro@zeniv.linux.org.uk>,
-       Al Viro <viro@ftp.linux.org.uk>, reiserfs-dev@namesys.com,
-       reiserfs-list@namesys.com, akpm@osdl.org,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: possible recursive locking detected - while running fs operations
- in loops - 2.6.18-rc2-git5
-References: <9a8748490607251516j1433306ek9c64cc84c0838f7b@mail.gmail.com>	 <20060725232924.GU6452@schatzie.adilger.int>	 <9a8748490607291518m59573244wac00486a64f6385b@mail.gmail.com>	 <44CBEA7A.4010308@namesys.com> <9a8748490607292317t405c906ek8b1577920eeace65@mail.gmail.com>
-In-Reply-To: <9a8748490607292317t405c906ek8b1577920eeace65@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Nicholas Miell <nmiell@comcast.net>
+CC: Zach Brown <zach.brown@oracle.com>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru>	 <20060724.231708.01289489.davem@davemloft.net>	 <44C91192.4090303@oracle.com> <20060727200655.GA4586@2ka.mipt.ru>	 <44C930D5.9020704@oracle.com> <20060728052312.GB11210@2ka.mipt.ru>	 <44CA586C.4010205@oracle.com> <20060728184445.GA10797@2ka.mipt.ru>	 <44CA613F.9080806@oracle.com>  <44CAD81A.9060401@redhat.com> <1154147562.2451.30.camel@entropy>
+In-Reply-To: <1154147562.2451.30.camel@entropy>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig86D0700284F405347779E45F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig86D0700284F405347779E45F
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> On 30/07/06, Hans Reiser <reiser@namesys.com> wrote:
->
->> Jesper Juhl wrote:
->>
->> >
->> > Thanks. That's a nice little test suite.
->> >
->> Yes, it is quite useful, our developers have added it to the regression
->> suite....
->>
-> That's nice.
->
-> Now how about that lock validator message I managed to tease out?
->
-> Akpm said "... the reiserfs locking appears to be unneeded - this inode
-> is going down and nobody else can look it up, so what is to be locked
-> against?" - can you comment on that?
->
->
-Err, how about Zam handles all locking issues and this is Sunday with
-the family?  I know, lame, but he'll answer you on Monday Russian
-time.....;-)
+Nicholas Miell wrote:
+> [...] and was wondering
+> if you were familiar with the Solaris port APIs* and,
+
+I wasn't.
+
+
+> if so, you could
+> please comment on how your proposed event channels are different/better=
+=2E
+
+There indeed is not much difference.  The differences are in the
+details.  The way those ports are specified doesn't allow much room for
+further optimizations.  E.g., the userlevel ring buffer isn't possible.
+ But mostly it's the same semantics.  The ec_t type in my text is also
+better a file descriptor since otherwise it cannot be transported via
+Unix stream sockets.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig86D0700284F405347779E45F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD4DBQFEzGkP2ijCOnn/RHQRAvC2AJjnzxTdqNtKpVSI4QdSJg30AUFMAJ96RT9c
+098L1wtV2qSAWu8UrK0tfA==
+=PJXY
+-----END PGP SIGNATURE-----
+
+--------------enig86D0700284F405347779E45F--

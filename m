@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWG3Qtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWG3Qv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWG3Qtl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 12:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWG3Qtk
+	id S1751026AbWG3Qv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 12:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWG3Qv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 12:49:40 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30984 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932369AbWG3Qtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 12:49:40 -0400
-Date: Sun, 30 Jul 2006 18:49:38 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
-Message-ID: <20060730164938.GA10849@stusta.de>
-References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607292050.37877.ak@suse.de> <20060729185737.GG26963@stusta.de> <200607292104.18030.ak@suse.de> <20060729191938.GH26963@stusta.de> <200607301614.k6UGEpIL023020@turing-police.cc.vt.edu>
-MIME-Version: 1.0
+	Sun, 30 Jul 2006 12:51:57 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:456 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1750807AbWG3Qv5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 12:51:57 -0400
+Date: Sun, 30 Jul 2006 18:51:38 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, davej@redhat.com,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
+Message-ID: <20060730165137.GA26511@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	davej@redhat.com, venkatesh.pallipadi@intel.com, tony@atomide.com,
+	akpm@osdl.org, cpufreq@lists.linux.org.uk
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200607301614.k6UGEpIL023020@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060730160738.GB13377@irc.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 12:14:51PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Sat, 29 Jul 2006 21:19:38 +0200, Adrian Bunk said:
-> 
-> > That was never true in Arjan's patches.
-> > 
-> > The only change is from a gcc version check to a feature check.
-> > 
-> > In both cases, a gcc 4.1 without the appropriate patch applied will 
-> > result in this option not being set.
-> 
-> What do you get if you have a gcc 4.1.1. that has the stack protector option
-> (so a feature check works), but not the fix for gcc PR 28281?
+>   I have similar problem with cpufreq-nforce2 -- http://lkml.org/lkml/2006/7/7/234
+>   I haven't do a git-bisect yet.
 
-This is handled correctly in both cases.
+To recap, cpufreq died for at least two people (Tomasz Torcz and me) between
+2.6.17 and 2.6.18-rc1. I've cc'd everybody who touched cpufreq according to
+the shortlog.
 
-Please read the patches in this thread for more information.
+Abundant details are in:
 
-cu
-Adrian
+http://lkml.org/lkml/2006/7/30/87
+
+New information is that I've narrowed it down from between 2.6.16.9 and
+2.6.18-rc1 to between 2.6.17.7 (which works) and 2.6.18-rc1 (which doesn't).
+
+The problem exists both with cpufreq as modules and staticly, and both with
+P4 and nforce2.
+
+Please let me know how I can help you solve this problem. I'll try a git
+bisect but a lot of the cpufreq changes appear to be interrelated, so I'm
+unsure if it will work.
+
+Thanks!
 
 -- 
-
-    Gentoo kernels are 42 times more popular than SUSE kernels among
-    KLive users  (a service by SUSE contractor Andrea Arcangeli that
-    gathers data about kernels from many users worldwide).
-
-       There are three kinds of lies: Lies, Damn Lies, and Statistics.
-                                                    Benjamin Disraeli
-
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWG3Sec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWG3SeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWG3Sec (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWG3Sec
+	id S932420AbWG3SeX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWG3SeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:34:32 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:11450 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932411AbWG3Seb (ORCPT
+	Sun, 30 Jul 2006 14:34:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14561 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932420AbWG3SeW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:34:31 -0400
-Date: Sun, 30 Jul 2006 20:34:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, agruen@suse.de
-Subject: Re: Building external modules against objdirs
-Message-ID: <20060730183430.GB30278@mars.ravnborg.org>
-References: <200607301846.07797.ak@suse.de> <20060730175130.GA23665@mars.ravnborg.org> <200607301949.41165.ak@suse.de>
+	Sun, 30 Jul 2006 14:34:22 -0400
+Date: Sun, 30 Jul 2006 11:34:16 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, jesper.juhl@gmail.com, akpm@osdl.org
+Subject: Re: [PATCH 01/12] making the kernel -Wshadow clean - fix mconf
+Message-Id: <20060730113416.7c1d8f80.pj@sgi.com>
+In-Reply-To: <200607301835.35053.jesper.juhl@gmail.com>
+References: <200607301830.01659.jesper.juhl@gmail.com>
+	<200607301835.35053.jesper.juhl@gmail.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607301949.41165.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 07:49:41PM +0200, Andi Kleen wrote:
-> 
-> > Can you check that you really did a 'make prepare' in the relevant
-> > output directory. Previously only the make *config step was needed.
-> 
-> The output directory is a full build (configuration + make without any targets).
-> Is that not enough anymore? 
-> 
-> Anyways after a make prepare it seems to work - thanks - but I think that
-> should be really done as part of the standard build like it was in 2.6.17.
-It could also be a mis-merge of some suse patches.
-Is this with a vanilla kernel or a suse patched one?
+Jesper wrote:
+> -		cprint("%s", filename);
+> +		cprint("%s", config_filename);
 
-If the latter can I then have a full copy to look at.
+Something seems strange here to me.  It looks like you are sometimes
+resolving the shadowed symbols by making the more local symbol have the
+longer name.
 
-	Sam
+I'd have expected that the global symbol would be the one with the
+longer, more elaborate name.
+
+In other words, I would have expected that we would avoid having global
+names such as (from your other patches in this set):
+
+    filename
+    scroll
+    instr
+    up
+    sum
+    state
+    rep
+    complete
+    irq
+
+Perhaps I am misreading this patch set?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

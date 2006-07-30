@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWG3OkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWG3OsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWG3OkP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 10:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWG3OkP
+	id S932323AbWG3OsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 10:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWG3OsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 10:40:15 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:18955 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932320AbWG3OkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 10:40:13 -0400
-Message-ID: <44CCC4CA.6000208@argo.co.il>
-Date: Sun, 30 Jul 2006 17:40:10 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 30 Jul 2006 10:48:25 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:7748 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932323AbWG3OsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 10:48:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j9zJPJhpwp67Q9q6H0jd74beZPRAZwtKgAkON2Xt9EgVL+3Nk3atFIxF7nqF2srqheGiyW7bELYpRs+sV7UPGRbacarCm7q69pM4aXnin7Z73UW+bb5bbXMJBXtlp+joNj5jaa4f0w7aclXKx6rKsYj+HxPfFPUgJdYd413dQL8=
+Message-ID: <41840b750607300748u23d24653s273123be5017be63@mail.gmail.com>
+Date: Sun, 30 Jul 2006 17:48:22 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "kernel list" <linux-kernel@vger.kernel.org>
+Subject: Re: Generic battery interface
+In-Reply-To: <20060730142909.GA11854@irc.pl>
 MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FP in kernelspace
-References: <44CC97A4.8050207@gmail.com>
-In-Reply-To: <44CC97A4.8050207@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jul 2006 14:40:11.0609 (UTC) FILETIME=[0FD4C490:01C6B3E6]
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz>
+	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
+	 <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
+	 <d120d5000607280910t458fb6e0hdb81367b888a46db@mail.gmail.com>
+	 <20060730085500.GB17759@kroah.com>
+	 <41840b750607300252w445974b1udedf1a67114d1580@mail.gmail.com>
+	 <20060730142909.GA11854@irc.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
+On 7/30/06, Tomasz Torcz <zdzichu@irc.pl> wrote:
+> On Sun, Jul 30, 2006 at 12:52:52PM +0300, Shem Multinymous wrote:
+> > Put otherwise:
+> > Q:Quick, which io scheduler is used by /dev/scd0?
+> > A: cat /sys/dev/$((0x`stat -c%t /dev/scd0`))/\
+> >                $((0x`stat -c%T /dev/scd0`))/queue/scheduler
 >
-> Hello,
->
-> I have a driver written for 2.4 + RT patches with FP support. I want 
-> it to work
-> in 2.6. How to implement FP? Has anybody developped some "protocol" 
-> between KS
-> and US yet? If not, could somebody point me, how to do it the best -- 
-> with low
-> latency.
-> The device doesn't generate irqs *), I need to quickly respond to 
-> timer call,
-> because interval between two posts of data to the device has to be 
-> equal as much
-> as possible (BTW is there any way how to gain up to 5000Hz).
-> I've one idea: have a thread with RT priority and wake the app in US 
-> waiting in
-> read of character device when timer ticks, post a struct with 2 floats 
-> and
-> operation and wait in write for the result. App computes, writes the 
-> result, we
-> are woken and can post it to the device. But I'm afraid it would be 
-> tooo slow.
->
-> *) I don't know how to persuade it (standard PLX chip with unknown 
-> piece of
-> logic behind) to generate, because official driver is closed and _very_
-> expensive. Old (2.4) driver was implemented with RT thread and timer, 
-> where FP
-> is implemented within RT and computed directly in KS.
->
-> So 2 questions are:
-> 1) howto FP in kernel
->
-kernel_fpu_begin();
-c = d * 3.14;
-kernel_fpu_end();
+>  A2: cat /sys`udevinfo -n scd0 -q path`/queue/scheduler  ?
 
--- 
-error compiling committee.c: too many arguments to function
+You win.
+Since udev manages /dev, it makes sense to ask it for this info. I
+guess one can think of major:minor as a udev private implementation
+detail, in this context.
 
+  Shem

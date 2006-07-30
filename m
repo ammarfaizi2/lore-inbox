@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWG3KGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWG3KIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWG3KGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 06:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWG3KGQ
+	id S932182AbWG3KIv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 06:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWG3KIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 06:06:16 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22662 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751386AbWG3KGP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 06:06:15 -0400
-Date: Sun, 30 Jul 2006 12:05:59 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       Henrique de Moraes Holschuh <hmh@debian.org>,
-       Mark Underwood <basicmark@yahoo.com>
-Subject: Re: Generic battery interface
-Message-ID: <20060730100559.GA1920@elf.ucw.cz>
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com> <20060728202359.GB5313@suse.cz> <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com> <41840b750607291406p2f843054rc89fa1c3c467688d@mail.gmail.com>
+	Sun, 30 Jul 2006 06:08:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:43489 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932182AbWG3KIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 06:08:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ie3qD/VJ1XsE/pJRf5MhuXzSNITZKGZ7C9yQx20mHZB1mE9zSkVQM0yc5RvPp/R4h1ql/xB/B1+5qotskKA+BQ0yVlkJ5x8j08d5YwEScYY+ztk1/h5TZ0Z/wtyG10TXa5ccKovoiWd/W0XkmlfY+R87rQ3fFi15GY+bqrd30Wk=
+Message-ID: <9a8748490607300308p7c0eb5afpe9c6305527a608d@mail.gmail.com>
+Date: Sun, 30 Jul 2006 12:08:48 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Hans Reiser" <reiser@namesys.com>
+Subject: Re: possible recursive locking detected - while running fs operations in loops - 2.6.18-rc2-git5
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Alexander Viro" <viro@zeniv.linux.org.uk>,
+       "Al Viro" <viro@ftp.linux.org.uk>, reiserfs-dev@namesys.com,
+       reiserfs-list@namesys.com, akpm@osdl.org,
+       "Alexander Zarochentcev" <zam@namesys.com>
+In-Reply-To: <44CC0161.60806@namesys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41840b750607291406p2f843054rc89fa1c3c467688d@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <9a8748490607251516j1433306ek9c64cc84c0838f7b@mail.gmail.com>
+	 <20060725232924.GU6452@schatzie.adilger.int>
+	 <9a8748490607291518m59573244wac00486a64f6385b@mail.gmail.com>
+	 <44CBEA7A.4010308@namesys.com>
+	 <9a8748490607292317t405c906ek8b1577920eeace65@mail.gmail.com>
+	 <44CC0161.60806@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 30/07/06, Hans Reiser <reiser@namesys.com> wrote:
+> Jesper Juhl wrote:
+>
+> > On 30/07/06, Hans Reiser <reiser@namesys.com> wrote:
+> >
+> >> Jesper Juhl wrote:
+> >>
+> >> >
+> >> > Thanks. That's a nice little test suite.
+> >> >
+> >> Yes, it is quite useful, our developers have added it to the regression
+> >> suite....
+> >>
+> > That's nice.
+> >
+> > Now how about that lock validator message I managed to tease out?
+> >
+> > Akpm said "... the reiserfs locking appears to be unneeded - this inode
+> > is going down and nobody else can look it up, so what is to be locked
+> > against?" - can you comment on that?
+> >
+> >
+> Err, how about Zam handles all locking issues and this is Sunday with
+> the family?  I know, lame, but he'll answer you on Monday Russian
+> time.....;-)
+>
+:-) Not a problem at all.
 
-> >Here's one approach: use a syscall (e.g., ioctl) saying "block until
-> >there's new data on this fd, or N milliseconds have passed, whichever
-> >is *later*". This way each client declares the update rate it wants
-> >and can change it on the fly. The driver sees all the requests and can
-> >perform the minimum hardware quering -- for example, it won't query
-> >the hardware at all if no client has submitted a request with
-> >parameter N more than N milliseconds go. And there's no excessive work
-> >or interrupts. Some (simple) kernel code infrastructure is needed to
-> >help drivers manage the pending requests.
-> 
-> Here's a rough sketch for the userspace side of a continuous function
-> sampling interface. It handles the blocking a bit better than the
-> above proposal, in that it lets you easily handle multiple readouts.
-> It's agnostic about /dev vs. /sys.
-
-Looks good to me.
-
-> I'm not getting into the kernel side for now; it's doable, and with
-> proper infrastructure (e.g., at the sysfs level) can be elegant and
-> efficient.
-
-I guess that hwmon people would like this, anyway...
-
-Are there any plans at merging tp_smapi, BTW? After fixing few minor
-details (like removing " mV" from files)... it looks like it would fit
-into hwmon infrastructure rather nicely.
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWG3OdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWG3Oe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWG3OdA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 10:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWG3OdA
+	id S1750876AbWG3Oe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 10:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWG3Oe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 10:33:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2009 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750835AbWG3Oc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 10:32:59 -0400
-Subject: Re: FP in kernelspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <44CC97A4.8050207@gmail.com>
-References: <44CC97A4.8050207@gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Sun, 30 Jul 2006 16:32:57 +0200
-Message-Id: <1154269977.2941.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 30 Jul 2006 10:34:57 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:57477 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750847AbWG3Oe4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 10:34:56 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Date: Sun, 30 Jul 2006 16:34:11 +0200
+User-Agent: KMail/1.9.3
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <44C42B92.40507@xfs.org> <200607292319.31935.rjw@sisk.pl> <44CCACC9.7090702@tmr.com>
+In-Reply-To: <44CCACC9.7090702@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200607301634.11354.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 13:27 +0159, Jiri Slaby wrote:
+On Sunday 30 July 2006 14:57, Bill Davidsen wrote:
+> Rafael J. Wysocki wrote:
 > 
-> I have a driver written for 2.4 + RT patches with FP support. I want
-> it to work 
-> in 2.6. How to implement FP? Has anybody developped some "protocol"
-> between KS 
-> and US yet? If not, could somebody point me, how to do it the best --
-> with low 
-> latency.
-> The device doesn't generate irqs *), I need to quickly respond to
-> timer call, 
-> because interval between two posts of data to the device has to be
-> equal as much 
-> as possible (BTW is there any way how to gain up to 5000Hz).
-> I've one idea: have a thread with RT priority and wake the app in US
-> waiting in 
-> read of character device when timer ticks, post a struct with 2 floats
-> and 
-> operation and wait in write for the result. App computes, writes the
-> result, we 
-> are woken and can post it to the device. But I'm afraid it would be
-> tooo slow.
+> >On Saturday 29 July 2006 21:23, Bill Davidsen wrote:
+> >  
+> >
+> >>Pavel Machek wrote:
+> >>    
+> >>
+> >>>On Fri 28-07-06 01:22:49, Olivier Galibert wrote:
+> >>>      
+> >>>
+> >>>>On Thu, Jul 27, 2006 at 11:42:25PM +0200, Pavel Machek wrote:
+> >>>>        
+> >>>>
+> >>>>>So we have 1 submission for review in 11/2004 and 1 submission for -mm
+> >>>>>merge in 2006, right?
+> >>>>>          
+> >>>>>
+> >>>>Wrong.  I gave a list of dates at the beginning of the month, do you
+> >>>>think I threw dice to get them?
+> >>>>
+> >>>>And could you explain, as suspend maintainer for the linux kernel, how
+> >>>>come code submitted for the first time two years ago and with a much
+> >>>>better track record than the in-kernel one is still not in?
+> >>>>        
+> >>>>
+> >>>Because Nigel has too much of code to start with, and refuses to fix
+> >>>his design because it would invalidate all the stabilization work.
+> >>>      
+> >>>
+> >>Why should he invalidate his stabilization work, and what's in need of 
+> >>fixing? The suspend in the kernel is great, but suspend2 includes both 
+> >>suspend and working resume code as well.
+> >>    
+> >>
+> >>>Plus Nigel did not do very good job with submitting those patches.
+> >>>      
+> >>>
+> >>They apply, they work. What's not very good about that? Is this being 
+> >>blocked because of a spelling error, or did he mess up the indenting on 
+> >>"signed off by" or what? I realize you may have something other than the 
+> >>download version, but it's been years now.
+> >>
+> >>I would like to see the working suspend (suspend2) in the kernel, and 
+> >>users wanting to debug the resume stuff currently in the kernel could 
+> >>get it under EXPERIMENTAL or some such.
+> >>
+> >You probably don't realize how offensive this is.
+> >
+> >Actually some people have been working really hard to make the in-kernel
+> >code work and you could just respect that.
+> >
+> By respect I take it you mean "don't call attention to the fact that it 
+> doesn't work for many people?"
 
-real floating point in the kernel is basically no-go; especially if you
-enable preemption. The entire floating point exception, context save and
-restore engine is designed with the assumption of no kernel space FPU
-usage... and there are a LOT of nasty corner cases to deal with... and
-so far the kernel decided to cheap out on many of those by just not
-allowing kernel FPU use (mmx is easier so that can be dealt with).
+Sorry, you won't get anywhere by insulting people.  If you want to call
+attention to a problem, please file a bug report.
 
-Volume 3 of the Intel architecture manuals are a good start if you want
-to know what some of these corner cases are...
-
-
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+Greetings,
+Rafael

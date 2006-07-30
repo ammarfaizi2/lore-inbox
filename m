@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWG3MuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWG3M5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWG3MuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 08:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWG3MuM
+	id S932305AbWG3M5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 08:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWG3M5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 08:50:12 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:11172 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751392AbWG3MuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 08:50:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BqdqaTbbyqwKfLc/vSrKy5hVYjVxkKGIv++OU/a5yGvpntUmfEmMVh5sQrXBnEmIzL7O6FrAlm1AhLYOGpVjhyv0pgp0VSFuIAcmU50pgcIbaiHVPe0gyrskA9mgaIpcp1+86VuCJYOdOdLXS1miHuEM/ydEidAhhfrDPtGyaPk=
-Message-ID: <41840b750607300550r4337a8e1n1d6f93db1dde46c8@mail.gmail.com>
-Date: Sun, 30 Jul 2006 15:50:08 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: Generic battery interface
-Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       "Brown, Len" <len.brown@intel.com>, "Pavel Machek" <pavel@suse.cz>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-In-Reply-To: <20060730114741.GC4898@suse.cz>
+	Sun, 30 Jul 2006 08:57:39 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:40391 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932305AbWG3M5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 08:57:39 -0400
+Message-ID: <44CCACB3.8050403@t-online.de>
+Date: Sun, 30 Jul 2006 14:57:23 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <20060727232427.GA4907@suse.cz>
-	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	 <20060728074202.GA4757@suse.cz>
-	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
-	 <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
-	 <d120d5000607280910t458fb6e0hdb81367b888a46db@mail.gmail.com>
-	 <20060730085500.GB17759@kroah.com>
-	 <41840b750607300252w445974b1udedf1a67114d1580@mail.gmail.com>
-	 <20060730114741.GC4898@suse.cz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
+References: <44CC9F7E.8040807@t-online.de> <20060730122203.GA13169@leiferikson.dystopia.lan>
+In-Reply-To: <20060730122203.GA13169@leiferikson.dystopia.lan>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA3563ADC3E4CED5884B41F2F"
+X-ID: X7-tAyZQ8eJAao93+tsYunQTzd6PxVEbkN9fkzBzY4XdrdFq3qJc6E
+X-TOI-MSGID: f0655fed-3dbb-4fce-838c-1e52c6d2d499
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sun, Jul 30, 2006 at 12:52:52PM +0300, Shem Multinymous wrote:
->
-> > Coming to think of it, to solve the dev->sys direction, maybe we
-> > should have symlinks like the following?
-> > /sys/dev/8/0 -> /sys/block/sda
-> > /sys/dev/11/0 -> /sys/block/sr0
-> > /sys/dev/116/24 -> /sys/class/sound/pcmC0D0c
->
-> Since you can have more nodes in /dev with the same node numbers, and
-> this actually is useful (for granting more users/groups access to the
-> devices in question), this is not going to fly.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA3563ADC3E4CED5884B41F2F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-No, I'm talking about the *other* direction now: I'm looking at a file
-in /dev and I want to find the corresponding sysfs device (if any).
+Hi Hannes,
 
-Anyway turns out that sysfs dev numbers are not unique either -- some
-devices with major=1 apper twice in sysfs. To give a random example:
+Johannes Weiner wrote:
+> Hi,
+>=20
+> On Sun, Jul 30, 2006 at 02:01:02PM +0200, Harald Dunkel wrote:
+>> Hi folks,
+>>
+>> I tried to spin down my harddisk using hdparm, but when it is
+>> supposed to spin up again, [...]
+>=20
+> When is the point reached to spin up again?
+>=20
 
-$ cat /sys/block/ram8/dev /sys/class/mem/random/dev
-1:8
-1:8
+When some process tries to access a file that is not
+cached in RAM, AFAICT. All partitions are mounted with
+noatime.
 
-And these aren't symlinks.
-  Shem
+>> On another machine (with a SAMSUNG SP2504C inside) there is no
+>> such problem: The disk is back after just a few seconds.
+>=20
+> Same kernel?
+>=20
+
+Yes. But both machines are very different. The working
+machine is an amd64 with nforce2. The machine that gets
+stuck is a 2 GHz Pentium M with some Intel chipset:
+
+00:1f.2 IDE interface: Intel Corporation 82801FB/FW (ICH6/ICH6W) SATA Con=
+troller (rev 04)
+00:1f.2 0101: 8086:2651 (rev 04)
+
+Sorry, surely I should have mentioned this before. The
+problem isn't _that_ reproducible.
+
+
+Regards
+
+Harri
+
+
+
+--------------enigA3563ADC3E4CED5884B41F2F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEzKyzUTlbRTxpHjcRAso+AJ9mK1Vmu+YGm/NQ1+syWWirRQ0v6gCgkFCV
+OeCnMTL/lhgGjOyWwxguZ5U=
+=wX1F
+-----END PGP SIGNATURE-----
+
+--------------enigA3563ADC3E4CED5884B41F2F--

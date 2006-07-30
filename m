@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWG3U67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWG3VC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWG3U67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 16:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWG3U67
+	id S932297AbWG3VC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 17:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWG3VC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 16:58:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932170AbWG3U66 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 16:58:58 -0400
-Date: Sun, 30 Jul 2006 13:55:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: johnstul@us.ibm.com, smurf@smurf.noris.de, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, bunk@stusta.de, lethal@linux-sh.org,
-       hirofumi@mail.parknet.co.jp, asit.k.mallick@intel.com
-Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
-Message-Id: <20060730135518.f16c0399.akpm@osdl.org>
-In-Reply-To: <20060730201005.GA85093@muc.de>
-References: <20060722173649.952f909f.akpm@osdl.org>
-	<20060723081604.GD27566@kiste.smurf.noris.de>
-	<20060723044637.3857d428.akpm@osdl.org>
-	<20060723120829.GA7776@kiste.smurf.noris.de>
-	<20060723053755.0aaf9ce0.akpm@osdl.org>
-	<1153756738.9440.14.camel@localhost>
-	<20060724171711.GA3662@kiste.smurf.noris.de>
-	<20060724175150.GD50320@muc.de>
-	<1153774443.12836.6.camel@localhost>
-	<20060730020346.5d301bb5.akpm@osdl.org>
-	<20060730201005.GA85093@muc.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Sun, 30 Jul 2006 17:02:27 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:55452 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932297AbWG3VC0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 17:02:26 -0400
+Subject: Re: ipw3945 status
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Rene Rebe <rene@exactcode.de>
+Cc: James Courtier-Dutton <James@superbug.co.uk>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
+       Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ipw2100-admin@linux.intel.com
+In-Reply-To: <200607302209.09735.rene@exactcode.de>
+References: <20060730104042.GE1920@elf.ucw.cz>
+	 <200607301937.15414.rene@exactcode.de>
+	 <1154282618.13635.41.camel@localhost>
+	 <200607302209.09735.rene@exactcode.de>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 23:02:13 +0200
+Message-Id: <1154293333.13635.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jul 2006 22:10:05 +0200
-Andi Kleen <ak@muc.de> wrote:
-
-> > I guess Matthias didn't test this patch.  Can we get some obviously-correct
-> > fix in place for 2.6.18?
+On Sun, 2006-07-30 at 22:09 +0200, Rene Rebe wrote:
+> HI,
 > 
-> So far we don't have any idea what the problem is on that system.
-
-I believe we do know what the problem is: a) write_tsc() doesn't work, b)
-the TSC's are unsynced (or have an offset), c) we removed a check which
-would have caused pmtmr/rtc fallback.
-
-> > It is a "CPU0: Intel(R) Xeon(TM) CPU 3.00GHz stepping 03".
+> On Sunday 30 July 2006 20:03, Kasper Sandberg wrote:
 > 
-> Was that on that system?
+> > > it would be totally ok if the kernel had a country= command line switch
+> > > and the driver limitting functionality due that.
+> > or simply state this in the help in Kconfig?
+> > > 
+> > > People that want to violate the local regulations would require to lie to
+> > > the kernel as they could install other country windows and drivers as
+> > > well.
+> > besides, im not even sure that specifying in Kconfig is necessary,
+> > wouldnt it only be illegal in countries, if people actually modified the
+> > source?
+> 
+> I proposed a kernel command so distributors have a way to run-time
+> change this.
+> 
+> However now that I think about it a bit more, a simple sysfs attribute
+> would be way more useful so the gui tool of the the distribution can
+> switch the country immediatly and do not require a windows-al-like reboot.
+> 
+or perhaps people should just not install/use stuff illegal in their
+country.
 
-yes.
+> Yours,
+> 
 
-> I guess it could be checked for and TSC 
-> be forced off.
-
-There's no need for that, I think.  synchronize_tsc_bp() knows for-sure
-that the synchronization failed, in a way which works on all CPUs.
-
-So all we need to do is to set some flag in synchronize_tsc_bp() if `buggy'
-is set, telling the clocksource code to give up on the TSC.
-
-> It sounds like a real CPU bug however.
-
-I was hoping the Intel guys could help out with that.

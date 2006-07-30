@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWG3KOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWG3KON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWG3KOO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 06:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWG3KOO
+	id S932207AbWG3KON (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 06:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWG3KON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 06:14:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:58343 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932096AbWG3KOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 06:14:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kGgGn99NGy5dMUknyhloc2vtZYl3lf9bNn/Ql9kmvyH3NixQ82eITDlLWtasGVs8BZg80stL7V440JKWhc9SAdWjlOBv8oIfa7CHMHFSr7wkLaKw4+aZPddGtQGOZerm57F5acpy+sIJNWm/CYrh8rB0uSAw3K1DBsYd+a/967k=
-Message-ID: <41840b750607300314t3280fd04ne17bb663c385fd6b@mail.gmail.com>
-Date: Sun, 30 Jul 2006 13:14:10 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: Generic battery interface
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
-       "Greg KH" <greg@kroah.com>
-In-Reply-To: <20060730091848.GC3801@elf.ucw.cz>
+	Sun, 30 Jul 2006 06:14:13 -0400
+Received: from abfb156.neoplus.adsl.tpnet.pl ([83.7.39.156]:11968 "EHLO
+	pcserwis") by vger.kernel.org with ESMTP id S932211AbWG3KOL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 06:14:11 -0400
+Date: Sun, 30 Jul 2006 12:13:47 +0200
+To: "David Masover" <ninja@slaphack.com>, LKML <linux-kernel@vger.kernel.org>,
+       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion)
+From: =?iso-8859-2?B?o3VrYXN6IE1pZXJ6d2E=?= <prymitive@pcserwis.hopto.org>
+Organization: PC Serwis
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
-	 <20060727232427.GA4907@suse.cz>
-	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	 <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz>
-	 <20060728134307.GD29217@suse.cz> <20060730091848.GC3801@elf.ucw.cz>
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com> <44CA8771.1040708@slaphack.com> <44CABB87.3050509@namesys.com> <17611.21640.208153.492074@gargle.gargle.HOWL> <44CBA99F.2040306@slaphack.com>
+Content-Transfer-Encoding: 8bit
+Message-ID: <op.tdhyo9utd4os1z@localhost>
+In-Reply-To: <44CBA99F.2040306@slaphack.com>
+User-Agent: Opera Mail/9.00 (Linux)
+X-PCSerwis-MailScanner-Information: Please contact the ISP for more information
+X-PCSerwis-MailScanner: Found to be clean
+X-PCSerwis-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-15.006, required 6, autolearn=not spam, ALL_TRUSTED -1.80,
+	AWL 1.79, BAYES_00 -15.00)
+X-MailScanner-From: prymitive@pcserwis.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/06, Pavel Machek <pavel@suse.cz> wrote:
-> OTOH some applications just want more frequent polling than
-> others. Shem's "first update after N msec" solution looks most
-> flexible here.
+Dnia Sat, 29 Jul 2006 20:31:59 +0200, David Masover <ninja@slaphack.com>  
+napisa³:
 
-Actually my solution was "any update but no sooner than N msecs". So
-you might be getting a readout that's N-1 msecs old, which was
-meanwhile cached by the driver. If you care about that, you need to
-use interleave those polls with msleep()s; see my recent detailed
-post. You'll still doing at most one msleep() per fetched readout,
-regardless of how frequently the driver provides them.
+> Nikita Danilov wrote:
+>
+>> As you see, ext2 code already has multiple file "plugins", with
+>> persistent "plugin id" (stored in i_mode field of on-disk struct
+>> ext2_inode).
+>
+> Aha!  So here's another question:  Is it fair to ask Reiser4 to make its
+> plugins generic, or should we be asking ext2/3 first?
+>
 
-Alternatively, we can add an extra parameter to that new
-syscall/ioctl: "block until the time is T+N and you have a refresh
-that was received from the hardware at time T+M, whichever is later"
-(where T is the current time and N>M).
-
-That's semantically equivalent to an msleep(M) followed by the
-original delayed_update(N-M),  but will save one timer interrupt per
-iteration in some cases (e.g., an event-based hardware data source).
-
-  Shem
+Doesn't iptables have plugins? Maybe we should make them generic so other  
+packet filters can use them ;)

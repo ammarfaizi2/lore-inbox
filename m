@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWG3E1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWG3EW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWG3E1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 00:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWG3E1y
+	id S1751105AbWG3EW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 00:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWG3EW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 00:27:54 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:37483 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751110AbWG3E1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 00:27:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NpV0Gpi8qzCbwn46bRTto5dhlpVr9HikbbgE20ebQtZLP7+UlzXph/yhWJrg4LLm5qgxFTzi1GvErAyKYIipoErdahRDLLl6cC97znioXXrYBOLfC9ErpPD/nMyMuUmU4Pk5uDWTzW12TPZv2S9SEAj/SjC6C2NT4S0f6UDdRCY=
-Message-ID: <9a8748490607292127ncea6bcep89f9841a09411b3@mail.gmail.com>
-Date: Sun, 30 Jul 2006 06:27:52 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Larry Finger" <Larry.Finger@lwfinger.net>
-Subject: Re: V2.6.18-rc2-latest git compilation fails on i386
-Cc: linux-kernel@vger.kernel.org, "Alexey Dobriyan" <adobriyan@gmail.com>
-In-Reply-To: <44CC18B2.4040309@lwfinger.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 30 Jul 2006 00:22:26 -0400
+Received: from pat.uio.no ([129.240.10.4]:51345 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751105AbWG3EW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 00:22:26 -0400
+Subject: Re: [PATCH for 2.6.18] [8/8] MM: Remove rogue readahead printk
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, torvalds@osdl.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <5c49b0ed0607291804j28193807t83d8237cad8d5ecd@mail.gmail.com>
+References: <44cbba3f.mPUieUe31/EOZ6FZ%ak@suse.de>
+	 <1154207668.5784.35.camel@localhost>
+	 <5c49b0ed0607291804j28193807t83d8237cad8d5ecd@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 00:22:14 -0400
+Message-Id: <1154233334.5784.93.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <44CC18B2.4040309@lwfinger.net>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.75, required 12,
+	autolearn=disabled, AWL 1.25, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30/07/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
-> When compiling the latest i386 kernel from Linus's tree with CONFIG_STACK_UNWIND
-> defined, the following compilation error occurs:
+On Sat, 2006-07-29 at 18:04 -0700, Nate Diller wrote:
+> On 7/29/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > On Sat, 2006-07-29 at 21:42 +0200, Andi Kleen wrote:
+> > > For some reason it triggers always with NFS root and spams the kernel
+> > > logs of my nfs root boxes a lot.
+> > >
+> > > Cc: trond.myklebust@fys.uio.no
+> > > Signed-off-by: Andi Kleen <ak@suse.de>
+> >
+> > Big ACK! I never really understood why we needed this printk, and yes,
+> > it does spam the syslog heavily on all NFS clients...
+> 
+> not an NFS user, but it seems like this is indicating an actual
+> performance problem.  the printk was introduced by an attempt to
+> reduce retries after -EIO on scratched CDs/DVDs, and is intended to
+> curb pathological behavior when one disk sector consitently cannot be
+> read.
 >
-I reported that problem yesterday and Alexey Dobriyan provided a fix :
-http://lkml.org/lkml/2006/7/29/85
+> for some reason (maybe just busy networks, dunno), you're getting I/O
+> errors on NFS, and the readahead window is being reduced.  IMO, the
+> proper behavior in this case would be to keep it large, or even
+> increase it, since that would enable the network to more efficiently
+> transfer data.
+> 
+> of course, it could be that some quirk of the NFS client VFS interface
+> causes "spurious" -EIO returns.  either way, i'd rather see it fixed
+> rather than the printk removed, since it is useful to point out that
+> some performance degradation is occuring.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+We have no way of telling. That printk doesn't give us any useful
+information whatsoever for debugging that sort of problem. It should
+either be replaced with something that does, or it should be thrown out.
+
+  Trond
+

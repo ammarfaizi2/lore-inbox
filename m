@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWG3QMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWG3QS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWG3QMf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 12:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWG3QMf
+	id S932350AbWG3QS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 12:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWG3QS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 12:12:35 -0400
-Received: from pat.uio.no ([129.240.10.4]:56784 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932343AbWG3QMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 12:12:35 -0400
-Subject: Re: [PATCH for 2.6.18] [8/8] MM: Remove rogue readahead printk
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nate.diller@gmail.com, ak@suse.de, torvalds@osdl.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060729232625.c8bcac66.akpm@osdl.org>
-References: <44cbba3f.mPUieUe31/EOZ6FZ%ak@suse.de>
-	 <1154207668.5784.35.camel@localhost>
-	 <5c49b0ed0607291804j28193807t83d8237cad8d5ecd@mail.gmail.com>
-	 <1154233334.5784.93.camel@localhost>
-	 <20060729232625.c8bcac66.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 30 Jul 2006 12:12:21 -0400
-Message-Id: <1154275941.5784.131.camel@localhost>
+	Sun, 30 Jul 2006 12:18:26 -0400
+Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:11719
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932350AbWG3QSZ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 12:18:25 -0400
+Message-Id: <200607301618.k6UGIHEt023129@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andi Kleen <ak@suse.de>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Building the kernel on an SMP box?
+In-Reply-To: Your message of "Sat, 29 Jul 2006 21:29:17 +0200."
+             <200607292129.17682.ak@suse.de>
+From: Valdis.Kletnieks@vt.edu
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B3898@chicken.machinevisionproducts.com> <p73wt9x4zay.fsf@verdi.suse.de> <44CBB7F5.1080704@tmr.com>
+            <200607292129.17682.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1154276297_2988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.279, required 12,
-	autolearn=disabled, AWL 0.21, RCVD_IN_XBL 2.51,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Date: Sun, 30 Jul 2006 12:18:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-07-29 at 23:26 -0700, Andrew Morton wrote:
-> On Sun, 30 Jul 2006 00:22:14 -0400
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+--==_Exmh_1154276297_2988P
+Content-Type: text/plain; charset=us-ascii
+
+On Sat, 29 Jul 2006 21:29:17 +0200, Andi Kleen said:
 > 
-> > > of course, it could be that some quirk of the NFS client VFS interface
-> > > causes "spurious" -EIO returns.  either way, i'd rather see it fixed
-> > > rather than the printk removed, since it is useful to point out that
-> > > some performance degradation is occuring.
-> > 
-> > We have no way of telling. That printk doesn't give us any useful
-> > information whatsoever for debugging that sort of problem. It should
-> > either be replaced with something that does, or it should be thrown out.
+> > That sounds really useful, although I bet it assumes that the build 
+> > environment is the same on all machines. Or at least similar. 
 > 
-> err, the printk has found a probable bug in NFS.  That was pretty useful
-> of it.
+> No it doesn't.
 
-Not necessarily. AFAICS, the spam could be triggered by perfectly
-legitimate activity. For instance, someone on the server may have
-revoked your read permissions to the file, or may have deleted it.
+What happens with the 'gcc version magic' with modules if the main kernel
+and modules are compiled on separate machines with different GCC releases
+installed?   Certainly seems like a requirement for a "similar" environment
+to me, if compiling with gcc 4.1.0 vs 4.1.1. results in a module that won't
+insmod....
 
-> Do we know why nfs's readpage isn't bringing the page up to date?
+--==_Exmh_1154276297_2988P
+Content-Type: application/pgp-signature
 
-It may be that other lurking issues were also triggering the printk. For
-instance I know of a couple of corner cases in the krb5 privacy code
-that could result in readpage failing. Those issues are being looked
-into.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Cheers,
-  Trond
+iD8DBQFEzNvJcC3lWbTT17ARAqfEAKCwkQjQsqjSPMP0Rm1q//t1gCphMgCgywuw
+SpTHqD7cEJkKWouJ9oxeMBc=
+=hPfY
+-----END PGP SIGNATURE-----
 
+--==_Exmh_1154276297_2988P--

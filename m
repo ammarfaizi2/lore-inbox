@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWG3XpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWG3Xxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWG3XpT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 19:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWG3XpS
+	id S964794AbWG3Xxn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 19:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWG3Xxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 19:45:18 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21377 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964795AbWG3XpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 19:45:17 -0400
-Date: Mon, 31 Jul 2006 09:44:24 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jan Dittmer <jdi@l4x.org>, kernel <linux@idccenter.cn>
-Cc: linux-kernel@vger.kernel.org, xfs@oss.sgi.com
-Subject: Re: XFS Bug null pointer dereference in xfs_free_ag_extent
-Message-ID: <20060731094424.E2280998@wobbly.melbourne.sgi.com>
-References: <44BF29CD.1000809@l4x.org> <44CB0BF7.6030204@idccenter.cn> <44CB1303.7010303@l4x.org>
+	Sun, 30 Jul 2006 19:53:43 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42933 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964794AbWG3Xxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 19:53:42 -0400
+Subject: Re: [PATCH] bug in futex unqueue_me
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christian Borntraeger <borntrae@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>,
+       Thomas Gleixner <tglx@timesys.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060730063821.GA8748@elte.hu>
+References: <200607271841.56342.borntrae@de.ibm.com>
+	 <20060730063821.GA8748@elte.hu>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 19:53:21 -0400
+Message-Id: <1154303601.10074.64.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <44CB1303.7010303@l4x.org>; from jdi@l4x.org on Sat, Jul 29, 2006 at 09:49:23AM +0200
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
-
-On Sat, Jul 29, 2006 at 09:49:23AM +0200, Jan Dittmer wrote:
-> kernel schrieb:
-> > I have the same problem, but it seems not have a patch right now.
+On Sun, 2006-07-30 at 08:38 +0200, Ingo Molnar wrote:
+> * Christian Borntraeger <borntrae@de.ibm.com> wrote:
 > 
-> No, I got zero feedback, but let's cc the correct
-> mailing list. I also filed bug 6877 at kernel.org
+> > From: Christian Borntraeger <borntrae@de.ibm.com>
+> > 
+> > This patch adds a barrier() in futex unqueue_me to avoid aliasing of 
+> > two pointers.
+> >
+> > On my s390x system I saw the following oops:
 > 
+> > So the code becomes more or less:
+> > if (q->lock_ptr != 0) spin_lock(q->lock_ptr)
+> > instead of
+> > if (lock_ptr != 0) spin_lock(lock_ptr)
+> >
+> > Which caused the oops from above.
+> 
+> interesting, how is this possible? We do a spin_lock(lock_ptr), and 
+> taking a spinlock is an implicit barrier(). So gcc must not delay 
+> evaluating lock_ptr to inside the critical section. And as far as i can 
+> see the s390 spinlock implementation goes through an 'asm volatile' 
+> piece of code, which is a barrier already. So how could this have 
+> happened? I have nothing against adding a barrier(), but we should first 
+> investigate why the spin_lock() didnt act as a barrier - there might be 
+> other, similar bugs hiding. (we rely on spin_lock()s barrier-ness in a 
+> fair number of places)
 
-Is this easily reproducible for you?  I've not seen it before, and
-the only possibly related recent changes I can think of are these:
+Ingo,  this spinlock is probably still a barrier, but is it still a
+barrier on itself?  That is, the problem here is that we have the
+compiler optimizing the lock_ptr temp variable that is used inside the
+spin_lock.  So does a spin_lock protect itself, or just the stuff inside
+it?
 
-http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e63a3690013a475746ad2cea998ebb534d825704
+Here we need a barrier to keep gcc from optimizing the use of the lock
+and not what the lock is protecting.
 
-http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=d210a28cd851082cec9b282443f8cc0e6fc09830
+I don't know about other areas in the kernel that has a dynamic spin
+lock like this that needs protection.
 
-Could you try reverting each of those to see if either is the cause?
+-- Steve
 
-thanks.
 
--- 
-Nathan

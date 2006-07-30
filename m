@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWG3Lgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWG3Lhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWG3Lgh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 07:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWG3Lgh
+	id S932268AbWG3Lhw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 07:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWG3Lhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 07:36:37 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:22800 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932280AbWG3Lgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 07:36:36 -0400
-Message-ID: <44CC99C1.40507@superbug.co.uk>
-Date: Sun, 30 Jul 2006 12:36:33 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060609)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org, linux-mm@kvack.org
-Subject: Re: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]
-References: <20060727015639.9c89db57.akpm@osdl.org> <44CBA1AD.4060602@gmail.com> <200607292059.59106.rjw@sisk.pl> <44CBE9D5.9030707@gmail.com> <20060729232216.GB1983@elf.ucw.cz> <44CBF60C.3090508@gmail.com>
-In-Reply-To: <44CBF60C.3090508@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 30 Jul 2006 07:37:52 -0400
+Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:65478
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932268AbWG3Lhv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 07:37:51 -0400
+Message-Id: <200607300835.k6U8ZvSB016669@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
+       "Brown, Len" <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
+Subject: Re: Generic battery interface
+In-Reply-To: Your message of "Sat, 29 Jul 2006 12:48:51 +0300."
+             <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com>
+From: Valdis.Kletnieks@vt.edu
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <20060727232427.GA4907@suse.cz> <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com> <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz> <20060728134307.GD29217@suse.cz> <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com> <200607281557.k6SFvn09022794@turing-police.cc.vt.edu> <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com> <200607282314.k6SNESSg019274@turing-police.cc.vt.edu>
+            <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1154248557_2988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 30 Jul 2006 04:35:57 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Pavel Machek napsal(a):
->> Hi!
->>
->>>>> I have problems with swsusp again. While suspending, the very last thing kernel
->>>>> writes is 'restoring higmem' and then hangs, hardly. No sysrq response at all.
->>>>> Here is a snapshot of the screen:
->>>>> http://www.fi.muni.cz/~xslaby/sklad/swsusp_higmem.gif
->>>>>
->>>>> It's SMP system (HT), higmem enabled (1 gig of ram).
->>>> Most probably it hangs in device_power_up(), so the problem seems to be
->>>> with one of the devices that are resumed with IRQs off.
->>>>
->>>> Does vanila .18-rc2 work?
->>> Yup, it does.
->> Can you try up kernel, no highmem? (mem=512M)?
-> 
-> It writes then:
-> p16v: status 0xffffffff, mask 0x00001000, pvoice f7c04a20, use 0
-> in endless loop when resuming -- after reading from swap.
-> 
-> regards,
+--==_Exmh_1154248557_2988P
+Content-Type: text/plain; charset=us-ascii
 
-The p16v chip is present on some creative sound cards, so this is an
-ALSA snd-emu10k1 driver that is causing the endless loop. I will change
-the code to force it to recover from the unexpected status 0xffffffff
-value. The recovery will just consist of reducing the message to a
-single message, instead of an endless loop. That value is never present
-during normal operations, and the only case of it occurring that I know
-about was during a pcmcia card unplug. If it occurs during insertion or
-power resume, then I will have to think about some work around.
-Is there any reason that an IRQ routine will be called before the
-associated PCI IOPORTs have been configured. I did not think it was the
-responsibility of the driver to redo all the initialisation PCI calls to
-claim DMA and IOPORTs at power resume. To me it seems that the IRQ
-routine is being called before PCI DMA and IOPORTs have been initialised.
+On Sat, 29 Jul 2006 12:48:51 +0300, Shem Multinymous said:
 
-James
+> The lazy polling approach I described in my last post to Vojtech
+> ("block until there's  a new readout or N milliseconds have passed,
+> whichever is later") looks like a more general, accurate and efficient
+> interface.
 
+That's not good.
 
+If the program says '100ms' because it knows it will need to do a GUI update
+then, and you block it for 5 seconds because that's when the next value
+update happens, the user is stuck looking at their gkrellm or whatever not
+doing anything at all for 4.9 seconds....
 
+This almost forces the use of multiple threads if the program wants to do
+its own timer management.
+
+--==_Exmh_1154248557_2988P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEzG9tcC3lWbTT17ARAll2AKC9dchdZ+nlNVMYZPXZWbu/6jibMACeOWXZ
+EnK1wp9plSXKWkYhCIz/CpU=
+=q5MV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1154248557_2988P--

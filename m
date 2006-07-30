@@ -1,145 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWG3MJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWG3MTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWG3MJF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 08:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWG3MJF
+	id S932300AbWG3MTb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 08:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWG3MTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 08:09:05 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:9152 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S932298AbWG3MJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 08:09:04 -0400
-Date: Sun, 30 Jul 2006 14:08:44 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: linux-kernel@vger.kernel.org
-Cc: zwane@arm.linux.org.uk
-Subject: 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
-Message-ID: <20060730120844.GA18293@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 30 Jul 2006 08:19:31 -0400
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:22428 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S932300AbWG3MTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 08:19:30 -0400
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.18-rc3
+Date: Sun, 30 Jul 2006 16:05:12 GMT
+Message-ID: <06AU4OP11@briare1.heliogroup.fr>
+X-Mailer: Pliant 96
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+Jiri Slaby wrote:
+>
+> Hubert Tonneau wrote:
+> > Greg KH wrote:
+> >> On Sun, Jul 30, 2006 at 12:21:13PM  0000, Hubert Tonneau wrote:
+> >>> Off topic information:
+> >>> With 2.6.17, none of my USB sound cards works; all of them work with 2.6.16
+> >> That's not good at all.  Care to run 'git bisect' on the tree to find
+> >> out what patch caused it?
+> > 
+> > Hard to do since I'm not a git user.
+> 
+> Then, could you "bisect" it just by -17-rcX patches applying and testing?
 
-Since 2.6.18-rc1, up to and including -rc3, cpufreq has died on me. It
-worked fine in 2.6.16.9.
+2.6.17-rc1 does not work.
 
-The whole cpufreq hierarchy in /sys/ is missing, nothing is reported during
-bootup mentioning 'cpufreq', and when I build with all the cpufreq stuff
-configured as modules, I see this:
+I tried to get more details about what does not work, and found something
+really strange:
+basically, I'm using my own player, and with 2.6.17 it fails to open /dev/dsp
+(error code returned by the kernel is -19 which is ENODEV)
+Now, where the strangeness is that it seems to append rather unpredictibly.
+I made a short program opening /dev/dsp and it worked.
+Then in my player, I tried to open /dev/dsp not once, but twice, and the
+second one works.
 
-$ lsmod
-Module                  Size  Used by
-capability              3464  0
-commoncap               5120  1 capability
-acpi_cpufreq            4748  0
-speedstep_lib           3716  0
-cpufreq_userspace       3092  0
-cpufreq_stats           3588  0
-freq_table              3588  2 acpi_cpufreq,cpufreq_stats
-cpufreq_powersave       1664  0
-cpufreq_ondemand        4716  0
-cpufreq_conservative     5280  0
-b2c2_flexcop_pci        6936  0
-b2c2_flexcop           22412  1 b2c2_flexcop_pci
-mt352                   5636  1 b2c2_flexcop
-mt312                   6660  1 b2c2_flexcop
-bcm3510                 8196  1 b2c2_flexcop
-stv0299                 8840  1 b2c2_flexcop
-stv0297                 6272  1 b2c2_flexcop
-nxt200x                11396  1 b2c2_flexcop
-lgdt330x                7196  1 b2c2_flexcop
-psmouse                31624  0
+So, I tried to unplug and replug the USB audio card, and got more kernel
+error messages:
 
-# modprobe p4_clockmod
-FATAL: Error inserting p4_clockmod
-(/lib/modules/2.6.18-rc3/kernel/arch/i386/kernel/cpu/cpufreq/p4-clockmod.ko):
-Device or resource busy
-
-dmesg is silent on why this is. I've grepped the files in the cpufreq
-directory, but none of them contain EBUSY.
-
-Under 2.6.16.9, this was logged at startup:
-[17179582.044000] p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation
-available
-
-cpuinfo:
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 4
-model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
-stepping        : 1
-cpu MHz         : 3000.298
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 5
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx
-constant_tsc pni monitor ds_cpl cid xtpr
-bogomips        : 6004.95
-
->From .config:
-
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=m
-# CONFIG_CPU_FREQ_DEBUG is not set
-CONFIG_CPU_FREQ_STAT=m
-# CONFIG_CPU_FREQ_STAT_DETAILS is not set
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-# CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE is not set
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=m
-CONFIG_CPU_FREQ_GOV_ONDEMAND=m
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
-
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_ACPI_CPUFREQ=m
-CONFIG_X86_POWERNOW_K6=m
-CONFIG_X86_POWERNOW_K7=m
-CONFIG_X86_POWERNOW_K7_ACPI=y
-CONFIG_X86_POWERNOW_K8=m
-CONFIG_X86_POWERNOW_K8_ACPI=y
-CONFIG_X86_GX_SUSPMOD=m
-CONFIG_X86_SPEEDSTEP_CENTRINO=m
-CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
-CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
-CONFIG_X86_SPEEDSTEP_ICH=m
-CONFIG_X86_SPEEDSTEP_SMI=m
-CONFIG_X86_P4_CLOCKMOD=m
-CONFIG_X86_CPUFREQ_NFORCE2=m
-CONFIG_X86_LONGRUN=m
-
-dmesg output is on http://ds9a.nl/tmp/dmesg , full .config on
-http://ds9a.nl/config
-
-Please let me know how I can help solve this problem. Zwane, you are welcome
-to ssh to my system if that helps, let me know.
-
-Kind regards,
-
-bert
-
-
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+<6>usb 1-1: USB disconnect, address 2
+<3>hub 1-0:1.0: over-current change on port 1
+<6>usb 1-1: new full speed USB device using uhci_hcd and address 3
+<6>usb 1-1: configuration #1 chosen from 1 choice
+<1>BUG: unable to handle kernel NULL pointer dereference at virtual address 0000022c
+<1> printing eip:
+<4>f886b914
+<1>*pde = 00000000
+<0>Oops: 0000 [#1]
+<4>Modules linked in: snd_usb_audio snd_hwdep snd_usb_lib snd_rawmidi snd_seq_device usbmouse usbkbd uhci_hcd usbcore snd_pcm_oss snd_mixer_oss snd_ac97_codec snd_ac97_bus snd_pcm snd_page_alloc snd_timer snd soundcore
+<0>CPU:    0
+<4>EIP:    0060:[<f886b914>]    Not tainted VLI
+<4>EFLAGS: 00010286   (2.6.17-rc1 #1) 
+<0>EIP is at snd_pcm_oss_set_channels+0x24/0x50 [snd_pcm_oss]
+<0>eax: 00000000   ebx: f7cb44e0   ecx: 00000000   edx: 00000002
+<0>esi: b7231c20   edi: f7cb44e0   ebp: f08ca000   esp: f08cbf5c
+<0>ds: 007b   es: 007b   ss: 0068
+<0>Process pliant (pid: 1172, threadinfo=f08ca000 task=c19e2570)
+<0>Stack: <0>fffffff2 f886cd5f f886f740 f6a8c200 f886c8f0 c015d216 f7634478 f6a8c200 
+<0>       00000000 00000005 c015d36e d1baab00 003d09cc f6a8c200 00000005 fffffff7 
+<0>       f08ca000 c015d50d b7231c20 00000001 00000005 b7231ba8 bfbff270 c0102df7 
+<0>Call Trace:
+<0> <f886cd5f> snd_pcm_oss_ioctl+0x46f/0x520 [snd_pcm_oss]   <f886c8f0> snd_pcm_oss_ioctl+0x0/0x520 [snd_pcm_oss]
+<0> <c015d216> do_ioctl+0x56/0x70   <c015d36e> vfs_ioctl+0x5e/0x1c0
+<0> <c015d50d> sys_ioctl+0x3d/0x70   <c0102df7> syscall_call+0x7/0xb
+<0> <c0151030> bio_fs_destructor+0x0/0x10  
+<0>Code: 00 5a c3 8d 74 26 00 53 85 d2 89 c3 b8 01 00 00 00 0f 44 d0 81 fa 80 00 00 00 77 2c b9 01 00 00 00 8b 04 8b 85 c0 74 18 8b 40 5c <39> 90 2c 02 00 00 74 0d 80 88 20 02 00 00 01 89 90 2c 02 00 00 
+<4> <1>BUG: unable to handle kernel NULL pointer dereference at virtual address 0000022c
+<1> printing eip:
+<4>f886b914
+<1>*pde = 00000000
+<0>Oops: 0000 [#2]
+<4>Modules linked in: snd_usb_audio snd_hwdep snd_usb_lib snd_rawmidi snd_seq_device usbmouse usbkbd uhci_hcd usbcore snd_pcm_oss snd_mixer_oss snd_ac97_codec snd_ac97_bus snd_pcm snd_page_alloc snd_timer snd soundcore
+<0>CPU:    0
+<4>EIP:    0060:[<f886b914>]    Not tainted VLI
+<4>EFLAGS: 00010286   (2.6.17-rc1 #1) 
+<0>EIP is at snd_pcm_oss_set_channels+0x24/0x50 [snd_pcm_oss]
+<0>eax: 00000000   ebx: f7418e80   ecx: 00000000   edx: 00000002
+<0>esi: b7231c20   edi: f7418e80   ebp: f08ca000   esp: f08cbf5c
+<0>ds: 007b   es: 007b   ss: 0068
+<0>Process pliant (pid: 1175, threadinfo=f08ca000 task=c19e2570)
+<0>Stack: <0>fffffff2 f886cd5f f886f740 f6a8a9c0 f886c8f0 c015d216 f7634478 f6a8a9c0 
+<0>       00000000 00000005 c015d36e 338ad700 003d09ce f6a8a9c0 00000005 fffffff7 
+<0>       f08ca000 c015d50d b7231c20 00000001 00000005 b7231ba8 bf7ff270 c0102df7 
+<0>Call Trace:
+<0> <f886cd5f> snd_pcm_oss_ioctl+0x46f/0x520 [snd_pcm_oss]   <f886c8f0> snd_pcm_oss_ioctl+0x0/0x520 [snd_pcm_oss]
+<0> <c015d216> do_ioctl+0x56/0x70   <c015d36e> vfs_ioctl+0x5e/0x1c0
+<0> <c015d50d> sys_ioctl+0x3d/0x70   <c0102df7> syscall_call+0x7/0xb
+<0> <c0151030> bio_fs_destructor+0x0/0x10  
+<0>Code: 00 5a c3 8d 74 26 00 53 85 d2 89 c3 b8 01 00 00 00 0f 44 d0 81 fa 80 00 00 00 77 2c b9 01 00 00 00 8b 04 8b 85 c0 74 18 8b 40 5c <39> 90 2c 02 00 00 74 0d 80 88 20 02 00 00 01 89 90 2c 02 00 00 
+<4> <6>usb 1-1: USB disconnect, address 3

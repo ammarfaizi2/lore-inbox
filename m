@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWG3Tg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWG3TjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWG3Tg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 15:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWG3Tg5
+	id S932464AbWG3TjU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 15:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWG3TjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 15:36:57 -0400
-Received: from [72.14.214.193] ([72.14.214.193]:13831 "EHLO
-	hu-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932462AbWG3Tg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 15:36:57 -0400
+	Sun, 30 Jul 2006 15:39:19 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:52711 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932464AbWG3TjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 15:39:19 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Y/XWlSQiAnB/z4353F9wB4YTnCU16slgRavwTT3XVZF5QQIgSewcQ1mbYTHdez3peUs/UCrsyAR7AFHDzWYOEUmk14+/3cvocGSHkeYwIXzWGEaDG2z3p+2yr07ToAvtHNFn2lC7ZoGe4BQQGGIZSA0q+qrXG6brFX11Avy3wlk=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       James Morris <jmorris@namei.org>,
-       Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-       Pekka Savola <pekkas@netcore.fi>, Patrick McHardy <kaber@coreworks.de>,
-       netdev@vger.kernel.org
-Subject: [PATCH] fix memory leak in net/ipv4/tcp_probe.c::tcpprobe_read()
-Date: Sun, 30 Jul 2006 21:38:02 +0200
-User-Agent: KMail/1.9.3
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GS9i6S1ENBKQBSkMofrI0/hXSc8QcQHAJR6XVAN8SW59tZl/oIBgzFMD9g2KX1e85/I9gRbYZNFtESceCdnMpbV8YgjWvwTWHJgbHdlIjHr8c+pI/06e7DvmE4SEyjSDYseoUFMmeXQ7lrZFdLh8dc2v6PIGyvTYc4PgEJ4eTds=
+Message-ID: <9a8748490607301239x500262a3ie14761577c6efd19@mail.gmail.com>
+Date: Sun, 30 Jul 2006 21:39:17 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Subject: Re: [PATCH 00/12] making the kernel -Wshadow clean - The initial step
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Nikita Danilov" <nikita@clusterfs.com>,
+       "Joe Perches" <joe@perches.com>, "Martin Waitz" <tali@admingilde.org>,
+       "Jan-Benedict Glaw" <jbglaw@lug-owl.de>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "David Woodhouse" <dwmw2@infradead.org>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Valdis Kletnieks" <Valdis.Kletnieks@vt.edu>,
+       "Russell King" <rmk@arm.linux.org.uk>,
+       "Rusty Russell" <rusty@rustcorp.com.au>,
+       "Randy Dunlap" <rdunlap@xenotime.net>
+In-Reply-To: <20060730192943.GA31690@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607302138.02855.jesper.juhl@gmail.com>
+References: <200607301830.01659.jesper.juhl@gmail.com>
+	 <20060730192943.GA31690@mars.ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's an obvious memory leak in net/ipv4/tcp_probe.c::tcpprobe_read()
-We are not freeing 'tbuf' on error.
-Patch below fixes that.
+On 30/07/06, Sam Ravnborg <sam@ravnborg.org> wrote:
+> On Sun, Jul 30, 2006 at 06:30:01PM +0200, Jesper Juhl wrote:
+> > Ok, here we go again...
+> >
+> > This is a series of patches that try to be an initial step towards making
+> > the kernel build -Wshadow clean.
+> I will take care of warnings in scripts/*
+> mconf/lxdialog warnings will be fixed in my lxdialog tree which has
+> enough patches to make your path of no real use.
+> And its a trivial fix from my side.
+>
+Great. I'll drop everything in scripts/ and rely on you there.
+Thanks a lot for the feedback.
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- net/ipv4/tcp_probe.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
---- linux-2.6.18-rc3-orig/net/ipv4/tcp_probe.c	2006-07-30 13:21:53.000000000 +0200
-+++ linux-2.6.18-rc3/net/ipv4/tcp_probe.c	2006-07-30 21:32:04.000000000 +0200
-@@ -129,8 +129,10 @@ static ssize_t tcpprobe_read(struct file
- 
- 	error = wait_event_interruptible(tcpw.wait,
- 					 __kfifo_len(tcpw.fifo) != 0);
--	if (error)
-+	if (error) {
-+		vfree(tbuf);
- 		return error;
-+	}
- 
- 	cnt = kfifo_get(tcpw.fifo, tbuf, len);
- 	error = copy_to_user(buf, tbuf, cnt);
-
-
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

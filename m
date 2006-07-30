@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWG3XIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWG3XMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964785AbWG3XIP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 19:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWG3XIP
+	id S964786AbWG3XMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 19:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWG3XMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 19:08:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27055 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964785AbWG3XIO (ORCPT
+	Sun, 30 Jul 2006 19:12:42 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:7092 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964786AbWG3XMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 19:08:14 -0400
-Date: Mon, 31 Jul 2006 01:07:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: "'Rafael J. Wysocki'" <rjw@sisk.pl>, "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060730230757.GA1800@elf.ucw.cz>
-References: <200607300054.18231.rjw@sisk.pl> <00c801c6b427$20d545d0$0200a8c0@nuitysystems.com>
+	Sun, 30 Jul 2006 19:12:41 -0400
+Date: Mon, 31 Jul 2006 01:11:51 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avi Kivity <avi@argo.co.il>
+cc: Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FP in kernelspace
+In-Reply-To: <44CCFA5A.2030605@argo.co.il>
+Message-ID: <Pine.LNX.4.61.0607310110180.11084@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0607302018110.25626@yvahk01.tjqt.qr>
+ <44CCFA5A.2030605@argo.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00c801c6b427$20d545d0$0200a8c0@nuitysystems.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 2006-07-30 15:25:49, Hua Zhong wrote:
-> > I don't _blame_ drivers.  I only wanted to say this: "If 
-> > Nigel knows that some drivers need to be fixed and he has 
-> > working fixes for these drivers, he should have submitted 
-> > these fixes for merging instead of just keeping them in 
-> > suspend2".  Period.
-> > 
-> > If I know of a fix for a driver, I always do my best to make 
-> > sure the fix will get considered for merging at least.  The 
-> > problem is I'm not a driver expert and I can't provide the 
-> > fixes myself.
-> 
-> Suspend2 patch is open source. You can always take a look.
+>> > kernel_fpu_begin();
+>> > c = d * 3.14;
+>> > kernel_fpu_end();
+>> 
+>> static inline void kernel_fpu_begin() {
+>> ...
+>> preempt_disable();
+>> ...
+>> }
+>> 
+> Is the kernel allowed to clobber userspace's sse registers?
 
-swsusp is open source. You can always take a look. And you can always
-submit a patch.
+As long as you save and restore it properly, and make it look like to all 
+other threads that nothing happened, you are (I hope) free to do anything.
 
-> Moreover, if someone claims suspend2 isn't ready for merge, or the
+> What about interrupt code?
 
-Moreover, if someone claims swsusp is broken, they should attach
-bugzilla id.
+You do not want to go there...
 
-> I'm not exactly an expert, but I don't think suspend-to-ram is more
-> difficult than suspend-to-disk (probably quite the contrary), and
-> there are a lot in common.
+> xor.h at least appears to save the sse state before use.
+>
+> -- 
+> Do not meddle in the internals of kernels, for they are subtle and quick to
+> panic.
 
-As you said, you do not know what you are talking about.
+Follow that advice, don't do FP. But OTOH......<long dots> there is already 
+an SSE player in the kernel: drivers/md/raid6sse*.c
 
-								Pavel
+
+Jan Engelhardt
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

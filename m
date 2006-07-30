@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWG3Pde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWG3P5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWG3Pde (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 11:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWG3Pde
+	id S932338AbWG3P5l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 11:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWG3P5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 11:33:34 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:42886 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S932331AbWG3Pdd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 11:33:33 -0400
-Message-ID: <44CCD145.1040801@slaphack.com>
-Date: Sun, 30 Jul 2006 10:33:25 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
-MIME-Version: 1.0
-To: =?ISO-8859-2?Q?=A3ukasz_Mierzwa?= <prymitive@pcserwis.hopto.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed
- by kernelnewbies.org regarding reiser4 inclusion)
-References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org> <44C9FB93.9040201@namesys.com> <44CA6905.4050002@slaphack.com> <44CA126C.7050403@namesys.com> <44CA8771.1040708@slaphack.com> <44CABB87.3050509@namesys.com> <17611.21640.208153.492074@gargle.gargle.HOWL> <44CBA99F.2040306@slaphack.com> <op.tdhyo9utd4os1z@localhost>
-In-Reply-To: <op.tdhyo9utd4os1z@localhost>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 30 Jul 2006 11:57:41 -0400
+Received: from nsm.pl ([195.34.211.229]:276 "EHLO nsm.pl") by vger.kernel.org
+	with ESMTP id S932338AbWG3P5k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 11:57:40 -0400
+Date: Sun, 30 Jul 2006 17:57:34 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ipw2100-admin@linux.intel.com
+Subject: Re: ipw3945 status
+Message-ID: <20060730155734.GA13377@irc.pl>
+Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
+	Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	ipw2100-admin@linux.intel.com
+References: <20060730104042.GE1920@elf.ucw.cz> <20060730112827.GA25540@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <20060730112827.GA25540@srcf.ucam.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-£ukasz Mierzwa wrote:
-> Dnia Sat, 29 Jul 2006 20:31:59 +0200, David Masover <ninja@slaphack.com> 
-> napisa³:
-> 
->> Nikita Danilov wrote:
->>
->>> As you see, ext2 code already has multiple file "plugins", with
->>> persistent "plugin id" (stored in i_mode field of on-disk struct
->>> ext2_inode).
->>
->> Aha!  So here's another question:  Is it fair to ask Reiser4 to make its
->> plugins generic, or should we be asking ext2/3 first?
->>
-> 
-> Doesn't iptables have plugins? Maybe we should make them generic so 
-> other packet filters can use them ;)
 
-Hey, yeah!  I mean, not everyone wants to run the ipchains emulation on 
-top of iptables!  Some people really want to run ipchains with iptables 
-plugins!
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-</sarcasm>
+On Sun, Jul 30, 2006 at 12:28:27PM +0100, Matthew Garrett wrote:
+> On Sun, Jul 30, 2006 at 12:40:42PM +0200, Pavel Machek wrote:
+>=20
+> > I'm unfortunate enough to have x60 with ipw card. Card works okay, but
+> > driver is 16K LoC and needs binary daemon (ugh). Plus, it lives as an
+> > external module...
+>=20
+> I have a mostly working replacement for the binary daemon, but it causes=
+=20
+> the firmware to crash at the point where it triggers an association. If=
+=20
+> anyone's keen on trying to figure out what's up, I'll clean up the code=
+=20
+> and stick it somewhere.
 
-It is REALLY time for this discussion to get technical again, and to go 
-way, way over my head.  And it's time for me to go build my MythTV box, 
-and see if I can shake out some Reiser4 bugs.
+  Is your daemon somehow releated to wifi frequencies goegraphy database
+proposed some time ago on netdev?
+
+--=20
+Tomasz Torcz                 "God, root, what's the difference?"
+zdzichu@irc.-nie.spam-.pl         "God is more forgiving."
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFEzNbuThhlKowQALQRAv0KAJ961QBiLrcd5b+EeQRsSWyky2R19ACfXyH4
+hjJwrmwhZsDq8GDZ5coGFxo=
+=/G9M
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--

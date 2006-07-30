@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWG3ST1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWG3SU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWG3ST1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 14:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWG3STZ
+	id S932406AbWG3SU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 14:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWG3SUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 14:19:25 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:27866 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932405AbWG3STZ (ORCPT
+	Sun, 30 Jul 2006 14:20:25 -0400
+Received: from mx1.suse.de ([195.135.220.2]:11242 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932406AbWG3SUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 14:19:25 -0400
-Date: Sun, 30 Jul 2006 20:18:37 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+	Sun, 30 Jul 2006 14:20:25 -0400
+From: Andi Kleen <ak@suse.de>
 To: Avi Kivity <avi@argo.co.il>
-cc: Jiri Slaby <jirislaby@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: FP in kernelspace
-In-Reply-To: <44CCC4CA.6000208@argo.co.il>
-Message-ID: <Pine.LNX.4.61.0607302018110.25626@yvahk01.tjqt.qr>
-References: <44CC97A4.8050207@gmail.com> <44CCC4CA.6000208@argo.co.il>
+Date: Sun, 30 Jul 2006 20:15:33 +0200
+User-Agent: KMail/1.9.3
+Cc: Jiri Slaby <jirislaby@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <p73u04z2dzu.fsf@verdi.suse.de> <44CCF63B.6070906@argo.co.il>
+In-Reply-To: <44CCF63B.6070906@argo.co.il>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607302015.33684.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kernel_fpu_begin();
-> c = d * 3.14;
-> kernel_fpu_end();
 
-static inline void kernel_fpu_begin() {
-    ...
-    preempt_disable();
-    ...
-}
+> 
+> Cannot work on x86-64, even disregarding fp exceptions, because 
+> kernel_fpu_begin() doesn't save the sse state which is used by fp math.
+> 
+> No?
 
+It does - FXSAVE saves everything.
 
-Jan Engelhardt
--- 
+BTW you can use x87 on x86-64 too, you just need to use long double.
+
+-Andi

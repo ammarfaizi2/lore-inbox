@@ -1,98 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWG3Ohn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWG3OkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbWG3Ohn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 10:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWG3Ohn
+	id S932320AbWG3OkP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 10:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWG3OkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 10:37:43 -0400
-Received: from thunk.org ([69.25.196.29]:52659 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750853AbWG3Ohn (ORCPT
+	Sun, 30 Jul 2006 10:40:15 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:18955 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932320AbWG3OkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 10:37:43 -0400
-Date: Sun, 30 Jul 2006 10:33:42 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Nicholas Miell <nmiell@comcast.net>, Edgar Toernig <froese@gmx.de>,
-       Neil Horman <nhorman@tuxdriver.com>, Jim Gettys <jg@laptop.org>,
-       "H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org,
-       Keith Packard <keithp@keithp.com>, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: itimer again (Re: [PATCH] RTC: Add mmap method to rtc character driver)
-Message-ID: <20060730143341.GD23279@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Bill Huey <billh@gnuppy.monkey.org>,
-	Nicholas Miell <nmiell@comcast.net>, Edgar Toernig <froese@gmx.de>,
-	Neil Horman <nhorman@tuxdriver.com>, Jim Gettys <jg@laptop.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, Dave Airlie <airlied@gmail.com>,
-	Segher Boessenkool <segher@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, a.zummo@towertech.it,
-	jg@freedesktop.org, Keith Packard <keithp@keithp.com>,
-	Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-References: <1153863542.1230.41.camel@localhost.localdomain> <20060729042820.GA16133@gnuppy.monkey.org> <20060729125427.GA6669@localhost.localdomain> <20060729204107.GA20890@gnuppy.monkey.org> <20060729234948.0768dbf4.froese@gmx.de> <20060729225138.GA22390@gnuppy.monkey.org> <1154216151.2467.5.camel@entropy> <20060730010020.GA23288@gnuppy.monkey.org> <1154222579.2467.12.camel@entropy> <20060730013936.GA23571@gnuppy.monkey.org>
+	Sun, 30 Jul 2006 10:40:13 -0400
+Message-ID: <44CCC4CA.6000208@argo.co.il>
+Date: Sun, 30 Jul 2006 17:40:10 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730013936.GA23571@gnuppy.monkey.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FP in kernelspace
+References: <44CC97A4.8050207@gmail.com>
+In-Reply-To: <44CC97A4.8050207@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jul 2006 14:40:11.0609 (UTC) FILETIME=[0FD4C490:01C6B3E6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 06:39:36PM -0700, Bill Huey wrote:
-> On Sat, Jul 29, 2006 at 06:22:59PM -0700, Nicholas Miell wrote:
-> > On Sat, 2006-07-29 at 18:00 -0700, Bill Huey wrote:
-> > > Think edge triggered verse level triggered. Event interfaces in the Linux
-> > > kernel are sort of just that, edge triggered events. What RT folks generally
-> > > want is control over scheduling policies over a particular time period in
-> > > relation to a scheduling policy. A general kernel event interface isn't
-> >                 ^ Did you mean to say timer here?
-> 
-> No, I really ment scheduling.
+Jiri Slaby wrote:
+>
+> Hello,
+>
+> I have a driver written for 2.4 + RT patches with FP support. I want 
+> it to work
+> in 2.6. How to implement FP? Has anybody developped some "protocol" 
+> between KS
+> and US yet? If not, could somebody point me, how to do it the best -- 
+> with low
+> latency.
+> The device doesn't generate irqs *), I need to quickly respond to 
+> timer call,
+> because interval between two posts of data to the device has to be 
+> equal as much
+> as possible (BTW is there any way how to gain up to 5000Hz).
+> I've one idea: have a thread with RT priority and wake the app in US 
+> waiting in
+> read of character device when timer ticks, post a struct with 2 floats 
+> and
+> operation and wait in write for the result. App computes, writes the 
+> result, we
+> are woken and can post it to the device. But I'm afraid it would be 
+> tooo slow.
+>
+> *) I don't know how to persuade it (standard PLX chip with unknown 
+> piece of
+> logic behind) to generate, because official driver is closed and _very_
+> expensive. Old (2.4) driver was implemented with RT thread and timer, 
+> where FP
+> is implemented within RT and computed directly in KS.
+>
+> So 2 questions are:
+> 1) howto FP in kernel
+>
+kernel_fpu_begin();
+c = d * 3.14;
+kernel_fpu_end();
 
-Bill, 
+-- 
+error compiling committee.c: too many arguments to function
 
-Do you mean frequency-based scheduling?  This was mentioned, IIRC, in
-Gallmeister's book (Programming for the Real World, a must-read for
-those interested in Posix real-time interfaces) as a likely extension
-to the SCHED_RR/SCHED_FIFO scheduling policies and future additions to
-the struct sched_policy used by sched_setparam() at some future point.
-
-
-The basic idea here is that if you have some task which is cyclic in
-nature, what might be useful would be to tell the scheduler that a
-particular thread should be woken up every at a specific cyclic time;
-and that thread promises it will only run for a certain amount of
-time, and before that time expires, it will finish running.  If it
-doesn't, this is considered an overrun situation, and a number of
-different things can happen at that point, including a signal which
-might or might not kill the process, merely recording the event that
-there was an overrun.  It would be possible to have and soft and hard
-overrun limits where you record the number and amount of time exceeded
-of soft overruns, and upon a thread using up its promised time
-quantuum plus the hard overrun limit, it gets a signal.
-
-Since the scheduler knows when the cyclic tasks need to run, and how
-much time they promise to take, in theory it might be able to do a
-better job scheduling the threads, particularly if it knows that
-certain threads can tolerate being scheduled earlier or later within
-some time boundaries (which means even more fields in the struct
-sched_policy).  At least, that's the theory.  The exact semantics of
-what would actually be useful to application is I believe a little
-unclear, and of course there is the question of whether there is
-sufficient reason to try to do this as part of a system-wide
-scheduler.  Alternatively, it might be sufficient to do this sort of
-thing at the application level across cooperating threads, in which
-case it wouldn't be necessary to try to add this kind of complicated
-scheduling gorp into the kernel.
-
-In any case, I don't think this is particularly interesting to the X
-folks, although there may very well be real-time applications that
-would find this sort of thing useful.
-
-Regards,
-
-						- Ted

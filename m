@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWG3Nb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWG3Nrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWG3Nb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 09:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWG3Nb5
+	id S932269AbWG3Nrg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 09:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWG3Nrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 09:31:57 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:30862 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750854AbWG3Nb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 09:31:56 -0400
-Subject: Re: 2.6.18-rc3 - ReiserFS - warning: vs-8115: get_num_ver: not
-	directory or indirect item
-From: Redeeman <redeeman@metanurb.dk>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hans Reiser <reiser@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <9a8748490607300608v65ce3bdcsbb47273bb82a2d6c@mail.gmail.com>
-References: <9a8748490607300608v65ce3bdcsbb47273bb82a2d6c@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 30 Jul 2006 15:31:46 +0200
-Message-Id: <1154266306.13635.28.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sun, 30 Jul 2006 09:47:36 -0400
+Received: from mail.gmx.net ([213.165.64.21]:22486 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932269AbWG3Nrf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 09:47:35 -0400
+X-Authenticated: #448092
+Message-ID: <44CCB873.5010407@gmx.de>
+Date: Sun, 30 Jul 2006 15:47:31 +0200
+From: Joachim Schlichting <mirth@gmx.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: added device ids to get pata and sata controller to work on an asus
+ m2v motherboard
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 15:08 +0200, Jesper Juhl wrote:
-> I just got a warning message with 2.6.18-rc3 that I've never seen before :
-> 
->   ReiserFS: sda4: warning: vs-8115: get_num_ver: not directory or indirect item
-> 
-> The message showed up twice in dmesg during two parallel "make -j3"
-> builds of the 2.6.18-rc3 kernel source in two sepperate directories.
-> I've tried to reproduce it but without luck.
-> 
-> It would be nice if someone could tell me what the message means and
-> wether or not I should be worried about it.
-by default i would suggest worried mode.
+Hi.
+To get my asus m2v onboard controllers to work, i added the following 
+lines (tested with 2.6.16.X kernels, but the device-ids are not included 
+in the actual 2.6.17.X, too):
 
-what does fsck.reiserfs say?
-> 
+in
+drivers/scsi/sata_via.c
+to
+static const struct pci_device_id svia_pci_tbl[]
 
+{ 0x1106, 0x0591, PCI_ANY_ID, PCI_ANY_ID, 0, 0, vt6420 },
+
+and in
+drivers/ide/pci/via82cxxx.c
+to
+via_isa_bridges[]
+
+{ "unknown",     PCI_DEVICE_ID_VIA_82C586_1,     0x00, 0x07, 
+VIA_UDMA_133 | VIA_BAD_AST },
+
+
+After this changes everything is working absolutely fine.
+I hope I could help and have sent this bug report to the right place.
+Regards,
+Joachim Schlichting

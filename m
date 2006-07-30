@@ -1,110 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWG3KMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWG3KOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWG3KMT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 06:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWG3KMT
+	id S932096AbWG3KOO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 06:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWG3KOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 06:12:19 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:6533 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751382AbWG3KMR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 06:12:17 -0400
-Message-ID: <44CC85FD.1050000@drzeus.cx>
-Date: Sun, 30 Jul 2006 12:12:13 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Sun, 30 Jul 2006 06:14:14 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:58343 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932096AbWG3KOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 06:14:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kGgGn99NGy5dMUknyhloc2vtZYl3lf9bNn/Ql9kmvyH3NixQ82eITDlLWtasGVs8BZg80stL7V440JKWhc9SAdWjlOBv8oIfa7CHMHFSr7wkLaKw4+aZPddGtQGOZerm57F5acpy+sIJNWm/CYrh8rB0uSAw3K1DBsYd+a/967k=
+Message-ID: <41840b750607300314t3280fd04ne17bb663c385fd6b@mail.gmail.com>
+Date: Sun, 30 Jul 2006 13:14:10 +0300
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Pavel Machek" <pavel@suse.cz>
+Subject: Re: Generic battery interface
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Brown, Len" <len.brown@intel.com>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>,
+       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org,
+       "Greg KH" <greg@kroah.com>
+In-Reply-To: <20060730091848.GC3801@elf.ucw.cz>
 MIME-Version: 1.0
-To: Alex Dubov <oakad@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
- card readers
-References: <20060730062942.29644.qmail@web36706.mail.mud.yahoo.com>
-In-Reply-To: <20060730062942.29644.qmail@web36706.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
+	 <41840b750607271332q5dea0848y2284b30a48f78ea7@mail.gmail.com>
+	 <20060727232427.GA4907@suse.cz>
+	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
+	 <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz>
+	 <20060728134307.GD29217@suse.cz> <20060730091848.GC3801@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Dubov wrote:
-> They are magic numbers. I have only the vague idea on
-> what most of these numbers mean. I digged them out
-> from TI's/everest's binary driver.
->   
+On 7/30/06, Pavel Machek <pavel@suse.cz> wrote:
+> OTOH some applications just want more frequent polling than
+> others. Shem's "first update after N msec" solution looks most
+> flexible here.
 
-Then try to make qualified guesses. Even if the constants are
-TIFM_INTFLAG_2, that still makes the code more readable as you see which
-values are the same constant.
+Actually my solution was "any update but no sooner than N msecs". So
+you might be getting a readout that's N-1 msecs old, which was
+meanwhile cached by the driver. If you care about that, you need to
+use interleave those polls with msleep()s; see my recent detailed
+post. You'll still doing at most one msleep() per fetched readout,
+regardless of how frequently the driver provides them.
 
-By "magic", in the valid sense, I do not mean "unknown". What I mean is
-"purposely random", as in values used to identify file systems and file
-formats.
+Alternatively, we can add an extra parameter to that new
+syscall/ioctl: "block until the time is T+N and you have a refresh
+that was received from the hardware at time T+M, whichever is later"
+(where T is the current time and N>M).
 
->
-> I already have "socket". "card" is something that is
-> plugged into the "socket". It's hard to think about
-> short name that fits here nicely.
->
->   
+That's semantically equivalent to an msleep(M) followed by the
+original delayed_update(N-M),  but will save one timer interrupt per
+iteration in some cases (e.g., an event-based hardware data source).
 
-I assume "socket" is a structure for one of the card type subfunctions
-of the controller and that "card" is something you create once that
-subfunction is activated by a card insertion. Why can't you have the
-"card" portions allocated at all times as part of the "socket"
-structure? Is it possible for a "socket" to have multiple "card":s
-associated with it? Otherwise I see little need for the dynamic behaviour.
-
-> Unfortunately, hardware does care. Output of
-> tifm_sd_op_flag is set into upper half of command
-> register. 
->   
-
-Sorry, I was a bit unclear. Of course hardware cares about what kind of
-response it will get. What I meant was that hardware shouldn't care if
-it's R1, R2 or R666. What it should care about is if it's "Short
-response with CRC and embedded opcode" or something similar. If you look
-at the meaning of the response types and try to compare the different
-bit combinations, you can usually see patterns. Just remember that most
-controllers do not usually support checking every little aspect.
-
-> The fall-back is 0 (implied default for both
-> switches).
->   
-
-And you are sure this will be valid for response type RFooBar,
-consisting of only a new combination of the existing response
-attributes, that I will come up with tomorrow?
-
-> The TI binary drivers tests for the command type
-> before setting the appropriate bit in command register
-> (similar to tifm_sd_op_flags).
->   
-
-Please do a BUG_ON() or fail the request or something similar. If you
-would happen to get a request where cmd->data is set, but type isn't
-ADTC, then I assume all hell will break loose.
-
-> In general: while I'm using code flow different from
-> this used in TI's binary drivers, I tried very hard to
-> preserve register access semantics. 
->   
-
-Careful. People get a bit edgy with such reasoning around reverse
-engineering. ;)
-
-> When I failed to
-> do so, very bad things happened - sporadic and brutal
-> kernel crashes and run-aways. I think they were caused
-> by device writing random junk to some memory address
-> at arbitrary times.
->
->   
-
-Baby steps. If you test carefully enough (and do some qualified
-guessing), you usually can figure out what most bits of a register are for.
-
-Great work figuring out the hardware as much as you have though. This
-driver will be a nice addition.
-
-Rgds
-Pierre
-
+  Shem

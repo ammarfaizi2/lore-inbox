@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWG3JcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWG3Jc0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWG3JcV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 05:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWG3JcV
+	id S932126AbWG3Jc0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 05:32:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWG3Jc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 05:32:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:30509 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932121AbWG3JcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 05:32:20 -0400
+	Sun, 30 Jul 2006 05:32:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:14123 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932126AbWG3JcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 05:32:25 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=VAwSo1Xu253W/grWaIkE6x0SuyKCg97jezlDGPIJMkztI8sC/BNulc0Q2cPsp8DmKzMtZjXtMkKWT3Du8h0vZpGQEVoX1T53GMReWvEDV7Do9+oqn+oDtjLgH3gCgNp+gEUzU+54PKfkCWPuD+5S3h6+6jrwTIRqpFzvqaGoVjg=
-Message-ID: <44CC7CA4.3060808@gmail.com>
-Date: Sun, 30 Jul 2006 11:31:57 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FWwmw33chYNHWaQE98VjDT5p7ek3FnJsdQeh/Elui5yhJ+S6doR3H5s84ZH76HEe5YcyivNuowgAOHfN/bT/81xP6WbMJTuYH3LeCP8M5MlRh/RSwTF6VkPMuMTgRCCoXVZXaBH/PtmIV9kM9sW7fQwMH/hknY1GU/X7UmnFnww=
+Message-ID: <3888a5cd0607300232o400c76d8gcd006b7f45ecc71@mail.gmail.com>
+Date: Sun, 30 Jul 2006 11:31:24 +0159
+From: "Jiri Slaby" <lnx4us@gmail.com>
+To: heavenscape <masonduan1@sina.com>
+Subject: Re: How to port a legacy device driver to a new Linux platform?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5535638.post@talk.nabble.com>
 MIME-Version: 1.0
-To: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.18-rc3
-References: <06ATWAN12@briare1.heliogroup.fr>
-In-Reply-To: <06ATWAN12@briare1.heliogroup.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5535638.post@talk.nabble.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Tonneau wrote:
-> Greg KH wrote:
->> On Sun, Jul 30, 2006 at 12:21:13PM  0000, Hubert Tonneau wrote:
->>> Off topic information:
->>> With 2.6.17, none of my USB sound cards works; all of them work with 2.6.16
->> That's not good at all.  Care to run 'git bisect' on the tree to find
->> out what patch caused it?
-> 
-> Hard to do since I'm not a git user.
+On 7/28/06, heavenscape (sent by Nabble.com) <lists@nabble.com> wrote:
+> Hi all,
+>
+> I have a legacy PCI fiber card running under Red Hat Linux 7.3, and I have
+> all the source code of its driver developped by others. Please see the
+> attachment.
+>
+> http://www.nabble.com/user-files/135/cyport71.tar cyport71.tar
+>
+> It is working fine right now. But I am going to upgrade my OS to Rea Hat
+> Enterprise Linux AS 4, I am not sure how can I recompile and install this
+> fiber card in the new OS.  I am new to Linux and have minimal experience in
+> programming Linux. But this card is very important to me.
+>
+> Any suggestion is highly appreciated!!  Thanks!!
 
-Then, could you "bisect" it just by -17-rcX patches applying and testing?
+You may do rework of the driver and post it: see Documentation/HOWTO,
+especially Documentation/SubmittingDrivers.
+
+It won't be so hard, if you don't feel cool enough, I may try my best,
+but tell me the source (cvs?) address of the drivers. What kind of
+device is that?
 
 regards,
 -- 

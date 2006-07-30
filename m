@@ -1,53 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWG3OsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWG3Owf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWG3OsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 10:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWG3OsZ
+	id S1750853AbWG3Owf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 10:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWG3Owf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 10:48:25 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:7748 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932323AbWG3OsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 10:48:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j9zJPJhpwp67Q9q6H0jd74beZPRAZwtKgAkON2Xt9EgVL+3Nk3atFIxF7nqF2srqheGiyW7bELYpRs+sV7UPGRbacarCm7q69pM4aXnin7Z73UW+bb5bbXMJBXtlp+joNj5jaa4f0w7aclXKx6rKsYj+HxPfFPUgJdYd413dQL8=
-Message-ID: <41840b750607300748u23d24653s273123be5017be63@mail.gmail.com>
-Date: Sun, 30 Jul 2006 17:48:22 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "kernel list" <linux-kernel@vger.kernel.org>
-Subject: Re: Generic battery interface
-In-Reply-To: <20060730142909.GA11854@irc.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 30 Jul 2006 10:52:35 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:23512 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1750840AbWG3Owe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 10:52:34 -0400
+Date: Sun, 30 Jul 2006 23:54:03 +0900 (JST)
+Message-Id: <20060730.235403.108306254.anemo@mba.ocn.ne.jp>
+To: johnstul@us.ibm.com
+Cc: akpm@osdl.org, zippel@linux-m68k.org, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org, ak@muc.de
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+ aliasing problem)
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060305.021542.126141997.anemo@mba.ocn.ne.jp>
+References: <20060302190408.1e754f12.akpm@osdl.org>
+	<1141417048.9727.60.camel@cog.beaverton.ibm.com>
+	<20060305.021542.126141997.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <20060727232427.GA4907@suse.cz>
-	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	 <20060728074202.GA4757@suse.cz>
-	 <d120d5000607280525x447e6821t734a735197481c18@mail.gmail.com>
-	 <41840b750607280819t71f55ea7off89aa917421cc33@mail.gmail.com>
-	 <d120d5000607280910t458fb6e0hdb81367b888a46db@mail.gmail.com>
-	 <20060730085500.GB17759@kroah.com>
-	 <41840b750607300252w445974b1udedf1a67114d1580@mail.gmail.com>
-	 <20060730142909.GA11854@irc.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/30/06, Tomasz Torcz <zdzichu@irc.pl> wrote:
-> On Sun, Jul 30, 2006 at 12:52:52PM +0300, Shem Multinymous wrote:
-> > Put otherwise:
-> > Q:Quick, which io scheduler is used by /dev/scd0?
-> > A: cat /sys/dev/$((0x`stat -c%t /dev/scd0`))/\
-> >                $((0x`stat -c%T /dev/scd0`))/queue/scheduler
->
->  A2: cat /sys`udevinfo -n scd0 -q path`/queue/scheduler  ?
+Let me restart this discussion after about 5 months interval.
 
-You win.
-Since udev manages /dev, it makes sense to ask it for this info. I
-guess one can think of major:minor as a udev private implementation
-detail, in this context.
+On Sun, 05 Mar 2006 02:15:42 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+> john> I'm not opposed to queuing it up as it seems like a logical
+> john> cleanup. I'd be fine with it going in before my patch, however
+> john> it still needs to address i386 lost tick compensation.  I worry
+> john> that addressing that issue before my patchset (which makes the
+> john> lost tick compensation unnecessary) might be a bit more
+> john> complex. I think it would be easier going in after my patch. I
+> john> do think the barrier fix (with a comment) is a good short term
+> john> fix.
+> 
+> john> Atsushi: Your thoughts?
+> 
+> I agree.  I missed i386 lost tick case and it seems more complex than
+> x86_64 case.  Your patchset looks to make this cleanup very easy.
+> Then, here is an updated barrier fix patch.
 
-  Shem
+Now it seems the conversion of the i386 timer code has been finished.
+We can think this topic again.  Here is a patch against current git
+tree.  How about this?  And I wonder if there are any point
+maintaining wall_jiffies now.  It seems jiffies and wall_jiffies are
+always synced.
+
+
+[PATCH] simplify update_times
+
+In kernel 2.6, update_times() is called directly from timer interrupt,
+so there is no point calculating ticks here.  This also make a barrier
+added by 5aee405c662ca644980c184774277fc6d0769a84 needless.
+
+Also adjust x86_64 timer interrupt handler with this change.
+
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 7a9b182..298027f 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -423,7 +423,8 @@ #endif
+ 
+ 	if (lost > 0) {
+ 		handle_lost_ticks(lost, regs);
+-		jiffies += lost;
++		while (lost--)
++			do_timer(regs);
+ 	}
+ 
+ /*
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 05809c2..3981cae 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -1267,12 +1267,9 @@ void run_local_timers(void)
+  */
+ static inline void update_times(void)
+ {
+-	unsigned long ticks;
+-
+-	ticks = jiffies - wall_jiffies;
+-	wall_jiffies += ticks;
++	wall_jiffies++;
+ 	update_wall_time();
+-	calc_load(ticks);
++	calc_load(1);
+ }
+   
+ /*
+@@ -1284,8 +1281,6 @@ static inline void update_times(void)
+ void do_timer(struct pt_regs *regs)
+ {
+ 	jiffies_64++;
+-	/* prevent loading jiffies before storing new jiffies_64 value. */
+-	barrier();
+ 	update_times();
+ }
+ 

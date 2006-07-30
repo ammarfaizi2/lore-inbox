@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWG3WoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWG3XBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWG3WoI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 18:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWG3WoI
+	id S964783AbWG3XBr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 19:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWG3XBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 18:44:08 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49285
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751428AbWG3WoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 18:44:07 -0400
-Date: Sun, 30 Jul 2006 15:44:16 -0700 (PDT)
-Message-Id: <20060730.154416.121293840.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: yoshfuji@linux-ipv6.org, Matt_Domsch@dell.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060729043325.GA7035@gondor.apana.org.au>
-References: <20060728194531.GA17744@lists.us.dell.com>
-	<20060729043325.GA7035@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sun, 30 Jul 2006 19:01:47 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:49599 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964783AbWG3XBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 19:01:47 -0400
+Subject: Re: 2.6.18-rc2-mm1 timer int 0 doesn't work
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Paul Fulghum <paulkf@microgate.com>,
+       ak@muc.de, linux-kernel@vger.kernel.org, ebiederm@xmission.com
+In-Reply-To: <20060729040337.GB29875@elte.hu>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	 <1154112276.3530.3.camel@amdx2.microgate.com>
+	 <20060728144854.44c4f557.akpm@osdl.org> <20060728233851.GA35643@muc.de>
+	 <1154132126.3349.8.camel@localhost.localdomain>
+	 <1154135792.2557.7.camel@localhost.localdomain>
+	 <20060728182450.8f5cbf76.akpm@osdl.org>  <20060729040337.GB29875@elte.hu>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 19:00:57 -0400
+Message-Id: <1154300457.10074.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sat, 29 Jul 2006 14:33:25 +1000
+On Sat, 2006-07-29 at 06:03 +0200, Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > 2.6.18-rc2 works fine with same config.
+> > > 
+> > > In this case the error is:
+> > > 
+> > > No per-cpu room for modules
+> > 
+> > yeah, sorry, that's a known problem which nobody appears to be doing 
+> > anything about.  The expansion of NR_IRQS gobbles all the percpu 
+> > memory in the kstat structure.
+> 
+> while the fundamental issue is the NR_IRQS problem which we'll fix 
+> separately, Steve has a patchset to make percpu room dynamic:
+> 
+>   http://lkml.org/lkml/2006/4/14/137
 
-> [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
-> 
-> The current users of ip6_dst_lookup can be divided into two classes:
-> 
-> 1) The caller holds no locks and is in user-context (UDP).
-> 2) The caller does not want to lookup the dst cache at all.
-> 
-> The second class covers everyone except UDP because most people do
-> the cache lookup directly before calling ip6_dst_lookup.  This patch
-> adds ip6_sk_dst_lookup for the first class.
-> 
-> Similarly ip6_dst_store users can be divded into those that need to
-> take the socket dst lock and those that don't.  This patch adds
-> __ip6_dst_store for those (everyone except UDP/datagram) that don't
-> need an extra lock.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+That implementation was doomed because it added another dereference that
+would kill numa implementations.  I implemented another version that
+used page tables, but some people said that this would waste TLB
+entries. See here
 
-Applied, thanks Herbert.
+http://lwn.net/Articles/184103/
+
+Perhaps another version that might be beneficial is one that mixes the
+current approach with this one.  That is to have a dynamic page case
+that would happen only after a default was exhausted.  And then we could
+even warn about it if we don't like that. This way we can warn the user
+if they don't like having the module's per_cpu files dynamically
+allocated, which might slow down the system do to another TLB line
+taken.
+
+-- Steve
+ 
+

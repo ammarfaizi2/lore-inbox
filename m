@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWGaAdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWGaAlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWGaAdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 20:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWGaAdP
+	id S932493AbWGaAlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWGaAls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 20:33:15 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:16116 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932491AbWGaAdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 20:33:14 -0400
-Subject: Re: FP in kernelspace
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-In-Reply-To: <44CC97A4.8050207@gmail.com>
-References: <44CC97A4.8050207@gmail.com>
-Content-Type: text/plain
-Date: Sun, 30 Jul 2006 20:33:09 -0400
-Message-Id: <1154305989.10074.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jul 2006 20:41:48 -0400
+Received: from cantor.suse.de ([195.135.220.2]:56993 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932493AbWGaAlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 20:41:47 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 31 Jul 2006 10:41:42 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 11] knfsd: Introduction - Make knfsd more NUMA-aware
+Message-ID: <20060731103458.29040.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 13:27 +0159, Jiri Slaby wrote:
-> Hello,
-> 
-> I have a driver written for 2.4 + RT patches with FP support. I want it to work 
-> in 2.6. How to implement FP? Has anybody developped some "protocol" between KS 
-> and US yet? If not, could somebody point me, how to do it the best -- with low 
-> latency.
-> The device doesn't generate irqs *), I need to quickly respond to timer call, 
-> because interval between two posts of data to the device has to be equal as much 
-> as possible (BTW is there any way how to gain up to 5000Hz).
-> I've one idea: have a thread with RT priority and wake the app in US waiting in 
-> read of character device when timer ticks, post a struct with 2 floats and 
-> operation and wait in write for the result. App computes, writes the result, we 
-> are woken and can post it to the device. But I'm afraid it would be tooo slow.
-> 
-> *) I don't know how to persuade it (standard PLX chip with unknown piece of 
-> logic behind) to generate, because official driver is closed and _very_ 
-> expensive. Old (2.4) driver was implemented with RT thread and timer, where FP 
-> is implemented within RT and computed directly in KS.
-> 
-> So 2 questions are:
-> 1) howto FP in kernel
-> 2) howto precise timer (may mingo RT patches help?)
+Following are 11 patches from Greg Banks which combine to make knfsd
+more Numa-aware.  They reduce hitting on 'global' data structures, and
+create some data-structures that can be node-local.
 
-Well Ingo's RT patch set has the high resolution timers developed by
-Thomas Gleixner, which may help you here.
+knfsd threads are bound to a particular node, and the thread to handle
+a new request is chosen from the threads that are attach to the node
+that received the interrupt.
 
-> 3) any way to have faster ticks (up to 5000Hz)?
+The distribution of threads across nodes can be controlled by a new
+file in the 'nfsd' filesystem, though the default approach of an even
+spread is probably fine for most sites.
 
-Why do you need faster ticks?  The high res timers are done in nano
-secs, and the resolution is up to the hardware.
+Some (old) numbers that show the efficacy of these patches:
+N == number of NICs == number of CPUs == nmber of clients.
+Number of NUMA nodes == N/2
 
-> 
-> Any suggestions, please?
-
---  Steve
+N	Throughput, MiB/s	CPU usage, % (max=N*100)
+	Before	After		Before	After
+---	------	----		-----	-----
+4	312	435		350	228
+6	500	656		501	418
+8	562	804		690	589
 
 
+ [PATCH 001 of 11] knfsd: move tempsock aging to a timer
+ [PATCH 002 of 11] knfsd: convert sk_inuse to atomic_t
+ [PATCH 003 of 11] knfsd: use new lock for svc_sock deferred list
+ [PATCH 004 of 11] knfsd: convert sk_reserved to atomic_t
+ [PATCH 005 of 11] knfsd: test and set SK_BUSY atomically
+ [PATCH 006 of 11] knfsd: split svc_serv into pools
+ [PATCH 007 of 11] knfsd: add svc_get
+ [PATCH 008 of 11] knfsd: add svc_set_num_threads
+ [PATCH 009 of 11] knfsd: use svc_set_num_threads to manage threads in knfsd
+ [PATCH 010 of 11] knfsd: make rpc threads pools numa aware
+ [PATCH 011 of 11] knfsd: allow admin to set nthreads per node

@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWGaSgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWGaSlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWGaSgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWGaSgX
+	id S1030308AbWGaSlT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbWGaSlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:36:23 -0400
-Received: from lug-owl.de ([195.71.106.12]:61312 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030266AbWGaSgW (ORCPT
+	Mon, 31 Jul 2006 14:41:18 -0400
+Received: from pat.uio.no ([129.240.10.4]:14056 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030308AbWGaSlS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:36:22 -0400
-Date: Mon, 31 Jul 2006 20:36:20 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: David Masover <ninja@slaphack.com>
-Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060731183620.GP31121@lug-owl.de>
-Mail-Followup-To: David Masover <ninja@slaphack.com>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>,
-	Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
-	ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-	jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de> <44CE3369.8040704@slaphack.com>
+	Mon, 31 Jul 2006 14:41:18 -0400
+Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060731174659.72da734f@cad-250-152.norway.atmel.com>
+References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
+	 <20060731174659.72da734f@cad-250-152.norway.atmel.com>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 11:40:58 -0700
+Message-Id: <1154371259.13744.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s3R87C3fwYeCSZ0b"
-Content-Disposition: inline
-In-Reply-To: <44CE3369.8040704@slaphack.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.214, required 12,
+	autolearn=disabled, AWL 1.79, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-07-31 at 17:46 +0200, Haavard Skinnemoen wrote:
+> On Mon, 31 Jul 2006 15:55:15 +0200
+> Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+> 
+> > Anyway, 2.6.18-rc2-mm1 boots successfully on my target with these
+> > patches, but there's something strange going on with NFS and a few
+> > other things that I didn't notice on 2.6.18-rc1. I'll investigate
+> > some more and see if I can figure out what's going on.
+> 
+> All forms of write access to the NFS root file system seem to return
+> -EACCESS. If I leave out git-nfs.patch, the problem goes away, so I'll
+> try bisecting the NFS git tree tomorrow.
 
---s3R87C3fwYeCSZ0b
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+can you check in /proc/self/mountstats what mount options are set on the
+root file system?
 
-On Mon, 2006-07-31 11:44:25 -0500, David Masover <ninja@slaphack.com> wrote:
-> Jan-Benedict Glaw wrote:
-> > On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich=20
-> > <reiser4@blinkenlights.ch> wrote:
-> > > A colleague of mine happened to create a ~300gb filesystem and started
-> > > to migrate Mailboxes (Maildir-style format =3D many small files (1-3k=
-b))
-> > > to the new LUN. At about 70% the filesystem ran out of inodes; Not a
-> >
-> > So preparation work wasn't done.
->=20
-> Let me put it this way -- You're back in college, and it's time to write=
-=20
-> a thesis.  You have a choice of software packages:
->=20
-> Package A:  You have to specify how many pages, and how many words,=20
-> you're likely to use before you start typing.  Guess too high, and=20
-> you'll print out a bunch of blank pages at the end.  Guess too low, and=
-=20
-> you'll run out of space and have to start over, copy and paste your=20
-> document back in, and hope it gets all the formatting right, which it=20
-> probably won't.
->=20
-> Package B:  Your document grows as you type.  When it's time to print,=20
-> only the pages you've actually written something on -- but all of the=20
-> pages you've actually written something on -- are printed.
->=20
-> All other things being equal, which would you choose?  Which one seems=20
-> more modern?
+> Is there anyway to access it via http?
 
-:)  Well, given that TeX needs two (or even three!) runs to get all
-page references right, why should I choose MS Word, where you won't
-see that problem at all?
+The individual patches are archived in
 
-MfG, JBG
+  http://client.linux-nfs.org/Linux-2.6.x/2.6.18-rc3/
 
---=20
-       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
-8481
- Signature of:                               If it doesn't work, force it.
- the second  :                      If it breaks, it needed replacing anywa=
-y.
+There is also gitweb access via
 
---s3R87C3fwYeCSZ0b
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+  http://linux-nfs.org/cgi-bin/gitweb.cgi
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Cheers,
+  Trond
 
-iD8DBQFEzk2kHb1edYOZ4bsRAqEcAJ99by4eA0AfcVNx8N2TUf+rPghXsACbBmfL
-JYGJrTHXR0j9oSxtmU70Adg=
-=Bf+p
------END PGP SIGNATURE-----
-
---s3R87C3fwYeCSZ0b--

@@ -1,98 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWGaPLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWGaPLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWGaPLn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 11:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWGaPLn
+	id S932066AbWGaPLT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 11:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWGaPLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 11:11:43 -0400
-Received: from web36702.mail.mud.yahoo.com ([209.191.85.36]:45486 "HELO
-	web36702.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932100AbWGaPLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 11:11:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=mINDqaeoc2SgFRT3ZAR/6F4ZXdMmYrcintpofRlJgGPPSw+CXe1tG2UjpSJbcLSrHeEHr1ZzGfxr5Ws2FVYeiCUMplPi5rj5RVoceTgId0hWEmKeyYz+K9CySAWHfgoBNcKaHy6yfPW634rVnykgxpyq0NZfm53AU3yLCYjPXIg=  ;
-Message-ID: <20060731151141.45469.qmail@web36702.mail.mud.yahoo.com>
-Date: Mon, 31 Jul 2006 08:11:41 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44CC85FD.1050000@drzeus.cx>
-MIME-Version: 1.0
+	Mon, 31 Jul 2006 11:11:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58593 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932066AbWGaPLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 11:11:18 -0400
+Date: Mon, 31 Jul 2006 08:11:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: jesse.brandeburg@gmail.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, cpufreq@www.linux.org.uk
+Subject: Re: Linux v2.6.18-rc3
+Message-Id: <20060731081112.05427677.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0607311033310.7225-100000@iolanthe.rowland.org>
+References: <20060730212746.4c2e1466.akpm@osdl.org>
+	<Pine.LNX.4.44L0.0607311033310.7225-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 31 Jul 2006 10:54:55 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-> Then try to make qualified guesses. Even if the
-> constants are
-> TIFM_INTFLAG_2, that still makes the code more
-> readable as you see which
-> values are the same constant.
-It is not necessarily good idea for constants that are
-used only once on initialization. May be a side
-comment will be better. I'll check this out.
+> On Sun, 30 Jul 2006, Andrew Morton wrote:
+> 
+> > On Sun, 30 Jul 2006 21:13:48 -0700
+> > "Jesse Brandeburg" <jesse.brandeburg@gmail.com> wrote:
+> > 
+> > > On 7/29/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> > > >
+> > > > Ok, this missed a week (it should really have been -rc4, and we should
+> > > > have had a -rc3 a week ago), but the fact is, with a lot of people at the
+> > > > kernel summit and at OLS, it was so quiet for a week that there simply was
+> > > > no point.
+> > > 
+> > > not sure if this is a regression or not, get this on my IBM thinkpad
+> > > T43 when resuming from S3 or from hibernate to disk.
+> > > 
+> > > acpi acpi: suspend
+> > > PM: Entering mem sleep
+> > > Intel machine check architecture supported.
+> > > Intel machine check reporting enabled on CPU#0.
+> > > Back to C!
+> > > BUG: sleeping function called from invalid context at kernel/rwsem.c:20
+> > > in_atomic():0, irqs_disabled():1
+> > >  [<c012d638>] down_read+0x12/0x1f
+> > >  [<c012605b>] blocking_notifier_call_chain+0xe/0x29
+> > >  [<c029199a>] cpufreq_resume+0x118/0x13f
+> > >  [<c0231b68>] __sysdev_resume+0x20/0x53
+> > >  [<c0231ca9>] sysdev_resume+0x16/0x47
+> > >  [<c0235f93>] device_power_up+0x5/0xa
+> > >  [<c013358d>] suspend_enter+0x3b/0x44
+> > >  [<c011b644>] printk+0x1b/0x1f
+> > >  [<c01336fe>] enter_state+0x168/0x198
+> > >  [<c01337b3>] state_store+0x85/0x99
+> > >  [<c013372e>] state_store+0x0/0x99
+> > >  [<c019047a>] subsys_attr_store+0x1e/0x22
+> > >  [<c01906ca>] sysfs_write_file+0xa6/0xcc
+> > >  [<c0190624>] sysfs_write_file+0x0/0xcc
+> > >  [<c015ae52>] vfs_write+0xa8/0x159
+> > >  [<c015b398>] sys_write+0x41/0x67
+> > >  [<c0102bc9>] sysenter_past_esp+0x56/0x79
+> > > PM: Finishing wakeup.
+> > > acpi acpi: resuming
+> > > 
+> > > full dmesg and .config attached, I can test patches.
+> > 
+> > I think this is the cpufreq problem wherein it sometimes requires that the
+> > notifier chain be traversed from atomic context and at other times it
+> > requires that sleeping functions be callable from within the traversal. 
+> > IOW: we're screwed whatever type of locking we use on that chain.
+> 
+> I have looked at that problem more closely, and my earlier understanding
+> wasn't quite right.  It's not that the context needs to be atomic at some
+> times but not others -- it should always be a process context.  The
+> problem is that the suspend and resume traversals are done at a time when
+> interrupts need to remain disabled, since cpufreq registers its drivers as
+> sysdevs.  (Kind of like SYSTEM_BOOTING, except that system_state isn't set
+> to anything special.)  Because the down_read() call that protects the
+> notifier chain isn't allowed when interrupts are disabled, the BUG occurs.
 
-> Is it possible for a "socket" to have
-> multiple "card":s
-> associated with it? Otherwise I see little need for
-> the dynamic behaviour.
+So why wouldn't an atomic notifier be suitable?
 
-It appears that any socket can hold any card type. So
-the logic goes as following:
-1. Get insertion interrupt on socket
-2. Detect card type
-3. Stick proper handler to the socket
-...do work
-4. Get removal interrupt on socket
-5. Ditch type-specific handler, mark socket as empty
-A quick example: on 8033 sd cards are most often wired
-to socket 3, while on 803b they are wired to socket 1.
+> > I think Alan is cooking up a scheme wherein we fix this with an srcu-locked
+> > notifier chain.  If so, it'd be nice to get that moving along a bit?
+> 
+> Yes; protecting the notifier chain by SRCU instead of an rwsem will 
+> prevent the problem.  It's a trivial change, except for one thing: SRCU 
+> structures require initialization at runtime before they can be used.  
+> This initialization must be done before any driver tries to register on 
+> the cpufreq transition notifier chain.
+> 
+> If someone could give me a hint where a good place would be to carry out
+> the initialization, I'd appreciate it.  Would an initcall be appropriate?  
+> And if so, which sort of initcall?  core_initcall?  The only requirement 
+> is that alloc_percpu() must be available.
+> 
 
-> Sorry, I was a bit unclear. Of course hardware cares
-> about what kind of
-> response it will get. What I meant was that hardware
-> shouldn't care if
-> it's R1, R2 or R666. 
-
-I'm afraid you'll have to clarify this issue further.
-Consider the following: TI uses look up table to set
-command type register. The decoding of this table is
-my tifm_sd_op_flags. Its output directly sent to
-hardware. Can you notice any bit patterns here:
-Response type (4b):
-R1 - 1     R1b - 9 (so highest 1 is MMC_RSP_BUSY)
-R2 - 2     R3 - 3      R6 - 6
-(if bit 1 is MMC_RSP_136 why it is set for R3 and R6;
-and if it's MMC_RSP_CRC why it is not set for R1?)
-
-Command type (2b):
-BC - 0 (implied)   BCR  - 1
-AC - 2             ADTC - 3 
-(even if higher bit stands for "addressed vs
-broadcast" it still doesn't make sense for lower bit).
-
-By the way, if I recall correctly, SD spec does not
-splits command types and responses into components. It
-always speaks of R1s and R6s and so on.
-
-> Baby steps. If you test carefully enough (and do
-> some qualified
-> guessing), you usually can figure out what most bits
-> of a register are for.
-
-It's not hard to figure out bits that are used
-systematically. The problem is that there are 4 or 5
-registers that are set to some constant at
-initialization. I made all kinds of trials with them
-and got no conclusive idea on their meaning.
+core_initcall() would suit.  That's actually a bit late for this sort of
+thing, but we can always add a new section later if it becomes a problem. 
+I'd suggest that we ensure that srcu_notifier_chain_register() performs a
+reliable BUG() if it gets called too early.
 
 
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

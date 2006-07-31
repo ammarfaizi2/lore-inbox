@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWGaTK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030332AbWGaTJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbWGaTK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 15:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWGaTK0
+	id S1030332AbWGaTJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 15:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWGaTJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 15:10:26 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:11793 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030335AbWGaTKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 15:10:24 -0400
-Date: Mon, 31 Jul 2006 20:10:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Brownell <david-b@pacbell.net>
-Cc: Jean Delvare <khali@linux-fr.org>, Komal Shah <komal_shah802003@yahoo.com>,
-       akpm@osdl.org, gregkh@suse.de, i2c@lm-sensors.org, imre.deak@nokia.com,
-       juha.yrjola@solidboot.com, linux-kernel@vger.kernel.org,
-       r-woodruff2@ti.com, tony@atomide.com
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Message-ID: <20060731191001.GA10489@flint.arm.linux.org.uk>
-Mail-Followup-To: David Brownell <david-b@pacbell.net>,
-	Jean Delvare <khali@linux-fr.org>,
-	Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org,
-	gregkh@suse.de, i2c@lm-sensors.org, imre.deak@nokia.com,
-	juha.yrjola@solidboot.com, linux-kernel@vger.kernel.org,
-	r-woodruff2@ti.com, tony@atomide.com
-References: <1154066134.13520.267064606@webmail.messagingengine.com> <200607310733.09125.david-b@pacbell.net> <20060731181327.d54ce1d0.khali@linux-fr.org> <200607310941.01340.david-b@pacbell.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200607310941.01340.david-b@pacbell.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Jul 2006 15:09:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:49604 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030332AbWGaTJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 15:09:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
+        b=ms1QHJSyFl/KqwJTe9wrz5Q8Br/5P8XbhuSLQ9JXi2+bZJJc73DR1JW/s4Ap1T8alr1iCOAWfqEJs445MfmvH9Gsjhm4/7pubFLyfp3PVb8aNcshlCmrtWIxN2gD/fzqhcd5E4CjubLMqwD4MPAtdggeNPFMn77s1AYcKfByvg8=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Pavel Machek'" <pavel@ucw.cz>
+Cc: "'Rafael J. Wysocki'" <rjw@sisk.pl>, "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Date: Mon, 31 Jul 2006 12:09:55 -0700
+Message-ID: <005501c6b4d4$e9f28790$493d010a@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Thread-Index: Aca0LQqKGVCrEV7LS6GCVxr6TuLhmAAL5lkQAB4JnrA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 09:41:00AM -0700, David Brownell wrote:
-> On Monday 31 July 2006 9:13 am, Jean Delvare wrote:
-> > Hi David,
-> > 
-> > > And I **really** hope this gets merged into 2.6.18 since virtually
-> > > no OMAP board is very usable without it.  I2C is one of the main
-> > > missing pieces(*) ... can whoever's managing I2C merges please
-> > > expedite this?
+> http://thread.gmane.org/gmane.linux.power-management.general/1884/focus=2105
 
-Slightly off-topic, and probably not your area, but it would probably
-help your case if omap were better looked after in mainline.  Most OMAP
-platforms build fine, except for one long standing one - the H2 1610
-defconfig, which hasn't built since 2.6.17-git11.
+Correct link before anyone asks:
 
-So, rather than shoveling new stuff in there, can the maintainence of
-the stuff already merged please be improved.
+http://article.gmane.org/gmane.linux.power-management.general/1974
 
-Build results vs kernel version for H2 1610:
+Hua
 
-http://armlinux.simtec.co.uk/kautobuild/omap_h2_1610_defconfig.html
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

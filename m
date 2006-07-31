@@ -1,98 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWGaEkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWGaEm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWGaEkR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 00:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWGaEkQ
+	id S1751472AbWGaEm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 00:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWGaEm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 00:40:16 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:54433 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751466AbWGaEkO (ORCPT
+	Mon, 31 Jul 2006 00:42:29 -0400
+Received: from tornado.reub.net ([202.89.145.182]:52107 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1751472AbWGaEm2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 00:40:14 -0400
-Date: Sun, 30 Jul 2006 21:35:42 -0700
-From: Greg KH <greg@kroah.com>
+	Mon, 31 Jul 2006 00:42:28 -0400
+Message-ID: <44CD8A34.5030305@reub.net>
+Date: Mon, 31 Jul 2006 16:42:28 +1200
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 2.0a1 (Windows/20060730)
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       laurent.riffard@free.fr, andrew.j.wade@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
-Message-ID: <20060731043542.GA9919@kroah.com>
-References: <20060727015639.9c89db57.akpm@osdl.org> <44CCBBC7.3070801@free.fr> <20060731000359.GB23220@kroah.com> <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060731033757.GA13737@kroah.com> <20060730212227.175c844c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730212227.175c844c.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+CC: linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
+       Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.18-rc2-mm1
+References: <20060727015639.9c89db57.akpm@osdl.org>
+In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 09:22:27PM -0700, Andrew Morton wrote:
-> On Sun, 30 Jul 2006 20:37:57 -0700
-> Greg KH <greg@kroah.com> wrote:
+
+
+On 27/07/2006 8:56 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
 > 
-> > On Sun, Jul 30, 2006 at 10:27:06PM -0400, Andrew James Wade wrote:
-> > > On Sunday 30 July 2006 20:03, Greg KH wrote:
-> > > > Something's really broken with that version of udev then, because the
-> > > > 094 version I have running here works just fine with these symlinks.
-> > > 
-> > > Maybe, but some really odd things were happening in /sys with the
-> > > patch. I could still follow the bogus symlinks. More than that
-> > > 
-> > > /sys/class/mem/mem$ cd ../../class
-> > > and
-> > > /sys/class/mem/mem$ cd ../..
-> > > 
-> > > _both_ ended up with a $PWD of /sys/class.
-> > 
-> > Ick, ok, the problem is that my "virtual device" patch isn't in my
-> > "public" patch set that Andrew pulls from.  It will fix this issue up.
-> > I'll work on cleaning it up to be used by everyone tomorrow and move it
-> > to the tree that Andrew pulls from.  Then the next -mm release should
-> > have this issue fixed.
+> - git-klibc has been dropped due to very bad parallel-make problems.
 > 
-> Mutter.  This stuff breaks my FC3 test box and there is, afaict, no clear
-> way for users to upgrade udev to unbreak it.
+> - Added a new line to the boilerplate, below!
 > 
-> As a developer I could of course bang on things until it works, but that's
-> not the point.  The point is that these patches break Linux on a major
-> release from a major vendor only two years after its release.  That's not a
-> minor problem, is it?
+> - Added Sam's lxdialog tree, as git-lxdialog.patch.  You no longer need
+>   x-ray spectacles to read the menuconfig screens.
+> 
+> - Lots of random patches.  Many of them are bugfixes and I shall, as usual,
+>   go through them all identifying 2.6.18 material.  But I can miss things, so
+>   please don't be afraid to point 2.6.18 candidates out to me.
+> 
+>   I also have, as usual, a number of bugfixes agains the git trees.  I'll
+>   send these to the maintainers until they stick and then I lose track of
+>   them.  So don't be afraid to send reminders to the subsystem maintainers
+>   either.
 
-Well, yes, it is.  That distro is unsupported now, right?
+Just had this come out on the console:
 
-How long do you expect the kernel to support unsupported, community
-based distros that thrive on the fact that they are quickly updated?
+(x86_64 - maybe unwinder related?)
 
-Look at Documentation/Changes for the version of udev that the kernel
-now requires.  It's 071 due to the input layer code (which was released
-in October of 2005).  Odds are you have just gotten lucky that FC3 is
-not working for you right now.
+Jul 31 16:35:01 tornado kernel: kjournald starting.  Commit interval 5 seconds
+Jul 31 16:35:01 tornado kernel: EXT3 FS on sdb1, internal journal
+Jul 31 16:35:01 tornado kernel: EXT3-fs: mounted filesystem with ordered data mode.
+Jul 31 16:35:01 tornado kernel: php[28644]: segfault at 00007fff064edfe8 rip 
+0000003852a718a8 rsp 00007fff064edfd0 error 6
+Jul 31 16:35:01 tornado kernel: general protection fault: 0000 [1] SMP
+Jul 31 16:35:01 tornado kernel: last sysfs file: /block/fd0/dev
+Jul 31 16:35:01 tornado kernel: CPU 1
+Jul 31 16:35:01 tornado kernel: Modules linked in: hidp rfcomm l2cap bluetooth 
+ipv6 ip_gre iptable_filter iptable_nat ip_nat i
+p_conntrack nfnetlink iptable_mangle ip_tables binfmt_misc i2c_i801 serio_raw 
+iTCO_wdt
+Jul 31 16:35:01 tornado kernel: Pid: 15189, comm: nagios Not tainted 
+2.6.18-rc2-mm1 #2
+Jul 31 16:35:01 tornado kernel: RIP: 0010:[<ffffffff8028f1d1>] 
+[<ffffffff8028f1d1>] notifier_call_chain+0x1e/0x45
+Jul 31 16:35:01 tornado kernel: RSP: 0018:ffff810020d35d58  EFLAGS: 00010202
+Jul 31 16:35:01 tornado kernel: RAX: 6b6b6b6b6b6b6b6b RBX: ffff81003913f100 RCX: 
+6b6b6b6b6b6b6b6b
+Jul 31 16:35:01 tornado kernel: RDX: ffff81003913f100 RSI: 0000000000000001 RDI: 
+ffff81001fd8cec0
+Jul 31 16:35:01 tornado kernel: RBP: ffff810020d35d78 R08: 0000000000000000 R09: 
+0000000000000001
+Jul 31 16:35:01 tornado kernel: R10: 0000000000000001 R11: 0000000000000001 R12: 
+ffff81003913f100
+Jul 31 16:35:01 tornado kernel: R13: 0000000000000001 R14: ffff81003913f100 R15: 
+ffff81003913f100
+Jul 31 16:35:01 tornado kernel: FS:  00002b1be57ae450(0000) 
+GS:ffff81003f6eb430(0000) knlGS:0000000000000000
+Jul 31 16:35:01 tornado kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+Jul 31 16:35:01 tornado kernel: CR2: 0000000000884ab0 CR3: 0000000034634000 CR4: 
+00000000000006e0
+Jul 31 16:35:01 tornado kernel: Process nagios (pid: 15189, threadinfo 
+ffff810020d34000, task ffff81002ff8c0c0)
+Jul 31 16:35:01 tornado kernel: Stack:  ffff810020d35d88 ffff81003913f100 
+0000000000000001 0000000001200011
+Jul 31 16:35:01 tornado kernel:  ffff810020d35d88 ffffffff8028f226 
+ffff810020d35da8 ffffffff8028f61f
+Jul 31 16:35:01 tornado kernel:  ffff810020d36000 ffff81002ff8c0c0 
+ffff810020d35e78 ffffffff8021eafc
+Jul 31 16:35:01 tornado kernel: Call Trace:
+Jul 31 16:35:01 tornado kernel:  [<ffffffff8028f226>] 
+raw_notifier_call_chain+0x9/0xb
+Jul 31 16:35:01 tornado kernel:  [<ffffffff8028f61f>] notify_watchers+0x64/0x69
+Jul 31 16:35:01 tornado kernel:  [<ffffffff8021eafc>] copy_process+0x4dc/0x15c0
+Jul 31 16:35:01 tornado kernel:  [<ffffffff80231867>] do_fork+0xf7/0x210
+Jul 31 16:35:01 tornado kernel:  [<ffffffff802692f7>] sys_clone+0x23/0x25
+Jul 31 16:35:01 tornado kernel:  [<ffffffff8025f7af>] ptregscall_common+0x67/0xac
+Jul 31 16:35:01 tornado kernel: DWARF2 unwinder stuck at ptregscall_common+0x67/0xac
+Jul 31 16:35:01 tornado kernel: Leftover inexact backtrace:
+Jul 31 16:35:01 tornado kernel:
+Jul 31 16:35:01 tornado kernel:
+Jul 31 16:35:02 tornado kernel: Code: 48 8b 59 08 4c 89 e2 4c 89 ee 48 89 cf ff 
+11 66 85 c0 78 08
+Jul 31 16:35:02 tornado kernel: RIP  [<ffffffff8028f1d1>] 
+notifier_call_chain+0x1e/0x45
+Jul 31 16:35:02 tornado kernel:  RSP <ffff810020d35d58>
 
-And yes, I will revert the patch in mainline that causes people to have
-to upgrade to a udev that is in FC5, and wait till the next release for
-that to happen (the minimum will be 081, which was released in January,
-2006, by the time 2.6.19 is out, that will be about 10 months old.)
+I've applied only one patch to the generic -rc2-mm1 that is in the newer -mm - 
+the x86_64-unwinder-fix.patch.  That fixed the problem I had with the backtraces 
+repeating over and over until the kernel panicked.
 
-Debian and Gentoo already support new enough versions of udev, and so
-does OpenSuSE and Fedora with their latest, supported versions.  How
-long should the kernel be forced to lag behind?
+Reuben
 
-I'm also going to fix up older versions of SuSE (10.0, which is no
-longer supported by the vendor) so that it will support this kernel
-change too, it's only a few lines of patch to udev, but don't have the
-ability to do the same for Fedora, sorry.
-
-Remember, most distros tie their kernel to their userspace very tightly,
-so the ability to upgrade the kernel without some userspace packages
-does not always work (HAL stopped working long ago in FC3 with newer
-kernels I imagine.)  If you are a kernel developer, who updates kernels
-often, choose a distro that allows that flexibility (Gentoo and Debian
-are two that I know of, FC Rawhide and OpenSuSE Factory are two others
-that should also do it.)
-
-Remember, FC3 is now in Legacy support mode, not something the mainline
-kernel should have to worry about.
-
-thanks,
-
-greg k-h

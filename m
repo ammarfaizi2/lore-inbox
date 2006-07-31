@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWGaREk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWGaRGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWGaREk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 13:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWGaREk
+	id S1030256AbWGaRGA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 13:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWGaRGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 13:04:40 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:43728 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030255AbWGaREj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 13:04:39 -0400
-Date: Mon, 31 Jul 2006 10:04:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, vatsa@in.ibm.com,
-       suresh.b.siddha@intel.com, Simon.Derr@bull.net, steiner@sgi.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [BUG] sched: big numa dynamic sched domain memory corruption
-Message-Id: <20060731100425.65432d31.pj@sgi.com>
-In-Reply-To: <20060731090440.A2311@unix-os.sc.intel.com>
-References: <20060731070734.19126.40501.sendpatchset@v0>
-	<20060731071242.GA31377@elte.hu>
-	<20060731090440.A2311@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 31 Jul 2006 13:06:00 -0400
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:59612 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030256AbWGaRF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 13:05:59 -0400
+Date: Mon, 31 Jul 2006 12:59:16 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] x86_64: fix is_at_popf() for compat tasks
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <acahalan@gmail.com>
+Message-ID: <200607311302_MC3-1-C69F-F0D8@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Paul can you please test the mainline code and confirm?
+In-Reply-To: <200607311054.38585.ak@suse.de>
 
-This will take me a few hours - it requires a bit of
-slab debugging scaffolding to detect the memory corruption
-in a timely and accurate manner.  I'll have to port that
-scaffolding forward from its current SLES10 base.
+On Mon, 31 Jul 2006 10:54:38 +0200, Andi Kleen wrote:
+>
+> > When testing for the REX instruction prefix, first check
+> > for a 32-bit task because in compat mode the REX prefix is an
+> > increment instruction.
+> 
+> is_compat_task doesn't actually say that a task is in compat mode
+> (it refers to the Linux compat layer, not x86-64 compat mode)
+> 
+> A better test would be regs->cs == __USER32_CS, but in theory
+> there could be other code segments in LDT. I guess that can 
+> be ignored though.
 
+How about checking for regs->cs != __USER_CS instead?  In 64-bit mode
+a program shouldn't have any other value there while in 32-bit mode
+it could be using LDT segments.
+
+
+
+From: Chuck Ebbert <76306.1226@compuserve.com>
+
+When testing for the REX instruction prefix, first check
+for 32-bit mode because in compat mode the REX prefix is an
+increment instruction.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 2.6.18-rc2-64.orig/arch/x86_64/kernel/ptrace.c
++++ 2.6.18-rc2-64/arch/x86_64/kernel/ptrace.c
+@@ -141,8 +141,11 @@ static int is_at_popf(struct task_struct
+ 		case 0xf0: case 0xf2: case 0xf3:
+ 			continue;
+ 
+-		/* REX prefixes */
+ 		case 0x40 ... 0x4f:
++			if (regs->cs != __USER_CS)
++				/* 32-bit mode: register increment */
++				return 0;
++			/* 64-bit mode: REX prefix */
+ 			continue;
+ 
+ 			/* CHECKME: f0, f2, f3 */
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Chuck

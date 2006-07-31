@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbWGaWQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbWGaWRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030483AbWGaWQl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 18:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWGaWQl
+	id S1030482AbWGaWRf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 18:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWGaWRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 18:16:41 -0400
-Received: from 70-253-197-251.ded.swbell.net ([70.253.197.251]:39451 "EHLO
-	bpointsys.com") by vger.kernel.org with ESMTP id S1751404AbWGaWQk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 18:16:40 -0400
-From: Brent Cook <bcook@bpointsys.com>
-Organization: Breaking Point Systems
-To: David Miller <davem@davemloft.net>
-Subject: Re: [RFC 1/4] kevent: core files.
-Date: Mon, 31 Jul 2006 17:16:48 -0500
-User-Agent: KMail/1.9.1
-Cc: johnpol@2ka.mipt.ru, drepper@redhat.com, zach.brown@oracle.com,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <44CB8A67.3060801@redhat.com> <20060731194143.GA12569@2ka.mipt.ru> <20060731.150028.26276495.davem@davemloft.net>
-In-Reply-To: <20060731.150028.26276495.davem@davemloft.net>
+	Mon, 31 Jul 2006 18:17:34 -0400
+Received: from mx2.suse.de ([195.135.220.15]:32935 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751424AbWGaWRd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 18:17:33 -0400
+From: Andi Kleen <ak@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] x86_64 built-in command line
+Date: Tue, 1 Aug 2006 00:17:00 +0200
+User-Agent: KMail/1.9.3
+Cc: Matt Mackall <mpm@selenic.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060731171442.GI6908@waste.org> <200607312207.58999.ak@suse.de> <44CE6AEA.2090909@zytor.com>
+In-Reply-To: <44CE6AEA.2090909@zytor.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607311716.48455.bcook@bpointsys.com>
-X-OriginalArrivalTime: 31 Jul 2006 22:16:34.0290 (UTC) FILETIME=[FB980D20:01C6B4EE]
+Message-Id: <200608010017.00826.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 July 2006 17:00, David Miller wrote:
->
-> So we'd have cases like this, assume we start with a full event
-> queue:
->
-> 	thread A		thread B
->
-> 	dequeue event
-> 	aha, new connection
-> 	accept()
-> 				register new kevent
-> 				queue is now full again
-> 	add kevent on new
-> 	connection
->
-> At this point thread A doesn't have very many options when the kevent
-> add fails.  You cannot force this thread to read more events, since he
-> may not be in a state where he is easily able to do so.
+On Monday 31 July 2006 22:41, H. Peter Anvin wrote:
+> Andi Kleen wrote:
+> >   
+> >> +#ifdef CONFIG_CMDLINE_BOOL
+> >> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+> >> +#endif
+> > 
+> > I think I would prefer a strcat.
+> > 
+> > Also you should describe the exact behaviour (override/append) in Kconfig help.
+> > 
+> 
+> In the i386 thread, Matt described having a firmware bootloader which 
+> passes bogus parameters.  For that case, it would make sense to have a 
+> non-default CONFIG option to have override rather than conjoined (and I 
+> maintain that the built-in command line should be prepended.)
 
-There has to be some thread that is responsible for reading events. Perhaps a 
-reasonable thing for a blocked thread that cannot process events to do is to 
-yield to one that can?
+Is that boot loader common? What's its name? 
+If not I would prefer that he keeps the one liner patch to deal
+with that private.
 
+For generic semantics strcat (or possible prepend) is probably better.
+
+-Andi

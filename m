@@ -1,53 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWGaH1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWGaH1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWGaH1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 03:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWGaH1c
+	id S964771AbWGaH1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 03:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWGaH1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 03:27:32 -0400
-Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:25248 "EHLO
-	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932151AbWGaH1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 03:27:31 -0400
-Date: Mon, 31 Jul 2006 03:22:42 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] x86_64: fix is_at_popf() for compat tasks
-To: Andi Kleen <ak@suse.de>
-Cc: Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200607310325_MC3-1-C691-D76B@compuserve.com>
-MIME-Version: 1.0
+	Mon, 31 Jul 2006 03:27:54 -0400
+Received: from mga08.intel.com ([134.134.136.24]:1294 "EHLO
+	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964771AbWGaH1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 03:27:52 -0400
+X-IronPort-AV: i="4.07,197,1151910000"; 
+   d="scan'208"; a="98951181:sNHT252895125"
+Subject: Re: [PATCH 4/4] PCI-Express AER implemetation: pcie_portdrv error
+	handler
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
+In-Reply-To: <1154330492.27051.79.camel@ymzhang-perf.sh.intel.com>
+References: <1154330118.27051.73.camel@ymzhang-perf.sh.intel.com>
+	 <1154330319.27051.76.camel@ymzhang-perf.sh.intel.com>
+	 <1154330492.27051.79.camel@ymzhang-perf.sh.intel.com>
+Content-Type: text/plain
+Message-Id: <1154330776.27051.83.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 31 Jul 2006 15:26:16 +0800
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When testing for the REX instruction prefix, first check
-for a 32-bit task because in compat mode the REX prefix is an
-increment instruction.
+From: Zhang, Yanmin <yanmin.zhang@intel.com>
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Patch 4 implements error handlers for pcie_portdrv.
+
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
 ---
 
-Compiled and booted but needs a test case...
-
---- 2.6.18-rc2-64.orig/arch/x86_64/kernel/ptrace.c
-+++ 2.6.18-rc2-64/arch/x86_64/kernel/ptrace.c
-@@ -141,8 +141,11 @@ static int is_at_popf(struct task_struct
- 		case 0xf0: case 0xf2: case 0xf3:
- 			continue;
+--- linux-2.6.18-rc3/drivers/pci/pcie/portdrv_pci.c	2006-07-31 14:38:48.000000000 +0800
++++ linux-2.6.18-rc3_aer/drivers/pci/pcie/portdrv_pci.c	2006-07-31 14:43:34.000000000 +0800
+@@ -14,8 +14,10 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/pcieport_if.h>
++#include <linux/aer.h>
  
--		/* REX prefixes */
- 		case 0x40 ... 0x4f:
-+			if (is_compat_task())
-+				/* register increment */
-+				return 0;
-+			/* REX prefix */
- 			continue;
+ #include "portdrv.h"
++#include "aer/aerdrv.h"
  
- 			/* CHECKME: f0, f2, f3 */
--- 
-Chuck
+ /*
+  * Version Information
+@@ -76,6 +78,10 @@ static int __devinit pcie_portdrv_probe 
+ 	if (pcie_port_device_register(dev)) 
+ 		return -ENOMEM;
+ 
++	pcie_portdrv_save_config(dev);
++
++	pci_enable_pcie_error_reporting(dev);
++
+ 	return 0;
+ }
+ 
+@@ -102,6 +108,144 @@ static int pcie_portdrv_resume (struct p
+ }
+ #endif
+ 
++static int error_detected_iter(struct device *device, void *data)
++{
++	struct pcie_device *pcie_device;
++	struct pcie_port_service_driver *driver;
++	struct aer_broadcast_data *result_data;
++	pci_ers_result_t status;
++
++	result_data = (struct aer_broadcast_data *) data;
++
++	if (device->bus == &pcie_port_bus_type && device->driver) {
++		driver = to_service_driver(device->driver);
++		if (!driver ||
++			!driver->err_handler ||
++			!driver->err_handler->error_detected)
++			return 0;
++
++		pcie_device = to_pcie_device(device);
++
++		/* Forward error detected message to service drivers */
++		status = driver->err_handler->error_detected(
++			pcie_device->port,
++			result_data->state);
++		result_data->result =
++			merge_result(result_data->result, status);
++	}
++
++	return 0;
++}
++
++static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
++					enum pci_channel_state error)
++{
++	struct aer_broadcast_data result_data =
++			{error, PCI_ERS_RESULT_CAN_RECOVER};
++	
++	device_for_each_child(&dev->dev, &result_data, error_detected_iter);
++
++	return result_data.result;
++}
++
++static int mmio_enabled_iter(struct device *device, void *data)
++{
++	struct pcie_device *pcie_device;
++	struct pcie_port_service_driver *driver;
++	pci_ers_result_t status, *result;
++
++	result = (pci_ers_result_t *) data;
++
++	if (device->bus == &pcie_port_bus_type && device->driver) {
++		driver = to_service_driver(device->driver);
++		if (driver &&
++			driver->err_handler &&
++			driver->err_handler->mmio_enabled) {
++			pcie_device = to_pcie_device(device);
++
++			/* Forward error message to service drivers */
++			status = driver->err_handler->mmio_enabled(
++					pcie_device->port);
++			*result = merge_result(*result, status);
++		}
++	}
++
++	return 0;
++}
++
++static pci_ers_result_t pcie_portdrv_mmio_enabled(struct pci_dev *dev)
++{
++	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
++
++	device_for_each_child(&dev->dev, &status, mmio_enabled_iter);
++	return status;
++}
++
++static int slot_reset_iter(struct device *device, void *data)
++{
++	struct pcie_device *pcie_device;
++	struct pcie_port_service_driver *driver;
++	pci_ers_result_t status, *result;
++
++	result = (pci_ers_result_t *) data;
++
++	if (device->bus == &pcie_port_bus_type && device->driver) {
++		driver = to_service_driver(device->driver);
++		if (driver &&
++			driver->err_handler &&
++			driver->err_handler->slot_reset) {
++			pcie_device = to_pcie_device(device);
++
++			/* Forward error message to service drivers */
++			status = driver->err_handler->slot_reset(
++					pcie_device->port);
++			*result = merge_result(*result, status);
++		}
++	}
++
++	return 0;
++}
++
++static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
++{
++	pci_ers_result_t status;
++
++	/* If fatal, restore cfg space for possible link reset at upstream */
++	if (dev->error_state == pci_channel_io_frozen) {
++		pcie_portdrv_restore_config(dev);
++		pci_enable_pcie_error_reporting(dev);
++	}
++
++	device_for_each_child(&dev->dev, &status, slot_reset_iter);
++
++	return status;
++}
++
++static int resume_iter(struct device *device, void *data)
++{
++	struct pcie_device *pcie_device;
++	struct pcie_port_service_driver *driver;
++
++	if (device->bus == &pcie_port_bus_type && device->driver) {
++		driver = to_service_driver(device->driver);
++		if (driver &&
++			driver->err_handler &&
++			driver->err_handler->resume) { 
++			pcie_device = to_pcie_device(device);
++
++			/* Forward error message to service drivers */
++			driver->err_handler->resume(pcie_device->port);
++		}
++	}
++
++	return 0;
++}
++
++static void pcie_portdrv_err_resume(struct pci_dev *dev)
++{
++	device_for_each_child(&dev->dev, NULL, resume_iter);
++}
++
+ /*
+  * LINUX Device Driver Model
+  */
+@@ -112,6 +256,13 @@ static const struct pci_device_id port_p
+ };
+ MODULE_DEVICE_TABLE(pci, port_pci_ids);
+ 
++static struct pci_error_handlers pcie_portdrv_err_handler = {
++		.error_detected = pcie_portdrv_error_detected,
++		.mmio_enabled = pcie_portdrv_mmio_enabled,
++		.slot_reset = pcie_portdrv_slot_reset,
++		.resume = pcie_portdrv_err_resume,
++};
++
+ static struct pci_driver pcie_portdrv = {
+ 	.name		= (char *)device_name,
+ 	.id_table	= &port_pci_ids[0],
+@@ -123,6 +274,8 @@ static struct pci_driver pcie_portdrv = 
+ 	.suspend	= pcie_portdrv_suspend,
+ 	.resume		= pcie_portdrv_resume,
+ #endif	/* PM */
++
++	.err_handler 	= &pcie_portdrv_err_handler,
+ };
+ 
+ static int __init pcie_portdrv_init(void)

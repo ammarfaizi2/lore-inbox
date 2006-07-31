@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWGaIcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWGaIer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWGaIcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 04:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWGaIcl
+	id S1750823AbWGaIer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 04:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWGaIer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 04:32:41 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:53185 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1750700AbWGaIck
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 04:32:40 -0400
-Subject: Re: ipw3945 status
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Pavel Machek <pavel@suse.cz>, Theodore Tso <tytso@mit.edu>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
-       Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-In-Reply-To: <9e0cf0bf0607302306g435d73a1qbdab334c318c8dc2@mail.gmail.com>
-References: <20060730104042.GE1920@elf.ucw.cz>
-	 <20060730145305.GE23279@thunk.org> <20060730231251.GB1800@elf.ucw.cz>
-	 <200607310123.06177.s0348365@sms.ed.ac.uk>
-	 <1154308614.13635.49.camel@localhost>
-	 <9e0cf0bf0607302306g435d73a1qbdab334c318c8dc2@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 31 Jul 2006 10:32:19 +0200
-Message-Id: <1154334740.13635.51.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Mon, 31 Jul 2006 04:34:47 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:19904 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750823AbWGaIeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 04:34:46 -0400
+Date: Mon, 31 Jul 2006 17:30:55 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: kmannth@us.ibm.com
+Subject: Re: [Lhms-devel] [Patch] 3/5 in support of hot-add memory x86_64 arch_find_node	x86_64
+Cc: lkml <linux-kernel@vger.kernel.org>, andrew <akpm@osdl.org>,
+       discuss <discuss@x86-64.org>, dave hansen <haveblue@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, konrad <darnok@us.ibm.com>,
+       lhms-devel <lhms-devel@lists.sourceforge.net>,
+       kame <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1154141562.5874.147.camel@keithlap>
+References: <1154141562.5874.147.camel@keithlap>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060731171336.B86E.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-31 at 09:06 +0300, Alon Bar-Lev wrote:
-> On 7/31/06, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> > I entirely agree that this should not be merged, those will accept these
-> > kindof things, can use intels out of tree driver.
-> >
-> > i sincerely hope for a forked/rewritten driver which does not depend on
-> > closed userspace daemons.
-> 
-> I personally think that this also violates the GPL license...
-> The GPL part cannot stand by it-self and require none GPLed component
-> in order to make it work.
-> 
-> The fact that the regularity daemon work using external sysfs
-> interface without linkage requirements does not escape derived work in
-> this case.
-i tend to agree, however if a generic interface was created for
-"regulatory daemons" this may be different, but if what i hear is true,
-the intel daemon does more than that, and then, well...
+> diff -urN orig/arch/x86_64/mm/srat.c work/arch/x86_64/mm/srat.c
+> --- orig/arch/x86_64/mm/srat.c	2006-07-28 13:57:35.000000000 -0400
+> +++ work/arch/x86_64/mm/srat.c	2006-07-28 21:19:01.000000000 -0400
+> @@ -450,3 +450,15 @@
+>  }
+>  
+>  EXPORT_SYMBOL(__node_distance);
+> +
+> +int arch_find_node(unsigned long start, unsigned long size) 
+> +{
+> +	int i, ret = 0;
+> +	unsigned long end = start+size;
+> +	
+> +	for_each_node(i) {
+> +		if (nodes_add[i].start <= start && nodes_add[i].end >= end)
+> +			ret = i;
+> +	}
+> +	return ret;
+> +}
 
-> 
-> Best Regards,
-> Alon Bar-Lev
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+BTW, does anyone know why nodes_add[] becomes arch dependent code?
+
+I know it is defined in x86-64. But I mean that SRAT is not
+arch dependent. It is defined by just ACPI.
+However, each arch which uses ACPI has a own code to parse SRAT table.
+Is it hard to merge all of them? Are there any special case?
+
+If they can be merged, this code can be written in driver/acpi/numa.c.
+
+
+Bye.
+
+
+-- 
+Yasunori Goto 
+
 

@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWGaKvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751518AbWGaKzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWGaKvR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 06:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWGaKvR
+	id S1751518AbWGaKzT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 06:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWGaKzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 06:51:17 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:7839 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751514AbWGaKvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 06:51:16 -0400
-Date: Mon, 31 Jul 2006 14:50:37 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: drepper@redhat.com, zach.brown@oracle.com, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-Message-ID: <20060731105037.GA2073@2ka.mipt.ru>
-References: <20060731103322.GA1898@2ka.mipt.ru> <E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
+	Mon, 31 Jul 2006 06:55:19 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28628 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751518AbWGaKzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 06:55:18 -0400
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <greg@kroah.com>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       laurent.riffard@free.fr, andrew.j.wade@gmail.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060730230033.cc4fc190.akpm@osdl.org>
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	 <44CCBBC7.3070801@free.fr> <20060731000359.GB23220@kroah.com>
+	 <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	 <20060731033757.GA13737@kroah.com> <20060730212227.175c844c.akpm@osdl.org>
+	 <20060731043542.GA9919@kroah.com> <20060730215025.44292f9c.akpm@osdl.org>
+	 <20060731051547.GB29058@kroah.com>  <20060730230033.cc4fc190.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Jul 2006 12:14:12 +0100
+Message-Id: <1154344452.7230.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 31 Jul 2006 14:50:38 +0400 (MSD)
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 08:35:55PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> >> - if there is space, report it in the ring buffer.  Yes, the buffer
-> >>   can be optional, then all events are reported by the system call.
+Ar Sul, 2006-07-30 am 23:00 -0700, ysgrifennodd Andrew Morton:
+> > > Are we going to stop doing this soon?
 > > 
-> > That requires a copy, which can neglect syscall overhead.
-> > Do we really want it to be done?
+> > Not if we want to keep on making things better.  The real reason I made
+> > these changes is to get power management working better.  We need to get
+> > the devices into the proper place in the sysfs tree in order to handle
+> > suspend/resume for classes of devices properly.  That's what Linus's
+> > patch did, and now I'm moving the devices to allow it to really happen.
+> > 
 > 
-> Please note that we're talking about events here, not actual data.  So
-> only the event is being copied, which is presumably rather small compared
-> to the data.
+> This sucks.  Do you know what machines we'll be breaking out there?  I
+> sure don't.
 
-In syscall time kevents copy 40bytes for each event + 12 bytes of header 
-(number of events, timeout and command number). That's likely two cache
-lines if only one event is reported.
+Greg, this changeset should get ripped out and thrown away. Its wrong.
+Its an API breakage and it is going to catch a lot of people. People
+said at the kernel summit the sysfs had serious problems because of the
+structure it exposes and you said you could use symlinks and the like to
+work around it, or fix the code.
 
--- 
-	Evgeniy Polyakov
+How about proving it or doing the work to make it possible rather than
+continuing to break everything repeatedly.
+
+Alan
+

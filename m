@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWGaTAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWGaTFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWGaTAl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 15:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbWGaTAk
+	id S1030333AbWGaTFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 15:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWGaTFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 15:00:40 -0400
-Received: from nevyn.them.org ([66.93.172.17]:31688 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1030326AbWGaTAj (ORCPT
+	Mon, 31 Jul 2006 15:05:33 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:391 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030329AbWGaTFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 15:00:39 -0400
-Date: Mon, 31 Jul 2006 15:00:18 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
-       arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       roland@redhat.com
-Subject: Re: ptrace bugs and related problems
-Message-ID: <20060731190018.GA13735@nevyn.them.org>
-Mail-Followup-To: Albert Cahalan <acahalan@gmail.com>, torvalds@osdl.org,
-	alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
-	arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-	roland@redhat.com
-References: <787b0d920607262355x3f669f0ap544e3166be2dca21@mail.gmail.com> <20060727203128.GA26390@nevyn.them.org> <787b0d920607271817u4978d2bdiac261d916971c1b3@mail.gmail.com> <20060728034741.GA3372@nevyn.them.org> <787b0d920607281528w56472db2u81268aad523d5c72@mail.gmail.com>
+	Mon, 31 Jul 2006 15:05:32 -0400
+Message-ID: <44CE5473.8080903@pobox.com>
+Date: Mon, 31 Jul 2006 15:05:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <787b0d920607281528w56472db2u81268aad523d5c72@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Tejun Heo <htejun@gmail.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "J.A. Magall?n" <jamagallon@ono.com>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.18-rc2-mm1] libata ate one PATA channel
+References: <20060728134550.030a0eb8@werewolf.auna.net>	 <44CD0E55.4020206@gmail.com> <20060731172452.76a1b6bd@werewolf.auna.net>	 <44CE2908.8080502@gmail.com>	 <1154363489.7230.61.camel@localhost.localdomain>	 <20060731165011.GA6659@htj.dyndns.org>  <44CE37CF.1010804@gmail.com> <1154371972.7230.95.camel@localhost.localdomain> <44CE515B.1060302@gmail.com>
+In-Reply-To: <44CE515B.1060302@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 28, 2006 at 06:28:34PM -0400, Albert Cahalan wrote:
-> I was using the data to look up which task just got split away
-> from the parent. Judging by Chuck Ebbert's email, I'm not the
-> only person to expect the data to be valid.
-
-So it seems!  It seems a reasonable addition if anyone wants to submit
-it.
-
-> >Or just present things as if the leader task did the execve, which is
-> >effectively what happens, and what I thought would happen for ptrace
-> >too.
+Tejun Heo wrote:
+> I like 'registering both always and disabling one' approach for 
+> partially stolen legacy devices.  We can make ->hard_port_no do the job 
+> as before, but IMHO it's error-prone and only useful for very limited 
+> cases (first legacy port stolen).
 > 
-> That makes things even weirder. A successful execve done in one
-> thread appears to be done by another (which might not be
-> traced if the debugger was a bit odd), while a failing execve
-> appears... where?
+> Jeff, what do you think?
 
-Not at all, unless you're doing syscall tracing, I don't think.  The
-exec notification is after the mm is replaced.
 
-> >The interface was never designed to handle unsharing.  I don't really
-> >think it should be extended to; whoever needs this functionality should
-> >design something cleaner for utrace.
-> 
-> I'm not sure utrace will be accepted. (many ptrace alternatives
-> have been born and died over the years) Even if utrace does get
-> accepted, initially we only get:
-> 
-> 1. a clean-up that provides hope for the future
-> 2. a hopefully-compatible ptrace on top of utrace
-> 3. some sort of demo interface
-> 
-> That alone won't replace ptrace.
+The reason for hard_port_no's existence is the fact that is can 
+sometimes differ from port_no, and we need to know the "real" port 
+number, as opposed to the port number based on counting probed ports.
 
-That's why I suggested someone design a cleaner debugging interface to
-be implemented on top of utrace - which is how it's supposed to be
-used.  Like David, I am confident that this is the future direction of
-Linux debugging.
+If you eliminate the need for hard_port_no, feel free to erase it.
 
-> >> PTRACE_GETSIGINFO has 0x0605 as si_code when a process exits.
-> >> This is not defined anywhere.
-> >
-> >It's garbage.  PTRACE_GETSIGINFO is only valid after the process stops
-> >with a signal.
-> 
-> The process does indeed stop with a signal. It gets SIGTRAP
-> as part of sending the ptrace event.
+	Jeff
 
-Sure, but you must know what I meant.  PTRACE_GETSIGINFO is only valid
-when there is a real signal, i.e. generated by something other than
-ptrace.  Which is true whenever wait reports a signal without any of
-the special event bits set (except for the legacy SIGTRAP on execve).
 
--- 
-Daniel Jacobowitz
-CodeSourcery

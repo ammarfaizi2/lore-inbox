@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWGaLzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWGaL4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWGaLzr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 07:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWGaLzr
+	id S1750836AbWGaL4I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 07:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWGaL4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 07:55:47 -0400
-Received: from pc1.pod.cz ([213.155.227.146]:22953 "EHLO pc11.op.pod.cz")
-	by vger.kernel.org with ESMTP id S1750749AbWGaLzq (ORCPT
+	Mon, 31 Jul 2006 07:56:08 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:17028 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750856AbWGaL4G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 07:55:46 -0400
-Date: Mon, 31 Jul 2006 13:55:45 +0200
-From: Vitezslav Samel <samel@mail.cz>
-To: linux-kernel@vger.kernel.org
-Subject: too low MAX_MP_BUSSES
-Message-ID: <20060731115545.GA3292@pc11.op.pod.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Mon, 31 Jul 2006 07:56:06 -0400
+Date: Mon, 31 Jul 2006 13:49:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christian Borntraeger <borntrae@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@timesys.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] bug in futex unqueue_me
+Message-ID: <20060731114931.GA2003@elte.hu>
+References: <200607271841.56342.borntrae@de.ibm.com> <20060730063821.GA8748@elte.hu> <200607311004.15878.borntrae@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200607311004.15878.borntrae@de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.3
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.3 required=5.9 tests=AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi!
 
-  I tried upgrading our server (i386 arch) from 2.6.16 to 2.6.17 but there
-were some odd messages in dmesg:
+* Christian Borntraeger <borntrae@de.ibm.com> wrote:
 
-	MP table busid value (32) for bustype ISA is too large, max. supported is 31
+> On Sunday 30 July 2006 08:38, Ingo Molnar wrote:
+> > interesting, how is this possible? We do a spin_lock(lock_ptr), and
+> > taking a spinlock is an implicit barrier(). So gcc must not delay
+> > evaluating lock_ptr to inside the critical section. And as far as i can
+> > see the s390 spinlock implementation goes through an 'asm volatile'
+> > piece of code, which is a barrier already. So how could this have
+> > happened?
+> 
+> spin_lock is a barrier, but isnt the barrierness too late here? The 
+> compiler reloads the value of lock_ptr after the "if(lock_ptr)" and 
+> *before* calling spin_lock(lock_ptr):
 
-and (repeated 315 times):
+ah, indeed. So your patch is a real fix. Thanks,
 
-	unknown bus type 32
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-I found out that 50% of the processor time was spent in softirq and the timers
-ran too fast. I didn't look for what else was wrong.
-
-  Tracked down to this change in 2.6.17-rc2:
-
-diff -urN linux-2.6.17-rc1/arch/i386/kernel/mpparse.c linux-2.6.17-rc2/arch/i386/kernel/mpparse.c
-+       if (m->mpc_busid >= MAX_MP_BUSSES) {
-+               printk(KERN_WARNING "MP table busid value (%d) for bustype %s "
-+                       " is too large, max. supported is %d\n",
-+                       m->mpc_busid, str, MAX_MP_BUSSES - 1);
-+               return;
-+       }
-
- Uping the MAX_MP_BUSSES value in include/asm-i386/mach-default/mach_mpspec.h
-to 64 makes the machine work O.K.
-The system is HP DL380 g4 with 1 Xeon CPU, kernel compiled non-SMP.
-
-  Here is excerpt from mptable output:
----
-Bus:            Bus ID  Type
-                 0       PCI
-                 1       PCI
-                 2       PCI
-                 3       PCI
-                 4       PCI
-                 5       PCI
-                 6       PCI
-                10       PCI
-                32       ISA
----
-The last item is the offending one.
-
-Please, can you consider up the default value of MAX_MP_BUSSES?
-
-P.S.: also tested 2.6.18-rc3, the same - bad - result
-
-	Cheers,
-		Vita
+	Ingo

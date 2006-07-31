@@ -1,106 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWGaRrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWGaRsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWGaRrg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 13:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWGaRrg
+	id S1030290AbWGaRsN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 13:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWGaRsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 13:47:36 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:6667 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1030289AbWGaRrf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 13:47:35 -0400
+	Mon, 31 Jul 2006 13:48:13 -0400
+Received: from web57002.mail.re3.yahoo.com ([66.196.97.106]:36444 "HELO
+	web57002.mail.re3.yahoo.com") by vger.kernel.org with SMTP
+	id S1030290AbWGaRsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 13:48:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rocketmail.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
+  b=h/OZPBwjG+TZcvDjwTSUBw1QUfAKrXJ0GUDPiR+cpwIua2KlfHjGu8O7zMa/zNC2JR4GNsh1BGkCjqUV1jo+14oFBHo74yoop6PrMimyi+fJ6rkyf6NTrNEXhr+WcckuB5C3AfMxGYRPGvEL3oiIHw76WZK+xeJw3p/2laW+Yz0=  ;
+Message-ID: <20060731174811.45958.qmail@web57002.mail.re3.yahoo.com>
+Date: Mon, 31 Jul 2006 10:48:11 -0700 (PDT)
+From: Stephen Lynch <Stephen_Lynch@rocketmail.com>
+Reply-To: Stephen Lynch <Stephen_Lynch@rocketmail.com>
+Subject: Re: BUG: unable to handle kernel paging request at virtual address
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200607311707.20373.ioe-lkml@rameria.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 31 Jul 2006 17:46:34.0122 (UTC) FILETIME=[438A96A0:01C6B4C9]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH] x86_64 built-in command line
-Date: Mon, 31 Jul 2006 13:46:27 -0400
-Message-ID: <Pine.LNX.4.61.0607311342410.24292@chaos.analogic.com>
-In-Reply-To: <20060731171442.GI6908@waste.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] x86_64 built-in command line
-Thread-Index: Aca0yUOUD0aanLwPSOaCC/WSx1b8rw==
-References: <20060731171442.GI6908@waste.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Matt Mackall" <mpm@selenic.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, <ak@suse.de>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ingo,
 
-On Mon, 31 Jul 2006, Matt Mackall wrote:
+I thought that oringally and ran memtest on it for 8hrs. Not a long time I know, but there were no errors. If you reckon running it for 24hrs solid might display a memory problem I will try again.
 
-> Allow setting a command line at build time on x86_64. Compiled but not
-> tested.
->
-> Signed-off-by: Matt Mackall <mpm@selenic.com>
->
-> Index: linux/arch/x86_64/Kconfig
-> ===================================================================
-> --- linux.orig/arch/x86_64/Kconfig	2006-07-26 18:08:29.000000000 -0500
-> +++ linux/arch/x86_64/Kconfig	2006-07-27 17:19:50.000000000 -0500
-> @@ -558,6 +558,20 @@ config K8_NB
-> 	def_bool y
-> 	depends on AGP_AMD64 || IOMMU || (PCI && NUMA)
->
-> +config CMDLINE_BOOL
-> +	bool "Default bootloader kernel arguments" if EMBEDDED
-> +
-> +config CMDLINE
-> +	string "Initial kernel command string" if EMBEDDED
-> +	depends on CMDLINE_BOOL
-> +	default "root=/dev/hda1 ro"
-> +	help
-> +	  On some systems, there is no way for the boot loader to pass
-> +	  arguments to the kernel. For these platforms, you can supply
-> +	  some command-line options at build time by entering them
-> +	  here. In most cases you will need to specify the root device
-> +	  here.
-> +
-> endmenu
->
-> #
-> Index: linux/arch/x86_64/kernel/setup.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/setup.c	2006-07-26 18:08:29.000000000 -0500
-> +++ linux/arch/x86_64/kernel/setup.c	2006-07-27 17:26:51.000000000 -0500
-> @@ -289,6 +289,10 @@ static __init void parse_cmdline_early (
-> 	int len = 0;
-> 	int userdef = 0;
->
-> +#ifdef CONFIG_CMDLINE_BOOL
-> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-> +#endif
-> +
-> 	for (;;) {
-> 		if (c != ' ')
-> 			goto next_char;
->
-> --
-> Mathematics is the supreme nostalgia of our time.
-> -
+This is my only machine running linux, so I dont have any identical hardware to test against.
 
-But this just makes it nice for __your__ embedded system. I suggest you
-use:
-> +	default "root=/dev/root ro"
+Thanks,
+Stephen
 
-The boot setup code makes a symlink to whatever your specific
-setup requires.
+----- Original Message ----
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Stephen Lynch <Stephen_Lynch@rocketmail.com>
+Cc: linux-kernel@vger.kernel.org
+Sent: Monday, July 31, 2006 4:07:19 PM
+Subject: Re: BUG: unable to handle kernel paging request at virtual address
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
+Hi Stephen,
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+On Monday, 31. July 2006 16:48, Stephen Lynch wrote:
+> I've had the two crashes below in the past couple of weeks. 
+> On one occasion it was while I was copying large amounts of files 
+> from one drive to another when it happened, 
+> which lead me to believe it is related to my hdd. 
+> I have ran the manufacturer's diagnostic utils on it and it came back clean, 
+> but im not sure whether to trust it or not. 
+> Can anybody tell me what they reckon is causing the issue.      
+> 
+> Jul 13 13:14:53 dublin kernel: BUG: unable to handle kernel paging request at virtual address 00080000
 
-Thank you.
+This might be single bit (memory) error leading to failed NULL checks.
+
+e.g. 
+
+if (pointer == NULL) 
+   goto bail_out;
+
+will fail.
+
+Could you run memtest on this machine?
+
+Did you see it on any other machine with identical hardware?
+Did see it on any other machine at all?
+
+
+Regards
+
+Ingo Oeser
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

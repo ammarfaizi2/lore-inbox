@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWGaP7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWGaQAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWGaP7r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 11:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWGaP7r
+	id S1751141AbWGaQAB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:00:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWGaQAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 11:59:47 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:22286 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751106AbWGaP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 11:59:47 -0400
-Date: Mon, 31 Jul 2006 11:59:45 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: jesse.brandeburg@gmail.com, <linux-kernel@vger.kernel.org>,
-       <torvalds@osdl.org>, <cpufreq@www.linux.org.uk>
-Subject: Re: Linux v2.6.18-rc3
-In-Reply-To: <20060731081112.05427677.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0607311140360.8047-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Jul 2006 12:00:01 -0400
+Received: from blinkenlights.ch ([62.202.0.18]:60171 "EHLO blinkenlights.ch")
+	by vger.kernel.org with ESMTP id S1751141AbWGaP77 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 11:59:59 -0400
+Date: Mon, 31 Jul 2006 17:59:58 +0200
+From: Adrian Ulrich <reiser4@blinkenlights.ch>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: vonbrand@inf.utfsm.cl, ipso@snappymail.ca, matthias.andree@gmx.de,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+Message-Id: <20060731175958.1626513b.reiser4@blinkenlights.ch>
+In-Reply-To: <20060731144736.GA1389@merlin.emma.line.org>
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+	<200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl>
+	<20060731125846.aafa9c7c.reiser4@blinkenlights.ch>
+	<20060731144736.GA1389@merlin.emma.line.org>
+Organization: Bluewin AG
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006, Andrew Morton wrote:
+Hello Matthias,
 
-> > > I think this is the cpufreq problem wherein it sometimes requires that the
-> > > notifier chain be traversed from atomic context and at other times it
-> > > requires that sleeping functions be callable from within the traversal. 
-> > > IOW: we're screwed whatever type of locking we use on that chain.
-> > 
-> > I have looked at that problem more closely, and my earlier understanding
-> > wasn't quite right.  It's not that the context needs to be atomic at some
-> > times but not others -- it should always be a process context.  The
-> > problem is that the suspend and resume traversals are done at a time when
-> > interrupts need to remain disabled, since cpufreq registers its drivers as
-> > sysdevs.  (Kind of like SYSTEM_BOOTING, except that system_state isn't set
-> > to anything special.)  Because the down_read() call that protects the
-> > notifier chain isn't allowed when interrupts are disabled, the BUG occurs.
-> 
-> So why wouldn't an atomic notifier be suitable?
+> This looks rather like an education issue rather than a technical limit.
 
-I can't be entirely certain.  It looks like most of the callout routines
-would work fine in an atomic context, but there are a couple of 
-exceptions:
+We aren't talking about the same issue: I was asking to do it
+on-the-fly. Umounting the filesystem, running e2fsck and resize2fs
+is something different ;-)
 
-drivers/pcmcia/soc_common.c:soc_pcmcia_notifier() does a down().  Perhaps
-this should be made conditional on the notifier message not being
-CPUFREQ_SUSPENDCHANGE or CPUFREQ_RESUMECHANGE.  Similarly,
-arch/i386/kernel/tsc.c:time_cpufreq_notifier() calls
-write_sequnlock_irq().
+> Which is untrue at least for Solaris, which allows resizing a life file
+> system. FreeBSD and Linux require an unmount.
 
-(Not to mention the fact that drivers/serial/sh-sci.c:sci_init() registers 
-a cpufreq notifier but sci_exit() neglects to unregister it.)
+Correct: You can add more inodes to a Solaris UFS on-the-fly if you are
+lucky enough to have some free space available.
 
-In general, the callout routines don't seem to treat the PRECHANGE and
-POSTCHANGE messages differently from the SUSPENDCHANGE and RESUMECHANGE
-messages.  So I'm reluctant to split the two sorts of messages up into two
-separate chains.
+A colleague of mine happened to create a ~300gb filesystem and started
+to migrate Mailboxes (Maildir-style format = many small files (1-3kb))
+to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+big deal with VxFS because such a problem is fixable within seconds.
+What would have happened if he had used UFS? mkfs -G wouldn't work
+because he had no additional Diskspace left... *ouch*..
 
-> > If someone could give me a hint where a good place would be to carry out
-> > the initialization, I'd appreciate it.  Would an initcall be appropriate?  
-> > And if so, which sort of initcall?  core_initcall?  The only requirement 
-> > is that alloc_percpu() must be available.
-> > 
-> 
-> core_initcall() would suit.  That's actually a bit late for this sort of
-> thing, but we can always add a new section later if it becomes a problem. 
-> I'd suggest that we ensure that srcu_notifier_chain_register() performs a
-> reliable BUG() if it gets called too early.
+> Well, such "silly limitations"... looks like they are mostly hot air
+> spewn by marketroids that need to justify people spending money on their
+> new filesystem.
 
-Okay, let me work on a patch.
+Have you ever seen VxFS or WAFL in action?
 
-Alan Stern
 
+> But even then, I'd be interested to know if that's a real problem for systems
+> such as ZFS.
+
+ZFS uses 'dnodes'. The dnodes are allocated on demand from your
+available space so running out of [di]nodes is impossible.
+
+Great to see that Sun ships a state-of-the-art Filesystem with
+Solaris... I think linux should do the same...
+
+Regards,
+ Adrian

@@ -1,74 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGaOgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWGaOiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWGaOgR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWGaOgR
+	id S1750717AbWGaOiS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWGaOiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:36:17 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24212
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932344AbWGaOgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:36:16 -0400
-From: Rob Landley <rob@landley.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] initramfs:  Allow rootfs to use tmpfs instead of ramfs
-Date: Mon, 31 Jul 2006 10:35:00 -0400
-User-Agent: KMail/1.9.1
-Cc: Hugh Dickins <hugh@veritas.com>, Al Boldi <a1426z@gawab.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, stable@kernel.org,
-       akpm@osdl.org, chrisw@sous-sol.org, grim@undead.cc
-References: <200607301808.14299.a1426z@gawab.com> <Pine.LNX.4.64.0607301750080.10648@blonde.wat.veritas.com> <44CCFF09.2000106@zytor.com>
-In-Reply-To: <44CCFF09.2000106@zytor.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 10:38:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:35747 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750717AbWGaOiQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 10:38:16 -0400
+Date: Mon, 31 Jul 2006 07:38:50 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Esben Nielsen <nielsen.esben@googlemail.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, rostedt@goodmis.org, dipankar@in.ibm.com,
+       mingo@elte.hu, tytso@us.ibm.com, dvhltc@us.ibm.com
+Subject: Re: [RFC, PATCH, -rt] Early prototype RCU priority-boost patch
+Message-ID: <20060731143850.GA1293@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060728001918.GA2634@us.ibm.com> <Pine.LNX.4.64.0607281222580.10047@localhost.localdomain> <20060728155220.GC1289@us.ibm.com> <20060728222716.GA13794@gnuppy.monkey.org> <20060729021829.GN1289@us.ibm.com> <20060729025037.GB15392@gnuppy.monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200607311035.01571.rob@landley.net>
+In-Reply-To: <20060729025037.GB15392@gnuppy.monkey.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am totally out of the loop here.  (BusyBox has been taking up all my time 
-for months now...)
-
-I thought rootfs already would be tmpfs whenever that was compiled into the 
-kernel, but I suspect the kernel I was looking at to come to that conclusion 
-wasn't vanilla.  Still, that implies this isn't the first patch out there to 
-do this...
-
-On Sunday 30 July 2006 2:48 pm, H. Peter Anvin wrote:
-> There is some justification: embedded people would like to load 
-> inittmpfs and then continue running.
-
-Yup.  Embedded people who generally have no swap anyway.  (Swap to flash is a 
-bad idea.)  However, I believe what they were after was the ability to limit 
-the filesystem size so runaway logs don't trigger the OOM killer.
-
-> The main issue -- which I am not sure what effect this patch has -- is 
-> that we would really like to move initramfs initialization even earlier 
-> in the kernel, so that it can include firmware loading for built-in 
-> device drivers, for example.
-
-I remember this was "pending" late last year.  Thought it had made it into 
-2.6.16 or so.  I need _way_ more time to read the kernel list.  (I'm 50,197 
-messages behind.  That's just silly...)
-
-> Thus, if this patch makes it harder to push initramfs initialization 
-> earlier, it's probably a bad thing.  If not, the author of the patch 
-> really needs to explain why it works and why it doesn't add new 
-> dependencies to the initialization order.
+On Fri, Jul 28, 2006 at 07:50:37PM -0700, Bill Huey wrote:
+> On Fri, Jul 28, 2006 at 07:18:29PM -0700, Paul E. McKenney wrote:
+> > On Fri, Jul 28, 2006 at 03:27:16PM -0700, Bill Huey wrote:
+> > > What is that ? like randomly boosting without tracking which thread is
+> > > inside an RCU critical section ?
+> > 
+> > Perhaps a better way to put it would be that a thread preempted in
+> > an RCU read-side critical section boosts itself, and tracks the fact
+> > that it boosted itself in its tasks structure.
+> > 
+> > The second boost would be from some other task, but if the task had 
+> > already boosted itself, the de-boosting would already be taken care of
+> > at the next rcu_read_unlock() -- but as mentioned earlier in this
+> > thread, you only boost someone else if they are not currently running.
 > 
-> Saying "this is a trivial patch" and pushing it on the -stable tree 
-> doesn't inspire too much confidence, as initialization is subtle.
+> The problem here is that I can't see how it's going to boost the thread
+> if the things doing the RCU sync can't track the list of readers. It
+> might be record in the trask struct, now what ?
 
-It doesn't look like -stable material to me either.  It might be small enough 
-to add to the current -devel cycle, but that's not my call.
+The first boost is performed by the task itself the first time there
+is a preemption attempt (or the first time it blocks on a mutex), so
+no need to track the list of readers in that case.  The trick is that
+there is no benefit to boosting someone who is already running -- we
+only need to boost the first time they are considering blocking.
 
-Is there any current documentation on the kernel's init sequence other than 
-reading init/main.c and friends?
+If there is a need for a second "boost to the sky" in case of excessively
+delayed grace period (or to provide deterministic synchronize_rcu()
+latency), then we need a list only of those RCU readers who have attempted
+to block at least once thus far in their current RCU read-side critical
+section.  But I was putting this off until I get the simple case right.
+Cowardly of me, I know!  ;-)
 
-> 	-hpa
+Finally found Steve Rostedt's PI document (in 2.6.18-rc2), very helpful
+(though I suppose I should reserve judgement until after I get this
+working...)
 
-Rob
--- 
-Never bet against the cheap plastic solution.
+> > > > 2.	RCU reader boosting a lock holder.  This ends up being a
+> > > > 	combination of #1 (because the act of blocking on a lock implies
+> > > > 	an "out of nowhere" priority boost) and normal lock boosting.
+> > > 
+> > > Lock holder as in mutex held below and RCU critical section ?
+> > 
+> > Lock holder as in task 0 holds the lock, perhaps in an RCU read-side
+> > critical section and perhaps not.  Task 1 is in an RCU read-side
+> > critical section and attempts to acquire the lock.  Task 1 must block,
+> > because task 0 still holds the lock.  Task 1 must boost itself before
+> > blocking, and must donate its boosted priority to task 0.
+> 
+> Ok (thinking...)
+> 
+> > > > 3.	A call_rcu() or synchronize_rcu() boosting all readers.  I am
+> > > > 	not sure we really need this, but in case we do...  One would
+> > > > 	need an additional prio_booster for each task to be boosted,
+> > > > 	right?  This would seem to require an additional prio_booster
+> > > > 	struct in each task structure.
+> > >  
+> > > This needs a notion of RCU read side ownership to boost those preempted
+> > > threads.
+> > 
+> > I am getting the impression that #3 is something to leave aside for now.
+> 
+> ... 
+> 
+> > The idea is that none of this stuff ever happens except in cases where
+> > the RCU read-side critical section blocks, in which case all this is
+> 
+> ...
+> 
+> > in the noise compared to the context switch.  The sole exception to
+> > this is that rcu_read_unlock() must check to see if it has been boosted,
+> > and deboost itself if so.  I don't particularly like the additional
+> > comparison, but it should not be too expensive.
+> 
+> Oh, blocks as is gets shoved into a wait queue for a PI enabled lock.
+
+Yep.
+
+> > > Don't know what to think about it other than some kind of tracking or
+> > > boosting logic in the per CPU run queue or the task struct itself during
+> > > the boost operation. But you're still stuck with the problem of what
+> > > to boost and how to find that out during an RCU sync side. It's still
+> > > an ownership problem unless Esben can think of another way of getting
+> > > around that problem.
+> > 
+> > One idea is to put tasks that block in RCU read-side critical sections
+> > on a list -- again, the hope is that the overhead is in the noise compared
+> > to the context switch.
+> 
+> Only way to find out is to try it.
+
+Or to try without it and see what happens.
+
+> > > That's why I suggested a priority ceiling or per CPU priority threshold
+> > > tracking (+ CPU binding) the priority of the irq-threads and stuff. It's
+> > > a simple hack to restore the cheesy preempt count stuff without having
+> > > to revert to invasive ownership tracking for each reader.
+> > > 
+> > > It's just an idea. Maybe it'll be useful to you.
+> > 
+> > Let me make sure I understand what you are suggesting -- sounds to me
+> > like a check in preempt_schedule().  If the task to be preempted is
+> > higher priority than the ceiling, the preemption request is refused.
+> > 
+> > Or am I missing part of your proposal?
+> 
+> Something like at all preemption points, cond_resched() and friends (scheduler
+> tick) to an additional check against a value in a threads own CPU run queue
+> struct to see if it should permit the preemption or not. I'm thinking about
+> ways to avoid doing an expensive run queue lock during a task's priority
+> manipulation and instead have some other kind of logic orthogonal to that so
+> that it can bypass this overhead.  A value in a run queue that can be checked
+> against in order to prevent a preemption from happen might be able to side
+> step the need for a doing a full run queue lock to reorder a tasks priority
+> ranking.
+> 
+> If a ceiling or threshold was defined for RCU (another somewhat complicated
+> topic) it could prevent the RCU critical section from preempting other
+> than with other SCHED_FIFO tasks at and above that priority, if you choose
+> a threshold at that priority. That'll be apart of the runtime configuratio
+> of the system. You'd have to cpu_get/put to get that value so that you get
+> at it safely, read or write to it, and maybe save and restore that value on
+> entry and exit respectively. You'll also have to set a field in the task
+> struct to prevent it from migration to another CPU and make sure that's
+> modifying the right stuff on the right CPU.
+> 
+> It's a possible solution to a rather difficult problem. What do you think ?
+> too much of a hack ?
+
+I am not sure -- seems to be a dual approach to boosting the RCU reader's
+priority in the preemption case.  I suspect that a real priority boost
+would still be needed in the case where the RCU reader blocks on a mutex,
+since we need the priority inheritance to happen in that case, right?
+
+> (I'm into -rt development again after a good OLS and I'm trying to get my
+> kernel development up and going so that I can help out)
+
+Sounds very good!!!
+
+							Thanx, Paul

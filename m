@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGaMtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWGaM7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWGaMtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 08:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWGaMtI
+	id S1750719AbWGaM7P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 08:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWGaM7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 08:49:08 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:30304 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S1751091AbWGaMtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 08:49:07 -0400
-Date: Mon, 31 Jul 2006 16:57:02 +0400
-From: Evgeniy Dushistov <dushistov@mail.ru>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH]: ufs: ufs_get_locked_patch race fix
-Message-ID: <20060731125702.GA5094@rain>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+	Mon, 31 Jul 2006 08:59:15 -0400
+Received: from wr-out-0506.google.com ([64.233.184.227]:18511 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750719AbWGaM7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 08:59:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mail-followup-to:mime-version:content-type:content-disposition:user-agent;
+        b=YiQev/zVqOkjMdXpAIBAVPV1lgNO2MbJXgRlopizon7fy2AujbinTxN9asYHrKYVH+cytrK7oT74nZEMdGAlGj/KcaLzrd7y7zG6nA26map934IBrdYgUvsE/y9Wxj2lEcwkevEjwDsm6TJobui/luVAgxWD42G16HmIUtT+VhU=
+Date: Mon, 31 Jul 2006 08:59:13 -0400
+From: Thomas Tuttle <thinkinginbinary@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Preserving uptime with kexec?
+Message-ID: <20060731125913.GA27083@phoenix>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
 Content-Disposition: inline
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As discussed earlier:
-http://lkml.org/lkml/2006/6/28/136
-this patch fixes such issue:
-`ufs_get_locked_page' takes page from cache
-after that `vmtruncate' takes page and deletes it from cache
-`ufs_get_locked_page' locks page, and reports about EIO error.
 
-Also because of find_lock_page always return valid page or NULL,
-we have no need check it if page not NULL.
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
+Like many people, I like to brag about how great my uptime is.  But like
+many other people, I like to keep my kernel up-to-date with the latest
+and greatest from kernel.org.  I recently discovered the magic of kexec,
+which allows me to switch kernels without rebooting for real.
+Unfortunately, kexec resets my uptime when it runs.
 
+Would anyone be interested in fixing this, and/or would anyone be
+interested in *me* writing a patch for it?  I don't know if it violates
+some contract where uptime is counted from the kernel boot, but it seems
+like, for consistency's sake, it should count from the last hardware
+boot.
 
----
+--Thomas Tuttle
 
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Index: linux-2.6.18-rc2-mm1/fs/ufs/util.c
-===================================================================
---- linux-2.6.18-rc2-mm1.orig/fs/ufs/util.c
-+++ linux-2.6.18-rc2-mm1/fs/ufs/util.c
-@@ -257,6 +257,7 @@ try_again:
- 		page = read_cache_page(mapping, index,
- 				       (filler_t*)mapping->a_ops->readpage,
- 				       NULL);
-+
- 		if (IS_ERR(page)) {
- 			printk(KERN_ERR "ufs_change_blocknr: "
- 			       "read_cache_page error: ino %lu, index: %lu\n",
-@@ -266,6 +267,13 @@ try_again:
- 
- 		lock_page(page);
- 
-+		if (unlikely(page->mapping != mapping ||
-+			     page->index != index)) {
-+			unlock_page(page);
-+			page_cache_release(page);
-+			goto try_again;
-+		}
-+
- 		if (!PageUptodate(page) || PageError(page)) {
- 			unlock_page(page);
- 			page_cache_release(page);
-@@ -275,15 +283,8 @@ try_again:
- 			       mapping->host->i_ino, index);
- 
- 			page = ERR_PTR(-EIO);
--			goto out;
- 		}
- 	}
--
--	if (unlikely(!page->mapping || !page_has_buffers(page))) {
--		unlock_page(page);
--		page_cache_release(page);
--		goto try_again;/*we really need these buffers*/
--	}
- out:
- 	return page;
- }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
--- 
-/Evgeniy
+iD8DBQFEzf6h/UG6u69REsYRAv3IAJ426GTRIBXyE9RaaYX3AD3/Q58XPwCeIOVX
+eOYNWQ2YgAwZnnWwqbgMREM=
+=f6tL
+-----END PGP SIGNATURE-----
 
+--mP3DRpeJDSE+ciuQ--

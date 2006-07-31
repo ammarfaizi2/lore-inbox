@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWGaGGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWGaGQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWGaGGq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 02:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWGaGGp
+	id S932148AbWGaGQf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 02:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWGaGQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 02:06:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:947 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932117AbWGaGGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 02:06:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MGjLA4jybObixkWRh5XdqvID24j+32G1GHrTkVYWorG5c+M5BegNt5gDAay4ZwDrEZItAVAJCg+MrJx3aFrYcsdTCY7gzOFojFEcontmmTEeRS09lO0ohS/S8Cgr/6iRuPSA6Ybqh7G0B0PiwYs7IJ1y0YMOTUFH9YdaqNmudrM=
-Message-ID: <9e0cf0bf0607302306g435d73a1qbdab334c318c8dc2@mail.gmail.com>
-Date: Mon, 31 Jul 2006 09:06:43 +0300
-From: "Alon Bar-Lev" <alon.barlev@gmail.com>
-To: "Kasper Sandberg" <lkml@metanurb.dk>
-Subject: Re: ipw3945 status
-Cc: "Alistair John Strachan" <s0348365@sms.ed.ac.uk>,
-       "Pavel Machek" <pavel@suse.cz>, "Theodore Tso" <tytso@mit.edu>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>, "Jan Dittmer" <jdi@l4x.org>,
-       "Jirka Lenost Benc" <jbenc@suse.cz>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-In-Reply-To: <1154308614.13635.49.camel@localhost>
+	Mon, 31 Jul 2006 02:16:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55731 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932148AbWGaGQe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 02:16:34 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060730104042.GE1920@elf.ucw.cz>
-	 <20060730145305.GE23279@thunk.org> <20060730231251.GB1800@elf.ucw.cz>
-	 <200607310123.06177.s0348365@sms.ed.ac.uk>
-	 <1154308614.13635.49.camel@localhost>
+From: Roland McGrath <roland@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+X-Fcc: ~/Mail/linus
+Cc: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: Re: Linux v2.6.18-rc3]
+In-Reply-To: Arjan van de Ven's message of  Sunday, 30 July 2006 11:16:13 +0200 <1154250973.2941.8.camel@laptopd505.fenrus.org>
+Emacs: or perhaps you'd prefer Russian Roulette, after all?
+Message-Id: <20060731061629.F30BA180050@magilla.sf.frob.com>
+Date: Sun, 30 Jul 2006 23:16:29 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/31/06, Kasper Sandberg <lkml@metanurb.dk> wrote:
-> I entirely agree that this should not be merged, those will accept these
-> kindof things, can use intels out of tree driver.
->
-> i sincerely hope for a forked/rewritten driver which does not depend on
-> closed userspace daemons.
+> > Inconsistency detected by ld.so: rtld.c: 1192: ld_main:
+> > Assertion '(void *) ph->p_vaddr == _rtld_local_._dl_sysinfo_dso' failed !
 
-I personally think that this also violates the GPL license...
-The GPL part cannot stand by it-self and require none GPLed component
-in order to make it work.
+This error suggests an older glibc that is not able to handle a relocatable
+vDSO image.  A glibc not so ancient won't have that problem.
 
-The fact that the regularity daemon work using external sysfs
-interface without linkage requirements does not escape derived work in
-this case.
+Chances are you just need to turn on CONFIG_COMPAT_VDSO.  As that option's
+documentation says, it's required if you're using a glibc before 2.3.3.
 
-Best Regards,
-Alon Bar-Lev
+
+Thanks,
+Roland

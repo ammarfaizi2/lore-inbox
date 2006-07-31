@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWGaSSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWGaSUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWGaSSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGaSSD
+	id S1030296AbWGaSUH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGaSUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:18:03 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:46351 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030301AbWGaSSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:18:02 -0400
-Date: Mon, 31 Jul 2006 14:18:00 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Aleksey Gorelov <dared1st@yahoo.com>
-cc: David Brownell <david-b@pacbell.net>,
-       <linux-usb-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>,
-       <gregkh@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [PATCH] Properly unregister reboot notifier
- in case of failure in ehci hcd
-In-Reply-To: <20060731172327.9269.qmail@web81206.mail.mud.yahoo.com>
-Message-ID: <Pine.LNX.4.44L0.0607311414360.8047-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Jul 2006 14:20:06 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40417 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030296AbWGaSUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 14:20:05 -0400
+Subject: Re: [2.6.18-rc2-mm1] libata ate one PATA channel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tejun Heo <htejun@gmail.com>
+Cc: "J.A. Magall?n" <jamagallon@ono.com>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060731165011.GA6659@htj.dyndns.org>
+References: <20060728134550.030a0eb8@werewolf.auna.net>
+	 <44CD0E55.4020206@gmail.com> <20060731172452.76a1b6bd@werewolf.auna.net>
+	 <44CE2908.8080502@gmail.com>
+	 <1154363489.7230.61.camel@localhost.localdomain>
+	 <20060731165011.GA6659@htj.dyndns.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Jul 2006 19:38:50 +0100
+Message-Id: <1154371130.7230.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006, Aleksey Gorelov wrote:
+Ar Maw, 2006-08-01 am 01:50 +0900, ysgrifennodd Tejun Heo:
+> Didn't realize pata stuff relies on it.
 
->   If some problem occurs during ehci startup, for instance, request_irq fails, echi hcd driver
-> tries it best to cleanup, but fails to unregister reboot notifier, which in turn leads to crash on
-> reboot/poweroff. The following patch resolves this problem by not using reboot notifiers anymore,
-> but instead making ehci/ohci driver get its own shutdown method. For PCI, it is done through pci
-> glue, for everything else through platform driver glue.
+Lots of people have two drives, one junk on a cable so they get upset
+and all send me bug reports, lots and lots of them. The oher section of
+the problem is the Simplex mode part of that patch is depended upon by
+some of the drivers and if you don't do simplex right on some older
+controllers it *is* a corruptor so I care a lot about doing it right.
 
-Why do you need to change the bus glue?  Wouldn't it be a lot simpler just 
-to add ehci_shutdown as a member of ehci_pci_driver, for instance, with 
-similar changes to ehci_hcd_au1xxx_driver and ehci_hcd_fsl_driver?
-
-Alan Stern
 

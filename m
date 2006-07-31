@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWGaOvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWGaOwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWGaOvb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWGaOvb
+	id S1751136AbWGaOwl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWGaOwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:51:31 -0400
-Received: from smtp.ono.com ([62.42.230.12]:56007 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S1751068AbWGaOva (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:51:30 -0400
-Date: Mon, 31 Jul 2006 16:51:22 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.18-rc1-mm2] libata: DMA speed too slow for cdrecord
-Message-ID: <20060731165122.08ac464e@werewolf.auna.net>
-In-Reply-To: <1154344141.7230.18.camel@localhost.localdomain>
-References: <20060729235431.322ea6d3@werewolf.auna.net>
-	<1154344141.7230.18.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 31 Jul 2006 10:52:41 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:47622 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751136AbWGaOwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 10:52:40 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: armbru@redhat.com (Markus Armbruster), ak@suse.de
+Subject: Re: [PATCH] Fix trivial unwind info bug
+Cc: linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <874px31tz4.fsf@pike.pond.sub.org>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1G7Z8C-0007IO-00@gondolin.me.apana.org.au>
+Date: Tue, 01 Aug 2006 00:52:32 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 12:09:01 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> Ar Sad, 2006-07-29 am 23:54 +0200, ysgrifennodd J.A. Magallón:
-> > ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+Markus Armbruster <armbru@redhat.com> wrote:
+> CFA needs to be adjusted upwards for push, and downwards for pop.
+> arch/i386/kernel/entry.S gets it wrong in one place.
 > 
-> Chip configuration reports OK
-> > scsi0 : ata_piix
-> > ata1.00: ATAPI, max UDMA/33
-> > ata1.01: ATAPI, max MWDMA0, CDB intr
-> > ata1.00: configured for PIO3
-> > ata1.01: configured for PIO3
-> 
-> Your tree appears to have the old speed setting code in it not the new
-> speed setting code. As a result of this it tries to set both to MWDMA0
-> which isn't available on the ICH chips and so falls back to PIO3.
-> 
+> Signed-off-by: Markus Armbruster <armbru@redhat.com>
 
-Oops, sorry for the mix...
-I was posting 2 separate bug reports, and mixed the relase numbers.
-Where this really happens is on -rc1-mm2.
-As you say, -rc1-mm2 gives:
+Thanks for the patch Markus.  Andi Kleen is now maintaining i386
+so please cc him in future for i386 patches.
 
-ata_piix 0000:00:1f.1: version 2.00ac6
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/33
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.00: configured for PIO3
-ata1.01: configured for PIO3
+> diff --git a/arch/i386/kernel/entry.S b/arch/i386/kernel/entry.S
+> index d9a260f..37a7d2e 100644
+> --- a/arch/i386/kernel/entry.S
+> +++ b/arch/i386/kernel/entry.S
+> @@ -204,7 +204,7 @@ #define RING0_PTREGS_FRAME \
+> ENTRY(ret_from_fork)
+>        CFI_STARTPROC
+>        pushl %eax
+> -       CFI_ADJUST_CFA_OFFSET -4
+> +       CFI_ADJUST_CFA_OFFSET 4
+>        call schedule_tail
+>        GET_THREAD_INFO(%ebp)
+>        popl %eax
 
-whereas -rc2-mm1 says:
+I wonder if this is related to the problem of dump_stack() crashing...
 
-ata_piix 0000:00:1f.1: version 2.00ac6
-ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.1 to 64
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
-scsi0 : ata_piix
-ata1.00: ATAPI, max UDMA/33 
-ata1.01: ATAPI, max MWDMA0, CDB intr
-ata1.00: configured for UDMA/33
-ata1.01: configured for PIO3
-
-So I see that rc2-mm1 should work. But my problem is the other bug report,
-this latest kernel does not show the second ide channel on the host.
-
-What file is the new speed selection code in ? libata-core.c, ata-piix.c ?
-I can try to get the old kernel patched...
-
-Or is there any patch available ?
-
-I think i will have to unplug the zip drive till this is resolved ;).
-
-TIA
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam04 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

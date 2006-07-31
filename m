@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWGaWRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbWGaWVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWGaWRW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 18:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWGaWRV
+	id S1030488AbWGaWVP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 18:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWGaWVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 18:17:21 -0400
-Received: from mail.gmx.de ([213.165.64.21]:30159 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751409AbWGaWRV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 18:17:21 -0400
-X-Authenticated: #428038
-Date: Tue, 1 Aug 2006 00:17:16 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060731221716.GA16440@merlin.emma.line.org>
-Mail-Followup-To: Rudy Zijlstra <rudy@edsons.demon.nl>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-	ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-	jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de> <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl> <20060731173239.GO31121@lug-owl.de> <20060731181120.GA9667@merlin.emma.line.org> <20060731184314.GQ31121@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060731184314.GQ31121@lug-owl.de>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+	Mon, 31 Jul 2006 18:21:14 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32908
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751426AbWGaWVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 18:21:13 -0400
+Date: Mon, 31 Jul 2006 15:20:27 -0700 (PDT)
+Message-Id: <20060731.152027.116353974.davem@davemloft.net>
+To: bcook@bpointsys.com
+Cc: johnpol@2ka.mipt.ru, drepper@redhat.com, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <200607311716.48455.bcook@bpointsys.com>
+References: <20060731194143.GA12569@2ka.mipt.ru>
+	<20060731.150028.26276495.davem@davemloft.net>
+	<200607311716.48455.bcook@bpointsys.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw schrieb am 2006-07-31:
+From: Brent Cook <bcook@bpointsys.com>
+Date: Mon, 31 Jul 2006 17:16:48 -0500
 
-> > Massive hardware problems don't count. ext2/ext3 doesn't look much better in
-> > such cases. I had a machine with RAM gone bad (no ECC - I wonder what
-> 
-> They do! Very much, actually. These happen In Real Life, so I have to
-> pay attention to them. Once you're in setups with > 10000 machines,
-> everything counts. At some certain point, you can even use HDD's
-> temperature sensors in old machines to diagnose dead fans.
-> 
-> Everything that eases recovery for whatever reason is something you
-> have to pay attention to. The simplicity of ext{2,3} is something I
-> really fail to find proper words for. As well as the really good fsck.
-> Once seen a SIGSEGV'ing fsck, you really don't want to go there.
+> There has to be some thread that is responsible for reading
+> events. Perhaps a reasonable thing for a blocked thread that cannot
+> process events to do is to yield to one that can?
 
-The point is: If you've written data with broken hardware (RAM, bus,
-controllers - loads of them, CPU), what is on your disks is
-untrustworthy anyways, and fsck isn't going to repair your gzip file
-where every 64th bit has become a 1 or when the battery-backed write
-cache threw 60 MB down the drain...
+The reason one decentralizes event processing into threads is so that
+once they are tasked to process some event they need not be concerned
+with event state.
 
-Of course, an fsck that crashes is unbearable, but that doesn't apply to
-"broken hardware" failures. You need backups with a few generations to
-avoid massively losing data.
-
--- 
-Matthias Andree
+They are designed to process their event through to the end, then
+return to the top level and say "any more work for me?"

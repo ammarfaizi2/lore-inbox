@@ -1,73 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWG3Xxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWGaAIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWG3Xxn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 19:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWG3Xxn
+	id S932354AbWGaAIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWGaAIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 19:53:43 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:42933 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964794AbWG3Xxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 19:53:42 -0400
-Subject: Re: [PATCH] bug in futex unqueue_me
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christian Borntraeger <borntrae@de.ibm.com>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@redhat.com>,
-       Thomas Gleixner <tglx@timesys.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060730063821.GA8748@elte.hu>
-References: <200607271841.56342.borntrae@de.ibm.com>
-	 <20060730063821.GA8748@elte.hu>
-Content-Type: text/plain
-Date: Sun, 30 Jul 2006 19:53:21 -0400
-Message-Id: <1154303601.10074.64.camel@localhost.localdomain>
+	Sun, 30 Jul 2006 20:08:25 -0400
+Received: from mx1.suse.de ([195.135.220.2]:29343 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932354AbWGaAIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 20:08:24 -0400
+Date: Sun, 30 Jul 2006 17:03:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Andrew Morton <akpm@osdl.org>, andrew.j.wade@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+Message-ID: <20060731000359.GB23220@kroah.com>
+References: <20060727015639.9c89db57.akpm@osdl.org> <20060727125655.f5f443ea.akpm@osdl.org> <20060727201255.GA9515@suse.de> <200607281033.06111.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <44CCBBC7.3070801@free.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CCBBC7.3070801@free.fr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 08:38 +0200, Ingo Molnar wrote:
-> * Christian Borntraeger <borntrae@de.ibm.com> wrote:
-> 
-> > From: Christian Borntraeger <borntrae@de.ibm.com>
-> > 
-> > This patch adds a barrier() in futex unqueue_me to avoid aliasing of 
-> > two pointers.
-> >
-> > On my s390x system I saw the following oops:
-> 
-> > So the code becomes more or less:
-> > if (q->lock_ptr != 0) spin_lock(q->lock_ptr)
-> > instead of
-> > if (lock_ptr != 0) spin_lock(lock_ptr)
-> >
-> > Which caused the oops from above.
-> 
-> interesting, how is this possible? We do a spin_lock(lock_ptr), and 
-> taking a spinlock is an implicit barrier(). So gcc must not delay 
-> evaluating lock_ptr to inside the critical section. And as far as i can 
-> see the s390 spinlock implementation goes through an 'asm volatile' 
-> piece of code, which is a barrier already. So how could this have 
-> happened? I have nothing against adding a barrier(), but we should first 
-> investigate why the spin_lock() didnt act as a barrier - there might be 
-> other, similar bugs hiding. (we rely on spin_lock()s barrier-ness in a 
-> fair number of places)
+On Sun, Jul 30, 2006 at 04:01:43PM +0200, Laurent Riffard wrote:
+> In this situation, udev (version 096 here) is unable to create these
+> device files (/dev/full, /dev/kmem, /dev/kmsg, etc.). /dev/null does
+> exist (with wrong permissions) because it has been created by the
+> initrd script.
 
-Ingo,  this spinlock is probably still a barrier, but is it still a
-barrier on itself?  That is, the problem here is that we have the
-compiler optimizing the lock_ptr temp variable that is used inside the
-spin_lock.  So does a spin_lock protect itself, or just the stuff inside
-it?
+Something's really broken with that version of udev then, because the
+094 version I have running here works just fine with these symlinks.
 
-Here we need a barrier to keep gcc from optimizing the use of the lock
-and not what the lock is protecting.
+> In order to get back the device files, I have to run the following
+> command:
+> # for f in /sys/class/mem/*/uevent; do echo 1 > $f; done
 
-I don't know about other areas in the kernel that has a dynamic spin
-lock like this that needs protection.
+Ah, ok, it sounds like it's not a bug in udev itself, but rather a bug
+in the way your distro does it's initialization of udev, at boot.  I
+suggest you file a bug with them, as they are known for doing this a bit
+differently than any other distro (and different from how the udev
+developers recommend), so they can fix it.  It's probably just a shell
+script issue.
 
--- Steve
+thanks,
 
-
+greg k-h

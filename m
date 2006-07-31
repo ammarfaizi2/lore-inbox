@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWGaHnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWGaHuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWGaHnd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 03:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWGaHnd
+	id S964773AbWGaHuK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 03:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWGaHuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 03:43:33 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:45140 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S964818AbWGaHnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 03:43:32 -0400
-Message-ID: <44CDB4A0.5010805@tls.msk.ru>
-Date: Mon, 31 Jul 2006 11:43:28 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Mon, 31 Jul 2006 03:50:10 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:59684 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964773AbWGaHuI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 03:50:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rswQWcDoUjDx15vxXWutBffr50DkCT49RRtYTCFXOFio7wTI6Cqw9MG/M+chvQolHHsKA+dYooBGjtwLCCe/hfwo5kyFppygNisyhH0vaRiKOoaPHK/VCPGDaNtMl6MZlHRQ2QBwt9/oFYb75NJ/UOVwrX7ADBDKZqIAJUhYxTA=
+Message-ID: <72dbd3150607310050v1b3e5a9y23f40777fb00aac4@mail.gmail.com>
+Date: Mon, 31 Jul 2006 00:50:07 -0700
+From: "David Rees" <drees76@gmail.com>
+To: "bert hubert" <bert.hubert@netherlabs.nl>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Tomasz Torcz" <zdzichu@irc.pl>, linux-kernel@vger.kernel.org,
+       zwane@arm.linux.org.uk
+Subject: Re: 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
+In-Reply-To: <20060730195342.GA32665@outpost.ds9a.nl>
 MIME-Version: 1.0
-To: NeilBrown <neilb@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 006 of 9] md: Remove the working_disks and failed_disks
- from raid5 state data.
-References: <20060731172842.24323.patches@notabene> <1060731073227.24494@suse.de>
-In-Reply-To: <1060731073227.24494@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060730120844.GA18293@outpost.ds9a.nl>
+	 <20060730160738.GB13377@irc.pl>
+	 <1154288811.2941.45.camel@laptopd505.fenrus.org>
+	 <20060730195342.GA32665@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NeilBrown wrote:
-> They are not needed.
-> conf->failed_disks is the same as mddev->degraded
+On 7/30/06, bert hubert <bert.hubert@netherlabs.nl> wrote:
+> On Sun, Jul 30, 2006 at 09:46:51PM +0200, Arjan van de Ven wrote:
+>
+> > as a side note ... you realize that clockmod doesn't actually save you
+> > any power right? ;)
+>
+> Indeed, and I've measured that too. But it saves an awful amount of noise!
 
-By the way, `failed_disks' is more understandable than `degraded'
-in this context.  "Degraded" usually refers to the state of the
-array in question, when failed_disks > 0.
+If it doesn't save you power, how does it reduce noise? I guess it
+keeps you from overheating your processor which causes the fan to spin
+up?
 
-That to say: I'd rename degraded back to failed_disks, here and
-in the rest of raid drivers... ;)
-
-/mjt
+-Dave

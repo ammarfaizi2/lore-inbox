@@ -1,64 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWGaIaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWGaIbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWGaIaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 04:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWGaIaV
+	id S1751358AbWGaIbE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 04:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWGaIbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 04:30:21 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:64983 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751290AbWGaIaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 04:30:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=N3eDwPpyDQEuffUE8cRxfxLTDCyG+Ggi/vS8kfnjReF5EC+47Ar4+So6glioVpCtfdANf98/LouCdhV0N9nGseZDHrhcIXnvp/WM4b3glN4OC6nDSk70esz1SFOuVnjRul7PEj050f8bklVc4RBrcZ79GcpFKA29zKnwyDklQmM=
-Message-ID: <9a8748490607310130h312c9b84jec08d9f2f9b629fd@mail.gmail.com>
-Date: Mon, 31 Jul 2006 10:30:18 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "bert hubert" <bert.hubert@netherlabs.nl>, "Andrew Morton" <akpm@osdl.org>,
-       "Greg KH" <greg@kroah.com>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       laurent.riffard@free.fr, andrew.j.wade@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
-In-Reply-To: <20060731075428.GA24584@outpost.ds9a.nl>
+	Mon, 31 Jul 2006 04:31:04 -0400
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:28291
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1751358AbWGaIbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 04:31:01 -0400
+Message-ID: <44CDBFC4.3030808@ed-soft.at>
+Date: Mon, 31 Jul 2006 10:31:00 +0200
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 3/3] add-efi-e820-memory-mapping-on-x86.patch
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060727015639.9c89db57.akpm@osdl.org>
-	 <20060731000359.GB23220@kroah.com>
-	 <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	 <20060731033757.GA13737@kroah.com>
-	 <20060730212227.175c844c.akpm@osdl.org>
-	 <20060731043542.GA9919@kroah.com>
-	 <20060730215025.44292f9c.akpm@osdl.org>
-	 <20060731051547.GB29058@kroah.com>
-	 <20060730230033.cc4fc190.akpm@osdl.org>
-	 <20060731075428.GA24584@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31/07/06, bert hubert <bert.hubert@netherlabs.nl> wrote:
-> On Sun, Jul 30, 2006 at 11:00:33PM -0700, Andrew Morton wrote:
-> > The impact is lower in this case because we've already trained our
-> > long-suffering users to expect udev to regularly break.
->
-> It has broken, even in 2.6.18-rc3, see http://lkml.org/lkml/2006/7/30/163
-> '2.6.18-rc3 does not like an old udev (071)' and beyond.
->
-> It now requires udev 079, in disaccordance with the Documentation/Changes
-> file.
->
-> This breaks Ubuntu LTS, which for some reason chose to ship udev 071.
->
-It'll probably also cause trouble for the upcomming release of Slackware.
-Slackware 11 is just around the corner and slackware-current currently
-has udev 071. The kernel is 2.4.32 or 2.6.17.7 (user choice), but I'll
-bet many people will want to install newer kernels.
+This Patch add an efi e820 memory mapping.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+
+
+diff -uNr linux-2.6.18-rc3/arch/i386/kernel/setup.c linux-2.6.18-rc3.mactel/arch/i386/kernel/setup.c
+--- linux-2.6.18-rc3/arch/i386/kernel/setup.c	2006-07-31 09:24:20.000000000 +0200
++++ linux-2.6.18-rc3.mactel/arch/i386/kernel/setup.c	2006-07-31 09:26:19.000000000 +0200
+@@ -414,19 +414,17 @@
+ {
+ 	int x;
+ 
+-	if (!efi_enabled) {
+-       		x = e820.nr_map;
++	x = e820.nr_map;
+ 
+-		if (x == E820MAX) {
+-		    printk(KERN_ERR "Ooops! Too many entries in the memory map!\n");
+-		    return;
+-		}
+-
+-		e820.map[x].addr = start;
+-		e820.map[x].size = size;
+-		e820.map[x].type = type;
+-		e820.nr_map++;
++	if (x == E820MAX) {
++	    printk(KERN_ERR "Ooops! Too many entries in the memory map!\n");
++	    return;
+ 	}
++
++	e820.map[x].addr = start;
++	e820.map[x].size = size;
++	e820.map[x].type = type;
++	e820.nr_map++;
+ } /* add_memory_region */
+ 
+ #define E820_DEBUG	1
+@@ -1430,6 +1428,64 @@
+ static void set_mca_bus(int x) { }
+ #endif
+ 
++#ifdef CONFIG_EFI
++/*
++ * Make a e820 memory map
++ */
++void __init efi_init_e820_map(void)
++{
++	efi_memory_desc_t *md;
++	unsigned long long start = 0;
++	unsigned long long end = 0;
++	unsigned long long size = 0;
++	void *p;
++
++	e820.nr_map = 0;
++
++	for (p = memmap.map; p < memmap.map_end; p += memmap.desc_size) {
++		md = p;
++		switch (md->type) {
++		case EFI_ACPI_RECLAIM_MEMORY:
++			add_memory_region(md->phys_addr,
++				md->num_pages << EFI_PAGE_SHIFT, E820_ACPI);
++			break;
++		case EFI_RUNTIME_SERVICES_CODE:
++		case EFI_RUNTIME_SERVICES_DATA:
++		case EFI_RESERVED_TYPE:
++		case EFI_MEMORY_MAPPED_IO:
++		case EFI_MEMORY_MAPPED_IO_PORT_SPACE:
++		case EFI_UNUSABLE_MEMORY:
++			add_memory_region(md->phys_addr,
++				md->num_pages << EFI_PAGE_SHIFT, E820_RESERVED);
++			break;
++		case EFI_LOADER_CODE:
++		case EFI_LOADER_DATA:
++		case EFI_BOOT_SERVICES_CODE:
++		case EFI_BOOT_SERVICES_DATA:
++		case EFI_CONVENTIONAL_MEMORY:
++			start = md->phys_addr;
++			size = md->num_pages << EFI_PAGE_SHIFT;
++			end = start + size;
++			if (start < 0x100000ULL && end > 0xA0000ULL) {
++				if (start < 0xA0000ULL)
++					add_memory_region(start,
++						0xA0000ULL-start, E820_RAM);
++				if (end <= 0x100000ULL)
++					continue;
++				start = 0x100000ULL;
++				size = end - start;
++			}
++			add_memory_region(start, size, E820_RAM);
++			break;
++		case EFI_ACPI_MEMORY_NVS:
++			add_memory_region(md->phys_addr,
++				md->num_pages << EFI_PAGE_SHIFT, E820_NVS);
++			break;
++		}
++	}
++}
++#endif
++
+ /*
+  * Determine if we were loaded by an EFI loader.  If so, then we have also been
+  * passed the efi memmap, systab, etc., so we should use these data structures
+@@ -1478,9 +1534,11 @@
+ 	rd_doload = ((RAMDISK_FLAGS & RAMDISK_LOAD_FLAG) != 0);
+ #endif
+ 	ARCH_SETUP
+-	if (efi_enabled)
++	if (efi_enabled) {
+ 		efi_init();
+-	else {
++		efi_init_e820_map();
++		print_memory_map("BIOS-EFI");
++	} else {
+ 		printk(KERN_INFO "BIOS-provided physical RAM map:\n");
+ 		print_memory_map(machine_specific_memory_setup());
+ 	}
+
+

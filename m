@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWGaU5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWGaU5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWGaU5i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 16:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbWGaU5i
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 16:57:38 -0400
-Received: from [212.76.92.124] ([212.76.92.124]:16400 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932272AbWGaU5h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932496AbWGaU5h (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 31 Jul 2006 16:57:37 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [stable] [PATCH] initramfs: Allow rootfs to use tmpfs instead of ramfs
-Date: Mon, 31 Jul 2006 23:58:41 +0300
-User-Agent: KMail/1.5
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       stable@kernel.org, akpm@osdl.org, chrisw@sous-sol.org, grim@undead.cc
-References: <200607301808.14299.a1426z@gawab.com> <200607310003.56832.a1426z@gawab.com> <20060731193034.GU2654@sequoia.sous-sol.org>
-In-Reply-To: <20060731193034.GU2654@sequoia.sous-sol.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607312358.41199.a1426z@gawab.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWGaU5g
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 31 Jul 2006 16:57:36 -0400
+Received: from blinkenlights.ch ([62.202.0.18]:26340 "EHLO blinkenlights.ch")
+	by vger.kernel.org with ESMTP id S932496AbWGaU5f convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 16:57:35 -0400
+Date: Mon, 31 Jul 2006 22:57:34 +0200
+From: Adrian Ulrich <reiser4@blinkenlights.ch>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+Cc: matthias.andree@gmx.de, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+Message-Id: <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
+In-Reply-To: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	<200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+Organization: Bluewin AG
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Al Boldi (a1426z@gawab.com) wrote:
-> > Being semantically the same, while not exhibiting ramfs pitfalls, makes
-> > it suitable to be pushed into the -stable tree, IMHO.
->
-> You are failing to show how this is a critical type bugfix for -stable.
-> We are picky about -stable additions because we don't want to undermine
-> the value of the -stable tree.
 
-If you mean critical as in "the kernel panics on boot without this patch", 
-then yes, this patch is not critical.
+> > Great to see that Sun ships a state-of-the-art Filesystem with
+> > Solaris... I think linux should do the same...
+> 
+> This would be worthwhile, if only to be able to futz around in Solaris-made
+> filesystems.
 
-But if you think it's important to allow -stable to make full use of rootfs, 
-then this patch offers a much needed fix, by simply replugging existing 
-code.
-
-Again, it's your call.
+s/I think linux should do the same/I think linux should include Reiser4/
+ ;-)
 
 
-Thanks!
+> First question is if there are any restrictions (patent or otherwise) on
+> doing this,
 
---
-Al
+Quoting from
+ http://it.sun.com/eventi/jc06/pdf/mi27_p5_poccia_virtualization.pdf
 
+­> 47 ZFS patents added to CDDL patent commons
+
+But i'd rather like to see a Linux version of WAFL :-)
+
+ZFS didn't really impress me: 
+The Volume-Manager is nice but the Filesystem.. well: It beats UFS .. sometimes ;-)
+
+See also: http://spam.workaround.ch/dull/postmark.txt
+
+A quick'n'dirty ZFS-vs-UFS-vs-Reiser3-vs-Reiser4-vs-Ext3 'benchmark'
+
+
+
+Regards,
+ Adrian

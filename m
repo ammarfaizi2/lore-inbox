@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWGaAIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWGaATv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWGaAIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 20:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWGaAIZ
+	id S932482AbWGaATv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWGaATv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 20:08:25 -0400
-Received: from mx1.suse.de ([195.135.220.2]:29343 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932354AbWGaAIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 20:08:24 -0400
-Date: Sun, 30 Jul 2006 17:03:59 -0700
-From: Greg KH <greg@kroah.com>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       Andrew Morton <akpm@osdl.org>, andrew.j.wade@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
-Message-ID: <20060731000359.GB23220@kroah.com>
-References: <20060727015639.9c89db57.akpm@osdl.org> <20060727125655.f5f443ea.akpm@osdl.org> <20060727201255.GA9515@suse.de> <200607281033.06111.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <44CCBBC7.3070801@free.fr>
+	Sun, 30 Jul 2006 20:19:51 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:63875 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932482AbWGaATv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 20:19:51 -0400
+Subject: Re: ipw3945 status
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rene Rebe <rene@exactcode.de>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
+       Pavel Machek <pavel@suse.cz>, Jirka Lenost Benc <jbenc@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ipw2100-admin@linux.intel.com
+In-Reply-To: <1154303063.2318.12.camel@localhost.localdomain>
+References: <20060730104042.GE1920@elf.ucw.cz>
+	 <200607301937.15414.rene@exactcode.de>
+	 <1154282618.13635.41.camel@localhost>
+	 <200607302209.09735.rene@exactcode.de>
+	 <1154293333.13635.43.camel@localhost>
+	 <1154303063.2318.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 02:19:36 +0200
+Message-Id: <1154305176.13635.45.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44CCBBC7.3070801@free.fr>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 30, 2006 at 04:01:43PM +0200, Laurent Riffard wrote:
-> In this situation, udev (version 096 here) is unable to create these
-> device files (/dev/full, /dev/kmem, /dev/kmsg, etc.). /dev/null does
-> exist (with wrong permissions) because it has been created by the
-> initrd script.
+On Mon, 2006-07-31 at 00:44 +0100, Alan Cox wrote:
+> Ar Sul, 2006-07-30 am 23:02 +0200, ysgrifennodd Kasper Sandberg:
+> > or perhaps people should just not install/use stuff illegal in their
+> > country.
+> 
+> Most users really don't understand the issues around wireless and
+> country specific rules. Some wireless implementations also don't deal
+> with moving between countries live (as happens all the time today in
+> Europe).
+> 
+> That means as a distribution vendor its really important to ship people
+> something that by default does the right thing and the legal thing here.
+> If people want to recompile kernels or hack firmware thats their
+> business, but out of the box it should behave.
+as it will never do properly requiring a binary daemon, distributions
+are having a hard enough time to try and redistribute those firmwares
+where its legal, some even wont, but a userspace daemon is out of the
+question for most.
+> 
+> 
 
-Something's really broken with that version of udev then, because the
-094 version I have running here works just fine with these symlinks.
-
-> In order to get back the device files, I have to run the following
-> command:
-> # for f in /sys/class/mem/*/uevent; do echo 1 > $f; done
-
-Ah, ok, it sounds like it's not a bug in udev itself, but rather a bug
-in the way your distro does it's initialization of udev, at boot.  I
-suggest you file a bug with them, as they are known for doing this a bit
-differently than any other distro (and different from how the udev
-developers recommend), so they can fix it.  It's probably just a shell
-script issue.
-
-thanks,
-
-greg k-h

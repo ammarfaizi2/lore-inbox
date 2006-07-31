@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWGaUI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWGaUIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWGaUI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 16:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWGaUI1
+	id S932340AbWGaUIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 16:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWGaUIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 16:08:27 -0400
-Received: from cantor.suse.de ([195.135.220.2]:21963 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932449AbWGaUI0 (ORCPT
+	Mon, 31 Jul 2006 16:08:25 -0400
+Received: from mx2.suse.de ([195.135.220.15]:2457 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932340AbWGaUIZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 16:08:26 -0400
+	Mon, 31 Jul 2006 16:08:25 -0400
 From: Andi Kleen <ak@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] x86_64 built-in command line
-Date: Mon, 31 Jul 2006 22:07:58 +0200
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] x86_64: fix is_at_popf() for compat tasks
+Date: Mon, 31 Jul 2006 22:06:55 +0200
 User-Agent: KMail/1.9.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <20060731171442.GI6908@waste.org>
-In-Reply-To: <20060731171442.GI6908@waste.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Albert Cahalan <acahalan@gmail.com>
+References: <200607311302_MC3-1-C69F-F0D8@compuserve.com>
+In-Reply-To: <200607311302_MC3-1-C69F-F0D8@compuserve.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607312207.58999.ak@suse.de>
+Message-Id: <200607312206.55817.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  
-> +#ifdef CONFIG_CMDLINE_BOOL
-> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
-> +#endif
+ 
+> How about checking for regs->cs != __USER_CS instead?  In 64-bit mode
+> a program shouldn't have any other value there while in 32-bit mode
+> it could be using LDT segments.
 
-I think I would prefer a strcat.
 
-Also you should describe the exact behaviour (override/append) in Kconfig help.
-
+It could in theory, but it shouldn't agreed.  Added thanks.
 -Andi

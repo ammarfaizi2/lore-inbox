@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWGaSlT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWGaSlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWGaSlT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbWGaSlS
+	id S1030293AbWGaSlg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWGaSlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:41:18 -0400
-Received: from pat.uio.no ([129.240.10.4]:14056 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030308AbWGaSlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:41:18 -0400
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060731174659.72da734f@cad-250-152.norway.atmel.com>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-	 <20060731174659.72da734f@cad-250-152.norway.atmel.com>
-Content-Type: text/plain
-Date: Mon, 31 Jul 2006 11:40:58 -0700
-Message-Id: <1154371259.13744.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 31 Jul 2006 14:41:36 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:30215 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030312AbWGaSlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 14:41:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Qa/HiOH9JTccOBPcZ043YI6dVvVJL8EAb5X72meOFA+4Ii22xevVAnnxfs5VudFae4bbPCEM8acRDM3NCQhGPwK6b0dWygo29flbG/qHyWkY7E/znXMww+oEewvf0fuxKbkdQzVGqYn3iVYc2c+Ln9Ei4BVFzGXuQdEqPxlZjtg=
+From: Benjamin Cherian <benjamin.cherian.kernel@gmail.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Bug with USB proc_bulk in 2.4 kernel
+Date: Mon, 31 Jul 2006 11:41:28 -0700
+User-Agent: KMail/1.8.1
+Cc: w@1wt.eu, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <mailman.1152332281.24203.linux-kernel2news@redhat.com> <200607271521.38217.benjamin.cherian.kernel@gmail.com> <20060730003527.19bec8ce.zaitcev@redhat.com>
+In-Reply-To: <20060730003527.19bec8ce.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.214, required 12,
-	autolearn=disabled, AWL 1.79, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Disposition: inline
+Message-Id: <200607311141.29600.benjamin.cherian.kernel@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-31 at 17:46 +0200, Haavard Skinnemoen wrote:
-> On Mon, 31 Jul 2006 15:55:15 +0200
-> Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
-> 
-> > Anyway, 2.6.18-rc2-mm1 boots successfully on my target with these
-> > patches, but there's something strange going on with NFS and a few
-> > other things that I didn't notice on 2.6.18-rc1. I'll investigate
-> > some more and see if I can figure out what's going on.
-> 
-> All forms of write access to the NFS root file system seem to return
-> -EACCESS. If I leave out git-nfs.patch, the problem goes away, so I'll
-> try bisecting the NFS git tree tomorrow.
+Hi Pete,
 
-can you check in /proc/self/mountstats what mount options are set on the
-root file system?
+>How about now?
 
-> Is there anyway to access it via http?
+Much better! For me, everything seems to be working. No segfaults, and 
+everything seems to work.
 
-The individual patches are archived in
+Thanks,
 
-  http://client.linux-nfs.org/Linux-2.6.x/2.6.18-rc3/
-
-There is also gitweb access via
-
-  http://linux-nfs.org/cgi-bin/gitweb.cgi
-
-Cheers,
-  Trond
-
+Ben

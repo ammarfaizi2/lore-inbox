@@ -1,232 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWGaH1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWGaH3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWGaH1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 03:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWGaH1y
+	id S964808AbWGaH3E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 03:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWGaH3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 03:27:54 -0400
-Received: from mga08.intel.com ([134.134.136.24]:1294 "EHLO
-	orsmga102-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964771AbWGaH1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 03:27:52 -0400
-X-IronPort-AV: i="4.07,197,1151910000"; 
-   d="scan'208"; a="98951181:sNHT252895125"
-Subject: Re: [PATCH 4/4] PCI-Express AER implemetation: pcie_portdrv error
-	handler
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1154330492.27051.79.camel@ymzhang-perf.sh.intel.com>
-References: <1154330118.27051.73.camel@ymzhang-perf.sh.intel.com>
-	 <1154330319.27051.76.camel@ymzhang-perf.sh.intel.com>
-	 <1154330492.27051.79.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1154330776.27051.83.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 31 Jul 2006 15:26:16 +0800
+	Mon, 31 Jul 2006 03:29:04 -0400
+Received: from [219.153.9.10] ([219.153.9.10]:46029 "EHLO iblink.com.cn")
+	by vger.kernel.org with ESMTP id S964808AbWGaH3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 03:29:03 -0400
+Message-ID: <44CDB135.8080401@idccenter.cn>
+Date: Mon, 31 Jul 2006 15:28:53 +0800
+From: kernel <linux@idccenter.cn>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>, jdi@l4x.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: XFS Bug null pointer dereference in xfs_free_ag_extent
+References: <44BF29CD.1000809@l4x.org> <44CB0BF7.6030204@idccenter.cn> <44CB1303.7010303@l4x.org> <20060731094424.E2280998@wobbly.melbourne.sgi.com> <44CDA156.6000105@idccenter.cn> <20060731165522.K2280998@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060731165522.K2280998@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=GB18030; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+I format the same partition and restart the testing server before each 
+testing.
+I'vs tested on each format at least twenty times.
+With XFS and SAN, This crash happens on every bonnie++ testing.
 
-Patch 4 implements error handlers for pcie_portdrv.
+And I have tested such things on another mathine, results are same.
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
----
-
---- linux-2.6.18-rc3/drivers/pci/pcie/portdrv_pci.c	2006-07-31 14:38:48.000000000 +0800
-+++ linux-2.6.18-rc3_aer/drivers/pci/pcie/portdrv_pci.c	2006-07-31 14:43:34.000000000 +0800
-@@ -14,8 +14,10 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/pcieport_if.h>
-+#include <linux/aer.h>
- 
- #include "portdrv.h"
-+#include "aer/aerdrv.h"
- 
- /*
-  * Version Information
-@@ -76,6 +78,10 @@ static int __devinit pcie_portdrv_probe 
- 	if (pcie_port_device_register(dev)) 
- 		return -ENOMEM;
- 
-+	pcie_portdrv_save_config(dev);
-+
-+	pci_enable_pcie_error_reporting(dev);
-+
- 	return 0;
- }
- 
-@@ -102,6 +108,144 @@ static int pcie_portdrv_resume (struct p
- }
- #endif
- 
-+static int error_detected_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	struct aer_broadcast_data *result_data;
-+	pci_ers_result_t status;
-+
-+	result_data = (struct aer_broadcast_data *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (!driver ||
-+			!driver->err_handler ||
-+			!driver->err_handler->error_detected)
-+			return 0;
-+
-+		pcie_device = to_pcie_device(device);
-+
-+		/* Forward error detected message to service drivers */
-+		status = driver->err_handler->error_detected(
-+			pcie_device->port,
-+			result_data->state);
-+		result_data->result =
-+			merge_result(result_data->result, status);
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
-+					enum pci_channel_state error)
-+{
-+	struct aer_broadcast_data result_data =
-+			{error, PCI_ERS_RESULT_CAN_RECOVER};
-+	
-+	device_for_each_child(&dev->dev, &result_data, error_detected_iter);
-+
-+	return result_data.result;
-+}
-+
-+static int mmio_enabled_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->mmio_enabled) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->mmio_enabled(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_mmio_enabled(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
-+
-+	device_for_each_child(&dev->dev, &status, mmio_enabled_iter);
-+	return status;
-+}
-+
-+static int slot_reset_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->slot_reset) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->slot_reset(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status;
-+
-+	/* If fatal, restore cfg space for possible link reset at upstream */
-+	if (dev->error_state == pci_channel_io_frozen) {
-+		pcie_portdrv_restore_config(dev);
-+		pci_enable_pcie_error_reporting(dev);
-+	}
-+
-+	device_for_each_child(&dev->dev, &status, slot_reset_iter);
-+
-+	return status;
-+}
-+
-+static int resume_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->resume) { 
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			driver->err_handler->resume(pcie_device->port);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void pcie_portdrv_err_resume(struct pci_dev *dev)
-+{
-+	device_for_each_child(&dev->dev, NULL, resume_iter);
-+}
-+
- /*
-  * LINUX Device Driver Model
-  */
-@@ -112,6 +256,13 @@ static const struct pci_device_id port_p
- };
- MODULE_DEVICE_TABLE(pci, port_pci_ids);
- 
-+static struct pci_error_handlers pcie_portdrv_err_handler = {
-+		.error_detected = pcie_portdrv_error_detected,
-+		.mmio_enabled = pcie_portdrv_mmio_enabled,
-+		.slot_reset = pcie_portdrv_slot_reset,
-+		.resume = pcie_portdrv_err_resume,
-+};
-+
- static struct pci_driver pcie_portdrv = {
- 	.name		= (char *)device_name,
- 	.id_table	= &port_pci_ids[0],
-@@ -123,6 +274,8 @@ static struct pci_driver pcie_portdrv = 
- 	.suspend	= pcie_portdrv_suspend,
- 	.resume		= pcie_portdrv_resume,
- #endif	/* PM */
-+
-+	.err_handler 	= &pcie_portdrv_err_handler,
- };
- 
- static int __init pcie_portdrv_init(void)
+Nathan Scott wrote:
+> On Mon, Jul 31, 2006 at 02:21:10PM +0800, kernel wrote:
+>   
+>> Test again......very strange.
+>> I can easily reproduce it on the XFS with SAN(FLX380) connected with a 
+>> qlogic 2400 FC card.
+>>     
+>
+> Eggshellent... can you reproduce it with each of those changes
+> (below) backed out of your tree please?  Else, git bisect is our
+> next best bet.  Thanks!
+>
+>   
+>>> Is this easily reproducible for you?  I've not seen it before, and
+>>> the only possibly related recent changes I can think of are these:
+>>>
+>>> http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e63a3690013a475746ad2cea998ebb534d825704
+>>>
+>>> http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=d210a28cd851082cec9b282443f8cc0e6fc09830
+>>>
+>>> Could you try reverting each of those to see if either is the cause?
+>>>       
+>
+> cheers.
+>
+>   

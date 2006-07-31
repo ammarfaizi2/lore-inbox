@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHBOaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWHBOaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWHBOaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 10:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWHBOaQ
+	id S1750886AbWHBOaa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 10:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWHBOaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 10:30:16 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:37908 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750885AbWHBOaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 10:30:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=uC1+bytvtXGhq2vFbr6Pqvn2ecgsk7p+Om/aWb5umsnDWTmViqmW6CdpCg6CDitNdVuUn056Gbbk9/GrM46OI1ZEFa4PQpNxFvPmdcTNIRwiQeZAg9yt5vDP5BCHJY4Z/pFacZxlUiMuLXDmbpfpABxcYrn6yTqF1RYaEfCcoRQ=
-Date: Wed, 2 Aug 2006 16:30:04 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: akpm@osdl.org
-Cc: jayakumar.video@gmail.com, linux-kernel@vger.kernel.org
-Subject: [PATCH]: quickcam_messenger compilation fix
-Message-Id: <20060802163004.6ebf2cd7.diegocg@gmail.com>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Wed, 2 Aug 2006 10:30:30 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:60331 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S1751023AbWHBOa3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 10:30:29 -0400
+Message-ID: <10cc45b5e79.primi_lott@virgilio.it>
+Date: Mon, 31 Jul 2006 12:32:37 +0100 (GMT+01:00)
+From: <primi_lott@virgilio.it>
+Reply-To: <primi_lott@virgilio.it>
+Subject: LOTERIA PRIMITIVA,
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;charset="UTF-8"
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: 88.11.151.70
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In bugzilla #6943, Maxim Britov reported:
+LOTERIA PRIMITIVA,
+Gregorio Herrraez 15
+Postcode 28033
+Barcelona
+Spain
 
-"I can enable Logitech quickcam support in .config, but it want be compile.
-I have to add into drivers/media/video/Makefile:
-obj-$(CONFIG_USB_QUICKCAM_MESSENGER)    += usbvideo/"
+REF NO; ILPB642857301,
+Ticket No; 483752202CH.
+In view of the yearly 
+sweepstake of the above named organization held 
+on the 31th  of July 
+2006. It is my pleasure to inform you that your e-mail 
+address 
+attached to the above ballot No came up in the third stake.
+This 
+invariably means that you have emerged as the prize recipient in
+the 
+third category with an allocated sum of One Million United States 
+Dollars (US$1, 000, 00:00) in the open ballot device.
+Be informed that 
+all participants were selected from a random computing ballot system...
+For immediate release of your cash prize, kindly contact our Paying 
+Bank. 
+MR. ALEX DIMAS {Claims Supervisor}
+TEL: + 34 696 823 199
+EMAIL: 
+cajassup@consultant.com
+C/ARROYO DE LA MIEL 
+28007 MADRID ESPANA
+WEBSITE: WWW.CAJAMADRID.ES
 
-He's right, just enable that driver as module while disabling every other
-driver that gets into that directory, nothing will get compiled.
-This patch fixes the Makefile.
+Congratulations once again.
+Yours 
+Faithfully,
 
-Signed-off-by: Diego Calleja <diegocg@gmail.com>
+Dr. Eva .C. Vicente
+Coordinator
 
-Index: 2.6/drivers/media/video/Makefile
-===================================================================
---- 2.6.orig/drivers/media/video/Makefile	2006-08-02 16:22:40.000000000 +0200
-+++ 2.6/drivers/media/video/Makefile	2006-08-02 16:22:51.000000000 +0200
-@@ -91,6 +91,7 @@
- obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
- obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
- obj-$(CONFIG_USB_VICAM)         += usbvideo/
-+obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
- 
- obj-$(CONFIG_VIDEO_VIVI) += vivi.o
- 
+
+

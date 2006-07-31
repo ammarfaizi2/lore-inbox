@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWGaMnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWGaMtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWGaMnE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 08:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWGaMnE
+	id S1751104AbWGaMtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 08:49:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWGaMtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 08:43:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54480 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932189AbWGaMnC (ORCPT
+	Mon, 31 Jul 2006 08:49:08 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:30304 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S1751091AbWGaMtH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 08:43:02 -0400
-Date: Mon, 31 Jul 2006 14:42:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: [RFC] GPU device layer patchset (00/07)
-Message-ID: <20060731124248.GA3257@elf.ucw.cz>
-References: <11535827134076-git-send-email-airlied@linux.ie> <44C253BB.10704@garzik.org> <Pine.LNX.4.64.0607221753390.5320@skynet.skynet.ie>
-MIME-Version: 1.0
+	Mon, 31 Jul 2006 08:49:07 -0400
+Date: Mon, 31 Jul 2006 16:57:02 +0400
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH]: ufs: ufs_get_locked_patch race fix
+Message-ID: <20060731125702.GA5094@rain>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0607221753390.5320@skynet.skynet.ie>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+As discussed earlier:
+http://lkml.org/lkml/2006/6/28/136
+this patch fixes such issue:
+`ufs_get_locked_page' takes page from cache
+after that `vmtruncate' takes page and deletes it from cache
+`ufs_get_locked_page' locks page, and reports about EIO error.
 
-> >Where can I find more info on why this might be nice?
-> >Or simply more info on what this actually does for me?
-> 
-> It does nothing for you yet, it is just step one for getting the DRM and 
-> framebuffer drivers to co-exist in the driver model world, with the next 
-> step being allowing a channel of communication between the two layers with 
-> a view that later I can ask the DRM to disable fbdev or pass info to it..
-> 
-> Why do we not want fbdev and DRM in one driver? as it would break way too 
-> many existing systems..
-> 
-> It also allows DRM to get called at suspend/resume time.
+Also because of find_lock_page always return valid page or NULL,
+we have no need check it if page not NULL.
 
-Looks good to me. I guess I should get DRM working...
+Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
 
-I actually tried a bit, and got some reasonably-recent Xserver here,
-but now I get
 
-root@amd:/home/pavel# glxinfo
-name of display: :0.0
+---
 
-ERROR!  sizeof(I830DRIRec) does not match passed size from device
-driver
-libGL warning: 3D driver returned no fbconfigs.
-libGL error: InitDriver failed
-libGL error: reverting to (slow) indirect rendering
-display: :0  screen: 0
-direct rendering: No
-server glx vendor string: SGI
-server glx version string: 1.2
-server glx extensions:
 
-:-(
-									Pavel
+Index: linux-2.6.18-rc2-mm1/fs/ufs/util.c
+===================================================================
+--- linux-2.6.18-rc2-mm1.orig/fs/ufs/util.c
++++ linux-2.6.18-rc2-mm1/fs/ufs/util.c
+@@ -257,6 +257,7 @@ try_again:
+ 		page = read_cache_page(mapping, index,
+ 				       (filler_t*)mapping->a_ops->readpage,
+ 				       NULL);
++
+ 		if (IS_ERR(page)) {
+ 			printk(KERN_ERR "ufs_change_blocknr: "
+ 			       "read_cache_page error: ino %lu, index: %lu\n",
+@@ -266,6 +267,13 @@ try_again:
+ 
+ 		lock_page(page);
+ 
++		if (unlikely(page->mapping != mapping ||
++			     page->index != index)) {
++			unlock_page(page);
++			page_cache_release(page);
++			goto try_again;
++		}
++
+ 		if (!PageUptodate(page) || PageError(page)) {
+ 			unlock_page(page);
+ 			page_cache_release(page);
+@@ -275,15 +283,8 @@ try_again:
+ 			       mapping->host->i_ino, index);
+ 
+ 			page = ERR_PTR(-EIO);
+-			goto out;
+ 		}
+ 	}
+-
+-	if (unlikely(!page->mapping || !page_has_buffers(page))) {
+-		unlock_page(page);
+-		page_cache_release(page);
+-		goto try_again;/*we really need these buffers*/
+-	}
+ out:
+ 	return page;
+ }
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+/Evgeniy
+

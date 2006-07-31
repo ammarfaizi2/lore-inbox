@@ -1,43 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWGaKgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWGaKgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751511AbWGaKgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 06:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWGaKgX
+	id S1751510AbWGaKgk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 06:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWGaKgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 06:36:23 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:47632 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751507AbWGaKgW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 06:36:22 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: johnpol@2ka.mipt.ru (Evgeniy Polyakov)
-Subject: Re: [RFC 1/4] kevent: core files.
-Cc: drepper@redhat.com, zach.brown@oracle.com, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Organization: Core
-In-Reply-To: <20060731103322.GA1898@2ka.mipt.ru>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
-Message-Id: <E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
-Date: Mon, 31 Jul 2006 20:35:55 +1000
+	Mon, 31 Jul 2006 06:36:40 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:15862 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751510AbWGaKgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 06:36:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GVyZpMqbM/S6dAV4lty4jc0jaidRu/QnraQ92X26+j/gyVBUu+ypShbr6PinFFwwg7ERhioKal20pZAdU4FVoqLoWqIIS2zRY5+8DYR/SdGY8VluTrKBiXlpsEE0WEu8p8U4wepzvIaeRkaDKsRqu+HXp/DL1W7/3CtOJtibOGY=
+Message-ID: <6e0cfd1d0607310336o355693a5l939db098b9210d81@mail.gmail.com>
+Date: Mon, 31 Jul 2006 12:36:38 +0200
+From: "Martin Schwidefsky" <schwidefsky@googlemail.com>
+To: "Atsushi Nemoto" <anemo@mba.ocn.ne.jp>
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64 aliasing problem)
+Cc: johnstul@us.ibm.com, akpm@osdl.org, zippel@linux-m68k.org,
+       clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       ralf@linux-mips.org, ak@muc.de
+In-Reply-To: <20060730.235403.108306254.anemo@mba.ocn.ne.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060302190408.1e754f12.akpm@osdl.org>
+	 <1141417048.9727.60.camel@cog.beaverton.ibm.com>
+	 <20060305.021542.126141997.anemo@mba.ocn.ne.jp>
+	 <20060730.235403.108306254.anemo@mba.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+On 7/30/06, Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+> diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+> index 7a9b182..298027f 100644
+> --- a/arch/x86_64/kernel/time.c
+> +++ b/arch/x86_64/kernel/time.c
+> @@ -423,7 +423,8 @@ #endif
 >
->> - if there is space, report it in the ring buffer.  Yes, the buffer
->>   can be optional, then all events are reported by the system call.
-> 
-> That requires a copy, which can neglect syscall overhead.
-> Do we really want it to be done?
+>         if (lost > 0) {
+>                 handle_lost_ticks(lost, regs);
+> -               jiffies += lost;
+> +               while (lost--)
+> +                       do_timer(regs);
+>         }
+>
+>  /*
 
-Please note that we're talking about events here, not actual data.  So
-only the event is being copied, which is presumably rather small compared
-to the data.
+I think that this is going into the wrong direction. There are a
+number of architectures that call do_timer(regs) in a while loop. It
+would be much nicer if do_timer would get the number of passed ticks
+as an argument. And the "regs" argument to do_timer is just useless.
 
-Cheers,
+> diff --git a/kernel/timer.c b/kernel/timer.c
+> index 05809c2..3981cae 100644
+> --- a/kernel/timer.c
+> +++ b/kernel/timer.c
+> @@ -1267,12 +1267,9 @@ void run_local_timers(void)
+>   */
+>  static inline void update_times(void)
+>  {
+> -       unsigned long ticks;
+> -
+> -       ticks = jiffies - wall_jiffies;
+> -       wall_jiffies += ticks;
+> +       wall_jiffies++;
+>         update_wall_time();
+> -       calc_load(ticks);
+> +       calc_load(1);
+>  }
+>
+>  /*
+
+Pass "ticks" from do_timer and do "wall_jiffies += ticks". To make
+calc_load work correctly the  "if (count < 0)" in calc_load needs to
+be replaced with "while (count < 0)".
+
+> @@ -1284,8 +1281,6 @@ static inline void update_times(void)
+>  void do_timer(struct pt_regs *regs)
+>  {
+>         jiffies_64++;
+> -       /* prevent loading jiffies before storing new jiffies_64 value. */
+> -       barrier();
+>         update_times();
+>  }
+>
+
+Change do_timer and make architectures to pass "ticks", do "jiffies64
++= ticks" and add ticks to the call of update_times.
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+blue skies,
+  Martin

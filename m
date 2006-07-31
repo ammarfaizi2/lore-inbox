@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWGaIEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWGaIJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWGaIEi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 04:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWGaIEh
+	id S964832AbWGaIJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 04:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWGaIJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 04:04:37 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:59360 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP id S964818AbWGaIEg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 04:04:36 -0400
-From: Christian Borntraeger <borntrae@de.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] bug in futex unqueue_me
-Date: Mon, 31 Jul 2006 10:04:15 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@timesys.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-References: <200607271841.56342.borntrae@de.ibm.com> <20060730063821.GA8748@elte.hu>
-In-Reply-To: <20060730063821.GA8748@elte.hu>
+	Mon, 31 Jul 2006 04:09:57 -0400
+Received: from smtp3-g19.free.fr ([212.27.42.29]:31404 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S964832AbWGaIJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 04:09:56 -0400
+Message-ID: <44CDBAF6.8050506@free.fr>
+Date: Mon, 31 Jul 2006 10:10:30 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.8.0.4) Gecko/20060405 SeaMonkey/1.0.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200607311004.15878.borntrae@de.ibm.com>
+To: Greg KH <greg@kroah.com>
+CC: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Andrew Morton <akpm@osdl.org>, andrew.j.wade@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+References: <20060727015639.9c89db57.akpm@osdl.org> <44CCBBC7.3070801@free.fr> <20060731000359.GB23220@kroah.com> <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060731033757.GA13737@kroah.com>
+In-Reply-To: <20060731033757.GA13737@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 July 2006 08:38, Ingo Molnar wrote:
-> interesting, how is this possible? We do a spin_lock(lock_ptr), and
-> taking a spinlock is an implicit barrier(). So gcc must not delay
-> evaluating lock_ptr to inside the critical section. And as far as i can
-> see the s390 spinlock implementation goes through an 'asm volatile'
-> piece of code, which is a barrier already. So how could this have
-> happened?
+Le 31.07.2006 05:37, Greg KH a écrit :
+> On Sun, Jul 30, 2006 at 10:27:06PM -0400, Andrew James Wade wrote:
+>> On Sunday 30 July 2006 20:03, Greg KH wrote:
+>>> Something's really broken with that version of udev then, because the
+>>> 094 version I have running here works just fine with these symlinks.
+>> Maybe, but some really odd things were happening in /sys with the
+>> patch. I could still follow the bogus symlinks. More than that
+>>
+>> /sys/class/mem/mem$ cd ../../class
+>> and
+>> /sys/class/mem/mem$ cd ../..
+>>
+>> _both_ ended up with a $PWD of /sys/class.
+> 
+> Ick, ok, the problem is that my "virtual device" patch isn't in my
+> "public" patch set that Andrew pulls from.  It will fix this issue up.
+> I'll work on cleaning it up to be used by everyone tomorrow and move it
+> to the tree that Andrew pulls from.  Then the next -mm release should
+> have this issue fixed.
+> 
+> If you want to verify this, please apply the patch at:
+> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/device-virtual.patch
+> and let me know if it solves your issue (note that the reference
+> counting is not completly correct in that patch, that's why I haven't
+> unleashed it on -mm yet.)
 
-spin_lock is a barrier, but isnt the barrierness too late here? The compiler 
-reloads the value of lock_ptr after the "if(lock_ptr)" and *before* calling 
-spin_lock(lock_ptr):
-     3ee:       e3 c0 b0 28 00 04       lg      %r12,40(%r11)
-				q->lockptr in r12
-     3f4:       b9 02 00 cc             ltgr    %r12,%r12
-				load and test r12
-     3f8:       a7 84 00 4b             je      48e <unqueue_me+0xc6>
-				if r12 == 0 jump away
-     3fc:       e3 20 b0 28 00 04       lg      %r2,40(%r11)
-				q->lockptr in r2
-     402:       c0 e5 00 00 00 00       brasl   %r14,402 <unqueue_me+0x3a>
-                        404: R_390_PC32DBL      _spin_lock+0x2
-				call spinlock (r2 is first parameter)
+device-virtual.patch won't apply on top of 2.6.18-rc2-mm1:
 
+linux-2.6-mm$ head -4 Makefile
+VERSION = 2
+PATCHLEVEL = 6
+SUBLEVEL = 18
+EXTRAVERSION = -rc2-mm1
 
-I really dont know why the compiler reloads lock_ptr from memory at all, but I 
-will talk to our compiler guys to find out. 
+linux-2.6-mm$ quilt pop -a
+Aucun patch retiré
 
-
-> I have nothing against adding a barrier(), but we should first 
-> investigate why the spin_lock() didnt act as a barrier - there might be
-> other, similar bugs hiding. (we rely on spin_lock()s barrier-ness in a
-> fair number of places)
-See above. I think the barrier must be before "if(lock_ptr)" and not 
-afterwards. 
-
-> yes, it is always a pointer to a valid spinlock, or NULL.
-> futex_requeue() can change the spinlock from one to another, and
-> wake_futex() can change it to NULL. The futex unqueue_me() fastpath is
-> when a futex waiter was woken - in which case it's NULL. But it can
-> still be non-NULL if we timed out or a signal happened, in which case we
-> may race with a wakeup or a requeue. futex_requeue() changes the
-> spinlock pointer if it holds both the old and the new spinlock. So it's
-> race-free as far as i can see.
-Ok, looks fine then. 
+linux-2.6-mm$ quilt push
+Application de patches/device-virtual.patch
+patching file drivers/base/Makefile
+patching file drivers/base/base.h
+Hunk #1 succeeded at 44 (offset 1 line).
+patching file drivers/base/core.c
+Hunk #1 succeeded at 434 (offset 60 lines).
+Hunk #2 FAILED at 486.
+Hunk #3 succeeded at 615 (offset 61 lines).
+1 out of 3 hunks FAILED -- rejects in file drivers/base/core.c
+patching file drivers/base/virtual.c
+patching file include/linux/device.h
+Hunk #1 succeeded at 356 (offset 5 lines).
+Le patch patches/device-virtual.patch ne s'applique pas proprement
+(forcez l'application avec -f)
 
 -- 
-Mit freundlichen Grüßen / Best Regards
-
-Christian Borntraeger
-Linux Software Engineer zSeries Linux & Virtualization
-
-
-
+laurent

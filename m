@@ -1,108 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWGaVsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWGaVuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030479AbWGaVsP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 17:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030481AbWGaVsP
+	id S1030480AbWGaVuW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030483AbWGaVuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 17:48:15 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:41155 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1030479AbWGaVsO (ORCPT
+	Mon, 31 Jul 2006 17:50:22 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:44755 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030480AbWGaVuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 17:48:14 -0400
-Message-ID: <44CE7A9B.8020508@dgreaves.com>
-Date: Mon, 31 Jul 2006 22:48:11 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
+	Mon, 31 Jul 2006 17:50:21 -0400
+Message-ID: <44CE7B0E.30805@sgi.com>
+Date: Mon, 31 Jul 2006 14:50:06 -0700
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: Neil Brown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: let md auto-detect 128+ raid members, fix potential race condition
-References: <ork65veg2y.fsf@free.oliva.athome.lsd.ic.unicamp.br>	<20060730124139.45861b47.akpm@osdl.org>	<orac6qerr4.fsf@free.oliva.athome.lsd.ic.unicamp.br>	<17613.16090.470524.736889@cse.unsw.edu.au> <ord5blcyg0.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-In-Reply-To: <ord5blcyg0.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Balbir Singh <balbir@in.ibm.com>, Jes Sorensen <jes@sgi.com>,
+       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
+Subject: Re: [patch 1/3] add basic accounting fields to taskstats
+References: <44CE57EF.2090409@sgi.com> <44CE66C3.7020804@watson.ibm.com>
+In-Reply-To: <44CE66C3.7020804@watson.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexandre Oliva wrote:
-> On Jul 30, 2006, Neil Brown <neilb@suse.de> wrote:
+Shailabh Nagar wrote:
+> Jay Lan wrote:
 > 
->>  1/
->>     It just isn't "right".  We don't mount filesystems from partitions
->>     just because they have type 'Linux'.  We don't enable swap on
->>     partitions just because they have type 'Linux swap'.  So why do we
->>     assemble md/raid from partitions that have type 'Linux raid
->>     autodetect'? 
+>>This patch adds a few basic accounting fields to the taskstat
+>>struct and a bacct_add_tsk() routine to fill the data on
+>>exit.
+>>
+>>
+>>Signed-off-by: Jay Lan <jlan@sgi.com>
+>>
+>>
+>>------------------------------------------------------------------------
+>>
+>>Index: linux/include/linux/taskstats.h
+>>===================================================================
+>>--- linux.orig/include/linux/taskstats.h	2006-07-31 11:38:54.132326042 -0700
+>>+++ linux/include/linux/taskstats.h	2006-07-31 11:42:10.634609610 -0700
+>>@@ -2,6 +2,7 @@
+>>  *
+>>  * Copyright (C) Shailabh Nagar, IBM Corp. 2006
+>>  *           (C) Balbir Singh,   IBM Corp. 2006
+>>+ *           (C) Jay Lan,        SGI, 2006
+>>  *
+>>  * This program is free software; you can redistribute it and/or modify it
+>>  * under the terms of version 2.1 of the GNU Lesser General Public License
+>>@@ -29,13 +30,18 @@
+>>  *	c) add new fields after version comment; maintain 64-bit alignment
+>>  */
+>> 
+>>-#define TASKSTATS_VERSION	1
+>>+#define TASKSTATS_VERSION	2
+>>+#define TASK_COMM_LEN		16
+>> 
+>> struct taskstats {
+>> 
+>> 	/* Version 1 */
+>> 	__u16	version;
+>>-	__u16	padding[3];	/* Userspace should not interpret the padding
+>>+	__u8	ac_flag;	/* Record flags */
+>>+	__u8	ac_nice;	/* task_nice */
+>>+	__u8	ac_sched;	/* Scheduling discipline */
+>>+	__u8	ac_pad;
 > 
-> Similar reason to why vgscan finds and attempts to use any partitions
-> that have the appropriate type/signature (difference being that raid
-> auto-detect looks at the actual partition type, whereas vgscan looks
-> at the actual data, just like mdadm, IIRC): when you have to bootstrap
-> from an initrd, you don't want to be forced to have the correct data
-> in the initrd image, since then any reconfiguration requires the info
-> to be introduced in the initrd image before the machine goes down.
-> Sometimes, especially in case of disk failures, you just can't do
-> that.
 > 
-This debate is not about generic autodetection - a good thing (tm) - but
- in-kernel vs userspace autodetection.
+> [Minor comment] The choice of fields to fill the padding is visually separate
+> from the delay accounting fields which follow. Can a single field of the same
+> length, say ac_uid, be put here instead ?
 
-Your example supports Neil's case - the proposal is to use initrd to run
-mdadm which thne (kinda) does what vgscan does.
-
+You are right. I will replace those __u8 fields with the exitcode.
 
 > 
->> So my preferred solution to the problem is to tell people not to use
-(in kernel)
->> autodetect.  Quite possibly this should be documented in the code, and
->> maybe even have a KERN_INFO message if more than 64 devices are
->> autodetected. 
 > 
-> I wouldn't have a problem with that, since then distros would probably
-> switch to a more recommended mechanism that works just as well, i.e.,
-> ideally without requiring initrd-regeneration after reconfigurations
-> such as adding one more raid device to the logical volume group
-> containing the root filesystem.
-That's supported in today's mdadm.
+> Also, is the ac_ prefix needed for the common fields like comm, uid, gid, pid
+> that are pretty much coming straight out of task_struct ?
 
-look at --uuid and --name
+And the GNU accounting use the ac_ prefix as well...
+I lean to keep ac_ prefix so that people can link those fields to those
+in the task_struct. However, i am fine with either way. Let's see if
+there is other opinions on the prefix.
 
->> So:  Do you *really* need to *fix* this, or can you just use 'mdadm'
->> to assemble you arrays instead?
 > 
-> I'm not sure.  I'd expect not to need it, but the limited feature
-> currently in place, that initrd uses to bring up the raid1 devices
-> containing the physical volumes that form the volume group where the
-> logical volume with my root filesystem is also brings up various raid6
-> physical volumes that form an unrelated volume group, and it does so
-> in such a way that the last of them, containing the 128th fd-type
-> partition in the box, ends up being left out, so the raid device it's
-> a member of is brought up either degraded or missing the spare member,
-> none of which are good.
 > 
-> I don't know that I can easily get initrd to replace nash's
-> raidautorun for mdadm unless mdadm has a mode to bring up any arrays
-> it can find, as opposed to bringing up a specific array out of a given
-> list of members or scanning for members.  Either way, this won't fix
-> the problem 2) that you mentioned, but requiring initrd-regeneration
-> after extending the volume group containing the root device is another
-> problem that the current modes of operation of mdadm AFAIK won't
-> contemplate, so switching to it will trade one problem for another,
-> and the latter is IMHO more common than the former.
+>>+	__u16	padding;	/* Userspace should not interpret the padding
+> 
+> 
+> Combine the padding's ?
+> 
+> 
+>> 				 * field which can be replaced by useful
+>> 				 * fields if struct taskstats is extended.
+>> 				 */
+>>@@ -88,6 +94,19 @@ struct taskstats {
+>> 	__u64	cpu_run_virtual_total;
+>> 	/* Delay accounting fields end */
+>> 	/* version 1 ends here */
+>>+
+>>+	/* Basic Accounting Fields start */
+>>+	char	ac_comm[TASK_COMM_LEN];	/* Command name */
+>>+	__u32	ac_exitcode;		/* Exit status */
+>>+	__u32	ac_uid;			/* User ID */
+>>+	__u32	ac_gid;			/* Group ID */
+>>+	__u32	ac_pid;			/* Process ID */
+>>+	__u32	ac_ppid;		/* Parent process ID */
+>>+	__u32	ac_btime;		/* Begin time [sec sinec 1970] */
+> 
+> 
+> s/sinec/since
+
+Good eyes! :)
+
+
+> 
+> 
+>>+	__u64	ac_etime;		/* Elapsed time [usec] */
+>>+	__u64	ac_utime;		/* User CPU time [usec] */
+>>+	__u64	ac_stime;		/* SYstem CPU time [usec] */
+>>+	/* Basic Accounting Fields end */
+>> };
+>> 
+>> 
+>>Index: linux/kernel/taskstats.c
+>>===================================================================
+>>--- linux.orig/kernel/taskstats.c	2006-07-31 11:38:54.160326367 -0700
+>>+++ linux/kernel/taskstats.c	2006-07-31 11:44:54.952523699 -0700
+>>@@ -3,6 +3,7 @@
+>>  *
+>>  * Copyright (C) Shailabh Nagar, IBM Corp. 2006
+>>  *           (C) Balbir Singh,   IBM Corp. 2006
+>>+ *           (C) Jay Lan,        SGI, 2006
+>>  *
+>>  * This program is free software; you can redistribute it and/or modify
+>>  * it under the terms of the GNU General Public License as published by
+>>@@ -18,6 +19,7 @@
+>> 
+>> #include <linux/kernel.h>
+>> #include <linux/taskstats_kern.h>
+>>+#include <linux/acct.h>
+>> #include <linux/delayacct.h>
+>> #include <linux/cpumask.h>
+>> #include <linux/percpu.h>
+>>@@ -172,6 +174,53 @@ static void send_cpu_listeners(struct sk
+>> 	up_write(&listeners->sem);
+>> }
+>> 
+>>+
+>>+#define USEC_PER_TICK	(USEC_PER_SEC/HZ)
+>>+/*
+>>+ * fill in basic accounting fields
+>>+ */
+>>+static void bacct_add_tsk(struct taskstats *stats, struct task_struct *tsk)
+>>+{
+>>+	u64	run_time;
+>>+	struct timespec uptime;
+>>+
+>>+	/* calculate run_time in nsec */
+>>+	do_posix_clock_monotonic_gettime(&uptime);
+> 
+> 
+> 
+>>+	run_time = (u64)uptime.tv_sec*NSEC_PER_SEC + uptime.tv_nsec;
+>>+	run_time -= (u64)current->group_leader->start_time.tv_sec * NSEC_PER_SEC
+>>+			+ current->group_leader->start_time.tv_nsec;
+>>+	do_div(run_time, NSEC_PER_USEC);	/* rebase run_time to usec */
+>>+	stats->ac_etime = run_time;
+>>+	do_div(run_time, USEC_PER_SEC);		/* rebase run_time to sec */
+>>+	stats->ac_btime = xtime.tv_sec - run_time;
+> 
+> 
+> Above chunk can be written more succintly using the new timespec_sub
+> function added.
+> 
+> ts = timespec_sub(&current->group_leader->start_time, &uptime);
+
+It should be
+   ts = timespec_sub(&uptime, &current->group_leader->start_time);
+
+> stats->ac_etime = timespec_to_ns(&ts);
+
+No, ac_etime is in microseconds, not nanoseconds.
+
+> stats->ac_btime = xtime.tv_sec - ts.tv_sec;
+
+This is correct.
+
+> 
+> Also, if there's any chance of run_time going negative due to overflow, that
+> needs to be handled in both original and succinct code (in latter you can
+> check for ts->tv_sec being negative).
+
+The type of timespec->tv_sec is of type 'int'. It will takes 68 years
+for an int to wrap wround. Most kernel code are not ready to deal with
+it yet.
+
+> 
+> 
+>>+	if (thread_group_leader(tsk)) {
+>>+		stats->ac_exitcode = tsk->exit_code;
+>>+		if (tsk->flags & PF_FORKNOEXEC)
+>>+			stats->ac_flag |= AFORK;
+>>+	}
+>>+	if (tsk->flags & PF_SUPERPRIV)
+>>+		stats->ac_flag |= ASU;
+>>+	if (tsk->flags & PF_DUMPCORE)
+>>+		stats->ac_flag |= ACORE;
+>>+	if (tsk->flags & PF_SIGNALED)
+>>+		stats->ac_flag |= AXSIG;
+>>+	stats->ac_nice	= task_nice(tsk);
+>>+	stats->ac_sched	= tsk->policy;
+>>+	stats->ac_uid	= tsk->uid;
+>>+	stats->ac_gid	= tsk->gid;
+>>+	stats->ac_pid	= tsk->pid;
+>>+	stats->ac_ppid	= (tsk->parent) ? tsk->parent->pid : 0;
+>>+	stats->ac_utime	= tsk->utime * USEC_PER_TICK;
+>>+	stats->ac_stime	= tsk->stime * USEC_PER_TICK;
+>>+	/* Each process gets a minimum of a half tick cpu time */
+>>+	if ((stats->ac_utime == 0) && (stats->ac_stime == 0)) {
+>>+		stats->ac_stime = USEC_PER_TICK/2;
+>>+	}
+>>+
+>>+	strncpy(stats->ac_comm, tsk->comm, sizeof(stats->ac_comm));
+>>+}
+>>+
+>>+
+>> static int fill_pid(pid_t pid, struct task_struct *pidtsk,
+>> 		struct taskstats *stats)
+>> {
+>>@@ -200,6 +249,9 @@ static int fill_pid(pid_t pid, struct ta
+>> 	delayacct_add_tsk(stats, tsk);
+>> 	stats->version = TASKSTATS_VERSION;
+>> 
+>>+	/* fill in basic acct fields */
+>>+	bacct_add_tsk(stats, tsk);
+>>+
+> 
+> 
+> Should be added before stats->version is filled since that is
+> a generic field, not delay accounting specific.
+
+Will do. Thanks!
+
+
+Regards,
+  - jay
+
+> 
+> 
+>> 	/* Define err: label here if needed */
+>> 	put_task_struct(tsk);
+>> 	return rc;
+>>
+> 
 > 
 
-I think you should name your raid1 (maybe "hostname-root") and use
-initrd to bring it up by --name using:
- mdadm --assemble --scan --config partitions --name hostname-root
-
-
-It could also, later in the boot process, bring up "hostname-raid6" by
---name too.
- mdadm --assemble --scan --config partitions --name hostname-raid6
-
-David
-
-
--- 

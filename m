@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWGaPrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWGaPv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWGaPrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 11:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWGaPrI
+	id S1750902AbWGaPv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 11:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWGaPv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 11:47:08 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:50408 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1030203AbWGaPrH (ORCPT
+	Mon, 31 Jul 2006 11:51:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:8426 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750902AbWGaPv5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 11:47:07 -0400
-Date: Mon, 31 Jul 2006 17:46:59 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-Message-ID: <20060731174659.72da734f@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+	Mon, 31 Jul 2006 11:51:57 -0400
+Date: Mon, 31 Jul 2006 17:51:45 +0200
+From: Olaf Hering <olh@suse.de>
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/3] add-imacfb-docu-and-detection.patch
+Message-ID: <20060731155145.GA3431@suse.de>
+References: <44CDBE5D.8020504@ed-soft.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <44CDBE5D.8020504@ed-soft.at>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 15:55:15 +0200
-Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+ On Mon, Jul 31, Edgar Hucek wrote:
 
-> Anyway, 2.6.18-rc2-mm1 boots successfully on my target with these
-> patches, but there's something strange going on with NFS and a few
-> other things that I didn't notice on 2.6.18-rc1. I'll investigate
-> some more and see if I can figure out what's going on.
+> This Patch add basic Machine detection to imacfb and
+> some Ducumentation bits for imacfb.
 
-All forms of write access to the NFS root file system seem to return
--EACCESS. If I leave out git-nfs.patch, the problem goes away, so I'll
-try bisecting the NFS git tree tomorrow.
+> +Supported Hardware
+> +==================
+> +
+> +iMac 17"/20"
+> +Macbook
+> +Macbook Pro 15"/17"
+> +MacMini
 
-Is there anyway to access it via http?
-
-Haavard
+Why is it called imacfb when it is supposed to drive castrated PowerBooks?
+I suggest a better name for driver.

@@ -1,190 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWGaN4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWGaN5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWGaN4e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 09:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWGaN4O
+	id S932267AbWGaN5S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 09:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWGaN4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 09:56:14 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:459 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750849AbWGaN4M (ORCPT
+	Mon, 31 Jul 2006 09:56:36 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:60140 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1750825AbWGaN4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 09:56:12 -0400
+	Mon, 31 Jul 2006 09:56:13 -0400
 From: Haavard Skinnemoen <hskinnemoen@atmel.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Haavard Skinnemoen <hskinnemoen@atmel.com>
-Subject: [PATCH 6/6] AVR32: Kill CONFIG_DISCONTIGMEM support completely
+Subject: [PATCH 4/6] AVR32: Add I/O port access primitives
 Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Mon, 31 Jul 2006 15:56:00 +0200
-Message-Id: <1154354160983-git-send-email-hskinnemoen@atmel.com>
+Date: Mon, 31 Jul 2006 15:55:58 +0200
+Message-Id: <11543541601135-git-send-email-hskinnemoen@atmel.com>
 X-Mailer: git-send-email 1.4.0
-In-Reply-To: <11543541603922-git-send-email-hskinnemoen@atmel.com>
-References: <1154354160566-git-send-email-hskinnemoen@atmel.com> <11543541601753-git-send-email-hskinnemoen@atmel.com> <11543541602148-git-send-email-hskinnemoen@atmel.com> <11543541601135-git-send-email-hskinnemoen@atmel.com> <11543541603922-git-send-email-hskinnemoen@atmel.com>
+In-Reply-To: <11543541602148-git-send-email-hskinnemoen@atmel.com>
+References: <1154354160566-git-send-email-hskinnemoen@atmel.com> <11543541601753-git-send-email-hskinnemoen@atmel.com> <11543541602148-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen called discontigmem as "legacy", so since there are no
-AVR32 boards that actually need it, we might as well kill it
-completely. Which is what this patch does.
+This adds definitions of inb, outb and friends to include/asm-avr32/io.h
 
-Whenever someone stumbles across a board with multiple memory banks,
-I'll implement sparsemem support instead, hopefully with help from
-Dave and Andy.
+I'm still not sure about the best way to emulate I/O port access on
+AVR32, but we should be able to override the __io() macro from
+platform-specific headers in the future when we know better what the
+requirements really are.
 
 Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andy Whitcroft <apw@shadowen.org>
 ---
- arch/avr32/mm/Makefile     |    1 -
- arch/avr32/mm/discontig.c  |   27 ---------------------------
- arch/avr32/mm/init.c       |   28 +++++-----------------------
- include/asm-avr32/mmzone.h |   29 -----------------------------
- 4 files changed, 5 insertions(+), 80 deletions(-)
+ include/asm-avr32/io.h |   84 ++++++++++++++++++++++++++----------------------
+ 1 files changed, 45 insertions(+), 39 deletions(-)
 
-diff --git a/arch/avr32/mm/Makefile b/arch/avr32/mm/Makefile
-index 3338374..0066491 100644
---- a/arch/avr32/mm/Makefile
-+++ b/arch/avr32/mm/Makefile
-@@ -4,4 +4,3 @@ #
+diff --git a/include/asm-avr32/io.h b/include/asm-avr32/io.h
+index 8633e49..30d7340 100644
+--- a/include/asm-avr32/io.h
++++ b/include/asm-avr32/io.h
+@@ -5,6 +5,24 @@ #include <linux/string.h>
  
- obj-y				+= init.o clear_page.o copy_page.o dma-coherent.o
- obj-y				+= ioremap.o cache.o fault.o tlb.o
--obj-$(CONFIG_DISCONTIGMEM)	+= discontig.o
-diff --git a/arch/avr32/mm/discontig.c b/arch/avr32/mm/discontig.c
-deleted file mode 100644
-index d5c18ec..0000000
---- a/arch/avr32/mm/discontig.c
-+++ /dev/null
-@@ -1,27 +0,0 @@
--/*
-- * Copyright (C) 2004-2006 Atmel Corporation
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--
--#include <linux/module.h>
--#include <linux/mm.h>
--#include <linux/init.h>
--#include <linux/bootmem.h>
--
--#if MAX_NUMNODES != 4
--#error Fix Me Please
--#endif
--
--static bootmem_data_t node_bootmem_data[MAX_NUMNODES];
--pg_data_t discontig_node_data[MAX_NUMNODES] = {
--	{ .bdata = &node_bootmem_data[0] },
--	{ .bdata = &node_bootmem_data[1] },
--	{ .bdata = &node_bootmem_data[2] },
--	{ .bdata = &node_bootmem_data[3] }
--};
--
--EXPORT_SYMBOL(discontig_node_data);
--
-diff --git a/arch/avr32/mm/init.c b/arch/avr32/mm/init.c
-index e4b6707..e33b4ff 100644
---- a/arch/avr32/mm/init.c
-+++ b/arch/avr32/mm/init.c
-@@ -36,10 +36,8 @@ struct page *empty_zero_page;
-  */
- unsigned long mmu_context_cache = NO_CONTEXT;
+ #ifdef __KERNEL__
  
--#if !defined(CONFIG_DISCONTIGMEM)
--# define START_PFN	(NODE_DATA(0)->bdata->node_boot_start >> PAGE_SHIFT)
--# define MAX_LOW_PFN	(NODE_DATA(0)->bdata->node_low_pfn)
--#endif
-+#define START_PFN	(NODE_DATA(0)->bdata->node_boot_start >> PAGE_SHIFT)
-+#define MAX_LOW_PFN	(NODE_DATA(0)->bdata->node_low_pfn)
- 
- void show_mem(void)
- {
-@@ -223,27 +221,15 @@ #else
- #endif
- 	}
- 
--#ifndef CONFIG_DISCONTIGMEM
- 	if (mem_phys->next)
--		printk(KERN_WARNING "Only using first memory bank "
--		       "since CONFIG_DISCONTIGMEM is off\n");
-+		printk(KERN_WARNING "Only using first memory bank\n");
++#include <asm/addrspace.h>
 +
- 	for (bank = mem_phys; bank; bank = NULL) {
++/* virt_to_phys will only work when address is in P1 or P2 */
++static __inline__ unsigned long virt_to_phys(volatile void *address)
++{
++	return PHYSADDR(address);
++}
++
++static __inline__ void * phys_to_virt(unsigned long address)
++{
++	return (void *)P1SEGADDR(address);
++}
++
++#define cached_to_phys(addr)	((unsigned long)PHYSADDR(addr))
++#define uncached_to_phys(addr)	((unsigned long)PHYSADDR(addr))
++#define phys_to_cached(addr)	((void *)P1SEGADDR(addr))
++#define phys_to_uncached(addr)	((void *)P2SEGADDR(addr))
++
+ /*
+  * Generic IO read/write.  These perform native-endian accesses.  Note
+  * that some architectures will want to re-define __raw_{read,write}w.
+@@ -17,17 +35,6 @@ extern void __raw_readsb(unsigned int ad
+ extern void __raw_readsw(unsigned int addr, void *data, int wordlen);
+ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
+ 
+-#ifdef PCMCIA_HSMC_IO_HACK
+-#error Needs updating
+-/* The HMATRIX tries to byteswap the address for us, so we have to swap it back. */
+-#define __raw_writeb(v,a)	(*(volatile unsigned char *)((unsigned long)(a) ^ 3UL) = (v))
+-#define __raw_writew(v,a)	(*(volatile unsigned short *)((unsigned long)(a) ^ 2UL) = (v))
+-#define __raw_writel(v,a)	(*(volatile unsigned int   *)(a) = (v))
+-
+-#define __raw_readb(a)		(*(volatile unsigned char *)((unsigned long)(a) ^ 3UL))
+-#define __raw_readw(a)		(*(volatile unsigned short *)((unsigned long)(a) ^ 2UL))
+-#define __raw_readl(a)		(*(volatile unsigned int *)(a))
 -#else
--	for (bank = mem_phys; bank; bank = bank->next, node++) {
--#endif
- 		first_pfn = PFN_UP(bank->addr);
- 		max_low_pfn = max_pfn = PFN_DOWN(bank->addr + bank->size);
- 		bootmap_pfn = find_bootmap_pfn(bank);
--		if (bootmap_pfn > max_pfn) {
--#ifndef CONFIG_DISCONTIGMEM
-+		if (bootmap_pfn > max_pfn)
- 			panic("No space for bootmem bitmap!\n");
--#else
--			printk(KERN_WARNING
--			       "Node %u: No space for bootmem bitmap\n",
--				node);
--			continue;
--#endif
--		}
- 
- 		if (max_low_pfn > MAX_LOWMEM_PFN) {
- 			max_low_pfn = MAX_LOWMEM_PFN;
-@@ -397,9 +383,7 @@ void __init paging_init(void)
- 		       pgdat->node_id, pgdat->node_mem_map);
- 	}
- 
--#ifndef CONFIG_DISCONTIGMEM
- 	mem_map = NODE_DATA(0)->node_mem_map;
+ static inline void writeb(unsigned char b, volatile void __iomem *addr)
+ {
+ 	*(volatile unsigned char __force *)addr = b;
+@@ -59,7 +66,6 @@ static inline unsigned int readl(const v
+ #define __raw_readb readb
+ #define __raw_readw readw
+ #define __raw_readl readl
 -#endif
  
- 	memset(zero_page, 0, PAGE_SIZE);
- 	empty_zero_page = virt_to_page(zero_page);
-@@ -438,9 +422,7 @@ void __init mem_init(void)
- 			high_memory = node_high_memory;
- 	}
+ #define writesb(p, d, l)	__raw_writesb((unsigned int)p, d, l)
+ #define writesw(p, d, l)	__raw_writesw((unsigned int)p, d, l)
+@@ -109,18 +115,36 @@ extern void __readwrite_bug(const char *
  
--#ifndef CONFIG_DISCONTIGMEM
- 	max_mapnr = MAP_NR(high_memory);
--#endif
+ #define IO_SPACE_LIMIT	0xffffffff
  
- 	codesize = (unsigned long)_etext - (unsigned long)_text;
- 	datasize = (unsigned long)_edata - (unsigned long)_data;
-diff --git a/include/asm-avr32/mmzone.h b/include/asm-avr32/mmzone.h
-deleted file mode 100644
-index 13ca94f..0000000
---- a/include/asm-avr32/mmzone.h
-+++ /dev/null
-@@ -1,29 +0,0 @@
--/*
-- * Copyright (C) 2004-2006 Atmel Corporation
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--#ifndef __ASM_AVR32_MMZONE_H
--#define __ASM_AVR32_MMZONE_H
++/* Convert I/O port address to virtual address */
++#define __io(p)		((void __iomem *)phys_to_uncached(p))
++
+ /*
+- * All I/O is memory mapped, so these macros don't make very much
+- * sense.  They are needed for PCMCIA support, however, so we'll have
+- * to implement them somehow.  For now, they will cause linker errors.
++ *  IO port access primitives
++ *  -------------------------
++ *
++ * The AVR32 doesn't have special IO access instructions; all IO is memory
++ * mapped. Note that these are defined to perform little endian accesses
++ * only. Their primary purpose is to access PCI and ISA peripherals.
++ *
++ * Note that for a big endian machine, this implies that the following
++ * big endian mode connectivity is in place.
++ *
++ * The machine specific io.h include defines __io to translate an "IO"
++ * address to a memory address.
++ *
++ * Note that we prevent GCC re-ordering or caching values in expressions
++ * by introducing sequence points into the in*() definitions.  Note that
++ * __raw_* do not guarantee this behaviour.
++ *
++ * The {in,out}[bwl] macros are for emulating x86-style PCI/ISA IO space.
+  */
+-extern void outb(unsigned char value, unsigned long port);
+-extern void outw(unsigned short value, unsigned long port);
+-extern void outl(unsigned long value, unsigned long port);
++#define outb(v, p)		__raw_writeb(v, __io(p))
++#define outw(v, p)		__raw_writew(cpu_to_le16(v), __io(p))
++#define outl(v, p)		__raw_writel(cpu_to_le32(v), __io(p))
+ 
+-extern unsigned char inb(unsigned long port);
+-extern unsigned short inw(unsigned long port);
+-extern unsigned long inl(unsigned long port);
++#define inb(p)			__raw_readb(__io(p))
++#define inw(p)			le16_to_cpu(__raw_readw(__io(p)))
++#define inl(p)			le32_to_cpu(__raw_readl(__io(p)))
+ 
+ static inline void __outsb(unsigned long port, void *addr, unsigned int count)
+ {
+@@ -197,24 +221,6 @@ #define ioremap(offset, size)			\
+ #define iounmap(addr)				\
+ 	__iounmap(addr)
+ 
+-#include <asm/addrspace.h>
 -
--#include <asm/page.h>
--
--#ifdef CONFIG_DISCONTIGMEM
--
--static inline int pfn_valid(unsigned long pfn)
+-/* virt_to_phys will only work when address is in P1 or P2 */
+-static __inline__ unsigned long virt_to_phys(volatile void *address)
 -{
--	unsigned long __pfn = (pfn);
--	int __n = pfn_to_nid(__pfn);
--
--	if (__n < 0)
--		return 0;
--
--	return __pfn < (NODE_DATA(__n)->node_start_pfn
--			+ NODE_DATA(__n)->node_spanned_pages);
+-	return PHYSADDR(address);
 -}
 -
--#endif /* CONFIG_DISCONTIGMEM */
+-static __inline__ void * phys_to_virt(unsigned long address)
+-{
+-	return (void *)P1SEGADDR(address);
+-}
 -
--#endif /* __ASM_AVR32_MMZONE_H */
+-#define cached_to_phys(addr)	((unsigned long)PHYSADDR(addr))
+-#define uncached_to_phys(addr)	((unsigned long)PHYSADDR(addr))
+-#define phys_to_cached(addr)	((void *)P1SEGADDR(addr))
+-#define phys_to_uncached(addr)	((void *)P2SEGADDR(addr))
+-
+ #define cached(addr) P1SEGADDR(addr)
+ #define uncached(addr) P2SEGADDR(addr)
+ 
 -- 
 1.4.0
 

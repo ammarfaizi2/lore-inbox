@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWGaAXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWGaAdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWGaAXI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 20:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWGaAXI
+	id S932491AbWGaAdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWGaAdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 20:23:08 -0400
-Received: from smtp.nildram.co.uk ([195.112.4.54]:7955 "EHLO
-	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S1750935AbWGaAXH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 20:23:07 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: ipw3945 status
-Date: Mon, 31 Jul 2006 01:23:06 +0100
-User-Agent: KMail/1.9.3
-Cc: Theodore Tso <tytso@mit.edu>, Kasper Sandberg <lkml@metanurb.dk>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
-       Jirka Lenost Benc <jbenc@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ipw2100-admin@linux.intel.com
-References: <20060730104042.GE1920@elf.ucw.cz> <20060730145305.GE23279@thunk.org> <20060730231251.GB1800@elf.ucw.cz>
-In-Reply-To: <20060730231251.GB1800@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 30 Jul 2006 20:33:15 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:16116 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932491AbWGaAdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 20:33:14 -0400
+Subject: Re: FP in kernelspace
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <44CC97A4.8050207@gmail.com>
+References: <44CC97A4.8050207@gmail.com>
+Content-Type: text/plain
+Date: Sun, 30 Jul 2006 20:33:09 -0400
+Message-Id: <1154305989.10074.66.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607310123.06177.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 July 2006 00:12, Pavel Machek wrote:
-[snip]
-> And... Intel will not even tell you WTF that daemon does. They claim
-> it is for FCC, but it seems to be doing more than that. So maybe I'm
-> not _that_ paranoid.
+On Sun, 2006-07-30 at 13:27 +0159, Jiri Slaby wrote:
+> Hello,
+> 
+> I have a driver written for 2.4 + RT patches with FP support. I want it to work 
+> in 2.6. How to implement FP? Has anybody developped some "protocol" between KS 
+> and US yet? If not, could somebody point me, how to do it the best -- with low 
+> latency.
+> The device doesn't generate irqs *), I need to quickly respond to timer call, 
+> because interval between two posts of data to the device has to be equal as much 
+> as possible (BTW is there any way how to gain up to 5000Hz).
+> I've one idea: have a thread with RT priority and wake the app in US waiting in 
+> read of character device when timer ticks, post a struct with 2 floats and 
+> operation and wait in write for the result. App computes, writes the result, we 
+> are woken and can post it to the device. But I'm afraid it would be tooo slow.
+> 
+> *) I don't know how to persuade it (standard PLX chip with unknown piece of 
+> logic behind) to generate, because official driver is closed and _very_ 
+> expensive. Old (2.4) driver was implemented with RT thread and timer, where FP 
+> is implemented within RT and computed directly in KS.
+> 
+> So 2 questions are:
+> 1) howto FP in kernel
+> 2) howto precise timer (may mingo RT patches help?)
 
-Agreed, from what Matthew's said it seems like the daemon is being used to 
-hide intellectual property, not something we should really be encouraging.
+Well Ingo's RT patch set has the high resolution timers developed by
+Thomas Gleixner, which may help you here.
 
-I think the title "regulatory daemon" has multiple meanings, it REGULATES your 
-frequencies to FCC specs, it REGULATES your wireless card's power and 
-temperature levels, and it REGULATES your right to use the hardware ;-)
+> 3) any way to have faster ticks (up to 5000Hz)?
 
-Ultimately the question remains, will we open this can of worms by accepting 
-drivers that depend on proprietary software (i.e. they will not function at 
-all without it). I'm fairly sure the answer should be "No".
+Why do you need faster ticks?  The high res timers are done in nano
+secs, and the resolution is up to the hardware.
 
--- 
-Cheers,
-Alistair.
+> 
+> Any suggestions, please?
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+--  Steve
+
+

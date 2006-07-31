@@ -1,116 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWGaEm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWGaEmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWGaEm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 00:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWGaEm3
+	id S1751470AbWGaEmz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 00:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWGaEmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 00:42:29 -0400
-Received: from tornado.reub.net ([202.89.145.182]:52107 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1751472AbWGaEm2 (ORCPT
+	Mon, 31 Jul 2006 00:42:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37777 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751470AbWGaEmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 00:42:28 -0400
-Message-ID: <44CD8A34.5030305@reub.net>
-Date: Mon, 31 Jul 2006 16:42:28 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 2.0a1 (Windows/20060730)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>,
-       Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.18-rc2-mm1
-References: <20060727015639.9c89db57.akpm@osdl.org>
-In-Reply-To: <20060727015639.9c89db57.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 31 Jul 2006 00:42:54 -0400
+Subject: Re: [NFS] [PATCH 010 of 11] knfsd: make rpc threads pools numa
+	aware
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <17613.35001.745409.144623@cse.unsw.edu.au>
+References: <20060731103458.29040.patches@notabene>
+	 <1060731004234.29291@suse.de> <20060730211454.ccf803f3.akpm@osdl.org>
+	 <17613.35001.745409.144623@cse.unsw.edu.au>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1154320957.21040.1836.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 31 Jul 2006 14:42:38 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 27/07/2006 8:56 p.m., Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc2/2.6.18-rc2-mm1/
+On Mon, 2006-07-31 at 14:36, Neil Brown wrote:
+> On Sunday July 30, akpm@osdl.org wrote:
+> > On Mon, 31 Jul 2006 10:42:34 +1000
+> > NeilBrown <neilb@suse.de> wrote:
+> > 
+> > > +static int
+> > > +svc_pool_map_init_percpu(struct svc_pool_map *m)
+> > > +{
+> > > +	unsigned int maxpools = num_possible_cpus();
+> > > +	unsigned int pidx = 0;
+> > > +	unsigned int cpu;
+> > > +	int err;
+> > > +
+> > > +	err = svc_pool_map_alloc_arrays(m, maxpools);
+> > > +	if (err)
+> > > +		return err;
+> > > +
+> > > +	for_each_online_cpu(cpu) {
+> > > +		BUG_ON(pidx > maxpools);
+> > > +		m->to_pool[cpu] = pidx;
+> > > +		m->pool_to[pidx] = cpu;
+> > > +		pidx++;
+> > > +	}
+> > 
+> > That isn't right - it assumes that cpu_possible_map is not sparse.  If it
+> > is sparse, we allocate undersized pools and then overindex them.
 > 
-> - git-klibc has been dropped due to very bad parallel-make problems.
+> I don't think so.
 > 
-> - Added a new line to the boilerplate, below!
+> At this point we are largely counting the number of online cpus
+> (in pidx (pool index) - this is returned). The two-way mapping
+> to_pool and pool_to provides a mapping between the possible-sparse cpu
+> list and a dense list of pool indexes.
 > 
-> - Added Sam's lxdialog tree, as git-lxdialog.patch.  You no longer need
->   x-ray spectacles to read the menuconfig screens.
+> If further cpus come on line they will be automatically included in
+> pool-0. (as to_pool[n] will still be zero).
 > 
-> - Lots of random patches.  Many of them are bugfixes and I shall, as usual,
->   go through them all identifying 2.6.18 material.  But I can miss things, so
->   please don't be afraid to point 2.6.18 candidates out to me.
-> 
->   I also have, as usual, a number of bugfixes agains the git trees.  I'll
->   send these to the maintainers until they stick and then I lose track of
->   them.  So don't be afraid to send reminders to the subsystem maintainers
->   either.
+> Does that make it at all clearer?
 
-Just had this come out on the console:
+Umm, I think Andrew's right, num_possible_cpus() should be NR_CPUS.
+If there's a value of `cpu' > num_possible_cpus(), which would happen
+if the cpu numbers weren't contiguous, then m->to_pool[] will be
+overflowed.  My bad, I didn't even consider the case of non-contiguous
+CPU numbers and none of the machines available for testing had that
+property.
 
-(x86_64 - maybe unwinder related?)
 
-Jul 31 16:35:01 tornado kernel: kjournald starting.  Commit interval 5 seconds
-Jul 31 16:35:01 tornado kernel: EXT3 FS on sdb1, internal journal
-Jul 31 16:35:01 tornado kernel: EXT3-fs: mounted filesystem with ordered data mode.
-Jul 31 16:35:01 tornado kernel: php[28644]: segfault at 00007fff064edfe8 rip 
-0000003852a718a8 rsp 00007fff064edfd0 error 6
-Jul 31 16:35:01 tornado kernel: general protection fault: 0000 [1] SMP
-Jul 31 16:35:01 tornado kernel: last sysfs file: /block/fd0/dev
-Jul 31 16:35:01 tornado kernel: CPU 1
-Jul 31 16:35:01 tornado kernel: Modules linked in: hidp rfcomm l2cap bluetooth 
-ipv6 ip_gre iptable_filter iptable_nat ip_nat i
-p_conntrack nfnetlink iptable_mangle ip_tables binfmt_misc i2c_i801 serio_raw 
-iTCO_wdt
-Jul 31 16:35:01 tornado kernel: Pid: 15189, comm: nagios Not tainted 
-2.6.18-rc2-mm1 #2
-Jul 31 16:35:01 tornado kernel: RIP: 0010:[<ffffffff8028f1d1>] 
-[<ffffffff8028f1d1>] notifier_call_chain+0x1e/0x45
-Jul 31 16:35:01 tornado kernel: RSP: 0018:ffff810020d35d58  EFLAGS: 00010202
-Jul 31 16:35:01 tornado kernel: RAX: 6b6b6b6b6b6b6b6b RBX: ffff81003913f100 RCX: 
-6b6b6b6b6b6b6b6b
-Jul 31 16:35:01 tornado kernel: RDX: ffff81003913f100 RSI: 0000000000000001 RDI: 
-ffff81001fd8cec0
-Jul 31 16:35:01 tornado kernel: RBP: ffff810020d35d78 R08: 0000000000000000 R09: 
-0000000000000001
-Jul 31 16:35:01 tornado kernel: R10: 0000000000000001 R11: 0000000000000001 R12: 
-ffff81003913f100
-Jul 31 16:35:01 tornado kernel: R13: 0000000000000001 R14: ffff81003913f100 R15: 
-ffff81003913f100
-Jul 31 16:35:01 tornado kernel: FS:  00002b1be57ae450(0000) 
-GS:ffff81003f6eb430(0000) knlGS:0000000000000000
-Jul 31 16:35:01 tornado kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-Jul 31 16:35:01 tornado kernel: CR2: 0000000000884ab0 CR3: 0000000034634000 CR4: 
-00000000000006e0
-Jul 31 16:35:01 tornado kernel: Process nagios (pid: 15189, threadinfo 
-ffff810020d34000, task ffff81002ff8c0c0)
-Jul 31 16:35:01 tornado kernel: Stack:  ffff810020d35d88 ffff81003913f100 
-0000000000000001 0000000001200011
-Jul 31 16:35:01 tornado kernel:  ffff810020d35d88 ffffffff8028f226 
-ffff810020d35da8 ffffffff8028f61f
-Jul 31 16:35:01 tornado kernel:  ffff810020d36000 ffff81002ff8c0c0 
-ffff810020d35e78 ffffffff8021eafc
-Jul 31 16:35:01 tornado kernel: Call Trace:
-Jul 31 16:35:01 tornado kernel:  [<ffffffff8028f226>] 
-raw_notifier_call_chain+0x9/0xb
-Jul 31 16:35:01 tornado kernel:  [<ffffffff8028f61f>] notify_watchers+0x64/0x69
-Jul 31 16:35:01 tornado kernel:  [<ffffffff8021eafc>] copy_process+0x4dc/0x15c0
-Jul 31 16:35:01 tornado kernel:  [<ffffffff80231867>] do_fork+0xf7/0x210
-Jul 31 16:35:01 tornado kernel:  [<ffffffff802692f7>] sys_clone+0x23/0x25
-Jul 31 16:35:01 tornado kernel:  [<ffffffff8025f7af>] ptregscall_common+0x67/0xac
-Jul 31 16:35:01 tornado kernel: DWARF2 unwinder stuck at ptregscall_common+0x67/0xac
-Jul 31 16:35:01 tornado kernel: Leftover inexact backtrace:
-Jul 31 16:35:01 tornado kernel:
-Jul 31 16:35:01 tornado kernel:
-Jul 31 16:35:02 tornado kernel: Code: 48 8b 59 08 4c 89 e2 4c 89 ee 48 89 cf ff 
-11 66 85 c0 78 08
-Jul 31 16:35:02 tornado kernel: RIP  [<ffffffff8028f1d1>] 
-notifier_call_chain+0x1e/0x45
-Jul 31 16:35:02 tornado kernel:  RSP <ffff810020d35d58>
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
-I've applied only one patch to the generic -rc2-mm1 that is in the newer -mm - 
-the x86_64-unwinder-fix.patch.  That fixed the problem I had with the backtraces 
-repeating over and over until the kernel panicked.
-
-Reuben
 

@@ -1,39 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWGaXRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWGaXSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWGaXRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWGaXRz
+	id S1030370AbWGaXSk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 19:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWGaXSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:17:55 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17538 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751435AbWGaXRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:17:54 -0400
-Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1154381296.2506.4.camel@praia>
-References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
-	 <1151327213.3687.13.camel@praia>
-	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
-	 <1151341122.13794.2.camel@praia>
-	 <1154302828.2318.9.camel@localhost.localdomain>
-	 <1154381296.2506.4.camel@praia>
-Content-Type: text/plain
+	Mon, 31 Jul 2006 19:18:39 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:29098 "EHLO
+	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751445AbWGaXSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 19:18:39 -0400
+Message-ID: <44CE97AD.7030300@wolfmountaingroup.com>
+Date: Mon, 31 Jul 2006 17:52:13 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nate Diller <nate.diller@gmail.com>
+CC: Gregory Maxwell <gmaxwell@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Clay Barnes <clay.barnes@gmail.com>,
+       Rudy Zijlstra <rudy@edsons.demon.nl>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>	 <20060731162224.GJ31121@lug-owl.de>	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>	 <20060731173239.GO31121@lug-owl.de>	 <20060731181120.GA9667@merlin.emma.line.org>	 <20060731184314.GQ31121@lug-owl.de>	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>	 <1154374923.7230.99.camel@localhost.localdomain>	 <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>	 <44CE7C11.7020202@wolfmountaingroup.com> <5c49b0ed0607311556s50b77c07o150497f8e4bd3fd3@mail.gmail.com>
+In-Reply-To: <5c49b0ed0607311556s50b77c07o150497f8e4bd3fd3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Aug 2006 00:36:57 +0100
-Message-Id: <1154389017.7230.115.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-31 am 18:28 -0300, ysgrifennodd Mauro Carvalho Chehab:
-> > The USB radio is probably the only one that matters, and I do have one
-> > of those.
-> Are you referring to "D-Link USB FM radio support"? I'll seek some time
-> to convert it and ask you to test it. Shouldn't be hard.
+Nate Diller wrote:
 
-Did it today - patches will follow
+> On 7/31/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+>
+>> Gregory Maxwell wrote:
+>>
+>> > On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> >
+>> >> Its well accepted that reiserfs3 has some robustness problems in the
+>> >> face of physical media errors. The structure of the file system 
+>> and the
+>> >> tree basis make it very hard to avoid such problems. XFS appears 
+>> to have
+>> >> managed to achieve both robustness and better data structures.
+>> >>
+>> >> How reiser4 compares I've no idea.
+>> >
+>> >
+>> > Citation?
+>> >
+>> > I ask because your clam differs from the only detailed research that
+>> > I'm aware of on the subject[1]. In figure 2 of the iron filesystems
+>> > paper that Ext3 is show to ignore a great number of data-loss inducing
+>> > failure conditions that Reiser3 detects an panics under.
+>> >
+>> > Are you sure that you aren't commenting on cases where Reiser3 alerts
+>> > the user to a critical data condition (via a panic) which leads to a
+>> > trouble report while ext3 ignores the problem which suppresses the
+>> > trouble report from the user?
+>> >
+>> > *1) http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
+>>
+>> Hi Gregory, Wikimedia Foundation and LKML?
+>>
+>> How's Wikimania going. :-)
+>>
+>> What he says is correct.  I have seen some serious issues with reiserfs
+>> in terms of stability and
+>> data corruption.  Resier is however FASTER, but the statement is has
+>> robustness issues is accurate.
+>> I was using reiserfs but we opted to make EXT3 the default for Solera
+>> appliances, even when using Suse 10
+>> due to issues I have seen with data corruption and hard hangs on RAID 0
+>> read/write sector errors.  I have
+>> stopped using it for local drives and based everything on EXT3.  Not to
+>> say it won't get there eventually, but
+>> file systems have to endure a lot of time in the field and deployment
+>> befor they are ready for prime time.
+>>
+>> The Wikimedia appliances use Wolf Mountain, and I've tested it for about
+>> 4 months with few problems, but
+>> I only use it for hosting the Cherokee Langauge Wikipedia.  It's
+>> performance is several magnitudes better
+>> than either EXT3 or ReiserFS.  Despite this, for vertical wiki servers,
+>> its ok to go out with, folks can specifiy
+>> whether they want appliances with EXT3, Reiser, or WMFS, but iit's a
+>> long way from being "cooked"
+>> completely, though it does scale to 1 exabyte FS images.
+>
+>
+> i've seen you mention the Wolf Mountain FS in other emails, but google
+> isn't telling me a lot about it.  Do you have a whitepaper?  are there
+> any published benchmark results?  what sort of workloads do you
+> benchmark?
+>
+> NATE
+>
+Wikipedia is the app for now.  I have not done any benchmarks on the FS 
+side, just the capture side, and its been transferred to
+another entity.  I have no idea what they are naming it to, but I expect 
+you may hear about it soon.  One of the incarnations
+of it is Solera's DSFS which can be reviewed here:
 
+www.soleranetworks.com
+
+I can sustain 850 MB/S throughput from user space with it -- about 5 x 
+any other FS.  On some hardware, I've broken
+the 1.25 GB/S (gigabyte/second) windows with it.
+
+Jeff

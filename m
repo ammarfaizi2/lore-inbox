@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWGaS4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWGaS5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWGaS4E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWGaS4E
+	id S1030323AbWGaS5d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWGaS5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:56:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:12074 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751103AbWGaS4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:56:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=iXWVBIDgFAI2+XpjQ3WAd8umK0rm0/K58IGdPXyWq3ryJpGOkVDQniwZZmH8wsYkborBcbLJfdqu3yN5tWh5+/yAiKHsJucJ9z/n4Q+T6Ht4MIM1+PUEyU+plqbK152XzsP3w2PT7RiTgEGuPjkrrV8MW4r2eyOCPdMmQofa4jg=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>
-Cc: "'Rafael J. Wysocki'" <rjw@sisk.pl>, "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Date: Mon, 31 Jul 2006 11:55:58 -0700
-Message-ID: <005101c6b4d2$f7506210$493d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <20060730230757.GA1800@elf.ucw.cz>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: Aca0LQqKGVCrEV7LS6GCVxr6TuLhmAAL5lkQ
+	Mon, 31 Jul 2006 14:57:33 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:16613 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S1751210AbWGaS5c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 14:57:32 -0400
+Date: Mon, 31 Jul 2006 20:57:13 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Dave Jones <davej@redhat.com>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk, len.brown@intel.com
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
+Message-ID: <20060731185713.GA16797@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Dave Jones <davej@redhat.com>,
+	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+	cpufreq@lists.linux.org.uk, len.brown@intel.com
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com> <20060730184443.GA30067@outpost.ds9a.nl> <20060730190133.GD18757@redhat.com> <20060731070800.GA22205@outpost.ds9a.nl> <20060731162046.GA4631@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060731162046.GA4631@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Suspend2 patch is open source. You can always take a look.
-> 
-> swsusp is open source. You can always take a look. And you 
-> can always submit a patch.
-> 
-> > Moreover, if someone claims suspend2 isn't ready for merge, or the
-> 
-> Moreover, if someone claims swsusp is broken, they should 
-> attach bugzilla id.
+On Mon, Jul 31, 2006 at 12:20:46PM -0400, Dave Jones wrote:
 
-Pavel,
+> Your change in your previous mail makes sense to me though,
+> so I'll commit it to cpufreq.git later today.
 
-You can't blame me for not doing these things, because I am not a maintainer.
-However, you are, and you defend yourself so hard for that position, so if _you_ 
-don't do these things, people complain.
+Do you think this will make 2.6.18? Otherwise any kernel with acpi_list
+compiled in will have no frequency scaling, unless it supports scaling over
+ACPI.
 
-> As you said, you do not know what you are talking about.
->
-> He claims s-t-ram is easier than s-t-disk. That means that he did not do his 
-> homework, and did not check the archives on the subject.
+Thanks!
 
-Oh yeah? Let's check the archives:
-
-"I seriously claim that STR _should_ be a lot simpler than suspend-to-disk, 
-because it avoids all the memory management problems. The reason that 
-we support suspend-to-disk but not STR is totally perverse - it's simply that
-it has been easier to debug, because unlike STR, we can do a "real boot" 
-into a working system, and thus we don't have the debugging problems that
-the "easy" suspend/resume case has."
-
-http://thread.gmane.org/gmane.linux.power-management.general/1884/focus=2105
-
-Maybe it's why he didn't like the STR design you had?
-
-Maybe I am still wrong, maybe Linus is wrong too, but you can't attack me
-not doing my homework.
-
-Hua
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

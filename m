@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWGaQQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWGaQRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWGaQQn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWGaQQn
+	id S1030211AbWGaQRW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWGaQRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:16:43 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:59812 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1030209AbWGaQQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:16:42 -0400
-Date: Mon, 31 Jul 2006 12:16:33 -0400
-To: Neil Brown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] knfsd: Fix stale file handle problem with subtree_checking.
-Message-ID: <20060731161633.GB11459@fieldses.org>
-References: <20060728194103.7245.patches@notabene> <1060728094255.7278@suse.de> <20060728205156.GB12183@fieldses.org> <17610.62013.790217.817455@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17610.62013.790217.817455@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Mon, 31 Jul 2006 12:17:22 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:236 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1030211AbWGaQRV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 12:17:21 -0400
+Message-Id: <200607311617.k6VGH3YH009055@laptop13.inf.utfsm.cl>
+To: "Denis Vlasenko" <vda.linux@googlemail.com>
+cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiser4: maybe just fix bugs? 
+In-Reply-To: Message from "Denis Vlasenko" <vda.linux@googlemail.com> 
+   of "Mon, 31 Jul 2006 10:26:55 +0100." <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Mon, 31 Jul 2006 12:17:03 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 31 Jul 2006 12:17:03 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 29, 2006 at 03:29:33PM +1000, Neil Brown wrote:
-> The first step would be to stop it from being the default (as Trond
-> has suggested a number of times :-)
-> 
-> How about this.
->  I release a 1.0.10 shortly which addresses some 'portlist' related
->  breakage and prints a nasty warning if you have neither subtree_check
->  or no_subtree_check, but still defaults to subtree_check.
-> 
->  Then the next release will be 1.1.0 which prints the same warning,
->  but defaults the other way - and probably removed the warning if you
->  include neither sync not async.
-> 
-> That should at least get subtree_check to be used less.
+Denis Vlasenko <vda.linux@googlemail.com> wrote:
+> The reiser4 thread seem to be longer than usual.
+> Let me, a mere user, add some input.
 
-Sounds good to me.  (Though for these kinds of changes I suppose it's
-the time elasped that matters more than the number of released
-versions--people probably upgrade every x months/years/whatever rather
-than every x versions.  By that criteria I think we might be making the
-subtree_check change a little fast, while the warning period for the
-sync change may already be overkill....)
+Please don't.
 
-> I think it is a great idea for a 'filesystem' to support multiple
-> independent file-trees within the one storage set, which is roughly
-> what you are saying I think (though probably not quite).
+> It looks to me that delay with reiser4 acceptance
+> is caused by two different things.
 > 
-> However I suspect that most people don't actually want subtrees.  They
-> just get it as the default.  It isn't something that I would have
-> implemented if I hadn't inherited the requirement, and no other OS
-> that I know of provides that particular semantic.
+> First, reiser4 adds those plugins which many FS people
+> see as belonging to VFS layer rather than to particular FS.
 
-Could be.
+Right.
 
---b.
+> And second, reiser team was a bit lax at fixing bugs.
+
+Right!
+
+> Not too bad when compared to other FSes, but still.
+
+How did you compare?
+
+> When singled out, none of these things are bad enough to hold off
+> inclusion. However, combined impact of _both_ of them
+> did upset maintainers enough.
+
+Plus a, lets say, less than cooperative overall attitude, and a marked
+tendency to try to sneak changes in by political arm-twisting.
+
+> Frankly, on the first problem I think that you are right, Hans, and
+> putting plugins into VFS _now_ makes little sense because we can't know
+> whether anybody will ever want to have plugins for some other FS, so
+> requiring reiser people to do all the shuffling _now_ for questionable
+> gain is simply not fair. It can be done later if needed.
+
+You are wrong. ReiserFS has no "right" to be allowed into the kernel. If
+the people in charge of maintaining the filesystem infrastructure of the
+kernel say something about your patches, you either take heed (and so
+increase your chance of being accepted someday), or stay out. It is /their/
+game, after all.
+
+> It leaves you with the other option: remove the second problem.
+
+That has to be done regardless. Buggy code with authors that can't be
+bothered to fix it just means more work for the (thinly spread) kernel
+hackers, so it is an absolute no-no-no.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

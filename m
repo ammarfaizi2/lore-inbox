@@ -1,93 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWGaXbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWGaXnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWGaXbE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGaXbE
+	id S1751400AbWGaXnX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 19:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGaXnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:31:04 -0400
-Received: from halon.profiwh.com ([85.93.165.2]:49656 "EHLO orfeus.profiwh.com")
-	by vger.kernel.org with ESMTP id S1751478AbWGaXbD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:31:03 -0400
-Message-id: <io_apic_has_to_be_repaired@huhuhu_blaahrepost>
-Subject: [PATCH -repost] io_apic fix spinlock in resume [Was: Re: swsusp regression (s2dsk) [Was: 2.6.18-rc2-mm1]]
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@suse.de>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: mingo@redhat.com
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
-Date: Mon, 31 Jul 2006 19:31:03 -0400
+	Mon, 31 Jul 2006 19:43:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:25512 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751400AbWGaXnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 19:43:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gJASJUYiHzbj4jo+JIMjZxKn+15gVfB4m1sL2jrllYUf8Wrj8xpWpnpF+R89p4aLobtq2rluuBt1XPqXSRqOPi3EQoeIWbuzBX9dM3NWZp4Xx6LnNmc5r6+oIVySA6/7Ci31nv2vCXDL002J1Q3dbxpoYMu/dnH7/u4S3nCUNwQ=
+Message-ID: <5c49b0ed0607311643r61570665ga4d8a70beaeb17f@mail.gmail.com>
+Date: Mon, 31 Jul 2006 16:43:11 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Cc: "Gregory Maxwell" <gmaxwell@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Clay Barnes" <clay.barnes@gmail.com>,
+       "Rudy Zijlstra" <rudy@edsons.demon.nl>,
+       "Adrian Ulrich" <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+In-Reply-To: <44CE97AD.7030300@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+	 <20060731173239.GO31121@lug-owl.de>
+	 <20060731181120.GA9667@merlin.emma.line.org>
+	 <20060731184314.GQ31121@lug-owl.de>
+	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>
+	 <1154374923.7230.99.camel@localhost.localdomain>
+	 <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>
+	 <44CE7C11.7020202@wolfmountaingroup.com>
+	 <5c49b0ed0607311556s50b77c07o150497f8e4bd3fd3@mail.gmail.com>
+	 <44CE97AD.7030300@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Rafael J. Wysocki napsal(a):
-> > > On Sunday 30 July 2006 02:06, Pavel Machek wrote:
-> >> >> Hi!
+On 7/31/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+> Nate Diller wrote:
+>
+> > On 7/31/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+> >
+> >> Gregory Maxwell wrote:
+> >>
+> >> > On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >> >
+> >> >> Its well accepted that reiserfs3 has some robustness problems in the
+> >> >> face of physical media errors. The structure of the file system
+> >> and the
+> >> >> tree basis make it very hard to avoid such problems. XFS appears
+> >> to have
+> >> >> managed to achieve both robustness and better data structures.
 > >> >>
-> >>>>>>> >>>>>>> I have problems with swsusp again. While suspending, the very
-> >>>>>>> >>>>>>> last thing kernel
-> >>>>>>> >>>>>>> writes is 'restoring higmem' and then hangs, hardly. No sysrq
-> >>>>>>> >>>>>>> response at all.
-> >>>>>>> >>>>>>> Here is a snapshot of the screen:
-> >>>>>>> >>>>>>> http://www.fi.muni.cz/~xslaby/sklad/swsusp_higmem.gif
-> >>>>>>> >>>>>>>
-> >>>>>>> >>>>>>> It's SMP system (HT), higmem enabled (1 gig of ram).
-> >>>>>> >>>>>> Most probably it hangs in device_power_up(), so the problem
-> >>>>>> >>>>>> seems to be
-> >>>>>> >>>>>> with one of the devices that are resumed with IRQs off.
-> >>>>>> >>>>>>
-> >>>>>> >>>>>> Does vanila .18-rc2 work?
-> >>>>> >>>>> Yup, it does.
-> >>>> >>>> Can you try up kernel, no highmem? (mem=512M)?
-> >>> >>> It writes then:
-> >>> >>> p16v: status 0xffffffff, mask 0x00001000, pvoice f7c04a20, use 0
-> >>> >>> in endless loop when resuming -- after reading from swap.
-> >> >> Okay, so we have two different problems here.
-> >> >>
-> >> >> One is "hang during suspend" with smp/highmem mode,
-> > > 
-> > > That one is "interesting".  I've no idea why the restoration of highmem
-> > > would
-> > > have caused the box to hang like that.  Jiri, could you please post the
-> > > output
-> > > of dmesg after a fresh boot?
-> 
-> higmem is ok. ioapic0 is the culprit -- its class resume dies:
->         if (cls->resume)
->                 cls->resume(dev); <----
-> in __sysdev_resume
+> >> >> How reiser4 compares I've no idea.
+> >> >
+> >> >
+> >> > Citation?
+> >> >
+> >> > I ask because your clam differs from the only detailed research that
+> >> > I'm aware of on the subject[1]. In figure 2 of the iron filesystems
+> >> > paper that Ext3 is show to ignore a great number of data-loss inducing
+> >> > failure conditions that Reiser3 detects an panics under.
+> >> >
+> >> > Are you sure that you aren't commenting on cases where Reiser3 alerts
+> >> > the user to a critical data condition (via a panic) which leads to a
+> >> > trouble report while ext3 ignores the problem which suppresses the
+> >> > trouble report from the user?
+> >> >
+> >> > *1) http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
+> >>
+> >> Hi Gregory, Wikimedia Foundation and LKML?
+> >>
+> >> How's Wikimania going. :-)
+> >>
+> >> What he says is correct.  I have seen some serious issues with reiserfs
+> >> in terms of stability and
+> >> data corruption.  Resier is however FASTER, but the statement is has
+> >> robustness issues is accurate.
+> >> I was using reiserfs but we opted to make EXT3 the default for Solera
+> >> appliances, even when using Suse 10
+> >> due to issues I have seen with data corruption and hard hangs on RAID 0
+> >> read/write sector errors.  I have
+> >> stopped using it for local drives and based everything on EXT3.  Not to
+> >> say it won't get there eventually, but
+> >> file systems have to endure a lot of time in the field and deployment
+> >> befor they are ready for prime time.
+> >>
+> >> The Wikimedia appliances use Wolf Mountain, and I've tested it for about
+> >> 4 months with few problems, but
+> >> I only use it for hosting the Cherokee Langauge Wikipedia.  It's
+> >> performance is several magnitudes better
+> >> than either EXT3 or ReiserFS.  Despite this, for vertical wiki servers,
+> >> its ok to go out with, folks can specifiy
+> >> whether they want appliances with EXT3, Reiser, or WMFS, but iit's a
+> >> long way from being "cooked"
+> >> completely, though it does scale to 1 exabyte FS images.
+> >
+> >
+> > i've seen you mention the Wolf Mountain FS in other emails, but google
+> > isn't telling me a lot about it.  Do you have a whitepaper?  are there
+> > any published benchmark results?  what sort of workloads do you
+> > benchmark?
+> >
+> > NATE
+> >
+> Wikipedia is the app for now.  I have not done any benchmarks on the FS
+> side, just the capture side, and its been transferred to
+> another entity.  I have no idea what they are naming it to, but I expect
+> you may hear about it soon.  One of the incarnations
+> of it is Solera's DSFS which can be reviewed here:
+>
+> www.soleranetworks.com
 
-io_apic fix spinlock in resume
+so this is a single stream, write only? ...
 
-In io_apic class resume after Andi's cleanup was wiped out one unlock of
-spinlock. Get him back to allow suspending (and resuming) of machine.
+> I can sustain 850 MB/S throughput from user space with it -- about 5 x
+> any other FS.  On some hardware, I've broken
+> the 1.25 GB/S (gigabyte/second) windows with it.
 
-Cc: Andi Kleen <ak@suse.de>
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+and you're saying it scales to much higher multi-spindle
+single-machine throughput.  cool.
 
----
-commit 2d82ba5b564500cb29613ee9c24b1d0efa829518
-tree 64551b2f45e6ffd3f220af85f25dae2199897652
-parent 8e013921e94b248b33880b58b46e5eba4a931b51
-author Jiri Slaby <ku@bellona.localdomain> Tue, 01 Aug 2006 01:16:13 +0159
-committer Jiri Slaby <ku@bellona.localdomain> Tue, 01 Aug 2006 01:16:13 +0159
+i'd love to see a whitepaper, or failing that, have an off-list
+discussion of your approach and the various kernel limitations you ran
+up against in testing.  i don't suppose they invited you to the Kernel
+Summit to talk about it, heh.
 
- arch/i386/kernel/io_apic.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
-index fa0eb9f..617037a 100644
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -2360,6 +2360,7 @@ static int ioapic_resume(struct sys_devi
- 		reg_00.bits.ID = mp_ioapics[dev->id].mpc_apicid;
- 		io_apic_write(dev->id, 0, reg_00.raw);
- 	}
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
- 	for (i = 0; i < nr_ioapic_registers[dev->id]; i ++)
- 		ioapic_write_entry(dev->id, i, entry[i]);
- 
+NATE

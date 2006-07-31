@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWGaQli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWGaQoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbWGaQli (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWGaQli
+	id S1030212AbWGaQoe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWGaQoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:41:38 -0400
-Received: from mail.linicks.net ([217.204.244.146]:14492 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1030235AbWGaQlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:41:37 -0400
-From: Nick Warne <nick@linicks.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Preserving uptime with kexec?
-Date: Mon, 31 Jul 2006 17:40:06 +0100
-User-Agent: KMail/1.9.3
-Cc: Valdis.Kletnieks@vt.edu, Thomas Tuttle <thinkinginbinary@gmail.com>,
-       linux-kernel@vger.kernel.org
-References: <20060731125913.GA27083@phoenix> <7c3341450607310846p33049e72o17c1acd446110c4d@mail.gmail.com> <Pine.LNX.4.61.0607311827570.5787@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0607311827570.5787@yvahk01.tjqt.qr>
+	Mon, 31 Jul 2006 12:44:34 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:40355 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1030212AbWGaQod
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 12:44:33 -0400
+Message-ID: <44CE3369.8040704@slaphack.com>
+Date: Mon, 31 Jul 2006 11:44:25 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Adrian Ulrich <reiser4@blinkenlights.ch>,
+       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de>
+In-Reply-To: <20060731162224.GJ31121@lug-owl.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607311740.06140.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 July 2006 17:28, Jan Engelhardt wrote:
-> > Speaking of which, I have submitted a claim to Guiness Book of Records
-> > for my uptime on a lowly 486 box that serves my webpages (via NFS) as
-> > a 'home user' (I am sure business classed machines do better with UPS
-> > etc.).  I have posted here twice when it hit 1000 days and then 1500
-> > days:
->
-> http://en.uptime-project.net/
-> someone's going to beat you by lengths...
+Jan-Benedict Glaw wrote:
+> On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
+>> A colleague of mine happened to create a ~300gb filesystem and started
+>> to migrate Mailboxes (Maildir-style format = many small files (1-3kb))
+>> to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+> 
+> So preparation work wasn't done.
 
-Yeah... but how do you prove it?  The top machine on http://counter.li.org/
+So what?
 
-http://counter.li.org/reports/uptimestats.php
+Yes, you need to do preparation.  But it is really nice if the 
+filesystem can do that work for you.
 
-is just above mine - but running a kernel that wasn't even released that 
-amount of days ago?
-
-Anyway, on cue (would you believe THIS?!?), about 10 minutes after I replied 
-to this thread, I received a mail:
+Let me put it this way -- You're back in college, and it's time to write 
+a thesis.  You have a choice of software packages:
 
 
 
+Package A:  You have to specify how many pages, and how many words, 
+you're likely to use before you start typing.  Guess too high, and 
+you'll print out a bunch of blank pages at the end.  Guess too low, and 
+you'll run out of space and have to start over, copy and paste your 
+document back in, and hope it gets all the formatting right, which it 
+probably won't.
 
-Claim ID: xxxxxx
-Membership Number: xxxxx
-
-Dear Mr Warne,
-
-Thank you for sending us the details of your recent record proposal for 'home 
-computer - longest 'uptime''. We are afraid to say that we are unable to 
-accept this as a Guinness World Record.
-
-We have considered your proposal carefully but regret that it is not something 
-for which we are currently interested in listing a record. We receive over 
-60,000 enquiries a year from which only a small proportion are approved by 
-our experienced researchers to establish new categories.
-
-We realize that this will be disappointing to you. However, we have considered 
-your proposal fully; in the context of the specific subject area and that of 
-records as a whole, and our decision is final in this matter.
-
-Once again thank you for your interest in Guinness World Records.
-
-Yours sincerely,
-
-Amarilis Espinoza
-Records Management Team
+Package B:  Your document grows as you type.  When it's time to print, 
+only the pages you've actually written something on -- but all of the 
+pages you've actually written something on -- are printed.
 
 
 
+All other things being equal, which would you choose?  Which one seems 
+more modern?
 
-Heh.  BUGGER!
+Look, I understand the argument against ReiserFS v3 -- it has another 
+limitation that you don't even know about.  That other limitation is 
+scary -- that's like being able to type as many words as you want, but 
+once you type enough pages (no way of knowing how many), pages start 
+randomly disappearing from the middle of your document.
 
-Nick
--- 
-Every program has two purposes:
-one for which it was written and another for which it wasn't.
+But the argument that no one cares about inode limits?  Really, stop 
+kidding yourselves.  It's 2006.  The limits are starting to look 
+ridiculous.  Just because they're workable doesn't mean we should have 
+to live with them.

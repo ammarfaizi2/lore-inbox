@@ -1,159 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWGaUeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWGaUhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWGaUeO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 16:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWGaUeO
+	id S1030192AbWGaUhh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 16:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWGaUhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 16:34:14 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:44552 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030193AbWGaUeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 16:34:13 -0400
-Date: Mon, 31 Jul 2006 16:34:10 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: jesse.brandeburg@gmail.com, Andrew Morton <akpm@osdl.org>
-cc: Kernel development list <linux-kernel@vger.kernel.org>,
-       <torvalds@osdl.org>, <cpufreq@www.linux.org.uk>
-Subject: Re: Linux v2.6.18-rc3
-In-Reply-To: <20060731081112.05427677.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0607311627240.5805-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Jul 2006 16:37:37 -0400
+Received: from pat.uio.no ([129.240.10.4]:40899 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030192AbWGaUhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 16:37:37 -0400
+Subject: Re: [PATCH] sunrpc/auth_gss: NULL pointer deref in
+	gss_pipe_release()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Alex Polvi <polvi@google.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+References: <e561bacc0607310750p2cba1576m6564a356b94dd26c@mail.google.com>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 13:37:22 -0700
+Message-Id: <1154378242.13744.14.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.558, required 12,
+	autolearn=disabled, AWL 1.44, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006, Andrew Morton wrote:
+On Mon, 2006-07-31 at 10:50 -0400, Alex Polvi wrote:
+> Proposed (trivial) patch to fix a NULL pointer deref in
+> gss_pipe_release(). While this does seem to fix the problem, I'm not
+> entirely sure it is the correct place to handle the NULL pointer.
+> 
+> Included below is the script I used to recreate the problem, the oops,
+> and the patch.
 
-> core_initcall() would suit.  That's actually a bit late for this sort of
-> thing, but we can always add a new section later if it becomes a problem. 
-> I'd suggest that we ensure that srcu_notifier_chain_register() performs a
-> reliable BUG() if it gets called too early.
+Sorry, but that is not the correct fix. The problem here is rather that
+something is causing us to call rpc_close_pipes() on the file after the
+call to gss_destroy(). That is supposed to be illegal.
 
-Here's a patch to test.  I can't try it out on my machine because 
-2.6.18-rc2-mm1 (even without the patch) crashes partway through a 
-suspend-to-disk, in a way that's extremely hard to debug.  Some sort of 
-spinlock-related bug occurs within ioapic_write_entry.
+Cheers,
+  Trond
 
-Alan Stern
-
-
-Index: 2.6.18-rc2-mm1/kernel/sys.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/kernel/sys.c
-+++ 2.6.18-rc2-mm1/kernel/sys.c
-@@ -516,7 +516,7 @@ EXPORT_SYMBOL_GPL(srcu_notifier_call_cha
- void srcu_init_notifier_head(struct srcu_notifier_head *nh)
- {
- 	mutex_init(&nh->mutex);
--	init_srcu_struct(&nh->srcu);
-+	BUG_ON(init_srcu_struct(&nh->srcu) < 0);
- 	nh->head = NULL;
- }
- 
-Index: 2.6.18-rc2-mm1/kernel/srcu.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/kernel/srcu.c
-+++ 2.6.18-rc2-mm1/kernel/srcu.c
-@@ -42,11 +42,12 @@
-  * to any other function.  Each srcu_struct represents a separate domain
-  * of SRCU protection.
-  */
--void init_srcu_struct(struct srcu_struct *sp)
-+int init_srcu_struct(struct srcu_struct *sp)
- {
- 	sp->completed = 0;
--	sp->per_cpu_ref = alloc_percpu(struct srcu_struct_array);
- 	mutex_init(&sp->mutex);
-+	sp->per_cpu_ref = alloc_percpu(struct srcu_struct_array);
-+	return (sp->per_cpu_ref ? 0 : -ENOMEM);
- }
- 
- /*
-Index: 2.6.18-rc2-mm1/include/linux/srcu.h
-===================================================================
---- 2.6.18-rc2-mm1.orig/include/linux/srcu.h
-+++ 2.6.18-rc2-mm1/include/linux/srcu.h
-@@ -43,7 +43,7 @@ struct srcu_struct {
- #define srcu_barrier()
- #endif /* #else #ifndef CONFIG_PREEMPT */
- 
--void init_srcu_struct(struct srcu_struct *sp);
-+int init_srcu_struct(struct srcu_struct *sp);
- void cleanup_srcu_struct(struct srcu_struct *sp);
- int srcu_read_lock(struct srcu_struct *sp);
- void srcu_read_unlock(struct srcu_struct *sp, int idx);
-Index: 2.6.18-rc2-mm1/drivers/cpufreq/cpufreq.c
-===================================================================
---- 2.6.18-rc2-mm1.orig/drivers/cpufreq/cpufreq.c
-+++ 2.6.18-rc2-mm1/drivers/cpufreq/cpufreq.c
-@@ -52,8 +52,14 @@ static void handle_update(void *data);
-  * The mutex locks both lists.
-  */
- static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
--static BLOCKING_NOTIFIER_HEAD(cpufreq_transition_notifier_list);
-+static struct srcu_notifier_head cpufreq_transition_notifier_list;
- 
-+static int __init init_cpufreq_transition_notifier_list(void)
-+{
-+	srcu_init_notifier_head(&cpufreq_transition_notifier_list);
-+	return 0;
-+}
-+core_initcall(init_cpufreq_transition_notifier_list);
- 
- static LIST_HEAD(cpufreq_governor_list);
- static DEFINE_MUTEX (cpufreq_governor_mutex);
-@@ -262,14 +268,14 @@ void cpufreq_notify_transition(struct cp
- 				freqs->old = policy->cur;
- 			}
- 		}
--		blocking_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
- 				CPUFREQ_PRECHANGE, freqs);
- 		adjust_jiffies(CPUFREQ_PRECHANGE, freqs);
- 		break;
- 
- 	case CPUFREQ_POSTCHANGE:
- 		adjust_jiffies(CPUFREQ_POSTCHANGE, freqs);
--		blocking_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
- 				CPUFREQ_POSTCHANGE, freqs);
- 		if (likely(policy) && likely(policy->cpu == freqs->cpu))
- 			policy->cur = freqs->new;
-@@ -1049,7 +1055,7 @@ static int cpufreq_suspend(struct sys_de
- 		freqs.old = cpu_policy->cur;
- 		freqs.new = cur_freq;
- 
--		blocking_notifier_call_chain(&cpufreq_transition_notifier_list,
-+		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
- 				    CPUFREQ_SUSPENDCHANGE, &freqs);
- 		adjust_jiffies(CPUFREQ_SUSPENDCHANGE, &freqs);
- 
-@@ -1130,7 +1136,7 @@ static int cpufreq_resume(struct sys_dev
- 			freqs.old = cpu_policy->cur;
- 			freqs.new = cur_freq;
- 
--			blocking_notifier_call_chain(
-+			srcu_notifier_call_chain(
- 					&cpufreq_transition_notifier_list,
- 					CPUFREQ_RESUMECHANGE, &freqs);
- 			adjust_jiffies(CPUFREQ_RESUMECHANGE, &freqs);
-@@ -1176,7 +1182,7 @@ int cpufreq_register_notifier(struct not
- 
- 	switch (list) {
- 	case CPUFREQ_TRANSITION_NOTIFIER:
--		ret = blocking_notifier_chain_register(
-+		ret = srcu_notifier_chain_register(
- 				&cpufreq_transition_notifier_list, nb);
- 		break;
- 	case CPUFREQ_POLICY_NOTIFIER:
-@@ -1208,7 +1214,7 @@ int cpufreq_unregister_notifier(struct n
- 
- 	switch (list) {
- 	case CPUFREQ_TRANSITION_NOTIFIER:
--		ret = blocking_notifier_chain_unregister(
-+		ret = srcu_notifier_chain_unregister(
- 				&cpufreq_transition_notifier_list, nb);
- 		break;
- 	case CPUFREQ_POLICY_NOTIFIER:
+> polvi@return:~/sysops/experimental/polvi$ cat oopsmynfs.sh
+> #!/bin/bash
+> 
+> cd / # make sure we are not in the dir
+> 
+> PROG=${0##*/}
+> 
+> function usage {
+>   cat <<EOF
+> usage: $PROG /nfs/path/
+> 
+> will oops sunrpc using the nfs host that serves /nfs/path/
+> EOF
+>   exit 1
+> }
+> 
+> DIR=$1
+> 
+> [ -d "$DIR" ] || usage
+> 
+> sudo umount $DIR 2> /dev/null # just house-keeping...
+> 
+> sudo mount -o sec=krb5 randomfiler:/vol/to/some/share $DIR # must use krb5
+> 
+> # with out this ls the cd below will say permission denied and not
+> hang after the
+> # nfs server has been turned off. It has something to do with stat64
+> returning EACCES
+> ls $DIR > /dev/null
+> 
+> echo "Make the nfs server unusable by the client (turn off nfs, iptables, etc)."
+> read -p "press enter when ready"
+> 
+> # if the echo is hit, this script failed to oops sunrpc
+> (cd $DIR/. ;  echo "will not cause an oops") & # this should hang
+> 
+> sudo umount -l $DIR
+> 
+> echo "Turn the nfs server back on and watch for the oops.  Should not
+> take more then 10s"
+> 
+> 
+> [  204.385339] net/sunrpc/rpc_pipe.c: rpc_lookup_parent failed to find
+> path /nfs/clnt4/krb5
+> [  204.385427] BUG: unable to handle kernel NULL pointer dereference
+> at virtual address 0000006c
+> [  204.385554]  printing eip:
+> [  204.385595] c01d2322
+> [  204.385678] *pde = 00000000
+> [  204.385719] Oops: 0000 [#1]
+> [  204.385781] SMP
+> [  204.385875] Modules linked in: des binfmt_misc autofs4 video button
+> battery ac nfs lockd af_packet sg sr_mod pcspkr rtc psm
+> 
+> 
+>                                    ouse mousedev ide_disk ide_cd cdrom
+> rpcsec_gss_krb5 auth_rpcgss sunrpc ext3 jbd mbcache thermal processor
+> fan tg3 sd_mod ide_g
+> 
+> 
+> eneric ata_piix libata scsi_mod generic ide_core unix
+> [  204.387417] CPU:    0
+> [  204.387418] EIP:    0060:[<c01d2322>]    Not tainted VLI
+> [  204.387419] EFLAGS: 00010292   (2.6.18-rc2-git #1)
+> [  204.387538] EIP is at _raw_spin_lock+0x12/0x170
+> [  204.387578] eax: 00000068   ebx: 00000068   ecx: f7157d3c   edx: f7157d3c
+> [  204.387621] esi: 00000068   edi: 00000000   ebp: f7157d00   esp: f7157cdc
+> [  204.387664] ds: 007b   es: 007b   ss: 0068
+> [  204.387704] Process oopsmynfs.sh (pid: 6114, ti=f7156000
+> task=dffb5aa0 task.ti=f7156000)
+> [  204.387748] Stack: dffb5aa0 f7157d1c c029ee7d f7157cfc f7156000
+> f7156000 f73acd00 00000068
+> [  204.388040]        00000000 f7157d0c c029ff7e 00000068 f7157d24
+> f88d82cf f73acd00 f73acd00
+> [  204.388332]        f73acecc f88e1554 f7157d50 f8cbd6a9 f73acd00
+> f7288460 f73acd80 f73acd70
+> [  204.388625] Call Trace:
+> [  204.388868]  [<c029ff7e>] _spin_lock+0xe/0x10
+> [  204.388997]  [<f88d82cf>] gss_pipe_release+0x1f/0x70 [auth_rpcgss]
+> [  204.389075]  [<f8cbd6a9>] rpc_close_pipes+0xe9/0x130 [sunrpc]
+> [  204.389173]  [<f8cbd91f>] rpc_depopulate+0xff/0x140 [sunrpc]
+> [  204.389267]  [<f8cbda8d>] rpc_rmdir+0x6d/0xa0 [sunrpc]
+> [  204.389360]  [<f8cac95e>] rpc_destroy_client+0xde/0x110 [sunrpc]
+> [  204.389443]  [<f8cac8e1>] rpc_destroy_client+0x61/0x110 [sunrpc]
+> [  204.389524]  [<f8cacab7>] rpc_shutdown_client+0xb7/0x120 [sunrpc]
+> [  204.389605]  [<f8b2643b>] nfs_kill_super+0x3b/0x90 [nfs]
+> [  204.389692]  [<c016e2c1>] deactivate_super+0x81/0xa0
+> [  204.389858]  [<c0185522>] mntput_no_expire+0x52/0x90
+> [  204.390039]  [<c01770da>] path_release+0x2a/0x30
+> [  204.390211]  [<c01715cb>] vfs_stat_fd+0x4b/0x60
+> [  204.390378]  [<c0171600>] vfs_stat+0x20/0x30
+> [  204.390545]  [<c0171fc9>] sys_stat64+0x19/0x30
+> [  204.390712]  [<c0102fb1>] sysenter_past_esp+0x56/0x79
+> [  204.390787]  [<b7fff410>] 0xb7fff410
+> [  204.390854] Code: 2b c0 89 f8 e8 00 fe ff ff e9 14 ff ff ff 8d 74
+> 26 00 8d bc 27 00 00 00 00 55 89 e5 83 ec 24 89 5d f4 8b
+> 
+> 
+>                                      5d 08 89 75 f8 89 7d fc <81> 7b
+> 04 ad 4e ad de 75 4c 89 e0 25 00 e0 ff ff 8b 00 39 43 0c
+> [  204.392662] EIP: [<c01d2322>] _raw_spin_lock+0x12/0x170 SS:ESP 0068:f7157cdc
+> 
+> Signed-off-by: Alex Polvi <polvi@google.com>
+> ---
+> diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
+> index 4a9aa93..2db3bd1 100644
+> --- a/net/sunrpc/auth_gss/auth_gss.c
+> +++ b/net/sunrpc/auth_gss/auth_gss.c
+> @@ -607,6 +607,9 @@ gss_pipe_release(struct inode *inode)
+>        struct rpc_auth *auth;
+>        struct gss_auth *gss_auth;
+> 
+> +       if (rpci->ops == NULL)
+> +               return;
+> +
+>        clnt = rpci->private;
+>        auth = clnt->cl_auth;
+>        gss_auth = container_of(auth, struct gss_auth, rpc_auth);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

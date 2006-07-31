@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWGaKuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWGaKvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751516AbWGaKuD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 06:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWGaKuD
+	id S1751514AbWGaKvR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 06:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWGaKvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 06:50:03 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:45982 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751513AbWGaKuB convert rfc822-to-8bit (ORCPT
+	Mon, 31 Jul 2006 06:51:17 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:7839 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751514AbWGaKvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 06:50:01 -0400
-Subject: Re: [2.6.18-rc2-mm1] libata: DMA speed too slow for cdrecord
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-In-Reply-To: <20060729235431.322ea6d3@werewolf.auna.net>
-References: <20060729235431.322ea6d3@werewolf.auna.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 31 Jul 2006 12:09:01 +0100
-Message-Id: <1154344141.7230.18.camel@localhost.localdomain>
+	Mon, 31 Jul 2006 06:51:16 -0400
+Date: Mon, 31 Jul 2006 14:50:37 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: drepper@redhat.com, zach.brown@oracle.com, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+Message-ID: <20060731105037.GA2073@2ka.mipt.ru>
+References: <20060731103322.GA1898@2ka.mipt.ru> <E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 31 Jul 2006 14:50:38 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-07-29 am 23:54 +0200, ysgrifennodd J.A. Magallón:
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xF000 irq 14
+On Mon, Jul 31, 2006 at 08:35:55PM +1000, Herbert Xu (herbert@gondor.apana.org.au) wrote:
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >
+> >> - if there is space, report it in the ring buffer.  Yes, the buffer
+> >>   can be optional, then all events are reported by the system call.
+> > 
+> > That requires a copy, which can neglect syscall overhead.
+> > Do we really want it to be done?
+> 
+> Please note that we're talking about events here, not actual data.  So
+> only the event is being copied, which is presumably rather small compared
+> to the data.
 
-Chip configuration reports OK
-> scsi0 : ata_piix
-> ata1.00: ATAPI, max UDMA/33
-> ata1.01: ATAPI, max MWDMA0, CDB intr
-> ata1.00: configured for PIO3
-> ata1.01: configured for PIO3
+In syscall time kevents copy 40bytes for each event + 12 bytes of header 
+(number of events, timeout and command number). That's likely two cache
+lines if only one event is reported.
 
-Your tree appears to have the old speed setting code in it not the new
-speed setting code. As a result of this it tries to set both to MWDMA0
-which isn't available on the ICH chips and so falls back to PIO3.
-
-
+-- 
+	Evgeniy Polyakov

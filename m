@@ -1,87 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWGaSd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWGaSgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbWGaSd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWGaSd5
+	id S1030266AbWGaSgX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWGaSgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:33:57 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59885 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030259AbWGaSd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:33:56 -0400
-Subject: Re: [2.6.18-rc2-mm1] libata ate one PATA channel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: "J.A. Magall?n" <jamagallon@ono.com>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <44CE37CF.1010804@gmail.com>
-References: <20060728134550.030a0eb8@werewolf.auna.net>
-	 <44CD0E55.4020206@gmail.com> <20060731172452.76a1b6bd@werewolf.auna.net>
-	 <44CE2908.8080502@gmail.com>
-	 <1154363489.7230.61.camel@localhost.localdomain>
-	 <20060731165011.GA6659@htj.dyndns.org>  <44CE37CF.1010804@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Jul 2006 19:52:52 +0100
-Message-Id: <1154371972.7230.95.camel@localhost.localdomain>
+	Mon, 31 Jul 2006 14:36:23 -0400
+Received: from lug-owl.de ([195.71.106.12]:61312 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1030266AbWGaSgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 14:36:22 -0400
+Date: Mon, 31 Jul 2006 20:36:20 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: David Masover <ninja@slaphack.com>
+Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
+       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Message-ID: <20060731183620.GP31121@lug-owl.de>
+Mail-Followup-To: David Masover <ninja@slaphack.com>,
+	Adrian Ulrich <reiser4@blinkenlights.ch>,
+	Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
+	ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+	jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+	reiserfs-list@namesys.com
+References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de> <44CE3369.8040704@slaphack.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s3R87C3fwYeCSZ0b"
+Content-Disposition: inline
+In-Reply-To: <44CE3369.8040704@slaphack.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 02:03 +0900, ysgrifennodd Tejun Heo:
-> Alan, the reason why the second port disappeared is a bug in 
-> init_legacy_mode().  probe_ent->n_ports is fxied to 1 and port_no gets 
-> incremented while initializing the second port ending up initializing 
-> part of the third port.
 
-Ouch yes.
+--s3R87C3fwYeCSZ0b
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Another problem is that probe_ent/ap->hard_port_no are meaningless. 
-> hard_port_no is used to get port_no right on legacy cases where index of 
-> host_set->ports[] doesn't match the actual port_no.  When there is only 
-> one host_set, port_no should always equal hard_port_no.  For legacy 
-> hosts, the original code ended up assigning the wrong hard_port_no's.
+On Mon, 2006-07-31 11:44:25 -0500, David Masover <ninja@slaphack.com> wrote:
+> Jan-Benedict Glaw wrote:
+> > On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich=20
+> > <reiser4@blinkenlights.ch> wrote:
+> > > A colleague of mine happened to create a ~300gb filesystem and started
+> > > to migrate Mailboxes (Maildir-style format =3D many small files (1-3k=
+b))
+> > > to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+> >
+> > So preparation work wasn't done.
+>=20
+> Let me put it this way -- You're back in college, and it's time to write=
+=20
+> a thesis.  You have a choice of software packages:
+>=20
+> Package A:  You have to specify how many pages, and how many words,=20
+> you're likely to use before you start typing.  Guess too high, and=20
+> you'll print out a bunch of blank pages at the end.  Guess too low, and=
+=20
+> you'll run out of space and have to start over, copy and paste your=20
+> document back in, and hope it gets all the formatting right, which it=20
+> probably won't.
+>=20
+> Package B:  Your document grows as you type.  When it's time to print,=20
+> only the pages you've actually written something on -- but all of the=20
+> pages you've actually written something on -- are printed.
+>=20
+> All other things being equal, which would you choose?  Which one seems=20
+> more modern?
 
-Agreed. I looked at that but it seemed that it isn't true that you can
-assume port_no == hard_port_no because you may have a device which has
-the primary port disabled and the secondary port set legacy. This also
-sort of comes up in mixed devices but we don't handle them and I think
-it comes out correctly once we do the pure legacy case right.
+:)  Well, given that TeX needs two (or even three!) runs to get all
+page references right, why should I choose MS Word, where you won't
+see that problem at all?
 
-> I killed hard_port_no by s/ap->hard_port_no/ap->port_no/g without 
-> actually reviewing the usages (man, those are a LOT).  If all pata 
-> drivers always relied on ap->hard_port_no representing the actual port 
-> index in the controller, there shouldn't be a problem.  But, just in 
-> case, please review the change.
+MfG, JBG
 
-Think about the following execution sequence
+--=20
+       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
+8481
+ Signature of:                               If it doesn't work, force it.
+ the second  :                      If it breaks, it needed replacing anywa=
+y.
 
-ati_pci_init_one
-	primary port already stolen by drivers/ide 
-	secondary port free
+--s3R87C3fwYeCSZ0b
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-	legacy_mode = ATA_PORT_SECONDARY
-	ata_pci_init_legacy_port
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-	port_num = 0
-	hard_port_num = 1
+iD8DBQFEzk2kHb1edYOZ4bsRAqEcAJ99by4eA0AfcVNx8N2TUf+rPghXsACbBmfL
+JYGJrTHXR0j9oSxtmU70Adg=
+=Bf+p
+-----END PGP SIGNATURE-----
 
-	*kerunnccchhhhhh*
-
-
-> If this fixes Magallon's problem and you agree with the fix, I'll break 
-> it down to two patches and submit'em to you with proper heading and all.
-
-I agree with the theory and the diagnosis. I'm a bit worried about
-hard_port_no however and I don't think that bit is safe in the secondary
-only corner case. Registering both always and disabling one works for me
-as a cleanup.
-
-If you do that then I'll audit all the drivers use of ->port_no against
-the patches.
-
-Alan
-
+--s3R87C3fwYeCSZ0b--

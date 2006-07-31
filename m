@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWGaBeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWGaCHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWGaBeS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 21:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWGaBeS
+	id S932375AbWGaCHz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 22:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWGaCHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 21:34:18 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:30173 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932115AbWGaBeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 21:34:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WusBUaPfiQs8CtlM2isdgnO/EsOgcnA7eamdo5nLNb1hXiE6+vig+US6ZZ6I7jA8nLHyTJsA7Nqy4veoZW2UgkDR1DMvr6j/Qj9QaXZfmUi1ifxrZVcKh+kvlxLmRcTvhUN9ggHndyLxuX4/ggtiRU/R1CCAI/Nu5wWeH+d8nDU=
-Message-ID: <41840b750607301834g6e7cedbj179ad12206c10529@mail.gmail.com>
-Date: Mon, 31 Jul 2006 04:34:15 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: Generic battery interface
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Pavel Machek" <pavel@suse.cz>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "kernel list" <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-In-Reply-To: <200607310058.k6V0wYj2004593@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 30 Jul 2006 22:07:54 -0400
+Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:23491
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932375AbWGaCHy (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 22:07:54 -0400
+Message-Id: <200607310206.k6V26abt006083@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@linux.intel.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 2/5] Add the Kconfig option for the stackprotector feature
+In-Reply-To: Your message of "Sun, 30 Jul 2006 18:49:38 +0200."
+             <20060730164938.GA10849@stusta.de>
+From: Valdis.Kletnieks@vt.edu
+References: <1154102546.6416.9.camel@laptopd505.fenrus.org> <200607292050.37877.ak@suse.de> <20060729185737.GG26963@stusta.de> <200607292104.18030.ak@suse.de> <20060729191938.GH26963@stusta.de> <200607301614.k6UGEpIL023020@turing-police.cc.vt.edu>
+            <20060730164938.GA10849@stusta.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1154311595_2988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <20060728134307.GD29217@suse.cz>
-	 <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com>
-	 <200607281557.k6SFvn09022794@turing-police.cc.vt.edu>
-	 <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com>
-	 <200607282314.k6SNESSg019274@turing-police.cc.vt.edu>
-	 <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com>
-	 <200607300835.k6U8ZvSB016669@turing-police.cc.vt.edu>
-	 <41840b750607300448u353a3276o8c30d7d880da6329@mail.gmail.com>
-	 <200607310058.k6V0wYj2004593@turing-police.cc.vt.edu>
+Date: Sun, 30 Jul 2006 22:06:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/31/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> OK, if you meant this one (that hadn't shown up here before I hit 'send'):
+--==_Exmh_1154311595_2988P
+Content-Type: text/plain; charset=us-ascii
 
-No, I ment this one: http://lkml.org/lkml/2006/7/30/193
-(or actually its parent, at the time).
+On Sun, 30 Jul 2006 18:49:38 +0200, Adrian Bunk said:
+> On Sun, Jul 30, 2006 at 12:14:51PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > On Sat, 29 Jul 2006 21:19:38 +0200, Adrian Bunk said:
+> > 
+> > > That was never true in Arjan's patches.
+> > > 
+> > > The only change is from a gcc version check to a feature check.
+> > > 
+> > > In both cases, a gcc 4.1 without the appropriate patch applied will 
+> > > result in this option not being set.
+> > 
+> > What do you get if you have a gcc 4.1.1. that has the stack protector option
+> > (so a feature check works), but not the fix for gcc PR 28281?
+> 
+> This is handled correctly in both cases.
+> 
+> Please read the patches in this thread for more information.
+
+Patches? I read the *patches*. :)  What I missed was this:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115412601229175&w=2
+
+was the only thing I found (over in the 5/5 thread) that remotely looked
+like an actual workable test, and all Arjan said was:
+
+> the following line is enough actually:
+
+> echo "int foo(void) { char X[200]; return 3; }" | gcc -S -xc -c -O0 -mcmodel=kernel \ -fstack-protector - -o - | grep -q "%gs"
+
+> echo $? (eg return value) gives 0 for the "works" case, "1" for the
+> "wrong gcc" case...
+
+I admit missing that one, because it wasn't actually a patch, but a commentary
+I managed to not read and digest in detail (in particular, it wasn't at all
+clear that his one-liner would DTRT re: PR28281...)
 
 
-> was commenting about.  A gkrellm-ish program can query every 100ms and
-> get a cached value 49 times out of 50 for a value that's hardware-updated
-> every 5 seconds, and all will be well (of course, there's room for some
-> added optimization,
+--==_Exmh_1154311595_2988P
+Content-Type: application/pgp-signature
 
-That's exactly what we're trying to avoid -- excessive polling of
-values that don't change. It causes unnecessary system load and timer
-interrupts on tickless kernels.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEzWWrcC3lWbTT17ARAonVAKC1ueF4EUfwAJr78UbKj1ZyPk2m4wCfZbZn
+LyPpp5/eTgj6EP+q/Lt97NI=
+=35yc
+-----END PGP SIGNATURE-----
 
-> unless the kernel has
-> a good way to pass back a good hint of when the next update will be...)
-
-The kernel often doesn't know when it will get the next update. But on
-the other hand, apps usually know well in advance  when they'll *want*
-the next update. My proposal exploits this to get optimal behavior (if
-the driver+infrastructure do the right thing).
-
-  Shem
+--==_Exmh_1154311595_2988P--

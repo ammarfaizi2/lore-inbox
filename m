@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWGaOeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWGaOdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWGaOeD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWGaOdj
+	id S932404AbWGaOdh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWGaOdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:33:39 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:60760 "HELO
+	Mon, 31 Jul 2006 10:33:36 -0400
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:57944 "HELO
 	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932408AbWGaOdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:33:15 -0400
+	id S932404AbWGaOdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 10:33:14 -0400
 From: David Brownell <david-b@pacbell.net>
-To: Komal Shah <komal_shah802003@yahoo.com>
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Date: Mon, 31 Jul 2006 07:33:07 -0700
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.18-rc3] build fixes: smc91x
+Date: Mon, 31 Jul 2006 07:32:18 -0700
 User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, gregkh@suse.de, i2c@lm-sensors.org, imre.deak@nokia.com,
-       juha.yrjola@solidboot.com, khali@linux-fr.org,
-       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
-References: <1154066134.13520.267064606@webmail.messagingengine.com>
-In-Reply-To: <1154066134.13520.267064606@webmail.messagingengine.com>
+Cc: Nicolas Pitre <nico@cam.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200607310733.09125.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_yRhzE5fy52rHGle"
+Message-Id: <200607310732.18822.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And I **really** hope this gets merged into 2.6.18 since virtually
-no OMAP board is very usable without it.  I2C is one of the main
-missing pieces(*) ... can whoever's managing I2C merges please
-expedite this?
+--Boundary-00=_yRhzE5fy52rHGle
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I just tried building an OSK config against RC3 and found at least
-five will-not-build errors in the kernel.org tree.  The reason for
-this is basically that folk have no option except the linux-omap
-tree, since there's no point in trying to use the kernel.org version
-until the I2C driver finally gets merged ... so such bugs won't get
-fixed.  Needless to say, this is not the desired development process.
-
-- Dave
-
-(*) I submitted the then-current I2C driver over a year ago, but
-    after a few months of inaction I found that it was dropped
-    (or rejected?) by the I2C list software.  Of course at that
-    point I no longer had time to resubmit the current code ...
+Another driver that wouldn't build in mainline kernels for OMAP.
 
 
+--Boundary-00=_yRhzE5fy52rHGle
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="smc91x.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="smc91x.patch"
+
+Unclear how these bugs arrived, presumably from incorrect cleanup of
+the 16-bit-only paths, but smc91x wouldn't build for OMAP.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+--- a/drivers/net/smc91x.h
++++ b/drivers/net/smc91x.h
+@@ -189,16 +189,10 @@ SMC_outw(u16 val, void __iomem *ioaddr, 
+ #define SMC_IO_SHIFT		0
+ #define SMC_NOWAIT		1
+ 
+-#define SMC_inb(a, r)		readb((a) + (r))
+-#define SMC_outb(v, a, r)	writeb(v, (a) + (r))
+ #define SMC_inw(a, r)		readw((a) + (r))
+ #define SMC_outw(v, a, r)	writew(v, (a) + (r))
+ #define SMC_insw(a, r, p, l)	readsw((a) + (r), p, l)
+ #define SMC_outsw(a, r, p, l)	writesw((a) + (r), p, l)
+-#define SMC_inl(a, r)		readl((a) + (r))
+-#define SMC_outl(v, a, r)	writel(v, (a) + (r))
+-#define SMC_insl(a, r, p, l)	readsl((a) + (r), p, l)
+-#define SMC_outsl(a, r, p, l)	writesl((a) + (r), p, l)
+ 
+ #include <asm/mach-types.h>
+ #include <asm/arch/cpu.h>
+
+--Boundary-00=_yRhzE5fy52rHGle--

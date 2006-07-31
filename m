@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWGaFHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWGaFSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWGaFHf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 01:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWGaFHf
+	id S1751483AbWGaFSE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 01:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWGaFSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 01:07:35 -0400
-Received: from stinky.trash.net ([213.144.137.162]:30349 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1751490AbWGaFHe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 01:07:34 -0400
-Message-ID: <44CD9013.7020401@trash.net>
-Date: Mon, 31 Jul 2006 07:07:31 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: david@davidcoulson.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG: warning at net/core/dev.c:1171/skb_checksum_help() 2.6.18-rc3
-References: <44CD8415.2020403@davidcoulson.net>	<44CD85FF.9010607@trash.net> <20060730.215907.58439803.davem@davemloft.net>
-In-Reply-To: <20060730.215907.58439803.davem@davemloft.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 01:18:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19369 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751483AbWGaFSD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 01:18:03 -0400
+Date: Sun, 30 Jul 2006 22:06:35 -0700
+From: Greg KH <greg@kroah.com>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Tom Long Nguyen <tom.l.nguyen@intel.com>
+Subject: Re: [PATCH 2/5] PCI-Express AER implemetation: Add new defines to pci_regs.h
+Message-ID: <20060731050635.GA29058@kroah.com>
+References: <1154314837.27051.26.camel@ymzhang-perf.sh.intel.com> <1154315439.27051.29.camel@ymzhang-perf.sh.intel.com> <20060731040045.GC13995@kroah.com> <1154320698.27051.48.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154320698.27051.48.camel@ymzhang-perf.sh.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller wrote:
-> From: Patrick McHardy <kaber@trash.net>
-> Date: Mon, 31 Jul 2006 06:24:31 +0200
-> 
-> 
->>This is a known problem with NAT and HW checksum and will probably get
->>fixed in 2.6.19.
-> 
-> 
-> I would like to see this fixed for 2.6.18, no later.
-> 
-> Either that or disable the bug trap, but taking this route
-> is severely discouraged. :)
+On Mon, Jul 31, 2006 at 12:38:18PM +0800, Zhang, Yanmin wrote:
+> On Mon, 2006-07-31 at 12:00, Greg KH wrote:
+> > On Mon, Jul 31, 2006 at 11:10:39AM +0800, Zhang, Yanmin wrote:
+> > > Although Greg already accepted the second patch into his testing tree,
+> > > I still resend it to keep the patch integrity.
+> > 
+> > Why?  This is already in 2.6.18-rc3.
+> I checked 2.6.18-rc3 and it doesn't include the patch of pci_regs.h.
 
+I just looked, and it is there.  Look at git commit
+6f0312fd7e0e6f96fd847b0b2e1e0d2d2e8ef89d to see it.
 
-I'm actually updateing my patch for this on top of Herbert's
-CHECKSUM_PARTIAL patch right now. Unfortunately I targeted 2.6.19,
-so the fixes are on top of a few cleanups (which unconvered a few
-unrelated bugs as well). I'll post it when I'm done so we can
-decide how to proceed.
+> > Please redo the whole series against 2.6.18-rc3, not 2.6.17, otherwise
+> > it's a pain to forward port...
+> The patches could be applied to 2.6.18-rc3 cleanly. There is no any
+> confliction and I tested them under 2.6.18-rc3.
 
+Based on the above statement, I'm not so sure I believe that :)
+
+> Is it necessary to rebase to 2.6.18-rc3?
+
+You should at least regenerate them, yes.
+
+thanks,
+
+greg k-h

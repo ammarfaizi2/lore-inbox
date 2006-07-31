@@ -1,135 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWGaI2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWGaIaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWGaI2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 04:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWGaI2Q
+	id S1751290AbWGaIaV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 04:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWGaIaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 04:28:16 -0400
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:61124
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S1751357AbWGaI2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 04:28:15 -0400
-Message-ID: <44CDBF1E.2010001@ed-soft.at>
-Date: Mon, 31 Jul 2006 10:28:14 +0200
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Mon, 31 Jul 2006 04:30:21 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:64983 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751290AbWGaIaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 04:30:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N3eDwPpyDQEuffUE8cRxfxLTDCyG+Ggi/vS8kfnjReF5EC+47Ar4+So6glioVpCtfdANf98/LouCdhV0N9nGseZDHrhcIXnvp/WM4b3glN4OC6nDSk70esz1SFOuVnjRul7PEj050f8bklVc4RBrcZ79GcpFKA29zKnwyDklQmM=
+Message-ID: <9a8748490607310130h312c9b84jec08d9f2f9b629fd@mail.gmail.com>
+Date: Mon, 31 Jul 2006 10:30:18 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "bert hubert" <bert.hubert@netherlabs.nl>, "Andrew Morton" <akpm@osdl.org>,
+       "Greg KH" <greg@kroah.com>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       laurent.riffard@free.fr, andrew.j.wade@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+In-Reply-To: <20060731075428.GA24584@outpost.ds9a.nl>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/3] add-force-of-use-mmconfig.patch
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060727015639.9c89db57.akpm@osdl.org>
+	 <20060731000359.GB23220@kroah.com>
+	 <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+	 <20060731033757.GA13737@kroah.com>
+	 <20060730212227.175c844c.akpm@osdl.org>
+	 <20060731043542.GA9919@kroah.com>
+	 <20060730215025.44292f9c.akpm@osdl.org>
+	 <20060731051547.GB29058@kroah.com>
+	 <20060730230033.cc4fc190.akpm@osdl.org>
+	 <20060731075428.GA24584@outpost.ds9a.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This Patch add force for mmconfig. On Intel Macs the efi firmaware gives
-a different memory map then ACPI_MCFG provides. This makes the check wether
-to use mmconfig or not fail.
+On 31/07/06, bert hubert <bert.hubert@netherlabs.nl> wrote:
+> On Sun, Jul 30, 2006 at 11:00:33PM -0700, Andrew Morton wrote:
+> > The impact is lower in this case because we've already trained our
+> > long-suffering users to expect udev to regularly break.
+>
+> It has broken, even in 2.6.18-rc3, see http://lkml.org/lkml/2006/7/30/163
+> '2.6.18-rc3 does not like an old udev (071)' and beyond.
+>
+> It now requires udev 079, in disaccordance with the Documentation/Changes
+> file.
+>
+> This breaks Ubuntu LTS, which for some reason chose to ship udev 071.
+>
+It'll probably also cause trouble for the upcomming release of Slackware.
+Slackware 11 is just around the corner and slackware-current currently
+has udev 071. The kernel is 2.4.32 or 2.6.17.7 (user choice), but I'll
+bet many people will want to install newer kernels.
 
-Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
-
-
-diff -uNr linux-2.6.18-rc3/arch/i386/Kconfig linux-2.6.18-rc3.mactel/arch/i386/Kconfig
---- linux-2.6.18-rc3/arch/i386/Kconfig	2006-07-31 09:24:20.000000000 +0200
-+++ linux-2.6.18-rc3.mactel/arch/i386/Kconfig	2006-07-31 09:27:55.000000000 +0200
-@@ -1027,6 +1027,7 @@
- 	default y
- 
- config PCI_MMCONFIG
-+	depends on DMI
- 	bool
- 	depends on PCI && ACPI && (PCI_GOMMCONFIG || PCI_GOANY)
- 	default y
-diff -uNr linux-2.6.18-rc3/arch/i386/pci/mmconfig.c linux-2.6.18-rc3.mactel/arch/i386/pci/mmconfig.c
---- linux-2.6.18-rc3/arch/i386/pci/mmconfig.c	2006-07-31 09:24:20.000000000 +0200
-+++ linux-2.6.18-rc3.mactel/arch/i386/pci/mmconfig.c	2006-07-31 09:27:57.000000000 +0200
-@@ -12,6 +12,8 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/acpi.h>
-+#include <linux/dmi.h>
-+#include <linux/efi.h>
- #include <asm/e820.h>
- #include "pci.h"
- 
-@@ -187,6 +189,54 @@
- 	}
- }
- 
-+/*
-+ * Print system on which MMCONFIG is forced.
-+ */
-+
-+static int __init pci_mmcfg_force_system(struct dmi_system_id *id)
-+{
-+	printk(KERN_INFO "PCI: System %s detected. Force MMCONFIG\n",
-+		id->ident);
-+
-+	return 0;
-+}
-+
-+/*
-+ * DMI table of forced MMCONFIG systems.
-+ */
-+
-+static struct dmi_system_id __initdata pci_mmcfg_dmi_system_apple[] = {
-+	{ pci_mmcfg_force_system, "iMac4,1", {
-+	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
-+	  DMI_MATCH(DMI_BIOS_VERSION,"iMac4,1") }},
-+	{ pci_mmcfg_force_system, "MacBookPro1,1", {
-+	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
-+	  DMI_MATCH(DMI_BIOS_VERSION,"MacBookPro1,1") }},
-+	{ pci_mmcfg_force_system, "MacBook1,1", {
-+	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
-+	  DMI_MATCH(DMI_PRODUCT_NAME,"MacBook1,1")}},
-+	{ pci_mmcfg_force_system, "Macmini1,1", {
-+	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
-+	  DMI_MATCH(DMI_PRODUCT_NAME,"Macmini1,1")}},
-+	{},
-+};
-+
-+/*
-+ * Check force MMCONFIG.
-+ */
-+
-+int __init pci_mmcfg_force(void)
-+{
-+	if (efi_enabled) {
-+		if (dmi_check_system(pci_mmcfg_dmi_system_apple)) {
-+			add_memory_region(pci_mmcfg_config[0].base_address,
-+				pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN, E820_RESERVED);
-+			return 1;
-+		}
-+	}
-+	return 0;
-+}
-+
- void __init pci_mmcfg_init(void)
- {
- 	if ((pci_probe & PCI_PROBE_MMCONF) == 0)
-@@ -198,13 +248,15 @@
- 	    (pci_mmcfg_config[0].base_address == 0))
- 		return;
- 
--	if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
--			pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
--			E820_RESERVED)) {
--		printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
--				pci_mmcfg_config[0].base_address);
--		printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
--		return;
-+ 	if (!pci_mmcfg_force()) {
-+		if (!e820_all_mapped(pci_mmcfg_config[0].base_address,
-+				pci_mmcfg_config[0].base_address + MMCONFIG_APER_MIN,
-+				E820_RESERVED)) {
-+			printk(KERN_ERR "PCI: BIOS Bug: MCFG area at %x is not E820-reserved\n",
-+					pci_mmcfg_config[0].base_address);
-+			printk(KERN_ERR "PCI: Not using MMCONFIG.\n");
-+			return;
-+		}
- 	}
- 
- 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
-
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

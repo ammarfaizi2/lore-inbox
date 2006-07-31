@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWGaVWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWGaVWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWGaVWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 17:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGaVWL
+	id S1030462AbWGaVWz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbWGaVWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 17:22:11 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7853 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932458AbWGaVWK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 17:22:10 -0400
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-	regarding reiser4 inclusion
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gregory Maxwell <gmaxwell@gmail.com>
-Cc: Clay Barnes <clay.barnes@gmail.com>, Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>
-References: <1153760245.5735.47.camel@ipso.snappymail.ca>
-	 <20060731144736.GA1389@merlin.emma.line.org>
-	 <20060731175958.1626513b.reiser4@blinkenlights.ch>
-	 <20060731162224.GJ31121@lug-owl.de>
-	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>
-	 <20060731173239.GO31121@lug-owl.de>
-	 <20060731181120.GA9667@merlin.emma.line.org>
-	 <20060731184314.GQ31121@lug-owl.de>
-	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>
-	 <1154374923.7230.99.camel@localhost.localdomain>
-	 <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Jul 2006 22:40:26 +0100
-Message-Id: <1154382026.7230.110.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 31 Jul 2006 17:22:55 -0400
+Received: from abdw250.neoplus.adsl.tpnet.pl ([83.7.8.250]:57774 "EHLO
+	pcserwis") by vger.kernel.org with ESMTP id S932529AbWGaVWy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 17:22:54 -0400
+Date: Mon, 31 Jul 2006 23:21:42 +0200
+To: "Jan-Benedict Glaw" <jbglaw@lug-owl.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+From: =?iso-8859-2?B?o3VrYXN6IE1pZXJ6d2E=?= <prymitive@pcserwis.hopto.org>
+Organization: PC Serwis
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
+MIME-Version: 1.0
+References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de> <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl> <20060731173239.GO31121@lug-owl.de>
+Content-Transfer-Encoding: 8bit
+Message-ID: <op.tdkoagt5d4os1z@localhost>
+In-Reply-To: <20060731173239.GO31121@lug-owl.de>
+User-Agent: Opera Mail/9.00 (Linux)
+X-PCSerwis-MailScanner-Information: Please contact the ISP for more information
+X-PCSerwis-MailScanner: Found to be clean
+X-PCSerwis-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-15.205, required 6, autolearn=not spam, ALL_TRUSTED -1.80,
+	AWL 1.59, BAYES_00 -15.00)
+X-MailScanner-From: prymitive@pcserwis.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-31 am 17:00 -0400, ysgrifennodd Gregory Maxwell:
-> On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > Its well accepted that reiserfs3 has some robustness problems in the
-> > face of physical media errors. The structure of the file system and the
-> > tree basis make it very hard to avoid such problems. XFS appears to have
-> > managed to achieve both robustness and better data structures.
-> >
-> > How reiser4 compares I've no idea.
-> 
-> Citation?
+Dnia Mon, 31 Jul 2006 19:32:39 +0200, Jan-Benedict Glaw  
+<jbglaw@lug-owl.de> napisa³:
 
-Two sources, the cases I've looked at myself when IDE maintainer and
-also comments Hans made when we met at UKUUG a few years ago. Generally
-speaking on an IDE failure that lost chunks of disk the ext2/ext3 users
-got most of their data back. The reiserfs ones sometimes got it back and
-sometimes got catastrophic failure.
+> On Mon, 2006-07-31 18:44:33 +0200, Rudy Zijlstra <rudy@edsons.demon.nl>  
+> wrote:
+>> On Mon, 31 Jul 2006, Jan-Benedict Glaw wrote:
+>> > On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich
+>> > <reiser4@blinkenlights.ch> wrote:
+>> > > A colleague of mine happened to create a ~300gb filesystem and  
+>> started
+>> > > to migrate Mailboxes (Maildir-style format = many small files  
+>> (1-3kb))
+>> > > to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+>> >
+>> > So preparation work wasn't done.
+>>
+>> Of course you are right. Preparation work was not fully done. And using
+>> ext1 would also have been possible. I suspect you are still using ext1,
+>> cause with proper preparation it is perfectly usable.
+>
+> Oh, and before people start laughing at me, here are some personal or
+> friend's experiences with different filesystems:
+>
+>   * reiser3: A HDD containing a reiser3 filesystem was tried to be
+>     booted on a machine that fucked up DMA writes. Fortunately, it
+>     crashed really soon (right after going for read-write.)  After
+>     rebooting the HDD on a sane PeeCee, it refused to boot. Starting
+>     off some rescue system showed an _empty_ root filesystem.
+>
+>   * A friend's XFS data partition (portable USB/FireWire HDD) once
+>     crashed due to being hot-unplugged off the USB.  The in-kernel XFS
+>     driver refused to mount that thing again, and the tools also
+>     refused to fix any errors. (Don't ask, no details at my hands...)
+>
+>   * JFS just always worked for me. Though I've never ever had a broken
+>     HDD where it (or it's tools) could have shown how well-done they
+>     were, so from a crash-recovery point of view, it's untested.
+>
+>   * Being a regular ext3 user, I had lots of broken HDDs containing
+>     ext3 filesystems. For every single case, it has been easy fixing
+>     the filesystem after cloning. Just _once_, fsck wasn't able to fix
+>     something, so I did it manually with some disk editor. This worked
+>     well because the on-disk data structures are actually as simple as
+>     they are.
 
-The ext3 fsck is extremely effective in the face of serious errors. Some
-of that is clever code that knows about things like rewriting inode
-blocks to force reallocation of failed metadata by the drive but the
-majority of it is simply because you *know* where inode X is on the disk
-rather than having to deal with data structures and walk them.
-
-That's a tradeoff with the reiser performance with small files and until
-recently the reiser large directory performance. Which is right is
-another question altogether. Its also something I think XFS demonstrates
-can be done better so doesn't invalidate the theory behind reiserfs just
-the rev 3 implementation.
-
-> Are you sure that you aren't commenting on cases where Reiser3 alerts
-> the user to a critical data condition (via a panic) which leads to a
-> trouble report while ext3 ignores the problem which suppresses the
-> trouble report from the user?
-
-man mount
-
-Ext3 is configurable, and has been for years via the errors= option.
-
-Alan
-
+Is this some kind of "who lost more files on what fs" competition? What's  
+the prize?
+Topic subject sugests that it should cover something else. Please, let's  
+get back on track.
+First of all, it's about reiser4 so can't we forget about other  
+filesystem's unless it's got something to do with reiser4 merge?

@@ -1,112 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWGaAou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWGaAsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWGaAou (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 20:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWGaAmP
+	id S932489AbWGaAsj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:48:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWGaAsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 20:42:15 -0400
-Received: from cantor.suse.de ([195.135.220.2]:59041 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932498AbWGaAmD (ORCPT
+	Sun, 30 Jul 2006 20:48:38 -0400
+Received: from [210.76.114.181] ([210.76.114.181]:14000 "EHLO ccoss.com.cn")
+	by vger.kernel.org with ESMTP id S932489AbWGaAsh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 20:42:03 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 31 Jul 2006 10:41:58 +1000
-Message-Id: <1060731004158.29207@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 003 of 11] knfsd: use new lock for svc_sock deferred list
-References: <20060731103458.29040.patches@notabene>
+	Sun, 30 Jul 2006 20:48:37 -0400
+Message-ID: <44CD536C.3050703@ccoss.com.cn>
+Date: Mon, 31 Jul 2006 08:48:44 +0800
+From: liyu <liyu@ccoss.com.cn>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Peter <peter@maubp.freeserve.co.uk>,
+       The Doctor <thedoctor@tardis.homelinux.org>
+Subject: Re: [PATCH 1/3] usbhid: Driver for microsoft natural ergonomic keyboard
+ 4000
+References: <44C74708.6090907@ccoss.com.cn> <20060728135428.GC4623@ucw.cz>
+In-Reply-To: <20060728135428.GC4623@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek Wrote:
+> Hi!
+>
+>   
+>>     This new version get some improvements:
+>>
+>>     2. Support left paren key "(", right paren key ")", equal key "=" on
+>> right-top keypad. In fact, this keyboard generate KEYPAD_XXX usage code
+>> for them, but I find many applications can not handle them on default
+>> configuration, especially X.org. To get the most best usability, I use a
+>> bit magic here: map them to "Shift+9" and "Shift+0".
+>>     
+>
+> That is hardly 'improvement'. 'X is broken, so lets break input, too'.
+>
+>
+>
+>   
+Well, however, this can work truly. If we do not hack as this way.
+Many applications can not get its input. I think the usability for
+most people should be first, but not follow rules.
 
-From: Greg Banks <gnb@melbourne.sgi.com>
+I think we can add one module parameter like "shift_hack" to switch it ?!
 
-knfsd: Protect the svc_sock->sk_deferred list with a new
-lock svc_sock->sk_defer_lock instead of svc_serv->sv_lock.
-Using the more fine-grained lock reduces the number of places
-we need to take the svc_serv lock.
 
-Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./include/linux/sunrpc/svcsock.h |    1 +
- ./net/sunrpc/svcsock.c           |   12 ++++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
-
-diff .prev/include/linux/sunrpc/svcsock.h ./include/linux/sunrpc/svcsock.h
---- .prev/include/linux/sunrpc/svcsock.h	2006-07-31 09:58:07.000000000 +1000
-+++ ./include/linux/sunrpc/svcsock.h	2006-07-31 10:00:30.000000000 +1000
-@@ -36,6 +36,7 @@ struct svc_sock {
- 
- 	int			sk_reserved;	/* space on outq that is reserved */
- 
-+	spinlock_t		sk_defer_lock;	/* protects sk_deferred */
- 	struct list_head	sk_deferred;	/* deferred requests that need to
- 						 * be revisted */
- 	struct mutex		sk_mutex;	/* to serialize sending data */
-
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-07-31 09:58:07.000000000 +1000
-+++ ./net/sunrpc/svcsock.c	2006-07-31 10:00:30.000000000 +1000
-@@ -47,6 +47,7 @@
- /* SMP locking strategy:
-  *
-  * 	svc_serv->sv_lock protects most stuff for that service.
-+ *	svc_sock->sk_defer_lock protects the svc_sock->sk_deferred list
-  *
-  *	Some flags can be set to certain values at any time
-  *	providing that certain rules are followed:
-@@ -1426,6 +1427,7 @@ svc_setup_socket(struct svc_serv *serv, 
- 	svsk->sk_server = serv;
- 	atomic_set(&svsk->sk_inuse, 0);
- 	svsk->sk_lastrecv = get_seconds();
-+	spin_lock_init(&svsk->sk_defer_lock);
- 	INIT_LIST_HEAD(&svsk->sk_deferred);
- 	INIT_LIST_HEAD(&svsk->sk_ready);
- 	mutex_init(&svsk->sk_mutex);
-@@ -1606,7 +1608,6 @@ svc_makesock(struct svc_serv *serv, int 
- static void svc_revisit(struct cache_deferred_req *dreq, int too_many)
- {
- 	struct svc_deferred_req *dr = container_of(dreq, struct svc_deferred_req, handle);
--	struct svc_serv *serv = dreq->owner;
- 	struct svc_sock *svsk;
- 
- 	if (too_many) {
-@@ -1617,9 +1618,9 @@ static void svc_revisit(struct cache_def
- 	dprintk("revisit queued\n");
- 	svsk = dr->svsk;
- 	dr->svsk = NULL;
--	spin_lock_bh(&serv->sv_lock);
-+	spin_lock_bh(&svsk->sk_defer_lock);
- 	list_add(&dr->handle.recent, &svsk->sk_deferred);
--	spin_unlock_bh(&serv->sv_lock);
-+	spin_unlock_bh(&svsk->sk_defer_lock);
- 	set_bit(SK_DEFERRED, &svsk->sk_flags);
- 	svc_sock_enqueue(svsk);
- 	svc_sock_put(svsk);
-@@ -1679,11 +1680,10 @@ static int svc_deferred_recv(struct svc_
- static struct svc_deferred_req *svc_deferred_dequeue(struct svc_sock *svsk)
- {
- 	struct svc_deferred_req *dr = NULL;
--	struct svc_serv	*serv = svsk->sk_server;
- 	
- 	if (!test_bit(SK_DEFERRED, &svsk->sk_flags))
- 		return NULL;
--	spin_lock_bh(&serv->sv_lock);
-+	spin_lock_bh(&svsk->sk_defer_lock);
- 	clear_bit(SK_DEFERRED, &svsk->sk_flags);
- 	if (!list_empty(&svsk->sk_deferred)) {
- 		dr = list_entry(svsk->sk_deferred.next,
-@@ -1692,6 +1692,6 @@ static struct svc_deferred_req *svc_defe
- 		list_del_init(&dr->handle.recent);
- 		set_bit(SK_DEFERRED, &svsk->sk_flags);
- 	}
--	spin_unlock_bh(&serv->sv_lock);
-+	spin_unlock_bh(&svsk->sk_defer_lock);
- 	return dr;
- }

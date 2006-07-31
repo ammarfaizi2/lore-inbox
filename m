@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWGaQRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWGaQUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWGaQRW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWGaQRW
+	id S1030218AbWGaQUu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGaQUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:17:22 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:236 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1030211AbWGaQRV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:17:21 -0400
-Message-Id: <200607311617.k6VGH3YH009055@laptop13.inf.utfsm.cl>
-To: "Denis Vlasenko" <vda.linux@googlemail.com>
-cc: reiser@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiser4: maybe just fix bugs? 
-In-Reply-To: Message from "Denis Vlasenko" <vda.linux@googlemail.com> 
-   of "Mon, 31 Jul 2006 10:26:55 +0100." <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 31 Jul 2006 12:17:03 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 31 Jul 2006 12:17:03 -0400 (CLT)
+	Mon, 31 Jul 2006 12:20:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16795 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030218AbWGaQUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 12:20:49 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: <fastboot@osdl.org>
+Cc: Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, Horms <horms@verge.net.au>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
+       <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
+Subject: [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <aec7e5c30606300145p441d8d0xd89fab5e87de5a22@mail.gmail.com>
+	<20060705222448.GC992@in.ibm.com>
+	<aec7e5c30607051932r49bbcc7eh2c190daa06859dcc@mail.gmail.com>
+	<20060706081520.GB28225@host0.dyn.jankratochvil.net>
+	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
+	<20060707133518.GA15810@in.ibm.com>
+	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
+	<20060710233219.GF16215@in.ibm.com>
+	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
+	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
+Date: Mon, 31 Jul 2006 10:19:04 -0600
+In-Reply-To: <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+	message of "Thu, 13 Jul 2006 11:33:51 -0600")
+Message-ID: <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda.linux@googlemail.com> wrote:
-> The reiser4 thread seem to be longer than usual.
-> Let me, a mere user, add some input.
 
-Please don't.
+I have spent some time and have gotten my relocatable kernel patches
+working against the latest kernels.  I intend to push this upstream
+shortly.
 
-> It looks to me that delay with reiser4 acceptance
-> is caused by two different things.
-> 
-> First, reiser4 adds those plugins which many FS people
-> see as belonging to VFS layer rather than to particular FS.
+Could all of the people who care take a look and test this out
+to make certain that it doesn't just work on my test box?
 
-Right.
+My approach is to extend bzImage so that it is an ET_DYN ELF executable
+(we have what used to be a bootsector where we can put the header).
+Boot loaders are explicitly not expected to process relocations.
 
-> And second, reiser team was a bit lax at fixing bugs.
+The x86_64 kernel is simply built to live at a fixed virtual address
+and the boot page tables are relocated.  The i386 kernel is built
+to process relocates generated with --embedded-relocs (after vmlinux.lds.S)
+has been fixed up to sort out static and dynamic relocations.
 
-Right!
+Currently there are 33 patches in my tree to do this.
 
-> Not too bad when compared to other FSes, but still.
+The weirdest symptom I have had so far is that page faults did not
+trigger the early exception handler on x86_64 (instead I got a reboot).
 
-How did you compare?
+The code should be available shortly at:
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/linux-2.6-reloc.git#reloc-v2.6.18-rc3
 
-> When singled out, none of these things are bad enough to hold off
-> inclusion. However, combined impact of _both_ of them
-> did upset maintainers enough.
+If all goes well with the testing I will push the patches to Andrew in the next couple 
+of days.
 
-Plus a, lets say, less than cooperative overall attitude, and a marked
-tendency to try to sneak changes in by political arm-twisting.
-
-> Frankly, on the first problem I think that you are right, Hans, and
-> putting plugins into VFS _now_ makes little sense because we can't know
-> whether anybody will ever want to have plugins for some other FS, so
-> requiring reiser people to do all the shuffling _now_ for questionable
-> gain is simply not fair. It can be done later if needed.
-
-You are wrong. ReiserFS has no "right" to be allowed into the kernel. If
-the people in charge of maintaining the filesystem infrastructure of the
-kernel say something about your patches, you either take heed (and so
-increase your chance of being accepted someday), or stay out. It is /their/
-game, after all.
-
-> It leaves you with the other option: remove the second problem.
-
-That has to be done regardless. Buggy code with authors that can't be
-bothered to fix it just means more work for the (thinly spread) kernel
-hackers, so it is an absolute no-no-no.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Eric

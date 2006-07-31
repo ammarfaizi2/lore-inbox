@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWGaVHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWGaVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbWGaVHs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 17:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWGaVHr
+	id S1750906AbWGaVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWGaVOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 17:07:47 -0400
-Received: from charlieb.ott.istop.com ([66.11.174.133]:11663 "HELO
-	charlieb.ott.istop.com") by vger.kernel.org with SMTP
-	id S932531AbWGaVHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 17:07:47 -0400
-Date: Mon, 31 Jul 2006 17:07:45 -0400 (EDT)
-From: Charlie Brady <charlieb@budge.apana.org.au>
-X-X-Sender: charlieb@e-smith.charlieb.ott.istop.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [bug] e100 bug: checksum mismatch on 82551ER rev10
-Message-ID: <Pine.LNX.4.61.0607311653360.24450@e-smith.charlieb.ott.istop.com>
+	Mon, 31 Jul 2006 17:14:45 -0400
+Received: from mail.gmx.de ([213.165.64.21]:418 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750906AbWGaVOp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 17:14:45 -0400
+X-Authenticated: #19095397
+From: Bernd Schubert <bernd-schubert@gmx.de>
+To: reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Date: Mon, 31 Jul 2006 23:14:37 +0200
+User-Agent: KMail/1.9.3
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, Clay Barnes <clay.barnes@gmail.com>,
+       Rudy Zijlstra <rudy@edsons.demon.nl>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
+References: <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net> <20060731192902.GS31121@lug-owl.de>
+In-Reply-To: <20060731192902.GS31121@lug-owl.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200607312314.37863.bernd-schubert@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Molle Bestefich wrote:
+On Monday 31 July 2006 21:29, Jan-Benedict Glaw wrote:
 >
->> Auke Kok wrote:
->>
->> If you have received a motherboard or card with a broken EEPROM 
->> then your card is in a limbo state - it might work but results are 
->> unreliable and may cause your entire system to break (and even data
->> corruption).
-
-Sure, and on the other hand, it might work (seemingly) perfectly, as it 
-has done in the past, and will continue to do so as long as the owner 
-wishes it to.
-
->> You should contact the hardware vendor and have the board replaced or
->> upgraded with a proper EEPROM. Continuing to work with the corrupted
->> EEPROM image that you have now can seriously hurt you later on.
-
-Or a driver change can hurt me *right now*, by leaving my system without 
-connectivity.
-
-> Every single IP130 I've had my hands on has had an EEPROM that the
-> Linux driver declared bad.
-
-I'm now seeing this problem with a Thinkpad T23. I have a second T23 I can 
-test, and will try to do so tonight.
-
-I second the request to at least have a driver option to ignore checksum 
-failures.
-
-Auke said earlier:
-
->> The NICs are working perfectly.
+> The point is that it's quite hard to really fuck up ext{2,3} with only
+> some KB being written while it seems (due to the
+> fragile^Wsophisticated on-disk data structures) that it's just easy to
+> kill a reiser3 filesystem.
 >
-> How can you tell? Do you know if jumbo frames work correctly? Is the
-> device properly checksumming? is flow control working properly? These
-> and many, many more settings are determined by the EEPROM. Seemingly it
-> may work correctly, but there is no guarantee whatsoever that it will work
-> correctly at all if the checksum is bad. Again, you can lose data, or
-> worse, you could corrupt memory in the system causing massive failure (DMA
-> timings, etc). Unlikely? sure, but not impossible.
 
-Let's assume that these things are all true, and the NIC currently does 
-not work perfectly, just imperfectly, but acceptably. With the recent 
-driver change, it now does not work at all. That's surely a bug in the 
-driver.
+Well, I was once very 'luckily' and after a system crash (*) e2fsck put all 
+files into lost+found. Sure, I never experienced this again, but I also never 
+experienced something like this with reiserfs. So please, stop this kind of 
+FUD against reiser3.6.
+While filesystem speed is nice, it also would be great if reiser4.x would be 
+very robust against any kind of hardware failures.
 
----
-Charlie
+(*) The problem was a specific mainboard + video-card + driver combination. As 
+soon as X started up, the system entirely crashed. I don't believe many bytes 
+were written, but I also can't prove it.
+
+-- 
+Bernd Schubert
+PCI / Theoretische Chemie
+Universität Heidelberg
+INF 229
+69120 Heidelberg
+

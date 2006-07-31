@@ -1,114 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWGaXSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWGaXVb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWGaXSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWGaXSj
+	id S1030372AbWGaXVb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 19:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWGaXVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:18:39 -0400
-Received: from ns1.soleranetworks.com ([70.103.108.67]:29098 "EHLO
-	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1751445AbWGaXSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:18:39 -0400
-Message-ID: <44CE97AD.7030300@wolfmountaingroup.com>
-Date: Mon, 31 Jul 2006 17:52:13 -0600
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
+	Mon, 31 Jul 2006 19:21:31 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:62300 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030372AbWGaXVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 19:21:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IMTTPxZl2VyUxhl9chCDSznyPU3TCWKJl+kuO+8JKBZ3H8ZpjSUBlNjOoEq0RWcVQSib0uAmBLIjevZV3E3Z7tHa3Xe70UUHMKzskeiDg4pGVd5V0xSNKoqR0ff9sdIKBeX9cjsGkVaaTsAdKYqs05uPUAfIPVppMkOEpaybhsE=
+Message-ID: <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
+Date: Mon, 31 Jul 2006 16:21:28 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "Matthias Andree" <matthias.andree@gmx.de>
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Cc: "Adrian Ulrich" <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <44CE7C31.5090402@gmx.de>
 MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: Gregory Maxwell <gmaxwell@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <1153760245.5735.47.camel@ipso.snappymail.ca>	 <20060731162224.GJ31121@lug-owl.de>	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>	 <20060731173239.GO31121@lug-owl.de>	 <20060731181120.GA9667@merlin.emma.line.org>	 <20060731184314.GQ31121@lug-owl.de>	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>	 <1154374923.7230.99.camel@localhost.localdomain>	 <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>	 <44CE7C11.7020202@wolfmountaingroup.com> <5c49b0ed0607311556s50b77c07o150497f8e4bd3fd3@mail.gmail.com>
-In-Reply-To: <5c49b0ed0607311556s50b77c07o150497f8e4bd3fd3@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	 <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+	 <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
+	 <44CE7C31.5090402@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
+On 7/31/06, Matthias Andree <matthias.andree@gmx.de> wrote:
+> Adrian Ulrich wrote:
+>
+> > See also: http://spam.workaround.ch/dull/postmark.txt
+> >
+> > A quick'n'dirty ZFS-vs-UFS-vs-Reiser3-vs-Reiser4-vs-Ext3 'benchmark'
+>
+> Whatever Postmark does, this looks pretty besides the point.
 
-> On 7/31/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
->
->> Gregory Maxwell wrote:
->>
->> > On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> >
->> >> Its well accepted that reiserfs3 has some robustness problems in the
->> >> face of physical media errors. The structure of the file system 
->> and the
->> >> tree basis make it very hard to avoid such problems. XFS appears 
->> to have
->> >> managed to achieve both robustness and better data structures.
->> >>
->> >> How reiser4 compares I've no idea.
->> >
->> >
->> > Citation?
->> >
->> > I ask because your clam differs from the only detailed research that
->> > I'm aware of on the subject[1]. In figure 2 of the iron filesystems
->> > paper that Ext3 is show to ignore a great number of data-loss inducing
->> > failure conditions that Reiser3 detects an panics under.
->> >
->> > Are you sure that you aren't commenting on cases where Reiser3 alerts
->> > the user to a critical data condition (via a panic) which leads to a
->> > trouble report while ext3 ignores the problem which suppresses the
->> > trouble report from the user?
->> >
->> > *1) http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
->>
->> Hi Gregory, Wikimedia Foundation and LKML?
->>
->> How's Wikimania going. :-)
->>
->> What he says is correct.  I have seen some serious issues with reiserfs
->> in terms of stability and
->> data corruption.  Resier is however FASTER, but the statement is has
->> robustness issues is accurate.
->> I was using reiserfs but we opted to make EXT3 the default for Solera
->> appliances, even when using Suse 10
->> due to issues I have seen with data corruption and hard hangs on RAID 0
->> read/write sector errors.  I have
->> stopped using it for local drives and based everything on EXT3.  Not to
->> say it won't get there eventually, but
->> file systems have to endure a lot of time in the field and deployment
->> befor they are ready for prime time.
->>
->> The Wikimedia appliances use Wolf Mountain, and I've tested it for about
->> 4 months with few problems, but
->> I only use it for hosting the Cherokee Langauge Wikipedia.  It's
->> performance is several magnitudes better
->> than either EXT3 or ReiserFS.  Despite this, for vertical wiki servers,
->> its ok to go out with, folks can specifiy
->> whether they want appliances with EXT3, Reiser, or WMFS, but iit's a
->> long way from being "cooked"
->> completely, though it does scale to 1 exabyte FS images.
->
->
-> i've seen you mention the Wolf Mountain FS in other emails, but google
-> isn't telling me a lot about it.  Do you have a whitepaper?  are there
-> any published benchmark results?  what sort of workloads do you
-> benchmark?
->
-> NATE
->
-Wikipedia is the app for now.  I have not done any benchmarks on the FS 
-side, just the capture side, and its been transferred to
-another entity.  I have no idea what they are naming it to, but I expect 
-you may hear about it soon.  One of the incarnations
-of it is Solera's DSFS which can be reviewed here:
+why's that?  postmark is one of the standard benchmarks...
 
-www.soleranetworks.com
+> Are these actual transactions with the "D"urability guarantee?
+> 3000/s doesn't look too much like you're doing synchronous I/O (else
+> figures around 70/s perhaps 100/s would be more adequate), and cache
+> exercise is rather irrelevant for databases that manage real (=valuable)
+> data...
 
-I can sustain 850 MB/S throughput from user space with it -- about 5 x 
-any other FS.  On some hardware, I've broken
-the 1.25 GB/S (gigabyte/second) windows with it.
+Data:
+        204.62 megabytes read (8.53 megabytes per second)
+        271.49 megabytes written (11.31 megabytes per second)
 
-Jeff
+looks pretty I/O bound to me, 11.31 MB/s isn't exactly your latest DDR
+RAM bandwidth.  as far as the synchronous I/O question, Reiser4 in
+this case acts more like a log-based FS.  That allows it to "overlap"
+synchronous operations that are being submitted by multiple threads.
+
+NATE

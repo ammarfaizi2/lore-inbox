@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWGaAnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWGaAoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWGaAnp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 20:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWGaAm4
+	id S964799AbWGaAoH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 20:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWGaAns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 20:42:56 -0400
-Received: from ns2.suse.de ([195.135.220.15]:45965 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932407AbWGaAmp (ORCPT
+	Sun, 30 Jul 2006 20:43:48 -0400
+Received: from ns.suse.de ([195.135.220.2]:61601 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964796AbWGaAm3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 20:42:45 -0400
+	Sun, 30 Jul 2006 20:42:29 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 31 Jul 2006 10:42:39 +1000
-Message-Id: <1060731004239.29303@suse.de>
+Date: Mon, 31 Jul 2006 10:42:23 +1000
+Message-Id: <1060731004223.29267@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 011 of 11] knfsd: allow admin to set nthreads per node
+Subject: [PATCH 008 of 11] knfsd: add svc_set_num_threads
 References: <20060731103458.29040.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,209 +25,304 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Greg Banks <gnb@melbourne.sgi.com>
 
-knfsd: Add /proc/fs/nfsd/pool_threads which allows the sysadmin (or
-a userspace daemon) to read and change the number of nfsd threads
-in each pool.  The format is a list of space-separated integers,
-one per pool.
+knfsd:  Currently knfsd keeps its own list of all nfsd threads
+in nfssvc.c; add a new way of managing the list of all threads
+in a svc_serv.  Add svc_create_pooled() to allow creation of
+a svc_serv whose threads are managed by the sunrpc code.  Add
+svc_set_num_threads() to manage the number of threads in a service,
+either per-pool or globally across the service.
+
 
 Signed-off-by: Greg Banks <gnb@melbourne.sgi.com>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/nfsctl.c |   70 ++++++++++++++++++++++++++++++++++++++++++++++++++
- ./fs/nfsd/nfssvc.c |   74 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 144 insertions(+)
+ ./include/linux/sunrpc/svc.h |   21 ++++--
+ ./net/sunrpc/sunrpc_syms.c   |    2 
+ ./net/sunrpc/svc.c           |  139 ++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 154 insertions(+), 8 deletions(-)
 
-diff .prev/fs/nfsd/nfsctl.c ./fs/nfsd/nfsctl.c
---- .prev/fs/nfsd/nfsctl.c	2006-07-31 10:29:37.000000000 +1000
-+++ ./fs/nfsd/nfsctl.c	2006-07-31 10:31:46.000000000 +1000
-@@ -54,6 +54,7 @@ enum {
- 	NFSD_List,
- 	NFSD_Fh,
- 	NFSD_Threads,
-+	NFSD_Pool_Threads,
- 	NFSD_Versions,
- 	NFSD_Ports,
- 	/*
-@@ -78,6 +79,7 @@ static ssize_t write_getfd(struct file *
- static ssize_t write_getfs(struct file *file, char *buf, size_t size);
- static ssize_t write_filehandle(struct file *file, char *buf, size_t size);
- static ssize_t write_threads(struct file *file, char *buf, size_t size);
-+static ssize_t write_pool_threads(struct file *file, char *buf, size_t size);
- static ssize_t write_versions(struct file *file, char *buf, size_t size);
- static ssize_t write_ports(struct file *file, char *buf, size_t size);
- #ifdef CONFIG_NFSD_V4
-@@ -95,6 +97,7 @@ static ssize_t (*write_op[])(struct file
- 	[NFSD_Getfs] = write_getfs,
- 	[NFSD_Fh] = write_filehandle,
- 	[NFSD_Threads] = write_threads,
-+	[NFSD_Pool_Threads] = write_pool_threads,
- 	[NFSD_Versions] = write_versions,
- 	[NFSD_Ports] = write_ports,
- #ifdef CONFIG_NFSD_V4
-@@ -363,6 +366,72 @@ static ssize_t write_threads(struct file
- 	return strlen(buf);
+diff .prev/include/linux/sunrpc/svc.h ./include/linux/sunrpc/svc.h
+--- .prev/include/linux/sunrpc/svc.h	2006-07-31 10:29:38.000000000 +1000
++++ ./include/linux/sunrpc/svc.h	2006-07-31 10:30:30.000000000 +1000
+@@ -17,6 +17,10 @@
+ #include <linux/wait.h>
+ #include <linux/mm.h>
+ 
++/*
++ * This is the RPC server thread function prototype
++ */
++typedef void		(*svc_thread_fn)(struct svc_rqst *);
+ 
+ /*
+  *
+@@ -34,6 +38,7 @@ struct svc_pool {
+ 	struct list_head	sp_threads;	/* idle server threads */
+ 	struct list_head	sp_sockets;	/* pending sockets */
+ 	unsigned int		sp_nrthreads;	/* # of threads in pool */
++	struct list_head	sp_all_threads;	/* all server threads */
+ } ____cacheline_aligned_in_smp;
+ 
+ /*
+@@ -68,6 +73,11 @@ struct svc_serv {
+ 						/* Callback to use when last thread
+ 						 * exits.
+ 						 */
++
++	struct module *		sv_module;	/* optional module to count when
++						 * adding threads */
++	svc_thread_fn		sv_function;	/* main function for threads */
++	int			sv_kill_signal;	/* signal to kill threads */
+ };
+ 
+ /*
+@@ -147,6 +157,7 @@ static inline void svc_putu32(struct kve
+  */
+ struct svc_rqst {
+ 	struct list_head	rq_list;	/* idle list */
++	struct list_head	rq_all;		/* all threads list */
+ 	struct svc_sock *	rq_sock;	/* socket */
+ 	struct sockaddr_in	rq_addr;	/* peer address */
+ 	int			rq_addrlen;
+@@ -201,6 +212,7 @@ struct svc_rqst {
+ 						 * to prevent encrypting page
+ 						 * cache pages */
+ 	wait_queue_head_t	rq_wait;	/* synchronization */
++	struct task_struct	*rq_task;	/* service thread */
+ };
+ 
+ /*
+@@ -342,17 +354,16 @@ struct svc_procedure {
+ };
+ 
+ /*
+- * This is the RPC server thread function prototype
+- */
+-typedef void		(*svc_thread_fn)(struct svc_rqst *);
+-
+-/*
+  * Function prototypes.
+  */
+ struct svc_serv *  svc_create(struct svc_program *, unsigned int,
+ 			      void (*shutdown)(struct svc_serv*));
+ int		   svc_create_thread(svc_thread_fn, struct svc_serv *);
+ void		   svc_exit_thread(struct svc_rqst *);
++struct svc_serv *  svc_create_pooled(struct svc_program *, unsigned int,
++			void (*shutdown)(struct svc_serv*),
++			svc_thread_fn, int sig, struct module *);
++int		   svc_set_num_threads(struct svc_serv *, struct svc_pool *, int);
+ void		   svc_destroy(struct svc_serv *);
+ int		   svc_process(struct svc_rqst *);
+ int		   svc_register(struct svc_serv *, int, unsigned short);
+
+diff .prev/net/sunrpc/sunrpc_syms.c ./net/sunrpc/sunrpc_syms.c
+--- .prev/net/sunrpc/sunrpc_syms.c	2006-07-31 10:29:38.000000000 +1000
++++ ./net/sunrpc/sunrpc_syms.c	2006-07-31 10:30:30.000000000 +1000
+@@ -73,6 +73,8 @@ EXPORT_SYMBOL(put_rpccred);
+ /* RPC server stuff */
+ EXPORT_SYMBOL(svc_create);
+ EXPORT_SYMBOL(svc_create_thread);
++EXPORT_SYMBOL(svc_create_pooled);
++EXPORT_SYMBOL(svc_set_num_threads);
+ EXPORT_SYMBOL(svc_exit_thread);
+ EXPORT_SYMBOL(svc_destroy);
+ EXPORT_SYMBOL(svc_drop);
+
+diff .prev/net/sunrpc/svc.c ./net/sunrpc/svc.c
+--- .prev/net/sunrpc/svc.c	2006-07-31 10:29:38.000000000 +1000
++++ ./net/sunrpc/svc.c	2006-07-31 10:30:30.000000000 +1000
+@@ -12,6 +12,8 @@
+ #include <linux/net.h>
+ #include <linux/in.h>
+ #include <linux/mm.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
+ 
+ #include <linux/sunrpc/types.h>
+ #include <linux/sunrpc/xdr.h>
+@@ -25,8 +27,8 @@
+ /*
+  * Create an RPC service
+  */
+-struct svc_serv *
+-svc_create(struct svc_program *prog, unsigned int bufsize,
++static struct svc_serv *
++__svc_create(struct svc_program *prog, unsigned int bufsize, int npools,
+ 	   void (*shutdown)(struct svc_serv *serv))
+ {
+ 	struct svc_serv	*serv;
+@@ -61,7 +63,7 @@ svc_create(struct svc_program *prog, uns
+ 	init_timer(&serv->sv_temptimer);
+ 	spin_lock_init(&serv->sv_lock);
+ 
+-	serv->sv_nrpools = 1;
++	serv->sv_nrpools = npools;
+ 	serv->sv_pools =
+ 		kcalloc(sizeof(struct svc_pool), serv->sv_nrpools,
+ 			GFP_KERNEL);
+@@ -79,6 +81,7 @@ svc_create(struct svc_program *prog, uns
+ 		pool->sp_id = i;
+ 		INIT_LIST_HEAD(&pool->sp_threads);
+ 		INIT_LIST_HEAD(&pool->sp_sockets);
++		INIT_LIST_HEAD(&pool->sp_all_threads);
+ 		spin_lock_init(&pool->sp_lock);
+ 	}
+ 
+@@ -89,6 +92,31 @@ svc_create(struct svc_program *prog, uns
+ 	return serv;
  }
  
-+extern int nfsd_nrpools(void);
-+extern int nfsd_get_nrthreads(int n, int *);
-+extern int nfsd_set_nrthreads(int n, int *);
-+
-+static ssize_t write_pool_threads(struct file *file, char *buf, size_t size)
++struct svc_serv *
++svc_create(struct svc_program *prog, unsigned int bufsize,
++		void (*shutdown)(struct svc_serv *serv))
 +{
-+	/* if size > 0, look for an array of number of threads per node
-+	 * and apply them  then write out number of threads per node as reply
-+	 */
-+	char *mesg = buf;
-+	int i;
-+	int rv;
-+	int len;
-+    	int npools = nfsd_nrpools();
-+	int *nthreads;
++	return __svc_create(prog, bufsize, /*npools*/1, shutdown);
++}
 +
-+	if (npools == 0) {
++struct svc_serv *
++svc_create_pooled(struct svc_program *prog, unsigned int bufsize,
++		void (*shutdown)(struct svc_serv *serv),
++		  svc_thread_fn func, int sig, struct module *mod)
++{
++	struct svc_serv *serv;
++
++	serv = __svc_create(prog, bufsize, /*npools*/1, shutdown);
++
++	if (serv != NULL) {
++		serv->sv_function = func;
++		serv->sv_kill_signal = sig;
++		serv->sv_module = mod;
++	}
++
++	return serv;
++}
++
+ /*
+  * Destroy an RPC service.  Should be called with the BKL held
+  */
+@@ -203,6 +231,7 @@ __svc_create_thread(svc_thread_fn func, 
+ 	serv->sv_nrthreads++;
+ 	spin_lock_bh(&pool->sp_lock);
+ 	pool->sp_nrthreads++;
++	list_add(&rqstp->rq_all, &pool->sp_all_threads);
+ 	spin_unlock_bh(&pool->sp_lock);
+ 	rqstp->rq_server = serv;
+ 	rqstp->rq_pool = pool;
+@@ -229,6 +258,109 @@ svc_create_thread(svc_thread_fn func, st
+ }
+ 
+ /*
++ * Choose a pool in which to create a new thread, for svc_set_num_threads
++ */
++static inline struct svc_pool *
++choose_pool(struct svc_serv *serv, struct svc_pool *pool, unsigned int *state)
++{
++	if (pool != NULL)
++		return pool;
++
++ 	return &serv->sv_pools[(*state)++ % serv->sv_nrpools];
++}
++
++/*
++ * Choose a thread to kill, for svc_set_num_threads
++ */
++static inline struct task_struct *
++choose_victim(struct svc_serv *serv, struct svc_pool *pool, unsigned int *state)
++{
++	unsigned int i;
++	struct task_struct *task = NULL;
++
++	if (pool != NULL) {
++		spin_lock_bh(&pool->sp_lock);
++	} else {
++		/* choose a pool in round-robin fashion */
++ 		for (i = 0 ; i < serv->sv_nrpools ; i++) {
++ 			pool = &serv->sv_pools[--(*state) % serv->sv_nrpools];
++			spin_lock_bh(&pool->sp_lock);
++ 			if (!list_empty(&pool->sp_all_threads))
++ 				goto found_pool;
++			spin_unlock_bh(&pool->sp_lock);
++ 		}
++		return NULL;
++	}
++
++found_pool:
++	if (!list_empty(&pool->sp_all_threads)) {
++		struct svc_rqst *rqstp;
++
 +		/*
-+		 * NFS is shut down.  The admin can start it by
-+		 * writing to the threads file but NOT the pool_threads
-+		 * file, sorry.  Report zero threads.
++		 * Remove from the pool->sp_all_threads list
++		 * so we don't try to kill it again.
 +		 */
-+		strcpy(buf, "0\n");
-+		return strlen(buf);
-+	}
++		rqstp = list_entry(pool->sp_all_threads.next, struct svc_rqst, rq_all);
++		list_del_init(&rqstp->rq_all);
++		task = rqstp->rq_task;
++    	}
++	spin_unlock_bh(&pool->sp_lock);
 +
-+	nthreads = kcalloc(npools, sizeof(int), GFP_KERNEL);
-+	if (nthreads == NULL)
-+		return -ENOMEM;
-+
-+	if (size > 0) {
-+		for (i = 0 ; i < npools ; i++) {
-+			rv = get_int(&mesg, &nthreads[i]);
-+			if (rv == -ENOENT)
-+				break;		/* fewer numbers than pools */
-+			if (rv)
-+				goto out_free;	/* syntax error */
-+			rv = -EINVAL;
-+			if (nthreads[i] < 0)
-+				goto out_free;
-+		}
-+		rv = nfsd_set_nrthreads(i, nthreads);
-+		if (rv)
-+			goto out_free;
-+	}
-+
-+	rv = nfsd_get_nrthreads(npools, nthreads);
-+	if (rv)
-+		goto out_free;
-+
-+	mesg = buf;
-+	size = SIMPLE_TRANSACTION_LIMIT;
-+	for (i = 0 ; i < npools && size > 0 ; i++) {
-+		snprintf(mesg, size, "%d%c", nthreads[i], (i == npools-1 ? '\n' : ' '));
-+		len = strlen(mesg);
-+		size -= len;
-+		mesg += len;
-+	}
-+
-+	return (mesg-buf);
-+
-+out_free:
-+	kfree(nthreads);
-+	return rv;
++	return task;
 +}
 +
- static ssize_t write_versions(struct file *file, char *buf, size_t size)
- {
- 	/*
-@@ -544,6 +613,7 @@ static int nfsd_fill_super(struct super_
- 		[NFSD_List] = {"exports", &exports_operations, S_IRUGO},
- 		[NFSD_Fh] = {"filehandle", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_Threads] = {"threads", &transaction_ops, S_IWUSR|S_IRUSR},
-+		[NFSD_Pool_Threads] = {"pool_threads", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_Versions] = {"versions", &transaction_ops, S_IWUSR|S_IRUSR},
- 		[NFSD_Ports] = {"portlist", &transaction_ops, S_IWUSR|S_IRUGO},
- #ifdef CONFIG_NFSD_V4
-
-diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
---- .prev/fs/nfsd/nfssvc.c	2006-07-31 10:31:08.000000000 +1000
-+++ ./fs/nfsd/nfssvc.c	2006-07-31 10:31:46.000000000 +1000
-@@ -238,6 +238,80 @@ static int nfsd_init_socks(int port)
- 	return 0;
- }
- 
-+int nfsd_nrpools(void)
++/*
++ * Create or destroy enough new threads to make the number
++ * of threads the given number.  If `pool' is non-NULL, applies
++ * only to threads in that pool, otherwise round-robins between
++ * all pools.  Must be called with a svc_get() reference and
++ * the BKL held.
++ *
++ * Destroying threads relies on the service threads filling in
++ * rqstp->rq_task, which only the nfs ones do.  Assumes the serv
++ * has been created using svc_create_pooled().
++ *
++ * Based on code that used to be in nfsd_svc() but tweaked
++ * to be pool-aware.
++ */
++int
++svc_set_num_threads(struct svc_serv *serv, struct svc_pool *pool, int nrservs)
 +{
-+	if (nfsd_serv == NULL)
-+		return 0;
-+	else
-+		return nfsd_serv->sv_nrpools;
-+}
++	struct task_struct *victim;
++	int error = 0;
++	unsigned int state = serv->sv_nrthreads-1;
 +
-+int nfsd_get_nrthreads(int n, int *nthreads)
-+{
-+	int i = 0;
-+
-+	if (nfsd_serv != NULL) {
-+		for (i = 0 ; i < nfsd_serv->sv_nrpools && i < n ; i++)
-+			nthreads[i] = nfsd_serv->sv_pools[i].sp_nrthreads;
++	if (pool == NULL) {
++		/* The -1 assumes caller has done a svc_get() */
++		nrservs -= (serv->sv_nrthreads-1);
++	} else {
++		spin_lock_bh(&pool->sp_lock);
++		nrservs -= pool->sp_nrthreads;
++		spin_unlock_bh(&pool->sp_lock);
 +	}
 +
-+	return 0;
-+}
-+
-+int nfsd_set_nrthreads(int n, int *nthreads)
-+{
-+	int i = 0;
-+	int tot = 0;
-+	int err = 0;
-+
-+	if (nfsd_serv == NULL || n <= 0)
-+		return 0;
-+
-+	if (n > nfsd_serv->sv_nrpools)
-+		n = nfsd_serv->sv_nrpools;
-+
-+	/* enforce a global maximum number of threads */
-+	tot = 0;
-+	for (i = 0 ; i < n ; i++) {
-+		if (nthreads[i] > NFSD_MAXSERVS)
-+			nthreads[i] = NFSD_MAXSERVS;
-+		tot += nthreads[i];
-+	}
-+	if (tot > NFSD_MAXSERVS) {
-+		/* total too large: scale down requested numbers */
-+		for (i = 0 ; i < n && tot > 0 ; i++) {
-+		    	int new = nthreads[i] * NFSD_MAXSERVS / tot;
-+			tot -= (nthreads[i] - new);
-+			nthreads[i] = new;
-+		}
-+		for (i = 0 ; i < n && tot > 0 ; i++) {
-+			nthreads[i]--;
-+			tot--;
-+		}
-+	}
-+
-+	/*
-+	 * There must always be a thread in pool 0; the admin
-+	 * can't shut down NFS completely using pool_threads.
-+	 */
-+	if (nthreads[0] == 0)
-+		nthreads[0] = 1;
-+
-+	/* apply the new numbers */
-+	lock_kernel();
-+	svc_get(nfsd_serv);
-+	for (i = 0 ; i < n ; i++) {
-+		err = svc_set_num_threads(nfsd_serv, &nfsd_serv->sv_pools[i],
-+				    	  nthreads[i]);
-+		if (err)
++	/* create new threads */
++	while (nrservs > 0) {
++		nrservs--;
++		__module_get(serv->sv_module);
++		error = __svc_create_thread(serv->sv_function, serv,
++					    choose_pool(serv, pool, &state));
++		if (error < 0) {
++			module_put(serv->sv_module);
 +			break;
++		}
 +	}
-+	svc_destroy(nfsd_serv);
-+	unlock_kernel();
++	/* destroy old threads */
++	while (nrservs < 0 &&
++	       (victim = choose_victim(serv, pool, &state)) != NULL) {
++		send_sig(serv->sv_kill_signal, victim, 1);
++		nrservs++;
++	}
 +
-+	return err;
++	return error;
 +}
 +
- int
- nfsd_svc(unsigned short port, int nrservs)
- {
++/*
+  * Called from a server thread as it's exiting.  Caller must hold BKL.
+  */
+ void
+@@ -244,6 +376,7 @@ svc_exit_thread(struct svc_rqst *rqstp)
+ 
+ 	spin_lock_bh(&pool->sp_lock);
+ 	pool->sp_nrthreads--;
++	list_del(&rqstp->rq_all);
+ 	spin_unlock_bh(&pool->sp_lock);
+ 
+ 	kfree(rqstp);

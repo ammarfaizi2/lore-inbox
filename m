@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWGaOOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWGaOZ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWGaOOm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGaOOm
+	id S1750894AbWGaOZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:25:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWGaOZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:14:42 -0400
-Received: from mail.tmr.com ([64.65.253.246]:12514 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S932284AbWGaOOl (ORCPT
+	Mon, 31 Jul 2006 10:25:29 -0400
+Received: from run.smurf.noris.de ([192.109.102.41]:62136 "EHLO smurf.noris.de")
+	by vger.kernel.org with ESMTP id S1750849AbWGaOZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:14:41 -0400
-Message-ID: <44CE13A7.5010206@tmr.com>
-Date: Mon, 31 Jul 2006 10:28:55 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Mon, 31 Jul 2006 10:25:28 -0400
+Date: Mon, 31 Jul 2006 16:24:28 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: john stultz <johnstul@us.ibm.com>, ak@muc.de, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, bunk@stusta.de, lethal@linux-sh.org,
+       hirofumi@mail.parknet.co.jp, asit.k.mallick@intel.com
+Subject: Re: REGRESSION: the new i386 timer code fails to sync CPUs
+Message-ID: <20060731142428.GF3662@kiste.smurf.noris.de>
+References: <20060722173649.952f909f.akpm@osdl.org> <20060723081604.GD27566@kiste.smurf.noris.de> <20060723044637.3857d428.akpm@osdl.org> <20060723120829.GA7776@kiste.smurf.noris.de> <20060723053755.0aaf9ce0.akpm@osdl.org> <1153756738.9440.14.camel@localhost> <20060724171711.GA3662@kiste.smurf.noris.de> <20060724175150.GD50320@muc.de> <1153774443.12836.6.camel@localhost> <20060730020346.5d301bb5.akpm@osdl.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Hua Zhong <hzhong@gmail.com>, "'Rafael J. Wysocki'" <rjw@sisk.pl>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: suspend2 merge history [was Re: the " 'official' point of view"
- expressed by kernelnewbies.org regarding reiser4 inclusion]
-References: <200607300054.18231.rjw@sisk.pl> <00c801c6b427$20d545d0$0200a8c0@nuitysystems.com> <20060730230757.GA1800@elf.ucw.cz>
-In-Reply-To: <20060730230757.GA1800@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="I4VOKWutKNZEOIPu"
+Content-Disposition: inline
+In-Reply-To: <20060730020346.5d301bb5.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: Matthias Urlichs <smurf@smurf.noris.de>
+X-Smurf-Spam-Score: -2.6 (--)
+X-Smurf-Whitelist: +relay_from_hosts
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
 
->On Sun 2006-07-30 15:25:49, Hua Zhong wrote:
->  
->
->>>I don't _blame_ drivers.  I only wanted to say this: "If 
->>>Nigel knows that some drivers need to be fixed and he has 
->>>working fixes for these drivers, he should have submitted 
->>>these fixes for merging instead of just keeping them in 
->>>suspend2".  Period.
->>>
->>>If I know of a fix for a driver, I always do my best to make 
->>>sure the fix will get considered for merging at least.  The 
->>>problem is I'm not a driver expert and I can't provide the 
->>>fixes myself.
->>>      
->>>
->>Suspend2 patch is open source. You can always take a look.
->>    
->>
->
->swsusp is open source. You can always take a look. And you can always
->submit a patch.
->  
->
-But you can't get the patch accepted, that's issue causing all this 
-discussion.
+--I4VOKWutKNZEOIPu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>Moreover, if someone claims suspend2 isn't ready for merge, or the
->>    
->>
->
->Moreover, if someone claims swsusp is broken, they should attach
->bugzilla id.
->
->  
->
->>I'm not exactly an expert, but I don't think suspend-to-ram is more
->>difficult than suspend-to-disk (probably quite the contrary), and
->>there are a lot in common.
->>    
->>
->
->As you said, you do not know what you are talking about.
->
->  
->
-That's why people are frustrated. You blow off anyone who tells you the 
-code doesn't work. Do you really think Linus doesn't know what he's 
-talking about when he reported that it didn't work for him? Hua Zhong 
-being "Not an expert" is not the same as not knowing what he's talking 
-about.
+Hi,
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+Andrew Morton:
+> > Hack out the i386 TSC sync code.
+> >=20
+> > diff --git a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+> > index 6f5fea0..cd28914 100644
+> > --- a/arch/i386/kernel/smpboot.c
+> > +++ b/arch/i386/kernel/smpboot.c
+> > @@ -435,7 +435,7 @@ static void __devinit smp_callin(void)
+> >  	/*
+> >  	 *      Synchronize the TSC with the BP
+> >  	 */
+> > -	if (cpu_has_tsc && cpu_khz && !tsc_sync_disabled)
+> > +	if (0 && cpu_has_tsc && cpu_khz && !tsc_sync_disabled)
+> >  		synchronize_tsc_ap();
+> >  }
+> > =20
+> > @@ -1305,7 +1305,7 @@ static void __init smp_boot_cpus(unsigne
+> >  	/*
+> >  	 * Synchronize the TSC with the AP
+> >  	 */
+> > -	if (cpu_has_tsc && cpucount && cpu_khz)
+> > +	if (0 && cpu_has_tsc && cpucount && cpu_khz)
+> >  		synchronize_tsc_bp();
+> >  }
+>=20
+> I guess Matthias didn't test this patch.  Can we get some obviously-corre=
+ct
+> fix in place for 2.6.18?
+>=20
+This patch doesn't change the problem.
 
+--=20
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Success is always being able to wear clothing that you actually like.
+-- SJM
+
+--I4VOKWutKNZEOIPu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEzhKc8+hUANcKr/kRAiRWAJ9OFyOEWFFGdVcab2NM3vdajVUcSQCeIgRW
+YKJ0Qi2OtmSRWaxydiSTLPg=
+=cRyn
+-----END PGP SIGNATURE-----
+
+--I4VOKWutKNZEOIPu--

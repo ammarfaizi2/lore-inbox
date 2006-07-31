@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWGaQN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWGaQNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbWGaQN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWGaQN1
+	id S1030205AbWGaQNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWGaQNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:13:27 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:16394 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751270AbWGaQN0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:13:26 -0400
-Date: Mon, 31 Jul 2006 18:13:27 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org, gregkh@suse.de,
-       i2c@lm-sensors.org, imre.deak@nokia.com, juha.yrjola@solidboot.com,
-       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Message-Id: <20060731181327.d54ce1d0.khali@linux-fr.org>
-In-Reply-To: <200607310733.09125.david-b@pacbell.net>
-References: <1154066134.13520.267064606@webmail.messagingengine.com>
-	<200607310733.09125.david-b@pacbell.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 31 Jul 2006 12:13:38 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47269 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751285AbWGaQNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 12:13:36 -0400
+Subject: Re: [2.6.18-rc2-mm1] libata ate one PATA channel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tejun Heo <htejun@gmail.com>
+Cc: "\"J.A." =?ISO-8859-1?Q?Magall=F3n=22?= <jamagallon@ono.com>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <44CE2908.8080502@gmail.com>
+References: <20060728134550.030a0eb8@werewolf.auna.net>
+	 <44CD0E55.4020206@gmail.com> <20060731172452.76a1b6bd@werewolf.auna.net>
+	 <44CE2908.8080502@gmail.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Jul 2006 17:31:29 +0100
+Message-Id: <1154363489.7230.61.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Ar Maw, 2006-08-01 am 01:00 +0900, ysgrifennodd Tejun Heo:
+> These are patches #110-112.  Andrew, can you drop those patches for the 
+> time being?  I'm working on integrating those into libata #upstream now. 
 
-> And I **really** hope this gets merged into 2.6.18 since virtually
-> no OMAP board is very usable without it.  I2C is one of the main
-> missing pieces(*) ... can whoever's managing I2C merges please
-> expedite this?
+If you drop the host_set and tuning patches please drop all the PATA
+stuff and my other patches out. I don't have time to field a second
+batch of hundreds of "why has my drive stopped working, why is the speed
+wrong" emails. 
 
-It doesn't work like this, sorry. The merge window for 2.6.18 is
-closed. The driver needs to be reviewed before it is merged. So the
-best you can hope for is -mm soon, and 2.6.19.
+It'll be easier just to work outside the -mm tree with all this
+continued in/out random breakage if people are just going to say "drop
+xyz patch" rather than actually specifying *what is actually wrong* and
+getting me to fix the merge (Tejun that last one sentence is a hint ;))
 
-> I just tried building an OSK config against RC3 and found at least
-> five will-not-build errors in the kernel.org tree.  The reason for
-> this is basically that folk have no option except the linux-omap
-> tree, since there's no point in trying to use the kernel.org version
-> until the I2C driver finally gets merged ... so such bugs won't get
-> fixed.  Needless to say, this is not the desired development process.
+Alan
 
-Indeed, this is no good. If you want things to improve, please help by
-reviewing Komal's driver. I think I understand you already commented on
-it, but I'd like you to really review it, and add a formal approval to
-it (e.g. Signed-off-by or Acked-by). Then I'll review it for merge.
-
-> (*) I submitted the then-current I2C driver over a year ago, but
->     after a few months of inaction I found that it was dropped
->     (or rejected?) by the I2C list software.  Of course at that
->     point I no longer had time to resubmit the current code ...
-
-Neither dropped nor rejected, as I received it and it shows in the
-archive as well:
-  http://lists.lm-sensors.org/pipermail/lm-sensors/2005-August/013216.html
-The reason why it was "ignored" is more likely a lack of time and/or
-interest.
-
-What is the relation between your "old" driver and the new one Komal is
-submitting now? Evolution, or rewrite?
-
--- 
-Jean Delvare

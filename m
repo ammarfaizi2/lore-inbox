@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWGaDPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWGaDTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWGaDPu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 23:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWGaDPu
+	id S932509AbWGaDTE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 23:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWGaDTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 23:15:50 -0400
-Received: from mga05.intel.com ([192.55.52.89]:21400 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932511AbWGaDPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 23:15:50 -0400
-X-IronPort-AV: i="4.07,196,1151910000"; 
-   d="scan'208"; a="107566616:sNHT38976168"
-Subject: Re: [PATCH 3/5] PCI-Express AER implemetation: export
-	pcie_port_bus_type
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1154315439.27051.29.camel@ymzhang-perf.sh.intel.com>
-References: <1154314837.27051.26.camel@ymzhang-perf.sh.intel.com>
-	 <1154315439.27051.29.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1154315653.27051.32.camel@ymzhang-perf.sh.intel.com>
+	Sun, 30 Jul 2006 23:19:04 -0400
+Received: from xenotime.net ([66.160.160.81]:20177 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932509AbWGaDTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 23:19:03 -0400
+Date: Sun, 30 Jul 2006 20:21:45 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matt LaPlante <kernel1@cyberdogtech.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+Subject: Re: [PATCH 18-rc2] Fix typos in /Documentation : 'N'-'P'
+Message-Id: <20060730202145.5c73cb64.rdunlap@xenotime.net>
+In-Reply-To: <20060726023956.2e72b9d5.kernel1@cyberdogtech.com>
+References: <20060726023956.2e72b9d5.kernel1@cyberdogtech.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 31 Jul 2006 11:14:13 +0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+On Wed, 26 Jul 2006 02:39:56 -0400 Matt LaPlante wrote:
 
-Patch 3 exports pcie_port_bus_type.
+> This patch fixes typos in various Documentation txts. The patch addresses some words starting with the letters 'N'-'P'.  
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+> diff -ru a/Documentation/dell_rbu.txt b/Documentation/dell_rbu.txt
+> --- a/Documentation/dell_rbu.txt	2006-06-17 21:49:35.000000000 -0400
+> +++ b/Documentation/dell_rbu.txt	2006-07-24 19:35:40.000000000 -0400
+> @@ -93,7 +93,7 @@
+>  NOTE:
+>  This driver requires a patch for firmware_class.c which has the modified
+>  request_firmware_nowait function.
+> -Also after updating the BIOS image an user mdoe application neeeds to execute
+> +Also after updating the BIOS image an user mode application needs to execute
+                                      a
 
+>  code which message the BIOS update request to the BIOS. So on the next reboot
+              ^^^ huh?  change 'message' to 'sends' ?
+
+>  the BIOS knows about the new image downloaded and it updates it self.
+                                                                itself.
+
+>  Also don't unload the rbu drive if the image has to be updated.
+                             driver ?
+
+> diff -ru a/Documentation/s390/Debugging390.txt b/Documentation/s390/Debugging390.txt
+> --- a/Documentation/s390/Debugging390.txt	2006-06-17 21:49:35.000000000 -0400
+> +++ b/Documentation/s390/Debugging390.txt	2006-07-24 19:35:51.000000000 -0400
+> @@ -1704,7 +1704,7 @@
+>  IOP's can use one or more links ( known as channel paths ) to talk to each 
+>  IO device. It first checks for path availability & chooses an available one,
+>  then starts ( & sometimes terminates IO ).
+> -There are two types of channel path ESCON & the Paralell IO interface.
+> +There are two types of channel path ESCON & the Parallel IO interface.
+                                  path: (or) path --
+ 
+>  IO devices are attached to control units, control units provide the
+>  logic to interface the channel paths & channel path IO protocols to 
+
+> diff -ru a/Documentation/scsi/NinjaSCSI.txt b/Documentation/scsi/NinjaSCSI.txt
+> --- a/Documentation/scsi/NinjaSCSI.txt	2006-06-17 21:49:35.000000000 -0400
+> +++ b/Documentation/scsi/NinjaSCSI.txt	2006-07-24 19:35:51.000000000 -0400
+> @@ -59,7 +59,7 @@
+>  ...
+>  $ make
+>  
+> -[5] Copy nsp_cs.o to suitable plase, like /lib/modules/<Kernel version>/pcmcia/ .
+> +[5] Copy nsp_cs.o to a suitable place, like /lib/modules/<Kernel version>/pcmcia/ .
+
+Should be nsp_cs.ko in 2.6.x.
+
+>  [6] Add these lines to /etc/pcmcia/config .
+>      If you yse pcmcia-cs-3.1.8 or later, we can use "nsp_cs.conf" file.
+              use (later in your patches)
+
+Thanks again.
 ---
-
---- linux-2.6.17/drivers/pci/pcie/portdrv_bus.c	2006-06-22 16:26:43.000000000 +0800
-+++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_bus.c	2006-07-13 09:21:38.000000000 +0800
-@@ -76,3 +76,6 @@ static int pcie_port_bus_resume(struct d
- 		driver->resume(pciedev);
- 	return 0;
- }
-+
-+EXPORT_SYMBOL(pcie_port_bus_type);
-+
+~Randy

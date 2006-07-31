@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWGaEYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWGaEYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751463AbWGaEYv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 00:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWGaEYv
+	id S1751465AbWGaEYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 00:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWGaEYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 00:24:51 -0400
-Received: from mail.suse.de ([195.135.220.2]:9914 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751463AbWGaEYu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 00:24:50 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 31 Jul 2006 14:24:41 +1000
+	Mon, 31 Jul 2006 00:24:34 -0400
+Received: from stinky.trash.net ([213.144.137.162]:18571 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751462AbWGaEYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 00:24:33 -0400
+Message-ID: <44CD85FF.9010607@trash.net>
+Date: Mon, 31 Jul 2006 06:24:31 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Coulson <david@davidcoulson.net>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: BUG: warning at net/core/dev.c:1171/skb_checksum_help() 2.6.18-rc3
+References: <44CD8415.2020403@davidcoulson.net>
+In-Reply-To: <44CD8415.2020403@davidcoulson.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Message-ID: <17613.34313.547132.43455@cse.unsw.edu.au>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 008 of 11] knfsd: add svc_set_num_threads
-In-Reply-To: message from Andrew Morton on Sunday July 30
-References: <20060731103458.29040.patches@notabene>
-	<1060731004223.29267@suse.de>
-	<20060730211130.be44c1d0.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday July 30, akpm@osdl.org wrote:
-> On Mon, 31 Jul 2006 10:42:23 +1000
-> NeilBrown <neilb@suse.de> wrote:
+David Coulson wrote:
+> This machine has four NICs running the e1000 kernel module. Other than
+> the BUG() messages, it seems to be running fine. I was running 2.6.15.4
+> without any issues on the same hardware, although I noticed the e1000
+> has been updated (and I went for rc3 since I was hitting the panic in -rc2)
 > 
-> > +	/* destroy old threads */
-> > +	while (nrservs < 0 &&
-> > +	       (victim = choose_victim(serv, pool, &state)) != NULL) {
-> > +		send_sig(serv->sv_kill_signal, victim, 1);
-> > +		nrservs++;
+> Now, I'm not sure if it also has anything to do with this message:
 > 
-> Using signals to communicate with kernel threads is rather baroque - we
-> have a range of less klunky ways of controlling kernel threads in-kernel.
+> NAT: no longer support implicit source local NAT
+> NAT: packet src 10.1.1.1 -> dst 207.166.203.131
 
-True.
+No, this in unrelated. This message tries to tell you that the old
+behaviour of changing the source address implicitly to the source
+address routing would use for a DNATed connection is no longer done.
+This behaviour changed in 2.6.11, so if everything worked in 2.6.15,
+you should be fine.
 
+> Any suggestions as to how to go about debugging this?
 > 
-> The containers guys are going through converting lots of these things over
-> to the kthread API - I believe it's a requirement for containerisation.
-> 
+> BUG: warning at net/core/dev.c:1171/skb_checksum_help()
+>  [<c02e0412>] skb_checksum_help+0x4d/0xf0
+>  [<c034e4d3>] ip_nat_fn+0x4e/0x19e
 
-Yes - hch has suggested that this needs to be a done.  I had a try and
-there were enough complications that I decided to leave it to asked
-Greg's NUMA stuff.
+This is a known problem with NAT and HW checksum and will probably get
+fixed in 2.6.19. The message is just a warning, everything should work
+fine.
 
-> nfsd/rpc is going to be one of the hard ones to convert, but it's going to
-> happen.
-
-yep.
-
-NeilBrown

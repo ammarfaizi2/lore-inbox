@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWGaBAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWGaBRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWGaBAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 21:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWGaBAL
+	id S932500AbWGaBRE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 21:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWGaBRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 21:00:11 -0400
-Received: from pool-72-66-202-44.ronkva.east.verizon.net ([72.66.202.44]:46278
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932496AbWGaBAJ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 21:00:09 -0400
-Message-Id: <200607310058.k6V0wYj2004593@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Pavel Machek <pavel@suse.cz>,
-       "Brown, Len" <len.brown@intel.com>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
+	Sun, 30 Jul 2006 21:17:04 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:25533 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932500AbWGaBRB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 21:17:01 -0400
+Subject: Re: ipw3945 status
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Theodore Tso <tytso@mit.edu>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Jan Dittmer <jdi@l4x.org>,
+       Jirka Lenost Benc <jbenc@suse.cz>,
        kernel list <linux-kernel@vger.kernel.org>,
-       linux-thinkpad@linux-thinkpad.org, linux-acpi@vger.kernel.org
-Subject: Re: Generic battery interface
-In-Reply-To: Your message of "Sun, 30 Jul 2006 14:48:07 +0300."
-             <41840b750607300448u353a3276o8c30d7d880da6329@mail.gmail.com>
-From: Valdis.Kletnieks@vt.edu
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com> <20060728074202.GA4757@suse.cz> <20060728122508.GC4158@elf.ucw.cz> <20060728134307.GD29217@suse.cz> <41840b750607280838s3678299fm8a5d2b46c5b2af06@mail.gmail.com> <200607281557.k6SFvn09022794@turing-police.cc.vt.edu> <41840b750607281510j2c5babf8x9fac51fe6910aeda@mail.gmail.com> <200607282314.k6SNESSg019274@turing-police.cc.vt.edu> <41840b750607290248r5999d1fen41f9d3044d385857@mail.gmail.com> <200607300835.k6U8ZvSB016669@turing-police.cc.vt.edu>
-            <41840b750607300448u353a3276o8c30d7d880da6329@mail.gmail.com>
+       ipw2100-admin@linux.intel.com
+In-Reply-To: <200607310123.06177.s0348365@sms.ed.ac.uk>
+References: <20060730104042.GE1920@elf.ucw.cz>
+	 <20060730145305.GE23279@thunk.org> <20060730231251.GB1800@elf.ucw.cz>
+	 <200607310123.06177.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Mon, 31 Jul 2006 03:16:54 +0200
+Message-Id: <1154308614.13635.49.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1154307514_2988P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Date: Sun, 30 Jul 2006 20:58:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1154307514_2988P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 2006-07-31 at 01:23 +0100, Alistair John Strachan wrote:
+> On Monday 31 July 2006 00:12, Pavel Machek wrote:
+> [snip]
+> > And... Intel will not even tell you WTF that daemon does. They claim
+> > it is for FCC, but it seems to be doing more than that. So maybe I'm
+> > not _that_ paranoid.
+> 
+> Agreed, from what Matthew's said it seems like the daemon is being used to 
+> hide intellectual property, not something we should really be encouraging.
+> 
+> I think the title "regulatory daemon" has multiple meanings, it REGULATES your 
+> frequencies to FCC specs, it REGULATES your wireless card's power and 
+> temperature levels, and it REGULATES your right to use the hardware ;-)
+> 
+> Ultimately the question remains, will we open this can of worms by accepting 
+> drivers that depend on proprietary software (i.e. they will not function at 
+> all without it). I'm fairly sure the answer should be "No".
+I entirely agree that this should not be merged, those will accept these
+kindof things, can use intels out of tree driver.
 
-On Sun, 30 Jul 2006 14:48:07 +0300, Shem Multinymous said:
-> On 7/30/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> > If the program says '100ms' because it knows it will need to do a GUI update
-> > then, and you block it for 5 seconds because that's when the next value
-> > update happens, the user is stuck looking at their gkrellm or whatever not
-> > doing anything at all for 4.9 seconds....
+i sincerely hope for a forked/rewritten driver which does not depend on
+closed userspace daemons.
+> 
 
-> Please read my detailed proposal, posted (and resivsed) later.
-
-OK, if you meant this one (that hadn't shown up here before I hit 'send'):
-
-On Sun, 30 Jul 2006 13:14:10 +0300, Shem Multinymous said:
-> Actually my solution was "any update but no sooner than N msecs". So
-> you might be getting a readout that's N-1 msecs old, which was
-> meanwhile cached by the driver. If you care about that, you need to
-> use interleave those polls with msleep()s; see my recent detailed
-> post. You'll still doing at most one msleep() per fetched readout,
-> regardless of how frequently the driver provides them.
-
-That has slightly different semantics indeed, and avoids the issue I
-was commenting about.  A gkrellm-ish program can query every 100ms and
-get a cached value 49 times out of 50 for a value that's hardware-updated
-every 5 seconds, and all will be well (of course, there's room for some
-added optimization, but I suspect trying to add that will end up more
-expensive than just re-reading the same cached value, unless the kernel has
-a good way to pass back a good hint of when the next update will be...)
-
---==_Exmh_1154307514_2988P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEzVW6cC3lWbTT17ARAsCEAKClFzQFGLORbD/7Kf+zx65ekej/VACdFtst
-UQgPDm8bdpHwYRiAxim+1sY=
-=J8Ki
------END PGP SIGNATURE-----
-
---==_Exmh_1154307514_2988P--

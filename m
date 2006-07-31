@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWGaQW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWGaQYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWGaQW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWGaQW1
+	id S1030222AbWGaQYO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWGaQYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:22:27 -0400
-Received: from lug-owl.de ([195.71.106.12]:26774 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030221AbWGaQW0 (ORCPT
+	Mon, 31 Jul 2006 12:24:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49549 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030222AbWGaQYM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:22:26 -0400
-Date: Mon, 31 Jul 2006 18:22:24 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adrian Ulrich <reiser4@blinkenlights.ch>
-Cc: Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Message-ID: <20060731162224.GJ31121@lug-owl.de>
-Mail-Followup-To: Adrian Ulrich <reiser4@blinkenlights.ch>,
-	Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
-	ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-	jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <1153760245.5735.47.camel@ipso.snappymail.ca> <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XjbSsFHOHxvQpKib"
+	Mon, 31 Jul 2006 12:24:12 -0400
+Date: Mon, 31 Jul 2006 18:23:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Hua Zhong <hzhong@gmail.com>, "'Rafael J. Wysocki'" <rjw@sisk.pl>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: suspend2 merge history [was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Message-ID: <20060731162358.GC3445@elf.ucw.cz>
+References: <200607300054.18231.rjw@sisk.pl> <00c801c6b427$20d545d0$0200a8c0@nuitysystems.com> <20060730230757.GA1800@elf.ucw.cz> <44CE13A7.5010206@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060731175958.1626513b.reiser4@blinkenlights.ch>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <44CE13A7.5010206@tmr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---XjbSsFHOHxvQpKib
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >>Suspend2 patch is open source. You can always take a look.
+> >
+> >swsusp is open source. You can always take a look. And you can always
+> >submit a patch.
 
-On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich <reiser4@blinkenlights.ch>=
- wrote:
-> A colleague of mine happened to create a ~300gb filesystem and started
-> to migrate Mailboxes (Maildir-style format =3D many small files (1-3kb))
-> to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+> But you can't get the patch accepted, that's issue causing all this 
+> discussion.
 
-So preparation work wasn't done.
+If you send me a reasonably-sized patch, that actually fixes
+something, I'm likely to apply it. If you send me 14K line monster...
 
-MfG, JBG
+> >>I'm not exactly an expert, but I don't think suspend-to-ram is more
+> >>difficult than suspend-to-disk (probably quite the contrary), and
+> >>there are a lot in common.
+> >
+> >As you said, you do not know what you are talking about.
+> >
+> That's why people are frustrated. You blow off anyone who tells you the 
+> code doesn't work. Do you really think Linus doesn't know what he's 
+> talking about when he reported that it didn't work for him? Hua Zhong 
+> being "Not an expert" is not the same as not knowing what he's talking 
+> about.
 
---=20
-       Jan-Benedict Glaw       jbglaw@lug-owl.de                +49-172-760=
-8481
-Signature of:            Ich hatte in letzter Zeit ein bisschen viel Realit=
-ycheck.
-the second  :                 Langsam m=C3=B6chte ich mal wieder weitertr=
-=C3=A4umen k=C3=B6nnen.
+He claims s-t-ram is easier than s-t-disk. That means that he did not
+do his homework, and did not check the archives on the subject.
 
---XjbSsFHOHxvQpKib
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEzi5AHb1edYOZ4bsRAoMqAKCJvq13RNtzL7bPLBn2XoA6zy7QSACeIuLE
-Ip3YSknl08c2L78h50aD9Xk=
-=hIiZ
------END PGP SIGNATURE-----
-
---XjbSsFHOHxvQpKib--
+									Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

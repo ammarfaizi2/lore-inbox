@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWGaXuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWGaX6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWGaXuz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWGaXuz
+	id S932190AbWGaX6c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 19:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWGaX6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:50:55 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:62013 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751497AbWGaXux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:50:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=a7i1a0xhqVOFifCxw54OgbYC1PU4kn93cQQVn82T7Nv3QHvS4Fni3ZyEvXmoQfeKNHDHzQeIrhPr9m9rsjO6z69Cy3+Sftn8JWv4qMA3YRZYZURWNcyk+nTJs4A3+zJVfaV0wRwkZtLVK2ZrTcq1OkT2inlJx249hruDYxtQBZQ=
-Message-ID: <44CE974B.1090605@gmail.com>
-Date: Tue, 01 Aug 2006 07:50:35 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Mon, 31 Jul 2006 19:58:32 -0400
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:8367 "HELO
+	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751490AbWGaX6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 19:58:31 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [i2c] [patch 2.6.18-rc3] build fixes:  tps65010
+Date: Mon, 31 Jul 2006 14:18:12 -0700
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, i2c@lm-sensors.org
+References: <200607310725.34094.david-b@pacbell.net> <20060731205333.3d986eb6.khali@linux-fr.org>
+In-Reply-To: <20060731205333.3d986eb6.khali@linux-fr.org>
 MIME-Version: 1.0
-To: Olaf Hering <olh@suse.de>
-CC: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] crash in aty128_set_lcd_enable on PowerBook
-References: <20060716163728.GA16228@suse.de> <20060731185024.GA5117@suse.de>
-In-Reply-To: <20060731185024.GA5117@suse.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607311418.12893.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
->  On Sun, Jul 16, Olaf Hering wrote:
+On Monday 31 July 2006 11:53 am, Jean Delvare wrote:
+> Hi David,
 > 
->> Current Linus tree crashes in aty128_set_lcd_enable() because par->pdev
->> is NULL. This happens since at least a week. Call trace is:
->>
->> aty128_set_lcd_enable
->> aty128fb_set_par
->> fbcon_init
->> visual_init
->> take_over_console
->> fbcon_takeover
->> notifier_call_chain
->> blocking_notifier_call_chain
->> register_framebuffer
->> aty128fb_probe
->> pci_device_probe
->> bus_for_each_dev
->> driver_attach
->> bus_add_driver
->> driver_register
->> __pci_register_driver
->> aty128fb_init
->> init
->> kernel_thread
->>
+> > The tps65010.c driver in the main tree never got updated with
+> > build fixes since the last batch of I2C driver changes; and the
+> > genirq trigger flags were updated wierdly too.
 > 
-> 
-> - info->fix was assigned twice.
-> - par->vram_size is assigned in aty128_probe(), no need to redo it again in aty128_init()
-> - register_framebuffer() uses uninitialized struct members,
->   move it past par->pdev assignment and past aty128_bl_init().
-> 
-> 
+> Typo, I guess you mean "weirdly".
 
-Looks good.
-
-> Signed-off-by: Olaf Hering <olh@suse.de>
-Acked-by: Antonino Daplas <adaplas@pol.net>
+OK, feel free to correct.  :)
 
 
+ > @@ -520,15 +519,16 @@ tps65010_probe(struct i2c_adapter *bus, 
+> >  		goto fail1;
+> >  	}
+> >  
+> > +	/* IRQ is active low, but some gpio lines can't support that */
+> > +	irqflags = IRQF_SAMPLE_RANDOM;
+> >  #ifdef	CONFIG_ARM
+> > -	irqflags = IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_LOW;
+> >  	if (machine_is_omap_h2()) {
+> >  		tps->model = TPS65010;
+> >  		omap_cfg_reg(W4_GPIO58);
+> >  		tps->irq = OMAP_GPIO_IRQ(58);
+> >  		omap_request_gpio(58);
+> >  		omap_set_gpio_direction(58, 1);
+> > -		irqflags |= IRQF_TRIGGER_FALLING;
+> > +		irqflags |= IRQF_TRIGGER_LOW;
+> >  	}
+> >  	if (machine_is_omap_osk()) {
+> >  		tps->model = TPS65010;
+> > @@ -543,8 +543,6 @@ tps65010_probe(struct i2c_adapter *bus, 
+> >  
+> >  		// FIXME set up this board's IRQ ...
+> >  	}
+> > -#else
+> > -	irqflags = IRQF_SAMPLE_RANDOM;
+> >  #endif
+> >  
+> >  	if (tps->irq > 0) {
+> 
+> This is more surprising. How did the interrupt type suddenly change
+> from "falling" to "low"? (Note that I am not an interrupt expert.)
+
+The IRQ is always active-low ... but sometimes that signal line
+will get hooked up to a type of GPIO pin that doesn't support
+that type of trigger.  In that case the driver workaround is to
+trigger on the falling edge ... "falling" always precedes "low".
+
+However, I double checked and in this case my patch goofed.  It's
+incorrect to set TRIGGER_LOW and then add TRIGGER_FALLING later,
+so of course the previous code was buggy, but in this case the GPIO
+should have been left at TRIGGER_FALLING.  So I'll resend this patch.
+
+(The problem was that I misremembered the difference between MPUIO
+and GPIO.  It's not that GPIO supports level triggering; it's that
+GPIO also allows "both edges" triggers.)
+
+
+> Anyway, thanks for fixing this. This is one of the i2c drivers that I
+> can't compile on the architectures I work on, so I can't spot the
+> breakage.
+
+At some point it should be made to compile on non-OMAP systems,
+if for no other reason than to address that problem!
+
+
+> I guess you want this fix in 2.6.18?
+
+Yes, please.  Fixes for build breakage and other "brown paper bag" errors
+should have a high merge priority.
+
+- Dave

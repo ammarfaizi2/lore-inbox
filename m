@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWGaOM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWGaOMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWGaOM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGaOM0
+	id S932334AbWGaOMl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWGaOMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:12:26 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50413 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932261AbWGaOM0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:12:26 -0400
-Subject: Re: Fwd: PROBLEM: ide messages during boot caused by a strange
-	partition table
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: marco gaddoni <marco.gaddoni@gmail.com>
+	Mon, 31 Jul 2006 10:12:40 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:33711 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932334AbWGaOMj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 10:12:39 -0400
+Message-Id: <200607311412.k6VECX1G004087@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Thomas Tuttle <thinkinginbinary@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3b2bc9d0607310617p21552cc8xba66f935b9ec73bd@mail.gmail.com>
-References: <3b2bc9d0607302313p637ce780sf98b1727213bd6a2@mail.gmail.com>
-	 <3b2bc9d0607302316s68734797r212e0a422ed26a50@mail.gmail.com>
-	 <1154343947.7230.15.camel@localhost.localdomain>
-	 <3b2bc9d0607310617p21552cc8xba66f935b9ec73bd@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Jul 2006 15:31:30 +0100
-Message-Id: <1154356290.7230.31.camel@localhost.localdomain>
+Subject: Re: Preserving uptime with kexec?
+In-Reply-To: Your message of "Mon, 31 Jul 2006 08:59:13 EDT."
+             <20060731125913.GA27083@phoenix>
+From: Valdis.Kletnieks@vt.edu
+References: <20060731125913.GA27083@phoenix>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1154355153_3409P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Jul 2006 10:12:33 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-07-31 am 15:17 +0200, ysgrifennodd marco gaddoni:
-> is it correct that the max lba sect is LBAsects=156368016 and the kernel
-> is asking for 1052835654, 10 times more ?
+--==_Exmh_1154355153_3409P
+Content-Type: text/plain; charset=us-ascii
 
-No you are right - I miscounted the digits in the original report. 
+On Mon, 31 Jul 2006 08:59:13 EDT, Thomas Tuttle said:
+> Like many people, I like to brag about how great my uptime is.  But like
+> many other people, I like to keep my kernel up-to-date with the latest
+> and greatest from kernel.org.  I recently discovered the magic of kexec,
+> which allows me to switch kernels without rebooting for real.
+> Unfortunately, kexec resets my uptime when it runs.
 
-I'm still dubious the partition table is involved unless you've since
-booted Windows and the two have been overwriting bits of each other.
+The reset of uptime is probably a Good Thing.  Consider the case of
+a kernel memory leak - you look in /proc/meminfo and find that you've managed
+to lose 64 meg of memory to the leak.  Where you start looking for the
+leak will depend on whether it's 64 meg lost across 4 weeks since the
+last boot, or the 30 minutes since the last boot.
 
-What tool created the broken partition table - do you know, and which OS
-was installed first ?
+(Speaking as somebody who's run into both classes of leaks...)
 
+
+
+--==_Exmh_1154355153_3409P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEzg/RcC3lWbTT17ARAjfFAJ4lo1w5Uyu3HsBHeT3QLG0bmgAdtQCfe0m6
+YJviYpF0yq5H3wPtpmjfHI8=
+=58z3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1154355153_3409P--

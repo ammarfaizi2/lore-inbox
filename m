@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWGaRGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWGaROL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWGaRGA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 13:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWGaRGA
+	id S1030260AbWGaROL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 13:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWGaROL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 13:06:00 -0400
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:59612 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030256AbWGaRF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 13:05:59 -0400
-Date: Mon, 31 Jul 2006 12:59:16 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] x86_64: fix is_at_popf() for compat tasks
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <acahalan@gmail.com>
-Message-ID: <200607311302_MC3-1-C69F-F0D8@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Mon, 31 Jul 2006 13:14:11 -0400
+Received: from waste.org ([66.93.16.53]:23747 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030260AbWGaROJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 13:14:09 -0400
+Date: Mon, 31 Jul 2006 12:13:00 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] x86 built-in command line (resend)
+Message-ID: <20060731171259.GH6908@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200607311054.38585.ak@suse.de>
+I'm resending this as-is because the earlier thread petered out
+without any strong arguments against this approach. x86_64 patch to
+follow.
 
-On Mon, 31 Jul 2006 10:54:38 +0200, Andi Kleen wrote:
->
-> > When testing for the REX instruction prefix, first check
-> > for a 32-bit task because in compat mode the REX prefix is an
-> > increment instruction.
-> 
-> is_compat_task doesn't actually say that a task is in compat mode
-> (it refers to the Linux compat layer, not x86-64 compat mode)
-> 
-> A better test would be regs->cs == __USER32_CS, but in theory
-> there could be other code segments in LDT. I guess that can 
-> be ignored though.
+Allow setting the kernel command line at compile time on x86.
 
-How about checking for regs->cs != __USER_CS instead?  In 64-bit mode
-a program shouldn't have any other value there while in 32-bit mode
-it could be using LDT segments.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-
-
-From: Chuck Ebbert <76306.1226@compuserve.com>
-
-When testing for the REX instruction prefix, first check
-for 32-bit mode because in compat mode the REX prefix is an
-increment instruction.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.18-rc2-64.orig/arch/x86_64/kernel/ptrace.c
-+++ 2.6.18-rc2-64/arch/x86_64/kernel/ptrace.c
-@@ -141,8 +141,11 @@ static int is_at_popf(struct task_struct
- 		case 0xf0: case 0xf2: case 0xf3:
- 			continue;
+Index: linux/arch/i386/Kconfig
+===================================================================
+--- linux.orig/arch/i386/Kconfig	2006-07-26 18:08:28.000000000 -0500
++++ linux/arch/i386/Kconfig	2006-07-27 16:09:13.000000000 -0500
+@@ -830,6 +830,20 @@ config COMPAT_VDSO
  
--		/* REX prefixes */
- 		case 0x40 ... 0x4f:
-+			if (regs->cs != __USER_CS)
-+				/* 32-bit mode: register increment */
-+				return 0;
-+			/* 64-bit mode: REX prefix */
- 			continue;
+ 	  If unsure, say Y.
  
- 			/* CHECKME: f0, f2, f3 */
++config CMDLINE_BOOL
++	bool "Default bootloader kernel arguments" if EMBEDDED
++
++config CMDLINE
++	string "Initial kernel command string" if EMBEDDED
++	depends on CMDLINE_BOOL
++	default "root=/dev/hda1 ro"
++	help
++	  On some systems, there is no way for the boot loader to pass
++	  arguments to the kernel. For these platforms, you can supply
++	  some command-line options at build time by entering them
++	  here. In most cases you will need to specify the root device
++	  here.
++
+ endmenu
+ 
+ config ARCH_ENABLE_MEMORY_HOTPLUG
+Index: linux/arch/i386/kernel/setup.c
+===================================================================
+--- linux.orig/arch/i386/kernel/setup.c	2006-07-26 18:08:28.000000000 -0500
++++ linux/arch/i386/kernel/setup.c	2006-07-27 16:09:13.000000000 -0500
+@@ -723,6 +723,10 @@ static void __init parse_cmdline_early (
+ 	int len = 0;
+ 	int userdef = 0;
+ 
++#ifdef CONFIG_CMDLINE_BOOL
++	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
++#endif
++
+ 	/* Save unparsed command line copy for /proc/cmdline */
+ 	saved_command_line[COMMAND_LINE_SIZE-1] = '\0';
+ 
+
+
 -- 
-Chuck
+Mathematics is the supreme nostalgia of our time.

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWGaQUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWGaQVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbWGaQUu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 12:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWGaQUu
+	id S1030219AbWGaQVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 12:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWGaQVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 12:20:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16795 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030218AbWGaQUt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 12:20:49 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: <fastboot@osdl.org>
-Cc: Jan Kratochvil <lace@jankratochvil.net>,
-       Magnus Damm <magnus.damm@gmail.com>, Horms <horms@verge.net.au>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
-       <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: [CFT] ELF Relocatable x86 and x86_64 bzImages
-References: <aec7e5c30606300145p441d8d0xd89fab5e87de5a22@mail.gmail.com>
-	<20060705222448.GC992@in.ibm.com>
-	<aec7e5c30607051932r49bbcc7eh2c190daa06859dcc@mail.gmail.com>
-	<20060706081520.GB28225@host0.dyn.jankratochvil.net>
-	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
-	<20060707133518.GA15810@in.ibm.com>
-	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
-	<20060710233219.GF16215@in.ibm.com>
-	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
-	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
-Date: Mon, 31 Jul 2006 10:19:04 -0600
-In-Reply-To: <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
-	message of "Thu, 13 Jul 2006 11:33:51 -0600")
-Message-ID: <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 31 Jul 2006 12:21:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34440 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030219AbWGaQVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 12:21:31 -0400
+Date: Mon, 31 Jul 2006 12:20:46 -0400
+From: Dave Jones <davej@redhat.com>
+To: bert hubert <bert.hubert@netherlabs.nl>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk, len.brown@intel.com
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
+Message-ID: <20060731162046.GA4631@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	bert hubert <bert.hubert@netherlabs.nl>,
+	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+	cpufreq@lists.linux.org.uk, len.brown@intel.com
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com> <20060730184443.GA30067@outpost.ds9a.nl> <20060730190133.GD18757@redhat.com> <20060731070800.GA22205@outpost.ds9a.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060731070800.GA22205@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 31, 2006 at 09:08:01AM +0200, bert hubert wrote:
+ > > went ok.  I wonder if something changed in acpi recently that caused this
+ > > change in behaviour ? Len ?
+ > 
+ > Dave,
+ > 
+ > I'm no expert but I think it was you that made this change in
+ > http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=567b39bea07e4fbbe091b265b010905e3d30ff5a;hp=1a7bdcef19261deff5a7ea8ee13d5a8ddb434a19;hb=911cb74bb9e77e40749abc2fca6fe74d87d940f3;f=arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
+ > 
+ > + /* Do initialization in ACPI core */
+ > + acpi_processor_preregister_performance(acpi_perf_data);
+ > + return 0;
+ > +}
+ > 
+ > :-)
 
-I have spent some time and have gotten my relocatable kernel patches
-working against the latest kernels.  I intend to push this upstream
-shortly.
+I'm puzzled. As that commit message doesn't match the diff.
+If you click "commitdiff", you'll see the actual commit for that msg,
+which is a one-liner.
 
-Could all of the people who care take a look and test this out
-to make certain that it doesn't just work on my test box?
+Your change in your previous mail makes sense to me though,
+so I'll commit it to cpufreq.git later today.
 
-My approach is to extend bzImage so that it is an ET_DYN ELF executable
-(we have what used to be a bootsector where we can put the header).
-Boot loaders are explicitly not expected to process relocations.
+		Dave
 
-The x86_64 kernel is simply built to live at a fixed virtual address
-and the boot page tables are relocated.  The i386 kernel is built
-to process relocates generated with --embedded-relocs (after vmlinux.lds.S)
-has been fixed up to sort out static and dynamic relocations.
 
-Currently there are 33 patches in my tree to do this.
-
-The weirdest symptom I have had so far is that page faults did not
-trigger the early exception handler on x86_64 (instead I got a reboot).
-
-The code should be available shortly at:
-git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/linux-2.6-reloc.git#reloc-v2.6.18-rc3
-
-If all goes well with the testing I will push the patches to Andrew in the next couple 
-of days.
-
-Eric
+-- 
+http://www.codemonkey.org.uk

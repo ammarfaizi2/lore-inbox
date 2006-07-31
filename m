@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWGaUAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWGaUGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWGaUAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 16:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWGaUAY
+	id S932308AbWGaUGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 16:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWGaUGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 16:00:24 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:40594 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751295AbWGaUAY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 16:00:24 -0400
-Message-ID: <44CE6153.7090704@slaphack.com>
-Date: Mon, 31 Jul 2006 15:00:19 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Mon, 31 Jul 2006 16:06:50 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:3313 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932308AbWGaUGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 16:06:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=HZUwWGCJuqEduSFNiLXyhXxocAYiLaqQNz5AAeWWK6uiiIcvAOy+7kUzyu5Zc2m9jiV2qaJ0uT8B3vLpIMDSODD0v+kvxqDnb/6Wo5MFvCWaRzODRGfnftknaySJMS9VX58MNgCl8f0rZDoEW8AVYxZyKCFH2GQ9MyRhxtpCoNg=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, reiser@namesys.com
+Subject: Re: reiser4: maybe just fix bugs?
+Date: Mon, 31 Jul 2006 22:06:42 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <200607311617.k6VGH3YH009055@laptop13.inf.utfsm.cl>
+In-Reply-To: <200607311617.k6VGH3YH009055@laptop13.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Clay Barnes <clay.barnes@gmail.com>, Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl> <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org> <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060731162224.GJ31121@lug-owl.de> <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl> <20060731173239.GO31121@lug-owl.de> <20060731181120.GA9667@merlin.emma.line.org> <20060731184314.GQ31121@lug-owl.de> <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net> <20060731192902.GS31121@lug-owl.de>
-In-Reply-To: <20060731192902.GS31121@lug-owl.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607312206.42240.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Mon, 2006-07-31 12:17:12 -0700, Clay Barnes <clay.barnes@gmail.com> wrote:
->> On 20:43 Mon 31 Jul     , Jan-Benedict Glaw wrote:
->>> On Mon, 2006-07-31 20:11:20 +0200, Matthias Andree <matthias.andree@gmx.de> wrote:
->>>> Jan-Benedict Glaw schrieb am 2006-07-31:
-> [Crippled DMA writes]
->>>> Massive hardware problems don't count. ext2/ext3 doesn't look much better in
->>>> such cases. I had a machine with RAM gone bad (no ECC - I wonder what
->>> They do! Very much, actually. These happen In Real Life, so I have to
->> I think what he meant was that it is unfair to blame reiser3 for data
->> loss in a massive failure situation as a case example by itself.  What
+On Monday 31 July 2006 18:17, Horst H. von Brand wrote:
+> > Not too bad when compared to other FSes, but still.
 > 
-> Crippling a few KB of metadata in the ext{2,3} case probably wouldn't
-> fobar the filesystem...
+> How did you compare?
 
-Probably.  By the time a few KB of metadata are corrupted, I'm reaching 
-for my backup.  I don't care what filesystem it is or how easy it is to 
-edit the on-disk structures.
+Because as I can see on lkml, other FSes also have deadlock-on-oom
+bugs. Linus also talked about ext3 inodes being insanely big.
 
-This isn't to say that having robust on-disk structures isn't a good 
-thing.  I have no idea how Reiser4 will hold up either way.  But 
-ultimately, what you want is the journaling (so power failure / crashes 
-still leave you in an OK state), backups (so when blocks go bad, you 
-don't care), and performance (so you can spend less money on hardware 
-and more money on backup hardware).
+> > When singled out, none of these things are bad enough to hold off
+> > inclusion. However, combined impact of _both_ of them
+> > did upset maintainers enough.
+> 
+> Plus a, lets say, less than cooperative overall attitude, and a marked
+> tendency to try to sneak changes in by political arm-twisting.
+
+Yes, this is present to a degree.
+ 
+> > Frankly, on the first problem I think that you are right, Hans, and
+> > putting plugins into VFS _now_ makes little sense because we can't know
+> > whether anybody will ever want to have plugins for some other FS, so
+> > requiring reiser people to do all the shuffling _now_ for questionable
+> > gain is simply not fair. It can be done later if needed.
+> 
+> You are wrong. ReiserFS has no "right" to be allowed into the kernel.
+
+JBD is factored out. So far it was a wasted effort - nobody uses
+JBD except ext3.
+--
+vda

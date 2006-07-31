@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWGaSUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWGaSW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWGaSUH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 14:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGaSUG
+	id S1030302AbWGaSW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 14:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWGaSW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 14:20:06 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:40417 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030296AbWGaSUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 14:20:05 -0400
-Subject: Re: [2.6.18-rc2-mm1] libata ate one PATA channel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tejun Heo <htejun@gmail.com>
-Cc: "J.A. Magall?n" <jamagallon@ono.com>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060731165011.GA6659@htj.dyndns.org>
-References: <20060728134550.030a0eb8@werewolf.auna.net>
-	 <44CD0E55.4020206@gmail.com> <20060731172452.76a1b6bd@werewolf.auna.net>
-	 <44CE2908.8080502@gmail.com>
-	 <1154363489.7230.61.camel@localhost.localdomain>
-	 <20060731165011.GA6659@htj.dyndns.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Jul 2006 19:38:50 +0100
-Message-Id: <1154371130.7230.80.camel@localhost.localdomain>
+	Mon, 31 Jul 2006 14:22:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33457 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030302AbWGaSW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 14:22:28 -0400
+Date: Mon, 31 Jul 2006 11:22:20 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Rodrigo Ventura <yoda@isr.ist.utl.pt>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel hangs when trying to remove a bridge
+Message-ID: <20060731112220.0c14d1bc@localhost.localdomain>
+In-Reply-To: <200607291642.05046.yoda@isr.ist.utl.pt>
+References: <200607291642.05046.yoda@isr.ist.utl.pt>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.18; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 01:50 +0900, ysgrifennodd Tejun Heo:
-> Didn't realize pata stuff relies on it.
+On Sat, 29 Jul 2006 16:42:04 +0100
+Rodrigo Ventura <yoda@isr.ist.utl.pt> wrote:
 
-Lots of people have two drives, one junk on a cable so they get upset
-and all send me bug reports, lots and lots of them. The oher section of
-the problem is the Simplex mode part of that patch is depended upon by
-some of the drivers and if you don't do simplex right on some older
-controllers it *is* a corruptor so I care a lot about doing it right.
+> 
+> I'm using kernel 2.6.16 (-gentoo-r13 actually). A bridge iface br0 is setup 
+> using eth1 and eth0.1 (VLAN) as slaves. To bring br0, what I do is to remove 
+> the slaves from the bridge first, "ip link set dev br0 down" next, followed 
+> by the brctl command to remove the bridge. What happens is that it seems it 
+> tryes to destroy the bridge iface, and then hangs, with dmesg complaining, 
+> periodically, about once a second, something like:
+> 
+> unregister_netdevice: waiting for br0 to become free. Usage count = 1
+> unregister_netdevice: waiting for br0 to become free. Usage count = 1
+> unregister_netdevice: waiting for br0 to become free. Usage count = 1
+> ...
+> 
+> I say it partially hangs because commands like ifconfig hang (ps state=Disk 
+> busy)...
+> To reboot the machine, a HARD reset is required, since, the shutdown process 
+> hangs... 
+> 
+
+Some broken protocol in the kernel, incremented a refcount but forgot
+to cleanup when notified on device removal.
+
+There was a bug in the VLAN code that did that, not sure which version
+it was fixed in.
+
+Do you have IPV6 installed (as a module)?
+In some kernel versions, IPV6 has a problem with device ref counting, and
+leaves a dangling reference.
 
 
+-- 

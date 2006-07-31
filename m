@@ -1,269 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWGaHdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWGaHfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWGaHdy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 03:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWGaHcg
+	id S964811AbWGaHfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 03:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWGaHcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 03:32:36 -0400
-Received: from ns.suse.de ([195.135.220.2]:22987 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964817AbWGaHcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 03:32:18 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 31 Jul 2006 17:32:08 +1000
-Message-Id: <1060731073208.24470@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 004 of 9] md: Factor out part of raid10d into a separate function.
-References: <20060731172842.24323.patches@notabene>
+	Mon, 31 Jul 2006 03:32:16 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3994 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964815AbWGaHcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 03:32:08 -0400
+Date: Mon, 31 Jul 2006 16:31:32 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: kmannth@us.ibm.com
+Subject: Re: [Lhms-devel] [discuss] [Patch] 2/5 in support of hot-add memory x86_64 create arch_find_node
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, discuss@x86-64.org,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org, darnok@us.ibm.com,
+       lhms-devel@lists.sourceforge.net,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060730111747.6554f7de.kamezawa.hiroyu@jp.fujitsu.com>
+References: <200607291825.16308.ak@suse.de> <20060730111747.6554f7de.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060731152552.B860.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Sat, 29 Jul 2006 18:25:15 +0200
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> > On Saturday 29 July 2006 04:52, keith mannthey wrote:
+> > >   With the advent of the new ACPI hot-plug memory driver and mechanism
+> > > is needed to deal with ACPI add memory events that do not contain the
+> > > pxm (node) information. I do not believe that the add-event is required
+> > > to contain this information so I create a arch_find_node generic layer
+> > > used in the generic add_memory function.
+> > >
+> > >   If add_memory is called with node < 0 arch_find_node is invoked to
+> > > fine the correct node to add the memory. This created the generic
+> > > construct of arch_find_node.
+> > 
+> > It would be cleaner to always call add_memory from architecture specific
+> > code instead of such ugly hooks
+> > 
+> Hi,  Keith 
+> 
+> I don't like insert such a check (nid < 0) in add_memory(), either.
+> Could you add it before calling add_memory() ?
+> (for example, find_pxm parh in acpi's add memory code.)
 
-raid10d has toooo many nested block, so take the fix_read_error
-functionality out into a separate function.
+Agree.
+I think that arch_find_node() should be called in acpi_get_node().
 
+For the time being, I would like to post folloing patch for 2.6.18
+to fix returning -1 if _PXM is not defined.
+Because, not only your case, but also there might be a case that
+hot add code will be executed with NUMA kernel on NON-NUMA box.
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Then, arch_find_node() should be add before this line.
 
-### Diffstat output
- ./drivers/md/raid10.c |  213 ++++++++++++++++++++++++++------------------------
- 1 file changed, 115 insertions(+), 98 deletions(-)
+Thanks.
 
-diff .prev/drivers/md/raid10.c ./drivers/md/raid10.c
---- .prev/drivers/md/raid10.c	2006-07-31 17:23:57.000000000 +1000
-+++ ./drivers/md/raid10.c	2006-07-31 17:24:34.000000000 +1000
-@@ -1350,9 +1350,119 @@ static void recovery_request_write(mddev
-  *
-  *	1.	Retries failed read operations on working mirrors.
-  *	2.	Updates the raid superblock when problems encounter.
-- *	3.	Performs writes following reads for array syncronising.
-+ *	3.	Performs writes following reads for array synchronising.
-  */
+-----
+
+ drivers/acpi/numa.c |    4 ++++
+ 1 files changed, 4 insertions(+)
+
+Index: pxm_find1/drivers/acpi/numa.c
+===================================================================
+--- pxm_find1.orig/drivers/acpi/numa.c	2006-07-31 14:59:48.000000000 +0900
++++ pxm_find1/drivers/acpi/numa.c	2006-07-31 15:11:06.000000000 +0900
+@@ -263,6 +263,10 @@ int acpi_get_node(acpi_handle *handle)
+ 	if (pxm >= 0)
+ 		node = acpi_map_pxm_to_node(pxm);
  
-+static void fix_read_error(conf_t *conf, mddev_t *mddev, r10bio_t *r10_bio)
-+{
-+	int sect = 0; /* Offset from r10_bio->sector */
-+	int sectors = r10_bio->sectors;
-+	mdk_rdev_t*rdev;
-+	while(sectors) {
-+		int s = sectors;
-+		int sl = r10_bio->read_slot;
-+		int success = 0;
-+		int start;
++	/* _PXM might not be defined by firmware. */
++	if (node < 0)
++		node = 0;
 +
-+		if (s > (PAGE_SIZE>>9))
-+			s = PAGE_SIZE >> 9;
-+
-+		rcu_read_lock();
-+		do {
-+			int d = r10_bio->devs[sl].devnum;
-+			rdev = rcu_dereference(conf->mirrors[d].rdev);
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags)) {
-+				atomic_inc(&rdev->nr_pending);
-+				rcu_read_unlock();
-+				success = sync_page_io(rdev->bdev,
-+						       r10_bio->devs[sl].addr +
-+						       sect + rdev->data_offset,
-+						       s<<9,
-+						       conf->tmppage, READ);
-+				rdev_dec_pending(rdev, mddev);
-+				rcu_read_lock();
-+				if (success)
-+					break;
-+			}
-+			sl++;
-+			if (sl == conf->copies)
-+				sl = 0;
-+		} while (!success && sl != r10_bio->read_slot);
-+		rcu_read_unlock();
-+
-+		if (!success) {
-+			/* Cannot read from anywhere -- bye bye array */
-+			int dn = r10_bio->devs[r10_bio->read_slot].devnum;
-+			md_error(mddev, conf->mirrors[dn].rdev);
-+			break;
-+		}
-+
-+		start = sl;
-+		/* write it back and re-read */
-+		rcu_read_lock();
-+		while (sl != r10_bio->read_slot) {
-+			int d;
-+			if (sl==0)
-+				sl = conf->copies;
-+			sl--;
-+			d = r10_bio->devs[sl].devnum;
-+			rdev = rcu_dereference(conf->mirrors[d].rdev);
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags)) {
-+				atomic_inc(&rdev->nr_pending);
-+				rcu_read_unlock();
-+				atomic_add(s, &rdev->corrected_errors);
-+				if (sync_page_io(rdev->bdev,
-+						 r10_bio->devs[sl].addr +
-+						 sect + rdev->data_offset,
-+						 s<<9, conf->tmppage, WRITE)
-+				    == 0)
-+					/* Well, this device is dead */
-+					md_error(mddev, rdev);
-+				rdev_dec_pending(rdev, mddev);
-+				rcu_read_lock();
-+			}
-+		}
-+		sl = start;
-+		while (sl != r10_bio->read_slot) {
-+			int d;
-+			if (sl==0)
-+				sl = conf->copies;
-+			sl--;
-+			d = r10_bio->devs[sl].devnum;
-+			rdev = rcu_dereference(conf->mirrors[d].rdev);
-+			if (rdev &&
-+			    test_bit(In_sync, &rdev->flags)) {
-+				char b[BDEVNAME_SIZE];
-+				atomic_inc(&rdev->nr_pending);
-+				rcu_read_unlock();
-+				if (sync_page_io(rdev->bdev,
-+						 r10_bio->devs[sl].addr +
-+						 sect + rdev->data_offset,
-+						 s<<9, conf->tmppage, READ) == 0)
-+					/* Well, this device is dead */
-+					md_error(mddev, rdev);
-+				else
-+					printk(KERN_INFO
-+					       "raid10:%s: read error corrected"
-+					       " (%d sectors at %llu on %s)\n",
-+					       mdname(mddev), s,
-+					       (unsigned long long)sect+
-+					            rdev->data_offset,
-+					       bdevname(rdev->bdev, b));
-+
-+				rdev_dec_pending(rdev, mddev);
-+				rcu_read_lock();
-+			}
-+		}
-+		rcu_read_unlock();
-+
-+		sectors -= s;
-+		sect += s;
-+	}
-+}
-+
- static void raid10d(mddev_t *mddev)
- {
- 	r10bio_t *r10_bio;
-@@ -1413,105 +1523,12 @@ static void raid10d(mddev_t *mddev)
- 			 * This is all done synchronously while the array is
- 			 * frozen.
- 			 */
--			int sect = 0; /* Offset from r10_bio->sector */
--			int sectors = r10_bio->sectors;
--			freeze_array(conf);
--			if (mddev->ro == 0) while(sectors) {
--				int s = sectors;
--				int sl = r10_bio->read_slot;
--				int success = 0;
--
--				if (s > (PAGE_SIZE>>9))
--					s = PAGE_SIZE >> 9;
--
--				rcu_read_lock();
--				do {
--					int d = r10_bio->devs[sl].devnum;
--					rdev = rcu_dereference(conf->mirrors[d].rdev);
--					if (rdev &&
--					    test_bit(In_sync, &rdev->flags)) {
--						atomic_inc(&rdev->nr_pending);
--						rcu_read_unlock();
--						success = sync_page_io(rdev->bdev,
--								       r10_bio->devs[sl].addr +
--								       sect + rdev->data_offset,
--								       s<<9,
--								       conf->tmppage, READ);
--						rdev_dec_pending(rdev, mddev);
--						rcu_read_lock();
--						if (success)
--							break;
--					}
--					sl++;
--					if (sl == conf->copies)
--						sl = 0;
--				} while (!success && sl != r10_bio->read_slot);
--				rcu_read_unlock();
--
--				if (success) {
--					int start = sl;
--					/* write it back and re-read */
--					rcu_read_lock();
--					while (sl != r10_bio->read_slot) {
--						int d;
--						if (sl==0)
--							sl = conf->copies;
--						sl--;
--						d = r10_bio->devs[sl].devnum;
--						rdev = rcu_dereference(conf->mirrors[d].rdev);
--						if (rdev &&
--						    test_bit(In_sync, &rdev->flags)) {
--							atomic_inc(&rdev->nr_pending);
--							rcu_read_unlock();
--							atomic_add(s, &rdev->corrected_errors);
--							if (sync_page_io(rdev->bdev,
--									 r10_bio->devs[sl].addr +
--									 sect + rdev->data_offset,
--									 s<<9, conf->tmppage, WRITE) == 0)
--								/* Well, this device is dead */
--								md_error(mddev, rdev);
--							rdev_dec_pending(rdev, mddev);
--							rcu_read_lock();
--						}
--					}
--					sl = start;
--					while (sl != r10_bio->read_slot) {
--						int d;
--						if (sl==0)
--							sl = conf->copies;
--						sl--;
--						d = r10_bio->devs[sl].devnum;
--						rdev = rcu_dereference(conf->mirrors[d].rdev);
--						if (rdev &&
--						    test_bit(In_sync, &rdev->flags)) {
--							atomic_inc(&rdev->nr_pending);
--							rcu_read_unlock();
--							if (sync_page_io(rdev->bdev,
--									 r10_bio->devs[sl].addr +
--									 sect + rdev->data_offset,
--									 s<<9, conf->tmppage, READ) == 0)
--								/* Well, this device is dead */
--								md_error(mddev, rdev);
--							else
--								printk(KERN_INFO "raid10:%s: read error corrected (%d sectors at %llu on %s)\n",
--								       mdname(mddev), s, (unsigned long long)(sect+rdev->data_offset), bdevname(rdev->bdev, b));
--
--							rdev_dec_pending(rdev, mddev);
--							rcu_read_lock();
--						}
--					}
--					rcu_read_unlock();
--				} else {
--					/* Cannot read from anywhere -- bye bye array */
--					md_error(mddev, conf->mirrors[r10_bio->devs[r10_bio->read_slot].devnum].rdev);
--					break;
--				}
--				sectors -= s;
--				sect += s;
-+			if (mddev->ro == 0) {
-+				freeze_array(conf);
-+				fix_read_error(conf, mddev, r10_bio);
-+				unfreeze_array(conf);
- 			}
- 
--			unfreeze_array(conf);
--
- 			bio = r10_bio->devs[r10_bio->read_slot].bio;
- 			r10_bio->devs[r10_bio->read_slot].bio =
- 				mddev->ro ? IO_BLOCKED : NULL;
+ 	return node;
+ }
+ EXPORT_SYMBOL(acpi_get_node);
+
+
+-- 
+Yasunori Goto 
+
+

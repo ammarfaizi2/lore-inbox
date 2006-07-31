@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWGaTVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWGaTXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWGaTVw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 15:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWGaTVw
+	id S1030345AbWGaTXl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 15:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWGaTXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 15:21:52 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63433 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030337AbWGaTVv (ORCPT
+	Mon, 31 Jul 2006 15:23:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5578 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030346AbWGaTXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 15:21:51 -0400
-Message-ID: <44CE5847.8050706@sgi.com>
-Date: Mon, 31 Jul 2006 12:21:43 -0700
+	Mon, 31 Jul 2006 15:23:40 -0400
+Message-ID: <44CE58AF.7030200@sgi.com>
+Date: Mon, 31 Jul 2006 12:23:27 -0700
 From: Jay Lan <jlan@sgi.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
 X-Accept-Language: en-us, en
@@ -19,216 +19,229 @@ To: Andrew Morton <akpm@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>, Shailabh Nagar <nagar@watson.ibm.com>,
        Balbir Singh <balbir@in.ibm.com>, Jes Sorensen <jes@sgi.com>,
        Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: [patch 2/3] add CSA accounting to taskstats
+Subject: [patch 3/3] convert CONFIG tag for a few accounting data used by
+ CSA
 X-Enigmail-Version: 0.86.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------050100020509060707050109"
+ boundary="------------030803070107030604020502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------050100020509060707050109
+--------------030803070107030604020502
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch add CSA accounting fields to the taskstats struct
-and a kernel/csa.c to fill the data on exit.
+There were a few accounting data/macros that are used in CSA
+but are #ifdef'ed inside CONFIG_BSD_PROCESS_ACCT. This patch is
+to change those ifdef's from CONFIG_BSD_PROCESS_ACCT to
+CONFIG_CSA_ACCT. A few defines are moved from kernel/acct.c and
+include/linux/acct.h to kernel/csa.c and include/linux/csa_kern.h.
 
 
 Signed-off-by:  Jay Lan <jlan@sgi.com>
 
 
---------------050100020509060707050109
+--------------030803070107030604020502
 Content-Type: text/plain;
- name="taskstats-csa.patch"
+ name="csa-bsd-acct-update.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="taskstats-csa.patch"
+ filename="csa-bsd-acct-update.patch"
 
-Index: linux/include/linux/taskstats.h
+Index: linux/include/linux/acct.h
 ===================================================================
---- linux.orig/include/linux/taskstats.h	2006-07-31 11:42:10.000000000 -0700
-+++ linux/include/linux/taskstats.h	2006-07-31 11:50:00.412433042 -0700
-@@ -107,6 +107,21 @@ struct taskstats {
- 	__u64	ac_utime;		/* User CPU time [usec] */
- 	__u64	ac_stime;		/* SYstem CPU time [usec] */
- 	/* Basic Accounting Fields end */
-+
-+ 	/* CSA accounting fields start */
-+ 	__u16	csa_revision;		/* CSA Revision */
-+ 	__u16	csa_pad[3];		/* Unused */
-+ 	__u64	acct_rss_mem1;		/* accumulated rss usage */
-+ 	__u64	acct_vm_mem1;		/* accumulated virtual memory usage */
-+ 	__u64	hiwater_rss;		/* High-watermark of RSS usage */
-+ 	__u64	hiwater_vm;		/* High-water virtual memory usage */
-+ 	__u64	ac_minflt;		/* Minor Page Fault */
-+ 	__u64	ac_majflt;		/* Major Page Fault */
-+ 	__u64	ac_chr;			/* bytes read */
-+ 	__u64	ac_chw;			/* bytes written */
-+ 	__u64	ac_scr;			/* read syscalls */
-+ 	__u64	ac_scw;			/* write syscalls */
-+ 	/* CSA accounting fields end */
- };
+--- linux.orig/include/linux/acct.h	2006-07-20 11:38:51.956204769 -0700
++++ linux/include/linux/acct.h	2006-07-20 11:45:32.469053105 -0700
+@@ -124,16 +124,12 @@ extern void acct_auto_close(struct super
+ extern void acct_init_pacct(struct pacct_struct *pacct);
+ extern void acct_collect(long exitcode, int group_dead);
+ extern void acct_process(void);
+-extern void acct_update_integrals(struct task_struct *tsk);
+-extern void acct_clear_integrals(struct task_struct *tsk);
+ #else
+ #define acct_auto_close_mnt(x)	do { } while (0)
+ #define acct_auto_close(x)	do { } while (0)
+ #define acct_init_pacct(x)	do { } while (0)
+ #define acct_collect(x,y)	do { } while (0)
+ #define acct_process()		do { } while (0)
+-#define acct_update_integrals(x)		do { } while (0)
+-#define acct_clear_integrals(task)	do { } while (0)
+ #endif
  
- 
-Index: linux/init/Kconfig
-===================================================================
---- linux.orig/init/Kconfig	2006-07-31 11:38:21.000000000 -0700
-+++ linux/init/Kconfig	2006-07-31 11:47:23.214410140 -0700
-@@ -182,6 +182,31 @@ config TASK_DELAY_ACCT
- 
- 	  Say N if unsure.
- 
-+config CSA_ACCT
-+	bool "Enable CSA Job Accounting (EXPERIMENTAL)"
-+	depends on TASKSTATS
-+	help
-+	  Comprehensive System Accounting (CSA) provides job level
-+	  accounting of resource usage.  The accounting records are
-+	  written by the kernel into a file.  CSA user level scripts
-+	  and commands process the binary accounting records and
-+	  combine them by job identifier within system boot uptime
-+	  periods.  These accounting records are then used to produce
-+	  reports and charge fees to users.
-+
-+	  Say Y here if you want job level accounting to be compiled
-+	  into the kernel.  Say M here if you want the writing of
-+	  accounting records portion of this feature to be a loadable
-+	  module.  Say N here if you do not want job level accounting
-+	  (the default).
-+
-+	  The CSA commands and scripts package needs to be installed
-+	  to process the CSA accounting records.  See
-+	  http://oss.sgi.com/projects/csa for further information
-+	  about CSA and download instructions for the CSA commands
-+	  package and documentation.
-+
-+
- config SYSCTL
- 	bool "Sysctl support" if EMBEDDED
- 	default y
-Index: linux/kernel/Makefile
-===================================================================
---- linux.orig/kernel/Makefile	2006-07-31 11:38:21.000000000 -0700
-+++ linux/kernel/Makefile	2006-07-31 11:47:23.218410191 -0700
-@@ -50,6 +50,7 @@ obj-$(CONFIG_RCU_TORTURE_TEST) += rcutor
- obj-$(CONFIG_RELAY) += relay.o
- obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
- obj-$(CONFIG_TASKSTATS) += taskstats.o
-+obj-$(CONFIG_CSA_ACCT) += csa.o
- 
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-Index: linux/kernel/csa.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux/kernel/csa.c	2006-07-31 11:47:23.218410191 -0700
-@@ -0,0 +1,46 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (c) 2006 Silicon Graphics, Inc All Rights Reserved.
-+ */
-+
-+
-+/*
-+ *  CSA (Comprehensive System Accounting)
-+ *  Job Accounting for Linux
-+ *
-+ *  This header file contains the definitions needed for job
-+ *  accounting. The kernel CSA accounting module code and all
-+ *  user-level programs that try to write or process the binary job
-+ *  accounting data must include this file.
-+ *
-+ *  This kernel header file and the csa.h in the csa userland source
-+ *  rpm share same data struct declaration and #define's. Do not modify
-+ *  one without modify the other one as well. The compatibility between
-+ *  userland and the kernel is ensured by using the 'ah_revision' field
-+ *  of struct achead.
-+ *
-+ */
-+
-+#include <linux/taskstats.h>
-+#include <linux/csa_kern.h>
-+#include <linux/sched.h>
-+
-+void csa_add_tsk(struct taskstats *stats, struct task_struct *p)
-+{
-+	stats->csa_revision = REV_CSA;
-+	stats->acct_rss_mem1 = p->acct_rss_mem1;
-+	stats->acct_vm_mem1  = p->acct_vm_mem1;
-+	if (p->mm) {
-+		stats->hiwater_rss   = p->mm->hiwater_rss;
-+		stats->hiwater_vm    = p->mm->hiwater_vm;
-+	}
-+	stats->ac_minflt = p->min_flt;
-+	stats->ac_majflt = p->maj_flt;
-+	stats->ac_chr	= p->rchar;
-+	stats->ac_chw	= p->wchar;
-+	stats->ac_scr	= p->syscr;
-+	stats->ac_scw	= p->syscw;
-+}
-Index: linux/kernel/taskstats.c
-===================================================================
---- linux.orig/kernel/taskstats.c	2006-07-31 11:44:54.000000000 -0700
-+++ linux/kernel/taskstats.c	2006-07-31 11:47:23.218410191 -0700
-@@ -21,6 +21,7 @@
- #include <linux/taskstats_kern.h>
- #include <linux/acct.h>
- #include <linux/delayacct.h>
-+#include <linux/csa_kern.h>
- #include <linux/cpumask.h>
- #include <linux/percpu.h>
- #include <net/genetlink.h>
-@@ -252,6 +253,9 @@ static int fill_pid(pid_t pid, struct ta
- 	/* fill in basic acct fields */
- 	bacct_add_tsk(stats, tsk);
- 
-+	/* fill in csa fields */
-+	csa_add_tsk(stats, tsk);
-+
- 	/* Define err: label here if needed */
- 	put_task_struct(tsk);
- 	return rc;
+ /*
 Index: linux/include/linux/csa_kern.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux/include/linux/csa_kern.h	2006-07-31 11:47:23.218410191 -0700
-@@ -0,0 +1,31 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (c) 2006 Silicon Graphics, Inc All Rights Reserved.
-+ */
-+
-+#ifndef _CSA_KERN_H
-+#define _CSA_KERN_H
-+
+--- linux.orig/include/linux/csa_kern.h	2006-07-20 11:44:05.079993220 -0700
++++ linux/include/linux/csa_kern.h	2006-07-20 11:47:16.266315471 -0700
+@@ -28,4 +28,12 @@ extern void csa_add_tsk(struct taskstats
+  */
+ #define REV_CSA		07000	/* Kernel: CSA base record */
+ 
 +#ifdef CONFIG_CSA_ACCT
-+extern void csa_add_tsk(struct taskstats *, struct task_struct *);
++extern void acct_update_integrals(struct task_struct *tsk);
++extern void acct_clear_integrals(struct task_struct *tsk);
 +#else
-+#define csa_add_tsk(x)		do { } while (0)
++#define acct_update_integrals(x)	do { } while (0)
++#define acct_clear_integrals(task)	do { } while (0)
 +#endif
 +
-+/*
-+ * Record revision levels.
-+ *
-+ * These are incremented to indicate that a record's format has changed since
-+ * a previous release.
-+ *
-+ * History:     05000   The first rev in Linux
-+ *              06000   Major rework to clean up unused fields and features.
-+ *                      No binary compatibility with earlier rev.
-+ *		07000	Convert to taskstats interface
-+ */
-+#define REV_CSA		07000	/* Kernel: CSA base record */
+ #endif	/* _CSA_KERN_H */
+Index: linux/kernel/acct.c
+===================================================================
+--- linux.orig/kernel/acct.c	2006-07-20 11:38:51.956204769 -0700
++++ linux/kernel/acct.c	2006-07-20 11:45:32.477053203 -0700
+@@ -598,33 +598,3 @@ void acct_process(void)
+ 	do_acct_process(file);
+ 	fput(file);
+ }
+-
+-
+-/**
+- * acct_update_integrals - update mm integral fields in task_struct
+- * @tsk: task_struct for accounting
+- */
+-void acct_update_integrals(struct task_struct *tsk)
+-{
+-	if (likely(tsk->mm)) {
+-		long delta =
+-			cputime_to_jiffies(tsk->stime) - tsk->acct_stimexpd;
+-
+-		if (delta == 0)
+-			return;
+-		tsk->acct_stimexpd = tsk->stime;
+-		tsk->acct_rss_mem1 += delta * get_mm_rss(tsk->mm);
+-		tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
+-	}
+-}
+-
+-/**
+- * acct_clear_integrals - clear the mm integral fields in task_struct
+- * @tsk: task_struct whose accounting fields are cleared
+- */
+-void acct_clear_integrals(struct task_struct *tsk)
+-{
+-	tsk->acct_stimexpd = 0;
+-	tsk->acct_rss_mem1 = 0;
+-	tsk->acct_vm_mem1 = 0;
+-}
+Index: linux/kernel/csa.c
+===================================================================
+--- linux.orig/kernel/csa.c	2006-07-20 11:45:18.364881535 -0700
++++ linux/kernel/csa.c	2006-07-20 11:45:32.477053203 -0700
+@@ -44,3 +44,35 @@ void csa_add_tsk(struct taskstats *stats
+ 	stats->ac_scr	= p->syscr;
+ 	stats->ac_scw	= p->syscw;
+ }
 +
-+#endif	/* _CSA_KERN_H */
++
++
++
++/**
++ * acct_update_integrals - update mm integral fields in task_struct
++ * @tsk: task_struct for accounting
++ */
++void acct_update_integrals(struct task_struct *tsk)
++{
++	if (likely(tsk->mm)) {
++		long delta =
++			cputime_to_jiffies(tsk->stime) - tsk->acct_stimexpd;
++
++		if (delta == 0)
++			return;
++		tsk->acct_stimexpd = tsk->stime;
++		tsk->acct_rss_mem1 += delta * get_mm_rss(tsk->mm);
++		tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
++	}
++}
++
++/**
++ * acct_clear_integrals - clear the mm integral fields in task_struct
++ * @tsk: task_struct whose accounting fields are cleared
++ */
++void acct_clear_integrals(struct task_struct *tsk)
++{
++	tsk->acct_stimexpd = 0;
++	tsk->acct_rss_mem1 = 0;
++	tsk->acct_vm_mem1 = 0;
++}
+Index: linux/include/linux/sched.h
+===================================================================
+--- linux.orig/include/linux/sched.h	2006-07-20 11:38:51.956204769 -0700
++++ linux/include/linux/sched.h	2006-07-20 11:45:32.481053251 -0700
+@@ -964,7 +964,7 @@ struct task_struct {
+ 	wait_queue_t *io_wait;
+ /* i/o counters(bytes read/written, #syscalls */
+ 	u64 rchar, wchar, syscr, syscw;
+-#if defined(CONFIG_BSD_PROCESS_ACCT)
++#if defined(CONFIG_CSA_ACCT)
+ 	u64 acct_rss_mem1;	/* accumulated rss usage */
+ 	u64 acct_vm_mem1;	/* accumulated virtual memory usage */
+ 	clock_t acct_stimexpd;	/* clock_t-converted stime since last update */
+Index: linux/fs/compat.c
+===================================================================
+--- linux.orig/fs/compat.c	2006-07-20 11:38:52.028205640 -0700
++++ linux/fs/compat.c	2006-07-20 11:45:32.481053251 -0700
+@@ -44,7 +44,7 @@
+ #include <linux/nfsd/syscall.h>
+ #include <linux/personality.h>
+ #include <linux/rwsem.h>
+-#include <linux/acct.h>
++#include <linux/csa_kern.h>
+ #include <linux/mm.h>
+ 
+ #include <net/sock.h>		/* siocdevprivate_ioctl */
+Index: linux/fs/exec.c
+===================================================================
+--- linux.orig/fs/exec.c	2006-07-20 11:38:52.056205979 -0700
++++ linux/fs/exec.c	2006-07-20 11:45:32.485053300 -0700
+@@ -46,7 +46,7 @@
+ #include <linux/security.h>
+ #include <linux/syscalls.h>
+ #include <linux/rmap.h>
+-#include <linux/acct.h>
++#include <linux/csa_kern.h>
+ #include <linux/cn_proc.h>
+ #include <linux/audit.h>
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c	2006-07-20 11:38:51.956204769 -0700
++++ linux/kernel/exit.c	2006-07-20 11:45:32.489053349 -0700
+@@ -18,6 +18,7 @@
+ #include <linux/security.h>
+ #include <linux/cpu.h>
+ #include <linux/acct.h>
++#include <linux/csa_kern.h>
+ #include <linux/file.h>
+ #include <linux/binfmts.h>
+ #include <linux/ptrace.h>
+Index: linux/kernel/fork.c
+===================================================================
+--- linux.orig/kernel/fork.c	2006-07-20 11:38:51.956204769 -0700
++++ linux/kernel/fork.c	2006-07-20 11:45:32.489053349 -0700
+@@ -42,6 +42,7 @@
+ #include <linux/profile.h>
+ #include <linux/rmap.h>
+ #include <linux/acct.h>
++#include <linux/csa_kern.h>
+ #include <linux/cn_proc.h>
+ #include <linux/delayacct.h>
+ #include <linux/taskstats_kern.h>
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2006-07-20 11:38:51.956204769 -0700
++++ linux/kernel/sched.c	2006-07-20 11:45:32.493053397 -0700
+@@ -49,7 +49,7 @@
+ #include <linux/seq_file.h>
+ #include <linux/syscalls.h>
+ #include <linux/times.h>
+-#include <linux/acct.h>
++#include <linux/csa_kern.h>
+ #include <linux/kprobes.h>
+ #include <linux/delayacct.h>
+ #include <asm/tlb.h>
 
 
---------------050100020509060707050109--
+--------------030803070107030604020502--

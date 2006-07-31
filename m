@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWGaVpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbWGaVri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbWGaVpB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 17:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWGaVpB
+	id S1030478AbWGaVri (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:47:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWGaVri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 17:45:01 -0400
-Received: from smtp.ono.com ([62.42.230.12]:54002 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S1030472AbWGaVpA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 17:45:00 -0400
-Date: Mon, 31 Jul 2006 23:44:58 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.18-rc1-mm2] libata: DMA speed too slow for cdrecord
-Message-ID: <20060731234458.7f1d5cad@werewolf.auna.net>
-In-Reply-To: <1154359666.7230.36.camel@localhost.localdomain>
-References: <20060729235431.322ea6d3@werewolf.auna.net>
-	<1154344141.7230.18.camel@localhost.localdomain>
-	<20060731165122.08ac464e@werewolf.auna.net>
-	<1154359666.7230.36.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.10.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 31 Jul 2006 17:47:38 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:21418 "EHLO
+	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1030478AbWGaVri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 17:47:38 -0400
+Message-ID: <44CE8259.6090200@wolfmountaingroup.com>
+Date: Mon, 31 Jul 2006 16:21:13 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: Gregory Maxwell <gmaxwell@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Clay Barnes <clay.barnes@gmail.com>,
+       Rudy Zijlstra <rudy@edsons.demon.nl>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>	 <20060731144736.GA1389@merlin.emma.line.org>	 <20060731175958.1626513b.reiser4@blinkenlights.ch>	 <20060731162224.GJ31121@lug-owl.de>	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>	 <20060731173239.GO31121@lug-owl.de>	 <20060731181120.GA9667@merlin.emma.line.org>	 <20060731184314.GQ31121@lug-owl.de>	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>	 <1154374923.7230.99.camel@localhost.localdomain> <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com> <44CE7C11.7020202@wolfmountaingroup.com> <44CE7DFD.7030903@wolfmountaingroup.com>
+In-Reply-To: <44CE7DFD.7030903@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 16:27:46 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> Ar Llu, 2006-07-31 am 16:51 +0200, ysgrifennodd J.A. Magallón:
-> > What file is the new speed selection code in ? libata-core.c, ata-piix.c ?
-> > I can try to get the old kernel patched...
-> 
-> libata-core
-> 
-> > Or is there any patch available ?
-> 
-> Copy the working ata-piix.c from -mm1 into the -mm2 tree and try that,
-> it should do the trick for you.
-> 
+>
+> Correction,
+>
+> That's "MediWiki" appliances.   Two many transposed acronyms...
+>
+> www.wolfmountaingroup.com
+>
+> :-)
+>
+> Jeff
+>
+And WMFS does not belong to the WolfMountainGroup any longer.  It has 
+been acquired by another company, so you won't see any info
+about it on the website.  It's has been rolled into another company.  I 
+can bundle it with appliances but it is no longer the property of
+Wolf Mountain Group.  WMG is a MediaWiki/Wikipedia Appliance company 
+that does Machine translations of Wikipedia into several
+Native American Languages.  The Translator is Linux and Windows based, 
+but WMFS has a new home now. 
 
-Just to complete the history in the mailing list, problem solved.
-Future readers, see this thread:
+Just to clarify. 
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115408717700150&w=2
-
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam05 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #3 SMP PREEMPT
+Jeff

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWGaJjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWGaJnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWGaJjm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 05:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWGaJjm
+	id S1750734AbWGaJnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 05:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWGaJnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 05:39:42 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:27807 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964836AbWGaJjl (ORCPT
+	Mon, 31 Jul 2006 05:43:31 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47011 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750734AbWGaJna (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 05:39:41 -0400
-Date: Mon, 31 Jul 2006 11:39:30 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, agruen@suse.de
-Subject: Re: Building external modules against objdirs
-In-Reply-To: <20060730191700.GA30700@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.64.0607311135350.6762@scrub.home>
-References: <200607301846.07797.ak@suse.de> <200607301949.41165.ak@suse.de>
- <20060730183159.GA30278@mars.ravnborg.org> <200607302037.02559.ak@suse.de>
- <20060730191700.GA30700@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 Jul 2006 05:43:30 -0400
+Date: Mon, 31 Jul 2006 19:43:11 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: kernel <linux@idccenter.cn>
+Cc: jdi@l4x.org, linux-kernel@vger.kernel.org
+Subject: Re: XFS Bug null pointer dereference in xfs_free_ag_extent
+Message-ID: <20060731194310.A2301615@wobbly.melbourne.sgi.com>
+References: <44BF29CD.1000809@l4x.org> <44CB0BF7.6030204@idccenter.cn> <44CB1303.7010303@l4x.org> <20060731094424.E2280998@wobbly.melbourne.sgi.com> <44CDA156.6000105@idccenter.cn> <20060731165522.K2280998@wobbly.melbourne.sgi.com> <44CDB135.8080401@idccenter.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <44CDB135.8080401@idccenter.cn>; from linux@idccenter.cn on Mon, Jul 31, 2006 at 03:28:53PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jul 31, 2006 at 03:28:53PM +0800, kernel wrote:
+> I format the same partition and restart the testing server before each 
+> testing.
+> I'vs tested on each format at least twenty times.
+> With XFS and SAN, This crash happens on every bonnie++ testing.
 
-On Sun, 30 Jul 2006, Sam Ravnborg wrote:
+Its not clear to me - are you testing with the patches I mentioned
+earlier reverted or not?
 
-> On Sun, Jul 30, 2006 at 08:37:02PM +0200, Andi Kleen wrote:
->  
-> > 
-> > The echo didn't output for some reason, but adding it to the error gives
-> > 
-> > /home/lsrc/quilt/linux/Makefile:456: *** triggered by /home/lsrc/quilt/linux/drivers/net/wireless/Kconfig /home/lsrc/quilt/linux/drivers/message/fusion/Kconfig /home/lsrc/quilt/linux/net/ieee80211/Kconfig /home/lsrc/quilt/linux/net/netfilter/Kconfig kernel configuration not valid - run 'make prepare' in /home/lsrc/quilt/linux to update it.  Stop.
-> 
-> What happens is that a few Kconfig files in your quilt tree are updated
-> after last time you reran 'make'.
-> And then kbuild say that config is invalid since it has not been updated
-> since last edit of Kconfig files.
-> 
-> Hmm...
+> And I have tested such things on another mathine, results are same.
 
-What we could do is to call silentoldconfig and set 
-KCONFIG_NOSILENTUPDATE, if the .config is uptodate it will only update 
-autoconf and abort otherwise.
+Can you send me the xfs_info output from one of these filesystems,
+and the exact bonnie++ command line used so I can reproduce it here?
 
-bye, Roman
+thanks.
+
+-- 
+Nathan

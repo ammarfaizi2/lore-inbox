@@ -1,104 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWGaRhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWGaRqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWGaRhH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 13:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWGaRhH
+	id S1030287AbWGaRqc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 13:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWGaRqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 13:37:07 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:9093 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030284AbWGaRhF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 13:37:05 -0400
-Message-ID: <44CE3FC0.6080500@drzeus.cx>
-Date: Mon, 31 Jul 2006 19:37:04 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: Alex Dubov <oakad@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
- card readers
-References: <20060731151141.45469.qmail@web36702.mail.mud.yahoo.com>
-In-Reply-To: <20060731151141.45469.qmail@web36702.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 31 Jul 2006 13:46:32 -0400
+Received: from mail.teleformix.com ([12.15.20.75]:57735 "EHLO
+	mail.teleformix.com") by vger.kernel.org with ESMTP
+	id S1030287AbWGaRqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 13:46:31 -0400
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+	regarding reiser4 inclusion
+From: Dan Oglesby <doglesby@teleformix.com>
+Reply-To: doglesby@teleformix.com
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
+       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+In-Reply-To: <20060731171620.GL31121@lug-owl.de>
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+	 <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl>
+	 <20060731125846.aafa9c7c.reiser4@blinkenlights.ch>
+	 <20060731144736.GA1389@merlin.emma.line.org>
+	 <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	 <20060731162224.GJ31121@lug-owl.de> <1154364421.7964.22.camel@localhost>
+	 <20060731171620.GL31121@lug-owl.de>
+Content-Type: text/plain
+Organization: Teleformix, LLC
+Date: Mon, 31 Jul 2006 12:44:22 -0500
+Message-Id: <1154367862.7964.47.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Dubov wrote:
-> It appears that any socket can hold any card type. So
-> the logic goes as following:
-> 1. Get insertion interrupt on socket
-> 2. Detect card type
-> 3. Stick proper handler to the socket
-> ...do work
-> 4. Get removal interrupt on socket
-> 5. Ditch type-specific handler, mark socket as empty
-> A quick example: on 8033 sd cards are most often wired
-> to socket 3, while on 803b they are wired to socket 1.
->
->   
+On Mon, 2006-07-31 at 19:16 +0200, Jan-Benedict Glaw wrote:
+> On Mon, 2006-07-31 11:47:00 -0500, Dan Oglesby <doglesby@teleformix.com> wrote:
+> > On Mon, 2006-07-31 at 18:22 +0200, Jan-Benedict Glaw wrote:
+> > > On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
+> > > > A colleague of mine happened to create a ~300gb filesystem and started
+> > > > to migrate Mailboxes (Maildir-style format = many small files (1-3kb))
+> > > > to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+> > > So preparation work wasn't done.
+> > 
+> > As someone who is currently planning to migrate ~100GB of stored mail to
+> > the Maildirs format, it was pretty clear early on that EXT3 would not
+> > cut it (from past and current experiences), and not just for the sake of
+> > calculating inodes.
+> 
+> Uh?  Where did you face a problem there?
+> 
 
-Ah, ok, I see. The socket structure would then be similar to a device
-structure in the kernel. Perhaps you should use the name "host" instead
-of "card" then as that is widely used in the other mmc host drivers. It
-makes it easier when reviewing your future patches.
+Past experiences dealing with systems that generate several thousand to
+tens of thousands of files a day, adding up to well in the millions over
+the course of normal production (this is not for a mail server, BTW).
+Once we got close to a million files, filesystem transactions started
+bogging the system, driving the load over 50.  Simply switching to
+ReiserFS v3 allowed us to go well past the number of files EXT3 could
+handle reasonably and the max load stayed right around the number of
+CPUs the system contained (typically 8).
 
-> I'm afraid you'll have to clarify this issue further.
-> Consider the following: TI uses look up table to set
-> command type register. The decoding of this table is
-> my tifm_sd_op_flags. Its output directly sent to
-> hardware. Can you notice any bit patterns here:
-> Response type (4b):
-> R1 - 1     R1b - 9 (so highest 1 is MMC_RSP_BUSY)
-> R2 - 2     R3 - 3      R6 - 6
-> (if bit 1 is MMC_RSP_136 why it is set for R3 and R6;
-> and if it's MMC_RSP_CRC why it is not set for R1?)
->   
+There is a LOT going on with these systems, not just filesystem
+transactions.  EXT3 does not do well in our environment at all.
 
-Some controllers are brain dead like this, which makes forward
-compatibility a bit difficult. I just wanted to make sure as some
-previous drivers have added this artificial restriction in just the
-software.
+> With maildir, you shouldn't face any problems IMO. Even users with
+> zillions of mails should work properly with the dir_index stuff:
+> 
+> 	tune2fs -O dir_index /dev/hdXX
+> 
+> or alternatively (to start that for already existing directories):
+> 
+> 	e2fsck -fD /dev/hdXX
+> 
+> 
 
-I would still like it to bail out on an unknown type though as anything
-else can generate really unpredictable and annoying bugs.
+I've been tuning EXT3 to see what performance I can get for the mail
+server, and it's just not there compared to ReiserFS with minimal
+tuning.
 
-> Command type (2b):
-> BC - 0 (implied)   BCR  - 1
-> AC - 2             ADTC - 3 
-> (even if higher bit stands for "addressed vs
-> broadcast" it still doesn't make sense for lower bit).
->   
+> Of course, you'll always face a problem with lots of files in one
+> directory at getdents() time (eg. opendir()/readdir()/closedir()), but
+> this is a common limit for all filesystems.
+> 
+> MfG, JBG
+> 
 
-These are more functional in nature, and therefore exactly how things
-should work.
+Of course, but the issue is EXT3 does this a whole lot worse than
+ReiserFS v3 from my experiences.
 
-> By the way, if I recall correctly, SD spec does not
-> splits command types and responses into components. It
-> always speaks of R1s and R6s and so on.
->
->   
+At any rate, that's about all I have to say about this issue.  I'll be
+patiently waiting to see ReiserFS v4 included in the main kernel, so I
+have less hoops to jump through to implement the latest and greatest
+from Namesys.
 
-The SD spec is focused on cards, not controllers. If you check their
-controller spec (sdhci), you'll see that they've split it up.
-
-> It's not hard to figure out bits that are used
-> systematically. The problem is that there are 4 or 5
-> registers that are set to some constant at
-> initialization. I made all kinds of trials with them
-> and got no conclusive idea on their meaning.
->
->   
-
-That's all one can expect. :)
-
-You could put some comments about the registers somewhere so that other
-people working on the driver will now what you've already tested.
-Reverse engineered drivers are usually difficult for others to get into,
-so everything you document will increase the changes of more people
-helping you out.
-
-Rgds
-Pierre
+--Dan
 

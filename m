@@ -1,115 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbWGaV3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbWGaV3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030465AbWGaV3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 17:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWGaV3D
+	id S1030468AbWGaV3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbWGaV3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 17:29:03 -0400
-Received: from ns1.soleranetworks.com ([70.103.108.67]:15786 "EHLO
-	ns1.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1030465AbWGaV3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 17:29:02 -0400
-Message-ID: <44CE7DFD.7030903@wolfmountaingroup.com>
-Date: Mon, 31 Jul 2006 16:02:37 -0600
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921 Red Hat/1.7.12-1.4.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: Gregory Maxwell <gmaxwell@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <1153760245.5735.47.camel@ipso.snappymail.ca>	 <20060731144736.GA1389@merlin.emma.line.org>	 <20060731175958.1626513b.reiser4@blinkenlights.ch>	 <20060731162224.GJ31121@lug-owl.de>	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>	 <20060731173239.GO31121@lug-owl.de>	 <20060731181120.GA9667@merlin.emma.line.org>	 <20060731184314.GQ31121@lug-owl.de>	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>	 <1154374923.7230.99.camel@localhost.localdomain> <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com> <44CE7C11.7020202@wolfmountaingroup.com>
-In-Reply-To: <44CE7C11.7020202@wolfmountaingroup.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 17:29:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64968 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751356AbWGaV3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 17:29:20 -0400
+Subject: Re: [PATCH] Kconfig for radio cards to allow VIDEO_V4L1_COMPAT
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1154302828.2318.9.camel@localhost.localdomain>
+References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
+	 <1151327213.3687.13.camel@praia>
+	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
+	 <1151341122.13794.2.camel@praia>
+	 <1154302828.2318.9.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 31 Jul 2006 18:28:16 -0300
+Message-Id: <1154381296.2506.4.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.2.1-4mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-
-> Gregory Maxwell wrote:
->
->> On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>
->>> Its well accepted that reiserfs3 has some robustness problems in the
->>> face of physical media errors. The structure of the file system and the
->>> tree basis make it very hard to avoid such problems. XFS appears to 
->>> have
->>> managed to achieve both robustness and better data structures.
->>>
->>> How reiser4 compares I've no idea.
->>
->>
->>
->> Citation?
->>
->> I ask because your clam differs from the only detailed research that
->> I'm aware of on the subject[1]. In figure 2 of the iron filesystems
->> paper that Ext3 is show to ignore a great number of data-loss inducing
->> failure conditions that Reiser3 detects an panics under.
->>
->> Are you sure that you aren't commenting on cases where Reiser3 alerts
->> the user to a critical data condition (via a panic) which leads to a
->> trouble report while ext3 ignores the problem which suppresses the
->> trouble report from the user?
->>
->> *1) http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf
->
->
-> Hi Gregory, Wikimedia Foundation and LKML?
-> How's Wikimania going. :-)
->
-> What he says is correct.  I have seen some serious issues with 
-> reiserfs in terms of stability and
-> data corruption.  Resier is however FASTER, but the statement is has 
-> robustness issues is accurate.
-> I was using reiserfs but we opted to make EXT3 the default for Solera 
-> appliances, even when using Suse 10
-> due to issues I have seen with data corruption and hard hangs on RAID 
-> 0 read/write sector errors.  I have
-> stopped using it for local drives and based everything on EXT3.  Not 
-> to say it won't get there eventually, but
-> file systems have to endure a lot of time in the field and deployment 
-> befor they are ready for prime time.
->
-
-Correction,
-
-That's "MediWiki" appliances.   Two many transposed acronyms...
-
-www.wolfmountaingroup.com
-
-:-)
-
-Jeff
-
-> The Wikimedia appliances use Wolf Mountain, and I've tested it for 
-> about 4 months with few problems, but
-> I only use it for hosting the Cherokee Langauge Wikipedia.  It's 
-> performance is several magnitudes better
-> than either EXT3 or ReiserFS.  Despite this, for vertical wiki 
-> servers, its ok to go out with, folks can specifiy
-> whether they want appliances with EXT3, Reiser, or WMFS, but iit's a 
-> long way from being "cooked"
-> completely, though it does scale to 1 exabyte FS images.
-> Reiser does have issues still, and I hestitate to standardize on it 
-> until I stop seeing reports from the field about
-> corruption and failover issues.
->
-> Jeff
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Em Seg, 2006-07-31 às 00:40 +0100, Alan Cox escreveu:
+> Ar Llu, 2006-06-26 am 13:58 -0300, ysgrifennodd Mauro Carvalho Chehab:
+> > those devices are really obsolete hardware and none of the current V4L
+> > developers have those boards for testing. Do you have any of those
+> > devices? Can you help porting it to V4L2?
+> 
+> The USB radio is probably the only one that matters, and I do have one
+> of those.
+Are you referring to "D-Link USB FM radio support"? I'll seek some time
+to convert it and ask you to test it. Shouldn't be hard.
+> 
+> 
+Cheers, 
+Mauro.
 

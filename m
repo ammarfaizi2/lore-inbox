@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWGaOdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWGaOgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWGaOdh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 10:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWGaOdg
+	id S932344AbWGaOgR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 10:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWGaOgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 10:33:36 -0400
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:57944 "HELO
-	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932404AbWGaOdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 10:33:14 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.18-rc3] build fixes: smc91x
-Date: Mon, 31 Jul 2006 07:32:18 -0700
-User-Agent: KMail/1.7.1
-Cc: Nicolas Pitre <nico@cam.org>
+	Mon, 31 Jul 2006 10:36:17 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24212
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932344AbWGaOgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 10:36:16 -0400
+From: Rob Landley <rob@landley.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] initramfs:  Allow rootfs to use tmpfs instead of ramfs
+Date: Mon, 31 Jul 2006 10:35:00 -0400
+User-Agent: KMail/1.9.1
+Cc: Hugh Dickins <hugh@veritas.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, stable@kernel.org,
+       akpm@osdl.org, chrisw@sous-sol.org, grim@undead.cc
+References: <200607301808.14299.a1426z@gawab.com> <Pine.LNX.4.64.0607301750080.10648@blonde.wat.veritas.com> <44CCFF09.2000106@zytor.com>
+In-Reply-To: <44CCFF09.2000106@zytor.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_yRhzE5fy52rHGle"
-Message-Id: <200607310732.18822.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607311035.01571.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_yRhzE5fy52rHGle
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I am totally out of the loop here.  (BusyBox has been taking up all my time 
+for months now...)
 
-Another driver that wouldn't build in mainline kernels for OMAP.
+I thought rootfs already would be tmpfs whenever that was compiled into the 
+kernel, but I suspect the kernel I was looking at to come to that conclusion 
+wasn't vanilla.  Still, that implies this isn't the first patch out there to 
+do this...
 
+On Sunday 30 July 2006 2:48 pm, H. Peter Anvin wrote:
+> There is some justification: embedded people would like to load 
+> inittmpfs and then continue running.
 
---Boundary-00=_yRhzE5fy52rHGle
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="smc91x.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="smc91x.patch"
+Yup.  Embedded people who generally have no swap anyway.  (Swap to flash is a 
+bad idea.)  However, I believe what they were after was the ability to limit 
+the filesystem size so runaway logs don't trigger the OOM killer.
 
-Unclear how these bugs arrived, presumably from incorrect cleanup of
-the 16-bit-only paths, but smc91x wouldn't build for OMAP.
+> The main issue -- which I am not sure what effect this patch has -- is 
+> that we would really like to move initramfs initialization even earlier 
+> in the kernel, so that it can include firmware loading for built-in 
+> device drivers, for example.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+I remember this was "pending" late last year.  Thought it had made it into 
+2.6.16 or so.  I need _way_ more time to read the kernel list.  (I'm 50,197 
+messages behind.  That's just silly...)
 
---- a/drivers/net/smc91x.h
-+++ b/drivers/net/smc91x.h
-@@ -189,16 +189,10 @@ SMC_outw(u16 val, void __iomem *ioaddr, 
- #define SMC_IO_SHIFT		0
- #define SMC_NOWAIT		1
- 
--#define SMC_inb(a, r)		readb((a) + (r))
--#define SMC_outb(v, a, r)	writeb(v, (a) + (r))
- #define SMC_inw(a, r)		readw((a) + (r))
- #define SMC_outw(v, a, r)	writew(v, (a) + (r))
- #define SMC_insw(a, r, p, l)	readsw((a) + (r), p, l)
- #define SMC_outsw(a, r, p, l)	writesw((a) + (r), p, l)
--#define SMC_inl(a, r)		readl((a) + (r))
--#define SMC_outl(v, a, r)	writel(v, (a) + (r))
--#define SMC_insl(a, r, p, l)	readsl((a) + (r), p, l)
--#define SMC_outsl(a, r, p, l)	writesl((a) + (r), p, l)
- 
- #include <asm/mach-types.h>
- #include <asm/arch/cpu.h>
+> Thus, if this patch makes it harder to push initramfs initialization 
+> earlier, it's probably a bad thing.  If not, the author of the patch 
+> really needs to explain why it works and why it doesn't add new 
+> dependencies to the initialization order.
+> 
+> Saying "this is a trivial patch" and pushing it on the -stable tree 
+> doesn't inspire too much confidence, as initialization is subtle.
 
---Boundary-00=_yRhzE5fy52rHGle--
+It doesn't look like -stable material to me either.  It might be small enough 
+to add to the current -devel cycle, but that's not my call.
+
+Is there any current documentation on the kernel's init sequence other than 
+reading init/main.c and friends?
+
+> 	-hpa
+
+Rob
+-- 
+Never bet against the cheap plastic solution.

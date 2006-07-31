@@ -1,238 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWGaWNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbWGaWQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWGaWNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 18:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWGaWNZ
+	id S1030483AbWGaWQl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 18:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWGaWQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 18:13:25 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55764 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751401AbWGaWNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 18:13:24 -0400
-Message-ID: <44CE807E.7070905@sgi.com>
-Date: Mon, 31 Jul 2006 15:13:18 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Mon, 31 Jul 2006 18:16:41 -0400
+Received: from 70-253-197-251.ded.swbell.net ([70.253.197.251]:39451 "EHLO
+	bpointsys.com") by vger.kernel.org with ESMTP id S1751404AbWGaWQk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 18:16:40 -0400
+From: Brent Cook <bcook@bpointsys.com>
+Organization: Breaking Point Systems
+To: David Miller <davem@davemloft.net>
+Subject: Re: [RFC 1/4] kevent: core files.
+Date: Mon, 31 Jul 2006 17:16:48 -0500
+User-Agent: KMail/1.9.1
+Cc: johnpol@2ka.mipt.ru, drepper@redhat.com, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <44CB8A67.3060801@redhat.com> <20060731194143.GA12569@2ka.mipt.ru> <20060731.150028.26276495.davem@davemloft.net>
+In-Reply-To: <20060731.150028.26276495.davem@davemloft.net>
 MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Balbir Singh <balbir@in.ibm.com>, Jes Sorensen <jes@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 2/3] add CSA accounting to taskstats
-References: <44CE5847.8050706@sgi.com> <44CE6A82.4060709@watson.ibm.com>
-In-Reply-To: <44CE6A82.4060709@watson.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200607311716.48455.bcook@bpointsys.com>
+X-OriginalArrivalTime: 31 Jul 2006 22:16:34.0290 (UTC) FILETIME=[FB980D20:01C6B4EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Jay Lan wrote:
-
-Sorry, my last reply was not complete.
-
-> 
-
-<snip>
-
->> 
->> 
->>Index: linux/init/Kconfig
->>===================================================================
->>--- linux.orig/init/Kconfig	2006-07-31 11:38:21.000000000 -0700
->>+++ linux/init/Kconfig	2006-07-31 11:47:23.214410140 -0700
->>@@ -182,6 +182,31 @@ config TASK_DELAY_ACCT
->> 
->> 	  Say N if unsure.
->> 
->>+config CSA_ACCT
->>+	bool "Enable CSA Job Accounting (EXPERIMENTAL)"
->>+	depends on TASKSTATS
->>+	help
->>+	  Comprehensive System Accounting (CSA) provides job level
->>+	  accounting of resource usage.  The accounting records are
->>+	  written by the kernel into a file.  CSA user level scripts
->>+	  and commands process the binary accounting records and
->>+	  combine them by job identifier within system boot uptime
->>+	  periods.  These accounting records are then used to produce
->>+	  reports and charge fees to users.
->>+
->>+	  Say Y here if you want job level accounting to be compiled
->>+	  into the kernel.  Say M here if you want the writing of
->>+	  accounting records portion of this feature to be a loadable
->>+	  module.  Say N here if you do not want job level accounting
->>+	  (the default).
-> 
-> 
-> The description above is tied to jobs which don't exist in the kernel.
-> There's no dependency of CSA on kernel-visible jobs anymore, right ?
-> Perhaps the blurb can clarify that jobs are defined in user space.
-
-Will redo this part.
-
-> 
-> 
->>+
->>+	  The CSA commands and scripts package needs to be installed
->>+	  to process the CSA accounting records.  See
->>+	  http://oss.sgi.com/projects/csa for further information
->>+	  about CSA and download instructions for the CSA commands
->>+	  package and documentation.
->>+
->>+
->> config SYSCTL
->> 	bool "Sysctl support" if EMBEDDED
->> 	default y
->>Index: linux/kernel/Makefile
->>===================================================================
->>--- linux.orig/kernel/Makefile	2006-07-31 11:38:21.000000000 -0700
->>+++ linux/kernel/Makefile	2006-07-31 11:47:23.218410191 -0700
->>@@ -50,6 +50,7 @@ obj-$(CONFIG_RCU_TORTURE_TEST) += rcutor
->> obj-$(CONFIG_RELAY) += relay.o
->> obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
->> obj-$(CONFIG_TASKSTATS) += taskstats.o
->>+obj-$(CONFIG_CSA_ACCT) += csa.o
->> 
->> ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
->> # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
->>Index: linux/kernel/csa.c
->>===================================================================
->>--- /dev/null	1970-01-01 00:00:00.000000000 +0000
->>+++ linux/kernel/csa.c	2006-07-31 11:47:23.218410191 -0700
->>@@ -0,0 +1,46 @@
->>+/*
->>+ * This file is subject to the terms and conditions of the GNU General Public
->>+ * License.  See the file "COPYING" in the main directory of this archive
->>+ * for more details.
->>+ *
->>+ * Copyright (c) 2006 Silicon Graphics, Inc All Rights Reserved.
->>+ */
->>+
->>+
->>+/*
->>+ *  CSA (Comprehensive System Accounting)
->>+ *  Job Accounting for Linux
->>+ *
->>+ *  This header file contains the definitions needed for job
->>+ *  accounting. The kernel CSA accounting module code and all
->>+ *  user-level programs that try to write or process the binary job
->>+ *  accounting data must include this file.
-> 
-> 
-> Again, job dependency might need some clarification.
+On Monday 31 July 2006 17:00, David Miller wrote:
 >
-> 
->>+ *
->>+ *  This kernel header file and the csa.h in the csa userland source
->>+ *  rpm share same data struct declaration and #define's. Do not modify
->>+ *  one without modify the other one as well. The compatibility between
->>+ *  userland and the kernel is ensured by using the 'ah_revision' field
->>+ *  of struct achead.
-> 
-> 
-> Leftover from older documentation ?
+> So we'd have cases like this, assume we start with a full event
+> queue:
+>
+> 	thread A		thread B
+>
+> 	dequeue event
+> 	aha, new connection
+> 	accept()
+> 				register new kevent
+> 				queue is now full again
+> 	add kevent on new
+> 	connection
+>
+> At this point thread A doesn't have very many options when the kevent
+> add fails.  You cannot force this thread to read more events, since he
+> may not be in a state where he is easily able to do so.
 
-Will redo the above two sections.
-
-> 
-> 
->>+ *
->>+ */
->>+
->>+#include <linux/taskstats.h>
->>+#include <linux/csa_kern.h>
->>+#include <linux/sched.h>
->>+
->>+void csa_add_tsk(struct taskstats *stats, struct task_struct *p)
->>+{
->>+	stats->csa_revision = REV_CSA;
->>+	stats->acct_rss_mem1 = p->acct_rss_mem1;
->>+	stats->acct_vm_mem1  = p->acct_vm_mem1;
->>+	if (p->mm) {
->>+		stats->hiwater_rss   = p->mm->hiwater_rss;
->>+		stats->hiwater_vm    = p->mm->hiwater_vm;
->>+	}
->>+	stats->ac_minflt = p->min_flt;
->>+	stats->ac_majflt = p->maj_flt;
->>+	stats->ac_chr	= p->rchar;
->>+	stats->ac_chw	= p->wchar;
->>+	stats->ac_scr	= p->syscr;
->>+	stats->ac_scw	= p->syscw;
->>+}
->>Index: linux/kernel/taskstats.c
->>===================================================================
->>--- linux.orig/kernel/taskstats.c	2006-07-31 11:44:54.000000000 -0700
->>+++ linux/kernel/taskstats.c	2006-07-31 11:47:23.218410191 -0700
->>@@ -21,6 +21,7 @@
->> #include <linux/taskstats_kern.h>
->> #include <linux/acct.h>
->> #include <linux/delayacct.h>
->>+#include <linux/csa_kern.h>
->> #include <linux/cpumask.h>
->> #include <linux/percpu.h>
->> #include <net/genetlink.h>
->>@@ -252,6 +253,9 @@ static int fill_pid(pid_t pid, struct ta
->> 	/* fill in basic acct fields */
->> 	bacct_add_tsk(stats, tsk);
->> 
->>+	/* fill in csa fields */
->>+	csa_add_tsk(stats, tsk);
->>+
->> 	/* Define err: label here if needed */
->> 	put_task_struct(tsk);
->> 	return rc;
->>Index: linux/include/linux/csa_kern.h
->>===================================================================
->>--- /dev/null	1970-01-01 00:00:00.000000000 +0000
->>+++ linux/include/linux/csa_kern.h	2006-07-31 11:47:23.218410191 -0700
->>@@ -0,0 +1,31 @@
->>+/*
->>+ * This file is subject to the terms and conditions of the GNU General Public
->>+ * License.  See the file "COPYING" in the main directory of this archive
->>+ * for more details.
->>+ *
->>+ * Copyright (c) 2006 Silicon Graphics, Inc All Rights Reserved.
->>+ */
->>+
->>+#ifndef _CSA_KERN_H
->>+#define _CSA_KERN_H
->>+
->>+#ifdef CONFIG_CSA_ACCT
->>+extern void csa_add_tsk(struct taskstats *, struct task_struct *);
->>+#else
->>+#define csa_add_tsk(x)		do { } while (0)
-> 
-> 
-> This won't compile right...number of args differ.
-
-Sorry i did not catch this one. Thanks!
-
-Regards,
-  - jay
-
-
-> 
-> 
->>+#endif
->>+
->>+/*
->>+ * Record revision levels.
->>+ *
->>+ * These are incremented to indicate that a record's format has changed since
->>+ * a previous release.
->>+ *
->>+ * History:     05000   The first rev in Linux
->>+ *              06000   Major rework to clean up unused fields and features.
->>+ *                      No binary compatibility with earlier rev.
->>+ *		07000	Convert to taskstats interface
->>+ */
->>+#define REV_CSA		07000	/* Kernel: CSA base record */
->>+
->>+#endif	/* _CSA_KERN_H */
->>
-> 
-> 
+There has to be some thread that is responsible for reading events. Perhaps a 
+reasonable thing for a blocked thread that cannot process events to do is to 
+yield to one that can?
 

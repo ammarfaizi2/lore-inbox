@@ -1,233 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWGaDc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWGaDcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWGaDc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jul 2006 23:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWGaDc3
+	id S932528AbWGaDcN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jul 2006 23:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWGaDcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jul 2006 23:32:29 -0400
-Received: from mga07.intel.com ([143.182.124.22]:4470 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S932525AbWGaDc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jul 2006 23:32:26 -0400
-X-IronPort-AV: i="4.07,196,1151910000"; 
-   d="scan'208"; a="72855205:sNHT63041867"
-Subject: Re: [PATCH 5/5] PCI-Express AER implemetation: pcie_portdrv error
-	handler
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-pci maillist <linux-pci@atrey.karlin.mff.cuni.cz>,
-       Greg KH <greg@kroah.com>, Tom Long Nguyen <tom.l.nguyen@intel.com>
-In-Reply-To: <1154316164.27051.36.camel@ymzhang-perf.sh.intel.com>
-References: <1154314837.27051.26.camel@ymzhang-perf.sh.intel.com>
-	 <1154315439.27051.29.camel@ymzhang-perf.sh.intel.com>
-	 <1154315653.27051.32.camel@ymzhang-perf.sh.intel.com>
-	 <1154316164.27051.36.camel@ymzhang-perf.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1154316650.27051.44.camel@ymzhang-perf.sh.intel.com>
+	Sun, 30 Jul 2006 23:32:13 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:44896 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S932523AbWGaDcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jul 2006 23:32:12 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=xLeO2O1RVBVjpcPS8P3diGMCVzvZGl7bpj8F7GaAxAvZ6mpWnV4iLD1KQv7giQTJypZWMONgfjDaRadIRakj0M3lzNyzyku3RA6WYo3NwOgEZ8JOLVGXJ+MSwdhJ0ncH;
+X-IronPort-AV: i="4.07,196,1151902800"; 
+   d="scan'208"; a="53388277:sNHT34054569"
+Date: Sun, 30 Jul 2006 22:32:10 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: David Miller <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, yoshfuji@linux-ipv6.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
+Message-ID: <20060731033210.GD31083@humbolt.us.dell.com>
+Reply-To: Matt Domsch <Matt_Domsch@dell.com>
+References: <20060728194531.GA17744@lists.us.dell.com> <20060729043325.GA7035@gondor.apana.org.au> <20060730.154416.121293840.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 31 Jul 2006 11:30:50 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060730.154416.121293840.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
+On Sun, Jul 30, 2006 at 03:44:16PM -0700, David Miller wrote:
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Sat, 29 Jul 2006 14:33:25 +1000
+> 
+> > [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
+> > 
+> > The current users of ip6_dst_lookup can be divided into two classes:
+> > 
+> > 1) The caller holds no locks and is in user-context (UDP).
+> > 2) The caller does not want to lookup the dst cache at all.
+> > 
+> > The second class covers everyone except UDP because most people do
+> > the cache lookup directly before calling ip6_dst_lookup.  This patch
+> > adds ip6_sk_dst_lookup for the first class.
+> > 
+> > Similarly ip6_dst_store users can be divded into those that need to
+> > take the socket dst lock and those that don't.  This patch adds
+> > __ip6_dst_store for those (everyone except UDP/datagram) that don't
+> > need an extra lock.
+> > 
+> > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> 
+> Applied, thanks Herbert.
 
-Patch 5 implements error handlers for pcie_portdrv.
+I applied this on 2.6.18-rc3, and it panics immediately as the first
+IPv6 TCP (ssh) session is initiated to the system.
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
----
+Bootdata ok (command line is ro root=/dev/VolGroup00/LogVol00 console=ttyS0,115200 console=tty0)
+Linux version 2.6.18-rc3 (mdomsch@localhost.localdomain) (gcc version 4.1.1 20060721 (Red Hat 4.1.1-13)) #1 SMP Sun Jul 30 22:08:46 CDT 2006
+...
+=============================================
+[ INFO: possible recursive locking detected ]
+---------------------------------------------
+swapper/0 is trying to acquire lock:
+ (slock-AF_INET6){-+..}, at: [<ffffffff80414fda>] sk_clone+0xd2/0x3a8
 
---- linux-2.6.17/drivers/pci/pcie/portdrv_pci.c	2006-06-22 16:27:35.000000000 +0800
-+++ linux-2.6.17_aer/drivers/pci/pcie/portdrv_pci.c	2006-07-31 11:24:50.000000000 +0800
-@@ -14,8 +14,10 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/pcieport_if.h>
-+#include <linux/aer.h>
+but task is already holding lock:
+ (slock-AF_INET6){-+..}, at: [<ffffffff883d71a8>] tcp_v6_rcv+0x30e/0x76e [ipv6]
+
+other info that might help us debug this:
+1 lock held by swapper/0:
+ #0:  (slock-AF_INET6){-+..}, at: [<ffffffff883d71a8>] tcp_v6_rcv+0x30e/0x76e [ipv6]
+
+stack backtrace:
+
+Call Trace:
+ [<ffffffff8026f861>] show_trace+0xae/0x30e
+ [<ffffffff8026fad6>] dump_stack+0x15/0x17
+ [<ffffffff802a73d4>] __lock_acquire+0x12e/0xa18
+ [<ffffffff802a8232>] lock_acquire+0x4b/0x69
+ [<ffffffff8026883b>] _spin_lock+0x25/0x31
+ [<ffffffff80414fda>] sk_clone+0xd2/0x3a8
+ [<ffffffff8043c8a7>] inet_csk_clone+0x11/0x6f
+ [<ffffffff80445615>] tcp_create_openreq_child+0x24/0x49c
+ [<ffffffff883d5d85>] :ipv6:tcp_v6_syn_recv_sock+0x2c5/0x6be
+ [<ffffffff80445c5e>] tcp_check_req+0x1d1/0x326
+ [<ffffffff883d4f0e>] :ipv6:tcp_v6_do_rcv+0x15d/0x372
+ [<ffffffff883d75b9>] :ipv6:tcp_v6_rcv+0x71f/0x76e
+ [<ffffffff883ba49f>] :ipv6:ip6_input+0x223/0x315
+ [<ffffffff883bab4d>] :ipv6:ipv6_rcv+0x254/0x2af
+ [<ffffffff80221883>] netif_receive_skb+0x260/0x2dd
+ [<ffffffff88101292>] :e1000:e1000_clean_rx_irq+0x423/0x4c2
+ [<ffffffff880ff752>] :e1000:e1000_clean+0x88/0x17d
+ [<ffffffff8020caed>] net_rx_action+0xac/0x1d1
+ [<ffffffff80212809>] __do_softirq+0x68/0xf5
+ [<ffffffff802626fa>] call_softirq+0x1e/0x28
+DWARF2 unwinder stuck at call_softirq+0x1e/0x28
+Leftover inexact backtrace:
+ <IRQ> [<ffffffff80270b48>] do_softirq+0x39/0x9f
+ [<ffffffff802960b6>] irq_exit+0x57/0x59
+ [<ffffffff80270cab>] do_IRQ+0xfd/0x107
+ [<ffffffff8025b612>] mwait_idle+0x0/0x54
+ [<ffffffff80261985>] ret_from_intr+0x0/0xf
+ <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP: 
+ [<ffffffff8026fa5c>] show_trace+0x2a9/0x30e
+PGD 203027 PUD 205027 PMD 0 
+Oops: 0000 [1] SMP 
+CPU 0 
+Modules linked in: ipv6 ipmi_devintf ipmi_si ipmi_msghandler hidp rfcomm l2cap bluetooth sunrpc ip_conntrack_netbios_ns ipt_REJECT xt_state ip_conntrack nfnetlink xt_tcpudp iptable_filter ip_tables x_tables acpi_cpufreq video sbs i2c_ec i2c_core button battery asus_acpi ac parport_pc lp parport intel_rng uhci_hcd ehci_hcd ide_cd e752x_edac edac_mc pcspkr serio_raw cdrom sg e1000 dm_snapshot dm_zero dm_mirror dm_mod ext3 jbd ata_piix libata sd_mod scsi_mod
+Pid: 0, comm: swapper Not tainted 2.6.18-rc3 #1
+RIP: 0010:[<ffffffff8026fa5c>]  [<ffffffff8026fa5c>] show_trace+0x2a9/0x30e
+RSP: 0018:ffffffff8066a8f0  EFLAGS: 00010002
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 000000000000a4ec
+RDX: ffffffff80561e60 RSI: 0000000000000000 RDI: ffffffff8056e020
+RBP: ffffffff8066a9e0 R08: ffffffff8066a640 R09: ffffffff802abf75
+R10: ffffffff802abf75 R11: 0000000000000000 R12: ffffffff827ffffd
+R13: ffffffff8066a900 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffffffff80922000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: ffffffff82800000 CR3: 0000000076417000 CR4: 00000000000006e0
+Process swapper (pid: 0, threadinfo ffffffff80952000, task ffffffff80561e60)
+Stack:  ffffffff8066a900 00000000805625b0 0000000000000000 0000000000000000
+ 0000000000000000 ffffffff80953ec8 ffffffff8066af80 0000000000000046
+ 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+Call Trace:
+ [<ffffffff8026fad6>] dump_stack+0x15/0x17
+ [<ffffffff802a73d4>] __lock_acquire+0x12e/0xa18
+ [<ffffffff802a8232>] lock_acquire+0x4b/0x69
+ [<ffffffff8026883b>] _spin_lock+0x25/0x31
+ [<ffffffff80414fda>] sk_clone+0xd2/0x3a8
+ [<ffffffff8043c8a7>] inet_csk_clone+0x11/0x6f
+ [<ffffffff80445615>] tcp_create_openreq_child+0x24/0x49c
+ [<ffffffff883d5d85>] :ipv6:tcp_v6_syn_recv_sock+0x2c5/0x6be
+ [<ffffffff80445c5e>] tcp_check_req+0x1d1/0x326
+ [<ffffffff883d4f0e>] :ipv6:tcp_v6_do_rcv+0x15d/0x372
+ [<ffffffff883d75b9>] :ipv6:tcp_v6_rcv+0x71f/0x76e
+ [<ffffffff883ba49f>] :ipv6:ip6_input+0x223/0x315
+ [<ffffffff883bab4d>] :ipv6:ipv6_rcv+0x254/0x2af
+ [<ffffffff80221883>] netif_receive_skb+0x260/0x2dd
+ [<ffffffff88101292>] :e1000:e1000_clean_rx_irq+0x423/0x4c2
+ [<ffffffff880ff752>] :e1000:e1000_clean+0x88/0x17d
+ [<ffffffff8020caed>] net_rx_action+0xac/0x1d1
+ [<ffffffff80212809>] __do_softirq+0x68/0xf5
+ [<ffffffff802626fa>] call_softirq+0x1e/0x28
+DWARF2 unwinder stuck at call_softirq+0x1e/0x28
+Leftover inexact backtrace:
+ <IRQ> [<ffffffff80270b48>] do_softirq+0x39/0x9f
+ [<ffffffff802960b6>] irq_exit+0x57/0x59
+ [<ffffffff80270cab>] do_IRQ+0xfd/0x107
+ [<ffffffff8025b612>] mwait_idle+0x0/0x54
+ [<ffffffff80261985>] ret_from_intr+0x0/0xf
+ <EOI><1>Unable to handle kernel paging request at ffffffff82800000 RIP: 
+ [<ffffffff8026fa5c>] show_trace+0x2a9/0x30e
+PGD 203027 PUD 205027 PMD 0 
+
+(more oopses followed, though they look the same).
+
  
- #include "portdrv.h"
-+#include "aer/aerdrv.h"
- 
- /*
-  * Version Information
-@@ -76,6 +78,10 @@ static int __devinit pcie_portdrv_probe 
- 	if (pcie_port_device_register(dev)) 
- 		return -ENOMEM;
- 
-+	pcie_portdrv_save_config(dev);
-+
-+	pci_enable_pcie_error_reporting(dev);
-+
- 	return 0;
- }
- 
-@@ -102,6 +108,144 @@ static int pcie_portdrv_resume (struct p
- }
- #endif
- 
-+static int error_detected_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	struct aer_broadcast_data *result_data;
-+	pci_ers_result_t status;
-+
-+	result_data = (struct aer_broadcast_data *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (!driver ||
-+			!driver->err_handler ||
-+			!driver->err_handler->error_detected)
-+			return 0;
-+
-+		pcie_device = to_pcie_device(device);
-+
-+		/* Forward error detected message to service drivers */
-+		status = driver->err_handler->error_detected(
-+			pcie_device->port,
-+			result_data->state);
-+		result_data->result =
-+			merge_result(result_data->result, status);
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_error_detected(struct pci_dev *dev,
-+					enum pci_channel_state error)
-+{
-+	struct aer_broadcast_data result_data =
-+			{error, PCI_ERS_RESULT_CAN_RECOVER};
-+	
-+	device_for_each_child(&dev->dev, &result_data, error_detected_iter);
-+
-+	return result_data.result;
-+}
-+
-+static int mmio_enabled_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->mmio_enabled) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->mmio_enabled(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_mmio_enabled(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status = PCI_ERS_RESULT_RECOVERED;
-+
-+	device_for_each_child(&dev->dev, &status, mmio_enabled_iter);
-+	return status;
-+}
-+
-+static int slot_reset_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+	pci_ers_result_t status, *result;
-+
-+	result = (pci_ers_result_t *) data;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->slot_reset) {
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			status = driver->err_handler->slot_reset(
-+					pcie_device->port);
-+			*result = merge_result(*result, status);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static pci_ers_result_t pcie_portdrv_slot_reset(struct pci_dev *dev)
-+{
-+	pci_ers_result_t status;
-+
-+	/* If fatal, restore cfg space for possible link reset at upstream */
-+	if (dev->error_state == pci_channel_io_frozen) {
-+		pcie_portdrv_restore_config(dev);
-+		pci_enable_pcie_error_reporting(dev);
-+	}
-+
-+	device_for_each_child(&dev->dev, &status, slot_reset_iter);
-+
-+	return status;
-+}
-+
-+static int resume_iter(struct device *device, void *data)
-+{
-+	struct pcie_device *pcie_device;
-+	struct pcie_port_service_driver *driver;
-+
-+	if (device->bus == &pcie_port_bus_type && device->driver) {
-+		driver = to_service_driver(device->driver);
-+		if (driver &&
-+			driver->err_handler &&
-+			driver->err_handler->resume) { 
-+			pcie_device = to_pcie_device(device);
-+
-+			/* Forward error message to service drivers */
-+			driver->err_handler->resume(pcie_device->port);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void pcie_portdrv_err_resume(struct pci_dev *dev)
-+{
-+	device_for_each_child(&dev->dev, NULL, resume_iter);
-+}
-+
- /*
-  * LINUX Device Driver Model
-  */
-@@ -112,6 +256,13 @@ static const struct pci_device_id port_p
- };
- MODULE_DEVICE_TABLE(pci, port_pci_ids);
- 
-+static struct pci_error_handlers pcie_portdrv_err_handler = {
-+		.error_detected = pcie_portdrv_error_detected,
-+		.mmio_enabled = pcie_portdrv_mmio_enabled,
-+		.slot_reset = pcie_portdrv_slot_reset,
-+		.resume = pcie_portdrv_err_resume,
-+};
-+
- static struct pci_driver pcie_portdrv = {
- 	.name		= (char *)device_name,
- 	.id_table	= &port_pci_ids[0],
-@@ -123,6 +274,8 @@ static struct pci_driver pcie_portdrv = 
- 	.suspend	= pcie_portdrv_suspend,
- 	.resume		= pcie_portdrv_resume,
- #endif	/* PM */
-+
-+	.err_handler 	= &pcie_portdrv_err_handler,
- };
- 
- static int __init pcie_portdrv_init(void)

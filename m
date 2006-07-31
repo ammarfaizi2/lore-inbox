@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWGaPSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWGaPWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWGaPSO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 11:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWGaPSO
+	id S932319AbWGaPWw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 11:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWGaPWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 11:18:14 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:4696 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932426AbWGaPSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 11:18:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CqMpr3NMWLp06j6lLpuUnyqQvNcR4m9hn2Uc1jesxV8up3D8BzH8WEWe9D74Ijzu6sGhKI7zFNvNlctVfNc4UHTZvI3Sz8U+EnBBLbJBb7vu/DVgT7jM74StAaIUVQbfSWaVKhaVC1GePce4xFgqiR6iG1uADefQJoHg25WYTrY=
-Message-ID: <41840b750607310818j7ab2dcddpcb7a14b9a8f10871@mail.gmail.com>
-Date: Mon, 31 Jul 2006 18:18:12 +0300
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: linux-thinkpad@linux-thinkpad.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ltp] Re: Generic battery interface
-In-Reply-To: <20060731113735.GA22081@creature.apm.etc.tu-bs.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 11:22:52 -0400
+Received: from nsm.pl ([195.34.211.229]:12556 "EHLO nsm.pl")
+	by vger.kernel.org with ESMTP id S932319AbWGaPWv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 11:22:51 -0400
+Date: Mon, 31 Jul 2006 17:22:47 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on pentium4
+Message-ID: <20060731152247.GA6768@irc.pl>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	bert hubert <bert.hubert@netherlabs.nl>, linux-kernel@vger.kernel.org
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <Pine.LNX.4.64.0607301043070.7932@montezuma.fsmlabs.com> <20060731055655.GB7094@irc.pl> <Pine.LNX.4.64.0607310701190.10584@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
 Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6011688D8@hdsmsx411.amr.corp.intel.com>
-	 <20060727232427.GA4907@suse.cz>
-	 <41840b750607271727q7efc0bb2q706a17654004cbbc@mail.gmail.com>
-	 <20060728074202.GA4757@suse.cz>
-	 <41840b750607280814x50db03erb30d833802ae983e@mail.gmail.com>
-	 <20060728202359.GB5313@suse.cz>
-	 <41840b750607281548h5ee2219eka1de6745b692c092@mail.gmail.com>
-	 <41840b750607291406p2f843054rc89fa1c3c467688d@mail.gmail.com>
-	 <41840b750607301137t1e10fe88o3a1c73e7a4b4bf44@mail.gmail.com>
-	 <20060731113735.GA22081@creature.apm.etc.tu-bs.de>
+In-Reply-To: <Pine.LNX.4.64.0607310701190.10584@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7/31/06, Michael Olbrich <michael.olbrich@gmx.net> wrote:
-> On Sun, Jul 30, 2006 at 09:37:23PM +0300, Shem Multinymous wrote:
-> >
-> > Comments?
->
-> Hmmm, that looks good for most cases. But how would you handle
-> starting/stoping laoding/draining the battery?
-> That usually results in values jumping from/to 0. A gui would want to
-> show such a change immediately while otherwise keeping a slow update
-> rate. Maybe some kind of threshhold parameter? "send an input-ready
-> immediatelly if the value changes by more than x%".
 
-Changes by more than x% compared to what?
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The value at the time of the ioctl()? This might completely miss a
-change that happened between the previous read() and the ioctl().
+On Mon, Jul 31, 2006 at 07:04:07AM -0700, Zwane Mwaikambo wrote:
+> On Mon, 31 Jul 2006, Tomasz Torcz wrote:
+>=20
+> > On Sun, Jul 30, 2006 at 10:45:13AM -0700, Zwane Mwaikambo wrote:
+> >=20
+> > > CONFIG_X86_ACPI_CPUFREQ
+> >=20
+> >   I had this one =3Dy. After setting =3Dn, cpufreq-nforce2 (=3Dm) works=
+ again.
+> >=20
+> > powernowd: PowerNow Daemon v0.96, (c) 2003-2005 John Clemens
+> > powernowd: Found 1 cpu:  -- 1 thread (or core) per physical cpu
+> > /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies: No
+> > such file or directory
+> > powernowd:   cpu0: 1228Mhz - 1753Mhz (7 steps)
+>=20
+> Hi Tomasz,
+>=20
+> 	Could you also please test Bert's patch which propogates error=20
+> return values with your previous configuration?
 
-The value at the time of the last read()? Then the kernel
-driver+infrastructure will need to keep track of the latest readout
-done by each app. That's pretty heavy.
+  Bert's patch works. With CONFIG_X86_ACPI_CPUFREQ=3Dy and
+cpufre-nforce2=3Dm I have working cpufreq (like in 2.6.17 and before).
 
-So what semantics make sense?
+--=20
+Tomasz Torcz               "Never underestimate the bandwidth of a station
+zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
 
-  Shem
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: gpg --search-keys Tomasz Torcz
+
+iD8DBQFEziBHThhlKowQALQRAjxVAKDk83nOi9lYqPSU2NAH7IsHbJrCMgCgsFyi
+lH2YST+vCmMJod2T1gEnNRo=
+=tWS1
+-----END PGP SIGNATURE-----
+
+--X1bOJ3K7DJ5YkBrT--

@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWGaK5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWGaK5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751522AbWGaK5b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 06:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWGaK5b
+	id S1751523AbWGaK5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 06:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWGaK5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 06:57:31 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30164 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751522AbWGaK5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 06:57:30 -0400
-Subject: Re: [PATCH] ide support for VIA 8237a southbridge
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060730210923.9092774e.diegocg@gmail.com>
-References: <20060730210923.9092774e.diegocg@gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 31 Jul 2006 12:16:16 +0100
-Message-Id: <1154344576.7230.24.camel@localhost.localdomain>
+	Mon, 31 Jul 2006 06:57:20 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57742
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751520AbWGaK5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 06:57:19 -0400
+Date: Mon, 31 Jul 2006 03:57:16 -0700 (PDT)
+Message-Id: <20060731.035716.39159213.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: herbert@gondor.apana.org.au, drepper@redhat.com, zach.brown@oracle.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060731105037.GA2073@2ka.mipt.ru>
+References: <20060731103322.GA1898@2ka.mipt.ru>
+	<E1G7V7r-0006jL-00@gondolin.me.apana.org.au>
+	<20060731105037.GA2073@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-07-30 am 21:09 +0200, ysgrifennodd Diego Calleja:
-> Alan Cox added (622b20fcb8b42aa4c3c87c0a036f2ad0927b64bc) some PCI IDs 
-> for some VIA devices, including the 8237a. The driver, however, has not
-> been changed to support the 8237a, and someone reported it through
-> bugzilla (http://bugzilla.kernel.org/show_bug.cgi?id=6925)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Mon, 31 Jul 2006 14:50:37 +0400
 
-The libata driver was, the change for the old driver was sent to the
-maintainer on the same date. Ask Bartlomiej where it went.
+> In syscall time kevents copy 40bytes for each event + 12 bytes of header 
+> (number of events, timeout and command number). That's likely two cache
+> lines if only one event is reported.
 
-> Signed-off-by: Diego Calleja <diegocg@gmail.com>
+Do you know how many cachelines are dirtied by system call
+entry and exit on typical system?
 
-Acked-by: Alan Cox <alan@redhat.com>
+On sparc64 it is a minimum of 3 64-byte cachelines just to save and
+restore the system call time cpu register state.  If application is
+deep in a call chain, register windows might spill and each such
+register window will dirty 2 more cachelines as they are dumped to the
+stack.
 
-> --- 2.6/drivers/ide/pci/via82cxxx.c.BUGGY	2006-07-30 20:55:18.000000000 +0200
-> +++ 2.6/drivers/ide/pci/via82cxxx.c	2006-07-30 21:03:25.000000000 +0200
-> @@ -6,7 +6,7 @@
->   *
->   *   vt82c576, vt82c586, vt82c586a, vt82c586b, vt82c596a, vt82c596b,
->   *   vt82c686, vt82c686a, vt82c686b, vt8231, vt8233, vt8233c, vt8233a,
-> - *   vt8235, vt8237
-> + *   vt8235, vt8237, vt8237a
->   *
->   * Copyright (c) 2000-2002 Vojtech Pavlik
->   *
-> @@ -81,6 +81,7 @@ static struct via_isa_bridge {
->  	{ "vt6410",	PCI_DEVICE_ID_VIA_6410,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
->  	{ "vt8251",	PCI_DEVICE_ID_VIA_8251,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
->  	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
-> +	{ "vt8237a",	PCI_DEVICE_ID_VIA_8237A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
->  	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
->  	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 | VIA_BAD_AST },
->  	{ "vt8233c",	PCI_DEVICE_ID_VIA_8233C_0,  0x00, 0x2f, VIA_UDMA_100 },
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I am not even talking about the other basic necessities of doing
+a system call such as touching various task_struct and thread_info
+state to check for pending signals etc.
+
+System call overhead is non-trivial especially when you are using
+it to move only a few small objects into and out of the kernel.
+
+So I would say for up to 4 or 5 events, system call overhead alone
+touches as many cache lines as the events themselves.

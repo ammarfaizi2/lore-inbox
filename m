@@ -1,130 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWGaHHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWGaHIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbWGaHHu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 03:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWGaHHt
+	id S932507AbWGaHIX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 03:08:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWGaHIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 03:07:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49306 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932503AbWGaHHt (ORCPT
+	Mon, 31 Jul 2006 03:08:22 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:33945 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S932507AbWGaHIV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 03:07:49 -0400
-From: Paul Jackson <pj@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>,
-       Suresh Siddha <suresh.b.siddha@intel.com>
-Cc: Simon.Derr@bull.net, Jack Steiner <steiner@sgi.com>,
-       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Date: Mon, 31 Jul 2006 00:07:34 -0700
-Message-Id: <20060731070734.19126.40501.sendpatchset@v0>
-Subject: [BUG] sched: big numa dynamic sched domain memory corruption
+	Mon, 31 Jul 2006 03:08:21 -0400
+Date: Mon, 31 Jul 2006 09:08:01 +0200
+From: bert hubert <bert.hubert@netherlabs.nl>
+To: Dave Jones <davej@redhat.com>,
+       Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+       linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+       venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+       cpufreq@lists.linux.org.uk, len.brown@intel.com
+Subject: Re: 2.6.17 -> 2.6.18 regression: cpufreq broken since 2.6.18-rc1 on	pentium4
+Message-ID: <20060731070800.GA22205@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
+	Dave Jones <davej@redhat.com>,
+	Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>,
+	linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk,
+	venkatesh.pallipadi@intel.com, tony@atomide.com, akpm@osdl.org,
+	cpufreq@lists.linux.org.uk, len.brown@intel.com
+References: <20060730120844.GA18293@outpost.ds9a.nl> <20060730160738.GB13377@irc.pl> <20060730165137.GA26511@outpost.ds9a.nl> <44CCF556.2060505@linux.intel.com> <20060730184443.GA30067@outpost.ds9a.nl> <20060730190133.GD18757@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060730190133.GD18757@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have hit a bug in the dynamic sched domain setup.  It causes random
-memory writes via a stale pointer.
+> went ok.  I wonder if something changed in acpi recently that caused this
+> change in behaviour ? Len ?
 
-I don't entirely understand the code yet, so my description of this
-bug may be flawed.  I'll do the best I can.  Thanks to Jack Steiner
-for figuring out what we know so far.
+Dave,
 
-The three systems we are testing on have 128, 224 and 256 CPUs.
-They are single core, ia64 SN2 itanium systems configured with:
-  CONFIG_NUMA - enabled
-  CONFIG_SCHED_MC - disabled
-  CONFIG_SCHED_SMT - disabled
+I'm no expert but I think it was you that made this change in
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=567b39bea07e4fbbe091b265b010905e3d30ff5a;hp=1a7bdcef19261deff5a7ea8ee13d5a8ddb434a19;hb=911cb74bb9e77e40749abc2fca6fe74d87d940f3;f=arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
 
-They are running approximately the 2.6.16.* kernel found in SLES10.
++ /* Do initialization in ACPI core */
++ acpi_processor_preregister_performance(acpi_perf_data);
++ return 0;
++}
 
-We first noticed the problem due to the memory clobbering, and
-had to crank up the slab debug code a notch to backtrack to the
-apparent original cause.  The bug does not cause an immediate
-crash or kernel complaint.
-
-In sum, it appears that the large array sched_group_allnodes is
-free'd up by arch_destroy_sched_domains() when someone redefines
-the cpu_exclusive portion of the cpuset configuration, but some
-of the sd->groups are left pointing into the free'd array, causing
-the assignment:
-	sd->groups->cpu_power = power;
-to write via a stale sd->groups pointer.
-
-The build_sched_domains() code only rebuilds the sd->groups pointer
-to the current sched_group_allnodes array for those cpus that are
-in the specified cpu_map.  The remaining cpus seem to be left with
-stale sd->groups pointers.
-
-The above summary may be too inaccurate to be helpful.
-
-I'll step through the failing scenario in more detail, and hopefully
-with fewer inaccuracies.
-
-
-    During the system boot, the initial call to build_sched_domains()
-    sets up all encompasing sched_group_allnodes and the smaller
-    child domains and groups.  So far, all is well.  Part of
-    this initialization includes allocating a large array called
-    sched_group_allnodes, and for each cpu in the system, initializing
-    its sd->groups->cpu_power element in the sched_group_allnodes
-    array.
-
-    After boot, we run some commands that create a child cpuset,
-    with, for this example, cpus 4-8, marked cpu_exclusive.
-
-    This calls arch_destroy_sched_domains(), which frees
-    sched_group_allnodes.
-
-    Then this calls build_sched_domains() with a mask including
-    *all-but* cpus 4-8 (in this example).  That call allocates a new
-    sched_group_allnodes and in the first for_each_cpu_mask() loop,
-    initializes the sched domain, including sd->groups, for *all-but*
-    cpus 4-8.  The sd->groups for 4-8 are still pointing back at
-    the now freed original sched_group_allnodes array.
-
-    Then we call build_sched_domains() again, with a mask for just
-    cpus 4-8.  It executes the line:
-    	sd->groups->cpu_power = power;
-    with a stale sd->groups pointer, clobbering the already freed
-    memory that used to be in the sched_group_allnodes array.  For our
-    situation, we are in the "#ifdef CONFIG_NUMA" variant of this line.
-
-
-Aha - while writing the above, I had an idea for a possible fix.
-
-The following patch seems to fix this problem, at least for the
-above CONFIG on one of the test systems.  Though I have no particular
-confidence that it is a good patch.
-
-The idea of the patch is to -always- execute the code conditioned by
-the "if (... > SD_NODES_PER_DOMAIN*...) {" test on big systems, even
-if we happen to be calling build_sched_domains() with a small cpu_map.
-
----
-
- kernel/sched.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- linux.orig/kernel/sched.c	2006-07-30 23:42:12.182958555 -0700
-+++ linux/kernel/sched.c	2006-07-30 23:45:12.513282355 -0700
-@@ -5675,12 +5675,13 @@ void build_sched_domains(const cpumask_t
- 		int group;
- 		struct sched_domain *sd = NULL, *p;
- 		cpumask_t nodemask = node_to_cpumask(cpu_to_node(i));
-+		int cpus_per_node = cpus_weight(nodemask);
- 
- 		cpus_and(nodemask, nodemask, *cpu_map);
- 
- #ifdef CONFIG_NUMA
--		if (cpus_weight(*cpu_map)
--				> SD_NODES_PER_DOMAIN*cpus_weight(nodemask)) {
-+		if (cpus_weight(cpu_online_map)
-+				> SD_NODES_PER_DOMAIN*cpus_per_node) {
- 			if (!sched_group_allnodes) {
- 				sched_group_allnodes
- 					= kmalloc(sizeof(struct sched_group)
-
+:-)
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

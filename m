@@ -1,100 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWGaRqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWGaRrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWGaRqc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 13:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWGaRqc
+	id S1030289AbWGaRrg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 13:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWGaRrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 13:46:32 -0400
-Received: from mail.teleformix.com ([12.15.20.75]:57735 "EHLO
-	mail.teleformix.com") by vger.kernel.org with ESMTP
-	id S1030287AbWGaRqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 13:46:31 -0400
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-	regarding reiser4 inclusion
-From: Dan Oglesby <doglesby@teleformix.com>
-Reply-To: doglesby@teleformix.com
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <20060731171620.GL31121@lug-owl.de>
-References: <1153760245.5735.47.camel@ipso.snappymail.ca>
-	 <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl>
-	 <20060731125846.aafa9c7c.reiser4@blinkenlights.ch>
-	 <20060731144736.GA1389@merlin.emma.line.org>
-	 <20060731175958.1626513b.reiser4@blinkenlights.ch>
-	 <20060731162224.GJ31121@lug-owl.de> <1154364421.7964.22.camel@localhost>
-	 <20060731171620.GL31121@lug-owl.de>
-Content-Type: text/plain
-Organization: Teleformix, LLC
-Date: Mon, 31 Jul 2006 12:44:22 -0500
-Message-Id: <1154367862.7964.47.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 13:47:36 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:6667 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1030289AbWGaRrf convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 13:47:35 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 31 Jul 2006 17:46:34.0122 (UTC) FILETIME=[438A96A0:01C6B4C9]
+Content-class: urn:content-classes:message
+Subject: Re: [PATCH] x86_64 built-in command line
+Date: Mon, 31 Jul 2006 13:46:27 -0400
+Message-ID: <Pine.LNX.4.61.0607311342410.24292@chaos.analogic.com>
+In-Reply-To: <20060731171442.GI6908@waste.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] x86_64 built-in command line
+Thread-Index: Aca0yUOUD0aanLwPSOaCC/WSx1b8rw==
+References: <20060731171442.GI6908@waste.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Matt Mackall" <mpm@selenic.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, <ak@suse.de>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-07-31 at 19:16 +0200, Jan-Benedict Glaw wrote:
-> On Mon, 2006-07-31 11:47:00 -0500, Dan Oglesby <doglesby@teleformix.com> wrote:
-> > On Mon, 2006-07-31 at 18:22 +0200, Jan-Benedict Glaw wrote:
-> > > On Mon, 2006-07-31 17:59:58 +0200, Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
-> > > > A colleague of mine happened to create a ~300gb filesystem and started
-> > > > to migrate Mailboxes (Maildir-style format = many small files (1-3kb))
-> > > > to the new LUN. At about 70% the filesystem ran out of inodes; Not a
-> > > So preparation work wasn't done.
-> > 
-> > As someone who is currently planning to migrate ~100GB of stored mail to
-> > the Maildirs format, it was pretty clear early on that EXT3 would not
-> > cut it (from past and current experiences), and not just for the sake of
-> > calculating inodes.
-> 
-> Uh?  Where did you face a problem there?
-> 
 
-Past experiences dealing with systems that generate several thousand to
-tens of thousands of files a day, adding up to well in the millions over
-the course of normal production (this is not for a mail server, BTW).
-Once we got close to a million files, filesystem transactions started
-bogging the system, driving the load over 50.  Simply switching to
-ReiserFS v3 allowed us to go well past the number of files EXT3 could
-handle reasonably and the max load stayed right around the number of
-CPUs the system contained (typically 8).
+On Mon, 31 Jul 2006, Matt Mackall wrote:
 
-There is a LOT going on with these systems, not just filesystem
-transactions.  EXT3 does not do well in our environment at all.
+> Allow setting a command line at build time on x86_64. Compiled but not
+> tested.
+>
+> Signed-off-by: Matt Mackall <mpm@selenic.com>
+>
+> Index: linux/arch/x86_64/Kconfig
+> ===================================================================
+> --- linux.orig/arch/x86_64/Kconfig	2006-07-26 18:08:29.000000000 -0500
+> +++ linux/arch/x86_64/Kconfig	2006-07-27 17:19:50.000000000 -0500
+> @@ -558,6 +558,20 @@ config K8_NB
+> 	def_bool y
+> 	depends on AGP_AMD64 || IOMMU || (PCI && NUMA)
+>
+> +config CMDLINE_BOOL
+> +	bool "Default bootloader kernel arguments" if EMBEDDED
+> +
+> +config CMDLINE
+> +	string "Initial kernel command string" if EMBEDDED
+> +	depends on CMDLINE_BOOL
+> +	default "root=/dev/hda1 ro"
+> +	help
+> +	  On some systems, there is no way for the boot loader to pass
+> +	  arguments to the kernel. For these platforms, you can supply
+> +	  some command-line options at build time by entering them
+> +	  here. In most cases you will need to specify the root device
+> +	  here.
+> +
+> endmenu
+>
+> #
+> Index: linux/arch/x86_64/kernel/setup.c
+> ===================================================================
+> --- linux.orig/arch/x86_64/kernel/setup.c	2006-07-26 18:08:29.000000000 -0500
+> +++ linux/arch/x86_64/kernel/setup.c	2006-07-27 17:26:51.000000000 -0500
+> @@ -289,6 +289,10 @@ static __init void parse_cmdline_early (
+> 	int len = 0;
+> 	int userdef = 0;
+>
+> +#ifdef CONFIG_CMDLINE_BOOL
+> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+> +#endif
+> +
+> 	for (;;) {
+> 		if (c != ' ')
+> 			goto next_char;
+>
+> --
+> Mathematics is the supreme nostalgia of our time.
+> -
 
-> With maildir, you shouldn't face any problems IMO. Even users with
-> zillions of mails should work properly with the dir_index stuff:
-> 
-> 	tune2fs -O dir_index /dev/hdXX
-> 
-> or alternatively (to start that for already existing directories):
-> 
-> 	e2fsck -fD /dev/hdXX
-> 
-> 
+But this just makes it nice for __your__ embedded system. I suggest you
+use:
+> +	default "root=/dev/root ro"
 
-I've been tuning EXT3 to see what performance I can get for the mail
-server, and it's just not there compared to ReiserFS with minimal
-tuning.
+The boot setup code makes a symlink to whatever your specific
+setup requires.
 
-> Of course, you'll always face a problem with lots of files in one
-> directory at getdents() time (eg. opendir()/readdir()/closedir()), but
-> this is a common limit for all filesystems.
-> 
-> MfG, JBG
-> 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.62 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-Of course, but the issue is EXT3 does this a whole lot worse than
-ReiserFS v3 from my experiences.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-At any rate, that's about all I have to say about this issue.  I'll be
-patiently waiting to see ReiserFS v4 included in the main kernel, so I
-have less hoops to jump through to implement the latest and greatest
-from Namesys.
-
---Dan
-
+Thank you.

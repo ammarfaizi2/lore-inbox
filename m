@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWGaWJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030481AbWGaWMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751349AbWGaWJU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 18:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWGaWJU
+	id S1030481AbWGaWMa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 18:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWGaWMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 18:09:20 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:28594 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751349AbWGaWJT (ORCPT
+	Mon, 31 Jul 2006 18:12:30 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:4528 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751401AbWGaWM3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 18:09:19 -0400
-Message-Id: <200607312208.k6VM82P5012867@laptop13.inf.utfsm.cl>
-To: Adrian Ulrich <reiser4@blinkenlights.ch>
-cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, matthias.andree@gmx.de,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion] 
-In-Reply-To: Message from Adrian Ulrich <reiser4@blinkenlights.ch> 
-   of "Mon, 31 Jul 2006 22:57:34 +0200." <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Mon, 31 Jul 2006 18:08:02 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 31 Jul 2006 18:08:08 -0400 (CLT)
+	Mon, 31 Jul 2006 18:12:29 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@osdl.org>
+Message-Id: <20060731221229.18058.82700.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH] [AIO] remove unused aio_run_iocbs()
+Date: Mon, 31 Jul 2006 15:12:29 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Ulrich <reiser4@blinkenlights.ch> wrote:
-> > > Great to see that Sun ships a state-of-the-art Filesystem with
-> > > Solaris... I think linux should do the same...
-> > 
-> > This would be worthwhile, if only to be able to futz around in Solaris-made
-> > filesystems.
+[AIO] remove unused aio_run_iocbs()
 
-> s/I think linux should do the same/I think linux should include Reiser4/
->  ;-)
+Nothing is calling the aio_run_iocbs() variant of *aio_run_*iocb*().  Let's try
+and make life just a little less complicated by getting rid of it.
 
-So ZFS isn't "state-of-the-art"?
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
 
-[...]
+ fs/aio.c |   21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
-> But i'd rather like to see a Linux version of WAFL :-)
-
-WAFL is for high-turnover filesystems on RAID-5 (and assumes flash memory
-staging areas). Not your run-of-the-mill desktop...
-
-> ZFS didn't really impress me: 
-> The Volume-Manager is nice but the Filesystem.. well: It beats UFS
-> .. sometimes ;-)
-
-OK, ext3 + LVM it is then.
-
-> See also: http://spam.workaround.ch/dull/postmark.txt
-
-Interesting.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Index: 2.6.18-rc3-trivialaio/fs/aio.c
+===================================================================
+--- 2.6.18-rc3-trivialaio.orig/fs/aio.c
++++ 2.6.18-rc3-trivialaio/fs/aio.c
+@@ -814,30 +814,13 @@ static void aio_queue_work(struct kioctx
+ 	queue_delayed_work(aio_wq, &ctx->wq, timeout);
+ }
+ 
+-
+ /*
+- * aio_run_iocbs:
++ * aio_run_all_iocbs:
+  * 	Process all pending retries queued on the ioctx
+- * 	run list.
++ * 	run list.  It will retry until the list stays empty.
+  * Assumes it is operating within the aio issuer's mm
+  * context.
+  */
+-static inline void aio_run_iocbs(struct kioctx *ctx)
+-{
+-	int requeue;
+-
+-	spin_lock_irq(&ctx->ctx_lock);
+-
+-	requeue = __aio_run_iocbs(ctx);
+-	spin_unlock_irq(&ctx->ctx_lock);
+-	if (requeue)
+-		aio_queue_work(ctx);
+-}
+-
+-/*
+- * just like aio_run_iocbs, but keeps running them until
+- * the list stays empty
+- */
+ static inline void aio_run_all_iocbs(struct kioctx *ctx)
+ {
+ 	spin_lock_irq(&ctx->ctx_lock);

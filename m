@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWGaU6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWGaVA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWGaU6j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 16:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932458AbWGaU6i
+	id S1030404AbWGaVA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 17:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbWGaVA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 16:58:38 -0400
-Received: from waste.org ([66.93.16.53]:58310 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932523AbWGaU6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 16:58:37 -0400
-Date: Mon, 31 Jul 2006 15:57:25 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       ak@suse.de
-Subject: Re: [PATCH] x86 built-in command line (resend)
-Message-ID: <20060731205725.GL6908@waste.org>
-References: <20060731171259.GH6908@waste.org> <44CE54D6.4040309@zytor.com> <20060731192844.GK6908@waste.org> <44CE5B74.4060409@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jul 2006 17:00:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:42105 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030404AbWGaVAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 17:00:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lTJsj29feWlizFcnXEU3FrFypdP6oV4i9D2gEKqKYdRsfeGxzHFlAuzrLzWR+DAdf8NzdRCs3RB+d7n7Gtr2r4JnNLaTX6fM68EOCvM+jmMad6TYHC0/cZiRwWIrWCZ8tOOnvSC1tJLuufc8+s+nCC6B9LQvv9Chm41uyQafkCM=
+Message-ID: <e692861c0607311400x412d2e6bv71f474ea959c9e00@mail.gmail.com>
+Date: Mon, 31 Jul 2006 17:00:14 -0400
+From: "Gregory Maxwell" <gmaxwell@gmail.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Cc: "Clay Barnes" <clay.barnes@gmail.com>,
+       "Rudy Zijlstra" <rudy@edsons.demon.nl>,
+       "Adrian Ulrich" <reiser4@blinkenlights.ch>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+In-Reply-To: <1154374923.7230.99.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44CE5B74.4060409@zytor.com>
-User-Agent: Mutt/1.5.9i
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+	 <20060731144736.GA1389@merlin.emma.line.org>
+	 <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	 <20060731162224.GJ31121@lug-owl.de>
+	 <Pine.LNX.4.64.0607311842120.13492@nedra.edsons.demon.nl>
+	 <20060731173239.GO31121@lug-owl.de>
+	 <20060731181120.GA9667@merlin.emma.line.org>
+	 <20060731184314.GQ31121@lug-owl.de>
+	 <20060731191712.GE17206@HAL_5000D.tc.ph.cox.net>
+	 <1154374923.7230.99.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 12:35:16PM -0700, H. Peter Anvin wrote:
-> Matt Mackall wrote:
-> >On Mon, Jul 31, 2006 at 12:07:02PM -0700, H. Peter Anvin wrote:
-> >>Matt Mackall wrote:
-> >>>I'm resending this as-is because the earlier thread petered out
-> >>>without any strong arguments against this approach. x86_64 patch to
-> >>>follow.
-> >>"No strong arguments?"
-> >>
-> >>I still maintain that this patch has the wrong priority in case more 
-> >>than one set of arguments are provided.
-> >
-> >But you still haven't answered how that lets you work around firmware
-> >that passes parameters you don't like.
-> >
-> 
-> That a fairly unique problem, and is most likely in a minority 
-> application.  For that case a CONFIG option to ignore the 
-> firmware-provided command line would make sense.  I do not believe it 
-> should be the only option or even the default.
+On 7/31/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Its well accepted that reiserfs3 has some robustness problems in the
+> face of physical media errors. The structure of the file system and the
+> tree basis make it very hard to avoid such problems. XFS appears to have
+> managed to achieve both robustness and better data structures.
+>
+> How reiser4 compares I've no idea.
 
-It's not the default. The default is all args come from the
-bootloader.
+Citation?
 
-At the risk of repeating myself, here are all possible features and
-behaviors carefully enumerated again:
+I ask because your clam differs from the only detailed research that
+I'm aware of on the subject[1]. In figure 2 of the iron filesystems
+paper that Ext3 is show to ignore a great number of data-loss inducing
+failure conditions that Reiser3 detects an panics under.
 
-Possible features:
-a) allow dealing with bootloaders that don't pass arguments
-b) allow dealing with bootloaders that pass bogus arguments
-c) allow dealing with bootloaders that run up against length limits
-d) allow dealing with bootloaders where changing arguments dynamically
-   is difficult
-e) provide friendly defaults
+Are you sure that you aren't commenting on cases where Reiser3 alerts
+the user to a critical data condition (via a panic) which leads to a
+trouble report while ext3 ignores the problem which suppresses the
+trouble report from the user?
 
-Possible behaviors:
-1) command line overrides built-in (won't work with b, works with the
-rest)
-2) built-in overrides command line (not so great for e, works with the
-rest)
-3) command line appends to built-in (generally broken as our command
-parser can't arbitrarily override earlier arguments in most cases)
-4) built-in appends to command line (same story)
-
-Now I basically think behavior (e) is worthless. Embedded folks don't
-care if the kernel's friendly and it's a solved problem for distros
-too. Anyone else is building a kernel for themselves and don't need
-defaults.
-
-By comparison, the value of (b) is that you can control things you
-otherwise can't. 
-
-> It would be particularly good if this could be standardized across 
-> architectures, which is another reason to do it right.
-
-Yes. They should all clearly do (2).
-
--- 
-Mathematics is the supreme nostalgia of our time.
+*1) http://www.cs.wisc.edu/adsl/Publications/iron-sosp05.pdf

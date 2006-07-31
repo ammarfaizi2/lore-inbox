@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWGaX6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWGaX6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWGaX6f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWGaX6e
+	id S1751497AbWGaX6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 19:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWGaX6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:58:34 -0400
-Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:18351 "HELO
+	Mon, 31 Jul 2006 19:58:55 -0400
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:32431 "HELO
 	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751490AbWGaX6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:58:33 -0400
+	id S1751497AbWGaX6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 19:58:36 -0400
 From: David Brownell <david-b@pacbell.net>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] [PATCH] Properly unregister reboot notifier in case of failure in ehci hcd
-Date: Mon, 31 Jul 2006 14:30:53 -0700
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
+Date: Mon, 31 Jul 2006 16:55:42 -0700
 User-Agent: KMail/1.7.1
-Cc: Aleksey Gorelov <dared1st@yahoo.com>,
-       linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0607311542240.8671-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0607311542240.8671-100000@iolanthe.rowland.org>
+Cc: Jean Delvare <khali@linux-fr.org>, Komal Shah <komal_shah802003@yahoo.com>,
+       akpm@osdl.org, gregkh@suse.de, i2c@lm-sensors.org, imre.deak@nokia.com,
+       juha.yrjola@solidboot.com, linux-kernel@vger.kernel.org,
+       r-woodruff2@ti.com, tony@atomide.com
+References: <1154066134.13520.267064606@webmail.messagingengine.com> <200607310941.01340.david-b@pacbell.net> <20060731191001.GA10489@flint.arm.linux.org.uk>
+In-Reply-To: <20060731191001.GA10489@flint.arm.linux.org.uk>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200607311655.43524.david-b@pacbell.net>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200607311430.54313.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 July 2006 12:46 pm, Alan Stern wrote:
-> On Mon, 31 Jul 2006, Aleksey Gorelov wrote:
+On Monday 31 July 2006 12:10 pm, Russell King wrote:
+> On Mon, Jul 31, 2006 at 09:41:00AM -0700, David Brownell wrote:
+> > On Monday 31 July 2006 9:13 am, Jean Delvare wrote:
+> > > Hi David,
+> > > 
+> > > > And I **really** hope this gets merged into 2.6.18 since virtually
+> > > > no OMAP board is very usable without it.  I2C is one of the main
+> > > > missing pieces(*) ... can whoever's managing I2C merges please
+> > > > expedite this?
 > 
-> > > What code duplication?  Doing it the way I suggested doesn't require 
-> > > adding any new code at all.  You, on the other hand, added several 
-> > > routines for bus glue that does virtually nothing.
-> > 
-> >   But you can not use exactly same shutdown function with both pci and platform glue. You need to
-> > convert pci/platform device to hcd anyway, right ? So this will add 2 doing 'virtually nothing'
-> > routines anyway (unless you just want to duplicate the code of shutdown routine for for platform
-> > glue). For ohci, you would need to do the same, hence 2 more routines, 4 total. With bus glue, I
-> > added just 2. Am I missing something here ?
+> Slightly off-topic, and probably not your area, but it would probably
+> help your case if omap were better looked after in mainline. 
+
+Actually that _is_ part of my case.  It can't be looked after in any
+reasonable way until the I2C driver gets merged, because significant
+chunks of the OMAP driver stack require I2C.  (And notably for me,
+USB always requires I2C to handle VBUS switches ...)
+
+So for example once the OMAP I2C gets merged, then it'll finallly
+become practical for folk to try _using_ mainline kernels.  Which
+is a prerequisite for getting the bugs there fixed with any level
+of promptness, since they can't be fixed until they're noticed.
+
+
+> Most OMAP 
+> platforms build fine, except for one long standing one - the H2 1610
+> defconfig, which hasn't built since 2.6.17-git11.
+
+Yet oddly enough, that's the only OMAP defconfig present.  :( 
+
+Once I2C gets merged, the OSK defconfig could be merged too; and
+that's a much handier board to work with and test.  H2 and OSK use
+basically the same OMAP chip (5912 ~= 1610b), but 5912 doesn't need
+NDAs; and the OSK board is is 10x smaller in size and price, plus
+it's available on the open market.
+
+
+> So, rather than shoveling new stuff in there, can the maintainence of
+> the stuff already merged please be improved.
 > 
-> Okay, now I understand your point.  Yes, it makes sense to do it your way.
+> Build results vs kernel version for H2 1610:
+> 
+> http://armlinux.simtec.co.uk/kautobuild/omap_h2_1610_defconfig.html
 
-I confess that I had thought about doing it purely at the "bus glue" level
-rather than as a new HCD method, but having an HCD method for this does make
-sense in terms of simpler code in HCDs that cope with more than one kind of
-bus glue.  (And I'd forgotten that OHCI needs a third type, because of that
-SA1111 "minibus".)
+You'll observe that I recently posted four build fixes (tps65010,
+ohci-omap, omap-rng, smc91x) ... all of which would affect H2... the
+fifth build fix will go to your armlinux patch database soon, it
+addresses the fatal error in that build log.  I've already submitted
+patches for the three Kconfig complaints.  (By the way, those build
+logs could become more informative by using "make -k" ...)
 
-So as for Aleksey's new patch:
+Plus H2 is another of the OMAP platforms that can't be fully
+initialized without using I2C.  :)
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+- Dave
+
+
+

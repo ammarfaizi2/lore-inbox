@@ -1,44 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWHAQ5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWHAQ6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWHAQ5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 12:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWHAQ5Q
+	id S1751475AbWHAQ6F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 12:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWHAQ6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 12:57:16 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:11708 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751283AbWHAQ5P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 12:57:15 -0400
-Message-ID: <44CF87E6.1050004@slaphack.com>
-Date: Tue, 01 Aug 2006 11:57:10 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Tue, 1 Aug 2006 12:58:05 -0400
+Received: from mail.tmr.com ([64.65.253.246]:56804 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S1751475AbWHAQ6D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 12:58:03 -0400
+Message-ID: <44CF8B94.8030506@tmr.com>
+Date: Tue, 01 Aug 2006 13:12:52 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-CC: Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Clay Barnes <clay.barnes@gmail.com>,
-       Rudy Zijlstra <rudy@edsons.demon.nl>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-In-Reply-To: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 005 of 9] md: Replace magic numbers in sb_dirty with well
+ defined bit flags
+References: <20060731172842.24323.patches@notabene> <1060731073218.24482@suse.de> <200607311733.12848.ioe-lkml@rameria.de>
+In-Reply-To: <200607311733.12848.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst H. von Brand wrote:
-> Bernd Schubert <bernd-schubert@gmx.de> wrote:
+Ingo Oeser wrote:
 
->> While filesystem speed is nice, it also would be great if reiser4.x would be 
->> very robust against any kind of hardware failures.
-> 
-> Can't have both.
+>Hi Neil,
+>
+>I think the names in this patch don't match the description at all.
+>May I suggest different ones?
+>
+>On Monday, 31. July 2006 09:32, NeilBrown wrote:
+>  
+>
+>>Instead of magic numbers (0,1,2,3) in sb_dirty, we have
+>>some flags instead:
+>>MD_CHANGE_DEVS
+>>   Some device state has changed requiring superblock update
+>>   on all devices.
+>>    
+>>
+>
+>MD_SB_STALE or MD_SB_NEED_UPDATE
+>  
+>
+I think STALE is better, it is unambigous.
 
-Why not?  I mean, other than TANSTAAFL, is there a technical reason for 
-them being mutually exclusive?  I suspect it's more "we haven't found a 
-way yet..."
+>  
+>
+>>MD_CHANGE_CLEAN
+>>   The array has transitions from 'clean' to 'dirty' or back,
+>>   requiring a superblock update on active devices, but possibly
+>>   not on spares
+>>    
+>>
+>
+>Maybe split this into MD_SB_DIRTY and MD_SB_CLEAN ?
+>  
+>
+I don't think the split is beneficial, but I don't care for the name 
+much. Some name like SB_UPDATE_NEEDED or the like might be better.
+
+>  
+>
+>>MD_CHANGE_PENDING
+>>   A superblock update is underway.  
+>>    
+>>
+>
+>MD_SB_PENDING_UPDATE
+>
+>  
+>
+I would have said UPDATE_PENDING, but either is more descriptive than 
+the original.
+
+Neil - the logic in this code is pretty complex, all the help you can 
+give the occasional reader, by using very descriptive names for things, 
+is helpful to the reader and reduces your "question due to 
+misunderstanding" load.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
+

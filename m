@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422640AbWHAHvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWHAHv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422640AbWHAHvn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161361AbWHAHvn
+	id S1422641AbWHAHv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 03:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161365AbWHAHv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:51:43 -0400
-Received: from blinkenlights.ch ([62.202.0.18]:27091 "EHLO blinkenlights.ch")
-	by vger.kernel.org with ESMTP id S1161350AbWHAHvm (ORCPT
+	Tue, 1 Aug 2006 03:51:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16306 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161350AbWHAHvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:51:42 -0400
-Date: Tue, 1 Aug 2006 09:51:41 +0200
-From: Adrian Ulrich <reiser4@blinkenlights.ch>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: nate.diller@gmail.com, dlang@digitalinsight.com, matthias.andree@gmx.de,
-       vonbrand@inf.utfsm.cl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
- expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-Id: <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
-In-Reply-To: <20060801010215.GA24946@merlin.emma.line.org>
-References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
-	<200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
-	<20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
-	<44CE7C31.5090402@gmx.de>
-	<5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
-	<Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
-	<5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
-	<Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
-	<5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
-	<20060801010215.GA24946@merlin.emma.line.org>
-Organization: Bluewin AG
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 03:51:55 -0400
+Message-ID: <44CF0866.3000505@redhat.com>
+Date: Tue, 01 Aug 2006 00:53:10 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: David Miller <davem@davemloft.net>, johnpol@2ka.mipt.ru,
+       zach.brown@oracle.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060731103322.GA1898@2ka.mipt.ru> <E1G7V7r-0006jL-00@gondolin.me.apana.org.au> <20060731105037.GA2073@2ka.mipt.ru> <20060731.035716.39159213.davem@davemloft.net> <20060731105943.GA26114@gondor.apana.org.au>
+In-Reply-To: <20060731105943.GA26114@gondor.apana.org.au>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig1E9F03E3BCAB44146EFEB583"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> suspect, particularly with 7200/min (s)ATA crap. 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig1E9F03E3BCAB44146EFEB583
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Quoting myself (again):
->> A quick'n'dirty ZFS-vs-UFS-vs-Reiser3-vs-Reiser4-vs-Ext3 'benchmark'
+Herbert Xu wrote:
+> The other to consider is that events don't come from the hardware.
+> Events are written by the kernel.  So if user-space is just reading
+> the events that we've written, then there are no cache misses at all.
 
-Yeah, the test ran on a single SATA-Harddisk (quick'n'dirty).
-I'm so sorry but i don't have access to a $$$ Raid-System at home. 
+Not quite true.  The ring buffer can be written to from another
+processor.  The kernel thread responsible for generating the event
+(receiving data from network or disk, expired timer) can run
+independently on another CPU.
 
-Anyway: The test shows us that Reiser4 performed very good on my
-(common 0-8-15) hardware.
+This is the case to keep in mind here.  I thought Zach and the other
+involved in the discussions in Ottawa said this has been shown to be a
+problem and that a ring buffer implementation with something other than
+simple front and back pointers is preferable.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
 
-> sdparm --clear=WCE /dev/sda   # please.
+--------------enig1E9F03E3BCAB44146EFEB583
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-How about using /dev/emcpower* for the next benchmark?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.4 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-I mighty be able to re-run it in a few weeks if people are interested
-and if i receive constructive suggestions (= Postmark parameters,
-mkfs options, etc..)
+iD8DBQFEzwhm2ijCOnn/RHQRAufPAKCmVw/xv8k+jz0pt/e9r+JQdUUYhACffjtj
+WlYBRLKz2lSQK7z5fLWyQqQ=
+=zcGF
+-----END PGP SIGNATURE-----
 
-
-Regards,
- Adrian
-
+--------------enig1E9F03E3BCAB44146EFEB583--

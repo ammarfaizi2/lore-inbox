@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWHAIbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWHAIgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWHAIbN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 04:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWHAIbN
+	id S1750868AbWHAIgw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWHAIgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 04:31:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53947 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751002AbWHAIbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 04:31:12 -0400
-Date: Tue, 1 Aug 2006 01:31:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Denis Vlasenko" <vda.linux@googlemail.com>
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiser4: maybe just fix bugs?
-Message-Id: <20060801013104.f7557fb1.akpm@osdl.org>
-In-Reply-To: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Aug 2006 04:36:52 -0400
+Received: from gimli.datakultur.com ([212.28.216.234]:20459 "EHLO
+	gimli.datakultur.com") by vger.kernel.org with ESMTP
+	id S1750834AbWHAIgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 04:36:51 -0400
+From: Hans Eklund <hans@rubico.se>
+Reply-To: hans@rubico.se
+Organization: Rubico AB
+To: linux-kernel@vger.kernel.org
+Subject: Block request processing for MMC/SD over SPI bus
+Date: Tue, 1 Aug 2006 10:37:27 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200608011037.27721.hans@rubico.se>
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 10:26:55 +0100
-"Denis Vlasenko" <vda.linux@googlemail.com> wrote:
+(CC to hans@rubico.se)
 
-> The reiser4 thread seem to be longer than usual.
+After trying other forums and irc for help on this matter i hope someone on 
+the LKML can help.
 
-Meanwhile here's poor old me trying to find another four hours to finish
-reviewing the thing.
+-Background(skip if short of time).
+First linux driver for me and first post on LKML, but in short, i have been 
+developing a MMC/SD card driver in SPI mode for uClinux on the Analog Devices 
+Blackfin based platform. However, since the 2.6.15 version im moving over to 
+the common SPI framework and all code will probably be platform independent 
+soon. The driver is working quite well but need some tuning in the request 
+processing.
 
-The writeout code is ugly, although that's largely due to a mismatch between
-what reiser4 wants to do and what the VFS/MM expects it to do.  If it
-works, we can live with it, although perhaps the VFS could be made smarter.
+The driver is also independent of any previous MMC related work at this point 
+since MMC over SPI mode differs somewhat from the MMC mode.
 
-I'd say that resier4's major problem is the lack of xattrs, acls and
-direct-io.  That's likely to significantly limit its vendor uptake.  (As
-might the copyright assignment thing, but is that a kernel.org concern?)
+I have implemeted the request processing from scratch. I have followed the 
+Linux Device Drivers and the Understanding Linux Kernel as far as possible, 
+but they are not very extensive on error handling. I have also had a look at 
+the ATA and SCSI drivers.
 
-The plugins appear to be wildly misnamed - they're just an internal
-abstraction layer which permits later feature additions to be added in a
-clean and safe manner.  Certainly not worth all this fuss.
+-Questions
+A snip of my current request processing can be found here: with comments and 
+some questions. 
 
-Could I suggest that further technical critiques of reiser4 include a
-file-and-line reference?  That should ease the load on vger.
+http://hasse.yohoo.nu/strat.txt
 
-Thanks.
+The big issue is error handling and how i report back to the user space 
+processes that the device is dead(if hardware fails for example), basically 
+how to gracefully handle critical issues. At this point, if retries on broken 
+sectors fails im not sure how to report back to the I/O scheduler and block 
+layer so the device can be halted. Now, the kernel actually hangs(or retries 
+same sector forever). Im really at a dead end here. Could really use some 
+help at this point.
+
+Also, Is there any work done similar to mine?
+Would there be interest in incorporating the driver in future kernels?
+
+Answers/CC to hans@rubico.se since i did not dare to plunge into the lkml 
+traffic just yet.
+
+Best regards
+Hans Eklund
+Rubico AB
+Sweden.
+

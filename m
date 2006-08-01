@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWHAU1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWHAUgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbWHAU1k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 16:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWHAU1k
+	id S1751004AbWHAUgL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWHAUgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 16:27:40 -0400
-Received: from cantor.suse.de ([195.135.220.2]:4021 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161041AbWHAU1j (ORCPT
+	Tue, 1 Aug 2006 16:36:11 -0400
+Received: from relay02.pair.com ([209.68.5.16]:43536 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751004AbWHAUgK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 16:27:39 -0400
-From: Neil Brown <neilb@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Date: Wed, 2 Aug 2006 06:27:21 +1000
+	Tue, 1 Aug 2006 16:36:10 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Tue, 1 Aug 2006 15:36:07 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Amit Gud <agud@redhat.com>
+cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
+       hpa@zytor.com, deweerdt@free.fr
+Subject: Re: [RFC] [PATCH] sysctl for the latecomers
+In-Reply-To: <44CFA5A8.50105@redhat.com>
+Message-ID: <Pine.LNX.4.64.0608011529010.12077@turbotaz.ourhouse>
+References: <44CF69F0.6040801@redhat.com> <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
+ <Pine.LNX.4.64.0608011213190.12077@turbotaz.ourhouse> <44CFA5A8.50105@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17615.47401.552607.980993@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 004 of 9] md: Factor out part of raid10d into a separate
- function.
-In-Reply-To: message from Bill Davidsen on Tuesday August 1
-References: <20060731172842.24323.patches@notabene>
-	<1060731073208.24470@suse.de>
-	<44CF8C2D.2010900@tmr.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday August 1, davidsen@tmr.com wrote:
-> don't think this is better, NeilBrown wrote:
-> 
-> >raid10d has toooo many nested block, so take the fix_read_error
-> >functionality out into a separate function.
-> >  
-> >
-> 
-> Definite improvement in readability. Will all versions of the compiler 
-> do something appropriate WRT inlining or not?
+On Tue, 1 Aug 2006, Amit Gud wrote:
 
-As the separated function is called about once in a blue moon, it
-hardly matters.  I'd probably rather it wasn't inlined so as to be
-sure it doesn't clutter the L-1 cache when it isn't needed, but that's
-the sort of thing I really want to leave to the compiler.
+> Chase Venters wrote:
+>>  On Tue, 1 Aug 2006, Chase Venters wrote:
+>>  Btw, wanted to add some comments on the specific approach:
+>>
+>>  1. A ring hard-coded to 32 elements is IMO unuseable. While it may not be
+>>  a real limit for what use case you have in mind, if it's in the kernel
+>>  sooner or later someone else is going to use it and get bitten. Imagine if
+>>  they wrote in 33 entries, and the first one was some critical security
+>>  setting that ended up getting silently ignored...
+>>
+>>  2. On the other hand, allowing it to grow unbounded is equally
+>>  unacceptable without a mechanism to list and clear the current "pending"
+>>  sysctl values. Unfortunately, at this point, you're starting to violate
+>>  "KISS".
+>> 
+>
+> You figured it right, theres no "correct" number of elements that I could 
+> adhere to.
+>
+>>  Are the modules you refer to inserted during init at all? Because it seems
+>>  like it would be a lot more appropriate to just move sysctl until after
+>>  loading the modules, or perhaps running it again once they are loaded.
+>> 
+>
+> I have a case where sunrpc module gets inserted and 
+> sunrpc.tcp_slot_table_entries parameter is to be set _before_ nfs module is 
+> inserted. I agree that for this particular case user-space works (either udev 
+> rule, or modprobe.conf or sysctl after modprobe in initscripts), but am on a 
+> lookout for a more generic way for handling such cases - be it user-space or 
+> otherwise.
 
-Maybe it would be good to stick an 'unlikely' or 'likely' in raid10d
-to tell the compiler how likely a read error is...
+It just seems like something that belongs in user-space -- whether that be 
+better init scripts, changes to modprobe, both, or something else 
+entirely.
 
-NeilBrown
+To make a kernel implementation of this concept that isn't 
+fundamentally flawed from a usability and "least-surprise" 
+perspective would mean enough code and behavior that the resulting 
+implementation wouldn't be considered correct for the kernel anyway.
+
+The kernel has, fundamentally, three kinds of configuration - CONFIG_*, 
+the bootloader command-line, and 'live' configuration that gets set by 
+user-space whenever appropriate.
+
+>
+> AG
+>
+
+Thanks,
+Chase

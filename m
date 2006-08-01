@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWHARS5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWHARW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWHARS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWHARS5
+	id S1750865AbWHARW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWHARW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:18:57 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:62333 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750959AbWHARS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:18:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=QvXEn6vvT1rkCACj1PZ4zC0W6vL3H44mJzBgu+cNrUX3io4dF2vwGSl5JrG3180iwi2M7sUfU95/Tnwhe47Jy5u2wINXa3dKeumJ/0ZWI2Kn3KBUQTduBnqREfHsBKrhjAZcoutEvb95OYxv2+bX51UKU9VaiFy9JWXat2CmaCw=
-Date: Wed, 2 Aug 2006 01:20:24 +0800
-From: kenny <nek.in.cn@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: [Patch] kernel: bug fixing for kernel/kmod.c
-Message-ID: <20060801172024.GA24303@kenny>
+	Tue, 1 Aug 2006 13:22:26 -0400
+Received: from relay03.pair.com ([209.68.5.17]:43781 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1751690AbWHARW0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:22:26 -0400
+X-pair-Authenticated: 71.197.50.189
+Date: Tue, 1 Aug 2006 12:22:22 -0500 (CDT)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Chase Venters <chase.venters@clientec.com>
+cc: Amit Gud <agud@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] sysctl for the latecomers
+In-Reply-To: <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
+Message-ID: <Pine.LNX.4.64.0608011213190.12077@turbotaz.ourhouse>
+References: <44CF69F0.6040801@redhat.com> <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.12-2006-07-14
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think there is a bug in kmod.c. In __call_usermodehelper(), when 
-kernel_thread(wait_for_helper, ...) return success, since
-wait_for_helper() might call complete() at any time, the sub_info should
-not be used any more.
+On Tue, 1 Aug 2006, Chase Venters wrote:
 
-the following patch is made in 2.6.17.7
+> On Tue, 1 Aug 2006, Amit Gud wrote:
+>
+>>  /etc/sysctl.conf values are of no use to kernel modules that are inserted
+>>  after init scripts call sysctl for the values in /etc/sysctl.conf
+>>
+>>  For modules to use the values stored in the file /etc/sysctl.conf, sysctl
+>>  kernel code can keep record of 'limited' values, for sysctl entries which
+>>  haven't been registered yet. During registration, sysctl code can check
+>>  against the stored values and call the appropriate strategy and
+>>  proc_handler routines if a match is found.
+>>
+>>  Attached patch does just that. This patch is NOT tested and is just to get
+>>  opinions, if something like this is a right way of addressing this
+>>  problem.
+>
+> Do you anticipate any users that you could list? It seems like a more 
+> appropriate approach would be to allow some kind of user-space hook or event 
+> notification to run upon module insertion, which could then apply the 
+> appropriate sysctl.
 
---- kmod.c      2006-07-25 11:36:01.000000000 +0800
-+++ /tmp/kmod.c 2006-08-02 01:01:42.702054000 +0800
-@@ -198,6 +198,7 @@ static void __call_usermodehelper(void *
- {
-        struct subprocess_info *sub_info = data;
-        pid_t pid;
-+       int wait = sub_info->wait;
+Btw, wanted to add some comments on the specific approach:
 
-        /* CLONE_VFORK: wait until the usermode helper has execve'd
-         * successfully We need the data structures to stay around
-@@ -212,7 +213,7 @@ static void __call_usermodehelper(void *
-        if (pid < 0) {
-                sub_info->retval = pid;
-                complete(sub_info->complete);
--       } else if (!sub_info->wait)
-+       } else if (!wait)
-                complete(sub_info->complete);
- }
+1. A ring hard-coded to 32 elements is IMO unuseable. While it may not be 
+a real limit for what use case you have in mind, if it's in the kernel 
+sooner or later someone else is going to use it and get bitten. Imagine if 
+they wrote in 33 entries, and the first one was some critical security 
+setting that ended up getting silently ignored...
 
--- 
+2. On the other hand, allowing it to grow unbounded is equally 
+unacceptable without a mechanism to list and clear the current "pending" 
+sysctl values. Unfortunately, at this point, you're starting to violate 
+"KISS".
+
+Are the modules you refer to inserted during init at all? Because it seems 
+like it would be a lot more appropriate to just move sysctl until after 
+loading the modules, or perhaps running it again once they are loaded.
+
+Thanks,
+Chase

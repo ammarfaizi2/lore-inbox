@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWHAQ4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWHAQ5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751176AbWHAQ4U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 12:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWHAQ4U
+	id S1751283AbWHAQ5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 12:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWHAQ5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 12:56:20 -0400
-Received: from relay03.pair.com ([209.68.5.17]:27155 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751176AbWHAQ4T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 12:56:19 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 1 Aug 2006 11:56:06 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Amit Gud <agud@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] sysctl for the latecomers
-In-Reply-To: <44CF69F0.6040801@redhat.com>
-Message-ID: <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
-References: <44CF69F0.6040801@redhat.com>
+	Tue, 1 Aug 2006 12:57:16 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:11708 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751283AbWHAQ5P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 12:57:15 -0400
+Message-ID: <44CF87E6.1050004@slaphack.com>
+Date: Tue, 01 Aug 2006 11:57:10 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+CC: Bernd Schubert <bernd-schubert@gmx.de>, reiserfs-list@namesys.com,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Clay Barnes <clay.barnes@gmail.com>,
+       Rudy Zijlstra <rudy@edsons.demon.nl>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
+In-Reply-To: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006, Amit Gud wrote:
+Horst H. von Brand wrote:
+> Bernd Schubert <bernd-schubert@gmx.de> wrote:
 
-> /etc/sysctl.conf values are of no use to kernel modules that are inserted 
-> after init scripts call sysctl for the values in /etc/sysctl.conf
->
-> For modules to use the values stored in the file /etc/sysctl.conf, sysctl 
-> kernel code can keep record of 'limited' values, for sysctl entries which 
-> haven't been registered yet. During registration, sysctl code can check 
-> against the stored values and call the appropriate strategy and proc_handler 
-> routines if a match is found.
->
-> Attached patch does just that. This patch is NOT tested and is just to get 
-> opinions, if something like this is a right way of addressing this problem.
+>> While filesystem speed is nice, it also would be great if reiser4.x would be 
+>> very robust against any kind of hardware failures.
+> 
+> Can't have both.
 
-Do you anticipate any users that you could list? It seems like a more 
-appropriate approach would be to allow some kind of user-space hook or 
-event notification to run upon module insertion, which could then apply 
-the appropriate sysctl.
-
->
-> Thanks,
-> AG
->
-
-Thanks,
-Chase
+Why not?  I mean, other than TANSTAAFL, is there a technical reason for 
+them being mutually exclusive?  I suspect it's more "we haven't found a 
+way yet..."

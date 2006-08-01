@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWHAONb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWHAO1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751631AbWHAONb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWHAONb
+	id S1751628AbWHAO1l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWHAO1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:13:31 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:49680 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751099AbWHAONa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:13:30 -0400
-Date: Tue, 1 Aug 2006 16:13:08 +0200
-From: Jan-Frode Myklebust <mykleb@no.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] oom_adj/oom_score documentation
-Message-ID: <20060801141307.GA18159@99RXZYP.ibm.com>
-References: <OFF927B0C7.8C7E4394-ONC12571BC.003A43D2-C12571BC.003B49E8@no.ibm.com> <20060731122314.GL6455@opteron.random> <20060801133323.GA10128@99RXZYP.ibm.com> <20060801134102.GA6455@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801134102.GA6455@opteron.random>
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Aug 2006 10:27:41 -0400
+Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:45952 "EHLO
+	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751627AbWHAO1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 10:27:40 -0400
+Date: Tue, 1 Aug 2006 10:27:36 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take2 1/4] kevent: core files.
+In-Reply-To: <20060801135538.GA356@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.64.0608011024380.11168@d.namei>
+References: <11544248451203@2ka.mipt.ru> <Pine.LNX.4.64.0608010945090.10827@d.namei>
+ <20060801135538.GA356@2ka.mipt.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking for the a way around an OOM-problem, and found
-a couple of undocumented new features for tuning the OOM-score
-of individual processes. Here's a small documentation patch for
-/proc/<pid>/oom_adj and /proc/<pid>/oom_score.
+On Tue, 1 Aug 2006, Evgeniy Polyakov wrote:
 
-Signed-off-by: Jan-Frode Myklebust <mykleb@no.ibm.com>
+> On Tue, Aug 01, 2006 at 09:46:58AM -0400, James Morris (jmorris@namei.org) wrote:
+> > On Tue, 1 Aug 2006, Evgeniy Polyakov wrote:
+> > 
+> > > +	u->ready_num = 0;
+> > > +#ifdef CONFIG_KEVENT_USER_STAT
+> > > +	u->wait_num = u->im_num = u->total = 0;
+> > > +#endif
+> > 
+> > Generally, #ifdefs in the body of the kernel code are discouraged.  Can 
+> > you abstract these out as static inlines?
+> 
+> Yes, it is possible.
+> I would ask is it needed at all?
 
----
+Yes, please, it is standard kernel development practice.
 
-diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
-index 99902ae..81bb8ea 100644
---- a/Documentation/filesystems/proc.txt
-+++ b/Documentation/filesystems/proc.txt
-@@ -39,6 +39,8 @@ Table of Contents
-   2.9	Appletalk
-   2.10	IPX
-   2.11	/proc/sys/fs/mqueue - POSIX message queues filesystem
-+  2.12	/proc/<pid>/oom_adj - Adjust the oom-killer score
-+  2.13	/proc/<pid>/oom_score - Display current oom-killer score
- 
- ------------------------------------------------------------------------------
- Preface
-@@ -1958,6 +1960,21 @@ a queue must be less or equal then msg_m
- maximum  message size value (it is every  message queue's attribute set during
- its creation).
- 
-+2.12 /proc/<pid>/oom_adj - Adjust the oom-killer score
-+------------------------------------------------------
-+
-+This file can be used to adjust the score used to select which processes shall
-+be killed in an out-of-memory situation.  Giving it a high score, increase the
-+likelihood of this process being killed by the oom-killer. Valid values are in
-+the range [-16:15], plus the special value '-17', which defeat the  oom-killer
-+altogether.
-+
-+2.13 /proc/<pid>/oom_score - Display current oom-killer score
-+-------------------------------------------------------------
-+
-+This file can be used to check what the  current score  used by the oom-killer
-+is for any given <pid>. Use it together with /proc/<pid>/oom_adj to tune which
-+process will be killed in an out-of-memory situation.
- 
- ------------------------------------------------------------------------------
- Summary
+Otherwise, the kernel will turn into an unmaintainable #ifdef jungle.
+
+> It contains number of immediately fired
+> events (i.e. those which were ready when event was added and thus
+> syscall returned immediately showing that it is ready), total number of
+> events, which were inserted in the given queue and number of events
+> which were marked as ready after they were inserted.
+> Currently it is compilation option which ends up in printk with above
+> info when kevent queue is removed.
+
+Fine, make 
+
+static inline void kevent_user_stat_reset(u);
+
+etc.
+
+which compile to nothing when it's not confifgured.
+
+
+-- 
+James Morris
+<jmorris@namei.org>

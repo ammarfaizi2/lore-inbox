@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWHASdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWHASg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWHASdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751769AbWHASdG
+	id S1751776AbWHASg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWHASgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:33:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:34646 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750954AbWHASdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:33:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition:x-google-sender-auth;
-        b=na2y0/CBwtvQBL9taK1S+yM3E6fTwgp038IUlMmT5NsAXJh1kNQLCcmjE4bIxgrfDVMQp8x0Or3M+ZdVAqHIBBhUb1rqbMkGTGxSl+shq5hHLVfbeYhkQPWuFHDL6rNYcOfE3KxgnPC8OAA64n+7yxGL4jtfuovlnQuOJ2oVz/Q=
-Message-ID: <41b516cb0608011133r2332161dx4b43a845bfa74062@mail.gmail.com>
-Date: Tue, 1 Aug 2006 11:33:02 -0700
-From: "Chris Leech" <christopher.leech@intel.com>
-Reply-To: chris.leech@gmail.com
-To: "David Miller" <davem@davemloft.net>
-Subject: [PATCH] I/OAT: remove CPU hotplug lock from net_dma_rebalance
-Cc: dan.j.williams@intel.com, linux-kernel@vger.kernel.org, neilb@suse.de,
-       galak@kernel.crashing.org, alan@lxorguk.ukuu.org.uk
+	Tue, 1 Aug 2006 14:36:55 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:59552 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751776AbWHASgz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 14:36:55 -0400
+Message-ID: <44CF3CBF.8050600@namesys.com>
+Date: Tue, 01 Aug 2006 05:36:31 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vitaly Fertman <vitaly@namesys.com>
+CC: David Masover <ninja@slaphack.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200607312314.37863.bernd-schubert@gmx.de>	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>	 <1154446189.15540.43.camel@localhost.localdomain>	 <44CF84F0.8080303@slaphack.com> <1154452770.15540.65.camel@localhost.localdomain>
+In-Reply-To: <1154452770.15540.65.camel@localhost.localdomain>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-Google-Sender-Auth: 339b86ac2c90747c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the lock_cpu_hotplug()/unlock_cpu_hotplug() calls from net_dma_rebalance
+Alan, I have seen only anecdotal evidence against reiserfsck, and I have
+seen formal tests from Vitaly  (which it seems a user has replicated)
+where our fsck did better than ext3s.  Note that these tests are of the
+latest fsck from us: I am sure everyone understands that it takes time
+for an fsck to mature, and that our early fsck's were poor.  I will also
+say the V4's fsck is more robust than V3's because we made disk format
+changes specifically to help fsck.
 
-The lock_cpu_hotplug()/unlock_cpu_hotplug() sequence in net_dma_rebalance
-is both incorrect (as pointed out by David Miller) because lock_cpu_hotplug()
-may sleep while the net_dma_event_lock spinlock is held, and unnecessary (as
-pointed out by Andrew Morton) as spin_lock() disables preemption which
-protects from CPU hotplug events.
+Now I am not dismissing your anecdotes as I will never dismiss data I
+have not seen, and it sounds like you have seen more data than most
+people, but I must dismiss your explanation of them. 
 
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+Being able to throw away all of the tree but the leaves and twigs with
+extent pointers and rebuild all of it makes V4 very robust, more so than
+ext3.  This business of inodes not moving, I don't see what the
+advantage is, we can lose the directory entry and rebuild just as well
+as ext3, probably better because we can at least figure out what
+directory it was in.
 
-  net/core/dev.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+Vitaly can say all of this more expertly than I....
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 4d2b516..780d770 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3429,12 +3429,9 @@ static void net_dma_rebalance(void)
-        unsigned int cpu, i, n;
-        struct dma_chan *chan;
-
--       lock_cpu_hotplug();
--
-        if (net_dma_count == 0) {
-                for_each_online_cpu(cpu)
-
-rcu_assign_pointer(per_cpu(softnet_data.net_dma, cpu), NULL);
--               unlock_cpu_hotplug();
-                return;
-        }
-
-@@ -3454,8 +3451,6 @@ static void net_dma_rebalance(void)
-                i++;
-        }
-        rcu_read_unlock();
--
--       unlock_cpu_hotplug();
- }
-
- /**
+Hans

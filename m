@@ -1,45 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWHAEE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbWHAEIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbWHAEE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 00:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWHAEE0
+	id S1030420AbWHAEIz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 00:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWHAEIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 00:04:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33921 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751565AbWHAEEZ (ORCPT
+	Tue, 1 Aug 2006 00:08:55 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53963 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932288AbWHAEIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 00:04:25 -0400
-Date: Mon, 31 Jul 2006 21:04:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-Message-Id: <20060731210418.084f9f5d.akpm@osdl.org>
-In-Reply-To: <20060801030443.GA2221@gondor.apana.org.au>
-References: <20060801030443.GA2221@gondor.apana.org.au>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 00:08:54 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 1 Aug 2006 14:08:47 +1000
+Message-Id: <1060801040847.11976@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Simon Kirby <sim@netnation.com>
+Subject: [PATCH] md: Fix a bug that recently crept into md/linear
+References: <20060801140742.11940.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006 13:04:43 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+This patch fixed a bug in 2.6.18-rc3 It would be good if it can get
+into -final.
 
-> 
-> There is a bug in jbd with slab debugging enabled where it was submitting
-> a bh obtained via jbd_rep_kmalloc which crossed a page boundary.  A lot
-> of time was spent on tracking this down because the symptoms were far off
-> from where the problem was.
-> 
-> This patch adds a sanity check to submit_bh so we can immediately spot
-> anyone doing similar things in future.
+Thanks,
+NeilBrown
 
-Seems sane.
 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> While you're at it, could you fix that jbd bug for us :)
+### Comments for Changeset
 
-Could we have a more detailed description?
+A recent patch that allowed linear arrays to be reconfigured on-line
+allowed in a bug which results in divide by zero - not all
+mddev->array_size were converted to conf->array_size.
+
+This patch finished the conversion and fixed the bug.
+
+The offending patch was commit 7c7546ccf6463edbeee8d9aac6de7be1cd80d08a.
+
+Thanks to Simon Kirby <sim@netnation.com> for the bug report.
+
+Cc: Simon Kirby <sim@netnation.com>
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/linear.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff .prev/drivers/md/linear.c ./drivers/md/linear.c
+--- .prev/drivers/md/linear.c	2006-08-01 11:06:15.000000000 +1000
++++ ./drivers/md/linear.c	2006-08-01 11:06:23.000000000 +1000
+@@ -162,7 +162,7 @@ static linear_conf_t *linear_conf(mddev_
+ 		goto out;
+ 	}
+ 
+-	min_spacing = mddev->array_size;
++	min_spacing = conf->array_size;
+ 	sector_div(min_spacing, PAGE_SIZE/sizeof(struct dev_info *));
+ 
+ 	/* min_spacing is the minimum spacing that will fit the hash
+@@ -171,7 +171,7 @@ static linear_conf_t *linear_conf(mddev_
+ 	 * that is larger than min_spacing as use the size of that as
+ 	 * the actual spacing
+ 	 */
+-	conf->hash_spacing = mddev->array_size;
++	conf->hash_spacing = conf->array_size;
+ 	for (i=0; i < cnt-1 ; i++) {
+ 		sector_t sz = 0;
+ 		int j;
+@@ -228,7 +228,7 @@ static linear_conf_t *linear_conf(mddev_
+ 	curr_offset = 0;
+ 	i = 0;
+ 	for (curr_offset = 0;
+-	     curr_offset < mddev->array_size;
++	     curr_offset < conf->array_size;
+ 	     curr_offset += conf->hash_spacing) {
+ 
+ 		while (i < mddev->raid_disks-1 &&

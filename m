@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751841AbWHATbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWHATcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751841AbWHATbe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWHATbe
+	id S1751844AbWHATcT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751845AbWHATcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:31:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8424 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751841AbWHATbd (ORCPT
+	Tue, 1 Aug 2006 15:32:19 -0400
+Received: from ns2.suse.de ([195.135.220.15]:34248 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751844AbWHATcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:31:33 -0400
-Date: Tue, 1 Aug 2006 15:31:29 -0400
-From: Dave Jones <davej@redhat.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: use persistent allocation for cursor blinking.
-Message-ID: <20060801193129.GV22240@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Roland Dreier <rdreier@cisco.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801185618.GS22240@redhat.com> <adairlc5ktk.fsf@cisco.com>
-Mime-Version: 1.0
+	Tue, 1 Aug 2006 15:32:18 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiser4: maybe just fix bugs?
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+	<20060801013104.f7557fb1.akpm@osdl.org>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Aug 2006 21:32:16 +0200
+In-Reply-To: <20060801013104.f7557fb1.akpm@osdl.org>
+Message-ID: <p73u04wz1z3.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adairlc5ktk.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 12:15:35PM -0700, Roland Dreier wrote:
- >  > Every time the console cursor blinks, we do a kmalloc/kfree pair.
- >  > This patch turns that into a single allocation.
- > 
- > A naive question from someone who knows nothing about this subsystem:
- > is there any possibility of concurrent calls into this function, for
- > example if there are multiple cursors on a multiheaded system?
+Andrew Morton <akpm@osdl.org> writes:
 
-It's all called under the console_sem iirc.
+> On Mon, 31 Jul 2006 10:26:55 +0100
+> "Denis Vlasenko" <vda.linux@googlemail.com> wrote:
+> 
+> > The reiser4 thread seem to be longer than usual.
+> 
+> Meanwhile here's poor old me trying to find another four hours to finish
+> reviewing the thing.
 
-		Dave
+I took a quick look at it and I must say that most of the things
+that tripped me up when I first looked at it a long time ago
+are gone now.
 
--- 
-http://www.codemonkey.org.uk
+I guess there could be still quite a lot of cleanup, but it already
+looks much better.
+
+-Andi

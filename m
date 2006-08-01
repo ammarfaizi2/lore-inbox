@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWHARW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWHARYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWHARW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWHARW0
+	id S1751684AbWHARYP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751685AbWHARYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:22:26 -0400
-Received: from relay03.pair.com ([209.68.5.17]:43781 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751690AbWHARW0 (ORCPT
+	Tue, 1 Aug 2006 13:24:15 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:40609 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751644AbWHARYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:22:26 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 1 Aug 2006 12:22:22 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: Chase Venters <chase.venters@clientec.com>
-cc: Amit Gud <agud@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] sysctl for the latecomers
-In-Reply-To: <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
-Message-ID: <Pine.LNX.4.64.0608011213190.12077@turbotaz.ourhouse>
-References: <44CF69F0.6040801@redhat.com> <Pine.LNX.4.64.0608011155040.12077@turbotaz.ourhouse>
+	Tue, 1 Aug 2006 13:24:14 -0400
+Date: Tue, 1 Aug 2006 14:04:17 -0500
+From: Brandon Philips <brandon@ifup.org>
+To: gregkh@suse.de
+Cc: trivial@kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.18-rc3 genhd.c reference in Documentation/kobjects.txt
+Message-ID: <20060801190417.GB23303@vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006, Chase Venters wrote:
-
-> On Tue, 1 Aug 2006, Amit Gud wrote:
->
->>  /etc/sysctl.conf values are of no use to kernel modules that are inserted
->>  after init scripts call sysctl for the values in /etc/sysctl.conf
->>
->>  For modules to use the values stored in the file /etc/sysctl.conf, sysctl
->>  kernel code can keep record of 'limited' values, for sysctl entries which
->>  haven't been registered yet. During registration, sysctl code can check
->>  against the stored values and call the appropriate strategy and
->>  proc_handler routines if a match is found.
->>
->>  Attached patch does just that. This patch is NOT tested and is just to get
->>  opinions, if something like this is a right way of addressing this
->>  problem.
->
-> Do you anticipate any users that you could list? It seems like a more 
-> appropriate approach would be to allow some kind of user-space hook or event 
-> notification to run upon module insertion, which could then apply the 
-> appropriate sysctl.
-
-Btw, wanted to add some comments on the specific approach:
-
-1. A ring hard-coded to 32 elements is IMO unuseable. While it may not be 
-a real limit for what use case you have in mind, if it's in the kernel 
-sooner or later someone else is going to use it and get bitten. Imagine if 
-they wrote in 33 entries, and the first one was some critical security 
-setting that ended up getting silently ignored...
-
-2. On the other hand, allowing it to grow unbounded is equally 
-unacceptable without a mechanism to list and clear the current "pending" 
-sysctl values. Unfortunately, at this point, you're starting to violate 
-"KISS".
-
-Are the modules you refer to inserted during init at all? Because it seems 
-like it would be a lot more appropriate to just move sysctl until after 
-loading the modules, or perhaps running it again once they are loaded.
+block/genhd.c no longer in drivers/.  Update Documentation/kobjects.txt
 
 Thanks,
-Chase
+Brandon
+
+Signed-off-by: Brandon Philips <brandon@ifup.org>
+
+Index: linux-rc/Documentation/kobject.txt
+===================================================================
+--- linux-rc.orig/Documentation/kobject.txt	2006-08-01 13:35:18.000000000 -0500
++++ linux-rc/Documentation/kobject.txt	2006-08-01 13:35:23.000000000 -0500
+@@ -247,7 +247,7 @@
+ - default_attrs: Default attributes to be exported via sysfs when the
+   object is registered.Note that the last attribute has to be
+   initialized to NULL ! You can find a complete implementation
+-  in drivers/block/genhd.c
++  in block/genhd.c
+ 
+ 
+ Instances of struct kobj_type are not registered; only referenced by

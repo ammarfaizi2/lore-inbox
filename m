@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbWHALBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWHALAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbWHALBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWHALBZ
+	id S932558AbWHALAo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbWHALAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:01:25 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56036 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932559AbWHALBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:01:24 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: <fastboot@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: [RFC] ELF Relocatable x86 and x86_64 bzImages
-Date: Tue, 01 Aug 2006 04:58:49 -0600
-Message-ID: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 1 Aug 2006 07:00:44 -0400
+Received: from cibs10.sns.it ([192.167.206.30]:61573 "EHLO reed.sns.it")
+	by vger.kernel.org with ESMTP id S932558AbWHALAn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:00:43 -0400
+Date: Tue, 1 Aug 2006 12:59:41 +0200 (CEST)
+From: venom@sns.it
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
+       Matthias Andree <matthias.andree@gmx.de>, vonbrand@inf.utfsm.cl,
+       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+In-Reply-To: <20060801104013.GA18239@aitel.hist.no>
+Message-ID: <Pine.LNX.4.64.0608011255150.10035@Expansa.sns.it>
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+ <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl>
+ <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org>
+ <20060731175958.1626513b.reiser4@blinkenlights.ch> <20060801104013.GA18239@aitel.hist.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+planning sometimes is not possible, exspecially in certain highly stressed 
+environment.
 
-The problem:
+Just think. I had 3 years ago a database that was 2 TB, we were supposing 
+it could grow in three years of 6 TB, but now it is 40 TB because
+the market situation is changed, and with this the number of the users and 
+their needs.
 
-We can't always run the kernel at 1MB or 2MB, and so people who need
-different addresses must build multiple kernels.  The bzImage format
-can't even represent loading a kernel at other than it's default address.
-With kexec on panic now starting to be used by distros having a kernel
-not running at the default load address is starting to become common.
+Please you have to suppose that when you 
+have to deal with filesystems use for some kind of services, it is 
+impossible to predict the grown rate, and this is true also about the 
+numeber of used i-nodes.
 
-The goal of this patch series is to build kernels that are relocatable
-at run time, and to extend the bzImage format to make it capable of
-expressing a relocatable kernel.
 
-In extending the bzImage format I am replacing the existing unused bootsector
-with an ELF header.  To express what is going on the ELF header will
-have type ET_DYN.  Just like the kernel loading an ET_DYN executable
-bootloaders are not expected to process relocations.  But the executable
-may be shifted in the address space so long as it's alignment requirements
-are met.
 
-The x86_64 kernel is simply built to live at a fixed virtual address
-and the boot page tables are relocated.  The i386 kernel is built
-to process relocations generated with --embedded-relocs (after vmlinux.lds.S)
-has been fixed up to sort out static and dynamic relocations.
+On Tue, 1 Aug 2006, Helge Hafting wrote:
 
-Currently there are 33 patches in my tree to do this.
-
-The weirdest symptom I have had so far is that page faults did not
-trigger the early exception handler on x86_64 (instead I got a reboot).
-
-There is one outstanding issue where I am probably requiring too much alignment
-on the arch/i386 kernel.  
-
-Can anyone find anything else?
-
-Eric
+> On Mon, Jul 31, 2006 at 05:59:58PM +0200, Adrian Ulrich wrote:
+>> Hello Matthias,
+>>
+>>> This looks rather like an education issue rather than a technical limit.
+>>
+>> We aren't talking about the same issue: I was asking to do it
+>> on-the-fly. Umounting the filesystem, running e2fsck and resize2fs
+>> is something different ;-)
+>>
+>>> Which is untrue at least for Solaris, which allows resizing a life file
+>>> system. FreeBSD and Linux require an unmount.
+>>
+>> Correct: You can add more inodes to a Solaris UFS on-the-fly if you are
+>> lucky enough to have some free space available.
+>>
+>> A colleague of mine happened to create a ~300gb filesystem and started
+>> to migrate Mailboxes (Maildir-style format = many small files (1-3kb))
+>> to the new LUN. At about 70% the filesystem ran out of inodes; Not a
+>> big deal with VxFS because such a problem is fixable within seconds.
+>> What would have happened if he had used UFS? mkfs -G wouldn't work
+>> because he had no additional Diskspace left... *ouch*..
+>>
+> This case is solvable by planning.  When you know that the new fs
+> must be created with all inodes from the start, simply count
+> how many you need before migration.  (And add a decent safety margin.)
+> That's what I do with my home machine ask disks wear out every third
+> year or so. The tools for ext2/3 tells how many inodes are in use,
+> and the new fs can be made accordingly.  The approach works for bigger
+> machines too of course.
+>
+> Helge Hafting
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

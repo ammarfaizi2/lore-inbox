@@ -1,79 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751561AbWHARBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWHARCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751561AbWHARBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWHARBY
+	id S1751651AbWHARCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWHARCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:01:24 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14291 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751558AbWHARBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:01:24 -0400
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
-	regarding reiser4 inclusion
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Masover <ninja@slaphack.com>
-Cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44CF84F0.8080303@slaphack.com>
-References: <200607312314.37863.bernd-schubert@gmx.de>
-	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
-	 <1154446189.15540.43.camel@localhost.localdomain>
-	 <44CF84F0.8080303@slaphack.com>
-Content-Type: text/plain
+	Tue, 1 Aug 2006 13:02:32 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:7123 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751564AbWHARCb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:02:31 -0400
+Message-ID: <44CF8925.2030706@oracle.com>
+Date: Tue, 01 Aug 2006 10:02:29 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: David Miller <davem@davemloft.net>
+CC: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+References: <20060709132446.GB29435@2ka.mipt.ru>	<20060724.231708.01289489.davem@davemloft.net>	<44C91192.4090303@oracle.com> <20060731.180226.131918297.davem@davemloft.net>
+In-Reply-To: <20060731.180226.131918297.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Aug 2006 18:19:30 +0100
-Message-Id: <1154452770.15540.65.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 11:44 -0500, ysgrifennodd David Masover:
-> Yikes.  Undetected.
-> 
-> Wait, what?  Disks, at least, would be protected by RAID.  Are you 
-> telling me RAID won't detect such an error?
 
-Yes.
+> I do not think if we do a ring buffer that events should be obtainable
+> via a syscall at all.  Rather, I think this system call should be
+> purely "sleep until ring is not empty".
 
-RAID deals with the case where a device fails. RAID 1 with 2 disks can
-in theory detect an internal inconsistency but cannot fix it.
+Mmm, yeah, of course.  That's much simpler.  I'm looking forward to
+Evgeniy's next patch set.
 
-> we're OK with that, so long as our filesystems are robust enough.  If 
-> it's an _undetected_ error, doesn't that cause way more problems 
-> (impossible problems) than FS corruption?  Ok, your FS is fine -- but 
-> now your bank database shows $1k less on random accounts -- is that ok?
+> The ring buffer size, as Evgeniy also tried to describe, is bounded
+> purely by the number of registered events.
 
-Not really no. Your bank is probably using a machine (hopefully using a
-machine) with ECC memory, ECC cache and the like. The UDMA and SATA
-storage subsystems use CRC checksums between the controller and the
-device. SCSI uses various similar systems - some older ones just use a
-parity bit so have only a 50/50 chance of noticing a bit error.
+Yeah.  fwiw, fs/aio.c has this property today.
 
-Similarly the media itself is recorded with a lot of FEC (forward error
-correction) so will spot most changes.
-
-Unfortunately when you throw this lot together with astronomical amounts
-of data you get burned now and then, especially as most systems are not
-using ECC ram, do not have ECC on the CPU registers and may not even
-have ECC on the caches in the disks.
-
-> > The sort of changes this needs hit the block layer and ever fs.
-> 
-> Seems it would need to hit every application also...
-
-Depending how far you propogate it. Someone people working with huge
-data sets already write and check user level CRC values for this reason
-(in fact bitkeeper does it for one example). It should be relatively
-cheap to get much of that benefit without doing application to
-application just as TCP gets most of its benefit without going app to
-app.
-
-Alan
-
+- z

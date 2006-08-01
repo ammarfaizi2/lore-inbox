@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbWHADoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751557AbWHADpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751566AbWHADoq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 23:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWHADoq
+	id S1751557AbWHADpd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 23:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWHADpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 23:44:46 -0400
-Received: from ns2.suse.de ([195.135.220.15]:53705 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751560AbWHADo2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 23:44:28 -0400
-Date: Tue, 01 Aug 2006 05:44:26 +0200
-From: "Andi Kleen" <ak@suse.de>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, muli@il.ibm.com
-Subject: [PATCH] [2/2] x86_64: Fix CONFIG_IOMMU_DEBUG
-Message-ID: <44cece1a.KkKj/fk+AWDz3lCu%ak@suse.de>
-User-Agent: nail 11.25 7/29/05
+	Mon, 31 Jul 2006 23:45:33 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33243 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751557AbWHADpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 23:45:32 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: vgoyal@in.ibm.com, fastboot@osdl.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+References: <aec7e5c30607051932r49bbcc7eh2c190daa06859dcc@mail.gmail.com>
+	<20060706081520.GB28225@host0.dyn.jankratochvil.net>
+	<aec7e5c30607070147g657d2624qa93a145dd4515484@mail.gmail.com>
+	<20060707133518.GA15810@in.ibm.com>
+	<20060707143519.GB13097@host0.dyn.jankratochvil.net>
+	<20060710233219.GF16215@in.ibm.com>
+	<20060711010815.GB1021@host0.dyn.jankratochvil.net>
+	<m1d5c92yv4.fsf@ebiederm.dsl.xmission.com>
+	<m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060731202520.GB11790@in.ibm.com>
+	<20060731210050.GC11790@in.ibm.com>
+	<m18xm9425s.fsf@ebiederm.dsl.xmission.com> <44CEBDD1.10302@zytor.com>
+Date: Mon, 31 Jul 2006 21:44:03 -0600
+In-Reply-To: <44CEBDD1.10302@zytor.com> (H. Peter Anvin's message of "Mon, 31
+	Jul 2006 19:34:57 -0700")
+Message-ID: <m1k65t2k8s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-From: Muli Ben-Yehuda <muli@il.ibm.com>
+> Eric W. Biederman wrote:
+>>
+>>> Ok. I am decompressing the kernel to 16MB and after reducing 1MB of
+>>> CONFIG_PHYSICAL_START I am left with 15MB which is not 4M aligned
+>>> hence I seems to be running into it.
+>>>
+>>> I changed it to
+>>>
+>>> if ((u32)output) & 0x3fffff)
+>>>
+>>> and kdump kernel booted fine. But this will run into issues if I load
+>>> kernel at 1MB.
+>>>
+>>> I got a dump question. Why do I have to load the kernel at 4MB alignment?
+>>> Existing kernel boots loads at 1MB, which is non 4MB aligned and it works
+>>> fine?
+>> 4MB is a little harsh, but I haven't worked through what the exact rules
+>> are, I know 4MB is the worst case alignment for arch/i386.
+>>
+>
+> 4 MB would be worst case for i386; 2 MB for x86-64.  Actually the x86-64 worst
+> case would be gigabyte, but that's more than a little bit extreme.
 
-If CONFIG_IOMMU_DEBUG is set force_iommu defaults to 1. In the case
-where no HW IOMMU is present in the machine and we end up using nommu,
-leaving force_iommu set to 1 causes dma_alloc_coherent to do the wrong
-thing. Therefore, if we end up using nommu, make sure force_iommu is
-0.
+Yep and that is what a test for, except for the gigabyte case which we don't
+currently implement.  Although I can imagine that gigabyte pages might
+be interesting for the identity mapped part of the page table.
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/x86_64/kernel/pci-nommu.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-Index: linux/arch/x86_64/kernel/pci-nommu.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/pci-nommu.c
-+++ linux/arch/x86_64/kernel/pci-nommu.c
-@@ -92,5 +92,7 @@ void __init no_iommu_init(void)
- {
- 	if (dma_ops)
- 		return;
-+
-+	force_iommu = 0; /* no HW IOMMU */
- 	dma_ops = &nommu_dma_ops;
- }
+Eric

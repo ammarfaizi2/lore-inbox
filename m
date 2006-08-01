@@ -1,59 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWHAN4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751616AbWHAN4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751614AbWHAN4g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWHAN4g
+	id S1751616AbWHAN4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWHAN4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:56:36 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:52405 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751614AbWHAN4f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:56:35 -0400
-Date: Tue, 1 Aug 2006 15:40:37 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
-       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
- expressed by kernelnewbies.org regarding reiser4 inclusion]
-In-Reply-To: <20060801131553.GA8249@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.61.0608011540020.32227@yvahk01.tjqt.qr>
-References: <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
- <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
- <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
- <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
- <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
- <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
- <20060801090947.GA2974@merlin.emma.line.org> <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
- <20060801131553.GA8249@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 1 Aug 2006 09:56:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58509 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751619AbWHAN4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:56:54 -0400
+Subject: [PATCH -rt] clean up pi_lock in rtmutex
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Oleg Nesterov <oleg@tv-sign.ru>,
+       Esben Nielsen <nielsen.esben@googlemail.com>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 09:56:46 -0400
+Message-Id: <1154440606.13175.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >I didn't mean to say your particular drive were crap, but 200GB SATA
->> >drives are low end, like it or not --
->> 
->> And you think an 18 GB SCSI disk just does it better because it's SCSI?
->
->18 GB SCSI disks are 1999 gear, so who cares?
->Seagate didn't sell 200 GB SATA drives at that time.
->
->> Esp. in long sequential reads.
->
->You think SCSI drives aren't on par? Right, they're ahead.
->98 MB/s for the fastest SCSI drives vs. 88 MB/s for Raptor 150 GB SATA
->and 74 MB/s for the fastest other ATA drives.
+Ingo,
 
-Uhuh. And how do they measure that? Did they actually ran sth like...
-  dd_rescue /dev/hda /dev/null
+This is pretty much the same patch that I sent to mainline to clean up
+the  rtmutex code.  I gave the reasons why in that patch, so I'm not
+going to repeat them here.  This is for 2.6.17-rt7
+
+-- Steve
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.17-rt7/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.17-rt7.orig/kernel/rtmutex.c	2006-08-01 09:40:36.000000000 -0400
++++ linux-2.6.17-rt7/kernel/rtmutex.c	2006-08-01 09:53:41.000000000 -0400
+@@ -419,7 +419,7 @@ static int task_blocks_on_rt_mutex(struc
+ {
+ 	struct rt_mutex_waiter *top_waiter = waiter;
+ 	task_t *owner = rt_mutex_owner(lock);
+-	int boost = 0, res;
++	int chain_walk = 0, res;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&current->pi_lock, flags);
+@@ -444,23 +444,24 @@ static int task_blocks_on_rt_mutex(struc
+ 		plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
+ 
+ 		__rt_mutex_adjust_prio(owner);
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			get_task_struct(owner);
+-		}
+-		spin_unlock_irqrestore(&owner->pi_lock, flags);
+-	}
+-	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock)) {
+-		spin_lock_irqsave(&owner->pi_lock, flags);
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			get_task_struct(owner);
+-		}
++		if (owner->pi_blocked_on)
++			chain_walk = 1;
++
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+-	if (!boost)
++	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock))
++		chain_walk = 1;
++
++	if (!chain_walk)
+ 		return 0;
+ 
++	/*
++	 * The owner can't disappear while holding a lock,
++	 * so the owner struct is protected by wait_lock.
++	 * Gets dropped in rt_mutex_adjust_prio_chain()!
++	 */
++	get_task_struct(owner);
++
+ 	spin_unlock(&lock->wait_lock);
+ 
+ 	res = rt_mutex_adjust_prio_chain(owner, detect_deadlock, lock,
+@@ -542,7 +543,7 @@ static void remove_waiter(struct rt_mute
+ 			  struct rt_mutex_waiter *waiter  __IP_DECL__)
+ {
+ 	int first = (waiter == rt_mutex_top_waiter(lock));
+-	int boost = 0;
++	int chain_walk = 0;
+ 	task_t *owner = rt_mutex_owner(lock);
+ 	unsigned long flags;
+ 
+@@ -566,18 +567,20 @@ static void remove_waiter(struct rt_mute
+ 		}
+ 		__rt_mutex_adjust_prio(owner);
+ 
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			get_task_struct(owner);
+-		}
++		if (owner->pi_blocked_on)
++			chain_walk = 1;
++
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+ 
+ 	WARN_ON(!plist_node_empty(&waiter->pi_list_entry));
+ 
+-	if (!boost)
++	if (!chain_walk)
+ 		return;
+ 
++	/* gets dropped in rt_mutex_adjust_prio_chain()! */
++	get_task_struct(owner);
++
+ 	spin_unlock(&lock->wait_lock);
+ 
+ 	rt_mutex_adjust_prio_chain(owner, 0, lock, NULL __IP__);
 
 
-
-
-Jan Engelhardt
--- 

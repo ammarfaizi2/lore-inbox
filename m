@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWHAEMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWHAEOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWHAEMf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 00:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWHAEMf
+	id S932407AbWHAEOk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 00:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWHAEOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 00:12:35 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:22147 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932288AbWHAEMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 00:12:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=poGBAOqebrc7BSOatGU0w4EfGexMaOIq49sJF1dmSD9gCZ/CXav5Vh5kJfJefce/mJ9DKzmyF2ctIdndy+hDMbbleiDUM4dJI8P6x+j3v3XxyeMUqJilqopK+pQzfM4tYpzBRED/ZH6L01ncd7AadaJXWUoUaUsqxICTPycxs6I=
-Date: Tue, 1 Aug 2006 08:12:25 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
+	Tue, 1 Aug 2006 00:14:40 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25574 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932407AbWHAEOj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 00:14:39 -0400
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [PATCH] task_struct: remove writeonly counters
-Message-ID: <20060801041225.GE7006@martell.zuzino.mipt.ru>
-References: <20060801022951.GB7006@martell.zuzino.mipt.ru> <20060731210107.89cab506.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060731210107.89cab506.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Cc: Tony Luck <tony.luck@intel.com>, Jack Steiner <steiner@sgi.com>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Dan Higgins <djh@sgi.com>
+Date: Mon, 31 Jul 2006 21:14:33 -0700
+Message-Id: <20060801041433.23919.69026.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] ia64: panic if topology_init kzalloc fails
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 09:01:07PM -0700, Andrew Morton wrote:
-> On Tue, 1 Aug 2006 06:29:51 +0400
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> 
-> > ...
-> >
-> > +++ b/include/linux/sched.h
-> > @@ -962,8 +962,6 @@ #endif
-> >   * to a stack based synchronous wait) if its doing sync IO.
-> >   */
-> >  	wait_queue_t *io_wait;
-> > -/* i/o counters(bytes read/written, #syscalls */
-> > -	u64 rchar, wchar, syscr, syscw;
-> 
-> This is kinda funny.  These fields were added a year and a half ago, with
-> the intention that the info be made available to userspace.  But then
-> things got horridly stuck.  It's only in the past couple of weeks that we've
-> gained appropriate reporting-to-userspace infrastructure to be able to use
-> these fields.
-> 
-> And lo, on the very day when you propose removing these fields, Jay posts a
-> new patchset ("add CSA accounting to taskstats") which finally gets around to
-> using them.
+From: Paul Jackson <pj@sgi.com>
 
-[checks archives]
-*cough* That was a coincidence, I assure you.
+There really is no sense trying to continue if the kzalloc of
+sysfs_cpus[] fails in ia64 topology_init.  The code calling
+into here doesn't check errors very well, and one ends up with
+a nonobvious boot failure that wastes peoples time debugging.
 
-> So..  we should keep these fields for now - we can perhaps remove them (in
-> less than 1.5 years) if for some reason the CSA patches crash and burn (I
-> don't think they will).
+See for example the lkml thread at:
+  http://lkml.org/lkml/2006/3/2/215
 
-Perhaps, Jay can properly ifdef them with CONFIG_CSA_ACCT or something?
-And remove in-file changelogs 'cause there is git?
+Since the system is totally dead when this kzalloc fails, not
+having yet even booted, might as well announce one's death
+boldly and plainly.
 
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ arch/ia64/kernel/topology.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+--- 2.6.18-rc2-mm1.orig/arch/ia64/kernel/topology.c	2006-07-31 17:18:04.921717318 -0700
++++ 2.6.18-rc2-mm1/arch/ia64/kernel/topology.c	2006-07-31 21:12:08.950508732 -0700
+@@ -67,10 +67,8 @@ static int __init topology_init(void)
+ #endif
+ 
+ 	sysfs_cpus = kzalloc(sizeof(struct ia64_cpu) * NR_CPUS, GFP_KERNEL);
+-	if (!sysfs_cpus) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
++	if (!sysfs_cpus)
++		panic("kzalloc in topology_init failed - NR_CPUS too big?");
+ 
+ 	for_each_present_cpu(i) {
+ 		if((err = arch_register_cpu(i)))
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

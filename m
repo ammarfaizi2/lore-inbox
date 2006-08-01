@@ -1,35 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWHAVlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWHAVmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWHAVlR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 17:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWHAVlR
+	id S1751039AbWHAVmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 17:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWHAVmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 17:41:17 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34285 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750888AbWHAVlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 17:41:16 -0400
-Subject: Re: tickle NMI watchdog on serial output.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060801182529.GJ22240@redhat.com>
-References: <20060801182529.GJ22240@redhat.com>
-Content-Type: text/plain
+	Tue, 1 Aug 2006 17:42:36 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:11978 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751029AbWHAVmf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 17:42:35 -0400
+Message-ID: <44CFCA98.4080400@zytor.com>
+Date: Tue, 01 Aug 2006 14:41:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jeff Garzik <jeff@garzik.org>
+CC: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
+Subject: Re: [PATCH 1/2] include/linux: Defining bool, false and true
+References: <1154175570.44cb5252d3f09@portal.student.luth.se> <1154176331.44cb554b633ef@portal.student.luth.se> <44CFA934.9010404@zytor.com> <44CFC669.1040709@garzik.org>
+In-Reply-To: <44CFC669.1040709@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Aug 2006 23:00:23 +0100
-Message-Id: <1154469623.15540.78.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 14:25 -0400, ysgrifennodd Dave Jones:
-> Serial is _slow_ sometimes. So slow, that the NMI watchdog kicks in.
+Jeff Garzik wrote:
+> H. Peter Anvin wrote:
+>> ricknu-0@student.ltu.se wrote:
+>>> This patch defines:
+>>> * a generic boolean-type, named "bool"
+>>> * aliases to 0 and 1, named "false" and "true"
+>>>
+>>> Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
+>>
+>> Shouldn't this simply use _Bool?
+> 
+> No sane person should use "_Bool" in real code.  Unnecessary StudlyCaps 
+> and unnecessary underscore.
+> 
+> "bool" is far easier to type, and looks less weird.
+> 
 
-Acked-by: Alan Cox <alan@redhat.com>
+That wasn't the point.  The point was that bool should be a typedef to 
+_Bool instead of an enum.
 
-To be honest however the tmout%1000 bit is just a delay loop waiting for
-the chip in console synchronous printk so the whole 1000 times check is
-overkill 8)
-
+	-hpa

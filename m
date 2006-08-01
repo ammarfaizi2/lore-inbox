@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWHANQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWHANRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWHANQE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWHANQE
+	id S1751603AbWHANRa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbWHANRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:16:04 -0400
-Received: from mail.gmx.de ([213.165.64.21]:64473 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750795AbWHANQC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:16:02 -0400
-X-Authenticated: #428038
-Date: Tue, 1 Aug 2006 15:15:53 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
-       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060801131553.GA8249@merlin.emma.line.org>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
-	dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
-	reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-	tytso@mit.edu, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com> <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com> <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com> <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch> <20060801090947.GA2974@merlin.emma.line.org> <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
+	Tue, 1 Aug 2006 09:17:30 -0400
+Received: from wx-out-0102.google.com ([66.249.82.194]:2235 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751308AbWHANRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:17:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=um6u5o1uUtgh7RmBqMxuo4z7CU2t3WC4b3Lf8iLtHj2NnYatDPA2JwoGmg7UPvRi3kqsHdRy2SzQ+6dEE215ejxZb7rl41OWyF9FEjJOqVuGvezNe8JZsJHVhGm0C5O+FZYNLP8kpxDa5Jp5GxKJcKQRy9zx6pELzxtpPSRc7Bc=
+Message-ID: <e084545e0608010617h9941cbchd366cf3ee6bcb0d0@mail.gmail.com>
+Date: Tue, 1 Aug 2006 15:17:27 +0200
+From: "=?ISO-8859-1?Q?Omar_A=EFt_Mous?=" <omar.aitmous@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Connection tracking synchronization module
+Cc: jp@enix.org, sebastien.wacquiez@enix.fr, smagghue@gmail.com,
+       risk_colta@hotmail.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt schrieb am 2006-08-01:
-
-> >I didn't mean to say your particular drive were crap, but 200GB SATA
-> >drives are low end, like it or not --
-> 
-> And you think an 18 GB SCSI disk just does it better because it's SCSI?
-
-18 GB SCSI disks are 1999 gear, so who cares?
-Seagate didn't sell 200 GB SATA drives at that time.
-
-> Esp. in long sequential reads.
-
-You think SCSI drives aren't on par? Right, they're ahead.
-98 MB/s for the fastest SCSI drives vs. 88 MB/s for Raptor 150 GB SATA
-and 74 MB/s for the fastest other ATA drives.
-
-(Figures obtained from StorageReview.com's Performance Database.)
-
--- 
-Matthias Andree
+This is a kernel module to allow real-time synchronization of connection
+tracking tables between two linux routers. It will be useful for people willing
+to achieve high availability of stateful firewalls, or NAT routers. It's our
+first attempt at kernel hacking, so there is probably many errors and things to
+fix, but it Works For Us (TM). you can even test it without recompiling your
+kernel. see attached README file for the gory details. You would be so kind to
+cc: us when replying ! :)
+Latest version can be found here :
+http://enix.fr/projects/syntrack/browser/tarballs/revision-90.tar.gz?format=raw
+Or here for future releases :
+http://enix.fr/projects/syntrack/browser/tarballs

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWHAN2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932672AbWHANc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbWHAN2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWHAN2M
+	id S932672AbWHANc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbWHANc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:28:12 -0400
-Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:47237 "HELO
-	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932654AbWHAN2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:28:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type;
-  b=X/UlXMUiRhVMelcZb/p8gPMCSeR1SmLOG6qqG31kQWZq0ijmtVR5LSuw7LVkeCr6unU8apZ6R8tiQlBtT1TGl41P6bn/KFlYH1zYT+/bgpr2EW4eVH8e15oJuwr2xz1OcCTRRjhVTsKwrFDI2vJ8C2lR2JZEqWCwX1m1HA9VoBc=  ;
-Message-ID: <20060801132810.388.qmail@web25806.mail.ukl.yahoo.com>
-Date: Tue, 1 Aug 2006 13:28:10 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re : [HW_RNG] How to use generic rng in kernel space
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mb@bu3sch.de, linux-kernel@vger.kernel.org
-In-Reply-To: <1154438995.15540.5.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 09:32:58 -0400
+Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:62907 "EHLO
+	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S932672AbWHANc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:32:57 -0400
+Message-ID: <44CF5850.80906@kolumbus.fi>
+Date: Tue, 01 Aug 2006 16:34:08 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/33] i386: Relocatable kernel support.
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <11544302351934-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <11544302351934-git-send-email-ebiederm@xmission.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
+ 6.5.4FP2 HF462|May 23, 2006) at 01.08.2006 16:32:45,
+	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 16:32:46,
+	Serialize complete at 01.08.2006 16:32:46,
+	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 16:32:46,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 16:32:53,
+	Serialize complete at 01.08.2006 16:32:53
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> O_NONBLOCK doesn't necessarily imply "never sleep", it implies "don't
-> sleep waiting for an event/long time". So where the mutex is just
-> serializing access to hardware that will be very brief it is fine not to
-> check O_NONBLOCK/FNDELAY.
 
-Thank you Alan for answering ! One more question I hope you don't mind...
-I'm not very confident with all these POSIX definitions. Do you have any
-pointers that I should know to get more familiar with them ?
+> @@ -1,9 +1,10 @@
+>  SECTIONS
+>  {
+> -  .data : { 
+> +  .data.compressed : {
+>  	input_len = .;
+>  	LONG(input_data_end - input_data) input_data = .; 
+>  	*(.data) 
+> +	output_len = . - 4;
+>  	input_data_end = .; 
+>  	}
+>  }
+>   
+I don't see how you are getting the uncompressed length from output_len...
 
-Thanks
-
-Francis
-
-
-
-
+--Mika
 

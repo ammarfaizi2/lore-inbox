@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWHAIpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWHAIqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWHAIpb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 04:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWHAIpb
+	id S1750914AbWHAIqk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWHAIqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 04:45:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:54376 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750864AbWHAIpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 04:45:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sKDUuhX+xs5CH8h46Lbblw4NpBAE1esQ/wCd0ia8D3bJSF9qJ+hc1H0SA/U3AgUcegWKpbmcAnusSWtMDewTKG2it7BPQrT7/Cxvv3VysCQGdUKgG+2R4yqi+jkP2Ud+yqg9SiGh7+ZVq3yIX0q3Zmy26RhGWZAVvZ5R1cvapFA=
-Message-ID: <404c96810608010145r4c109fdet9eadba7090321048@mail.gmail.com>
-Date: Tue, 1 Aug 2006 09:45:26 +0100
-From: "Jonathan Matthews-Levine" <matthewslevine@gmail.com>
-To: "Heiko Carstens" <heiko.carstens@de.ibm.com>
-Subject: Re: do { } while (0) question
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060801082109.GB9589@osiris.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 04:46:39 -0400
+Received: from colin.muc.de ([193.149.48.1]:21513 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750914AbWHAIqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 04:46:39 -0400
+Date: 1 Aug 2006 10:46:37 +0200
+Date: Tue, 1 Aug 2006 10:46:37 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Vitezslav Samel <samel@mail.cz>, linux-kernel@vger.kernel.org
+Subject: Re: too low MAX_MP_BUSSES
+Message-ID: <20060801084637.GB21698@muc.de>
+References: <20060731115545.GA3292@pc11.op.pod.cz> <20060801013826.09c9324d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060801082109.GB9589@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20060801013826.09c9324d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01/08/06, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> ---
-> Always use do {} while (0).  Failing to do so can cause subtle compile
-> failures or bugs.
-> ---
->
-> I'm really wondering what these subtle compile failures or bugs are.
-> Could you please explain?
+> mach-default uses 32 and mach-generic uses 260, so I doubt if there's a big
+> downside to increasing mach-default.  I expect distros ship with
+> mach-generic, so you're a rare case.
+> 
+> <tries to remember who works on this and fails>
+> 
+> Andi?  Can you see any problems with increasing the mach-default setting?
 
-http://kernelnewbies.org/FAQ/DoWhile0
+No, except for wasting a bit of memory (maybe make it dependent on CONFIG_TINY?)
 
-cheers,
-Jonathan
-
--- 
-Jonathan Matthews-Levine
-e: matthewslevine@gmail.com
+-Andi

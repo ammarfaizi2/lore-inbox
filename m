@@ -1,107 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWHAUYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWHAU0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161035AbWHAUYW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 16:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWHAUYW
+	id S1161039AbWHAU0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWHAU0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 16:24:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:65004 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161035AbWHAUYV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 16:24:21 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [-rt] Fix race condition and following BUG in PI-futex
-Date: Tue, 1 Aug 2006 13:22:52 -0700
-User-Agent: KMail/1.9.1
-Cc: Esben Nielsen <nielsen.esben@googlemail.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0608011931560.10605@localhost.localdomain> <1154456580.25983.25.camel@localhost.localdomain>
-In-Reply-To: <1154456580.25983.25.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 16:26:15 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:32955 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1161039AbWHAU0O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 16:26:14 -0400
+Message-ID: <44CFB8C4.8060904@zytor.com>
+Date: Tue, 01 Aug 2006 13:25:40 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: vgoyal@in.ibm.com
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, fastboot@osdl.org,
+       linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       Magnus Damm <magnus.damm@gmail.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <20060801192628.GE7054@in.ibm.com>
+In-Reply-To: <20060801192628.GE7054@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608011322.53638.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 August 2006 11:23, you wrote:
-> On Tue, 2006-08-01 at 19:46 +0100, Esben Nielsen wrote:
-> > I ran into the bug on 2.6.17-rt8 with the previous posted patches which
-> > make pthread_timed_lock() work on UP, but the bug is there without the
-> > patches - I just can't trigger it - and it is also in the mainline
-> > kernel.
-> >
-> > The problem is that rt_mutex_next_owner() is used unprotected in
-> > wake_futex_pi(). At least it isn't probably serialiazed against the next
-> > owner being signalled or getting a timeout. The only lock, which is
-> > good enough here, is &pi_state->pi_mutex.wait_lock, so I added this
-> > protection.
-> >
-> > Esben
-> >
-> >   kernel/futex.c |   12 ++++++++++--
-> >   1 file changed, 10 insertions(+), 2 deletions(-)
-> >
-> > Index: linux-2.6.17-rt8/kernel/futex.c
-> > ===================================================================
-> > --- linux-2.6.17-rt8.orig/kernel/futex.c
-> > +++ linux-2.6.17-rt8/kernel/futex.c
-> > @@ -565,6 +565,7 @@ static int wake_futex_pi(u32 __user *uad
-> >   	if (!pi_state)
-> >   		return -EINVAL;
-> >
-> > +	spin_lock(&pi_state->pi_mutex.wait_lock);
-> >   	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
-> >
-> >   	/*
-> > @@ -590,15 +591,22 @@ static int wake_futex_pi(u32 __user *uad
-> >   	curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
-> >   	dec_preempt_count();
-> >
-> > -	if (curval == -EFAULT)
-> > +	if (curval == -EFAULT) {
-> > +		spin_unlock(&pi_state->pi_mutex.wait_lock);
-> >   		return -EFAULT;
-> > -	if (curval != uval)
-> > +	}
-> > +	if (curval != uval) {
-> > +		spin_unlock(&pi_state->pi_mutex.wait_lock);
-> >   		return -EINVAL;
-> > +	}
-> >
-> >   	list_del_init(&pi_state->owner->pi_state_list);
-> >   	list_add(&pi_state->list, &new_owner->pi_state_list);
-> >   	pi_state->owner = new_owner;
-> > +	atomic_inc(&pi_state->refcount);
->
-> There really needs to be a get_pi_state() or some variant. Having to do
-> a manual atomic_inc is very dangerous.
+Vivek Goyal wrote:
+> 
+> Hi Eric,
+> 
+> Can't we use the x86_64 relocation approach for i386 as well? I mean keep
+> the virtual address space fixed and updating the page tables. This would
+> help in the sense that you don't have to change gdb if somebody decides to
+> debug the relocated kernel.
+> 
+> Any such tool that retrieves the symbol virtual address from vmlinux will
+> be confused.
+> 
 
-I understand the need to grab the wait_lock in order to serialize 
-rt_mutex_next_owner(), but why the addition of of the atomic_inc() and the 
-free_pi_state() ?  And if we do need them, shouldn't we place them around the 
-use of the pi_state, rather than just before the unlock calls?
+I don't think this is practical given the virtual space constraints on 
+i386 systems.
 
->
-> > +	spin_unlock(&pi_state->pi_mutex.wait_lock);
-> >   	rt_mutex_unlock(&pi_state->pi_mutex);
-> > +	free_pi_state(pi_state);
->
-> And to stay in line with the kernel, perhaps we should rename this to
-> put_pi_state.  We aren't freeing it if there's still references to it.
->
-> -- Steve
->
-> >   	return 0;
-> >   }
->
+	-hpa
 
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team

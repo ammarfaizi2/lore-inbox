@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbWHABh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWHABof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbWHABh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 21:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWHABh3
+	id S1030206AbWHABof (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 21:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWHABof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 21:37:29 -0400
-Received: from nevyn.them.org ([66.93.172.17]:996 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S1030376AbWHABh2 (ORCPT
+	Mon, 31 Jul 2006 21:44:35 -0400
+Received: from waste.org ([66.93.16.53]:10143 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030206AbWHABof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 21:37:28 -0400
-Date: Mon, 31 Jul 2006 21:37:08 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: torvalds@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
-       arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       roland@redhat.com
-Subject: Re: ptrace bugs and related problems
-Message-ID: <20060801013708.GA25965@nevyn.them.org>
-Mail-Followup-To: Albert Cahalan <acahalan@gmail.com>, torvalds@osdl.org,
-	alan@lxorguk.ukuu.org.uk, ak@suse.de, mingo@elte.hu,
-	arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-	roland@redhat.com
-References: <787b0d920607262355x3f669f0ap544e3166be2dca21@mail.gmail.com> <20060727203128.GA26390@nevyn.them.org> <787b0d920607271817u4978d2bdiac261d916971c1b3@mail.gmail.com> <20060728034741.GA3372@nevyn.them.org> <787b0d920607281528w56472db2u81268aad523d5c72@mail.gmail.com> <20060731190018.GA13735@nevyn.them.org> <787b0d920607311708y3642e41cue49cd47ccc39e77d@mail.gmail.com>
-MIME-Version: 1.0
+	Mon, 31 Jul 2006 21:44:35 -0400
+Date: Mon, 31 Jul 2006 20:43:19 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] x86_64 built-in command line
+Message-ID: <20060801014319.GO6908@waste.org>
+References: <20060731171442.GI6908@waste.org> <200607312207.58999.ak@suse.de> <44CE6AEA.2090909@zytor.com> <200608010017.00826.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <787b0d920607311708y3642e41cue49cd47ccc39e77d@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <200608010017.00826.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 08:08:35PM -0400, Albert Cahalan wrote:
-> The execve event is unreliable anyway.
-> Thus, it is necessary to use syscall tracing.
+On Tue, Aug 01, 2006 at 12:17:00AM +0200, Andi Kleen wrote:
+> On Monday 31 July 2006 22:41, H. Peter Anvin wrote:
+> > Andi Kleen wrote:
+> > >   
+> > >> +#ifdef CONFIG_CMDLINE_BOOL
+> > >> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
+> > >> +#endif
+> > > 
+> > > I think I would prefer a strcat.
+> > > 
+> > > Also you should describe the exact behaviour (override/append) in Kconfig help.
+> > > 
+> > 
+> > In the i386 thread, Matt described having a firmware bootloader which 
+> > passes bogus parameters.  For that case, it would make sense to have a 
+> > non-default CONFIG option to have override rather than conjoined (and I 
+> > maintain that the built-in command line should be prepended.)
+> 
+> Is that boot loader common? What's its name? 
+> If not I would prefer that he keeps the one liner patch to deal
+> with that private.
+> 
+> For generic semantics strcat (or possible prepend) is probably better.
 
-You keep saying this "unreliable" thing, and I don't think it means
-what you think it means.  It should always be delivered.  When it
-isn't, there's a bug.  I don't know of any, unless you're talking about
-the thread group issue you just reported.
+No, it doesn't work for numerous kernel options that can't be negated.
 
 -- 
-Daniel Jacobowitz
-CodeSourcery
+Mathematics is the supreme nostalgia of our time.

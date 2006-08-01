@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWHATEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751799AbWHATE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751798AbWHATEF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWHATEF
+	id S1751799AbWHATE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751801AbWHATE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:04:05 -0400
-Received: from mx1.suse.de ([195.135.220.2]:51880 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751798AbWHATEE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:04:04 -0400
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 18/33] x86_64: Kill temp_boot_pmds II
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<11544302392378-git-send-email-ebiederm@xmission.com>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Aug 2006 21:04:02 +0200
-In-Reply-To: <11544302392378-git-send-email-ebiederm@xmission.com>
-Message-ID: <p73psfk1dnh.fsf_-_@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Aug 2006 15:04:26 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:17081 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751800AbWHATEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:04:25 -0400
+Subject: Re: deprecate and convert some sleep_on variants.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, arjan@infradead.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
+References: <20060801180643.GD22240@redhat.com>
+	 <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 15:03:50 -0400
+Message-Id: <1154459030.29772.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" <ebiederm@xmission.com> writes:
+On Tue, 2006-08-01 at 13:20 -0500, Nish Aravamudan wrote:
+> On 8/1/06, Dave Jones <davej@redhat.com> wrote:
+> > We've been carrying this for a dogs age in Fedora. It'd be good to get
+> > this in -mm, so that it stands some chance of getting upstreamed at some point.
+> >
+> > Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> > Signed-off-by: Dave Jones <davej@redhat.com>
+> >
+
+> Also, would these changes:
 > 
-> I also modify the early page table initialization code
-> to use early_ioreamp and early_iounmap, instead of the
-> special case version of those functions that they are
-> now calling.
+> > diff -urNp --exclude-from=/home/davej/.exclude linux-1060/include/linux/wait.h linux-1070/include/linux/wait.h
+> > --- linux-1060/include/linux/wait.h
+> > +++ linux-1070/include/linux/wait.h
+> 
+> Be better in a separate patch?
 
-Or rather I tried to apply it - it doesn't apply at all
-on its own:
+As well as the changes to kernel/sched.c
 
-patching file arch/x86_64/mm/init.c
-Hunk #1 FAILED at 167.
-Hunk #2 succeeded at 274 with fuzz 1 (offset 28 lines).
-Hunk #3 FAILED at 286.
-Hunk #4 FAILED at 341.
-3 out of 4 hunks FAILED -- rejects in file arch/x86_64/mm/init.c
+-- Steve
 
--Andi
+

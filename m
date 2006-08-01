@@ -1,78 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWHASoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWHASur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWHASoy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWHASoy
+	id S1751786AbWHASur (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbWHASur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:44:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51387 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751781AbWHASox (ORCPT
+	Tue, 1 Aug 2006 14:50:47 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:61331 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751786AbWHASuq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:44:53 -0400
-Date: Tue, 1 Aug 2006 14:44:51 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: single bit flip detector.
-Message-ID: <20060801184451.GP22240@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Tue, 1 Aug 2006 14:50:46 -0400
+Subject: Re: [PATCH] fs.h: ifdef security fields
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060801155305.GA6872@martell.zuzino.mipt.ru>
+References: <20060801155305.GA6872@martell.zuzino.mipt.ru>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 01 Aug 2006 14:53:15 -0400
+Message-Id: <1154458395.3582.150.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In case where we detect a single bit has been flipped, we spew
-the usual slab corruption message, which users instantly think
-is a kernel bug.  In a lot of cases, single bit errors are
-down to bad memory, or other hardware failure.
+On Tue, 2006-08-01 at 19:53 +0400, Alexey Dobriyan wrote:
+> Chop 4 bytes from struct inode et al here.
+> 
+> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> ---
+> 
+>  fs/inode.c         |    2 ++
+>  include/linux/fs.h |    7 ++++++-
+>  2 files changed, 8 insertions(+), 1 deletion(-)
+> 
+> --- a/fs/inode.c
+> +++ b/fs/inode.c
+> @@ -133,7 +133,9 @@ #endif
+>  		inode->i_bdev = NULL;
+>  		inode->i_cdev = NULL;
+>  		inode->i_rdev = 0;
+> +#ifdef CONFIG_SECURITY
+>  		inode->i_security = NULL;
+> +#endif
 
-This patch adds an extra line to the slab debug messages
-in those cases, in the hope that users will try memtest before
-they report a bug.
+Possibly this should just be moved inside the security_inode_alloc
+static inlines?
 
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Possibly bad RAM. Run memtest86.
+>  		inode->dirtied_when = 0;
+>  		if (security_inode_alloc(inode)) {
+>  			if (inode->i_sb->s_op->destroy_inode)
+> --- a/include/linux/fs.h
+> +++ b/include/linux/fs.h
+> @@ -552,7 +552,9 @@ struct inode {
+>  	unsigned int		i_flags;
+>  
+>  	atomic_t		i_writecount;
+> +#ifdef CONFIG_SECURITY
+>  	void			*i_security;
+> +#endif
+>  	union {
+>  		void		*generic_ip;
+>  	} u;
+> @@ -688,8 +690,9 @@ struct file {
+>  	struct file_ra_state	f_ra;
+>  
+>  	unsigned long		f_version;
+> +#ifdef CONFIG_SECURITY_SELINUX
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+This should just be CONFIG_SECURITY.
 
---- linux-2.6.16.noarch/mm/slab.c~	2006-03-22 18:29:27.000000000 -0500
-+++ linux-2.6.16.noarch/mm/slab.c	2006-03-22 18:30:58.000000000 -0500
-@@ -1516,10 +1516,33 @@ static void poison_obj(struct kmem_cache
- static void dump_line(char *data, int offset, int limit)
- {
- 	int i;
-+	unsigned char total=0, bad_count=0;
- 	printk(KERN_ERR "%03x:", offset);
--	for (i = 0; i < limit; i++)
-+	for (i = 0; i < limit; i++) {
-+		if (data[offset+i] != POISON_FREE) {
-+			total += data[offset+i];
-+			++bad_count;
-+		}
- 		printk(" %02x", (unsigned char)data[offset + i]);
-+	}
- 	printk("\n");
-+	if (bad_count == 1) {
-+		switch (total) {
-+		case POISON_FREE ^ 0x01:
-+		case POISON_FREE ^ 0x02:
-+		case POISON_FREE ^ 0x04:
-+		case POISON_FREE ^ 0x08:
-+		case POISON_FREE ^ 0x10:
-+		case POISON_FREE ^ 0x20:
-+		case POISON_FREE ^ 0x40:
-+		case POISON_FREE ^ 0x80:
-+			printk (KERN_ERR "Single bit error detected. Possibly bad RAM.\n");
-+#ifdef CONFIG_X86
-+			printk (KERN_ERR "Run memtest86 or other memory test tool.\n");
-+#endif
-+			return;
-+		}
-+	}
- }
- #endif
+>  	void			*f_security;
+> -
+> +#endif
+>  	/* needed for tty driver, and maybe others */
+>  	void			*private_data;
+>  
+> @@ -877,7 +880,9 @@ struct super_block {
+>  	int			s_syncing;
+>  	int			s_need_sync_fs;
+>  	atomic_t		s_active;
+> +#ifdef CONFIG_SECURITY_SELINUX
+
+Likewise.
+
+>  	void                    *s_security;
+> +#endif
+>  	struct xattr_handler	**s_xattr;
+>  
+>  	struct list_head	s_inodes;	/* all inodes */
+> 
 
 -- 
-http://www.codemonkey.org.uk
+Stephen Smalley
+National Security Agency
+

@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWHAUPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWHAUZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbWHAUPG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 16:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbWHAUPF
+	id S1161042AbWHAUZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161041AbWHAUZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 16:15:05 -0400
-Received: from outmx018.isp.belgacom.be ([195.238.4.117]:25019 "EHLO
-	outmx018.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1161032AbWHAUPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 16:15:03 -0400
-Date: Tue, 1 Aug 2006 22:14:53 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Komal Shah <komal_shah802003@yahoo.com>
-Cc: gdavis@mvista.com, tony@atomide.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, dbrownell@users.sourceforge.net, r-woddruff2@ti.com
-Subject: Re: [PATCH] OMAP: Add Watchdog driver support
-Message-ID: <20060801201453.GA3912@infomag.infomag.iguana.be>
-References: <1153567435.16250.266622064@webmail.messagingengine.com>
+	Tue, 1 Aug 2006 16:25:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46759 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161039AbWHAUZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 16:25:24 -0400
+Date: Tue, 1 Aug 2006 13:25:09 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: get_device in device_create_file
+Message-Id: <20060801132509.27269013.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1153567435.16250.266622064@webmail.messagingengine.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Komal Shah,
+Hi, Greg:
 
-> Attached patch addes Texas Instruments (TI) OMAP1/2 (http://www.ti.com/omap)
-> based processors, like OMAP1610/1710/242x.
+This code makes no sense to me:
 
-In the process of reviewing your driver.
+> int device_create_file(struct device * dev, struct device_attribute * attr)
+> {
+> 	int error = 0;
+> 	if (get_device(dev)) {
+> 		error = sysfs_create_file(&dev->kobj, &attr->attr);
+> 		put_device(dev);
+> 	}
+> 	return error;
+> }
 
-Greetings,
-Wim.
+If the struct device *dev, and its presumably enclosing structure,
+can be freed by a different CPU (or pre-empt), then get_device
+does not protect it. It can be freed before get_device is reached.
+Buf it not, and the caller has a reference, then the call to
+get_device is redundant.
 
+How is this supposed to work?
+
+-- Pete

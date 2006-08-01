@@ -1,102 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWHAP2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWHAPdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751665AbWHAP2c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 11:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWHAP2c
+	id S932488AbWHAPdf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 11:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWHAPde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 11:28:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23526 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751599AbWHAP2b (ORCPT
+	Tue, 1 Aug 2006 11:33:34 -0400
+Received: from aben100.neoplus.adsl.tpnet.pl ([83.7.25.100]:35258 "EHLO
+	pcserwis") by vger.kernel.org with ESMTP id S932116AbWHAPdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 11:28:31 -0400
-Date: Tue, 1 Aug 2006 08:25:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: synchronous signal in the blocked signal context
-In-Reply-To: <20060801144403.GA1291@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>
-References: <20060731191449.B4592@unix-os.sc.intel.com>
- <Pine.LNX.4.64.0607312152240.4168@g5.osdl.org> <20060801144403.GA1291@us.ibm.com>
+	Tue, 1 Aug 2006 11:33:33 -0400
+Date: Tue, 01 Aug 2006 17:32:52 +0200
+To: "Linus Torvalds" <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: metadata plugins (was Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion)
+From: =?iso-8859-2?B?o3VrYXN6IE1pZXJ6d2E=?= <prymitive@pcserwis.hopto.org>
+Organization: PC Serwis
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <200607281402.k6SE245v004715@laptop13.inf.utfsm.cl> <44CA31D2.70203@slaphack.com> <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org>
+Content-Transfer-Encoding: 8bit
+Message-ID: <op.tdl2s2fpd4os1z@localhost>
+In-Reply-To: <Pine.LNX.4.64.0607280859380.4168@g5.osdl.org>
+User-Agent: Opera Mail/9.00 (Linux)
+X-PCSerwis-MailScanner-Information: Please contact the ISP for more information
+X-PCSerwis-MailScanner: Found to be clean
+X-PCSerwis-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+	score=-15.262, required 6, autolearn=not spam, ALL_TRUSTED -1.80,
+	AWL 1.54, BAYES_00 -15.00)
+X-MailScanner-From: prymitive@pcserwis.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dnia Fri, 28 Jul 2006 18:33:56 +0200, Linus Torvalds <torvalds@osdl.org>  
+napisa³:
 
+> In other words, if a filesystem wants to do something fancy, it needs to
+> do so WITH THE VFS LAYER, not as some plugin architecture of its own. We
+> already have exactly the plugin interface we need, and it literally _is_
+> the VFS interfaces - you can plug in your own filesystems with
+> "register_filesystem()", which in turn indirectly allows you to plug in
+> your per-file and per-directory operations for things like lookup etc.
 
-On Tue, 1 Aug 2006, Paul E. McKenney wrote:
-> > 
-> > Paul? Should I just revert, or did you have some deeper reason for it?
-> 
-> I cannot claim any deep thought on this one, so please do revert it.
+What fancy (beside cryptocompress) does reiser4 do now?
+Can someone point me to a list of things that are required by kernel  
+mainteiners to merge reiser4 into vanilla?
+I feel like I'm getting lost with current reiser4 status and things that  
+are need to be done.
 
-Well, I do have to say that I like the notion of trying to have the _same_ 
-semantics for "force_sig_info()" and "force_sig_specific()", so in that 
-way your patch is fine - I just missed the fact that it changed it back to 
-the old broken ones (that results in endless SIGSEGV's if the SIGSEGV 
-happens when setting up the handler for the SIGSEGV and other 
-"interesting" issues, where a bug can result in the user process hanging 
-instead of just killing it outright).
-
-However, I wonder if the _proper_ fix is to just either remove 
-"force_sig_specific()" entirely, or just make that one match the semantics 
-of "force_sig_info()" instead (rather than doing it the other way - change 
-for_sig_specific() to match force_sig_info()).
-
-force_sig_info() has only two uses, and both should be ok with the 
-force_sig_specific() semantics, since they are for SIGSTOP and SIGKILL 
-respectively, and those should not be blockable unless you're a kernel 
-thread (and I don't think either of them could validly ever be used with 
-kernel threads anyway), so doing it the other way around _should_ be ok.
-
-Paul, Suresh, would something like this work for you instead?
-
-		Linus
-----
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 7fe874d..bfdb568 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -791,22 +791,31 @@ out:
- /*
-  * Force a signal that the process can't ignore: if necessary
-  * we unblock the signal and change any SIG_IGN to SIG_DFL.
-+ *
-+ * Note: If we unblock the signal, we always reset it to SIG_DFL,
-+ * since we do not want to have a signal handler that was blocked
-+ * be invoked when user space had explicitly blocked it.
-+ *
-+ * We don't want to have recursive SIGSEGV's etc, for example.
-  */
--
- int
- force_sig_info(int sig, struct siginfo *info, struct task_struct *t)
- {
- 	unsigned long int flags;
--	int ret;
-+	int ret, blocked, ignored;
-+	struct k_sigaction *action;
- 
- 	spin_lock_irqsave(&t->sighand->siglock, flags);
--	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
--		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
--	}
--	if (sigismember(&t->blocked, sig)) {
--		sigdelset(&t->blocked, sig);
-+	action = &t->sighand->action[sig-1];
-+	ignored = action->sa.sa_handler == SIG_IGN;
-+	blocked = sigismember(&t->blocked, sig);
-+	if (blocked || ignored) {
-+		action->sa.sa_handler = SIG_DFL;
-+		if (blocked) {
-+			sigdelset(&t->blocked, sig);
-+			recalc_sigpending_tsk(t);
-+		}
- 	}
--	recalc_sigpending_tsk(t);
- 	ret = specific_send_sig_info(sig, info, t);
- 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
- 
+£ukasz Mierzwa

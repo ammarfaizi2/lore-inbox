@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWHAX2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWHAXbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWHAX2w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHAX2v
+	id S1750709AbWHAXbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWHAXbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:28:51 -0400
-Received: from mx2.suse.de ([195.135.220.15]:4321 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750750AbWHAX2u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:28:50 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Dave Jones <davej@redhat.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-References: <20060801184451.GP22240@redhat.com>
-	<1154470467.15540.88.camel@localhost.localdomain>
-	<20060801223011.GF22240@redhat.com>
-	<20060801223622.GG22240@redhat.com>
-	<20060801230003.GB14863@martell.zuzino.mipt.ru>
-	<20060801231603.GA5738@redhat.com>
-X-Yow: - if it GLISTENS, gobble it!!
-Date: Wed, 02 Aug 2006 01:28:49 +0200
-In-Reply-To: <20060801231603.GA5738@redhat.com> (Dave Jones's message of "Tue,
-	1 Aug 2006 19:16:03 -0400")
-Message-ID: <jebqr4f32m.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 1 Aug 2006 19:31:05 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:17425 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750709AbWHAXbE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 19:31:04 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: axboe@suse.de (Jens Axboe)
+Subject: Re: [BLOCK] bh: Ensure bh fits within a page
+Cc: herbert@gondor.apana.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20060801072315.GH31908@suse.de>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.17-rc4 (i686))
+Message-Id: <E1G83hL-00035h-00@gondolin.me.apana.org.au>
+Date: Wed, 02 Aug 2006 09:30:51 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
+Jens Axboe <axboe@suse.de> wrote:
+>
+> That looks really dangerous, I'd prefer that to be a BUG_ON() as well to
+> prevent nastiness further down.
 
-> diff --git a/mm/slab.c b/mm/slab.c
-> index 21ba060..39f1183 100644
-> --- a/mm/slab.c
-> +++ b/mm/slab.c
-> @@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
->  static void dump_line(char *data, int offset, int limit)
->  {
->  	int i;
-> +	unsigned char total = 0, bad_count = 0, errors = 0;
+OK, I used a WARN_ON mainly because ext3 has been doing this for years
+without killing anyone until now :)
 
-No need to initialize errors here.
+[BLOCK] bh: Ensure bh fits within a page
 
->  	printk(KERN_ERR "%03x:", offset);
-> -	for (i = 0; i < limit; i++)
-> +	for (i = 0; i < limit; i++) {
-> +		if (data[offset + i] != POISON_FREE) {
-> +			total += data[offset + i];
-> +			bad_count++;
-> +		}
->  		printk(" %02x", (unsigned char)data[offset + i]);
-> +	}
->  	printk("\n");
-> +
-> +	if (bad_count == 1) {
-> +		errors = total ^ POISON_FREE;
-> +		if (errors && !(errors & (errors-1))) {
-> +			printk (KERN_ERR "Single bit error detected. Probably bad RAM.\n");
-> +#ifdef CONFIG_X86
-> +			printk (KERN_ERR "Run memtest86+ or similar memory test tool.\n");
-> +#else
-> +			printk (KERN_ERR "Run a memory test tool.\n");
-> +#endif
-> +			return;
+There is a bug in jbd with slab debugging enabled where it was submitting
+a bh obtained via jbd_rep_kmalloc which crossed a page boundary.  A lot
+of time was spent on tracking this down because the symptoms were far off
+from where the problem was.
 
-Useless return.
+This patch adds a sanity check to submit_bh so we can immediately spot
+anyone doing similar things in future.
 
-Andreas.
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
+Cheers,
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+diff --git a/fs/buffer.c b/fs/buffer.c
+index 71649ef..ff34881 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -2790,6 +2790,7 @@ int submit_bh(int rw, struct buffer_head
+ 	BUG_ON(!buffer_locked(bh));
+ 	BUG_ON(!buffer_mapped(bh));
+ 	BUG_ON(!bh->b_end_io);
++	BUG_ON(bh_offset(bh) + bh->b_size > PAGE_SIZE);
+ 
+ 	if (buffer_ordered(bh) && (rw == WRITE))
+ 		rw = WRITE_BARRIER;

@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWHALPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWHALPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932634AbWHALPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWHALFw
+	id S1422778AbWHALPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWHALPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:05:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61148 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932638AbWHALFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:05:33 -0400
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: <fastboot@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 15/33] x86_64: Fix kernel direct mapping size check
-Date: Tue,  1 Aug 2006 05:03:30 -0600
-Message-Id: <11544302382314-git-send-email-ebiederm@xmission.com>
-X-Mailer: git-send-email 1.4.2.rc2.g5209e
-In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	Tue, 1 Aug 2006 07:15:21 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:47038 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422782AbWHALOv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:14:51 -0400
+Date: Tue, 1 Aug 2006 12:57:22 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
+       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+In-Reply-To: <20060801090947.GA2974@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
+References: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+ <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de>
+ <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
+ <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
+ <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
+ <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
+ <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
+ <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
+ <20060801090947.GA2974@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Instead of using physical addresse of _end which has nothing to
-do with knowing if the kernel fits within it's reserved
-virtual addresses, verify the virtual address of _end fits
-within in the kernel virtual address mapping.
+>
+>I didn't mean to say your particular drive were crap, but 200GB SATA
+>drives are low end, like it or not --
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
- arch/x86_64/kernel/head64.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+And you think an 18 GB SCSI disk just does it better because it's SCSI?
+Esp. in long sequential reads.
 
-diff --git a/arch/x86_64/kernel/head64.c b/arch/x86_64/kernel/head64.c
-index 36647ce..454498c 100644
---- a/arch/x86_64/kernel/head64.c
-+++ b/arch/x86_64/kernel/head64.c
-@@ -116,7 +116,7 @@ #ifdef CONFIG_X86_IO_APIC
- 		disable_apic = 1;
- #endif
- 	/* You need early console to see that */
--	if (__pa_symbol(&_end) >= KERNEL_TEXT_SIZE)
-+	if (((unsigned long)&_end) >= (__START_KERNEL_map + KERNEL_TEXT_SIZE))
- 		panic("Kernel too big for kernel mapping\n");
- 
- 	setup_boot_cpu_data();
+
+Jan Engelhardt
 -- 
-1.4.2.rc2.g5209e
-

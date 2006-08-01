@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWHARmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWHARlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751728AbWHARmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbWHARmG
+	id S1750794AbWHARlz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751725AbWHARlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:42:06 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:35350 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751728AbWHARmD
+	Tue, 1 Aug 2006 13:41:55 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:40397 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750794AbWHARly
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:42:03 -0400
-Message-ID: <44CF9267.7050202@slaphack.com>
-Date: Tue, 01 Aug 2006 12:41:59 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Tue, 1 Aug 2006 13:41:54 -0400
+Message-ID: <44CF9258.8020304@zytor.com>
+Date: Tue, 01 Aug 2006 10:41:44 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Gregory Maxwell <gmaxwell@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de>	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>	 <1154446189.15540.43.camel@localhost.localdomain>	 <44CF84F0.8080303@slaphack.com> <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
-In-Reply-To: <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
+To: Amit Gud <agud@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] sysctl for the latecomers
+References: <44CF69F0.6040801@redhat.com>
+In-Reply-To: <44CF69F0.6040801@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell wrote:
-> On 8/1/06, David Masover <ninja@slaphack.com> wrote:
->> Yikes.  Undetected.
->>
->> Wait, what?  Disks, at least, would be protected by RAID.  Are you
->> telling me RAID won't detect such an error?
+Amit Gud wrote:
+> /etc/sysctl.conf values are of no use to kernel modules that are 
+> inserted after init scripts call sysctl for the values in /etc/sysctl.conf
 > 
-> Unless the disk ECC catches it raid won't know anything is wrong.
+> For modules to use the values stored in the file /etc/sysctl.conf, 
+> sysctl kernel code can keep record of 'limited' values, for sysctl 
+> entries which haven't been registered yet. During registration, sysctl 
+> code can check against the stored values and call the appropriate 
+> strategy and proc_handler routines if a match is found.
 > 
-> This is why ZFS offers block checksums... it can then try all the
-> permutations of raid regens to find a solution which gives the right
-> checksum.
+> Attached patch does just that. This patch is NOT tested and is just to 
+> get opinions, if something like this is a right way of addressing this 
+> problem.
+> 
 
-Isn't there a way to do this at the block layer?  Something in 
-device-mapper?
+Sounds like it would make more sense to add this kind of functionality 
+to modprobe.
 
-> Every level of the system must be paranoid and take measure to avoid
-> corruption if the system is to avoid it... it's a tough problem. It
-> seems that the ZFS folks have addressed this challenge by building as
-> much of what is classically separate layers into one part.
+	-hpa
 
-Sounds like bad design to me, and I can point to the antipattern, but 
-what do I know?

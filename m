@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWHATAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWHATBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWHATAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751796AbWHATAd
+	id S1751787AbWHATBm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751798AbWHATBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:00:33 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:51592 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751797AbWHATAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:00:31 -0400
-Date: Tue, 1 Aug 2006 12:01:04 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: synchronous signal in the blocked signal context
-Message-ID: <20060801190104.GG1291@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060731191449.B4592@unix-os.sc.intel.com> <Pine.LNX.4.64.0607312152240.4168@g5.osdl.org> <20060801144403.GA1291@us.ibm.com> <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org> <20060801181331.GF1291@us.ibm.com> <20060801111304.B9822@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801111304.B9822@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Aug 2006 15:01:42 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:51432 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751787AbWHATBl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:01:41 -0400
+Message-ID: <44CF428A.8000402@namesys.com>
+Date: Tue, 01 Aug 2006 06:01:14 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregory Maxwell <gmaxwell@gmail.com>
+CC: David Masover <ninja@slaphack.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
+       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+References: <200607312314.37863.bernd-schubert@gmx.de>	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>	 <1154446189.15540.43.camel@localhost.localdomain>	 <44CF84F0.8080303@slaphack.com> <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
+In-Reply-To: <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 11:13:04AM -0700, Siddha, Suresh B wrote:
-> On Tue, Aug 01, 2006 at 11:13:32AM -0700, Paul E. McKenney wrote:
-> > On Tue, Aug 01, 2006 at 08:25:12AM -0700, Linus Torvalds wrote:
-> > > 
-> > > 
-> > > On Tue, 1 Aug 2006, Paul E. McKenney wrote:
-> > > > > 
-> > > > > Paul? Should I just revert, or did you have some deeper reason for it?
-> > > > 
-> > > > I cannot claim any deep thought on this one, so please do revert it.
-> > > 
-> > > Well, I do have to say that I like the notion of trying to have the _same_ 
-> > > semantics for "force_sig_info()" and "force_sig_specific()", so in that 
-> > > way your patch is fine - I just missed the fact that it changed it back to 
-> > > the old broken ones (that results in endless SIGSEGV's if the SIGSEGV 
-> > > happens when setting up the handler for the SIGSEGV and other 
-> > > "interesting" issues, where a bug can result in the user process hanging 
-> > > instead of just killing it outright).
-> > 
-> > I guess I am glad I was not -totally- insane when submitting the
-> > original patch.  ;-)
-> > 
-> > > However, I wonder if the _proper_ fix is to just either remove 
-> > > "force_sig_specific()" entirely, or just make that one match the semantics 
-> > > of "force_sig_info()" instead (rather than doing it the other way - change 
-> > > for_sig_specific() to match force_sig_info()).
-> > 
-> > One question -- the original (2.6.14 or thereabouts) version of
-> > force_sig_info() would do the sigdelset() and recalc_sig_pending()
-> > even if the signal was not blocked, while your patch below would
-> > do sigdelset()/recalc_sig_pending() only if the signal was blocked,
-> > even if it was not ignored.  Not sure this matters, but thought I
-> > should ask.
-> > 
-> > > force_sig_info() has only two uses, and both should be ok with the 
-> > 
-> > s/force_sig_info/force_sig_specific/?  I see >100 uses of force_sig_info().
-> > 
-> > > force_sig_specific() semantics, since they are for SIGSTOP and SIGKILL 
-> > > respectively, and those should not be blockable unless you're a kernel 
-> > > thread (and I don't think either of them could validly ever be used with 
-> > > kernel threads anyway), so doing it the other way around _should_ be ok.
-> > 
-> > OK, SIGSTOP and SIGKILL cannot be ignored or blocked.  So wouldn't
-> > they end up skipping the recalc_sig_pending() in the new code,
-> > where they would have ended up executing it in the 2.6.14 version
-> > of force_sig_specific()?
-> 
-> I don't think it matters.
-> signal_wake_up() in the path of specific_send_sig_info() should anyhow
-> do that.
+Gregory Maxwell wrote:
 
-OK, looks plausible upon reviewing the code paths.
-
-							Thanx, Paul
+> This is why ZFS offers block checksums... it can then try all the
+> permutations of raid regens to find a solution which gives the right
+> checksum.
+>
+ZFS performance is pretty bad in the only benchmark I have seen of it. 
+Does anyone have serious benchmarks of it?  I suspect that our
+compression plugin (with ecc) will outperform it.

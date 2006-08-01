@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWHACnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWHACoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030401AbWHACnd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 22:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWHACnd
+	id S1751556AbWHACoR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 22:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWHACoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 22:43:33 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:58686 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1030401AbWHACnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 22:43:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=e17nSMVpKo/gDi+vA/gScuY58fYC0pMZULbu5ql9fZUTTkNAPx+XhnwOyVPDH6H7xmRJGEZLskuksKYy0sXJ7HYf+/gGeDPUkJL04ihtXoLLJ75IIop9/1/S1Cwc96p70IfFiVoh/8a/9jGp5uiVvkFJn+OugbC3Z5EU5eNS7gc=
-Date: Tue, 1 Aug 2006 06:43:24 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] task_struct: ifdef Missed'em V IPC
-Message-ID: <20060801024324.GC7006@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jul 2006 22:44:17 -0400
+Received: from mx1.suse.de ([195.135.220.2]:46733 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751529AbWHACoQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 22:44:16 -0400
+From: Andi Kleen <ak@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH] x86_64 built-in command line
+Date: Tue, 1 Aug 2006 04:44:04 +0200
+User-Agent: KMail/1.9.3
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060731171442.GI6908@waste.org> <44CEBEAF.8030203@zytor.com> <20060801024102.GS6908@waste.org>
+In-Reply-To: <20060801024102.GS6908@waste.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200608010444.04681.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ipc/sem.c only.
+On Tuesday 01 August 2006 04:41, Matt Mackall wrote:
+> On Mon, Jul 31, 2006 at 07:38:39PM -0700, H. Peter Anvin wrote:
+> > Actually, the best thing to do might be to designate a symbol (say &, 
+> > like in automount) as "insert the boot loader command line here."
+> > 
+> > That way you can specify things in the builtin command line that are 
+> > both prepended and appended to the boot loader command, and if you wish, 
+> > you can emit it completely.
+> > 
+> > The default would be just "&".
+> 
+> That idea doesn't suck. I'll take a look at it.
 
-$ agrep sysvsem -w -n
-ipc/sem.c:912:  undo_list = current->sysvsem.undo_list;
-ipc/sem.c:932:  undo_list = current->sysvsem.undo_list;
-ipc/sem.c:954:  undo_list = current->sysvsem.undo_list;
-ipc/sem.c:963:          current->sysvsem.undo_list = undo_list;
-ipc/sem.c:1247:         tsk->sysvsem.undo_list = undo_list;
-ipc/sem.c:1249:         tsk->sysvsem.undo_list = NULL;
-ipc/sem.c:1271: undo_list = tsk->sysvsem.undo_list;
-include/linux/sched.h:876:      struct sysv_sem sysvsem;
+With %s it would be much less code to write.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
-
- include/linux/sched.h |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -872,8 +872,10 @@ #endif
- 				     - initialized normally by flush_old_exec */
- /* file system info */
- 	int link_count, total_link_count;
-+#ifdef CONFIG_SYSVIPC
- /* ipc stuff */
- 	struct sysv_sem sysvsem;
-+#endif
- /* CPU-specific state of this task */
- 	struct thread_struct thread;
- /* filesystem information */
-
+-Andi

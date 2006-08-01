@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030410AbWHADAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030417AbWHADBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030410AbWHADAn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 23:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWHADAn
+	id S1030417AbWHADBW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 23:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030418AbWHADBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 23:00:43 -0400
-Received: from thunk.org ([69.25.196.29]:26538 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030410AbWHADAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 23:00:42 -0400
-Date: Mon, 31 Jul 2006 23:00:05 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: David Masover <ninja@slaphack.com>
-Cc: Nate Diller <nate.diller@gmail.com>, David Lang <dlang@digitalinsight.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060801030005.GA1987@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	David Masover <ninja@slaphack.com>,
-	Nate Diller <nate.diller@gmail.com>,
-	David Lang <dlang@digitalinsight.com>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>,
-	"Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-	reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-References: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl> <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com> <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com> <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com> <20060801010215.GA24946@merlin.emma.line.org> <44CEAEF4.9070100@slaphack.com>
+	Mon, 31 Jul 2006 23:01:22 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:13129 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030417AbWHADBV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 23:01:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-disposition:content-type:content-transfer-encoding:message-id:from;
+        b=BWeQSkgxMr9cy/t8lprw/sxdm14OSLaMW+eXVlYjAfXgavj9ZXL9ieDPE8KtbmnJ6nPa8yRpjrECe1HOZc9JZjZoK+m7+ehc9Cq4uw2Z33pvagPrCxNKb4pZr/0KV3j3k8OJ0cdepgG0tGoNLEw9skl7lckSvn3gxBEBAOFqbZo=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Greg KH <greg@kroah.com>
+Subject: Re: Kubuntu's udev broken with 2.6.18-rc2-mm1
+Date: Mon, 31 Jul 2006 23:01:09 -0400
+User-Agent: KMail/1.9.1
+Cc: Laurent Riffard <laurent.riffard@free.fr>, Andrew Morton <akpm@osdl.org>,
+       andrew.j.wade@gmail.com, linux-kernel@vger.kernel.org
+References: <20060727015639.9c89db57.akpm@osdl.org> <200607302227.07528.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <20060731033757.GA13737@kroah.com>
+In-Reply-To: <20060731033757.GA13737@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CEAEF4.9070100@slaphack.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200607312301.12140.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 08:31:32PM -0500, David Masover wrote:
-> So you use a repacker.  Nice thing about a repacker is, everyone has 
-> downtime.  Better to plan to be a little sluggish when you'll have 
-> 1/10th or 1/50th of the users than be MUCH slower all the time.
+On Sunday 30 July 2006 23:37, Greg KH wrote:
+> On Sun, Jul 30, 2006 at 10:27:06PM -0400, Andrew James Wade wrote:
+> > On Sunday 30 July 2006 20:03, Greg KH wrote:
+> > > Something's really broken with that version of udev then, because the
+> > > 094 version I have running here works just fine with these symlinks.
+> > 
+> > Maybe, but some really odd things were happening in /sys with the
+> > patch. I could still follow the bogus symlinks. More than that
+> > 
+> > /sys/class/mem/mem$ cd ../../class
+> > and
+> > /sys/class/mem/mem$ cd ../..
+> > 
+> > _both_ ended up with a $PWD of /sys/class.
 
-Actually, that's a problem with log-structured filesystems in general.
-There are quite a few real-life workloads where you *don't* have
-downtime.  The thing is, in a global economy, you move from the
-London/European stock exchanges, to the New York/US exchanges, to the
-Asian exchanges, with little to no downtime available.  In addition,
-people have been getting more sophisticated with workload
-consolidation tricks so that you use your "downtime" for other
-applications (either to service other parts of the world, or to do
-daily summaries, 3-d frame rendering at animation companies, etc.)  So
-the assumption that there will always be time to run the repacker is a
-dangerous one.
+Sorry for the false alarm: I didn't note the previous level of symlinks
+in /sys/class/mem, and the subsystem symlinks were actually correct.
+The strange behaviour of cd was the result of my shell being to clever
+for my own good.
 
-The problem is that many benchmarks (such as taring and untaring the
-kernel sources in reiser4 sort order) are overly simplistic, in that
-they don't really reflect how people use the filesystem in real life.
-(How many times can you guarantee that files will be written in the
-precise hash/tree order so that the filesystem gets the best possible
-time?)  A more subtle version of this problem happens for filesystems
-where their performance degrades dramatically over-time without a
-repacker.  If the benchmark doesn't take into account the need for
-repacker, or if the repacker is disabled or fails to run during the
-benchmark, the filesystem are in effect "cheating" on the benchmark
-because there is critical work which is necessary for the long-term
-health of the filesystem which is getting deferred until after the
-benchmark has finished measuring the performance of the system under
-test.
+...
+> 
+> If you want to verify this, please apply the patch at:
+> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/device-virtual.patch
+> and let me know if it solves your issue (note that the reference
+> counting is not completly correct in that patch, that's why I haven't
+> unleashed it on -mm yet.)
 
-This sort of marketing benchmarks ("lies, d*mn lies, and benchmarks")
-may be useful for trying to scam mainline acceptance of the filesystem
-code, or to make pretty graphs that make log-structured filesystems
-look good on Usenix papers, but despite the fact that huge numbers of
-papers were written about the lfs filesystem two decades ago, it never
-was used in real-life by any of the commercial Unix systems.  This
-wasn't an accident, and it wasn't due to a secret conspiracy of BSD
-fast filesystem hackers keeping people from using lfs.  No, the BSD
-lfs died on its own merits....
+Unfortunately not. I hand-applied the one reject like so:
 
-						- Ted
+diff -rupN 2.6.18-rc2-mm1/drivers/base/core.c linux/drivers/base/core.c
+--- 2.6.18-rc2-mm1/drivers/base/core.c	2006-07-31 22:07:24.000000000 -0400
++++ linux/drivers/base/core.c	2006-07-31 15:57:59.000000000 -0400
+@@ -368,7 +368,7 @@ static int device_add_class_symlinks(str
+ 				  dev->bus_id);
+ 	if (error)
+ 		goto out_subsys;
+-	if (dev->parent) {
++	if ((dev->parent) && (!dev->virtual)) {
+ 		error = sysfs_create_link(&dev->kobj, &dev->parent->kobj,
+ 					  "device");
+ 		if (error)
+
+but udev (79-0ubuntu34) did not work with the patch applied.
+
+thanks,
+Andrew Wade

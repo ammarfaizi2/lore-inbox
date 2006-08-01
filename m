@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWHAR5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWHAR5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWHAR5a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWHAR5a
+	id S1751743AbWHAR5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751742AbWHAR5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:57:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63894 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750810AbWHAR53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:57:29 -0400
-Date: Tue, 1 Aug 2006 13:57:16 -0400
-From: Dave Jones <davej@redhat.com>
-To: akpm@osdl.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: clear vm_reclaimable when we free pages.
-Message-ID: <20060801175716.GB22240@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, akpm@osdl.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Tue, 1 Aug 2006 13:57:12 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:17626 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S1750813AbWHAR5M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:57:12 -0400
+Message-ID: <44CF3370.6000706@namesys.com>
+Date: Tue, 01 Aug 2006 04:56:48 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
+       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
+       Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       lkml@lpbproductions.com, jeff@garzik.org, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
+ by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801034726.58097.qmail@web51311.mail.yahoo.com> <44CED777.5080308@slaphack.com> <Pine.LNX.4.63.0607312133080.15179@qynat.qvtvafvgr.pbz> <20060801064837.GB1987@thunk.org> <44CEBF33.4020208@namesys.com> <Pine.LNX.4.61.0608011258450.29748@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0608011258450.29748@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.93.0.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.2i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are two places where we reclaim free pages, but we never
-update the all_unreclaimable flag for the relevant zone.
-This patch helped reduce the frequency of oom-kills under high load
-for us a while back, and we've been carrying it since.
-I posted this a few months back and from what I recall it didn't
-get a great deal of interest.
+Jan Engelhardt wrote:
 
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- linux-2.6/mm/filemap.c~	2005-12-10 01:47:15.000000000 -0500
-+++ linux-2.6/mm/filemap.c	2005-12-10 01:47:46.000000000 -0500
-@@ -471,11 +471,18 @@ EXPORT_SYMBOL(unlock_page);
-  */
- void end_page_writeback(struct page *page)
- {
-+	struct zone *zone = page_zone(page);
- 	if (!TestClearPageReclaim(page) || rotate_reclaimable_page(page)) {
- 		if (!test_clear_page_writeback(page))
- 			BUG();
- 	}
- 	smp_mb__after_clear_bit();
-+	if (zone->all_unreclaimable) {
-+		spin_lock(&zone->lock);
-+		zone->all_unreclaimable = 0;
-+		zone->pages_scanned = 0;
-+		spin_unlock(&zone->lock);
-+	}
- 	wake_up_page(page, PG_writeback);
- }
- EXPORT_SYMBOL(end_page_writeback);
---- linux-2.6/mm/page_alloc.c~	2006-01-09 13:40:03.000000000 -0500
-+++ linux-2.6/mm/page_alloc.c	2006-01-09 13:40:50.000000000 -0500
-@@ -722,6 +722,11 @@ static void fastcall free_hot_cold_page(
- 	if (pcp->count >= pcp->high) {
- 		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
- 		pcp->count -= pcp->batch;
-+	} else if (zone->all_unreclaimable) {
-+		spin_lock(&zone->lock);
-+		zone->all_unreclaimable = 0;
-+		zone->pages_scanned = 0;
-+		spin_unlock(&zone->lock);
- 	}
- 	local_irq_restore(flags);
- 	put_cpu();
-
--- 
-http://www.codemonkey.org.uk
+>>Wandering logs is a term specific to reiser4, and I think you are making
+>>a more general remark.
+>>    
+>>
+>
+>So, what is UDF's "wandering" log then?
+>
+>
+>
+>Jan Engelhardt
+>  
+>
+I have no idea, when did they introduce it?

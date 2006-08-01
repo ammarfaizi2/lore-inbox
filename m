@@ -1,100 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWHAX6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWHAX6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWHAX6h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWHAXxV
+	id S1750789AbWHAX6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWHAXxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:53:21 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:36789 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750798AbWHAXxD
+	Tue, 1 Aug 2006 19:53:19 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:18633 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750789AbWHAXxE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:53:03 -0400
-Subject: [PATCH 27/28] elevate writer count for custom 'struct file'
+	Tue, 1 Aug 2006 19:53:04 -0400
+Subject: [PATCH 28/28] honor r/w changes at do_remount() time
 To: linux-kernel@vger.kernel.org
 Cc: viro@ftp.linux.org.uk, herbert@13thfloor.at, hch@infradead.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 01 Aug 2006 16:53:00 -0700
+Date: Tue, 01 Aug 2006 16:53:01 -0700
 References: <20060801235240.82ADCA42@localhost.localdomain>
 In-Reply-To: <20060801235240.82ADCA42@localhost.localdomain>
-Message-Id: <20060801235300.321FABDD@localhost.localdomain>
+Message-Id: <20060801235301.EBB58619@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Some filesystems forego the vfs and may_open() and create their
-own 'struct file's.  Any of these users which set the write flag
-on the file will cause an extra mnt_drop_write() on __fput(),
-thus dropping the reference count too low.
+Originally from: Herbert Poetzl <herbert@13thfloor.at>
 
-These users tend to have artifical in-kernel vfsmounts which
-aren't really exposed to userspace and can't be remounted, but
-this patch is included for completeness and so that the warnings
-don't trip over these cases.
+This is the core of the read-only bind mount patch set.
+
+Note that this does _not_ add a "ro" option directly to
+the bind mount operation.  If you require such a mount,
+you must first do the bind, then follow it up with a
+'mount -o remount,ro' operation.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/hugetlbfs/inode.c |    2 ++
- lxc-dave/mm/shmem.c           |    2 ++
- lxc-dave/mm/tiny-shmem.c      |    2 ++
- lxc-dave/net/socket.c         |    3 +++
- 4 files changed, 9 insertions(+)
+ lxc-dave/fs/namespace.c |   24 ++++++++++++++++++++++--
+ lxc-dave/fs/open.c      |    2 +-
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
-diff -puN fs/hugetlbfs/inode.c~C-elevate-writer-count-for-custom-struct_file fs/hugetlbfs/inode.c
---- lxc/fs/hugetlbfs/inode.c~C-elevate-writer-count-for-custom-struct_file	2006-08-01 16:35:07.000000000 -0700
-+++ lxc-dave/fs/hugetlbfs/inode.c	2006-08-01 16:35:33.000000000 -0700
-@@ -787,6 +787,8 @@ struct file *hugetlb_zero_setup(size_t s
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &hugetlbfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(hugetlbfs_vfsmount);
-+	WARN_ON(error);
- 	return file;
- 
- out_inode:
-diff -puN mm/shmem.c~C-elevate-writer-count-for-custom-struct_file mm/shmem.c
---- lxc/mm/shmem.c~C-elevate-writer-count-for-custom-struct_file	2006-08-01 16:35:15.000000000 -0700
-+++ lxc-dave/mm/shmem.c	2006-08-01 16:35:33.000000000 -0700
-@@ -2322,6 +2322,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &shmem_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 	return file;
- 
- close_file:
-diff -puN mm/tiny-shmem.c~C-elevate-writer-count-for-custom-struct_file mm/tiny-shmem.c
---- lxc/mm/tiny-shmem.c~C-elevate-writer-count-for-custom-struct_file	2006-08-01 16:35:07.000000000 -0700
-+++ lxc-dave/mm/tiny-shmem.c	2006-08-01 16:35:33.000000000 -0700
-@@ -84,6 +84,8 @@ struct file *shmem_file_setup(char *name
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &ramfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
-+	error = mnt_want_write(shm_mnt);
-+	WARN_ON(error);
- 
- 	/* notify everyone as to the change of file size */
- 	error = do_truncate(dentry, size, 0, file);
-diff -puN net/socket.c~C-elevate-writer-count-for-custom-struct_file net/socket.c
---- lxc/net/socket.c~C-elevate-writer-count-for-custom-struct_file	2006-08-01 16:35:07.000000000 -0700
-+++ lxc-dave/net/socket.c	2006-08-01 16:35:33.000000000 -0700
-@@ -389,6 +389,7 @@ static int sock_attach_fd(struct socket 
- {
- 	struct qstr this;
- 	char name[32];
-+	int error;
- 
- 	this.len = sprintf(name, "[%lu]", SOCK_INODE(sock)->i_ino);
- 	this.name = name;
-@@ -409,6 +410,8 @@ static int sock_attach_fd(struct socket 
- 	file->f_flags = O_RDWR;
- 	file->f_pos = 0;
- 	file->private_data = sock;
-+	error = mnt_want_write(sock_mnt);
-+	WARN_ON(error);
- 
- 	return 0;
+diff -puN fs/namespace.c~C-D8-actually-add-flags fs/namespace.c
+--- lxc/fs/namespace.c~C-D8-actually-add-flags	2006-08-01 16:35:26.000000000 -0700
++++ lxc-dave/fs/namespace.c	2006-08-01 16:35:34.000000000 -0700
+@@ -391,7 +391,7 @@ static int show_vfsmnt(struct seq_file *
+ 	seq_path(m, mnt, mnt->mnt_root, " \t\n\\");
+ 	seq_putc(m, ' ');
+ 	mangle(m, mnt->mnt_sb->s_type->name);
+-	seq_puts(m, mnt->mnt_sb->s_flags & MS_RDONLY ? " ro" : " rw");
++	seq_puts(m, __mnt_is_readonly(mnt) ? " ro" : " rw");
+ 	for (fs_infop = fs_info; fs_infop->flag; fs_infop++) {
+ 		if (mnt->mnt_sb->s_flags & fs_infop->flag)
+ 			seq_puts(m, fs_infop->str);
+@@ -1014,6 +1014,23 @@ out:
+ 	return err;
  }
+ 
++static int change_mount_flags(struct vfsmount *mnt, int ms_flags)
++{
++	int error = 0;
++	int readonly_request = 0;
++
++	if (ms_flags & MS_RDONLY)
++		readonly_request = 1;
++	if (readonly_request == __mnt_is_readonly(mnt))
++		return 0;
++
++	if (readonly_request)
++		error = mnt_make_readonly(mnt);
++	else
++		__mnt_unmake_readonly(mnt);
++	return error;
++}
++
+ /*
+  * change filesystem flags. dir should be a physical root of filesystem.
+  * If you've mounted a non-root directory somewhere and want to do remount
+@@ -1035,7 +1052,10 @@ static int do_remount(struct nameidata *
+ 		return -EINVAL;
+ 
+ 	down_write(&sb->s_umount);
+-	err = do_remount_sb(sb, flags, data, 0);
++	if (flags & MS_BIND)
++		err = change_mount_flags(nd->mnt, flags);
++	else
++		err = do_remount_sb(sb, flags, data, 0);
+ 	if (!(sb->s_flags & MS_RDONLY))
+ 		mnt_flags |= MNT_SB_WRITABLE;
+ 	if (!err)
+diff -puN fs/open.c~C-D8-actually-add-flags fs/open.c
+--- lxc/fs/open.c~C-D8-actually-add-flags	2006-08-01 16:35:30.000000000 -0700
++++ lxc-dave/fs/open.c	2006-08-01 16:35:34.000000000 -0700
+@@ -546,7 +546,7 @@ asmlinkage long sys_faccessat(int dfd, c
+ 	   special_file(nd.dentry->d_inode->i_mode))
+ 		goto out_path_release;
+ 
+-	if(IS_RDONLY(nd.dentry->d_inode))
++	if(__mnt_is_readonly(nd.mnt) || IS_RDONLY(nd.dentry->d_inode))
+ 		res = -EROFS;
+ 
+ out_path_release:
 _

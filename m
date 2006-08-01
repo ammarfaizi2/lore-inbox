@@ -1,134 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWHAVvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWHAVyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWHAVvu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 17:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWHAVvu
+	id S1751063AbWHAVyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 17:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWHAVyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 17:51:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45751 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751150AbWHAVvt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 17:51:49 -0400
-Message-ID: <44CFCCE4.7060702@sgi.com>
-Date: Tue, 01 Aug 2006 14:51:32 -0700
-From: Jay Lan <jlan@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
+	Tue, 1 Aug 2006 17:54:54 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:5862 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751063AbWHAVyy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 17:54:54 -0400
+Message-ID: <44CFCD35.8080103@zytor.com>
+Date: Tue, 01 Aug 2006 14:52:53 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Jes Sorensen <jes@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 1/3] add basic accounting fields to taskstats
-References: <44CE57EF.2090409@sgi.com> <44CF6433.50108@in.ibm.com>
-In-Reply-To: <44CF6433.50108@in.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jeff Garzik <jeff@garzik.org>
+CC: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>,
+       Vadim Lobanov <vlobanov@speakeasy.net>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Shorty Porty <getshorty_@hotmail.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
+       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
+       Nicholas Miell <nmiell@comcast.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
+Subject: Re: [PATCH 1/2] include/linux: Defining bool, false and true
+References: <1154175570.44cb5252d3f09@portal.student.luth.se> <1154176331.44cb554b633ef@portal.student.luth.se> <44CFA934.9010404@zytor.com> <1154466739.44cfc3b34a222@portal.student.luth.se> <44CFC59A.5050609@zytor.com> <44CFC837.5080700@garzik.org> <44CFCABC.6040406@zytor.com> <44CFCC1B.8080509@garzik.org>
+In-Reply-To: <44CFCC1B.8080509@garzik.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Jay Lan wrote:
+Jeff Garzik wrote:
+> H. Peter Anvin wrote:
+>> Jeff Garzik wrote:
+>>> H. Peter Anvin wrote:
+>>>> There is no enum involved.
 > 
->>  
->> -#define TASKSTATS_VERSION    1
->> +#define TASKSTATS_VERSION    2
->> +#define TASK_COMM_LEN        16
->>  
+>>> There should be.  It makes more information available to the C 
+>>> compiler, and it makes useful symbols available to the debugger.
 > 
+>> _Bool is a native C type; it has all the information the C compiler 
+>> needs.
 > 
-> We should find a way to keep this in sync with with the definition
-> in linux/sched.h (won't we a warning if both this header and
-> linux/sched.h are included together?)
-
-I do not know how to sync it up. This header linux/taskstats.h is
-meant to be included by userspace programs. If an application
-happens to include linux/sched.h, which includes linux/time.h,
-the application will very likely have compilation errors because
-the "struct timespec" declaration in <linux/time.h> and <time.h>
-are conflicting.
-
-The <linux/acct.h> defines it to
-#define ACCT_COMM    16
-
-I can change our define to TS_COMM_LEN with remakes saying it
-should be in sync with the TAKS_COMM_LEN defined in linux/sched.h.
-
-If there is a better way, i am eager to know it.
-
-> 
-> 
-> 
->> + * fill in basic accounting fields
->> + */
->> +static void bacct_add_tsk(struct taskstats *stats, struct task_struct 
->> *tsk)
->> +{
->> +    u64    run_time;
->> +    struct timespec uptime;
->> +
->> +    /* calculate run_time in nsec */
->> +    do_posix_clock_monotonic_gettime(&uptime);
->> +    run_time = (u64)uptime.tv_sec*NSEC_PER_SEC + uptime.tv_nsec;
->> +    run_time -= (u64)current->group_leader->start_time.tv_sec * 
->> NSEC_PER_SEC
->> +            + current->group_leader->start_time.tv_nsec;
->> +    do_div(run_time, NSEC_PER_USEC);    /* rebase run_time to usec */
->> +    stats->ac_etime = run_time;
->> +    do_div(run_time, USEC_PER_SEC);        /* rebase run_time to sec */
->> +    stats->ac_btime = xtime.tv_sec - run_time;
->> +    if (thread_group_leader(tsk)) {
->> +        stats->ac_exitcode = tsk->exit_code;
->> +        if (tsk->flags & PF_FORKNOEXEC)
->> +            stats->ac_flag |= AFORK;
->> +    }
->> +    if (tsk->flags & PF_SUPERPRIV)
->> +        stats->ac_flag |= ASU;
->> +    if (tsk->flags & PF_DUMPCORE)
->> +        stats->ac_flag |= ACORE;
->> +    if (tsk->flags & PF_SIGNALED)
->> +        stats->ac_flag |= AXSIG;
->> +    stats->ac_nice    = task_nice(tsk);
->> +    stats->ac_sched    = tsk->policy;
->> +    stats->ac_uid    = tsk->uid;
->> +    stats->ac_gid    = tsk->gid;
->> +    stats->ac_pid    = tsk->pid;
->> +    stats->ac_ppid    = (tsk->parent) ? tsk->parent->pid : 0;
->> +    stats->ac_utime    = tsk->utime * USEC_PER_TICK;
->> +    stats->ac_stime    = tsk->stime * USEC_PER_TICK;
-> 
-> 
-> I think you should use the portable cputime_xxxx() API since
-> tsk->utime and tsk->stime are of type cputime_t
-
-Will fix it.
-
-> 
-> 
->> +    /* Each process gets a minimum of a half tick cpu time */
->> +    if ((stats->ac_utime == 0) && (stats->ac_stime == 0)) {
->> +        stats->ac_stime = USEC_PER_TICK/2;
->> +    }
->> +
-> 
-> 
-> This is confusing. Half tick does not make any sense from the
-> scheduler view point (or am I missing something?), so why
-> return half a tick to the user.
-
-It must be inherited from old code dated back to Cray UNICOS.
-I do not know if bad thing can happen if both utime and stime
-are less than 1 usec...  I guess not. But i agree that
-half a tick does not make sense. To play safe, we can change
-it to 1 usec if both utime and stime are sub microsecond.
-What do you think?
-
-Thanks,
-  - jay
-
-
-> 
+> "#define true 1" however does not.
 > 
 
+I guess that's fair, although when you put it into a type _Bool they're 
+going to devolve to pure constants.
+
+	-hpa

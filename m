@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWHAWJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWHAWKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWHAWJW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 18:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWHAWJW
+	id S1751247AbWHAWKW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 18:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWHAWKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 18:09:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:47048 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751225AbWHAWJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 18:09:22 -0400
-Subject: Re: [WATCHDOG] v2.6.18-rc3 patches
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060801200931.GA3758@infomag.infomag.iguana.be>
-References: <20060801200931.GA3758@infomag.infomag.iguana.be>
-Content-Type: text/plain
+	Tue, 1 Aug 2006 18:10:21 -0400
+Received: from gw.goop.org ([64.81.55.164]:33695 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751247AbWHAWKU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 18:10:20 -0400
+Message-ID: <44CFD148.9020300@goop.org>
+Date: Tue, 01 Aug 2006 15:10:16 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 11/33] i386 boot: Add an ELF header to bzImage
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <1154430236812-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <1154430236812-git-send-email-ebiederm@xmission.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Aug 2006 23:28:35 +0100
-Message-Id: <1154471315.15540.104.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 22:09 +0200, ysgrifennodd Wim Van Sebroeck:
-> If there are problems with these patches, please let me know.
-> If not I will sent them to Linus on sunday.
+Eric W. Biederman wrote:
+> +.macro note name, type
+> +	.balign 4
+> +	.int	2f - 1f			# n_namesz
+> +	.int	4f - 3f			# n_descsz
+> +	.int	\type			# n_type
+> +	.balign 4
+> +1:	.asciz "\name"
+> +2:	.balign 4
+> +3:
+> +.endm
+> +.macro enote
+> +4:	.balign 4
+> +.endm
+>   
 
-NAK
+This is very similar to the macro I introduced in the Paravirt note 
+segment patch.  Do think they should be made common?
 
-
+> +/* Elf notes to help bootloaders identify what program they are booting.
+> + */
 > +
-> +static void wdt_enable(void)
+> +/* Standardized Elf image notes for booting... The name for all of these is ELFBoot */
+> +#define ELF_NOTE_BOOT		"ELFBoot"
+>   
 
-Open, fork and write from both processes. This needs a semaphore
-> +{
-> +	if (wdt_clk)
-> +		clk_set_rate(wdt_clk, 1);
-> +
-> +	/* stop counter, initiate counter reset */
-> +	__raw_writel(RESET_COUNT, WDTIM_CTRL(wdt_base));
-> +	/*wait for reset to complete. 100% guarantee event */
-> +	while (__raw_readl(WDTIM_COUNTER(wdt_base)));
+I wonder if this should be something to suggest its Linux-specific?  Or 
+do you see this being used by a wider audience?
 
-Should have cpu_relax() and really ought to have a timeout in case it
-fails. In fact it needs one or a barrier as you are using __raw and that
-may not reload if the compiler is overclever.
-
-
-> +static void wdt_disable(void)
-> +{
-
-Ditto - open, fork write the close sequence in parallel on both ?
-
-> +		wdt_disable();		/*disable for now */
-> +		set_bit(WDT_DEVICE_INITED, &wdt_status);
-> +	}
-
-Races an open occuring when misc_register is done and before we hit
-wdt_disable.
-
-
+    J

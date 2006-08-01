@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWHATd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWHATfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWHATd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751847AbWHATd5
+	id S1751847AbWHATfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWHATfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:33:57 -0400
-Received: from mx2.suse.de ([195.135.220.15]:44232 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751846AbWHATd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:33:56 -0400
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 1 Aug 2006 15:35:36 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:60036 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751847AbWHATff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:35:35 -0400
 Subject: Re: [BLOCK] bh: Ensure bh fits within a page
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.64.0608011209560.18537@schroedinger.engr.sgi.com>
 References: <20060801030443.GA2221@gondor.apana.org.au>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Aug 2006 21:33:54 +0200
-In-Reply-To: <20060801030443.GA2221@gondor.apana.org.au>
-Message-ID: <p73psfkz1wd.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <20060731210418.084f9f5d.akpm@osdl.org>
+	 <20060801050259.GA3126@gondor.apana.org.au>
+	 <20060731225454.19981a5f.akpm@osdl.org>
+	 <Pine.LNX.4.64.0608011034540.18006@schroedinger.engr.sgi.com>
+	 <1154459316.29772.5.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0608011209560.18537@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 15:35:13 -0400
+Message-Id: <1154460913.30391.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> writes:
-> --
-> diff --git a/fs/buffer.c b/fs/buffer.c
-> index 71649ef..b998f08 100644
-> --- a/fs/buffer.c
-> +++ b/fs/buffer.c
-> @@ -2790,6 +2790,7 @@ int submit_bh(int rw, struct buffer_head
->  	BUG_ON(!buffer_locked(bh));
->  	BUG_ON(!buffer_mapped(bh));
->  	BUG_ON(!bh->b_end_io);
-> +	WARN_ON(bh_offset(bh) + bh->b_size > PAGE_SIZE);
+On Tue, 2006-08-01 at 12:10 -0700, Christoph Lameter wrote:
+> On Tue, 1 Aug 2006, Steven Rostedt wrote:
+> 
+> > If you set the alignment for ext3 the same as the size (ie 1024, 2048,
+> > 4096 for the above respectively) then wouldn't that guarantee not
+> > straddling a page?
+> 
+> Yes. But then that number must always be a fraction of pagesize.
+> 
 
-What happens when someone implements direct large page IO?
+understood, as is 1024, 2048, and 4096 are.  Well, if pagesize is 4096
+is 4096 really a fraction of 4096? :)
 
--Andi
+Also, isn't all sizes for kmalloc that are under pagesize a fraction of
+the page size? Or more correctly, a power of 2?
+
+-- Steve
+
+

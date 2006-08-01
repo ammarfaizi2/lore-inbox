@@ -1,106 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWHAJam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWHAJdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWHAJam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWHAJam
+	id S932550AbWHAJdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWHAJdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:30:42 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:55218 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S932545AbWHAJam
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:30:42 -0400
-Message-ID: <44CEBCBC.9070707@namesys.com>
-Date: Mon, 31 Jul 2006 20:30:20 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
+	Tue, 1 Aug 2006 05:33:14 -0400
+Received: from kagl.donpac.ru ([80.254.111.32]:48099 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S932550AbWHAJdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:33:13 -0400
+Date: Tue, 1 Aug 2006 13:33:14 +0400
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/3] add-imacfb-docu-and-detection.patch
+Message-ID: <20060801093314.GB15168@pazke.donpac.ru>
+Mail-Followup-To: Edgar Hucek <hostmaster@ed-soft.at>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
+References: <44CDBE5D.8020504@ed-soft.at>
 MIME-Version: 1.0
-To: Denis Vlasenko <vda.linux@googlemail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: reiser4: maybe just fix bugs?
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
-In-Reply-To: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+Content-Disposition: inline
+In-Reply-To: <44CDBE5D.8020504@ed-soft.at>
+X-Uname: Linux 2.6.8-12-amd64-k8 x86_64
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
 
-> And second, reiser team was a bit lax at fixing bugs.
-> Not too bad when compared to other FSes, but still.
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If we feel a bug should be fixed without waiting for a major release
-(98%+ of bugs), we try to fix it in 3 days, and usually succeed at
-that.  Not all users agree with us that a given bug should wait for a
-major release.
+On 212, 07 31, 2006 at 10:25:01AM +0200, Edgar Hucek wrote:
+> This Patch add basic Machine detection to imacfb and
+> some Ducumentation bits for imacfb.
+>=20
+> Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+>=20
+>=20
+> diff -uNr linux-2.6.18-rc2/Documentation/fb/imacfb.txt linux-2.6.18-rc2.m=
+actel/Documentation/fb/imacfb.txt
+> --- linux-2.6.18-rc2/Documentation/fb/imacfb.txt	1970-01-01 01:00:00.0000=
+00000 +0100
+> +++ linux-2.6.18-rc2.mactel/Documentation/fb/imacfb.txt	2006-07-26 20:54:=
+07.000000000 +0200
+> @@ -0,0 +1,31 @@
+> +
+> +What is imacfb?
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +This is a generic EFI platform driver for Intel based Apple computers.
+> +Imacfb is only for EFI booted Intel Macs.
+> +
+> +Supported Hardware
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +iMac 17"/20"
+> +Macbook
+> +Macbook Pro 15"/17"
+> +MacMini
+> +
+> +How to use it?
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +Imacfb does not have any kind of autodetection of your machine.
+> +You have to add the fillowing kernel parameters in your elilo.conf:
+> +	Macbook :
+> +		video=3Dimacfb:macbook
+> +	MacMini :
+> +		video=3Dimacfb:mini
+> +	Macbook Pro 15", iMac 17" :
+> +		video=3Dimacfb:i17
+> +	Macbook Pro 17", iMac 20" :
+> +		video=3Dimacfb:i20
+> +
+> +--
+> +Edgar Hucek <gimli@dark-green.com>
+> diff -uNr linux-2.6.18-rc2/drivers/video/imacfb.c linux-2.6.18-rc2.mactel=
+/drivers/video/imacfb.c
+> --- linux-2.6.18-rc2/drivers/video/imacfb.c	2006-07-16 10:38:27.000000000=
+ +0200
+> +++ linux-2.6.18-rc2.mactel/drivers/video/imacfb.c	2006-07-25 13:53:35.00=
+0000000 +0200
+> @@ -18,6 +18,8 @@
+>  #include <linux/screen_info.h>
+>  #include <linux/slab.h>
+>  #include <linux/string.h>
+> +#include <linux/dmi.h>
+> +#include <linux/efi.h>
+> =20
+>  #include <asm/io.h>
+> =20
+> @@ -28,7 +30,7 @@
+>  	M_I20,
+>  	M_MINI,
+>  	M_MACBOOK,
+> -	M_NEW
+> +	M_UNKNOWN
+>  } MAC_TYPE;
+> =20
+>  /* ---------------------------------------------------------------------=
+ */
+> @@ -52,10 +54,36 @@
+>  };
+> =20
+>  static int inverse;
+> -static int model		=3D M_NEW;
+> +static int model		=3D M_UNKNOWN;
+>  static int manual_height;
+>  static int manual_width;
+> =20
+> +static int set_system(struct dmi_system_id *id)
 
-> Frankly, on the first problem I think that you are right, Hans,
-> and putting plugins into VFS _now_ makes little sense because
-> we can't know whether anybody will ever want to have plugins
-> for some other FS, so requiring reiser people to do all the shuffling
-> _now_
-> for questionable gain is simply not fair. It can be done later if needed.
->
-> It leaves you with the other option: remove the second problem.
-> Try to fix bugs. Including reiser3 ones.
-> I'm not saying that you are not doing this at all,
-> but I distinctly remember that some discussions (about locking
-> problems IIRC) were "brushed aside" by reiser people instead of plainly
-> admitting that problem exists and they will work on fixing it.
->
-> * What is that story about hash chain size limit?
->  Is it present on reiser4 also? Will it be addressed?
+Missing __init ?
 
-Now that we  (Nikita actually) solved it in Reiser4 by handling
-duplicate keys  I now realize that I could have solved it in V3 years
-ago if I had been brighter, but since V4 is ready I think it is better
-to not destabilize code in V3 by changing things now.  It might touch a
-lot of lines of code to fix in V3, Nikita would know better than I.
+> +{
+> +	printk(KERN_INFO "imacfb: %s detected - set system to %ld\n",
+> +		id->ident, (long)id->driver_data);
+> +=09
+> +	model =3D (long)id->driver_data;
+> +=09
+> +	return 0;
+> +}
+> +
+> +static struct dmi_system_id __initdata dmi_system_table[] =3D {
+> +	{ set_system, "iMac4,1", {
+> +	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
+> +	  DMI_MATCH(DMI_BIOS_VERSION,"iMac4,1") }, (void*)M_I17},
+> +	{ set_system, "MacBookPro1,1", {
+> +	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
+> +	  DMI_MATCH(DMI_BIOS_VERSION,"MacBookPro1,1") }, (void*)M_I17},
+> +	{ set_system, "MacBook1,1", {
+> +	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
+> +	  DMI_MATCH(DMI_PRODUCT_NAME,"MacBook1,1")}, (void *)M_MACBOOK},
+> +	{ set_system, "Macmini1,1", {
+> +	  DMI_MATCH(DMI_BIOS_VENDOR,"Apple Computer, Inc."),
+> +	  DMI_MATCH(DMI_PRODUCT_NAME,"Macmini1,1")}, (void *)M_MINI},
+> +	{},
+> +};
+> +
+>  #define	DEFAULT_FB_MEM	1024*1024*16
+> =20
+>  /* ---------------------------------------------------------------------=
+ */
+> @@ -149,7 +177,6 @@
+>  		screen_info.lfb_linelength =3D 1472 * 4;
+>  		screen_info.lfb_base =3D 0x80010000;
+>  		break;
+> -	case M_NEW:
+>  	case M_I20:
+>  		screen_info.lfb_width =3D 1680;
+>  		screen_info.lfb_height =3D 1050;
+> @@ -207,6 +234,10 @@
+>  		size_remap =3D size_total;
+>  	imacfb_fix.smem_len =3D size_remap;
+> =20
+> +#ifndef __i386__
+> +	screen_info.imacpm_seg =3D 0;
+> +#endif
+> +
+>  	if (!request_mem_region(imacfb_fix.smem_start, size_total, "imacfb")) {
+>  		printk(KERN_WARNING
+>  		       "imacfb: cannot reserve video memory at 0x%lx\n",
+> @@ -324,8 +355,16 @@
+>  	int ret;
+>  	char *option =3D NULL;
+> =20
+> -	/* ignore error return of fb_get_options */
+> -	fb_get_options("imacfb", &option);
+> +	if (!efi_enabled)
+> +		return -ENODEV;
+> +	if (!dmi_check_system(dmi_system_table))
+> +		return -ENODEV;
+> +	if (model =3D=3D M_UNKNOWN)
+> +		return -ENODEV;
+> +
+> +	if (fb_get_options("imacfb", &option))
+> +		return -ENODEV;
+> +
+>  	imacfb_setup(option);
+>  	ret =3D platform_driver_register(&imacfb_driver);
+> =20
+> diff -uNr linux-2.6.18-rc2/drivers/video/Kconfig linux-2.6.18-rc2.mactel/=
+drivers/video/Kconfig
+> --- linux-2.6.18-rc2/drivers/video/Kconfig	2006-07-16 10:38:27.000000000 =
++0200
+> +++ linux-2.6.18-rc2.mactel/drivers/video/Kconfig	2006-07-25 13:30:55.000=
+000000 +0200
+> @@ -552,7 +552,7 @@
+> =20
+>  config FB_IMAC
+>  	bool "Intel-based Macintosh Framebuffer Support"
+> -	depends on (FB =3D y) && X86
+> +	depends on (FB =3D y) && X86 && EFI
+>  	select FB_CFB_FILLRECT
+>  	select FB_CFB_COPYAREA
+>  	select FB_CFB_IMAGEBLIT
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
->
-> For the problems I personally seen:
->
-> * I had 3 reiser3 partitions on a 32Mb RAM box, and massive inode
->  updates (chown -R) ate all RAM and deadlocked the box.
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-This is VFS/VM not us.  You are right that it should be fixed, as it is
-indicative of deep problems with the memory management code that require
-fundamental changes.
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
->  You adviced me to reduce journal size. It works,
->  but shouldn't reiser do it dynamically on mount if needed?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-Yes, it would be nice, could you email chris@suse.com about it?  This is
-a feature that is ok to add to a stable branch, I cannot logically
-define why but I feel it is so....   after much testing and a beta
-though....   Note that V4 fixes this by using wandering logs.....
+iD8DBQFEzx/aPjHNUy6paxMRAvK0AJ9H7Kd4a1v2p1oKdJJj2kmhONEE0ACeLIxZ
+XVaL7LAgNfACMZDs/WfVKpc=
+=DeuI
+-----END PGP SIGNATURE-----
 
->  Are there any other known oom deadlocks?
-
-That are specific to reiserfs rather than all of Linux, I think not.....
-
-> * Does reiser still requires 100.00% defect-free media?
-
-Not if you use device mapper.
-
-> * Are there plans for making reiserfsck interface compatible with fsck?
->  I mean, making it so that reiserfsck can be symlinked to fsck.reiser
->  and it will work? Currently, there seems to be some incompatibility
->  in command-line switches. (I will dig out details and send separately
->  when I'll get back to my Linux box.)
-
-Not sure what you mean.  Forgive me, I have not supervised fsck as
-closely as other things.
-
->
-> P.S. I am a reiser3 user on all my boxes.
-> Thanks Hans for your work.
-> -- 
-> vda
->
->
-Thank you for your suggestions and advice,
-
-Hans
+--O5XBE6gyVG5Rl6Rj--

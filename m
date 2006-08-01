@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWHAHv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422746AbWHAHzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbWHAHv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161365AbWHAHv6
+	id S1422746AbWHAHzm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 03:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422751AbWHAHzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:51:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16306 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161350AbWHAHvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:51:55 -0400
-Message-ID: <44CF0866.3000505@redhat.com>
-Date: Tue, 01 Aug 2006 00:53:10 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 1 Aug 2006 03:55:42 -0400
+Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:62397 "EHLO
+	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
+	id S1422746AbWHAHzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 03:55:41 -0400
+Message-ID: <44CEECFE.4000704@s5r6.in-berlin.de>
+Date: Tue, 01 Aug 2006 07:56:14 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: David Miller <davem@davemloft.net>, johnpol@2ka.mipt.ru,
-       zach.brown@oracle.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060731103322.GA1898@2ka.mipt.ru> <E1G7V7r-0006jL-00@gondolin.me.apana.org.au> <20060731105037.GA2073@2ka.mipt.ru> <20060731.035716.39159213.davem@davemloft.net> <20060731105943.GA26114@gondor.apana.org.au>
-In-Reply-To: <20060731105943.GA26114@gondor.apana.org.au>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1E9F03E3BCAB44146EFEB583"
+To: Philippe Troin <phil@fifi.org>
+CC: Patrick Mau <mau@oscar.ping.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Question about "Not Ready" SCSI error
+References: <20060730181014.GA13456@oscar.prima.de> <877j1tid0h.fsf@tantale.fifi.org>
+In-Reply-To: <877j1tid0h.fsf@tantale.fifi.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1E9F03E3BCAB44146EFEB583
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Philippe Troin wrote:
+> Patrick Mau <mau@oscar.ping.de> writes:
+...
+>> Jul 30 15:51:30 tony kernel: sd 0:0:0:0: Device not ready: <6>: Current: sense key=0x2
+>> Jul 30 15:51:30 tony kernel: ASC=0x4 ASCQ=0x2
+>> Jul 30 15:51:30 tony kernel: end_request: I/O error, dev sda, sector 617358
+>> 
+>> Google revealed[1] that the drive is waiting for a START UNIT command,
+>> but it seems that the kernel is not attempting to spin up the drive
+>> again. 
+>> 
+>> After a complete power-cycle the drive worked again. I just wanted to
+>> know if this is a shortcoming in the SCSI error handling codepath.
+> 
+> I'll have to report that I've seen a few drives behaving similarly,
+> both on 2.4.x and 2.6.x.
+> 
+> Is that an expected behavior from SCSI hard drives?  Any SCSI guru
+> would be able to answer this one?
 
-Herbert Xu wrote:
-> The other to consider is that events don't come from the hardware.
-> Events are written by the kernel.  So if user-space is just reading
-> the events that we've written, then there are no cache misses at all.
+I am not a SCSI guru but answer anyway. The gurus are over at
+linux-scsi@vger.kernel.org.
 
-Not quite true.  The ring buffer can be written to from another
-processor.  The kernel thread responsible for generating the event
-(receiving data from network or disk, expired timer) can run
-independently on another CPU.
+Doug Gilbert has an overview about SCSI power management:
+http://sg.torque.net/sg/power.html
 
-This is the case to keep in mind here.  I thought Zach and the other
-involved in the discussions in Ottawa said this has been shown to be a
-problem and that a ring buffer implementation with something other than
-simple front and back pointers is preferable.
+Long ago Brian King submitted code to the SCSI error handler of Linux
+2.6 that issues the START STOP UNIT command. This code is inactive per
+default to avoid clashes with USB disks.
+http://marc.theaimsgroup.com/?l=linux-scsi&m=107702811830956
 
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
+A recently merged patch allows to activate this code via a sysfs
+attribute. http://lkml.org/lkml/2006/7/30/261
 
-
---------------enig1E9F03E3BCAB44146EFEB583
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.4 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFEzwhm2ijCOnn/RHQRAufPAKCmVw/xv8k+jz0pt/e9r+JQdUUYhACffjtj
-WlYBRLKz2lSQK7z5fLWyQqQ=
-=zcGF
------END PGP SIGNATURE-----
-
---------------enig1E9F03E3BCAB44146EFEB583--
+I don't know if there is similar code for Linux 2.4.
+-- 
+Stefan Richter
+-=====-=-==- =--- ----=
+http://arcgraph.de/sr/

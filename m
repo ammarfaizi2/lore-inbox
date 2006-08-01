@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWHAWKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWHAWKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWHAWKW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 18:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWHAWKV
+	id S1751228AbWHAWKE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 18:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWHAWKD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 18:10:21 -0400
-Received: from gw.goop.org ([64.81.55.164]:33695 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751247AbWHAWKU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 18:10:20 -0400
-Message-ID: <44CFD148.9020300@goop.org>
-Date: Tue, 01 Aug 2006 15:10:16 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060613)
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: fastboot@osdl.org, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 11/33] i386 boot: Add an ELF header to bzImage
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <1154430236812-git-send-email-ebiederm@xmission.com>
-In-Reply-To: <1154430236812-git-send-email-ebiederm@xmission.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 18:10:03 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:6670 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751228AbWHAWKB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 18:10:01 -0400
+Date: Wed, 2 Aug 2006 08:09:54 +1000
+From: Herbert Xu <herbert.xu@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BLOCK] bh: Ensure bh fits within a page
+Message-ID: <20060801220954.GC11025@gondor.apana.org.au>
+References: <20060801030443.GA2221@gondor.apana.org.au> <p73psfkz1wd.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73psfkz1wd.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> +.macro note name, type
-> +	.balign 4
-> +	.int	2f - 1f			# n_namesz
-> +	.int	4f - 3f			# n_descsz
-> +	.int	\type			# n_type
-> +	.balign 4
-> +1:	.asciz "\name"
-> +2:	.balign 4
-> +3:
-> +.endm
-> +.macro enote
-> +4:	.balign 4
-> +.endm
->   
+On Tue, Aug 01, 2006 at 09:33:54PM +0200, Andi Kleen wrote:
+> > diff --git a/fs/buffer.c b/fs/buffer.c
+> > index 71649ef..b998f08 100644
+> > --- a/fs/buffer.c
+> > +++ b/fs/buffer.c
+> > @@ -2790,6 +2790,7 @@ int submit_bh(int rw, struct buffer_head
+> >  	BUG_ON(!buffer_locked(bh));
+> >  	BUG_ON(!buffer_mapped(bh));
+> >  	BUG_ON(!bh->b_end_io);
+> > +	WARN_ON(bh_offset(bh) + bh->b_size > PAGE_SIZE);
+> 
+> What happens when someone implements direct large page IO?
 
-This is very similar to the macro I introduced in the Paravirt note 
-segment patch.  Do think they should be made common?
+Then they'll need to change submit_bh to generate more than one bvec.
+At that time they can remove this warning :)
 
-> +/* Elf notes to help bootloaders identify what program they are booting.
-> + */
-> +
-> +/* Standardized Elf image notes for booting... The name for all of these is ELFBoot */
-> +#define ELF_NOTE_BOOT		"ELFBoot"
->   
-
-I wonder if this should be something to suggest its Linux-specific?  Or 
-do you see this being used by a wider audience?
-
-    J
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

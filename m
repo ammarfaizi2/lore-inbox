@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbWHARCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWHARDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751651AbWHARCc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWHARCc
+	id S1751656AbWHARDK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWHARDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:02:32 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:7123 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1751564AbWHARCb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:02:31 -0400
-Message-ID: <44CF8925.2030706@oracle.com>
-Date: Tue, 01 Aug 2006 10:02:29 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+	Tue, 1 Aug 2006 13:03:10 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:42707 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751661AbWHARDJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:03:09 -0400
+Message-ID: <44CF8949.707@slaphack.com>
+Date: Tue, 01 Aug 2006 12:03:05 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-To: David Miller <davem@davemloft.net>
-CC: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC 1/4] kevent: core files.
-References: <20060709132446.GB29435@2ka.mipt.ru>	<20060724.231708.01289489.davem@davemloft.net>	<44C91192.4090303@oracle.com> <20060731.180226.131918297.davem@davemloft.net>
-In-Reply-To: <20060731.180226.131918297.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
+       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
+       Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
+ by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801034726.58097.qmail@web51311.mail.yahoo.com> <44CED777.5080308@slaphack.com> <Pine.LNX.4.63.0607312133080.15179@qynat.qvtvafvgr.pbz> <20060801064837.GB1987@thunk.org>
+In-Reply-To: <20060801064837.GB1987@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Theodore Tso wrote:
 
-> I do not think if we do a ring buffer that events should be obtainable
-> via a syscall at all.  Rather, I think this system call should be
-> purely "sleep until ring is not empty".
+> Ah, but as soon as the repacker thread runs continuously, then you
+> lose all or most of the claimed advantage of "wandering logs".
+[...]
+> So instead of a write-write overhead, you end up with a
+> write-read-write overhead.
 
-Mmm, yeah, of course.  That's much simpler.  I'm looking forward to
-Evgeniy's next patch set.
+This would tend to suggest that the repacker should not run constantly, 
+but also that while it's running, performance could be almost as good as 
+ext3.
 
-> The ring buffer size, as Evgeniy also tried to describe, is bounded
-> purely by the number of registered events.
+> But of course, people tend to disable the repacker when doing
+> benchmarks because they're trying to play the "my filesystem/database
+> has bigger performance numbers than yours" game....
 
-Yeah.  fwiw, fs/aio.c has this property today.
-
-- z
+So you run your own benchmarks, I'll run mine...  Benchmarks for 
+everyone!  I'd especially like to see what performance is like with the 
+repacker not running, and during the repack.  If performance during a 
+repack is comparable to ext3, I think we win, although we have to amend 
+that statement to "My filesystem/database has the same or bigger 
+perfomance numbers than yours."

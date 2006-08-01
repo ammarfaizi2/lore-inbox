@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWHAMJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWHAMK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWHAMJj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 08:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWHAMJj
+	id S1751243AbWHAMK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 08:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWHAMK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 08:09:39 -0400
-Received: from web25813.mail.ukl.yahoo.com ([217.146.176.246]:1649 "HELO
-	web25813.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751154AbWHAMJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 08:09:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
-  b=IoXhHV+qvQnDz+g5PsZzp5EePRRdK6Ylx6CMxqAhnFQiUUN79UJuL9/loWC0pC8mISM+fk1fn+JhsCOntp+hHJge8Wa1h01A/GZIYk3XGcj8PidD/vQOa/Tgzg/NbizpBBisW7MyGSu03mj3sFdR3Vm4kWVw1BRD9W763TvBtQc=  ;
-Message-ID: <20060801120937.69641.qmail@web25813.mail.ukl.yahoo.com>
-Date: Tue, 1 Aug 2006 12:09:37 +0000 (GMT)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: [HW_RNG] How to use generic rng in kernel space
-To: mb@bu3sch.de
-Cc: linux-kernel@vger.kernel.org
+	Tue, 1 Aug 2006 08:10:27 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14829 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751243AbWHAMK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 08:10:26 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Christoph Lameter <clameter@sgi.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Gerd Hoffmann <kraxel@suse.de>, Hollis Blanchard <hollisb@us.ibm.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>
+Subject: Re: [PATCH 1 of 13] Add apply_to_page_range() which applies a function to a pte range
+References: <79a98a10911fc4e77dce.1154421372@ezr.goop.org>
+Date: Tue, 01 Aug 2006 06:08:43 -0600
+In-Reply-To: <79a98a10911fc4e77dce.1154421372@ezr.goop.org> (Jeremy
+	Fitzhardinge's message of "Tue, 01 Aug 2006 01:36:12 -0700")
+Message-ID: <m1ejw0zmic.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Jeremy Fitzhardinge <jeremy@xensource.com> writes:
 
-I developped a HW RNG for a custom board and several
-other drivers are using it through a special entry I made.
-I was planning to move the code in order to use the generic
-the RNG layer but I encounter an issue.
+> 2 files changed, 99 insertions(+)
+> include/linux/mm.h |    5 ++
+> mm/memory.c        |   94 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+>
+>
+> Add a new mm function apply_to_page_range() which applies a given
+> function to every pte in a given virtual address range in a given mm
+> structure. This is a generic alternative to cut-and-pasting the Linux
+> idiomatic pagetable walking code in every place that a sequence of
+> PTEs must be accessed.
+>
+> Although this interface is intended to be useful in a wide range of
+> situations, it is currently used specifically by several Xen
+> subsystems, for example: to ensure that pagetables have been allocated
+> for a virtual address range, and to construct batched special
+> pagetable update requests to map I/O memory (in ioremap()).
 
-Currently it seems not possible for a driver to use HW RNG,
-because there's no entry point for that. Is that something
-deliberate ?
+- You don't handle huge pages.  For a generic function
+  that sounds like a problem.
+- I believe there is a reason the kernel doesn't already have
+  a function like this.  I seem to recall there being efficiency
+  and fast path arguments.
+- Placing this code in mm/memory.c without a common consumer is
+  pure kernel bloat for everyone who doesn't use this function,
+  which is just about everyone.
 
-Another question about the implementation. If O_NONBLOCK
-flag is passed when opening /dev/hw_random, how does the
-read method ensure that the caller won't sleep since it calls
-mutex_lock_interruptible() function unconditiannaly ? I must
-miss something but don't know what...
-
-Thanks
-
-Francis
-
-
-
+Eric

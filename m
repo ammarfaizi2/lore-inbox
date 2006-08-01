@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWHASlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWHASoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751780AbWHASlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWHASlo
+	id S1751781AbWHASoy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWHASoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:41:44 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:31664 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1751780AbWHASln
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:41:43 -0400
-Message-ID: <44CF3DE0.3010501@namesys.com>
-Date: Tue, 01 Aug 2006 05:41:20 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ric@emc.com, Edward Shishkin <edward@namesys.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-References: <200607312314.37863.bernd-schubert@gmx.de>	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch> <1154446189.15540.43.camel@localhost.localdomain> <44CF9BAD.5020003@emc.com>
-In-Reply-To: <44CF9BAD.5020003@emc.com>
-X-Enigmail-Version: 0.93.0.0
+	Tue, 1 Aug 2006 14:44:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751781AbWHASox (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 14:44:53 -0400
+Date: Tue, 1 Aug 2006 14:44:51 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: single bit flip detector.
+Message-ID: <20060801184451.GP22240@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ric Wheeler wrote:
+In case where we detect a single bit has been flipped, we spew
+the usual slab corruption message, which users instantly think
+is a kernel bug.  In a lot of cases, single bit errors are
+down to bad memory, or other hardware failure.
 
-> Alan Cox wrote:
->
->>
->>
->> You do it turns out. Its becoming an issue more and more that the sheer
->> amount of storage means that the undetected error rate from disks,
->> hosts, memory, cables and everything else is rising.
->
->
->
-> I agree with Alan 
+This patch adds an extra line to the slab debug messages
+in those cases, in the hope that users will try memtest before
+they report a bug.
 
-You will want to try our compression plugin, it has an ecc for every 64k....
+000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Single bit error detected. Possibly bad RAM. Run memtest86.
 
-Hans
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.16.noarch/mm/slab.c~	2006-03-22 18:29:27.000000000 -0500
++++ linux-2.6.16.noarch/mm/slab.c	2006-03-22 18:30:58.000000000 -0500
+@@ -1516,10 +1516,33 @@ static void poison_obj(struct kmem_cache
+ static void dump_line(char *data, int offset, int limit)
+ {
+ 	int i;
++	unsigned char total=0, bad_count=0;
+ 	printk(KERN_ERR "%03x:", offset);
+-	for (i = 0; i < limit; i++)
++	for (i = 0; i < limit; i++) {
++		if (data[offset+i] != POISON_FREE) {
++			total += data[offset+i];
++			++bad_count;
++		}
+ 		printk(" %02x", (unsigned char)data[offset + i]);
++	}
+ 	printk("\n");
++	if (bad_count == 1) {
++		switch (total) {
++		case POISON_FREE ^ 0x01:
++		case POISON_FREE ^ 0x02:
++		case POISON_FREE ^ 0x04:
++		case POISON_FREE ^ 0x08:
++		case POISON_FREE ^ 0x10:
++		case POISON_FREE ^ 0x20:
++		case POISON_FREE ^ 0x40:
++		case POISON_FREE ^ 0x80:
++			printk (KERN_ERR "Single bit error detected. Possibly bad RAM.\n");
++#ifdef CONFIG_X86
++			printk (KERN_ERR "Run memtest86 or other memory test tool.\n");
++#endif
++			return;
++		}
++	}
+ }
+ #endif
+
+-- 
+http://www.codemonkey.org.uk

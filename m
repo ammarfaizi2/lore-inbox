@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWHANRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWHANVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751603AbWHANRa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751602AbWHANRa
+	id S932074AbWHANVw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWHANVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:17:30 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:2235 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751308AbWHANRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:17:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=um6u5o1uUtgh7RmBqMxuo4z7CU2t3WC4b3Lf8iLtHj2NnYatDPA2JwoGmg7UPvRi3kqsHdRy2SzQ+6dEE215ejxZb7rl41OWyF9FEjJOqVuGvezNe8JZsJHVhGm0C5O+FZYNLP8kpxDa5Jp5GxKJcKQRy9zx6pELzxtpPSRc7Bc=
-Message-ID: <e084545e0608010617h9941cbchd366cf3ee6bcb0d0@mail.gmail.com>
-Date: Tue, 1 Aug 2006 15:17:27 +0200
-From: "=?ISO-8859-1?Q?Omar_A=EFt_Mous?=" <omar.aitmous@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Connection tracking synchronization module
-Cc: jp@enix.org, sebastien.wacquiez@enix.fr, smagghue@gmail.com,
-       risk_colta@hotmail.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Aug 2006 09:21:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:35318 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932074AbWHANVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:21:52 -0400
+Subject: Re: rt_mutex_timed_lock() vs hrtimer_wakeup() race ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: tglx@linutronix.de
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1154436721.5932.60.camel@localhost.localdomain>
+References: <20060730043605.GA2894@oleg>
+	 <1154419117.5932.55.camel@localhost.localdomain>
+	 <1154434031.25445.14.camel@localhost.localdomain>
+	 <1154436721.5932.60.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 09:21:42 -0400
+Message-Id: <1154438502.25445.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a kernel module to allow real-time synchronization of connection
-tracking tables between two linux routers. It will be useful for people willing
-to achieve high availability of stateful firewalls, or NAT routers. It's our
-first attempt at kernel hacking, so there is probably many errors and things to
-fix, but it Works For Us (TM). you can even test it without recompiling your
-kernel. see attached README file for the gory details. You would be so kind to
-cc: us when replying ! :)
-Latest version can be found here :
-http://enix.fr/projects/syntrack/browser/tarballs/revision-90.tar.gz?format=raw
-Or here for future releases :
-http://enix.fr/projects/syntrack/browser/tarballs
+On Tue, 2006-08-01 at 14:52 +0200, Thomas Gleixner wrote:
+> On Tue, 2006-08-01 at 08:07 -0400, Steven Rostedt wrote:
+> > > We hold lock->wait_lock. The owner of this lock can be blocked itself,
+> > > which makes it necessary to do the chain walk. The indicator is
+> > > owner->pi_blocked_on. This field is only protected by owner->pi_lock.
+> > > 
+> > > If we look at this field outside of owner->pi_lock, then we might miss a
+> > > chain walk.
+> > > 
+> > 
+> > Actually Thomas, not counting the debug case, his patch wont miss a
+> > chain walk.  That is because the boost is read _after_ the owner's prio
+> > is adjusted.  So the only thing the lock is doing for us is to prevent
+> > us from walking the chain twice for the same lock grab. (btw. I'm
+> > looking at 2.6.18-rc2, and not the -rt patch, just to make things
+> > clear).
+> 
+> So what do we win, when we drop the lock before we check for boosting ?
+> In the worst case we do a redundant chain walk.
+> 
+
+I'm not saying that it was correct to drop the lock before checking for
+boosting. I'm just saying that it won't miss a chain walk.  But we might
+do two of them. I think I'll send my patch again that fixes this up a
+little.  I'll make two patches: one for mainline, and one for -rt.
+
+In the debug case, we really don't even need to grab the lock.
+(see patch -- coming soon)
+
+-- Steve
+
+

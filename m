@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751450AbWHAJDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWHAJDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751450AbWHAJDa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWHAJDa
+	id S1751543AbWHAJDh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWHAJDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:03:30 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:39428 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751450AbWHAJD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:03:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=fEFuoY5/yOSCFZS8nk/DpkUYVOT4gp8qa4LLuOnLEIRf/4ohfHesjkJ2kbSHH2SMUlqm8CsJ7R8X06rzkbFunamCtSUyPahbVmZukPXaDM95twpEdXqYYmqXytvnBWEbnnfiAYLoEGvUweDrS8QFQ4hhMeDuf79SdA7coMBJCTo=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Jiri Slaby'" <jirislaby@gmail.com>,
-       "'Heiko Carstens'" <heiko.carstens@de.ibm.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       "'Martin Schwidefsky'" <schwidefsky@de.ibm.com>
-Subject: RE: do { } while (0) question
-Date: Tue, 1 Aug 2006 02:03:25 -0700
-Message-ID: <008e01c6b549$59e52f70$493d010a@nuitysystems.com>
+	Tue, 1 Aug 2006 05:03:37 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:34398 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S1751341AbWHAJDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:03:36 -0400
+Date: Tue, 1 Aug 2006 11:03:00 +0200
+From: Jan Blunck <j.blunck@tu-harburg.de>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 30/30] VFS: Destroy the dentries contributed by a superblock on unmounting [try #11]
+Message-ID: <20060801090259.GB10032@X40.localnet>
+References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com> <20060727205333.8443.97943.stgit@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <44CF1631.3020104@gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: Aca1SAyUzu+ypWloQiWpem8b0caxpQAANxFA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060727205333.8443.97943.stgit@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> #if KILLER == 1
-> #define MACRO
-> #else
-> #define MACRO do { } while (0)
-> #endif
-> 
-> {
-> 	if (some_condition)
-> 		MACRO
-> 
-> 	if_this_is_not_called_you_loose_your_data();
-> }
-> 
-> How do you want to define KILLER, 0 or 1? I personally choose 0.
+On Thu, Jul 27, David Howells wrote:
 
-Really? Does it compile?
+> diff --git a/include/linux/dcache.h b/include/linux/dcache.h
+> index 44605be..63f64a9 100644
+> --- a/include/linux/dcache.h
+> +++ b/include/linux/dcache.h
+> @@ -230,6 +230,7 @@ extern struct dentry * d_alloc_anon(stru
+>  extern struct dentry * d_splice_alias(struct inode *, struct dentry *);
+>  extern void shrink_dcache_sb(struct super_block *);
+>  extern void shrink_dcache_parent(struct dentry *);
+> +extern void shrink_dcache_for_umount(struct super_block *);
+>  extern int d_invalidate(struct dentry *);
+>  
+>  /* only used at mount-time */
 
-Hua
+I don't see the point that we need two different versions of
+shrink_dcache_sb(). IMHO it is better to fix shrink_dcache_for_umount() so
+that it is a replacement for shrink_dcache_sb().
 
+BTW: Talking about shrink_dcache_sb(): is it really necessary to call
+shrink_dcache_sb() when remounting a filesystem? The only reason I can see are
+changes to the lookup mechanism (hash algorithm etc) but a quick look into the
+different filesystems forbid the change of this options during remount.
+
+Jan

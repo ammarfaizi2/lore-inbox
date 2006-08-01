@@ -1,60 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbWHANhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWHANkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161016AbWHANhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWHANhQ
+	id S1161027AbWHANkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbWHANkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:37:16 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:54971 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1161016AbWHANhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:37:15 -0400
-Message-Id: <44CF755C.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Tue, 01 Aug 2006 15:38:04 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Stas Sergeev" <stsp@aknet.ru>, "Zachary Amsden" <zach@vmware.com>
-Cc: <76306.1226@compuserve.com>, <rohitseth@google.com>, <ak@muc.de>,
-       <akpm@osdl.org>, "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: + espfix-code-cleanup.patch added to -mm tree
-References: <200607300016.k6U0GYu4023664@shell0.pdx.osdl.net>
- <44CE766D.6000705@vmware.com> <44CF474C.9070800@aknet.ru>
-In-Reply-To: <44CF474C.9070800@aknet.ru>
+	Tue, 1 Aug 2006 09:40:12 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:27121 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161027AbWHANkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:40:10 -0400
+Subject: [PATCH] cleanup and remove some extra spinlocks from rtmutex
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Oleg Nesterov <oleg@tv-sign.ru>,
+       Esben Nielsen <nielsen.esben@googlemail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 09:39:48 -0400
+Message-Id: <1154439588.25445.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>      pushl %eax; \                     <----
->>> -    CFI_ADJUST_CFA_OFFSET 4; \
->>> +    lss (%esp), %esp;
->> <---- CFI adjustment here is missing.
->Well, someone used that macro in a .fixup section, where the
->CFI adjustments do not seem to work. But since I don't know
->why this was done (Jan?), I reverted that to my original code and
->added the adjustments now.
+Oleg brought up some interesting points about grabbing the pi_lock for
+some protections. In this discussion, I realized that there are some
+places that the pi_lock is being grabbed when it really wasn't
+necessary.  Also this patch does a little bit of clean up.
 
-The macro in question is UNWIND_ESPFIX_STACK, which is used in exactly
-one place (in normal .text). Even more, the macro itself switches to
-.fixup,
-so it would be rather odd if it was used in a .fixup section by itself.
-Note
-that FIXUP_ESPFIX_STACK doesn't have any annotations, and hence can
-freely be used in .fixup.
+This patch basically does three things:
 
->>>      FIXUP_ESPFIX_STACK        # %eax == %esp
->>> -    CFI_ADJUST_CFA_OFFSET -20    # the frame has now moved
->>> +    CFI_ADJUST_CFA_OFFSET -20
->> Is this CFI adjustment still correct?
->Hmm, I guess it wasn't correct also before, so I just
->left it as is. Should now be fixed. 
+1) renames the "boost" variable to "chain_walk".  Since it is used in
+the debugging case when it isn't going to be boosted. It better
+describes what the test is going to do if it succeeds.
 
-I would think it was correct, but surely annotating these pieces of
-code
-wasn't something that anybody but the original author (you) should
-have
-done, as it wasn't too difficult to get lost.
+2) moves get_task_struct to just before the unlocking of the wait_lock.
+This removes duplicate code, and makes it a little easier to read.  The
+owner wont go away while either the pi_lock or the wait_lock are held.
 
-Jan
+3) removes the pi_locking and owner blocked checking completely from the
+debugging case.  This is because the grabbing the lock and doing the
+check, then releasing the lock is just so full of races. It's just as
+good to go ahead and call the pi_chain_walk function, since after
+releasing the lock the owner can then block anyway, and we would have
+missed that.  For the debug case, we really do want to do the chain walk
+to test for deadlocks anyway.
+
+-- Steve
+
+Signed-of-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.18-rc2/kernel/rtmutex.c
+===================================================================
+--- linux-2.6.18-rc2.orig/kernel/rtmutex.c	2006-08-01 09:22:07.000000000 -0400
++++ linux-2.6.18-rc2/kernel/rtmutex.c	2006-08-01 09:26:14.000000000 -0400
+@@ -409,7 +409,7 @@ static int task_blocks_on_rt_mutex(struc
+ 	struct task_struct *owner = rt_mutex_owner(lock);
+ 	struct rt_mutex_waiter *top_waiter = waiter;
+ 	unsigned long flags;
+-	int boost = 0, res;
++	int chain_walk = 0, res;
+ 
+ 	spin_lock_irqsave(&current->pi_lock, flags);
+ 	__rt_mutex_adjust_prio(current);
+@@ -433,25 +433,23 @@ static int task_blocks_on_rt_mutex(struc
+ 		plist_add(&waiter->pi_list_entry, &owner->pi_waiters);
+ 
+ 		__rt_mutex_adjust_prio(owner);
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-			get_task_struct(owner);
+-		}
++		if (owner->pi_blocked_on)
++			chain_walk = 1;
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+-	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock)) {
+-		spin_lock_irqsave(&owner->pi_lock, flags);
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-			get_task_struct(owner);
+-		}
+-		spin_unlock_irqrestore(&owner->pi_lock, flags);
+-	}
+-	if (!boost)
++	else if (debug_rt_mutex_detect_deadlock(waiter, detect_deadlock))
++		chain_walk = 1;
++
++	if (!chain_walk)
+ 		return 0;
+ 
++	/*
++	 * The owner can't disappear while holding a lock,
++	 * so the owner struct is protected by wait_lock.
++	 * Gets dropped in rt_mutex_adjust_prio_chain()!
++	 */
++	get_task_struct(owner);
++
+ 	spin_unlock(&lock->wait_lock);
+ 
+ 	res = rt_mutex_adjust_prio_chain(owner, detect_deadlock, lock, waiter,
+@@ -532,7 +530,7 @@ static void remove_waiter(struct rt_mute
+ 	int first = (waiter == rt_mutex_top_waiter(lock));
+ 	struct task_struct *owner = rt_mutex_owner(lock);
+ 	unsigned long flags;
+-	int boost = 0;
++	int chain_walk = 0;
+ 
+ 	spin_lock_irqsave(&current->pi_lock, flags);
+ 	plist_del(&waiter->list_entry, &lock->wait_list);
+@@ -554,19 +552,20 @@ static void remove_waiter(struct rt_mute
+ 		}
+ 		__rt_mutex_adjust_prio(owner);
+ 
+-		if (owner->pi_blocked_on) {
+-			boost = 1;
+-			/* gets dropped in rt_mutex_adjust_prio_chain()! */
+-			get_task_struct(owner);
+-		}
++		if (owner->pi_blocked_on)
++			chain_walk = 1;
++
+ 		spin_unlock_irqrestore(&owner->pi_lock, flags);
+ 	}
+ 
+ 	WARN_ON(!plist_node_empty(&waiter->pi_list_entry));
+ 
+-	if (!boost)
++	if (!chain_walk)
+ 		return;
+ 
++	/* gets dropped in rt_mutex_adjust_prio_chain()! */
++	get_task_struct(owner);
++
+ 	spin_unlock(&lock->wait_lock);
+ 
+ 	rt_mutex_adjust_prio_chain(owner, 0, lock, NULL, current);
+
+

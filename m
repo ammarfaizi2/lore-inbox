@@ -1,68 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWHAT1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751834AbWHAT0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751836AbWHAT1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751837AbWHAT1L
+	id S1751834AbWHAT0k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWHAT0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:27:11 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:38785 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751836AbWHAT1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:27:09 -0400
-Date: Tue, 1 Aug 2006 15:26:28 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Linda Wang <lwang@redhat.com>
-Subject: Re: [RFC] ELF Relocatable x86 and x86_64 bzImages
-Message-ID: <20060801192628.GE7054@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 1 Aug 2006 15:26:40 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:21639 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751834AbWHAT0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:26:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tskCJVU2PDTWO3hSMjrPQ6SdJujLeNqDlD9PYzOmfrclJ/mx/7jbCdCTm+skyqQY+S7cKnwfulrjF3FsBRvddvRYzfBMtNxbqdfuzUHvprrkhVO/uk4UbzjMYzd4iR16z2Imo8X1pIzzI/MdXqWTh5t4abY9shQMAwsuxPI2srM=
+Message-ID: <5c49b0ed0608011226w328d809fy9d50aa785ad93536@mail.gmail.com>
+Date: Tue, 1 Aug 2006 12:26:38 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "David Masover" <ninja@slaphack.com>
+Subject: Re: reiser4: maybe just fix bugs?
+Cc: "Vladimir V. Saveliev" <vs@namesys.com>, "Andrew Morton" <akpm@osdl.org>,
+       vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
+       Reiserfs-List@namesys.com
+In-Reply-To: <44CF879D.1000803@slaphack.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+	 <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com>
+	 <1154431477.10043.55.camel@tribesman.namesys.com>
+	 <20060801073316.ee77036e.akpm@osdl.org>
+	 <1154444822.10043.106.camel@tribesman.namesys.com>
+	 <44CF879D.1000803@slaphack.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 04:58:49AM -0600, Eric W. Biederman wrote:
-> 
-> The problem:
-> 
-> We can't always run the kernel at 1MB or 2MB, and so people who need
-> different addresses must build multiple kernels.  The bzImage format
-> can't even represent loading a kernel at other than it's default address.
-> With kexec on panic now starting to be used by distros having a kernel
-> not running at the default load address is starting to become common.
-> 
-> The goal of this patch series is to build kernels that are relocatable
-> at run time, and to extend the bzImage format to make it capable of
-> expressing a relocatable kernel.
-> 
-> In extending the bzImage format I am replacing the existing unused bootsector
-> with an ELF header.  To express what is going on the ELF header will
-> have type ET_DYN.  Just like the kernel loading an ET_DYN executable
-> bootloaders are not expected to process relocations.  But the executable
-> may be shifted in the address space so long as it's alignment requirements
-> are met.
-> 
-> The x86_64 kernel is simply built to live at a fixed virtual address
-> and the boot page tables are relocated.  The i386 kernel is built
-> to process relocations generated with --embedded-relocs (after vmlinux.lds.S)
-> has been fixed up to sort out static and dynamic relocations.
+On 8/1/06, David Masover <ninja@slaphack.com> wrote:
+> Vladimir V. Saveliev wrote:
+>
+> > Do you think that if reiser4 supported xattrs - it would increase its
+> > chances on inclusion?
+>
+> Probably the opposite.
+>
+> If I understand it right, the original Reiser4 model of file metadata is
+> the file-as-directory stuff that caused such a furor the last big push
+> for inclusion (search for "Silent semantic changes in Reiser4"):
+>
+> foo.mp3/.../rwx    # permissions
+> foo.mp3/.../artist # part of the id3 tag
+>
+> So I suspect xattrs would just be a different interface to this stuff,
+> maybe just a subset of it (to prevent namespace collisions):
+>
+> foo.mp3/.../xattr/ # contains files representing attributes
+>
+> Of course, you'd be able to use the standard interface for
+> getting/setting these.  The point is, I don't think Hans/Namesys wants
+> to do this unless they're going to do it right, especially because they
+> already have the file-as-dir stuff somewhat done.  Note that these are
+> neither mutually exclusive nor mutually dependent -- you don't have to
+> enable file-as-dir to make xattrs work.
+>
+> I know it's not done yet, though.  I can understand Hans dragging his
+> feet here, because xattrs and traditional acls are examples of things
+> Reiser4 is supposed to eventually replace.
+>
+> Anyway, if xattrs were done now, the only good that would come of it is
+> building a userbase outside the vanilla kernel.  I can't see it as doing
+> anything but hurting inclusion by introducing more confusion about
+> "plugins".
+>
+> I could be entirely wrong, though.  I speak for neither
+> Hans/Namesys/reiserfs nor LKML.  Talk amongst yourselves...
 
-Hi Eric,
+i should clarify things a bit here.  yes, hans' goal is for there to
+be no difference between the "xattr" namespace and the "readdir" one.
+unfortunately, this is not feasible with the current VFS, and some
+major work would have to be done to enable this without some
+pathological cases cropping up.  some very smart people think that it
+cannot be done at all.
 
-Can't we use the x86_64 relocation approach for i386 as well? I mean keep
-the virtual address space fixed and updating the page tables. This would
-help in the sense that you don't have to change gdb if somebody decides to
-debug the relocated kernel.
+xattr is a seperate VFS interface, which avoids those problems by
+defining certain restrictions on how the 'files' which live in that
+namespace can be manupulated.  for instance, hard links are
+non-existent, and the 'mv' command cannot move a file between
+different xattr namespaces.
 
-Any such tool that retrieves the symbol virtual address from vmlinux will
-be confused.
+enabling xattr would have no connection to the file-as-directory
+stuff, and (without extra work) would not even allow access to the
+things reiser4 defined in the '...' directory.  also enabling xattr in
+the way i intend would in no way compromise hans' long-term vision.
 
-Thanks
-Vivek 
+HOWEVER, i *need* to point out that hans and i disagree somewhat on
+the specifics here, and so i should say adamently "i don't speak here
+on behalf of hans or namesys".
+
+that won't stop me from submitting my own patch though :)
+
+NATE

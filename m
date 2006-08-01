@@ -1,41 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWHASyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWHAS40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751789AbWHASyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbWHASyj
+	id S1750947AbWHAS40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:56:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWHAS40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:54:39 -0400
-Received: from ns2.suse.de ([195.135.220.15]:23491 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751789AbWHASyj (ORCPT
+	Tue, 1 Aug 2006 14:56:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6597 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750938AbWHAS4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:54:39 -0400
-To: Amit Gud <agud@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] sysctl for the latecomers
-References: <44CF69F0.6040801@redhat.com>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Aug 2006 20:54:37 +0200
-In-Reply-To: <44CF69F0.6040801@redhat.com>
-Message-ID: <p738xm82snm.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 1 Aug 2006 14:56:25 -0400
+Date: Tue, 1 Aug 2006 14:56:18 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: use persistent allocation for cursor blinking.
+Message-ID: <20060801185618.GS22240@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit Gud <agud@redhat.com> writes:
+Every time the console cursor blinks, we do a kmalloc/kfree pair.
+This patch turns that into a single allocation.
 
-> /etc/sysctl.conf values are of no use to kernel modules that are
-> inserted after init scripts call sysctl for the values in
-> /etc/sysctl.conf
+This allocation was the most frequent kmalloc I saw on my test box.
 
-_sysctl(2) is obsolete and on its way out. Doesn't make sense
-to add new feature to it.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-BTW I doubt the sysctl user program actually uses it - most likely
-it uses /proc/sys
 
-I think I agree with hpa that this feature belongs into modprobe
-if anywhere.
+--- linux-2.6.14/drivers/video/console/softcursor.c~	2005-12-28 18:40:08.000000000 -0500
++++ linux-2.6.14/drivers/video/console/softcursor.c	2005-12-28 18:45:50.000000000 -0500
+@@ -23,7 +23,9 @@ int soft_cursor(struct fb_info *info, st
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int i, size, dsize, s_pitch, d_pitch;
+ 	struct fb_image *image;
+-	u8 *dst, *src;
++	u8 *dst;
++	static u8 *src=NULL;
++	static int allocsize=0;
+ 
+ 	if (info->state != FBINFO_STATE_RUNNING)
+ 		return 0;
+@@ -31,9 +33,15 @@ int soft_cursor(struct fb_info *info, st
+ 	s_pitch = (cursor->image.width + 7) >> 3;
+ 	dsize = s_pitch * cursor->image.height;
+ 
+-	src = kmalloc(dsize + sizeof(struct fb_image), GFP_ATOMIC);
+-	if (!src)
+-		return -ENOMEM;
++	if (dsize + sizeof(struct fb_image) != allocsize) {
++		if (src != NULL)
++			kfree(src);
++		allocsize = dsize + sizeof(struct fb_image);
++
++		src = kmalloc(allocsize, GFP_ATOMIC);
++		if (!src)
++			return -ENOMEM;
++	}
+ 
+ 	image = (struct fb_image *) (src + dsize);
+ 	*image = cursor->image;
+@@ -61,7 +69,6 @@ int soft_cursor(struct fb_info *info, st
+ 	fb_pad_aligned_buffer(dst, d_pitch, src, s_pitch, image->height);
+ 	image->data = dst;
+ 	info->fbops->fb_imageblit(info, image);
+-	kfree(src);
+ 	return 0;
+ }
+ 
 
--Andi
+-- 
+http://www.codemonkey.org.uk

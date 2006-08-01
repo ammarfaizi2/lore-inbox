@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932665AbWHALJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbWHALJz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932665AbWHALJy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932629AbWHALJS
+	id S932630AbWHALJz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932660AbWHALGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:09:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19677 "EHLO
+	Tue, 1 Aug 2006 07:06:35 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10461 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932665AbWHALHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:07:02 -0400
+	id S932620AbWHALGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:06:12 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: <fastboot@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
@@ -16,288 +16,398 @@ Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
        "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
        Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 25/33] x86_64: 64bit PIC SMP trampoline
-Date: Tue,  1 Aug 2006 05:03:40 -0600
-Message-Id: <11544302441424-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+Date: Tue,  1 Aug 2006 05:03:24 -0600
+Message-Id: <115443023544-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.rc2.g5209e
 In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This modifies the SMP trampoline and all of the associated code so
-it can jump to a 64bit kernel loaded at an arbitrary address.
+This patch does two very simple things.
+It adds a serial output capability to the decompressor.
+It adds a command line parser for the early_printk
+option so we know which output method to use for the decompressor.
 
-The dependencies on having an idenetity mapped page in the kernel
-page tables for SMP bootup have all been removed.
-
-In addition the trampoline has been modified to verify
-that long mode is supported.  Asking if long mode is implemented is
-down right silly but we have traditionally had some of these checks,
-and they can't hurt anything.  So when the totally ludicrous happens
-we just might handle it correctly.
+This makes debugging the decompressor a little easier, and
+keeps us from assuming we always have a vga console on all
+hardware.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/x86_64/kernel/head.S       |    1 
- arch/x86_64/kernel/setup.c      |    9 --
- arch/x86_64/kernel/trampoline.S |  168 ++++++++++++++++++++++++++++++++++++---
- 3 files changed, 156 insertions(+), 22 deletions(-)
+ arch/i386/boot/compressed/misc.c |  258 +++++++++++++++++++++++++++++++++++---
+ 1 files changed, 241 insertions(+), 17 deletions(-)
 
-diff --git a/arch/x86_64/kernel/head.S b/arch/x86_64/kernel/head.S
-index d0e626e..8d1b4a7 100644
---- a/arch/x86_64/kernel/head.S
-+++ b/arch/x86_64/kernel/head.S
-@@ -103,6 +103,7 @@ startup_32:
- 	.org 0x100	
- 	.globl startup_64
- startup_64:
-+ENTRY(secondary_startup_64)
- 	/* We come here either from startup_32
- 	 * or directly from a 64bit bootloader.
- 	 * Since we may have come directly from a bootloader we
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
-index 11d31ea..66816ba 100644
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -611,15 +611,8 @@ #endif
- 		reserve_bootmem_generic(ebda_addr, ebda_size);
- 
- #ifdef CONFIG_SMP
--	/*
--	 * But first pinch a few for the stack/trampoline stuff
--	 * FIXME: Don't need the extra page at 4K, but need to fix
--	 * trampoline before removing it. (see the GDT stuff)
--	 */
--	reserve_bootmem_generic(PAGE_SIZE, PAGE_SIZE);
--
- 	/* Reserve SMP trampoline */
--	reserve_bootmem_generic(SMP_TRAMPOLINE_BASE, PAGE_SIZE);
-+	reserve_bootmem_generic(SMP_TRAMPOLINE_BASE, 2*PAGE_SIZE);
- #endif
- 
- #ifdef CONFIG_ACPI_SLEEP
-diff --git a/arch/x86_64/kernel/trampoline.S b/arch/x86_64/kernel/trampoline.S
-index c79b99a..13eee63 100644
---- a/arch/x86_64/kernel/trampoline.S
-+++ b/arch/x86_64/kernel/trampoline.S
-@@ -3,6 +3,7 @@
-  *	Trampoline.S	Derived from Setup.S by Linus Torvalds
-  *
-  *	4 Jan 1997 Michael Chastain: changed to gnu as.
-+ *	15 Sept 2005 Eric Biederman: 64bit PIC support
-  *
-  *	Entry: CS:IP point to the start of our code, we are 
-  *	in real mode with no stack, but the rest of the 
-@@ -17,15 +18,20 @@
-  *	and IP is zero.  Thus, data addresses need to be absolute
-  *	(no relocation) and are taken with regard to r_base.
-  *
-+ *	With the addition of trampoline_level4_pgt this code can
-+ *	now enter a 64bit kernel that lives at arbitrary 64bit
-+ *	physical addresses.
-+ *
-  *	If you work on this file, check the object module with objdump
-  *	--full-contents --reloc to make sure there are no relocation
-- *	entries. For the GDT entry we do hand relocation in smpboot.c
-- *	because of 64bit linker limitations.
-+ *	entries.
+diff --git a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
+index 905c37e..fcaa9f0 100644
+--- a/arch/i386/boot/compressed/misc.c
++++ b/arch/i386/boot/compressed/misc.c
+@@ -9,11 +9,14 @@
+  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
   */
  
++#define __init
+ #include <linux/config.h>
  #include <linux/linkage.h>
--#include <asm/segment.h>
-+#include <asm/pgtable.h>
- #include <asm/page.h>
-+#include <asm/msr.h>
-+#include <asm/segment.h>
+ #include <linux/vmalloc.h>
++#include <linux/serial_reg.h>
+ #include <linux/screen_info.h>
+ #include <asm/io.h>
++#include <asm/setup.h>
  
- .data
+ /*
+  * gzip declarations
+@@ -24,7 +27,9 @@ #define STATIC static
  
-@@ -33,15 +39,31 @@ #include <asm/page.h>
+ #undef memset
+ #undef memcpy
++#undef memcmp
+ #define memzero(s, n)     memset ((s), 0, (n))
++char *strstr(const char *haystack, const char *needle);
  
- ENTRY(trampoline_data)
- r_base = .
-+	cli			# We should be safe anyway
- 	wbinvd	
- 	mov	%cs, %ax	# Code and data in the same place
- 	mov	%ax, %ds
-+	mov	%ax, %es
-+	mov	%ax, %ss
+ typedef unsigned char  uch;
+ typedef unsigned short ush;
+@@ -78,12 +83,17 @@ static void gzip_release(void **);
+  * This is set up by the setup-routine at boot-time
+  */
+ static unsigned char *real_mode; /* Pointer to real-mode data */
++static char saved_command_line[COMMAND_LINE_SIZE];
  
--	cli			# We should be safe anyway
+ #define RM_EXT_MEM_K   (*(unsigned short *)(real_mode + 0x2))
+ #ifndef STANDARD_MEMORY_BIOS_CALL
+ #define RM_ALT_MEM_K   (*(unsigned long *)(real_mode + 0x1e0))
+ #endif
+ #define RM_SCREEN_INFO (*(struct screen_info *)(real_mode+0))
++#define RM_NEW_CL_POINTER ((char *)(unsigned long)(*(unsigned *)(real_mode+0x228)))
++#define RM_OLD_CL_MAGIC (*(unsigned short *)(real_mode + 0x20))
++#define RM_OLD_CL_OFFSET (*(unsigned short *)(real_mode + 0x22))
++#define OLD_CL_MAGIC 0xA33F
  
- 	movl	$0xA5A5A5A5, trampoline_data - r_base
- 				# write marker for master knows we're running
+ extern unsigned char input_data[];
+ extern int input_len;
+@@ -97,8 +107,10 @@ static void free(void *where);
  
-+					# Setup stack
-+	movw	$(trampoline_stack_end - r_base), %sp
-+
-+	call	verify_cpu		# Verify the cpu supports long mode
-+
-+	mov	%cs, %ax
-+	movzx	%ax, %esi		# Find the 32bit trampoline location
-+	shll	$4, %esi
-+
-+					# Fixup the vectors
-+	addl	%esi, startup_32_vector - r_base
-+	addl	%esi, startup_64_vector - r_base
-+	addl	%esi, tgdt + 2 - r_base	# Fixup the gdt pointer
-+
- 	/*
- 	 * GDT tables in non default location kernel can be beyond 16MB and
- 	 * lgdt will not be able to load the address as in real mode default
-@@ -49,23 +71,141 @@ r_base = .
- 	 * to 32 bit.
- 	 */
+ static void *memset(void *s, int c, unsigned n);
+ static void *memcpy(void *dest, const void *src, unsigned n);
++static int memcmp(const void *s1, const void *s2, unsigned n);
  
--	lidtl	idt_48 - r_base	# load idt with 0, 0
--	lgdtl	gdt_48 - r_base	# load gdt with whatever is appropriate
-+	lidtl	tidt - r_base	# load idt with 0, 0
-+	lgdtl	tgdt - r_base	# load gdt with whatever is appropriate
+ static void putstr(const char *);
++static unsigned simple_strtou(const char *cp,char **endp,unsigned base);
  
- 	xor	%ax, %ax
- 	inc	%ax		# protected mode (PE) bit
- 	lmsw	%ax		# into protected mode
--	# flaush prefetch and jump to startup_32 in arch/x86_64/kernel/head.S
--	ljmpl	$__KERNEL32_CS, $(startup_32-__START_KERNEL_map)
-+
-+	# flush prefetch and jump to startup_32
-+	ljmpl	*(startup_32_vector - r_base)
-+
-+	.code32
-+	.balign 4
-+startup_32:
-+	movl	$__KERNEL_DS, %eax	# Initialize the %ds segment register
-+	movl	%eax, %ds
-+
-+	xorl	%eax, %eax
-+	btsl	$5, %eax		# Enable PAE mode
-+	movl	%eax, %cr4
-+
-+					# Setup trampoline 4 level pagetables
-+	leal	(trampoline_level4_pgt - r_base)(%esi), %eax
-+	movl	%eax, %cr3
-+
-+	movl	$MSR_EFER, %ecx
-+	movl	$(1 << _EFER_LME), %eax	# Enable Long Mode
-+	xorl	%edx, %edx
-+	wrmsr
-+
-+	xorl	%eax, %eax
-+	btsl	$31, %eax		# Enable paging and in turn activate Long Mode
-+	btsl	$0, %eax		# Enable protected mode
-+	movl	%eax, %cr0
-+
-+	/*
-+	 * At this point we're in long mode but in 32bit compatibility mode
-+	 * with EFER.LME = 1, CS.L = 0, CS.D = 1 (and in turn
-+	 * EFER.LMA = 1). Now we want to jump in 64bit mode, to do that we use
-+	 * the new gdt/idt that has __KERNEL_CS with CS.L = 1.
-+	 */
-+	ljmp	*(startup_64_vector - r_base)(%esi)
-+
-+	.code64
-+	.balign 4
-+startup_64:
-+	# Now jump into the kernel using virtual addresses
-+	movq	$secondary_startup_64, %rax
-+	jmp	*%rax
-+
-+	.code16
-+verify_cpu:
-+	pushl	$0			# Kill any dangerous flags
-+	popfl
-+
-+	/* minimum CPUID flags for x86-64 */
-+	/* see http://www.x86-64.org/lists/discuss/msg02971.html */
-+#define REQUIRED_MASK1 ((1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<8)|\
-+			   (1<<13)|(1<<15)|(1<<24)|(1<<25)|(1<<26))
-+#define REQUIRED_MASK2 (1<<29)
-+
-+	pushfl				# check for cpuid
-+	popl	%eax
-+	movl	%eax, %ebx
-+	xorl	$0x200000,%eax
-+	pushl	%eax
-+	popfl
-+	pushfl
-+	popl	%eax
-+	pushl	%ebx
-+	popfl
-+	cmpl	%eax, %ebx
-+	jz	no_longmode
-+
-+	xorl	%eax, %eax		# See if cpuid 1 is implemented
-+	cpuid
-+	cmpl	$0x1, %eax
-+	jb	no_longmode
-+
-+	movl	$0x01, %eax		# Does the cpu have what it takes?
-+	cpuid
-+	andl	$REQUIRED_MASK1, %edx
-+	xorl	$REQUIRED_MASK1, %edx
-+	jnz	no_longmode
-+
-+	movl	$0x80000000, %eax	# See if extended cpuid is implemented
-+	cpuid
-+	cmpl	$0x80000001, %eax
-+	jb	no_longmode
-+
-+	movl	$0x80000001, %eax	# Does the cpu have what it takes?
-+	cpuid
-+	andl	$REQUIRED_MASK2, %edx
-+	xorl	$REQUIRED_MASK2, %edx
-+	jnz	no_longmode
-+
-+	ret				# The cpu supports long mode
-+
-+no_longmode:
-+	hlt
-+	jmp no_longmode
-+
+ extern int end;
+ static long free_mem_ptr = (long)&end;
+@@ -112,14 +124,25 @@ static unsigned int low_buffer_end, low_
+ static int high_loaded =0;
+ static uch *high_buffer_start /* = (uch *)(((ulg)&end) + HEAP_SIZE)*/;
  
- 	# Careful these need to be in the same 64K segment as the above;
--idt_48:
-+tidt:
- 	.word	0			# idt limit = 0
- 	.word	0, 0			# idt base = 0L
+-static char *vidmem = (char *)0xb8000;
++static char *vidmem;
+ static int vidport;
+ static int lines, cols;
  
--gdt_48:
--	.short	GDT_ENTRIES*8 - 1	# gdt limit
--	.long	cpu_gdt_table-__START_KERNEL_map
-+	# Duplicate the global descriptor table
-+	# so the kernel can live anywhere
-+	.balign 4
-+tgdt:
-+	.short	tgdt_end - tgdt		# gdt limit
-+	.long	tgdt - r_base
-+	.short 0
-+	.quad	0x00cf9b000000ffff	# __KERNEL32_CS
-+	.quad	0x00af9b000000ffff	# __KERNEL_CS
-+	.quad	0x00cf93000000ffff	# __KERNEL_DS
-+tgdt_end:
-+
-+	.balign 4
-+startup_32_vector:
-+	.long	startup_32 - r_base
-+	.word	__KERNEL32_CS, 0
-+
-+	.balign 4
-+startup_64_vector:
-+	.long	startup_64 - r_base
-+	.word	__KERNEL_CS, 0
-+
-+trampoline_stack:
-+	.org 0x1000
-+trampoline_stack_end:
-+ENTRY(trampoline_level4_pgt)
-+	.quad	level3_ident_pgt - __START_KERNEL_map + _KERNPG_TABLE
-+	.fill	510,8,0
-+	.quad	level3_kernel_pgt - __START_KERNEL_map + _KERNPG_TABLE
+ #ifdef CONFIG_X86_NUMAQ
+-static void * xquad_portio = NULL;
++static void * xquad_portio;
+ #endif
  
--.globl trampoline_end
--trampoline_end:	
-+ENTRY(trampoline_end)
++/* The early serial console */
++
++#define DEFAULT_BAUD 9600
++#define DEFAULT_BASE 0x3f8 /* ttyS0 */
++static unsigned serial_base = DEFAULT_BASE;
++
++#define CONSOLE_NOOP   0
++#define CONSOLE_VID    1
++#define CONSOLE_SERIAL 2
++static int console = CONSOLE_NOOP;
++
+ #include "../../../../lib/inflate.c"
+ 
+ static void *malloc(int size)
+@@ -154,7 +177,8 @@ static void gzip_release(void **ptr)
+ 	free_mem_ptr = (long) *ptr;
+ }
+  
+-static void scroll(void)
++/* The early video console */
++static void vid_scroll(void)
+ {
+ 	int i;
+ 
+@@ -163,7 +187,7 @@ static void scroll(void)
+ 		vidmem[i] = ' ';
+ }
+ 
+-static void putstr(const char *s)
++static void vid_putstr(const char *s)
+ {
+ 	int x,y,pos;
+ 	char c;
+@@ -175,7 +199,7 @@ static void putstr(const char *s)
+ 		if ( c == '\n' ) {
+ 			x = 0;
+ 			if ( ++y >= lines ) {
+-				scroll();
++				vid_scroll();
+ 				y--;
+ 			}
+ 		} else {
+@@ -183,7 +207,7 @@ static void putstr(const char *s)
+ 			if ( ++x >= cols ) {
+ 				x = 0;
+ 				if ( ++y >= lines ) {
+-					scroll();
++					vid_scroll();
+ 					y--;
+ 				}
+ 			}
+@@ -200,6 +224,178 @@ static void putstr(const char *s)
+ 	outb_p(0xff & (pos >> 1), vidport+1);
+ }
+ 
++static void vid_console_init(void)
++{
++	if (RM_SCREEN_INFO.orig_video_mode == 7) {
++		vidmem = (char *) 0xb0000;
++		vidport = 0x3b4;
++	} else {
++		vidmem = (char *) 0xb8000;
++		vidport = 0x3d4;
++	}
++
++	lines = RM_SCREEN_INFO.orig_video_lines;
++	cols = RM_SCREEN_INFO.orig_video_cols;
++}
++
++/* The early serial console */
++static void serial_putc(int ch)
++{
++	if (ch == '\n') {
++		serial_putc('\r');
++	}
++	/* Wait until I can send a byte */
++	while ((inb(serial_base + UART_LSR) & UART_LSR_THRE) == 0)
++		;
++
++	/* Send the byte */
++	outb(ch, serial_base + UART_TX);
++
++	/* Wait until the byte is transmitted */
++	while (!(inb(serial_base + UART_LSR) & UART_LSR_TEMT))
++		;
++}
++
++static void serial_putstr(const char *str)
++{
++	int ch;
++	while((ch = *str++) != '\0') {
++		if (ch == '\n') {
++			serial_putc('\r');
++		}
++		serial_putc(ch);
++	}
++}
++
++static void serial_console_init(char *s)
++{
++	unsigned base = DEFAULT_BASE;
++	unsigned baud = DEFAULT_BAUD;
++	unsigned divisor;
++	char *e;
++
++	if (*s == ',')
++		++s;
++	if (*s && (*s != ' ')) {
++		if (memcmp(s, "0x", 2) == 0) {
++			base = simple_strtou(s, &e, 16);
++		} else {
++			static const unsigned bases[] = { 0x3f8, 0x2f8 };
++			unsigned port;
++
++			if (memcmp(s, "ttyS", 4) == 0)
++				s += 4;
++			port = simple_strtou(s, &e, 10);
++			if ((port > 1) || (s == e))
++				port = 0;
++			base = bases[port];
++		}
++		s = e;
++		if (*s == ',')
++			++s;
++	}
++	if (*s && (*s != ' ')) {
++		baud = simple_strtou(s, &e, 0);
++		if ((baud == 0) || (s == e))
++			baud = DEFAULT_BAUD;
++	}
++	divisor = 115200 / baud;
++	serial_base = base;
++
++	outb(0x00, serial_base + UART_IER); /* no interrupt */
++	outb(0x00, serial_base + UART_FCR); /* no fifo */
++	outb(0x03, serial_base + UART_MCR); /* DTR + RTS */
++
++	/* Set Baud Rate divisor  */
++	outb(0x83, serial_base + UART_LCR);
++	outb(divisor & 0xff, serial_base + UART_DLL);
++	outb(divisor >> 8, serial_base + UART_DLM);
++	outb(0x03, serial_base + UART_LCR); /* 8n1 */
++
++}
++
++static void putstr(const char *str)
++{
++	if (console == CONSOLE_VID) {
++		vid_putstr(str);
++	} else if (console == CONSOLE_SERIAL) {
++		serial_putstr(str);
++	}
++}
++
++static void console_init(char *cmdline)
++{
++	cmdline = strstr(cmdline, "earlyprintk=");
++	if (!cmdline)
++		return;
++	cmdline += 12;
++	if (memcmp(cmdline, "vga", 3) == 0) {
++		vid_console_init();
++		console = CONSOLE_VID;
++	} else if (memcmp(cmdline, "serial", 6) == 0) {
++		serial_console_init(cmdline + 6);
++		console = CONSOLE_SERIAL;
++	} else if (memcmp(cmdline, "ttyS", 4) == 0) {
++		serial_console_init(cmdline);
++		console = CONSOLE_SERIAL;
++	}
++}
++
++static inline int tolower(int ch)
++{
++	return ch | 0x20;
++}
++
++static inline int isdigit(int ch)
++{
++	return (ch >= '0') && (ch <= '9');
++}
++
++static inline int isxdigit(int ch)
++{
++	ch = tolower(ch);
++	return isdigit(ch) || ((ch >= 'a') && (ch <= 'f'));
++}
++
++
++static inline int digval(int ch)
++{
++	return isdigit(ch)? (ch - '0') : tolower(ch) - 'a' + 10;
++}
++
++/**
++ * simple_strtou - convert a string to an unsigned
++ * @cp: The start of the string
++ * @endp: A pointer to the end of the parsed string will be placed here
++ * @base: The number base to use
++ */
++static unsigned simple_strtou(const char *cp, char **endp, unsigned base)
++{
++	unsigned result = 0,value;
++
++	if (!base) {
++		base = 10;
++		if (*cp == '0') {
++			base = 8;
++			cp++;
++			if ((tolower(*cp) == 'x') && isxdigit(cp[1])) {
++				cp++;
++				base = 16;
++			}
++		}
++	} else if (base == 16) {
++		if (cp[0] == '0' && tolower(cp[1]) == 'x')
++			cp += 2;
++	}
++	while (isxdigit(*cp) && ((value = digval(*cp)) < base)) {
++		result = result*base + value;
++		cp++;
++	}
++	if (endp)
++		*endp = (char *)cp;
++	return result;
++}
++
+ static void* memset(void* s, int c, unsigned n)
+ {
+ 	int i;
+@@ -218,6 +414,29 @@ static void* memcpy(void* dest, const vo
+ 	return dest;
+ }
+ 
++static int memcmp(const void *s1, const void *s2, unsigned n)
++{
++	const unsigned char *str1 = s1, *str2 = s2;
++	size_t i;
++	int result = 0;
++	for(i = 0; (result == 0) && (i < n); i++) {
++		result = *str1++ - *str2++;
++		}
++	return result;
++}
++
++char *strstr(const char *haystack, const char *needle)
++{
++	size_t len;
++	len = strlen(needle);
++	while(*haystack) {
++		if (memcmp(haystack, needle, len) == 0)
++			return (char *)haystack;
++		haystack++;
++	}
++	return NULL;
++}
++
+ /* ===========================================================================
+  * Fill the input buffer. This is called only when the buffer is empty
+  * and at least one byte is really needed.
+@@ -346,20 +565,25 @@ static void close_output_buffer_if_we_ru
+ 	}
+ }
+ 
+-asmlinkage int decompress_kernel(struct moveparams *mv, void *rmode)
++static void save_command_line(void)
+ {
+-	real_mode = rmode;
+-
+-	if (RM_SCREEN_INFO.orig_video_mode == 7) {
+-		vidmem = (char *) 0xb0000;
+-		vidport = 0x3b4;
+-	} else {
+-		vidmem = (char *) 0xb8000;
+-		vidport = 0x3d4;
++	/* Find the command line */
++	char *cmdline;
++	cmdline = saved_command_line;
++	if (RM_NEW_CL_POINTER) {
++		cmdline = RM_NEW_CL_POINTER;
++	} else if (OLD_CL_MAGIC == RM_OLD_CL_MAGIC) {
++		cmdline = real_mode + RM_OLD_CL_OFFSET;
+ 	}
++	memcpy(saved_command_line, cmdline, COMMAND_LINE_SIZE);
++	saved_command_line[COMMAND_LINE_SIZE - 1] = '\0';
++}
+ 
+-	lines = RM_SCREEN_INFO.orig_video_lines;
+-	cols = RM_SCREEN_INFO.orig_video_cols;
++asmlinkage int decompress_kernel(struct moveparams *mv, void *rmode)
++{
++	real_mode = rmode;
++	save_command_line();
++	console_init(saved_command_line);
+ 
+ 	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
+ 	else setup_output_buffer_if_we_run_high(mv);
 -- 
 1.4.2.rc2.g5209e
 

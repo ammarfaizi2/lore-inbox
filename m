@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWHARFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWHARS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWHARFL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWHARFL
+	id S1750959AbWHARS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWHARS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:05:11 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:4006 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751678AbWHARFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:05:09 -0400
+	Tue, 1 Aug 2006 13:18:57 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:62333 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750959AbWHARS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:18:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=osOFnuly+mtEzmEQ70me1xQvif+Ro97w3OBmWUuWOPfOg4HQ0MxP2yS/eszo0zjDsivG3u9Jx4SBMeCzQGZfDBjWkdn+aj6TuyyH1IeAcq1prwmHlQ1N7ULuTR3SjOMR5MhMk0QmkJrsGocnIr/OZjXDYCSSRurWQSsqNrjGlmQ=
-Message-ID: <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
-Date: Tue, 1 Aug 2006 13:04:56 -0400
-From: "Gregory Maxwell" <gmaxwell@gmail.com>
-To: "David Masover" <ninja@slaphack.com>
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Adrian Ulrich" <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
-       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
-       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
-       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44CF84F0.8080303@slaphack.com>
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=QvXEn6vvT1rkCACj1PZ4zC0W6vL3H44mJzBgu+cNrUX3io4dF2vwGSl5JrG3180iwi2M7sUfU95/Tnwhe47Jy5u2wINXa3dKeumJ/0ZWI2Kn3KBUQTduBnqREfHsBKrhjAZcoutEvb95OYxv2+bX51UKU9VaiFy9JWXat2CmaCw=
+Date: Wed, 2 Aug 2006 01:20:24 +0800
+From: kenny <nek.in.cn@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: [Patch] kernel: bug fixing for kernel/kmod.c
+Message-ID: <20060801172024.GA24303@kenny>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200607312314.37863.bernd-schubert@gmx.de>
-	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
-	 <1154446189.15540.43.camel@localhost.localdomain>
-	 <44CF84F0.8080303@slaphack.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8/1/06, David Masover <ninja@slaphack.com> wrote:
-> Yikes.  Undetected.
->
-> Wait, what?  Disks, at least, would be protected by RAID.  Are you
-> telling me RAID won't detect such an error?
+I think there is a bug in kmod.c. In __call_usermodehelper(), when 
+kernel_thread(wait_for_helper, ...) return success, since
+wait_for_helper() might call complete() at any time, the sub_info should
+not be used any more.
 
-Unless the disk ECC catches it raid won't know anything is wrong.
+the following patch is made in 2.6.17.7
 
-This is why ZFS offers block checksums... it can then try all the
-permutations of raid regens to find a solution which gives the right
-checksum.
+--- kmod.c      2006-07-25 11:36:01.000000000 +0800
++++ /tmp/kmod.c 2006-08-02 01:01:42.702054000 +0800
+@@ -198,6 +198,7 @@ static void __call_usermodehelper(void *
+ {
+        struct subprocess_info *sub_info = data;
+        pid_t pid;
++       int wait = sub_info->wait;
 
-Every level of the system must be paranoid and take measure to avoid
-corruption if the system is to avoid it... it's a tough problem. It
-seems that the ZFS folks have addressed this challenge by building as
-much of what is classically separate layers into one part.
+        /* CLONE_VFORK: wait until the usermode helper has execve'd
+         * successfully We need the data structures to stay around
+@@ -212,7 +213,7 @@ static void __call_usermodehelper(void *
+        if (pid < 0) {
+                sub_info->retval = pid;
+                complete(sub_info->complete);
+-       } else if (!sub_info->wait)
++       } else if (!wait)
+                complete(sub_info->complete);
+ }
+
+-- 

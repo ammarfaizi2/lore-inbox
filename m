@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbWHASOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWHASOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751746AbWHASOw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWHASOw
+	id S1751745AbWHASOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWHASOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:14:52 -0400
-Received: from blinkenlights.ch ([62.202.0.18]:14322 "EHLO blinkenlights.ch")
-	by vger.kernel.org with ESMTP id S1751746AbWHASOv (ORCPT
+	Tue, 1 Aug 2006 14:14:46 -0400
+Received: from mail-gw1.turkuamk.fi ([195.148.208.125]:44243 "EHLO
+	mail-gw1.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S1751745AbWHASOp convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:14:51 -0400
-Date: Tue, 1 Aug 2006 20:14:49 +0200
-From: Adrian Ulrich <reiser4@blinkenlights.ch>
-To: David Masover <ninja@slaphack.com>
-Cc: gmaxwell@gmail.com, alan@lxorguk.ukuu.org.uk, vonbrand@inf.utfsm.cl,
-       bernd-schubert@gmx.de, reiserfs-list@namesys.com, jbglaw@lug-owl.de,
-       clay.barnes@gmail.com, rudy@edsons.demon.nl, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-Message-Id: <20060801201449.cde3293c.reiser4@blinkenlights.ch>
-In-Reply-To: <44CF9267.7050202@slaphack.com>
-References: <200607312314.37863.bernd-schubert@gmx.de>
-	<200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-	<20060801165234.9448cb6f.reiser4@blinkenlights.ch>
-	<1154446189.15540.43.camel@localhost.localdomain>
-	<44CF84F0.8080303@slaphack.com>
-	<e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
-	<44CF9267.7050202@slaphack.com>
-Organization: Bluewin AG
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 14:14:45 -0400
+Message-ID: <44CF9A64.7070204@kolumbus.fi>
+Date: Tue, 01 Aug 2006 21:16:04 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/33] i386: Relocatable kernel support.
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>	<11544302351934-git-send-email-ebiederm@xmission.com>	<44CF5850.80906@kolumbus.fi> <m1y7u8xrcp.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1y7u8xrcp.fsf@ebiederm.dsl.xmission.com>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release
+ 6.5.4FP2 HF462|May 23, 2006) at 01.08.2006 21:14:41,
+	Serialize by Router on marconi.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 21:14:42,
+	Itemize by SMTP Server on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 21:14:42,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4FP2
+ HF462|May 23, 2006) at 01.08.2006 21:14:43,
+	Serialize complete at 01.08.2006 21:14:43
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+> Mika Penttilä <mika.penttila@kolumbus.fi> writes:
+>
+>   
+>>> @@ -1,9 +1,10 @@
+>>>  SECTIONS
+>>>  {
+>>> -  .data : { +  .data.compressed : {
+>>>  	input_len = .;
+>>>  	LONG(input_data_end - input_data) input_data = .;  	*(.data)
+>>> +	output_len = . - 4;
+>>>  	input_data_end = .;  	}
+>>>  }
+>>>
+>>>       
+>> I don't see how you are getting the uncompressed length from output_len...
+>>     
+>
+> It's part of the gzip format.  It places the length at the end of
+> the compressed data.  I am just computing the address of where gzip
+> put the length and putting a variable there called output_len.
+>
+> Isn't linker script magic wonderful :)
+>
+> Eric
+> -
+>   
+Huh, quite a nice trick indeed!
 
-> > This is why ZFS offers block checksums... it can then try all the
-> > permutations of raid regens to find a solution which gives the right
-> > checksum.
-> 
-> Isn't there a way to do this at the block layer?  Something in 
-> device-mapper?
-
-Remember: Suns new Filesystem + Suns new Volume Manager = ZFS
+Thanks,
+Mika
 

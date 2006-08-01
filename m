@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWHALFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWHALFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932616AbWHALFX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWHALFX
+	id S932571AbWHALFV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:05:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWHALFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:05:23 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51932 "EHLO
+	Tue, 1 Aug 2006 07:05:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50652 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932616AbWHALFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:05:22 -0400
+	id S932571AbWHALFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:05:20 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: <fastboot@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
@@ -16,144 +16,125 @@ Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
        "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
        Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4/33] i386: CONFIG_PHYSICAL_START cleanup
-Date: Tue,  1 Aug 2006 05:03:19 -0600
-Message-Id: <11544302312298-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 6/33] Make linux/elf.h safe to be included in assembly files
+Date: Tue,  1 Aug 2006 05:03:21 -0600
+Message-Id: <11544302321872-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.rc2.g5209e
 In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Defining __PHYSICAL_START and __KERNEL_START in asm-i386/page.h works but
-it triggers a full kernel rebuild for the silliest of reasons.  This
-modifies the users to directly use CONFIG_PHYSICAL_START and linux/config.h
-which prevents the full rebuild problem, which makes the code much
-more maintainer and hopefully user friendly.
+The motivation for this is that currently we have 512 bytes
+at the begining of a bzImage that are unused now that we don't
+have a bootsector there.  I plan on putting an ELF header
+there, and generating it by hand with assebmly data directives
+to be minimally disrutptive to the current build process.
+
+To do that I need the elf magic constants available to my
+assembly code.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/i386/boot/compressed/head.S |    8 ++++----
- arch/i386/boot/compressed/misc.c |    8 ++++----
- arch/i386/kernel/vmlinux.lds.S   |    3 ++-
- include/asm-i386/page.h          |    3 ---
- 4 files changed, 10 insertions(+), 12 deletions(-)
+ include/linux/elf.h |   22 +++++++++++++++++++++-
+ 1 files changed, 21 insertions(+), 1 deletions(-)
 
-diff --git a/arch/i386/boot/compressed/head.S b/arch/i386/boot/compressed/head.S
-index b5893e4..8f28ecd 100644
---- a/arch/i386/boot/compressed/head.S
-+++ b/arch/i386/boot/compressed/head.S
-@@ -23,9 +23,9 @@
-  */
- .text
+diff --git a/include/linux/elf.h b/include/linux/elf.h
+index b70d1d2..c5bf043 100644
+--- a/include/linux/elf.h
++++ b/include/linux/elf.h
+@@ -1,9 +1,11 @@
+ #ifndef _LINUX_ELF_H
+ #define _LINUX_ELF_H
  
-+#include <linux/config.h>
- #include <linux/linkage.h>
- #include <asm/segment.h>
--#include <asm/page.h>
++#include <linux/elf-em.h>
++
++#ifndef __ASSEMBLY__
+ #include <linux/types.h>
+ #include <linux/auxvec.h>
+-#include <linux/elf-em.h>
+ #include <asm/elf.h>
  
- 	.globl startup_32
- 	
-@@ -75,7 +75,7 @@ startup_32:
- 	popl %esi	# discard address
- 	popl %esi	# real mode pointer
- 	xorl %ebx,%ebx
--	ljmp $(__BOOT_CS), $__PHYSICAL_START
-+	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
+ #ifndef elf_read_implies_exec
+@@ -30,6 +32,8 @@ typedef __u32	Elf64_Word;
+ typedef __u64	Elf64_Xword;
+ typedef __s64	Elf64_Sxword;
  
- /*
-  * We come here, if we were loaded high.
-@@ -100,7 +100,7 @@ startup_32:
- 	popl %ecx	# lcount
- 	popl %edx	# high_buffer_start
- 	popl %eax	# hcount
--	movl $__PHYSICAL_START,%edi
-+	movl $CONFIG_PHYSICAL_START,%edi
- 	cli		# make sure we don't get interrupted
- 	ljmp $(__BOOT_CS), $0x1000 # and jump to the move routine
++#endif /* __ASSEMBLY__ */
++
+ /* These constants are for the segment types stored in the image headers */
+ #define PT_NULL    0
+ #define PT_LOAD    1
+@@ -97,6 +101,8 @@ #define STT_FILE    4
+ #define STT_COMMON  5
+ #define STT_TLS     6
  
-@@ -125,5 +125,5 @@ move_routine_start:
- 	movsl
- 	movl %ebx,%esi	# Restore setup pointer
- 	xorl %ebx,%ebx
--	ljmp $(__BOOT_CS), $__PHYSICAL_START
-+	ljmp $(__BOOT_CS), $CONFIG_PHYSICAL_START
- move_routine_end:
-diff --git a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
-index b2ccd54..905c37e 100644
---- a/arch/i386/boot/compressed/misc.c
-+++ b/arch/i386/boot/compressed/misc.c
-@@ -9,11 +9,11 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
++#ifndef __ASSEMBLY__
++
+ #define ELF_ST_BIND(x)		((x) >> 4)
+ #define ELF_ST_TYPE(x)		(((unsigned int) x) & 0xf)
+ #define ELF32_ST_BIND(x)	ELF_ST_BIND(x)
+@@ -204,12 +210,16 @@ typedef struct elf64_hdr {
+   Elf64_Half e_shstrndx;
+ } Elf64_Ehdr;
  
-+#include <linux/config.h>
- #include <linux/linkage.h>
- #include <linux/vmalloc.h>
- #include <linux/screen_info.h>
- #include <asm/io.h>
--#include <asm/page.h>
++#endif /* __ASSEMBLY__ */
++
+ /* These constants define the permissions on sections in the program
+    header, p_flags. */
+ #define PF_R		0x4
+ #define PF_W		0x2
+ #define PF_X		0x1
  
- /*
-  * gzip declarations
-@@ -303,7 +303,7 @@ #ifdef STANDARD_MEMORY_BIOS_CALL
- #else
- 	if ((RM_ALT_MEM_K > RM_EXT_MEM_K ? RM_ALT_MEM_K : RM_EXT_MEM_K) < 1024) error("Less than 2MB of memory");
++#ifndef __ASSEMBLY__
++
+ typedef struct elf32_phdr{
+   Elf32_Word	p_type;
+   Elf32_Off	p_offset;
+@@ -232,6 +242,8 @@ typedef struct elf64_phdr {
+   Elf64_Xword p_align;		/* Segment alignment, file & memory */
+ } Elf64_Phdr;
+ 
++#endif /* __ASSEMBLY__ */
++
+ /* sh_type */
+ #define SHT_NULL	0
+ #define SHT_PROGBITS	1
+@@ -265,6 +277,8 @@ #define SHN_HIPROC	0xff1f
+ #define SHN_ABS		0xfff1
+ #define SHN_COMMON	0xfff2
+ #define SHN_HIRESERVE	0xffff
++
++#ifndef __ASSEMBLY__
+  
+ typedef struct {
+   Elf32_Word	sh_name;
+@@ -292,6 +306,8 @@ typedef struct elf64_shdr {
+   Elf64_Xword sh_entsize;	/* Entry size if section holds table */
+ } Elf64_Shdr;
+ 
++#endif /* __ASSEMBLY__ */
++
+ #define	EI_MAG0		0		/* e_ident[] indexes */
+ #define	EI_MAG1		1
+ #define	EI_MAG2		2
+@@ -338,6 +354,8 @@ #define NT_AUXV		6
+ #define NT_PRXFPREG     0x46e62b7f      /* copied from gdb5.1/include/elf/common.h */
+ 
+ 
++#ifndef __ASSEMBLY__
++
+ /* Note header in a PT_NOTE section */
+ typedef struct elf32_note {
+   Elf32_Word	n_namesz;	/* Name size */
+@@ -368,5 +386,7 @@ #define elf_note	elf64_note
+ 
  #endif
--	output_data = (unsigned char *)__PHYSICAL_START; /* Normally Points to 1M */
-+	output_data = (unsigned char *)CONFIG_PHYSICAL_START; /* Normally Points to 1M */
- 	free_mem_end_ptr = (long)real_mode;
- }
  
-@@ -326,8 +326,8 @@ #endif	
- 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
- 	high_loaded = 1;
- 	free_mem_end_ptr = (long)high_buffer_start;
--	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
--		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
-+	if ( (CONFIG_PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(CONFIG_PHYSICAL_START + low_buffer_size);
- 		mv->hcount = 0; /* say: we need not to move high_buffer */
- 	}
- 	else mv->hcount = -1;
-diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
-index db0833b..8bcf0e1 100644
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -4,6 +4,7 @@
++#endif /* __ASSEMBLY__ */
++
  
- #define LOAD_OFFSET __PAGE_OFFSET
- 
-+#include <linux/config.h>
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/thread_info.h>
- #include <asm/page.h>
-@@ -15,7 +16,7 @@ ENTRY(phys_startup_32)
- jiffies = jiffies_64;
- SECTIONS
- {
--  . = __KERNEL_START;
-+  . = LOAD_OFFSET + CONFIG_PHYSICAL_START;
-   phys_startup_32 = startup_32 - LOAD_OFFSET;
-   /* read-only */
-   .text : AT(ADDR(.text) - LOAD_OFFSET) {
-diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
-index eceb7f5..1af9f6b 100644
---- a/include/asm-i386/page.h
-+++ b/include/asm-i386/page.h
-@@ -112,12 +112,9 @@ #endif /* __ASSEMBLY__ */
- 
- #ifdef __ASSEMBLY__
- #define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
--#define __PHYSICAL_START	CONFIG_PHYSICAL_START
- #else
- #define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
--#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
- #endif
--#define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
- 
- 
- #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
+ #endif /* _LINUX_ELF_H */
 -- 
 1.4.2.rc2.g5209e
 

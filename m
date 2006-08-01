@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWHAXAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWHAXDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWHAXAL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWHAXAK
+	id S1750729AbWHAXDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWHAXDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:00:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:61679 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750711AbWHAXAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:00:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=PzYkI41/NNBt30bx5cRxPi0NFnr3Kw5RWQEbgwU8QonM3zRjYlHY2BOQkTvgPWFDXfDCrEgLmTT5Hx25Xuz/TGZqoV4dUMFvndrmQ31HVCk8EoEoD0525KuzJ5h/tagIKbpK4+V1hpvGY6rLf63TPTENvlvVQI+Yd0wA0YIGDf4=
-Date: Wed, 2 Aug 2006 03:00:03 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-Message-ID: <20060801230003.GB14863@martell.zuzino.mipt.ru>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com>
+	Tue, 1 Aug 2006 19:03:25 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:22706 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750729AbWHAXDY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 19:03:24 -0400
+Date: Tue, 1 Aug 2006 19:02:44 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix bounds check bug in __register_chrdev_region
+Message-ID: <20060801230243.GA8263@kvasir.watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060801223622.GG22240@redhat.com>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.9i
+From: Amos Waterland <apw@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 06:36:22PM -0400, Dave Jones wrote:
-> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+The code in __register_chrdev_region checks that if the driver wishing
+to register has the same major as an existing driver the new minor range
+is strictly less than the existing minor range.  However, it does not
+also check that the new minor range is strictly greater than the
+existing minor range.  That is, if driver X has registered with 
+major=x and minor=0-3, __register_chrdev_region will allow driver Y to
+register with major=x and minor=1-4.
 
-> --- a/mm/slab.c
-> +++ b/mm/slab.c
-> @@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
->  static void dump_line(char *data, int offset, int limit)
->  {
->  	int i;
-> +	unsigned char total=0, bad_count=0;
+I came across this in the context of the Xen virtual console driver, but I
+imagine it causes a problem for any driver with the same major number
+but different minor numbers as a driver that has registered ahead of it.
 
-	" = 0"
+Signed-off-by: Amos Waterland <apw@us.ibm.com>
 
->  	printk(KERN_ERR "%03x:", offset);
-> -	for (i = 0; i < limit; i++)
-> +	for (i = 0; i < limit; i++) {
-> +		if (data[offset+i] != POISON_FREE) {
+---
 
-				" + i"
+ fs/char_dev.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-> +			total += data[offset+i];
+5127ecec5817868799c55ac27e8d1651308d1497
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index 3483d3c..11c0249 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -109,10 +109,13 @@ __register_chrdev_region(unsigned int ma
+ 
+ 	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
+ 		if ((*cp)->major > major ||
+-		    ((*cp)->major == major && (*cp)->baseminor >= baseminor))
++		    ((*cp)->major == major &&
++		     (((*cp)->baseminor >= baseminor) ||
++		      ((*cp)->baseminor + (*cp)->minorct > baseminor))))
+ 			break;
+ 	if (*cp && (*cp)->major == major &&
+-	    (*cp)->baseminor < baseminor + minorct) {
++	    (((*cp)->baseminor < baseminor + minorct) ||
++	     ((*cp)->baseminor + (*cp)->minorct > baseminor))) {
+ 		ret = -EBUSY;
+ 		goto out;
+ 	}
+-- 
+1.0.4
 
-ditto
-
-> +			++bad_count;
-
-How about post increment?
-
-> +		}
->  		printk(" %02x", (unsigned char)data[offset + i]);
-> +	}
->  	printk("\n");
-> +
-> +	if (bad_count == 1) {
-> +		errors = total ^ POISON_FREE;
-
-undeclared "errors"
-
-> +		if ((errors && !(errors & (errors-1))) {
-
-		   ^^^
-
-Turn on CONFIG_DEBUG_SLAB before compiling. ;-)
 

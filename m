@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160997AbWHAOm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWHAOn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160997AbWHAOm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWHAOm7
+	id S1751367AbWHAOn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWHAOnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:42:59 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:18403 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1751347AbWHAOm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:42:58 -0400
-Message-Id: <44CF84C4.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Tue, 01 Aug 2006 16:43:48 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Stas Sergeev" <stsp@aknet.ru>
-Cc: <76306.1226@compuserve.com>, <rohitseth@google.com>, <ak@muc.de>,
-       <akpm@osdl.org>, "Linux kernel" <linux-kernel@vger.kernel.org>,
-       "Zachary Amsden" <zach@vmware.com>
-Subject: Re: + espfix-code-cleanup.patch added to -mm tree
-References: <200607300016.k6U0GYu4023664@shell0.pdx.osdl.net>
- <44CE766D.6000705@vmware.com> <44CF474C.9070800@aknet.ru>
- <44CF755C.76E4.0078.0@novell.com> <44CF672E.9080906@aknet.ru>
-In-Reply-To: <44CF672E.9080906@aknet.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Aug 2006 10:43:25 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16780 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751343AbWHAOnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 10:43:14 -0400
+Subject: Re: [PATCH][Doc] Fix copy&waste bug in comment in
+	scripts/kernel-doc
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, trivial@kernel.org,
+       linux-kernel@vger.kernel.org, Martin Waitz <tali@admingilde.org>
+In-Reply-To: <200608011634.40857.eike-kernel@sf-tec.de>
+References: <200608011634.40857.eike-kernel@sf-tec.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Tue, 01 Aug 2006 16:01:47 +0100
+Message-Id: <1154444507.15540.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Well, someone used that macro in a .fixup section, where the
->>> CFI adjustments do not seem to work. But since I don't know
->>> why this was done (Jan?), I reverted that to my original code and
->>> added the adjustments now.
->> The macro in question is UNWIND_ESPFIX_STACK, which is used in
-exactly
->No, that was about FIXUP_ESPFIX_STACK in fact.
->
->> Even more, the macro itself switches to .fixup,
->... where it uses FIXUP_ESPFIX_STACK. I haven't done that.
->Someone else added the .fixup section to UNWIND_ESPFIX_STACK,
->and so the FIXUP_ESPFIX_STACK became used in that section.
->I removed that now with my patch, unless someone can tell
->me why it was needed.
+Ar Maw, 2006-08-01 am 16:34 +0200, ysgrifennodd Rolf Eike Beer:
+> This is obviously copied from some lines before without proper fixing.
+> 
+> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 
-That was me, in order to get the unwind annotations right without
-complicating the code too much. Again, FIXUP_ESPFIX_STACK doesn't
-use any unwind directives so can be used anywhere, including the
-.fixup section UNWIND_ESPFIX_STACK switches to.
+Acked-by: Alan Cox <alan@redhat.com>
 
-Jan

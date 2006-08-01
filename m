@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751799AbWHATE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWHATGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751799AbWHATE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751801AbWHATE0
+	id S1751801AbWHATGa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWHATGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:04:26 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:17081 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751800AbWHATEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:04:25 -0400
-Subject: Re: deprecate and convert some sleep_on variants.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Cc: Dave Jones <davej@redhat.com>, arjan@infradead.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
-References: <20060801180643.GD22240@redhat.com>
-	 <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 15:03:50 -0400
-Message-Id: <1154459030.29772.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 15:06:30 -0400
+Received: from cantor.suse.de ([195.135.220.2]:62888 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751801AbWHATG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:06:29 -0400
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 2/33] i386: define __pa_symbol
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<11544302293540-git-send-email-ebiederm@xmission.com>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Aug 2006 21:06:27 +0200
+In-Reply-To: <11544302293540-git-send-email-ebiederm@xmission.com>
+Message-ID: <p73lkq81djg.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-01 at 13:20 -0500, Nish Aravamudan wrote:
-> On 8/1/06, Dave Jones <davej@redhat.com> wrote:
-> > We've been carrying this for a dogs age in Fedora. It'd be good to get
-> > this in -mm, so that it stands some chance of getting upstreamed at some point.
-> >
-> > Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-> > Signed-off-by: Dave Jones <davej@redhat.com>
-> >
+"Eric W. Biederman" <ebiederm@xmission.com> writes:
 
-> Also, would these changes:
+> On x86_64 we have to be careful with calculating the physical
+> address of kernel symbols.  Both because of compiler odditities
+> and because the symbols live in a different range of the virtual
+> address space.
 > 
-> > diff -urNp --exclude-from=/home/davej/.exclude linux-1060/include/linux/wait.h linux-1070/include/linux/wait.h
-> > --- linux-1060/include/linux/wait.h
-> > +++ linux-1070/include/linux/wait.h
+> Having a defintition of __pa_symbol that works on both x86_64 and
+> i386 simplifies writing code that works for both x86_64 and
+> i386 that has these kinds of dependencies.
 > 
-> Be better in a separate patch?
+> So this patch adds the trivial i386 __pa_symbol definition.
+> 
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> ---
+>  include/asm-i386/page.h |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
+> index f5bf544..eceb7f5 100644
+> --- a/include/asm-i386/page.h
+> +++ b/include/asm-i386/page.h
+> @@ -124,6 +124,7 @@ #define PAGE_OFFSET		((unsigned long)__P
+>  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+>  #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+>  #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
+> +#define __pa_symbol(x)		__pa(x)
 
-As well as the changes to kernel/sched.c
+Actually PAGE_OFFSET arithmetic on symbols is outside ISO C and gcc 
+misoptimizes it occassionally. You would need to use HIDE_RELOC
+or similar. That is why x86-64 has the magic.
 
--- Steve
-
-
+-Andi

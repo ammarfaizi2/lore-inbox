@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWHAN7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWHAONb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751622AbWHAN7S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWHAN7S
+	id S1751631AbWHAONb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWHAONb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:59:18 -0400
-Received: from flpi101.sbcis.sbc.com ([207.115.20.70]:37596 "EHLO
-	flpi101.sbcis.sbc.com") by vger.kernel.org with ESMTP
-	id S1751622AbWHAN7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:59:17 -0400
-X-ORBL: [70.248.21.215]
-Message-ID: <44CF5E26.50702@ksu.edu>
-Date: Tue, 01 Aug 2006 08:59:02 -0500
-From: "Scott J. Harmon" <harmon@ksu.edu>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060727)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Hans Reiser <reiser@namesys.com>,
-       Denis Vlasenko <vda.linux@googlemail.com>, linux-kernel@vger.kernel.org
-Subject: Re: reiser4: maybe just fix bugs?
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com> <44CEBCBC.9070707@namesys.com> <20060801103714.GA2310@elf.ucw.cz>
-In-Reply-To: <20060801103714.GA2310@elf.ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 10:13:31 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:49680 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751099AbWHAONa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 10:13:30 -0400
+Date: Tue, 1 Aug 2006 16:13:08 +0200
+From: Jan-Frode Myklebust <mykleb@no.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] oom_adj/oom_score documentation
+Message-ID: <20060801141307.GA18159@99RXZYP.ibm.com>
+References: <OFF927B0C7.8C7E4394-ONC12571BC.003A43D2-C12571BC.003B49E8@no.ibm.com> <20060731122314.GL6455@opteron.random> <20060801133323.GA10128@99RXZYP.ibm.com> <20060801134102.GA6455@opteron.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801134102.GA6455@opteron.random>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
->>> * Are there plans for making reiserfsck interface compatible with fsck?
->>>  I mean, making it so that reiserfsck can be symlinked to fsck.reiser
->>>  and it will work? Currently, there seems to be some incompatibility
->>>  in command-line switches. (I will dig out details and send separately
->>>  when I'll get back to my Linux box.)
->> Not sure what you mean.  Forgive me, I have not supervised fsck as
->> closely as other things.
-> 
-> fsck.ext2/fsck.vfat/... follow some convention including naming,
-> command line switches, and behaviour.
-> 
-> Like fsck.ext2 /dev/something is enough to check the fielsystem.
-> 
-> reiserfsck is missnamed (should be fsck.reiser), and it likes to chat
-> with you -- which is unexpected for tools.
-> 								Pavel
+I was looking for the a way around an OOM-problem, and found
+a couple of undocumented new features for tuning the OOM-score
+of individual processes. Here's a small documentation patch for
+/proc/<pid>/oom_adj and /proc/<pid>/oom_score.
 
-Yeah, I would never imagine that for ext2 and ext3 fsck might be called
-'e2fsck'. ;-)
+Signed-off-by: Jan-Frode Myklebust <mykleb@no.ibm.com>
 
-Scott.
--- 
-"Computer Science is no more about computers than astronomy is about
-telescopes." - Edsger Dijkstra
+---
+
+diff --git a/Documentation/filesystems/proc.txt b/Documentation/filesystems/proc.txt
+index 99902ae..81bb8ea 100644
+--- a/Documentation/filesystems/proc.txt
++++ b/Documentation/filesystems/proc.txt
+@@ -39,6 +39,8 @@ Table of Contents
+   2.9	Appletalk
+   2.10	IPX
+   2.11	/proc/sys/fs/mqueue - POSIX message queues filesystem
++  2.12	/proc/<pid>/oom_adj - Adjust the oom-killer score
++  2.13	/proc/<pid>/oom_score - Display current oom-killer score
+ 
+ ------------------------------------------------------------------------------
+ Preface
+@@ -1958,6 +1960,21 @@ a queue must be less or equal then msg_m
+ maximum  message size value (it is every  message queue's attribute set during
+ its creation).
+ 
++2.12 /proc/<pid>/oom_adj - Adjust the oom-killer score
++------------------------------------------------------
++
++This file can be used to adjust the score used to select which processes shall
++be killed in an out-of-memory situation.  Giving it a high score, increase the
++likelihood of this process being killed by the oom-killer. Valid values are in
++the range [-16:15], plus the special value '-17', which defeat the  oom-killer
++altogether.
++
++2.13 /proc/<pid>/oom_score - Display current oom-killer score
++-------------------------------------------------------------
++
++This file can be used to check what the  current score  used by the oom-killer
++is for any given <pid>. Use it together with /proc/<pid>/oom_adj to tune which
++process will be killed in an out-of-memory situation.
+ 
+ ------------------------------------------------------------------------------
+ Summary

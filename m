@@ -1,61 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWHAXX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWHAX0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWHAXX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWHAXXZ
+	id S1750747AbWHAX0A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHAX0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:23:25 -0400
-Received: from thing.hostingexpert.com ([67.15.235.34]:57816 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1750738AbWHAXXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:23:25 -0400
-Message-ID: <44CFE256.8080200@linuxtv.org>
-Date: Tue, 01 Aug 2006 19:23:02 -0400
-From: Michael Krufky <mkrufky@linuxtv.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Edgar Hucek <hostmaster@ed-soft.at>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>,
-       Chris Wright <chrisw@sous-sol.org>
-Subject: Re: [patch 07/45] v4l/dvb: Fix CI on old KNC1 DVBC cards
-References: <20060717160652.408007000@blue.kroah.org> <20060717162617.GH4829@kroah.com> <44C61616.7060203@ed-soft.at> <44C6358D.4040502@linuxtv.org> <44C63727.0@ed-soft.at> <20060725171055.GB1846@suse.de>
-In-Reply-To: <20060725171055.GB1846@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxtv.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 1 Aug 2006 19:26:00 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:26329 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1750741AbWHAX0A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 19:26:00 -0400
+Subject: Re: [2.6.18-rc2-mm1] pata_via fails
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>
+Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+In-Reply-To: <20060802010415.2bebc5fc@werewolf.auna.net>
+References: <20060802010415.2bebc5fc@werewolf.auna.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 02 Aug 2006 00:45:05 +0100
+Message-Id: <1154475905.15540.121.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Jul 25, 2006 at 05:22:15PM +0200, Edgar Hucek wrote:
->> I don't own such a dvb card. I only saw it when trying to compile kernel 2.6.17.7.
+Ar Mer, 2006-08-02 am 01:04 +0200, ysgrifennodd J.A. Magallón:
+> Yes, generic subject ;)
 > 
-> Did that patch fix the build issue?
+> After solving the problems with ICH, one other stays. One box has a
+> VIA controller (in fact, this is a ApolloPro 266 chipset motherboard):
 
-The build issue is indeed fixed with that patch.  Please queue it up for
-2.6.17.8
+Known insanity. With some ATAPI devices the VIA delivers the IRQ before
+the response is ready when we do a SET_FEATURES. Still being worked on.
 
+Alan
 
-It's already in my git tree for those that want to test it:
-
-http://www.kernel.org/git/?p=linux/kernel/git/mkrufky/v4l-dvb-2.6.17.y.git
-
-Cheers,
-
-Mike Krufky

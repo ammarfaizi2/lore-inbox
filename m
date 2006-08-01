@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWHAIMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWHAIMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWHAIMd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 04:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWHAIMd
+	id S1751327AbWHAIMn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWHAIMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 04:12:33 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:16589 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751288AbWHAIMc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 04:12:32 -0400
-Date: Tue, 1 Aug 2006 10:12:10 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-Message-ID: <20060801101210.0548a382@cad-250-152.norway.atmel.com>
-In-Reply-To: <1154371259.13744.4.camel@localhost>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-	<20060731174659.72da734f@cad-250-152.norway.atmel.com>
-	<1154371259.13744.4.camel@localhost>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Aug 2006 04:12:43 -0400
+Received: from rzcomm12.rz.tu-bs.de ([134.169.9.59]:60414 "EHLO
+	rzcomm12.rz.tu-bs.de") by vger.kernel.org with ESMTP
+	id S1751327AbWHAIMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 04:12:42 -0400
+Message-ID: <44CF0CDE.2080500@l4x.org>
+Date: Tue, 01 Aug 2006 10:12:14 +0200
+From: Jan Dittmer <jdi@l4x.org>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Joe Jin <lkmaillist@gmail.com>
+CC: kernel <linux@idccenter.cn>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS Bug null pointer dereference in xfs_free_ag_extent
+References: <44BF29CD.1000809@l4x.org> <44CB0BF7.6030204@idccenter.cn>	 <44CB1303.7010303@l4x.org>	 <20060731094424.E2280998@wobbly.melbourne.sgi.com>	 <44CDA156.6000105@idccenter.cn>	 <20060731165522.K2280998@wobbly.melbourne.sgi.com>	 <44CDB135.8080401@idccenter.cn>	 <20060731194310.A2301615@wobbly.melbourne.sgi.com>	 <44CDD5B9.8020608@idccenter.cn> <215036450607311849o43b1555br13ea2f3f20fb3b82@mail.gmail.com>
+In-Reply-To: <215036450607311849o43b1555br13ea2f3f20fb3b82@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 11:40:58 -0700
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-
-> On Mon, 2006-07-31 at 17:46 +0200, Haavard Skinnemoen wrote:
-> > On Mon, 31 Jul 2006 15:55:15 +0200
-> > Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
-> > 
-> > > Anyway, 2.6.18-rc2-mm1 boots successfully on my target with these
-> > > patches, but there's something strange going on with NFS and a few
-> > > other things that I didn't notice on 2.6.18-rc1. I'll investigate
-> > > some more and see if I can figure out what's going on.
-> > 
-> > All forms of write access to the NFS root file system seem to return
-> > -EACCESS. If I leave out git-nfs.patch, the problem goes away, so
-> > I'll try bisecting the NFS git tree tomorrow.
+Joe Jin schrieb:
+>  From the information, I think it caused by (args.agbp == NULL).
+> get rid of, we'll find the call trace should panic:
+> xfs_free_extent
+> |_   xfs_free_ag_extent  => here args.agbp= NULL;
+>         |_ xfs_btree_init_cursor()
+>               |_ agf = XFS_BUF_TO_AGF(agbp);  => (xfs_agf_t 
+> *)XFS_BUF_PTR(arbp)
+>                              |_ (xfs_caddr_t)((agbp)->b_addr) : but 
+> here, agbp is NULL
+> so it caused the oops.
+> Non debug option, and the oops occured at xfs_btree_init_cursor().
 > 
-> can you check in /proc/self/mountstats what mount options are set on
-> the root file system?
 
-rw,vers=2,rsize=4096,wsize=4096,acregmin=3,acregmax=60,acdirmin=30,
-acdirmax=60,hard,nolock,proto=udp,timeo=11,retrans=2,sec=null
+Probably caused by this part of the diff from Nathan's earlier mail:
 
-> > Is there anyway to access it via http?
-> 
-> The individual patches are archived in
+--- 8558226281c45a61d7a0bc056505246e705a372b
++++ 22af489d3f346c7bb4488cdcf1ee91e59e48ddf3
+--- fs/xfs/xfs_alloc.c
++++ fs/xfs/xfs_alloc.c
 
-Thanks, I cloned the git repository via my home PC so I could do a real
-bisect, which ended up blaming this patch:
+@@ -1951,8 +1951,14 @@ xfs_alloc_fix_freelist(
+  		 * the restrictions correctly.  Can happen for free calls
+  		 * on a completely full ag.
+  		 */
+-		if (targs.agbno == NULLAGBLOCK)
++		if (targs.agbno == NULLAGBLOCK) {
++			if (!(flags & XFS_ALLOC_FLAG_FREEING)) {
++				xfs_trans_brelse(tp, agflbp);
++				args->agbp = NULL;
++				return 0;
++			}
+  			break;
++		}
+  		/*
+  		 * Put each allocated block on the list.
+  		 */
 
-NFS: Share NFS superblocks per-protocol per-server per-FSID
-
-from David Howells. The patch is quite large, so I'm not able to spot
-anything obvious. Please let me know if you want me to test something.
-
-Haavard
+Jan

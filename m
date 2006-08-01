@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751847AbWHATfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWHATjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751847AbWHATfg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWHATfg
+	id S1751851AbWHATjU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWHATjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:35:36 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:60036 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751847AbWHATff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:35:35 -0400
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.64.0608011209560.18537@schroedinger.engr.sgi.com>
-References: <20060801030443.GA2221@gondor.apana.org.au>
-	 <20060731210418.084f9f5d.akpm@osdl.org>
-	 <20060801050259.GA3126@gondor.apana.org.au>
-	 <20060731225454.19981a5f.akpm@osdl.org>
-	 <Pine.LNX.4.64.0608011034540.18006@schroedinger.engr.sgi.com>
-	 <1154459316.29772.5.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0608011209560.18537@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 15:35:13 -0400
-Message-Id: <1154460913.30391.3.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 15:39:20 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:22400 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751851AbWHATjT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:39:19 -0400
+Date: Tue, 1 Aug 2006 21:39:48 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mark Seger <Mark.Seger@hp.com>
+Cc: linux-kernel@vger.kernel.org, Alan Brunelle <Alan.Brunelle@hp.com>
+Subject: Re: Accuracy of disk statistics IO counter
+Message-ID: <20060801193948.GC20108@suse.de>
+References: <44CA3523.9020000@hp.com> <20060729104232.GD13095@suse.de> <44CFABE0.8020501@hp.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CFABE0.8020501@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-01 at 12:10 -0700, Christoph Lameter wrote:
-> On Tue, 1 Aug 2006, Steven Rostedt wrote:
+On Tue, Aug 01 2006, Mark Seger wrote:
 > 
-> > If you set the alignment for ext3 the same as the size (ie 1024, 2048,
-> > 4096 for the above respectively) then wouldn't that guarantee not
-> > straddling a page?
-> 
-> Yes. But then that number must always be a fraction of pagesize.
-> 
+> >>Specifically, I wrote a 1GB file with a blocksize of 1MB, which would 
+> >>result in 1000 writes at the application level.  What I believe then 
+> >>happens is that each write turns into 8 128KB requests to the driver, 
+> >>which should result in 8000 actual writes.  Toss in metadata operations 
+> >>and who knows what else and the actual number should be a little 
+> >>higher.  What I've see after repeating the tests a number of times on 
+> >>2.6.16-27 is numbers ranging from 6800-7000 writes which feels like a 
+> >>big enough difference to at least point out.
+> >>   
+> >>
+> >
+> >Install http://brick.kernel.dk/snaps/blktrace-git-20060723022503.tar.gz
+> >and blktrace your disk for the duration of the test and compare the io
+> >numbers. Requires 2.6.17 or later, though.
+> > 
+> >
+> I had problems getting blktrace going and posted a note to 
+> linux-btrace@vger.kernel.org at Alan Brunelle's suggestion and he also 
 
-understood, as is 1024, 2048, and 4096 are.  Well, if pagesize is 4096
-is 4096 really a fraction of 4096? :)
+Documentation issues, sorry about that. It hasn't been updated for the
+debugfs change.
 
-Also, isn't all sizes for kmalloc that are under pagesize a fraction of
-the page size? Or more correctly, a power of 2?
+> said he'd take a closer look at it himself.  On the other hand he 
+> pointed me to 'stap' and I was able to use it to get the details I was 
+> looking for - SystemTAP really rocks for this type of analysis!  As it 
+> turns out my assumption about driver blocksize was wrong (sorry about 
+> that).  It turns out that the size of requests from the driver to the 
+> disk is 160mb and so the I/O count was smaller than I had anticipated.
 
--- Steve
+160KiB, I'm assuming? :-)
 
+-- 
+Jens Axboe
 

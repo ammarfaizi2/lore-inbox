@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWHAOd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWHAOeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWHAOd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWHAOd0
+	id S932432AbWHAOeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWHAOeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:33:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48340 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751637AbWHAOdZ (ORCPT
+	Tue, 1 Aug 2006 10:34:44 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:4104 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S932075AbWHAOen (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:33:25 -0400
-Date: Tue, 1 Aug 2006 07:33:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-Cc: vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       Reiserfs-List@namesys.com
-Subject: Re: reiser4: maybe just fix bugs?
-Message-Id: <20060801073316.ee77036e.akpm@osdl.org>
-In-Reply-To: <1154431477.10043.55.camel@tribesman.namesys.com>
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
-	<20060801013104.f7557fb1.akpm@osdl.org>
-	<44CEBA0A.3060206@namesys.com>
-	<1154431477.10043.55.camel@tribesman.namesys.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Aug 2006 10:34:43 -0400
+Message-ID: <44CF672E.9080906@aknet.ru>
+Date: Tue, 01 Aug 2006 18:37:34 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Zachary Amsden <zach@vmware.com>, 76306.1226@compuserve.com,
+       rohitseth@google.com, ak@muc.de, akpm@osdl.org,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: + espfix-code-cleanup.patch added to -mm tree
+References: <200607300016.k6U0GYu4023664@shell0.pdx.osdl.net> <44CE766D.6000705@vmware.com> <44CF474C.9070800@aknet.ru> <44CF755C.76E4.0078.0@novell.com>
+In-Reply-To: <44CF755C.76E4.0078.0@novell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Aug 2006 15:24:37 +0400
-"Vladimir V. Saveliev" <vs@namesys.com> wrote:
+Hi.
 
-> > >The writeout code is ugly, although that's largely due to a mismatch between
-> > >what reiser4 wants to do and what the VFS/MM expects it to do.
-> 
-> Yes. reiser4 writeouts atoms. Most of pages get into atoms via
-> sys_write. But pages dirtied via shared mapping do not. They get into
-> atoms in reiser4's writepages address space operation.
+Jan Beulich wrote:
+>> Well, someone used that macro in a .fixup section, where the
+>> CFI adjustments do not seem to work. But since I don't know
+>> why this was done (Jan?), I reverted that to my original code and
+>> added the adjustments now.
+> The macro in question is UNWIND_ESPFIX_STACK, which is used in exactly
+No, that was about FIXUP_ESPFIX_STACK in fact.
 
-It think you mean ->writepage - reiser4 desn't implement ->writepages().
+> Even more, the macro itself switches to .fixup,
+... where it uses FIXUP_ESPFIX_STACK. I haven't done that.
+Someone else added the .fixup section to UNWIND_ESPFIX_STACK,
+and so the FIXUP_ESPFIX_STACK became used in that section.
+I removed that now with my patch, unless someone can tell
+me why it was needed.
 
-I assume you considered hooking into ->set_page_dirty() to do the
-add-to-atom thing earlier on?
+> Note
+> that FIXUP_ESPFIX_STACK doesn't have any annotations, and hence can
+> freely be used in .fixup.
+Yes, but now the annotations had to be added, and so was the problem.
 
-We'll merge mm-tracking-shared-dirty-pages.patch into 2.6.19-rc1, which
-would make that approach considerably more successful, I expect. 
-->set_page_dirty() is a bit awkward because it can be called under
-spinlock.
+>> Hmm, I guess it wasn't correct also before, so I just
+>> left it as is. Should now be fixed.
+> I would think it was correct,
+But why? FIXUP_ESPFIX_STACK doesn't pop up 20 bytes or something,
+it just used to copy the entire stack frame from 16bit to 32bit
+stack. It is much more than 20 bytes, but at the end, %ss:%esp
+points to the very same data. So where exactly did 20 come from?
+Well, historical interest mainly, as that code is going to die
+when we agree on the patch, and the new code is much cleaner and
+won't raise such a questions.
 
-Maybe comething could also be gained from the new
-vm_operations_struct.page_mkwrite(), although that's less obvious...
+> but surely annotating these pieces of
+> code wasn't something that anybody but the original author (you) should
+> have done, as it wasn't too difficult to get lost.
+When it was written, such an annotations were not needed yet, so
+I couldn't do that.
 
-> That is why
-> reiser4_sync_inodes has two steps: on first one it calls
-> generic_sync_sb_inodes to call writepages for dirty inodes to capture
-> pages dirtied via shared mapping into atoms. Second step flushes atoms.
-> 
-> > >
-> > I agree --- both with it being ugly, and that being part of why.
-> > 
-> > >  If it
-> > >works, we can live with it, although perhaps the VFS could be made smarter.
-> > >  
-> > >
-> > I would be curious regarding any ideas on that.  Next time I read
-> > through that code, I will keep in mind that you are open to making VFS
-> > changes if it improves things, and I will try to get clever somehow and
-> > send it by you.  Our squalloc code though is I must say the most
-> > complicated and ugliest piece of code I ever worked on for which every
-> > cumulative ugliness had a substantive performance advantage requiring us
-> > to keep it.  If you spare yourself from reading that, it is
-> > understandable to do so.
-> > 
-> > >I'd say that resier4's major problem is the lack of xattrs, acls and
-> > >direct-io.  That's likely to significantly limit its vendor uptake. 
-> 
-> xattrs is really a problem.
-
-That's not good.  The ability to properly support SELinux is likely to be
-important.

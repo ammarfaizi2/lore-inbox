@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbWHAHXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161209AbWHAHZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932575AbWHAHXI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWHAHXI
+	id S1161209AbWHAHZA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 03:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161323AbWHAHZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:23:08 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54898 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932575AbWHAHXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:23:07 -0400
-Date: Tue, 1 Aug 2006 09:23:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-Message-ID: <20060801072315.GH31908@suse.de>
-References: <20060801030443.GA2221@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801030443.GA2221@gondor.apana.org.au>
+	Tue, 1 Aug 2006 03:25:00 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:55312 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1161209AbWHAHY7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 03:24:59 -0400
+Message-ID: <44CF01C1.9070802@argo.co.il>
+Date: Tue, 01 Aug 2006 10:24:49 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Theodore Tso <tytso@mit.edu>
+CC: David Lang <dlang@digitalinsight.com>, David Masover <ninja@slaphack.com>,
+       tdwebste2@yahoo.com, Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
+ by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801064837.GB1987@thunk.org>
+In-Reply-To: <20060801064837.GB1987@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Aug 2006 07:24:57.0365 (UTC) FILETIME=[975ADC50:01C6B53B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01 2006, Herbert Xu wrote:
-> Hi Andrew:
-> 
-> [BLOCK] bh: Ensure bh fits within a page
-> 
-> There is a bug in jbd with slab debugging enabled where it was submitting
-> a bh obtained via jbd_rep_kmalloc which crossed a page boundary.  A lot
-> of time was spent on tracking this down because the symptoms were far off
-> from where the problem was.
-> 
-> This patch adds a sanity check to submit_bh so we can immediately spot
-> anyone doing similar things in future.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-> 
-> While you're at it, could you fix that jbd bug for us :)
-> 
-> Cheers,
-> -- 
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-> --
-> diff --git a/fs/buffer.c b/fs/buffer.c
-> index 71649ef..b998f08 100644
-> --- a/fs/buffer.c
-> +++ b/fs/buffer.c
-> @@ -2790,6 +2790,7 @@ int submit_bh(int rw, struct buffer_head
->  	BUG_ON(!buffer_locked(bh));
->  	BUG_ON(!buffer_mapped(bh));
->  	BUG_ON(!bh->b_end_io);
-> +	WARN_ON(bh_offset(bh) + bh->b_size > PAGE_SIZE);
+Theodore Tso wrote:
+>
+> Ah, but as soon as the repacker thread runs continuously, then you
+> lose all or most of the claimed advantage of "wandering logs".
+> Specifically, the claim of the "wandering log" is that you don't have
+> to write your data twice --- once to the log, and once to the final
+> location on disk (whereas with ext3 you end up having to do double
+> writes).  But if the repacker is running continuously, you end up
+> doing double writes anyway, as the repacker moves things from a
+> location that is convenient for the log, to a location which is
+> efficient for reading.  Worse yet, if the repacker is moving disk
+> blocks or objects which are no longer in cache, it may end up having
+> to read objects in before writing them to a final location on disk.
+> So instead of a write-write overhead, you end up with a
+> write-read-write overhead.
+>
 
-That looks really dangerous, I'd prefer that to be a BUG_ON() as well to
-prevent nastiness further down.
+There's no reason to repack *all* of the data.  Many workloads write and 
+delete whole files, so file data should be contiguous.  The repacker 
+would only need to move metadata and small files.
 
 -- 
-Jens Axboe
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

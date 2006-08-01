@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751727AbWHARhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751720AbWHARjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751727AbWHARhR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWHARhR
+	id S1751720AbWHARjt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbWHARjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:37:17 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24230 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751726AbWHARhP (ORCPT
+	Tue, 1 Aug 2006 13:39:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41097 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750929AbWHARjt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:37:15 -0400
-Date: Tue, 1 Aug 2006 10:36:55 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-In-Reply-To: <20060731225454.19981a5f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0608011034540.18006@schroedinger.engr.sgi.com>
-References: <20060801030443.GA2221@gondor.apana.org.au>
- <20060731210418.084f9f5d.akpm@osdl.org> <20060801050259.GA3126@gondor.apana.org.au>
- <20060731225454.19981a5f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Aug 2006 13:39:49 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1154450847.5605.21.camel@localhost> 
+References: <1154450847.5605.21.camel@localhost>  <1154354115351-git-send-email-hskinnemoen@atmel.com> <20060731174659.72da734f@cad-250-152.norway.atmel.com> <1154371259.13744.4.camel@localhost> <20060801101210.0548a382@cad-250-152.norway.atmel.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 01 Aug 2006 18:39:36 +0100
+Message-ID: <6189.1154453976@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006, Andrew Morton wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> > Sure, this particular instance is in journal_write_metadata_buffer
-> > where the bh may be constructed from kmalloc memory (search for the
-> > call to jbd_rep_kmalloc).  Because the memory returned by kmalloc
-> > may straddle a page (when slab debugging is enabled that is), this
-> > causes a broken bh to be injected into submit_bh.
-> > 
-> 
-> Crap, that's hard to fix.   Am I allowed to blame submit_bh()? ;)
-> 
-> uhm, we don't want to lose kmalloc redzoning, so I guess we need to create
-> on-demand ext3-private slab caches for 1024, 2048, and 4096 bytes.  With
-> the appropriate slab flags to defeat the redzoning.
+> +			/* Set the pseudoflavor */
+> +			if (!(data->flags & NFS_MOUNT_SECFLAVOUR))
+> +				data->pseudoflavor = RPC_AUTH_UNIX;
+>  			memset(data->context, 0, sizeof(data->context));
 
-The slab allocator gives no guarantee that a structure is not straddling a 
-page boundary regardless of debug or not. It may just happen that the 
-objects are arranged if kmem_cache_cretae() is called with certain 
-parameters. Another arch with other cacheline alignment and another page 
-size may arrange the objects differently.
+Should the memset() conditional also?
 
+David

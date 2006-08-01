@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWHAOl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWHAOmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWHAOl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWHAOl4
+	id S1751315AbWHAOmK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWHAOmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:41:56 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12940 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751315AbWHAOlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:41:55 -0400
-Subject: Re: [PATCH][Doc] Fix kerneldoc comments in kernel/timer.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rdunlap@xenotime.net>
-In-Reply-To: <200608011631.40189.eike-kernel@sf-tec.de>
-References: <200608011631.40189.eike-kernel@sf-tec.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Aug 2006 16:00:46 +0100
-Message-Id: <1154444446.15540.35.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 10:42:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46807 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751315AbWHAOmI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 10:42:08 -0400
+Date: Tue, 1 Aug 2006 07:41:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>,
+       Jan Beulich <jbeulich@novell.com>
+Cc: ak@suse.de, mingo@elte.hu, arjan@infradead.org, Matt_Domsch@dell.com,
+       davem@davemloft.net, yoshfuji@linux-ipv6.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [IPV6]: Audit all ip6_dst_lookup/ip6_dst_store calls
+Message-Id: <20060801074133.b5b96f11.akpm@osdl.org>
+In-Reply-To: <20060731090433.GA25192@gondor.apana.org.au>
+References: <20060728194531.GA17744@lists.us.dell.com>
+	<20060729043325.GA7035@gondor.apana.org.au>
+	<20060730.154416.121293840.davem@davemloft.net>
+	<20060731033210.GD31083@humbolt.us.dell.com>
+	<20060731090433.GA25192@gondor.apana.org.au>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-08-01 am 16:31 +0200, ysgrifennodd Rolf Eike Beer:
-> Some of the kerneldoc comments in this file are ignored since the lead-in is
-> malformed, using either "/*" or "/***" instead of "/**".
+On Mon, 31 Jul 2006 19:04:33 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
+
+> 2) There is something broken in the x86_64 unwind code which is causing
+> it to panic just about everytime somebody calls dump_stack().
 > 
-> Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> Andi, this is the second time I've seen a report where an otherwise
+> harmless dump_stack call (the other one was caused by a WARN_ON) gets
+> turned into a panic by the stack unwind code on x86_64.  This particular
+> report is with 2.6.18-rc3 so it looks like whatever bug is causing it
+> hasn't been fixed yet.
+> 
+> Could you please have a look at it? Thanks.
 
-Acked-by: Alan Cox <alan@redhat.com>
+Jan thinks this might have been fixed by a patch which he sent Andi a
+couple of days ago.  Andi has sent that patch to Linus but I'm not sure
+which patch it was and I'm not sure whether it has been merged into
+mainline.
 
+But yes, -rc3 unwind has problems.

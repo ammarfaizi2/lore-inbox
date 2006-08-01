@@ -1,85 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWHASRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWHASUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWHASRI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWHASRI
+	id S1751761AbWHASUd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWHASUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:17:08 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:15316 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1751758AbWHASRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:17:06 -0400
-Message-ID: <44CF9A23.9090409@t-online.de>
-Date: Tue, 01 Aug 2006 20:14:59 +0200
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060714)
+	Tue, 1 Aug 2006 14:20:33 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:60786 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751761AbWHASUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 14:20:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tqBtRDZzCl9VzqKLfr0d+WBlrRhCYz4/Y/W3FYgZZZtTY4M+vHgqc3SSAsDx8FAW9djCzu8GhbVUBYrsW4JAuHXS9yieI/jB+mYjT+zIyN4c1L5h0zTORfolDBZG8mqM18YgQWrqWXw2P7dLrbJmS/xWtbC7I6aGzENzK4AaLCg=
+Message-ID: <29495f1d0608011120j8103c5bwd169367ee2d67bc0@mail.gmail.com>
+Date: Tue, 1 Aug 2006 13:20:28 -0500
+From: "Nish Aravamudan" <nish.aravamudan@gmail.com>
+To: "Dave Jones" <davej@redhat.com>, arjan@infradead.org,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Subject: Re: deprecate and convert some sleep_on variants.
+In-Reply-To: <20060801180643.GD22240@redhat.com>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-References: <44CC9F7E.8040807@t-online.de> <44CF7E5A.2010903@gmail.com>
-In-Reply-To: <44CF7E5A.2010903@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1A984B9BDC59A972C6DDBFD4"
-X-ID: Ekyj+ZZr8e+uemtwrjAbbrCrp8lXx7M9ZIPptcEbyEobPjYYRTzJEI
-X-TOI-MSGID: 051197c5-be9f-4e30-92f6-065a575a38b9
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060801180643.GD22240@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1A984B9BDC59A972C6DDBFD4
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On 8/1/06, Dave Jones <davej@redhat.com> wrote:
+> We've been carrying this for a dogs age in Fedora. It'd be good to get
+> this in -mm, so that it stands some chance of getting upstreamed at some point.
+>
+> Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> Signed-off-by: Dave Jones <davej@redhat.com>
+>
+> diff -urNp --exclude-from=/home/davej/.exclude linux-1060/drivers/block/DAC960.c linux-1070/drivers/block/DAC960.c
+> --- linux-1060/drivers/block/DAC960.c
+> +++ linux-1070/drivers/block/DAC960.c
+> @@ -6132,6 +6132,9 @@ static boolean DAC960_V2_ExecuteUserComm
+>    unsigned long flags;
+>    unsigned char Channel, TargetID, LogicalDriveNumber;
+>    unsigned short LogicalDeviceNumber;
+> +  wait_queue_t __wait;
+> +
+> +  init_waitqueue_entry(&__wait, current);
+>
+>    spin_lock_irqsave(&Controller->queue_lock, flags);
+>    while ((Command = DAC960_AllocateCommand(Controller)) == NULL)
+> @@ -6314,11 +6317,18 @@ static boolean DAC960_V2_ExecuteUserComm
+>                                         .SegmentByteCount =
+>             CommandMailbox->ControllerInfo.DataTransferSize;
+>           DAC960_ExecuteCommand(Command);
+> +         add_wait_queue(&Controller->CommandWaitQueue, &__wait);
+> +         set_current_state(TASK_UNINTERRUPTIBLE);
 
-Tejun Heo wrote:
->=20
-> Can you try the following instead of hdparm?
->=20
-> echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
->=20
-> It will make libata involved in putting the disk to sleep and waking it=
+Could this use prepare_to_wait()
 
-> up, and, when waking, it will kick the drive in the ass by resetting th=
-e
-> channel.  Please try with the latest -rc kernel.
->=20
+> +
+>           while (Controller->V2.NewControllerInformation->PhysicalScanActive)
+>             {
+>               DAC960_ExecuteCommand(Command);
+> -             sleep_on_timeout(&Controller->CommandWaitQueue, HZ);
+> +             schedule_timeout(HZ);
+> +             set_current_state(TASK_UNINTERRUPTIBLE);
 
-Sorry to say, but this did not work:
+and schedule_timeout_uninterruptible() (which is redundant for the
+first invocation, I suppose)
 
-# echo 1 > /sys/bus/scsi/devices/0:0:0:0/power/state
-bash: echo: write error: Invalid argument
-# ll !$
-ll /sys/bus/scsi/devices/0:0:0:0/power/state
--rw-r--r-- 1 root root 0 Aug  1 20:00 /sys/bus/scsi/devices/0:0:0:0/power=
-/state
-# cat !$
-cat /sys/bus/scsi/devices/0:0:0:0/power/state
-0
-# uname -a
-Linux bugs 2.6.18-rc3 #2 PREEMPT Sun Jul 30 16:26:22 CEST 2006 i686 GNU/L=
-inux
+>             }
+> +         current->state = TASK_RUNNING;
+> +         remove_wait_queue(&Controller->CommandWaitQueue, &__wait);
 
+and finish_wait()?
 
-Regards
+Same for ibmtr.c ?
 
-Harri
+Also, would these changes:
 
+> diff -urNp --exclude-from=/home/davej/.exclude linux-1060/include/linux/wait.h linux-1070/include/linux/wait.h
+> --- linux-1060/include/linux/wait.h
+> +++ linux-1070/include/linux/wait.h
 
+Be better in a separate patch?
 
---------------enig1A984B9BDC59A972C6DDBFD4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEz5qaUTlbRTxpHjcRAnwSAJsEw1OAqTlCpf1LWSnI2MCo4RkgNQCggEUa
-OSi6nnQVgPkoxorflu1oyD8=
-=CyOR
------END PGP SIGNATURE-----
-
---------------enig1A984B9BDC59A972C6DDBFD4--
+Thanks,
+Nish

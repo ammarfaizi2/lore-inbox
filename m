@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161344AbWHAHgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161347AbWHAHj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161344AbWHAHgv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161345AbWHAHgv
+	id S1161347AbWHAHj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 03:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWHAHj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:36:51 -0400
-Received: from mx2.suse.de ([195.135.220.15]:13533 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161344AbWHAHgu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:36:50 -0400
-Date: Tue, 1 Aug 2006 09:36:44 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix link error in atyfb with backlight disabled
-Message-ID: <20060801073644.GA9716@suse.de>
-References: <20060731185220.GA5127@suse.de> <20060731233134.d7477be8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 1 Aug 2006 03:39:26 -0400
+Received: from bill.weihenstephan.org ([82.135.35.21]:35040 "EHLO
+	bill.weihenstephan.org") by vger.kernel.org with ESMTP
+	id S1161347AbWHAHj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 03:39:26 -0400
+From: Juergen Beisert <juergen127@kreuzholzen.de>
+To: Chris Boot <bootc@bootc.net>, Robert Schwebel <r.schwebel@pengutronix.de>
+Subject: Re: [RFC] Proposal: common kernel-wide GPIO interface
+Date: Tue, 1 Aug 2006 09:40:24 +0200
+User-Agent: KMail/1.5.4
+Cc: Ben Dooks <ben@fluff.org>, kernel list <linux-kernel@vger.kernel.org>
+References: <44CA7738.4050102@bootc.net> <20060731201735.GZ10495@pengutronix.de> <44CE74CA.8070504@bootc.net>
+In-Reply-To: <44CE74CA.8070504@bootc.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060731233134.d7477be8.akpm@osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Message-Id: <200608010940.25179.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Jul 31, Andrew Morton wrote:
+Hi Chris,
 
-> Linus merged a patch today (powermac-more-powermac-backlight-fixes.patch)
-> whcih changes all this stuff.  Its changelog included a mysterious "More
-> Kconfig fixes".
+some ideas:
 
-Yes, we all love those commits with other unrelated changes...
+On Monday 31 July 2006 23:23, Chris Boot wrote:
+> Yes I was thinking that a GPIO is a resource a little like an IRQ and
+> thinking of a registration and ownership system as well. I'm glad somebody
+> came up with that suggestion!
+>
+> The access API is, as you say, more difficult. The access methods for slow
+> GPIOs is indeed very simple but I can't think of any way to provide
+> (near-)direct access for faster accesses in a portable way. Does anyone
+> have any suggestions?
 
-> So can you please see if current -git is indeed fixed?
+Maybe three kind of API. One for fastest access: The driver request the GPIO 
+itself from the GPIO management and has to share some kind of locking 
+mechanism with the other API to avoid conflicts when accessing the registers 
+to manipulate this GPIO. This could be the way an I2C driver works to be as 
+fast as possible. Buts its achitecture specific.
+The second API is slower and supports some functions to manipulate the GPIOs 
+at higer lever. This API would be architrecture independend but for use in 
+the kernel only.
+The third API I like to have is for some slow GPIO. They should be accessible 
+from user space in an easy way. For example through some entries in sysfs the 
+user can access with simple "cat" and "echo" commands.
+Alltogether share the GPIO management and the locking mechanism.
 
-It kind of works.
-FB_ATY_BACKLIGHT depends on PMAC_BACKLIGHT right now.
+Juergen
+

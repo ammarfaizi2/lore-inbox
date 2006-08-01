@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWHAUMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWHAUMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbWHAUMb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 16:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbWHAUMa
+	id S1160995AbWHAUMR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWHAUMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 16:12:30 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:40113 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161017AbWHAUM3 (ORCPT
+	Tue, 1 Aug 2006 16:12:17 -0400
+Received: from mail.tmr.com ([64.65.253.246]:27281 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S1160995AbWHAUMQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 16:12:29 -0400
-Date: Tue, 1 Aug 2006 22:12:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ifdef blktrace debugging fields
-Message-ID: <20060801201256.GE20108@suse.de>
-References: <200608010657.k716vBWF004420@shell0.pdx.osdl.net> <20060801071658.GG31908@suse.de> <20060801002904.53407219.akpm@osdl.org> <20060801074436.GJ31908@suse.de> <20060801134703.GG7006@martell.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801134703.GG7006@martell.zuzino.mipt.ru>
+	Tue, 1 Aug 2006 16:12:16 -0400
+Message-ID: <44CFB66E.1080500@tmr.com>
+Date: Tue, 01 Aug 2006 16:15:42 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
+MIME-Version: 1.0
+Newsgroups: gmane.linux.kernel
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+References: <20060801184451.GP22240@redhat.com>
+In-Reply-To: <20060801184451.GP22240@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01 2006, Alexey Dobriyan wrote:
-> On Tue, Aug 01, 2006 at 09:44:36AM +0200, Jens Axboe wrote:
-> > Certainly. If Alexey adds the blkdev.h bit as well, we can go ahead with
-> > it.
+eventuallyDave Jones wrote:
+> In case where we detect a single bit has been flipped, we spew
+> the usual slab corruption message, which users instantly think
+> is a kernel bug.  In a lot of cases, single bit errors are
+> down to bad memory, or other hardware failure.
 > 
-> Done. Originally I looked at slab size of task_struct and still
-> recovering.
-
-;-)
-
-> [PATCH] ifdef blktrace debugging fields
+> This patch adds an extra line to the slab debug messages
+> in those cases, in the hope that users will try memtest before
+> they report a bug.
 > 
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
-> 
->  block/ll_rw_blk.c      |    4 ++--
->  include/linux/blkdev.h |    4 ++--
->  include/linux/sched.h  |    3 ++-
->  kernel/fork.c          |    2 ++
->  4 files changed, 8 insertions(+), 5 deletions(-)
-> 
-> --- a/block/ll_rw_blk.c
-> +++ b/block/ll_rw_blk.c
-> @@ -1779,10 +1779,10 @@ static void blk_release_queue(struct kob
->  
->  	if (q->queue_tags)
->  		__blk_queue_free_tags(q);
-> -
-> +#ifdef CONFIG_BLK_DEV_IO_TRACE
->  	if (q->blk_trace)
->  		blk_trace_shutdown(q);
-> -
-> +#endif
->  	kmem_cache_free(requestq_cachep, q);
->  }
+> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Single bit error detected. Possibly bad RAM. Run memtest86.
 
-That can be made ifdef less, if you unconditionally call
-blk_trace_shutdown() and just make that one do:
-
-        if (q->blk_trace) {
-                ...
-        }
-
-since that'll then do the right always. Please make that change, then
-I'm fine with the patch.
+Given the probability of hardware vs. kernel, you could replace 
+"possible" with "probable" and not get any argument from me.
 
 -- 
-Jens Axboe
-
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

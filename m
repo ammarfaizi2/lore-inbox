@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWHAJqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWHAJ5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWHAJqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbWHAJqN
+	id S932597AbWHAJ5I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWHAJ5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:46:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:6492 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161005AbWHAJqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:46:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Ymv0/ZTzKd5FLtM6QjBVtCLqapIwIACMdZHC7HzCK1LMChsknUohcyI5W7mI1CyRum/fGmAxmW4l71HJIP4Oo7Y3WnjuT6OhVFzkW14t6/g72BI/q9RlG0OQtMgDeiBr/mU5O2OqWNKx/fPn0GThfHroR35SHJhSXoLwIKRwV8U=
-Message-ID: <44CF22E8.9020307@gmail.com>
-Date: Tue, 01 Aug 2006 11:45:53 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Tue, 1 Aug 2006 05:57:08 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:1031 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S932597AbWHAJ5H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:57:07 -0400
+Message-ID: <44CF256F.1020605@argo.co.il>
+Date: Tue, 01 Aug 2006 12:57:03 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-CC: Hua Zhong <hzhong@gmail.com>,
-       "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "'Martin Schwidefsky'" <schwidefsky@de.ibm.com>
-Subject: Re: do { } while (0) question
-References: <008e01c6b549$59e52f70$493d010a@nuitysystems.com> <1154425171.32739.2.camel@taijtu>
-In-Reply-To: <1154425171.32739.2.camel@taijtu>
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
+       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801090947.GA2974@merlin.emma.line.org>
+In-Reply-To: <20060801090947.GA2974@merlin.emma.line.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Aug 2006 09:57:05.0987 (UTC) FILETIME=[D8700930:01C6B550]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Zijlstra wrote:
-> On Tue, 2006-08-01 at 02:03 -0700, Hua Zhong wrote:
->>> #if KILLER == 1
->>> #define MACRO
->>> #else
->>> #define MACRO do { } while (0)
->>> #endif
->>>
->>> {
->>> 	if (some_condition)
->>> 		MACRO
->>>
->>> 	if_this_is_not_called_you_loose_your_data();
->>> }
->>>
->>> How do you want to define KILLER, 0 or 1? I personally choose 0.
->> Really? Does it compile?
-> 
-> No, and that is the whole point.
-> 
-> The empty 'do {} while (0)' makes the missing semicolon a syntax error.
+Matthias Andree wrote:
+>
+> No, it is valid to run the test on commodity hardware, but if you (or
+> the benchmark rather) is claiming "transactions", I tend to think
+> "ACID", and I highly doubt any 200 GB SATA drive manages 3000
+> synchronous writes per second without causing either serious
+> fragmentation or background block moving.
+>
+You are assuming 1 transaction = 1 sync write.  That's not true.  
+Databases and log filesystems can get much more out of a disk write.
 
-Bulls^WNope, it was a bad example (we don't want to break the compilation, just 
-not want to emit a warn or an err).
 
-I can't emit an error with the thing like that, only a warning, but we are not 
-using -Werror to get err from a warn. Thing such this would emit empty-statement 
-warn if define KILLER as 1:
-#if KILLER == 1
-#define MACRO
-#else
-#define MACRO do { } while (0)
-#endif
-
-{
-  	if (some_condition)
-  		MACRO;
-	else
-		do_something();
-}
-
-regards,
 -- 
-<a href="http://www.fi.muni.cz/~xslaby/">Jiri Slaby</a>
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+error compiling committee.c: too many arguments to function
+

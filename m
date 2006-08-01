@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWHATGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWHATHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWHATGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWHATGa
+	id S1751802AbWHATHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWHATHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:06:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:62888 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751801AbWHATG3 (ORCPT
+	Tue, 1 Aug 2006 15:07:30 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:5090 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751802AbWHATH3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:06:29 -0400
+	Tue, 1 Aug 2006 15:07:29 -0400
+Date: Tue, 1 Aug 2006 21:06:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
        "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
        Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 2/33] i386: define __pa_symbol
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<11544302293540-git-send-email-ebiederm@xmission.com>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Aug 2006 21:06:27 +0200
-In-Reply-To: <11544302293540-git-send-email-ebiederm@xmission.com>
-Message-ID: <p73lkq81djg.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+Subject: Re: [PATCH 1/33] i386: vmlinux.lds.S Distinguish absolute symbols
+Message-ID: <20060801190657.GA12573@mars.ravnborg.org>
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <11544302283864-git-send-email-ebiederm@xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11544302283864-git-send-email-ebiederm@xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" <ebiederm@xmission.com> writes:
+On Tue, Aug 01, 2006 at 05:03:16AM -0600, Eric W. Biederman wrote:
+> Ld knows about 2 kinds of symbols,  absolute and section
+> relative.  Section relative symbols symbols change value
+> when a section is moved and absolute symbols do not.
+> 
+> Currently in the linker script we have several labels
+> marking the beginning and ending of sections that
+> are outside of sections, making them absolute symbols.
+> Having a mixture of absolute and section relative
+> symbols refereing to the same data is currently harmless
+> but it is confusing.
+In the past we have seen problems when there was some padding between
+the global symbol and the actual section start. The reason for the
+padding was the alignment of the section which is aligned accordign to
+the longest of the contained symbols. So no matter the
+relocatable kernel this is an improvement.
 
-> On x86_64 we have to be careful with calculating the physical
-> address of kernel symbols.  Both because of compiler odditities
-> and because the symbols live in a different range of the virtual
-> address space.
-> 
-> Having a defintition of __pa_symbol that works on both x86_64 and
-> i386 simplifies writing code that works for both x86_64 and
-> i386 that has these kinds of dependencies.
-> 
-> So this patch adds the trivial i386 __pa_symbol definition.
-> 
-> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-> ---
->  include/asm-i386/page.h |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/include/asm-i386/page.h b/include/asm-i386/page.h
-> index f5bf544..eceb7f5 100644
-> --- a/include/asm-i386/page.h
-> +++ b/include/asm-i386/page.h
-> @@ -124,6 +124,7 @@ #define PAGE_OFFSET		((unsigned long)__P
->  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
->  #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
->  #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
-> +#define __pa_symbol(x)		__pa(x)
-
-Actually PAGE_OFFSET arithmetic on symbols is outside ISO C and gcc 
-misoptimizes it occassionally. You would need to use HIDE_RELOC
-or similar. That is why x86-64 has the magic.
-
--Andi
+	Sam

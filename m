@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161347AbWHAHj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161348AbWHAHkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161347AbWHAHj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWHAHj0
+	id S1161348AbWHAHkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 03:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161351AbWHAHkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:39:26 -0400
-Received: from bill.weihenstephan.org ([82.135.35.21]:35040 "EHLO
-	bill.weihenstephan.org") by vger.kernel.org with ESMTP
-	id S1161347AbWHAHj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:39:26 -0400
-From: Juergen Beisert <juergen127@kreuzholzen.de>
-To: Chris Boot <bootc@bootc.net>, Robert Schwebel <r.schwebel@pengutronix.de>
-Subject: Re: [RFC] Proposal: common kernel-wide GPIO interface
-Date: Tue, 1 Aug 2006 09:40:24 +0200
-User-Agent: KMail/1.5.4
-Cc: Ben Dooks <ben@fluff.org>, kernel list <linux-kernel@vger.kernel.org>
-References: <44CA7738.4050102@bootc.net> <20060731201735.GZ10495@pengutronix.de> <44CE74CA.8070504@bootc.net>
-In-Reply-To: <44CE74CA.8070504@bootc.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Tue, 1 Aug 2006 03:40:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33711 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161348AbWHAHkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 03:40:06 -0400
+Date: Tue, 1 Aug 2006 00:39:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH]: ufs: ufs_get_locked_patch race fix
+Message-Id: <20060801003958.c628455f.akpm@osdl.org>
+In-Reply-To: <20060801073043.GA17186@rain>
+References: <20060731125702.GA5094@rain>
+	<20060731230251.3b149902.akpm@osdl.org>
+	<20060801073043.GA17186@rain>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608010940.25179.juergen127@kreuzholzen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+On Tue, 1 Aug 2006 11:30:43 +0400
+Evgeniy Dushistov <dushistov@mail.ru> wrote:
 
-some ideas:
+> On Mon, Jul 31, 2006 at 11:02:51PM -0700, Andrew Morton wrote:
+> > On Mon, 31 Jul 2006 16:57:02 +0400
+> > Evgeniy Dushistov <dushistov@mail.ru> wrote:
+> > 
+> > Looks good to me.
+> > 
+> > Is there any need to be checking ->index?  Normally we simply use the
+> > sequence:
+> > 
+> > 	lock_page(page);
+> > 	if (page->mapping == NULL)
+> > 		/* truncate got there first */
+> > 
+> > to handle this case.
+> 
+> Yes, I made it in analogy with `find_lock_page' and missed fact
+> that if we increment usage counter of page, we have no need to check
+> page->index.
 
-On Monday 31 July 2006 23:23, Chris Boot wrote:
-> Yes I was thinking that a GPIO is a resource a little like an IRQ and
-> thinking of a registration and ownership system as well. I'm glad somebody
-> came up with that suggestion!
->
-> The access API is, as you say, more difficult. The access methods for slow
-> GPIOs is indeed very simple but I can't think of any way to provide
-> (near-)direct access for faster accesses in a portable way. Does anyone
-> have any suggestions?
+OK.  find_lock_page() has the splice stuff in it.
 
-Maybe three kind of API. One for fastest access: The driver request the GPIO 
-itself from the GPIO management and has to share some kind of locking 
-mechanism with the other API to avoid conflicts when accessing the registers 
-to manipulate this GPIO. This could be the way an I2C driver works to be as 
-fast as possible. Buts its achitecture specific.
-The second API is slower and supports some functions to manipulate the GPIOs 
-at higer lever. This API would be architrecture independend but for use in 
-the kernel only.
-The third API I like to have is for some slow GPIO. They should be accessible 
-from user space in an easy way. For example through some entries in sysfs the 
-user can access with simple "cat" and "echo" commands.
-Alltogether share the GPIO management and the locking mechanism.
+> Need another patch?
 
-Juergen
+Is OK, I updated it.
+
+I'm not sure that the `goto repeat' is needed if truncate got there first,
+really - if truncate took the page down then it's now outside i_size and
+shouldn't be coming back.
+
+If the page _can_ come back then this code is all rather problematic. 
+Because this means that the page can come back (via an extending write())
+one nanosecond after ufs_get_locked_page() returns NULL.  Won't the callers
+of ufs_get_locked_page() get confused by that?
 

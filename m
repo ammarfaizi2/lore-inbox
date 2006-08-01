@@ -1,78 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751528AbWGaX7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWHAAFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751528AbWGaX7D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 19:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWGaX65
+	id S1751532AbWHAAFz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 20:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWHAAFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 19:58:57 -0400
-Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:26287 "HELO
-	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751495AbWGaX6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 19:58:36 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] OMAP: I2C driver for TI OMAP boards #2
-Date: Mon, 31 Jul 2006 16:53:47 -0700
-User-Agent: KMail/1.7.1
-Cc: Komal Shah <komal_shah802003@yahoo.com>, akpm@osdl.org, gregkh@suse.de,
-       i2c@lm-sensors.org, imre.deak@nokia.com, juha.yrjola@solidboot.com,
-       linux-kernel@vger.kernel.org, r-woodruff2@ti.com, tony@atomide.com
-References: <1154066134.13520.267064606@webmail.messagingengine.com> <200607310733.09125.david-b@pacbell.net> <20060731181327.d54ce1d0.khali@linux-fr.org>
-In-Reply-To: <20060731181327.d54ce1d0.khali@linux-fr.org>
+	Mon, 31 Jul 2006 20:05:54 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:37109 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751525AbWHAAFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 20:05:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hnKv9A5CCJryFObikslvbr5m/CS8LUUK3mnfEGy+DQFFPDsAT390Yqj3IBBHJEU5br1HuZrKqjjMNnjdO4nh7VkvyuLjLQjUDPhzl7+EXu1eQfqCYvYvx56PZpuatEDua/d0luSl/z28lgg5dfi4qAvabyGaCC7cTQFo2uuZIpk=
+Message-ID: <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
+Date: Mon, 31 Jul 2006 17:05:51 -0700
+From: "Nate Diller" <nate.diller@gmail.com>
+To: "David Lang" <dlang@digitalinsight.com>
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Cc: "Matthias Andree" <matthias.andree@gmx.de>,
+       "Adrian Ulrich" <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200607311653.48240.david-b@pacbell.net>
+References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
+	 <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
+	 <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
+	 <44CE7C31.5090402@gmx.de>
+	 <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
+	 <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
+	 <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
+	 <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 July 2006 9:13 am, Jean Delvare wrote:
->	 If you want things to improve, please help by
-> reviewing Komal's driver. I think I understand you already commented on
-> it, but I'd like you to really review it, and add a formal approval to
-> it (e.g. Signed-off-by or Acked-by). Then I'll review it for merge.
+On 7/31/06, David Lang <dlang@digitalinsight.com> wrote:
+> On Mon, 31 Jul 2006, Nate Diller wrote:
+>
+> > On 7/31/06, David Lang <dlang@digitalinsight.com> wrote:
+> >> On Mon, 31 Jul 2006, Nate Diller wrote:
+> >>
+> >> >
+> >> > On 7/31/06, Matthias Andree <matthias.andree@gmx.de> wrote:
+> >> >> Adrian Ulrich wrote:
+> >> >>
+> >> >> > See also: http://spam.workaround.ch/dull/postmark.txt
+> >> >> >
+> >> >> > A quick'n'dirty ZFS-vs-UFS-vs-Reiser3-vs-Reiser4-vs-Ext3 'benchmark'
+> >> >>
+> >> >> Whatever Postmark does, this looks pretty besides the point.
+> >> >
+> >> > why's that?  postmark is one of the standard benchmarks...
+> >> >
+> >> >> Are these actual transactions with the "D"urability guarantee?
+> >> >> 3000/s doesn't look too much like you're doing synchronous I/O (else
+> >> >> figures around 70/s perhaps 100/s would be more adequate), and cache
+> >> >> exercise is rather irrelevant for databases that manage real (=valuable)
+> >> >> data...
+> >> >
+> >> > Data:
+> >> >       204.62 megabytes read (8.53 megabytes per second)
+> >> >       271.49 megabytes written (11.31 megabytes per second)
+> >> >
+> >> > looks pretty I/O bound to me, 11.31 MB/s isn't exactly your latest DDR
+> >> > RAM bandwidth.  as far as the synchronous I/O question, Reiser4 in
+> >> > this case acts more like a log-based FS.  That allows it to "overlap"
+> >> > synchronous operations that are being submitted by multiple threads.
+> >>
+> >> what you are missing is that apps that need to do lots of syncing
+> >> (databases,
+> >> mail servers) need to wait for the data to hit non-volitile media before
+> >> the
+> >> write is complete. this limits such apps to ~1 write per revolution of the
+> >> platters (yes it's possible for a limited time to have multiple writes to
+> >> different things happen to be on the same track, but the counter is the
+> >> extra
+> >> seek time needed between tracks)
+> >
+> > this is true so long as there is only one thread submitting I/O and
+> > doing fsync().  for something like a mail server, it can run
+> > multi-threaded, and still get data integrity, if the changes are
+> > spread out across more than one file.
+>
+> only if those multiple files all happen to live (along with their metadata) on
+> the same track.
 
-The issues noted in the code are still almost all low priority
-(non-blocking).
+this is only a limitation for filesystems which do in-place data and
+metadata updates.  this is why i mentioned the similarities to log
+file systems (see rosenblum and ousterhout, 1991).  they observed an
+order-of-magnitude increase in performance for such workloads on their
+system.
 
- - The FIXME about choosing the address is very low priority,
-   and would affect only multi-master systems.  The fix would
-   involve defining a new i2c-specific struct for platform_data,
-   updating various boards to use it (e.g. OSK can use 400 MHz),
-   and wouldn't change behavior for any board I've ever seen.
+> >> so any benchmark that shows more transactions then the media has
+> >> revolutions is
+> >> highly suspect (now if you have battery-backed cache, or the equivalent you
+> >> can
+> >> blow past these limits)
+> >
+> > not all workloads are completely serial, transactions themselves may
+> > have no inter-dependencies at all.  so it depends on the benchmark,
+> > and what workload you're measuring.  in cases like this, threading can
+> > have a big advantage.
+>
+> in the real-world (and benchmarks that simulate it fairly) the data spans
+> multiple tracks so your best case is considerably less then the max I listed
+> becouse you frequently have to seek around a lot to do your writes to multiple
+> places on disk. more threads running should mean that you are attempting to
+> write to more places on disk, which will cause more seeks, dropping you further
+> below the max.
 
- - Likewise with the REVISIT for the bus speed to use.  They'd
-   be fixed with the same patch.
+postmark is very much real world.  reiser4 just doesn't always do
+in-place writes.
 
- - The REVISIT about maybe a better way to probe is also low
-   priority; someone with a board that needs better probing
-   could address it at that time.  (Then restest any changes
-   on multiple generations of silicion ... which IMO is the
-   role the linux-omap tree should play.)
-
- - The revisit about adap->retries is still up in the air,
-   and was a question in my submission from last year.
-   How exactly is that supposed to be used?  Right now
-   it's neither initialized (except to zero) nor tested.
-
-Re coding style issues, I didn't give it a detailed nitpick
-but I did easily notice two things worth fixing:
-
- - Some lines are more than 80 characters, so they'll wrap
-   on standard editor windows.
-
- - There are a couple instances of hidden whitespace to
-   remove:  at end of line, or space-before-tab.
-
-This doesn't include the drivers/Makefile change to push i2c
-linkage up near the beginning with other "system" busses,
-but that can be a separate patch in any case (assuming that
-it's still needed).
-
-Assuming those two coding style things get resolved first,
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
-- Dave
+NATE

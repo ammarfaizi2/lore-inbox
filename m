@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWHAIxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWHAI4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWHAIxi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 04:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWHAIxi
+	id S932287AbWHAI4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWHAI4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 04:53:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2753 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932285AbWHAIxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 04:53:37 -0400
-Date: Tue, 1 Aug 2006 01:53:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: samel@mail.cz, linux-kernel@vger.kernel.org
-Subject: Re: too low MAX_MP_BUSSES
-Message-Id: <20060801015329.9ffa5b86.akpm@osdl.org>
-In-Reply-To: <20060801084637.GB21698@muc.de>
-References: <20060731115545.GA3292@pc11.op.pod.cz>
-	<20060801013826.09c9324d.akpm@osdl.org>
-	<20060801084637.GB21698@muc.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 04:56:12 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:5055 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S932287AbWHAI4M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 04:56:12 -0400
+Date: Tue, 1 Aug 2006 10:53:43 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Jonathan Matthews-Levine <matthewslevine@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: do { } while (0) question
+Message-ID: <20060801085343.GC9589@osiris.boeblingen.de.ibm.com>
+References: <20060801082109.GB9589@osiris.boeblingen.de.ibm.com> <404c96810608010145r4c109fdet9eadba7090321048@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404c96810608010145r4c109fdet9eadba7090321048@mail.gmail.com>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Aug 2006 10:46:37 +0200
-Andi Kleen <ak@muc.de> wrote:
-
-> > mach-default uses 32 and mach-generic uses 260, so I doubt if there's a big
-> > downside to increasing mach-default.  I expect distros ship with
-> > mach-generic, so you're a rare case.
-> > 
-> > <tries to remember who works on this and fails>
-> > 
-> > Andi?  Can you see any problems with increasing the mach-default setting?
+On Tue, Aug 01, 2006 at 09:45:26AM +0100, Jonathan Matthews-Levine wrote:
+> On 01/08/06, Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+> >---
+> >Always use do {} while (0).  Failing to do so can cause subtle compile
+> >failures or bugs.
+> >---
+> >
+> >I'm really wondering what these subtle compile failures or bugs are.
+> >Could you please explain?
 > 
-> No, except for wasting a bit of memory (maybe make it dependent on CONFIG_TINY?)
+> http://kernelnewbies.org/FAQ/DoWhile0
 
-Sounds sane, thanks.  I'll do a patch.
+My question was referring to empty do { } while (0)'s... that's something
+the FAQ is not dealing with :)

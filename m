@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWHAM7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWHANEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWHAM7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 08:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWHAM7h
+	id S1751128AbWHANEr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWHANEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 08:59:37 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:51804 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750720AbWHAM7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 08:59:36 -0400
-Date: Tue, 1 Aug 2006 15:59:32 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
+	Tue, 1 Aug 2006 09:04:47 -0400
+Received: from relay6.ptmail.sapo.pt ([212.55.154.26]:48302 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S1751128AbWHANEq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 09:04:46 -0400
+X-AntiVirus: PTMail-AV 0.3-0.88.3
+Subject: Re: [PATCH for 2.6.18] [2/8] x86_64: On Intel systems when CPU has
+	C3 don't use TSC
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
 To: Andi Kleen <ak@suse.de>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       "discuss@x86-64.org" <discuss@x86-64.org>
-Subject: [PATCH x86-64]: remove superflous BUG_ON's in nommu and gart
-Message-ID: <20060801125932.GF3436@rhun.haifa.ibm.com>
+Cc: torvalds@osdl.org, discuss@x86-64.org, linux-kernel@vger.kernel.org
+In-Reply-To: <44cbba2d.ejpOKfo7QfGElmoT%ak@suse.de>
+References: <44cbba2d.ejpOKfo7QfGElmoT%ak@suse.de>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 01 Aug 2006 14:04:43 +0100
+Message-Id: <1154437483.3264.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no need to check for invalid DMA data direction in nommu and
-gart since we do it in dma-mapping.h anyway before calling the
-individual dma-ops.
+On Sat, 2006-07-29 at 21:42 +0200, Andi Kleen wrote:
+> On Intel systems generally the TSC stops in C3 or deeper, 
+> so don't use it there. Follows similar logic on i386.
+> 
+> This should fix problems on Meroms.
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+...
+> +	/* Most intel systems have synchronized TSCs except for
+> +	   multi node systems */
+> + 	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
+> +#ifdef CONFIG_ACPI
+> +		/* But TSC doesn't tick in C3 so don't use it there */
+> +		if (acpi_fadt.length > 0 && acpi_fadt.plvl3_lat < 100)
+> +			return 1;
+> +#endif
+> + 		return 0;
+> +	}
+> +
+>   	/* Assume multi socket systems are not synchronized */
+>   	return num_present_cpus() > 1;
+>  }
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+Hi, 
 
-diff -r b90678f884c4 arch/x86_64/kernel/pci-gart.c
---- a/arch/x86_64/kernel/pci-gart.c	Mon Jul 31 21:01:32 2006 +0000
-+++ b/arch/x86_64/kernel/pci-gart.c	Tue Aug 01 15:52:52 2006 +0300
-@@ -239,8 +239,6 @@ dma_addr_t gart_map_single(struct device
- {
- 	unsigned long phys_mem, bus;
- 
--	BUG_ON(dir == DMA_NONE);
--
- 	if (!dev)
- 		dev = &fallback_dev;
- 
-@@ -383,7 +381,6 @@ int gart_map_sg(struct device *dev, stru
- 	unsigned long pages = 0;
- 	int need = 0, nextneed;
- 
--	BUG_ON(dir == DMA_NONE);
- 	if (nents == 0) 
- 		return 0;
- 
-diff -r b90678f884c4 arch/x86_64/kernel/pci-nommu.c
---- a/arch/x86_64/kernel/pci-nommu.c	Mon Jul 31 21:01:32 2006 +0000
-+++ b/arch/x86_64/kernel/pci-nommu.c	Tue Aug 01 15:52:58 2006 +0300
-@@ -59,7 +59,6 @@ int nommu_map_sg(struct device *hwdev, s
- {
- 	int i;
- 
--	BUG_ON(direction == DMA_NONE);
-  	for (i = 0; i < nents; i++ ) {
- 		struct scatterlist *s = &sg[i];
- 		BUG_ON(!s->page);
+I had some faith in this patch , but this just enable boot parameter
+notsc (which I already use). And "just" disable tsc don't solve all the
+problems. 
 
+After "Using ACPI (MADT) for SMP configuration information"
+my acpi_fadt.length is great than  0
+acpi_fadt.plvl3_lat is 1001
+
+On BIOS 1.40 update description of ASRock, claims this VIA chipset have
+C1 stepping support.
+
+this is a Pentium Dual Core on a 775Dual-880Pro
+http://www.asrock.com/product/775Dual-880Pro.htm
+http://bugme.osdl.org/show_bug.cgi?id=6419
+
+Thanks,
+Sérgio M. B.
 

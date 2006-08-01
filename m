@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWHAOtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWHAOwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161011AbWHAOtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWHAOtZ
+	id S1161008AbWHAOwE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWHAOwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:49:25 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:54178 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1161011AbWHAOtY (ORCPT
+	Tue, 1 Aug 2006 10:52:04 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:43218 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1161008AbWHAOwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:49:24 -0400
-Message-Id: <200608011449.k71En5VT015262@laptop13.inf.utfsm.cl>
-To: Jiri Slaby <jirislaby@gmail.com>
-cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: do { } while (0) question 
-In-Reply-To: Message from Jiri Slaby <jirislaby@gmail.com> 
-   of "Tue, 01 Aug 2006 10:51:38 +0159." <44CF1631.3020104@gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
-Date: Tue, 01 Aug 2006 10:49:05 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 01 Aug 2006 10:49:06 -0400 (CLT)
+	Tue, 1 Aug 2006 10:52:01 -0400
+Date: Wed, 2 Aug 2006 00:51:57 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: 76306.1226@compuserve.com, andros@citi.umich.edu, orion@cora.nwra.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: fctnl(F_SETSIG) no longer works in 2.6.17, does in 2.6.16.
+Message-Id: <20060802005157.137dfdde.sfr@canb.auug.org.au>
+In-Reply-To: <1154370233.8417.11.camel@localhost>
+References: <200607310224_MC3-1-C689-D6DD@compuserve.com>
+	<1154370233.8417.11.camel@localhost>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> wrote:
-> Heiko Carstens wrote:
-> > Hi Andrew,
-> > your commit e2c2770096b686b4d2456173f53cb50e01aa635c does this:
-> > ---
-> > Always use do {} while (0).  Failing to do so can cause subtle compile
-> > failures or bugs.
-> > -#define hotcpu_notifier(fn, pri)
-> > -#define register_hotcpu_notifier(nb)
-> > -#define unregister_hotcpu_notifier(nb)
-> > +#define hotcpu_notifier(fn, pri)	do { } while (0)
-> > +#define register_hotcpu_notifier(nb)	do { } while (0)
-> > +#define unregister_hotcpu_notifier(nb)	do { } while (0)
+On Mon, 31 Jul 2006 11:23:52 -0700 Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> On Mon, 2006-07-31 at 02:21 -0400, Chuck Ebbert wrote:
 > 
-> #if KILLER == 1
-> #define MACRO
-> #else
-> #define MACRO do { } while (0)
-> #endif
+> > static void lease_release_private_callback(struct file_lock *fl)
+> > {
+> >         if (!fl->fl_file)
+> >                 return;
+> > 
+> >         f_delown(fl->fl_file);
+> > =>      fl->fl_file->f_owner.signum = 0;
+> > }
 > 
-> {
-> 	if (some_condition)
-> 		MACRO
-
-                      ;  /* missing */
+> Why should the lease cleanup code be resetting f_owner.signum? That
+> looks wrong.
 > 
-> 	if_this_is_not_called_you_loose_your_data();
-> }
+> Stephen, I think this line of code predates the CITI changes. Do you
+> know who added it and why?
 
-> How do you want to define KILLER, 0 or 1? I personally choose 0.
+Because when the original code was written, it was only called when we got
+a fcntl(F_SETLEASE, F_UNLCK) call.  The code got moved incorrectly and
+noone noticed.
 
-Yep, at least in this case you'd get a compile failure.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

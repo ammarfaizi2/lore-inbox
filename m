@@ -1,63 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWHAOwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWHAOy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161029AbWHAOwk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbWHAOwj
+	id S1161028AbWHAOy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWHAOy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:52:39 -0400
-Received: from blinkenlights.ch ([62.202.0.18]:36021 "EHLO blinkenlights.ch")
-	by vger.kernel.org with ESMTP id S1161024AbWHAOwj (ORCPT
+	Tue, 1 Aug 2006 10:54:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28891 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161028AbWHAOy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:52:39 -0400
-Date: Tue, 1 Aug 2006 16:52:34 +0200
-From: Adrian Ulrich <reiser4@blinkenlights.ch>
-To: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-Cc: bernd-schubert@gmx.de, reiserfs-list@namesys.com, jbglaw@lug-owl.de,
-       clay.barnes@gmail.com, rudy@edsons.demon.nl, vonbrand@inf.utfsm.cl,
-       ipso@snappymail.ca, reiser@namesys.com, lkml@lpbproductions.com,
-       jeff@garzik.org, tytso@mit.edu, linux-kernel@vger.kernel.org
-Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
- regarding reiser4 inclusion
-Message-Id: <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
-In-Reply-To: <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-References: <200607312314.37863.bernd-schubert@gmx.de>
-	<200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
-Organization: Bluewin AG
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
+	Tue, 1 Aug 2006 10:54:28 -0400
+Date: Tue, 1 Aug 2006 07:54:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: vda.linux@googlemail.com, reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiser4: maybe just fix bugs?
+Message-Id: <20060801075422.25304f69.akpm@osdl.org>
+In-Reply-To: <44CF4063.9070003@yahoo.com.au>
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+	<20060801013104.f7557fb1.akpm@osdl.org>
+	<44CF4063.9070003@yahoo.com.au>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 01 Aug 2006 21:52:03 +1000
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> > While filesystem speed is nice, it also would be great if reiser4.x would be 
-> > very robust against any kind of hardware failures.
+> Andrew Morton wrote:
+> > On Mon, 31 Jul 2006 10:26:55 +0100
+> > "Denis Vlasenko" <vda.linux@googlemail.com> wrote:
+> > 
+> > 
+> >>The reiser4 thread seem to be longer than usual.
+> > 
+> > 
+> > Meanwhile here's poor old me trying to find another four hours to finish
+> > reviewing the thing.
+> > 
+> > The writeout code is ugly, although that's largely due to a mismatch between
+> > what reiser4 wants to do and what the VFS/MM expects it to do.  If it
+> > works, we can live with it, although perhaps the VFS could be made smarter.
+> > 
+> > I'd say that resier4's major problem is the lack of xattrs, acls and
+> > direct-io.  That's likely to significantly limit its vendor uptake.  (As
+> > might the copyright assignment thing, but is that a kernel.org concern?)
+> > 
+> > The plugins appear to be wildly misnamed - they're just an internal
+> > abstraction layer which permits later feature additions to be added in a
+> > clean and safe manner.  Certainly not worth all this fuss.
+> > 
+> > Could I suggest that further technical critiques of reiser4 include a
+> > file-and-line reference?  That should ease the load on vger.
 > 
-> Can't have both.
+> I haven't really reviewed it, but when I grepped through it last, I
+> found a few alarming things, like use of __put_page, trying to remove
+> pages from pagecache (duplicating parts of vmscan.c, plus bugs), and
+> taking tree_lock.
 
-..and some people simply don't care about this:
+__put_page() has gone.
 
-If you are running a 'big' Storage-System with battery protected
-WriteCache, Mirroring between 2 Datacenters, snapshotting.. etc..
-you don't need your filesystem beeing super-robust against bad sectors
-and such stuff because:
+A lot of the VM duplication has gone.
 
- a) You've paid enough money to let the storage care about 
-    Hardware issues.
- b) If your storage is on fire you can do a failover using the mirror.
- c) And if someone ran dd if=/dev/urandom of=/dev/sda you could
-    even rollback your Snapshot.
-    (Btw: i did this once to a Reiser4 filesystem (overwritten about
-    1.2gb). fsck.reiser4 --rebuild-sb was able to fix it.)
+tree_lock is still there a bit.  For two reasons:
 
+a) A presently-unneeded duplication of the generic
+   __set_page_dirty_nobuffers() and
 
-..but what you really need is a flexible and **fast** filesystem: Like
-Reiser4.
+b) Manipulation of the fake inode (I think).
 
-(Yeah.. yeah.. i know: ext3 is also flexible and fast.. but Reiser4
-simply is *MUCH* faster than ext3 for 'my' workload/application).
+   iirc the base problem here is that for whatever reason, the usual
+   blockdev inode which filesystems use for metadata (ie: the pagecache
+   which backs sb_bread(), etc) isn't suitable.  reiser4 wants to get a
+   hold of its address_space ops, so it needs to create its own
+   covers-all-the-partition, identify-mapped address_space.
 
-Regards,
- Adrian
+> Mostly didn't look like big problems to fix, but should be fixed for
+> mm/ maintainers' sanity. Maybe it's better now, though.
 
+It's better.  More reviewing help is always appreciated ;)

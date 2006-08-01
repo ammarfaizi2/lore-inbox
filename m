@@ -1,31 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWHASM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWHASMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWHASM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751755AbWHASM0
+	id S1751753AbWHASMy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751746AbWHASMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:12:26 -0400
-Received: from mga07.intel.com ([143.182.124.22]:50322 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751744AbWHASMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:12:25 -0400
-X-IronPort-AV: i="4.07,203,1151910000"; 
-   d="scan'208"; a="73442680:sNHT74978428"
-Date: Tue, 1 Aug 2006 11:01:47 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+	Tue, 1 Aug 2006 14:12:54 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39379 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751753AbWHASMx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 14:12:53 -0400
+Date: Tue, 1 Aug 2006 11:13:32 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
        Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: synchronous signal in the blocked signal context
-Message-ID: <20060801110147.A9822@unix-os.sc.intel.com>
+Message-ID: <20060801181331.GF1291@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 References: <20060731191449.B4592@unix-os.sc.intel.com> <Pine.LNX.4.64.0607312152240.4168@g5.osdl.org> <20060801144403.GA1291@us.ibm.com> <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>; from torvalds@osdl.org on Tue, Aug 01, 2006 at 08:25:12AM -0700
+In-Reply-To: <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -45,24 +43,41 @@ On Tue, Aug 01, 2006 at 08:25:12AM -0700, Linus Torvalds wrote:
 > happens when setting up the handler for the SIGSEGV and other 
 > "interesting" issues, where a bug can result in the user process hanging 
 > instead of just killing it outright).
-> 
+
+I guess I am glad I was not -totally- insane when submitting the
+original patch.  ;-)
+
 > However, I wonder if the _proper_ fix is to just either remove 
 > "force_sig_specific()" entirely, or just make that one match the semantics 
 > of "force_sig_info()" instead (rather than doing it the other way - change 
 > for_sig_specific() to match force_sig_info()).
-> 
+
+One question -- the original (2.6.14 or thereabouts) version of
+force_sig_info() would do the sigdelset() and recalc_sig_pending()
+even if the signal was not blocked, while your patch below would
+do sigdelset()/recalc_sig_pending() only if the signal was blocked,
+even if it was not ignored.  Not sure this matters, but thought I
+should ask.
+
 > force_sig_info() has only two uses, and both should be ok with the 
+
+s/force_sig_info/force_sig_specific/?  I see >100 uses of force_sig_info().
+
 > force_sig_specific() semantics, since they are for SIGSTOP and SIGKILL 
 > respectively, and those should not be blockable unless you're a kernel 
 > thread (and I don't think either of them could validly ever be used with 
 > kernel threads anyway), so doing it the other way around _should_ be ok.
-> 
+
+OK, SIGSTOP and SIGKILL cannot be ignored or blocked.  So wouldn't
+they end up skipping the recalc_sig_pending() in the new code,
+where they would have ended up executing it in the 2.6.14 version
+of force_sig_specific()?
+
+Assuming I am at least semi-sane, one possible way to fix shown below.
+
+						Thanx, Paul
+
 > Paul, Suresh, would something like this work for you instead?
-
-Yes.
-
-Acked-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
 > 
 > 		Linus
 > ----
@@ -88,6 +103,9 @@ Acked-by: Suresh Siddha <suresh.b.siddha@intel.com>
 >  	unsigned long int flags;
 > -	int ret;
 > +	int ret, blocked, ignored;
+
+	int alwaysfatal;
+
 > +	struct k_sigaction *action;
 >  
 >  	spin_lock_irqsave(&t->sighand->siglock, flags);
@@ -98,10 +116,19 @@ Acked-by: Suresh Siddha <suresh.b.siddha@intel.com>
 > -		sigdelset(&t->blocked, sig);
 > +	action = &t->sighand->action[sig-1];
 > +	ignored = action->sa.sa_handler == SIG_IGN;
+
+	alwaysfatal = sig == SIGKILL || sig == SIGSTOP;
+
 > +	blocked = sigismember(&t->blocked, sig);
 > +	if (blocked || ignored) {
+
+	if (blocked || ignored || alwaysfatal) {
+
 > +		action->sa.sa_handler = SIG_DFL;
 > +		if (blocked) {
+
+		if (blocked || alwaysfatal) {
+
 > +			sigdelset(&t->blocked, sig);
 > +			recalc_sigpending_tsk(t);
 > +		}

@@ -1,94 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWHAX13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWHAX2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWHAX13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWHAX13
+	id S1750724AbWHAX2w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWHAX2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:27:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18333 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750742AbWHAX12 (ORCPT
+	Tue, 1 Aug 2006 19:28:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:4321 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750750AbWHAX2u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:27:28 -0400
-Date: Tue, 1 Aug 2006 19:27:24 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Tue, 1 Aug 2006 19:28:50 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Dave Jones <davej@redhat.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: single bit flip detector.
-Message-ID: <20060801232724.GB5738@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alexey Dobriyan <adobriyan@gmail.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801231603.GA5738@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+References: <20060801184451.GP22240@redhat.com>
+	<1154470467.15540.88.camel@localhost.localdomain>
+	<20060801223011.GF22240@redhat.com>
+	<20060801223622.GG22240@redhat.com>
+	<20060801230003.GB14863@martell.zuzino.mipt.ru>
+	<20060801231603.GA5738@redhat.com>
+X-Yow: - if it GLISTENS, gobble it!!
+Date: Wed, 02 Aug 2006 01:28:49 +0200
+In-Reply-To: <20060801231603.GA5738@redhat.com> (Dave Jones's message of "Tue,
+	1 Aug 2006 19:16:03 -0400")
+Message-ID: <jebqr4f32m.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 07:16:03PM -0400, Dave Jones wrote:
- > On Wed, Aug 02, 2006 at 03:00:03AM +0400, Alexey Dobriyan wrote:
- > 
- >  > Turn on CONFIG_DEBUG_SLAB before compiling. ;-)
- > 
- > Well, that was silly.   Here's a properly compile tested patch :-)
+Dave Jones <davej@redhat.com> writes:
 
-The grammar police found me, here's hopefully the final rendition..
+> diff --git a/mm/slab.c b/mm/slab.c
+> index 21ba060..39f1183 100644
+> --- a/mm/slab.c
+> +++ b/mm/slab.c
+> @@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
+>  static void dump_line(char *data, int offset, int limit)
+>  {
+>  	int i;
+> +	unsigned char total = 0, bad_count = 0, errors = 0;
 
-		Dave
+No need to initialize errors here.
 
+>  	printk(KERN_ERR "%03x:", offset);
+> -	for (i = 0; i < limit; i++)
+> +	for (i = 0; i < limit; i++) {
+> +		if (data[offset + i] != POISON_FREE) {
+> +			total += data[offset + i];
+> +			bad_count++;
+> +		}
+>  		printk(" %02x", (unsigned char)data[offset + i]);
+> +	}
+>  	printk("\n");
+> +
+> +	if (bad_count == 1) {
+> +		errors = total ^ POISON_FREE;
+> +		if (errors && !(errors & (errors-1))) {
+> +			printk (KERN_ERR "Single bit error detected. Probably bad RAM.\n");
+> +#ifdef CONFIG_X86
+> +			printk (KERN_ERR "Run memtest86+ or similar memory test tool.\n");
+> +#else
+> +			printk (KERN_ERR "Run a memory test tool.\n");
+> +#endif
+> +			return;
 
-In case where we detect a single bit has been flipped, we spew
-the usual slab corruption message, which users instantly think
-is a kernel bug.  In a lot of cases, single bit errors are
-down to bad memory, or other hardware failure.
+Useless return.
 
-This patch adds an extra line to the slab debug messages
-in those cases, in the hope that users will try memtest before
-they report a bug.
-
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Probably bad RAM.
-
-Signed-off-by: Dave Jones <davej@redhat.com>
-
-diff --git a/mm/slab.c b/mm/slab.c
-index 21ba060..39f1183 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
- static void dump_line(char *data, int offset, int limit)
- {
- 	int i;
-+	unsigned char total = 0, bad_count = 0, errors = 0;
- 	printk(KERN_ERR "%03x:", offset);
--	for (i = 0; i < limit; i++)
-+	for (i = 0; i < limit; i++) {
-+		if (data[offset + i] != POISON_FREE) {
-+			total += data[offset + i];
-+			bad_count++;
-+		}
- 		printk(" %02x", (unsigned char)data[offset + i]);
-+	}
- 	printk("\n");
-+
-+	if (bad_count == 1) {
-+		errors = total ^ POISON_FREE;
-+		if (errors && !(errors & (errors-1))) {
-+			printk (KERN_ERR "Single bit error detected. Probably bad RAM.\n");
-+#ifdef CONFIG_X86
-+			printk (KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
-+#else
-+			printk (KERN_ERR "Run a memory test tool.\n");
-+#endif
-+			return;
-+		}
-+	}
- }
- #endif
- 
+Andreas.
 
 -- 
-http://www.codemonkey.org.uk
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

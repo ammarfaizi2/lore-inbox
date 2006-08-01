@@ -1,64 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWHAJZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWHAJam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932538AbWHAJZW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWHAJZW
+	id S932545AbWHAJam (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWHAJam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:25:22 -0400
-Received: from mail.gmx.de ([213.165.64.21]:16259 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932538AbWHAJZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:25:21 -0400
-X-Authenticated: #428038
-Date: Tue, 1 Aug 2006 11:25:14 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
-       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
-       Nate Diller <nate.diller@gmail.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060801092514.GB2974@merlin.emma.line.org>
-Mail-Followup-To: Avi Kivity <avi@argo.co.il>, Theodore Tso <tytso@mit.edu>,
-	David Lang <dlang@digitalinsight.com>,
-	David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
-	Nate Diller <nate.diller@gmail.com>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>,
-	"Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-	reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-References: <20060801064837.GB1987@thunk.org> <44CF01C1.9070802@argo.co.il>
+	Tue, 1 Aug 2006 05:30:42 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:55218 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S932545AbWHAJam
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:30:42 -0400
+Message-ID: <44CEBCBC.9070707@namesys.com>
+Date: Mon, 31 Jul 2006 20:30:20 -0600
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44CF01C1.9070802@argo.co.il>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+To: Denis Vlasenko <vda.linux@googlemail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: reiser4: maybe just fix bugs?
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+In-Reply-To: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Aug 2006, Avi Kivity wrote:
+Denis Vlasenko wrote:
 
-> There's no reason to repack *all* of the data.  Many workloads write and 
-> delete whole files, so file data should be contiguous.  The repacker 
-> would only need to move metadata and small files.
+> And second, reiser team was a bit lax at fixing bugs.
+> Not too bad when compared to other FSes, but still.
 
-Move small files? What for?
+If we feel a bug should be fixed without waiting for a major release
+(98%+ of bugs), we try to fix it in 3 days, and usually succeed at
+that.  Not all users agree with us that a given bug should wait for a
+major release.
 
-Even if it is "only" moving metadata, it is not different from what ext3
-or xfs are doing today (rewriting metadata from the intent log or block
-journal to the final location).
+> Frankly, on the first problem I think that you are right, Hans,
+> and putting plugins into VFS _now_ makes little sense because
+> we can't know whether anybody will ever want to have plugins
+> for some other FS, so requiring reiser people to do all the shuffling
+> _now_
+> for questionable gain is simply not fair. It can be done later if needed.
+>
+> It leaves you with the other option: remove the second problem.
+> Try to fix bugs. Including reiser3 ones.
+> I'm not saying that you are not doing this at all,
+> but I distinctly remember that some discussions (about locking
+> problems IIRC) were "brushed aside" by reiser people instead of plainly
+> admitting that problem exists and they will work on fixing it.
+>
+> * What is that story about hash chain size limit?
+>  Is it present on reiser4 also? Will it be addressed?
 
-The UFS+softupdates from the BSD world looks pretty good at avoiding
-unnecessary writes (at the expense of a long-running but nice background
-fsck after a crash, which is however easy on the I/O as of recent FreeBSD
-versions).  Which was their main point against logging/journaling BTW,
-but they are porting XFS as well to save those that need instant
-complete recovery.
+Now that we  (Nikita actually) solved it in Reiser4 by handling
+duplicate keys  I now realize that I could have solved it in V3 years
+ago if I had been brighter, but since V4 is ready I think it is better
+to not destabilize code in V3 by changing things now.  It might touch a
+lot of lines of code to fix in V3, Nikita would know better than I.
 
--- 
-Matthias Andree
+>
+> For the problems I personally seen:
+>
+> * I had 3 reiser3 partitions on a 32Mb RAM box, and massive inode
+>  updates (chown -R) ate all RAM and deadlocked the box.
+
+This is VFS/VM not us.  You are right that it should be fixed, as it is
+indicative of deep problems with the memory management code that require
+fundamental changes.
+
+>  You adviced me to reduce journal size. It works,
+>  but shouldn't reiser do it dynamically on mount if needed?
+
+Yes, it would be nice, could you email chris@suse.com about it?  This is
+a feature that is ok to add to a stable branch, I cannot logically
+define why but I feel it is so....   after much testing and a beta
+though....   Note that V4 fixes this by using wandering logs.....
+
+>  Are there any other known oom deadlocks?
+
+That are specific to reiserfs rather than all of Linux, I think not.....
+
+> * Does reiser still requires 100.00% defect-free media?
+
+Not if you use device mapper.
+
+> * Are there plans for making reiserfsck interface compatible with fsck?
+>  I mean, making it so that reiserfsck can be symlinked to fsck.reiser
+>  and it will work? Currently, there seems to be some incompatibility
+>  in command-line switches. (I will dig out details and send separately
+>  when I'll get back to my Linux box.)
+
+Not sure what you mean.  Forgive me, I have not supervised fsck as
+closely as other things.
+
+>
+> P.S. I am a reiser3 user on all my boxes.
+> Thanks Hans for your work.
+> -- 
+> vda
+>
+>
+Thank you for your suggestions and advice,
+
+Hans

@@ -1,106 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWHBADJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWHBACk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWHBADJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 20:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWHBACk
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1750766AbWHBACk (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 1 Aug 2006 20:02:40 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:28069 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750763AbWHAXwu (ORCPT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWHBACj
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 1 Aug 2006 20:02:39 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:18641 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750766AbWHAXwv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:52:50 -0400
-Subject: [PATCH 08/28] record when sb_writer_count elevated for inode
+	Tue, 1 Aug 2006 19:52:51 -0400
+Subject: [PATCH 11/28] elevate writer count for chown and friends
 To: linux-kernel@vger.kernel.org
 Cc: viro@ftp.linux.org.uk, herbert@13thfloor.at, hch@infradead.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Tue, 01 Aug 2006 16:52:46 -0700
+Date: Tue, 01 Aug 2006 16:52:48 -0700
 References: <20060801235240.82ADCA42@localhost.localdomain>
 In-Reply-To: <20060801235240.82ADCA42@localhost.localdomain>
-Message-Id: <20060801235246.A4B858F0@localhost.localdomain>
+Message-Id: <20060801235248.0893CC0F@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There are a number of filesystems that do iput()s without first
-having messed with i_nlink.  In order to keep from accidentally
-decrementing the superblock writer count for these, we record
-when the count is bumped up, so that we can properly balance
-it.
-
-I know the flag name sucks.  Anybody have better ideas?
-
-I first tried to do this by catching all of the users an intentions
-whenever i_nlink is modified, but all of the filesystems do enough
-creative things with it that even if it was all properly fixed now,
-new issues with vfsmnt writer count imaglance will  probably pop
-up in the future.  This patch trades that possibility for the chance
-that we will miss a i_nlink--, and not bump the sb writer count.
-
-I like the idea screwing up writing out a single inode better than
-screwing up a global superblock count imbalance that will affect
-all inodes.
+chown/chmod,etc... don't call permission in the same way
+that the normal "open for write" calls do.  They still
+write to the filesystem, so bump the write count during
+these operations.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- lxc-dave/fs/inode.c         |    7 ++++++-
- lxc-dave/fs/libfs.c         |    2 ++
- lxc-dave/include/linux/fs.h |    1 +
- mm/page_alloc.c             |    0 
- 4 files changed, 9 insertions(+), 1 deletion(-)
+ lxc-dave/fs/open.c |   38 +++++++++++++++++++++++++++++++++-----
+ 1 files changed, 33 insertions(+), 5 deletions(-)
 
-diff -puN fs/inode.c~C-record-when-sb_writer_count-elevated-for-inode-in-inode fs/inode.c
---- lxc/fs/inode.c~C-record-when-sb_writer_count-elevated-for-inode-in-inode	2006-08-01 16:35:11.000000000 -0700
-+++ lxc-dave/fs/inode.c	2006-08-01 16:35:20.000000000 -0700
-@@ -1114,12 +1114,17 @@ EXPORT_SYMBOL_GPL(generic_drop_inode);
-  */
- static inline void iput_final(struct inode *inode)
- {
--	struct super_operations *op = inode->i_sb->s_op;
-+	struct super_block *sb = inode->i_sb;
-+	struct super_operations *op = sb->s_op;
- 	void (*drop)(struct inode *) = generic_drop_inode;
-+	int must_drop_sb_write = (inode->i_state & I_AWAITING_FINAL_IPUT);
+diff -puN fs/open.c~C-elevate-writers-chown-and-friends fs/open.c
+--- lxc/fs/open.c~C-elevate-writers-chown-and-friends	2006-08-01 16:35:13.000000000 -0700
++++ lxc-dave/fs/open.c	2006-08-01 16:35:22.000000000 -0700
+@@ -644,9 +644,12 @@ asmlinkage long sys_fchmod(unsigned int 
+ 	err = -EROFS;
+ 	if (IS_RDONLY(inode))
+ 		goto out_putf;
++	err = mnt_want_write(file->f_vfsmnt);
++	if (err)
++		goto out_putf;
+ 	err = -EPERM;
+ 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto out_putf;
++		goto out_drop_write;
+ 	mutex_lock(&inode->i_mutex);
+ 	if (mode == (mode_t) -1)
+ 		mode = inode->i_mode;
+@@ -655,6 +658,8 @@ asmlinkage long sys_fchmod(unsigned int 
+ 	err = notify_change(dentry, &newattrs);
+ 	mutex_unlock(&inode->i_mutex);
  
-+	inode->i_state &= ~I_AWAITING_FINAL_IPUT;
- 	if (op && op->drop_inode)
- 		drop = op->drop_inode;
- 	drop(inode);
-+	if (must_drop_sb_write)
-+		atomic_dec(&sb->s_mnt_writers);
- }
++out_drop_write:
++	mnt_drop_write(file->f_vfsmnt);
+ out_putf:
+ 	fput(file);
+ out:
+@@ -674,13 +679,16 @@ asmlinkage long sys_fchmodat(int dfd, co
+ 		goto out;
+ 	inode = nd.dentry->d_inode;
  
- /**
-diff -puN fs/libfs.c~C-record-when-sb_writer_count-elevated-for-inode-in-inode fs/libfs.c
---- lxc/fs/libfs.c~C-record-when-sb_writer_count-elevated-for-inode-in-inode	2006-08-01 16:35:17.000000000 -0700
-+++ lxc-dave/fs/libfs.c	2006-08-01 16:35:20.000000000 -0700
-@@ -272,6 +272,7 @@ out:
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		goto dput_and_out;
+ 	error = -EROFS;
+ 	if (IS_RDONLY(inode))
+-		goto dput_and_out;
++		goto out_drop_write;
  
- void __inode_set_awaiting_final_iput(struct inode *inode)
- {
-+	inode->i_state |= I_AWAITING_FINAL_IPUT;
- }
+ 	error = -EPERM;
+ 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+-		goto dput_and_out;
++		goto out_drop_write;
  
- int simple_unlink(struct inode *dir, struct dentry *dentry)
-@@ -377,6 +378,7 @@ int simple_fill_super(struct super_block
- 	inode = new_inode(s);
- 	if (!inode)
- 		return -ENOMEM;
-+	inode->i_state |= I_AWAITING_FINAL_IPUT;
- 	inode->i_mode = S_IFDIR | 0755;
- 	inode->i_uid = inode->i_gid = 0;
- 	inode->i_blocks = 0;
-diff -puN include/linux/fs.h~C-record-when-sb_writer_count-elevated-for-inode-in-inode include/linux/fs.h
---- lxc/include/linux/fs.h~C-record-when-sb_writer_count-elevated-for-inode-in-inode	2006-08-01 16:35:19.000000000 -0700
-+++ lxc-dave/include/linux/fs.h	2006-08-01 16:35:20.000000000 -0700
-@@ -1239,6 +1239,7 @@ struct super_operations {
- #define I_CLEAR			32
- #define I_NEW			64
- #define I_WILL_FREE		128
-+#define I_AWAITING_FINAL_IPUT		256
+ 	mutex_lock(&inode->i_mutex);
+ 	if (mode == (mode_t) -1)
+@@ -690,6 +698,8 @@ asmlinkage long sys_fchmodat(int dfd, co
+ 	error = notify_change(nd.dentry, &newattrs);
+ 	mutex_unlock(&inode->i_mutex);
  
- #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
- 
-diff -puN mm/page_alloc.c~C-record-when-sb_writer_count-elevated-for-inode-in-inode mm/page_alloc.c
++out_drop_write:
++	mnt_drop_write(nd.mnt);
+ dput_and_out:
+ 	path_release(&nd);
+ out:
+@@ -715,7 +725,7 @@ static int chown_common(struct dentry * 
+ 	error = -EROFS;
+ 	if (IS_RDONLY(inode))
+ 		goto out;
+-	error = -EPERM;
++ 	error = -EPERM;
+ 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
+ 		goto out;
+ 	newattrs.ia_valid =  ATTR_CTIME;
+@@ -744,7 +754,12 @@ asmlinkage long sys_chown(const char __u
+ 	error = user_path_walk(filename, &nd);
+ 	if (error)
+ 		goto out;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		goto out_release;
+ 	error = chown_common(nd.dentry, user, group);
++	mnt_drop_write(nd.mnt);
++out_release:
+ 	path_release(&nd);
+ out:
+ 	return error;
+@@ -764,7 +779,12 @@ asmlinkage long sys_fchownat(int dfd, co
+ 	error = __user_walk_fd(dfd, filename, follow, &nd);
+ 	if (error)
+ 		goto out;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		goto out_release;
+ 	error = chown_common(nd.dentry, user, group);
++	mnt_drop_write(nd.mnt);
++out_release:
+ 	path_release(&nd);
+ out:
+ 	return error;
+@@ -778,7 +798,11 @@ asmlinkage long sys_lchown(const char __
+ 	error = user_path_walk_link(filename, &nd);
+ 	if (error)
+ 		goto out;
++	error = mnt_want_write(nd.mnt);
++	if (error)
++		goto out_release;
+ 	error = chown_common(nd.dentry, user, group);
++out_release:
+ 	path_release(&nd);
+ out:
+ 	return error;
+@@ -794,10 +818,14 @@ asmlinkage long sys_fchown(unsigned int 
+ 	file = fget(fd);
+ 	if (!file)
+ 		goto out;
+-
++	error = mnt_want_write(file->f_vfsmnt);
++	if (error)
++		goto out_fput;
+ 	dentry = file->f_dentry;
+ 	audit_inode(NULL, dentry->d_inode);
+ 	error = chown_common(dentry, user, group);
++	mnt_drop_write(file->f_vfsmnt);
++out_fput:
+ 	fput(file);
+ out:
+ 	return error;
 _

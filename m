@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161110AbWHAGDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbWHAGMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161110AbWHAGDA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 02:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbWHAGDA
+	id S1161136AbWHAGMm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 02:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161142AbWHAGMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 02:03:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161086AbWHAGC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 02:02:59 -0400
-Date: Mon, 31 Jul 2006 23:02:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Dushistov <dushistov@mail.ru>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH]: ufs: ufs_get_locked_patch race fix
-Message-Id: <20060731230251.3b149902.akpm@osdl.org>
-In-Reply-To: <20060731125702.GA5094@rain>
-References: <20060731125702.GA5094@rain>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Tue, 1 Aug 2006 02:12:42 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6610
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161136AbWHAGMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 02:12:41 -0400
+Date: Mon, 31 Jul 2006 23:11:58 -0700 (PDT)
+Message-Id: <20060731.231158.91311705.davem@davemloft.net>
+To: dan.j.williams@intel.com
+Cc: linux-kernel@vger.kernel.org, neilb@suse.de, galak@kernel.crashing.org,
+       christopher.leech@intel.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH rev2 1/4] dmaengine: enable mutliple clients and
+ operations
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060728181618.5948.27138.stgit@dwillia2-linux.ch.intel.com>
+References: <20060728181618.5948.27138.stgit@dwillia2-linux.ch.intel.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 16:57:02 +0400
-Evgeniy Dushistov <dushistov@mail.ru> wrote:
 
-> As discussed earlier:
-> http://lkml.org/lkml/2006/6/28/136
-> this patch fixes such issue:
-> `ufs_get_locked_page' takes page from cache
-> after that `vmtruncate' takes page and deletes it from cache
-> `ufs_get_locked_page' locks page, and reports about EIO error.
-> 
-> Also because of find_lock_page always return valid page or NULL,
-> we have no need check it if page not NULL.
-> 
-> Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
-> 
-> 
-> ---
-> 
-> 
-> Index: linux-2.6.18-rc2-mm1/fs/ufs/util.c
-> ===================================================================
-> --- linux-2.6.18-rc2-mm1.orig/fs/ufs/util.c
-> +++ linux-2.6.18-rc2-mm1/fs/ufs/util.c
-> @@ -257,6 +257,7 @@ try_again:
->  		page = read_cache_page(mapping, index,
->  				       (filler_t*)mapping->a_ops->readpage,
->  				       NULL);
-> +
->  		if (IS_ERR(page)) {
->  			printk(KERN_ERR "ufs_change_blocknr: "
->  			       "read_cache_page error: ino %lu, index: %lu\n",
-> @@ -266,6 +267,13 @@ try_again:
->  
->  		lock_page(page);
->  
-> +		if (unlikely(page->mapping != mapping ||
-> +			     page->index != index)) {
-> +			unlock_page(page);
-> +			page_cache_release(page);
-> +			goto try_again;
-> +		}
-> +
->  		if (!PageUptodate(page) || PageError(page)) {
->  			unlock_page(page);
->  			page_cache_release(page);
+Can I ask that the known bugs in the I/O AT DMA code be fixed
+before we start adding new features to it?
 
-Looks good to me.
+Specifically, the lock_cpu_hotplug() call in net_dma_rebalance()
+is still there and being invoked with a spinlock held.  The
+spinlock is grabbed by the caller, netdev_dma_event() which
+grabs the net_dma_event_lock spinlock.
 
-Is there any need to be checking ->index?  Normally we simply use the
-sequence:
+You cannot invoke lock_cpu_hotplug() while holding a spinlock
+because lock_cpu_hotplug(), as seen in kernel/cpu.c, takes
+a semaphore which can sleep.  Sleeping while holding a spinlock
+is not allowed.
 
-	lock_page(page);
-	if (page->mapping == NULL)
-		/* truncate got there first */
+This is the second time I have tried to make the Intel developers
+aware of this bug.  So please fix this problem.
 
-to handle this case.
+Thanks a lot.

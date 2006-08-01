@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422778AbWHALPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWHALPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422778AbWHALPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422789AbWHALPV
+	id S932635AbWHALPh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbWHALFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:15:21 -0400
-Received: from mailer.gwdg.de ([134.76.10.26]:47038 "EHLO mailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422782AbWHALOv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:14:51 -0400
-Date: Tue, 1 Aug 2006 12:57:22 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
-       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
- expressed by kernelnewbies.org regarding reiser4 inclusion]
-In-Reply-To: <20060801090947.GA2974@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
-References: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
- <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de>
- <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
- <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
- <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
- <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
- <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
- <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
- <20060801090947.GA2974@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 1 Aug 2006 07:05:50 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60892 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932635AbWHALFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:05:33 -0400
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: <fastboot@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 13/33] x86_64: Remove assumptions about the kernel start address from e820/bad_addr()
+Date: Tue,  1 Aug 2006 05:03:28 -0600
+Message-Id: <1154430237548-git-send-email-ebiederm@xmission.com>
+X-Mailer: git-send-email 1.4.2.rc2.g5209e
+In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->I didn't mean to say your particular drive were crap, but 200GB SATA
->drives are low end, like it or not --
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+---
+ arch/x86_64/kernel/e820.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
-And you think an 18 GB SCSI disk just does it better because it's SCSI?
-Esp. in long sequential reads.
-
-
-Jan Engelhardt
+diff --git a/arch/x86_64/kernel/e820.c b/arch/x86_64/kernel/e820.c
+index 61f029f..56dd525 100644
+--- a/arch/x86_64/kernel/e820.c
++++ b/arch/x86_64/kernel/e820.c
+@@ -69,9 +69,14 @@ #ifdef CONFIG_BLK_DEV_INITRD
+ 		return 1;
+ 	} 
+ #endif
+-	/* kernel code + 640k memory hole (later should not be needed, but 
++	/* 640k memory hole (later should not be needed, but
+ 	   be paranoid for now) */
+-	if (last >= 640*1024 && addr < __pa_symbol(&_end)) { 
++	if (last >= 640*1024 && addr < HIGH_MEMORY) {
++		*addrp = HIGH_MEMORY;
++	}
++
++	/* kernel code */
++	if (last >= __pa_symbol(&_text) && addr < __pa_symbol(&_end)) {
+ 		*addrp = __pa_symbol(&_end);
+ 		return 1;
+ 	}
 -- 
+1.4.2.rc2.g5209e
+

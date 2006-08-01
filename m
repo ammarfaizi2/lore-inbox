@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWHAN4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWHAN4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWHAN4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 09:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWHAN4G
+	id S1751614AbWHAN4g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 09:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWHAN4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 09:56:06 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:17602 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751308AbWHAN4E (ORCPT
+	Tue, 1 Aug 2006 09:56:36 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:52405 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751614AbWHAN4f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 09:56:04 -0400
-Date: Tue, 1 Aug 2006 17:55:38 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: James Morris <jmorris@namei.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
-       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>
-Subject: Re: [take2 1/4] kevent: core files.
-Message-ID: <20060801135538.GA356@2ka.mipt.ru>
-References: <11544248451203@2ka.mipt.ru> <Pine.LNX.4.64.0608010945090.10827@d.namei>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608010945090.10827@d.namei>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 01 Aug 2006 17:55:39 +0400 (MSD)
+	Tue, 1 Aug 2006 09:56:35 -0400
+Date: Tue, 1 Aug 2006 15:40:37 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Adrian Ulrich <reiser4@blinkenlights.ch>, nate.diller@gmail.com,
+       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+In-Reply-To: <20060801131553.GA8249@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0608011540020.32227@yvahk01.tjqt.qr>
+References: <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
+ <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
+ <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
+ <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
+ <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
+ <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
+ <20060801090947.GA2974@merlin.emma.line.org> <Pine.LNX.4.61.0608011255130.29748@yvahk01.tjqt.qr>
+ <20060801131553.GA8249@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 09:46:58AM -0400, James Morris (jmorris@namei.org) wrote:
-> On Tue, 1 Aug 2006, Evgeniy Polyakov wrote:
-> 
-> > +	u->ready_num = 0;
-> > +#ifdef CONFIG_KEVENT_USER_STAT
-> > +	u->wait_num = u->im_num = u->total = 0;
-> > +#endif
-> 
-> Generally, #ifdefs in the body of the kernel code are discouraged.  Can 
-> you abstract these out as static inlines?
+>> >I didn't mean to say your particular drive were crap, but 200GB SATA
+>> >drives are low end, like it or not --
+>> 
+>> And you think an 18 GB SCSI disk just does it better because it's SCSI?
+>
+>18 GB SCSI disks are 1999 gear, so who cares?
+>Seagate didn't sell 200 GB SATA drives at that time.
+>
+>> Esp. in long sequential reads.
+>
+>You think SCSI drives aren't on par? Right, they're ahead.
+>98 MB/s for the fastest SCSI drives vs. 88 MB/s for Raptor 150 GB SATA
+>and 74 MB/s for the fastest other ATA drives.
 
-Yes, it is possible.
-I would ask is it needed at all? It contains number of immediately fired
-events (i.e. those which were ready when event was added and thus
-syscall returned immediately showing that it is ready), total number of
-events, which were inserted in the given queue and number of events
-which were marked as ready after they were inserted.
-Currently it is compilation option which ends up in printk with above
-info when kevent queue is removed.
- 
-> - James
-> -- 
-> James Morris
-> <jmorris@namei.org>
+Uhuh. And how do they measure that? Did they actually ran sth like...
+  dd_rescue /dev/hda /dev/null
 
+
+
+
+Jan Engelhardt
 -- 
-	Evgeniy Polyakov

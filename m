@@ -1,147 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422768AbWHAH6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422762AbWHAIKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422768AbWHAH6d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 03:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422769AbWHAH6d
+	id S1422762AbWHAIKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWHAIKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 03:58:33 -0400
-Received: from www.osadl.org ([213.239.205.134]:22754 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1422768AbWHAH6c (ORCPT
+	Tue, 1 Aug 2006 04:10:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20407 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751288AbWHAIKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 03:58:32 -0400
-Subject: Re: rt_mutex_timed_lock() vs hrtimer_wakeup() race ?
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Esben Nielsen <nielsen.esben@googlemail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060730043605.GA2894@oleg>
-References: <20060730043605.GA2894@oleg>
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 09:58:36 +0200
-Message-Id: <1154419117.5932.55.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 04:10:43 -0400
+Date: Tue, 1 Aug 2006 01:10:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: dan.j.williams@intel.com, linux-kernel@vger.kernel.org, neilb@suse.de,
+       galak@kernel.crashing.org, christopher.leech@intel.com,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH rev2 1/4] dmaengine: enable mutliple clients and
+ operations
+Message-Id: <20060801011033.4c3484df.akpm@osdl.org>
+In-Reply-To: <20060731.231158.91311705.davem@davemloft.net>
+References: <20060728181618.5948.27138.stgit@dwillia2-linux.ch.intel.com>
+	<20060731.231158.91311705.davem@davemloft.net>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-07-30 at 08:36 +0400, Oleg Nesterov wrote:
-> Another question, task_blocks_on_rt_mutex() does get_task_struct() and checks
-> owner->pi_blocked_on != NULL under owner->pi_lock. Why ? RT_MUTEX_HAS_WAITERS
-> bit is set, we are holding ->wait_lock, so the 'owner' can't go away until
-> we drop ->wait_lock. I think we can drop owner->pi_lock right after
-> __rt_mutex_adjust_prio(owner), we can't miss owner->pi_blocked_on != NULL
-> if it was true before we take owner->pi_lock, and this is the case we should
-> worry about, yes?
+On Mon, 31 Jul 2006 23:11:58 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-No.
+> 
+> Can I ask that the known bugs in the I/O AT DMA code be fixed
+> before we start adding new features to it?
+> 
+> Specifically, the lock_cpu_hotplug() call in net_dma_rebalance()
+> is still there and being invoked with a spinlock held.  The
+> spinlock is grabbed by the caller, netdev_dma_event() which
+> grabs the net_dma_event_lock spinlock.
+> 
+> You cannot invoke lock_cpu_hotplug() while holding a spinlock
+> because lock_cpu_hotplug(), as seen in kernel/cpu.c, takes
+> a semaphore which can sleep.  Sleeping while holding a spinlock
+> is not allowed.
+> 
+> This is the second time I have tried to make the Intel developers
+> aware of this bug.  So please fix this problem.
+> 
 
-We hold lock->wait_lock. The owner of this lock can be blocked itself,
-which makes it necessary to do the chain walk. The indicator is
-owner->pi_blocked_on. This field is only protected by owner->pi_lock.
+Please just delete the lock_cpu_hotplug()/unlock_cpu_hotplug() calls.  Any
+code which runs inside preempt_disable() is automatically protected from
+cpu hot-unplug.
 
-If we look at this field outside of owner->pi_lock, then we might miss a
-chain walk.
-
-CPU 0					CPU 1
-
-lock lock->wait_lock
-
-block_on_rt_mutex()
-
-lock current->pi_lock
-current->pi_blocked_on = waiter(lock)
-unlock current->pi_lock
-
-boost = owner->pi_blocked_on
-
-					owner blocks on lock2
-					lock owner->pi_lock
-					owner->pi_blocked_on = waiter(lock2)
-					unlock owner->pi_lock
-
-lock owner->pi_lock
-enqueue waiter
-adjust prio
-unlock owner->pi_lock
-unlock lock->wait_lock
-
-if boost
-	do_chain_walk()
-
-->pi_blocked_on is protected by ->pi_lock and has to be read/modified
-under this lock. That way we can not miss a chain walk:
-
-CPU 0					CPU 1
-
-lock lock->wait_lock
-
-block_on_rt_mutex()
-
-lock current->pi_lock
-current->pi_blocked_on = waiter(lock)
-unlock current->pi_lock
-
-					owner blocks on lock2
-					lock owner->pi_lock
-					owner->pi_blocked_on = waiter(lock2)
-					unlock owner->pi_lock
-
-lock owner->pi_lock
-enqueue waiter
-adjust prio
-boost = owner->pi_blocked_on
-unlock owner->pi_lock
-unlock lock->wait_lock
-
-if boost
-	do_chain_walk()
-
-
-CPU 0					CPU 1
-
-lock lock->wait_lock
-
-block_on_rt_mutex()
-
-lock current->pi_lock
-current->pi_blocked_on = waiter(lock)
-unlock current->pi_lock
-
-lock owner->pi_lock
-enqueue waiter
-adjust prio of owner
-boost = owner->pi_blocked_on
-unlock owner->pi_lock
-unlock lock->wait_lock
-
-					owner blocks on lock2
-					lock owner->pi_lock
-					owner->pi_blocked_on = waiter(lock2)
-					unlock owner->pi_lock
-if boost
-	do_chain_walk()
-
-					owner propagates the priority to owner(lock2)
-
-get_task_struct() is there for a different reason. We have to protect
-the gap where we hold _no_ lock in rt_mutex_adjust_prio_chain:
-
-retry:
-	lock task->pi_lock
-	block = task->pi_blocked_on->lock
-	if (! trylock block->wait_lock) {
-		unlock task->pi_lock
-
--> task could go away right here, if we do not hold a reference
-
-		cpu_relax()
-		goto retry
-	}
-
-
-	tglx
-
-
+It's not presently 100% protected against cpu hot-add, but it's good enough
+for now: the setting of the flag in cpu_online_map is the last thing which
+happens.  To make this 100% tight we should probably run __cpu_up() via
+stop_machine_run().

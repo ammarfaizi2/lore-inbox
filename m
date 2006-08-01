@@ -1,67 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWHABCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWHABDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWHABCU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 21:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWHABCU
+	id S1751545AbWHABDM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 21:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWHABDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 21:02:20 -0400
-Received: from mail.gmx.net ([213.165.64.21]:7066 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030371AbWHABCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 21:02:19 -0400
-X-Authenticated: #428038
-Date: Tue, 1 Aug 2006 03:02:15 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Nate Diller <nate.diller@gmail.com>
-Cc: David Lang <dlang@digitalinsight.com>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
-Message-ID: <20060801010215.GA24946@merlin.emma.line.org>
-Mail-Followup-To: Nate Diller <nate.diller@gmail.com>,
-	David Lang <dlang@digitalinsight.com>,
-	Adrian Ulrich <reiser4@blinkenlights.ch>,
-	"Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-	reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-	tytso@mit.edu, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <20060731175958.1626513b.reiser4@blinkenlights.ch> <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl> <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com> <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com> <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.12 (2006-07-17)
-X-Y-GMX-Trusted: 0
+	Mon, 31 Jul 2006 21:03:12 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:51102
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751538AbWHABDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 21:03:10 -0400
+Date: Mon, 31 Jul 2006 18:02:26 -0700 (PDT)
+Message-Id: <20060731.180226.131918297.davem@davemloft.net>
+To: zach.brown@oracle.com
+Cc: johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <44C91192.4090303@oracle.com>
+References: <20060709132446.GB29435@2ka.mipt.ru>
+	<20060724.231708.01289489.davem@davemloft.net>
+	<44C91192.4090303@oracle.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006, Nate Diller wrote:
+From: Zach Brown <zach.brown@oracle.com>
+Date: Thu, 27 Jul 2006 12:18:42 -0700
 
-> this is only a limitation for filesystems which do in-place data and
-> metadata updates.  this is why i mentioned the similarities to log
-> file systems (see rosenblum and ousterhout, 1991).  they observed an
-> order-of-magnitude increase in performance for such workloads on their
-> system.
+[ I kept this thread around in my inbox because I wanted to give it
+  some deep thought, so sorry for replying to old bits... ]
 
-It's well known that transactions that would thrash on UFS or ext2fs may
-have quieter access patterns with shorter strokes can benefit from
-logging, data journaling, whatever else turns seeks into serial writes.
-And then, the other question with wandering logs (to avoid double
-writes) and such, you start wondering how much fragmentation you get as
-the price to pay for avoiding seeks and double writes at the same time.
-TANSTAAFL, or how long the system can sustain such access patterns,
-particularly if it gets under memory pressure and must move. Even with
-lazy allocation and other optimizations, I question the validity of
-3000/s or faster transaction frequencies. Even the 500 on ext3 are
-suspect, particularly with 7200/min (s)ATA crap. This sounds pretty much
-like the drive doing its best to shuffle blocks around in its 8 MB cache
-and lazily writing back.
+> So as the kernel generates events in the ring it only produces an event
+> if the ownership field says that userspace has consumed it and in doing
+> so it sets the ownership field to tell userspace that an event is
+> waiting.  userspace and the kernel now each follow their index around
+> the ring as the ownership field lets them produce or consume the event
+> at their index.  Can someone tell me if the cache coherence costs of
+> this are extreme?  I'm hoping they're not.
 
-sdparm --clear=WCE /dev/sda   # please.
+No need for an owner field, we can use something like a VJ
+netchannel datastructure for this.  Kernel only writes to
+producer index and user only writes to consumer index.
 
--- 
-Matthias Andree
+> So, great, glibc can now find pending events very quickly if they're
+> waiting in the ring and can fall back to the collection syscall if it
+> wants to wait and the ring is empty.  If it consumes events via the
+> syscall it increases its ring index by the number the syscall returned.
+
+I do not think if we do a ring buffer that events should be obtainable
+via a syscall at all.  Rather, I think this system call should be
+purely "sleep until ring is not empty".
+
+This is actually reasonably simple stuff to implement as Evgeniy
+has tried to explain.
+
+Events in kevent live on a ready list when they have triggered.
+Existence on a list determined the state, and I think this design
+btw invalidates some of the arguments against using netlink that
+Ulrich mentions in his paper.  If netlink socket queuing fails,
+well then kevent stays on ready list and that is all until the
+kevent can be successfully published to the user.
+
+I am not advocating netlink at all for this, as the ring buffer idea
+is much better.
+
+The ring buffer size, as Evgeniy also tried to describe, is bounded
+purely by the number of registered events.  So event loop of
+application might look something like this:
+
+	struct ukevent cur_event;
+	struct timeval timeo;
+
+	setup_timeout(&timeo);
+	for (;;) {
+		int err;
+		while(!(err = ukevent_dequeue(evt_fd, evt_ring,
+					      &cur_event, &timeo))) {
+			struct my_event_object *o =
+				event_to_object(&cur_event);
+			o->dispatch(o, &cur_event);
+			setup_timeout(&timeo);
+		}
+		if (err == -ETIMEDOUT)
+			timeout_processing();
+		else
+			event_error_processing(err);
+	}
+
+ukevent_dequeue() is perhaps some GLIBC implemented routine which does
+something like:
+
+	int err;
+
+	for (;;) {
+		if (!evt_ring_empty(evt_ring)) {
+			struct ukevent *p = evt_ring_consume(evt_ring);
+			memcpy(event_p, p, sizeof(struct ukevent));
+			return 0;
+		}
+		err = kevent_wait(evt_fd, timeo_p);
+		if (err < 0)
+			break;
+	}
+	return err;
+
+It's just some stupid ideas... we could also choose to expose the ring
+buffer layout directly to the user event loop and let it perform the
+dequeue operation and kevent_wait() calls directly.  I don't see why
+not to allow that.

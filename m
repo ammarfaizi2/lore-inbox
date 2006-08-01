@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWHAGbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWHAGeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbWHAGbl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 02:31:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbWHAGbk
+	id S932065AbWHAGeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 02:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWHAGeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 02:31:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65182 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751584AbWHAGbk (ORCPT
+	Tue, 1 Aug 2006 02:34:09 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:45248 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S932065AbWHAGeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 02:31:40 -0400
-Date: Mon, 31 Jul 2006 23:31:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix link error in atyfb with backlight disabled
-Message-Id: <20060731233134.d7477be8.akpm@osdl.org>
-In-Reply-To: <20060731185220.GA5127@suse.de>
-References: <20060731185220.GA5127@suse.de>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 02:34:06 -0400
+Date: Tue, 1 Aug 2006 08:22:04 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+In-Reply-To: <20060731144736.GA1389@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0608010821300.10130@yvahk01.tjqt.qr>
+References: <1153760245.5735.47.camel@ipso.snappymail.ca>
+ <200607241806.k6OI6uWY006324@laptop13.inf.utfsm.cl>
+ <20060731125846.aafa9c7c.reiser4@blinkenlights.ch> <20060731144736.GA1389@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 20:52:20 +0200
-Olaf Hering <olh@suse.de> wrote:
+>
+>> A filesystem with a fixed number of inodes (= not readjustable while
+>> mounted) is ehr.. somewhat unuseable for a lot of people with
+>> big and *flexible* storage needs (Talking about NetApp/EMC owners)
+>
+>Which is untrue at least for Solaris, which allows resizing a life file
+>system. FreeBSD and
 
-> 
-> aty_bl_set_power is only defined if CONFIG_FB_ATY_BACKLIGHT is enabled.
-> 
-> Signed-off-by: Olaf Hering <olh@suse.de>
-> 
-> Index: linux-2.6.18-rc3/drivers/video/aty/atyfb_base.c
-> ===================================================================
-> --- linux-2.6.18-rc3.orig/drivers/video/aty/atyfb_base.c
-> +++ linux-2.6.18-rc3/drivers/video/aty/atyfb_base.c
-> @@ -2812,7 +2812,7 @@ static int atyfb_blank(int blank, struct
->  	if (par->lock_blank || par->asleep)
->  		return 0;
->  
-> -#ifdef CONFIG_PMAC_BACKLIGHT
-> +#if defined(CONFIG_PMAC_BACKLIGHT) && defined(CONFIG_FB_ATY_BACKLIGHT)
->  	if (machine_is(powermac) && blank > FB_BLANK_NORMAL)
->  		aty_bl_set_power(info, FB_BLANK_POWERDOWN);
->  #elif defined(CONFIG_FB_ATY_GENERIC_LCD)
-> @@ -2844,7 +2844,7 @@ static int atyfb_blank(int blank, struct
->  	}
->  	aty_st_le32(CRTC_GEN_CNTL, gen_cntl, par);
->  
-> -#ifdef CONFIG_PMAC_BACKLIGHT
-> +#if defined(CONFIG_PMAC_BACKLIGHT) && defined(CONFIG_FB_ATY_BACKLIGHT)
->  	if (machine_is(powermac) && blank <= FB_BLANK_NORMAL)
->  		aty_bl_set_power(info, FB_BLANK_UNBLANK);
->  #elif defined(CONFIG_FB_ATY_GENERIC_LCD)
 
-Linus merged a patch today (powermac-more-powermac-backlight-fixes.patch)
-whcih changes all this stuff.  Its changelog included a mysterious "More
-Kconfig fixes".
+>Linux require an unmount.
 
-So can you please see if current -git is indeed fixed?
+Only for shrinking.
 
-Thanks.
 
+Jan Engelhardt
+-- 

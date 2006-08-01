@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWHAUZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbWHAU1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161033AbWHAUZs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 16:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbWHAUZs
+	id S1161046AbWHAU1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbWHAU1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 16:25:48 -0400
-Received: from relay02.pair.com ([209.68.5.16]:38411 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S1161033AbWHAUZq (ORCPT
+	Tue, 1 Aug 2006 16:27:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:4021 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161041AbWHAU1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 16:25:46 -0400
-X-pair-Authenticated: 71.197.50.189
-Date: Tue, 1 Aug 2006 15:25:38 -0500 (CDT)
-From: Chase Venters <chase.venters@clientec.com>
-X-X-Sender: root@turbotaz.ourhouse
-To: torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lib/errno.c
-In-Reply-To: <Pine.LNX.4.64.0608011316340.12077@turbotaz.ourhouse>
-Message-ID: <Pine.LNX.4.64.0608011516140.12077@turbotaz.ourhouse>
-References: <Pine.LNX.4.64.0608011316340.12077@turbotaz.ourhouse>
+	Tue, 1 Aug 2006 16:27:39 -0400
+From: Neil Brown <neilb@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Date: Wed, 2 Aug 2006 06:27:21 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17615.47401.552607.980993@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 004 of 9] md: Factor out part of raid10d into a separate
+ function.
+In-Reply-To: message from Bill Davidsen on Tuesday August 1
+References: <20060731172842.24323.patches@notabene>
+	<1060731073208.24470@suse.de>
+	<44CF8C2D.2010900@tmr.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006, Chase Venters wrote:
+On Tuesday August 1, davidsen@tmr.com wrote:
+> don't think this is better, NeilBrown wrote:
+> 
+> >raid10d has toooo many nested block, so take the fix_read_error
+> >functionality out into a separate function.
+> >  
+> >
+> 
+> Definite improvement in readability. Will all versions of the compiler 
+> do something appropriate WRT inlining or not?
 
-> I'm curious if there's a reason we're still carrying "lib/errno.c". The 
-> string "errno" is used pretty heavily but from a grep glance it seems any 
-> users define it locally (and indeed, the concurrency issues with a global 
-> 'errno' symbol mean it would be worthless except during boot, or maybe under 
-> BKL).
+As the separated function is called about once in a blue moon, it
+hardly matters.  I'd probably rather it wasn't inlined so as to be
+sure it doesn't clutter the L-1 cache when it isn't needed, but that's
+the sort of thing I really want to leave to the compiler.
 
-OK, I think I figured out why it's still there -- an old bit of legacy 
-that is now a hack to deal with _syscall macros? I'm guessing here, so it 
-would be nice if someone told me if I'm on the right track:
+Maybe it would be good to stick an 'unlikely' or 'likely' in raid10d
+to tell the compiler how likely a read error is...
 
-  1. linux/unistd.h defines the extern for errno (perhaps for old export to 
-user-space?)
-  2. lib/errno.c defines the variable itself
-  3. __syscall_return sets errno, probably for the benefit of old 
-user-space
-
-I'm wondering if we should drop lib/errno.c, #ifndef __KERNEL__ around the 
-extern in unistd.h, and then fix up __syscall_return in 
-include/asm-*/unistd.h to have two versions -- one when in __KERNEL__ that 
-doesn't muck with errno, and one when not that does?
-
-Alternatively / additionally, investigate changing execve() callers to use 
-sys_execve() or do_execve(), rather than pounding back in through an 
-interrupt?
-
-Having a global 'errno' in the kernel just seems wrong -- if someone were 
-to include unistd.h and then decide to use an 'int errno' in some 
-function, then proceeds to forget to declare it on the stack, the code 
-would build and leave a nice race condition hiding out.
-
-Would a patch along these lines be acceptable, or is there something I am 
-missing?
-
-Thanks,
-Chase
+NeilBrown

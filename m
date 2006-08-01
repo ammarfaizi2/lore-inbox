@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWHAVgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWHAVlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWHAVgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 17:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWHAVgh
+	id S1750888AbWHAVlR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 17:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWHAVlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 17:36:37 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22400 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S1750881AbWHAVgh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 17:36:37 -0400
-Date: Tue, 1 Aug 2006 14:37:51 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@sous-sol.org>, jeremy@xensource.com,
-       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk,
-       clameter@sgi.com, ebiederm@xmission.com, kraxel@suse.de,
-       hollisb@us.ibm.com, ian.pratt@xensource.com, rusty@rustcorp.com.au,
-       zach@vmware.com
-Subject: Re: [PATCH 7 of 13] Make __FIXADDR_TOP variable to allow it to make space for a hypervisor
-Message-ID: <20060801213751.GA11244@sequoia.sous-sol.org>
-References: <patchbomb.1154421371@ezr.goop.org> <b6c100bb5ca5e2839ac8.1154421378@ezr.goop.org> <20060801090330.GC2654@sequoia.sous-sol.org> <20060801073428.f543ba9f.akpm@osdl.org>
+	Tue, 1 Aug 2006 17:41:17 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:34285 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750888AbWHAVlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 17:41:16 -0400
+Subject: Re: tickle NMI watchdog on serial output.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060801182529.GJ22240@redhat.com>
+References: <20060801182529.GJ22240@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Aug 2006 23:00:23 +0100
+Message-Id: <1154469623.15540.78.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060801073428.f543ba9f.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> On Tue, 1 Aug 2006 02:03:30 -0700
-> Chris Wright <chrisw@sous-sol.org> wrote:
-> 
-> > * Jeremy Fitzhardinge (jeremy@xensource.com) wrote:
-> > > -#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> > > +#define MAXMEM			(__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> > 
-> > In the native case we lose one page of lowmem now.
-> 
-> erm, isn't this the hunk which gave one of my machines a 4kb highmem zone?
-> I have memories of reverting it.
+Ar Maw, 2006-08-01 am 14:25 -0400, ysgrifennodd Dave Jones:
+> Serial is _slow_ sometimes. So slow, that the NMI watchdog kicks in.
 
-Yes, that does sound quite familiar.  I couldn't find the thread, do you
-recall any of the details?  I expect it's the same issue as the off by one
-page I mentioned above.
+Acked-by: Alan Cox <alan@redhat.com>
 
-thanks,
--chris
+To be honest however the tmout%1000 bit is just a delay loop waiting for
+the chip in console synchronous printk so the whole 1000 times check is
+overkill 8)
+

@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWHAJDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWHAJJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751543AbWHAJDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWHAJDh
+	id S1751341AbWHAJJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWHAJJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:03:37 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:34398 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S1751341AbWHAJDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:03:36 -0400
-Date: Tue, 1 Aug 2006 11:03:00 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 30/30] VFS: Destroy the dentries contributed by a superblock on unmounting [try #11]
-Message-ID: <20060801090259.GB10032@X40.localnet>
-References: <20060727205222.8443.29381.stgit@warthog.cambridge.redhat.com> <20060727205333.8443.97943.stgit@warthog.cambridge.redhat.com>
+	Tue, 1 Aug 2006 05:09:53 -0400
+Received: from mail.gmx.de ([213.165.64.21]:29375 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751341AbWHAJJw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:09:52 -0400
+X-Authenticated: #428038
+Date: Tue, 1 Aug 2006 11:09:47 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Adrian Ulrich <reiser4@blinkenlights.ch>
+Cc: Matthias Andree <matthias.andree@gmx.de>, nate.diller@gmail.com,
+       dlang@digitalinsight.com, vonbrand@inf.utfsm.cl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion]
+Message-ID: <20060801090947.GA2974@merlin.emma.line.org>
+Mail-Followup-To: Adrian Ulrich <reiser4@blinkenlights.ch>,
+	nate.diller@gmail.com, dlang@digitalinsight.com,
+	vonbrand@inf.utfsm.cl, ipso@snappymail.ca, reiser@namesys.com,
+	lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+References: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl> <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com> <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com> <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com> <20060801010215.GA24946@merlin.emma.line.org> <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060727205333.8443.97943.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.12-2006-07-14
+In-Reply-To: <20060801095141.5ec0b479.reiser4@blinkenlights.ch>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-07-17)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 27, David Howells wrote:
+Adrian Ulrich schrieb am 2006-08-01:
 
-> diff --git a/include/linux/dcache.h b/include/linux/dcache.h
-> index 44605be..63f64a9 100644
-> --- a/include/linux/dcache.h
-> +++ b/include/linux/dcache.h
-> @@ -230,6 +230,7 @@ extern struct dentry * d_alloc_anon(stru
->  extern struct dentry * d_splice_alias(struct inode *, struct dentry *);
->  extern void shrink_dcache_sb(struct super_block *);
->  extern void shrink_dcache_parent(struct dentry *);
-> +extern void shrink_dcache_for_umount(struct super_block *);
->  extern int d_invalidate(struct dentry *);
->  
->  /* only used at mount-time */
+> > suspect, particularly with 7200/min (s)ATA crap. 
+> 
+> Quoting myself (again):
+> >> A quick'n'dirty ZFS-vs-UFS-vs-Reiser3-vs-Reiser4-vs-Ext3 'benchmark'
+> 
+> Yeah, the test ran on a single SATA-Harddisk (quick'n'dirty).
+> I'm so sorry but i don't have access to a $$$ Raid-System at home. 
 
-I don't see the point that we need two different versions of
-shrink_dcache_sb(). IMHO it is better to fix shrink_dcache_for_umount() so
-that it is a replacement for shrink_dcache_sb().
+I'm not asking for you to perform testing on a $$$$ RAID system with
+SCSI or SAS, but I consider the obtained data (I am focussing on
+transactions per unit of time) highly suspicious, and suspect write
+caches might have contributed their share - I haven't seen a drive that
+shipped with write cache disabled in the past years.
 
-BTW: Talking about shrink_dcache_sb(): is it really necessary to call
-shrink_dcache_sb() when remounting a filesystem? The only reason I can see are
-changes to the lookup mechanism (hash algorithm etc) but a quick look into the
-different filesystems forbid the change of this options during remount.
+> > sdparm --clear=WCE /dev/sda   # please.
+> 
+> How about using /dev/emcpower* for the next benchmark?
 
-Jan
+No, it is valid to run the test on commodity hardware, but if you (or
+the benchmark rather) is claiming "transactions", I tend to think
+"ACID", and I highly doubt any 200 GB SATA drive manages 3000
+synchronous writes per second without causing either serious
+fragmentation or background block moving.
+
+This is a figure I'd expect for synchronous random access to RAM disks
+that have no seek and rotational latencies (and research for hybrid
+disks w/ flash or other nonvolatile fast random access media to cache
+actual rotating magnetic plattern access is going on elsewhere).
+
+I didn't mean to say your particular drive were crap, but 200GB SATA
+drives are low end, like it or not -- still, I have one in my home
+computer because these Samsung SP2004C are so nicely quiet.
+
+> I mighty be able to re-run it in a few weeks if people are interested
+> and if i receive constructive suggestions (= Postmark parameters,
+> mkfs options, etc..)
+
+I don't know Postmark, I did suggest to turn the write cache off. If
+your systems uses hdparm -W0 /dev/sda instead, go ahead. But you're
+right to collect and evaluate suggestions first if you don't want to run
+a new benchmark every day :)
+
+-- 
+Matthias Andree

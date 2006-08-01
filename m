@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWHAJUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWHAJZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbWHAJUP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWHAJUP
+	id S932538AbWHAJZW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWHAJZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:20:15 -0400
-Received: from crystal.sipsolutions.net ([195.210.38.204]:49899 "EHLO
-	sipsolutions.net") by vger.kernel.org with ESMTP id S932537AbWHAJUN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:20:13 -0400
-Message-ID: <1153.153.96.175.159.1154423993.squirrel@secure.sipsolutions.net>
-In-Reply-To: <1f1b08da0607312337l34eabc56jdee7b056acd9a71a@mail.gmail.com>
-References: <1152821370.6845.9.camel@localhost>
-    <1152831309.23037.31.camel@localhost.localdomain>
-    <1f1b08da0607312337l34eabc56jdee7b056acd9a71a@mail.gmail.com>
-Date: Tue, 1 Aug 2006 11:19:53 +0200 (CEST)
-Subject: Re: [BUG] no sound on ppc mac mini
-From: "Johannes Berg" <johannes@sipsolutions.net>
-To: "john stultz" <johnstul@us.ibm.com>
-Cc: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "lkml" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.7
+	Tue, 1 Aug 2006 05:25:22 -0400
+Received: from mail.gmx.de ([213.165.64.21]:16259 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932538AbWHAJZV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:25:21 -0400
+X-Authenticated: #428038
+Date: Tue, 1 Aug 2006 11:25:14 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
+       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
+       Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed by kernelnewbies.org regarding reiser4 inclusion]
+Message-ID: <20060801092514.GB2974@merlin.emma.line.org>
+Mail-Followup-To: Avi Kivity <avi@argo.co.il>, Theodore Tso <tytso@mit.edu>,
+	David Lang <dlang@digitalinsight.com>,
+	David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
+	Nate Diller <nate.diller@gmail.com>,
+	Adrian Ulrich <reiser4@blinkenlights.ch>,
+	"Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+	reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+	linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+References: <20060801064837.GB1987@thunk.org> <44CF01C1.9070802@argo.co.il>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-sips-origin: local
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CF01C1.9070802@argo.co.il>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.12 (2006-07-17)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
->> Is this really a current git or an -rc1 snapshot ? The crashes on boot
->> should have been fixed ... unless there is another problem on the mac
->> mini. Can you try having them as modules instead ?
->
-> I know you mentioned there was a fix for this somewhere, but as
-> motivation to get it flowing to mainline, here's what I get w/ the
-> current -rc3-git and the sound bits compiled as modules:
+On Tue, 01 Aug 2006, Avi Kivity wrote:
 
-The fixes are sitting in the alsa mercurial repository waiting to go
-upstream...
+> There's no reason to repack *all* of the data.  Many workloads write and 
+> delete whole files, so file data should be contiguous.  The repacker 
+> would only need to move metadata and small files.
 
-Not My Fault (TM) ;)
+Move small files? What for?
 
-johannes
+Even if it is "only" moving metadata, it is not different from what ext3
+or xfs are doing today (rewriting metadata from the intent log or block
+journal to the final location).
+
+The UFS+softupdates from the BSD world looks pretty good at avoiding
+unnecessary writes (at the expense of a long-running but nice background
+fsck after a crash, which is however easy on the I/O as of recent FreeBSD
+versions).  Which was their main point against logging/journaling BTW,
+but they are porting XFS as well to save those that need instant
+complete recovery.
+
+-- 
+Matthias Andree

@@ -1,99 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160994AbWHAJlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWHAJpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160994AbWHAJlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160999AbWHAJlQ
+	id S1161018AbWHAJpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161025AbWHAJpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:41:16 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:56254 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S1160994AbWHAJlQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:41:16 -0400
-Message-ID: <44CEBF33.4020208@namesys.com>
-Date: Mon, 31 Jul 2006 20:40:51 -0600
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>
-CC: David Lang <dlang@digitalinsight.com>, David Masover <ninja@slaphack.com>,
-       tdwebste2@yahoo.com, Nate Diller <nate.diller@gmail.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       lkml@lpbproductions.com, jeff@garzik.org, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com, Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
- by kernelnewbies.org regarding reiser4 inclusion]
-References: <20060801034726.58097.qmail@web51311.mail.yahoo.com> <44CED777.5080308@slaphack.com> <Pine.LNX.4.63.0607312133080.15179@qynat.qvtvafvgr.pbz> <20060801064837.GB1987@thunk.org>
-In-Reply-To: <20060801064837.GB1987@thunk.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 05:45:13 -0400
+Received: from ip-160-218-140-54.eurotel.cz ([160.218.140.54]:8362 "EHLO
+	host0.dyn.jankratochvil.net") by vger.kernel.org with ESMTP
+	id S1161018AbWHAJpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:45:11 -0400
+Date: Tue, 1 Aug 2006 11:43:51 +0200
+From: Jan Kratochvil <lace@jankratochvil.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: vgoyal@in.ibm.com, fastboot@osdl.org, Horms <horms@verge.net.au>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [CFT] ELF Relocatable x86 and x86_64 bzImages
+Message-ID: <20060801094351.GA25944@host0.dyn.jankratochvil.net>
+References: <20060707143519.GB13097@host0.dyn.jankratochvil.net> <20060710233219.GF16215@in.ibm.com> <20060711010815.GB1021@host0.dyn.jankratochvil.net> <m1d5c92yv4.fsf@ebiederm.dsl.xmission.com> <m1u04x4uiv.fsf_-_@ebiederm.dsl.xmission.com> <20060731202520.GB11790@in.ibm.com> <20060731210050.GC11790@in.ibm.com> <m18xm9425s.fsf@ebiederm.dsl.xmission.com> <20060801042528.GA19157@host0.dyn.jankratochvil.net> <m1bqr43jqv.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1bqr43jqv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+On Tue, 01 Aug 2006 11:09:28 +0200, Eric W. Biederman wrote:
+> Jan Kratochvil <lace@jankratochvil.net> writes:
+...
+> > i386 had alignment requirement:
+> > 	/* current_thread_info()&co. are 8192-alignment fixed (for the initial
+> > stack). */
+> > 	#if CONFIG_PHYSICAL_START & 0x1FFF
+> > 	#error "CONFIG_PHYSICAL_START must be 2*PAGE_SIZE (0x2000) aligned!"
+> > 	#endif
+> > as IIRC those i386 2MB/4MB pages must be (apparently) 2MB/4MB aligned in the
+> > virtual address space but their physical target address can be arbitrary.
+> 
+> I know you can't use huge pages if your physical address is not
+> properly aligned.   Which can be a performance impact if nothing else.
+> Not something I want to encourage in a general purpose kernel. 
 
->On Mon, Jul 31, 2006 at 09:41:02PM -0700, David Lang wrote:
->  
->
->>just becouse you have redundancy doesn't mean that your data is idle enough 
->>for you to run a repacker with your spare cycles. to run a repacker you 
->>need a time when the chunk of the filesystem that you are repacking is not 
->>being accessed or written to. it doesn't matter if that data lives on one 
->>disk or 9 disks all mirroring the same data, you can't just break off 1 of 
->>the copies and repack that becouse by the time you finish it won't match 
->>the live drives anymore.
->>
->>database servers have a repacker (vaccum), and they are under tremendous 
->>preasure from their users to avoid having to use it becouse of the 
->>performance hit that it generates. (the theory in the past is exactly what 
->>was presented in this thread, make things run faster most of the time and 
->>accept the performance hit when you repack). the trend seems to be for a 
->>repacker thread that runs continuously, causing a small impact all the time 
->>(that can be calculated into the capacity planning) instead of a large 
->>impact once in a while.
->>    
->>
->
->Ah, but as soon as the repacker thread runs continuously, then you
->lose all or most of the claimed advantage of "wandering logs".
->  
->
-Wandering logs is a term specific to reiser4, and I think you are making
-a more general remark.
+So you rather crash than running in that unmeasurably lower performance?
 
-You are missing the implications of the oft-cited statistic that 80% of
-files never or rarely move.   You are also missing the implications of
-the repacker being able to do larger IOs than occur for a random tiny IO
-workload which is impacting a filesystem that is performing allocations
-on the fly.
+IIRC those 2MB/4MB pages performance "gain" is still present (in my patch)
+even if the kernel location is not 2MB/4MB aligned because the i386 2MB/4MB
+pagetable entries can have arbitrary physical memory target address.
+But maybe I lie here, sorry, I really do not remember it much.
+(It 100% worked with the "full performance" if aligned and it "worked" if
+unaligned but I do not remember if it worked "full performance" if unaligned.)
 
->Specifically, the claim of the "wandering log" is that you don't have
->to write your data twice --- once to the log, and once to the final
->location on disk (whereas with ext3 you end up having to do double
->writes).  But if the repacker is running continuously, you end up
->doing double writes anyway, as the repacker moves things from a
->location that is convenient for the log, to a location which is
->efficient for reading.  Worse yet, if the repacker is moving disk
->blocks or objects which are no longer in cache, it may end up having
->to read objects in before writing them to a final location on disk.
->So instead of a write-write overhead, you end up with a
->write-read-write overhead.
->
->But of course, people tend to disable the repacker when doing
->benchmarks because they're trying to play the "my filesystem/database
->has bigger performance numbers than yours" game....
->  
->
-When the repacker is done, we will just for you run one of our
-benchmarks the morning after the repacker is run (and reference this
-email);-)....  that was what you wanted us to do to address your
-concern, yes?;-)
+...
+> I'm not terribly comfortable with the 8K alignment number as we only
+> tell the linker we need 4K alignment.
 
->					- Ted
->
->
->  
->
+Yes, it should be fixed there so that the stacks get allocated 8KB-aligned not
+depending on the kernel code position at all.  That means allocating the
+initial stack by code and not relying on its autoallocation by the linker.
+There would remain the 4KB alignment requirement due to the physical target
+address of the pagetable entries.
 
+...
+> > ( I did not check your patches as they are locked in that useless GIT anyway. )
+> ( As opposed to the unuseable CVS I presume :)
+
+Yes, it has the same unusability as CVS, just it looses the feature of being
+the standard.  I assume some CVS flamewar already occured some time ago.
+
+
+Regards,
+Lace

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWHAVbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWHAVgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWHAVbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 17:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWHAVbm
+	id S1750993AbWHAVgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 17:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWHAVgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 17:31:42 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:15294 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750829AbWHAVbl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 17:31:41 -0400
-Message-ID: <44CFC837.5080700@garzik.org>
-Date: Tue, 01 Aug 2006 17:31:35 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: ricknu-0@student.ltu.se, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>,
-       Vadim Lobanov <vlobanov@speakeasy.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Shorty Porty <getshorty_@hotmail.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, Michael Buesch <mb@bu3sch.de>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>, larsbj@gullik.net,
-       Paul Jackson <pj@sgi.com>, Josef Sipek <jsipek@fsl.cs.sunysb.edu>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Nicholas Miell <nmiell@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Noschinski <cebewee@gmx.de>
-Subject: Re: [PATCH 1/2] include/linux: Defining bool, false and true
-References: <1154175570.44cb5252d3f09@portal.student.luth.se> <1154176331.44cb554b633ef@portal.student.luth.se> <44CFA934.9010404@zytor.com> <1154466739.44cfc3b34a222@portal.student.luth.se> <44CFC59A.5050609@zytor.com>
-In-Reply-To: <44CFC59A.5050609@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 1 Aug 2006 17:36:37 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:22400 "EHLO
+	sous-sol.org") by vger.kernel.org with ESMTP id S1750881AbWHAVgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 17:36:37 -0400
+Date: Tue, 1 Aug 2006 14:37:51 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@sous-sol.org>, jeremy@xensource.com,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk,
+       clameter@sgi.com, ebiederm@xmission.com, kraxel@suse.de,
+       hollisb@us.ibm.com, ian.pratt@xensource.com, rusty@rustcorp.com.au,
+       zach@vmware.com
+Subject: Re: [PATCH 7 of 13] Make __FIXADDR_TOP variable to allow it to make space for a hypervisor
+Message-ID: <20060801213751.GA11244@sequoia.sous-sol.org>
+References: <patchbomb.1154421371@ezr.goop.org> <b6c100bb5ca5e2839ac8.1154421378@ezr.goop.org> <20060801090330.GC2654@sequoia.sous-sol.org> <20060801073428.f543ba9f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801073428.f543ba9f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> There is no enum involved.
+* Andrew Morton (akpm@osdl.org) wrote:
+> On Tue, 1 Aug 2006 02:03:30 -0700
+> Chris Wright <chrisw@sous-sol.org> wrote:
+> 
+> > * Jeremy Fitzhardinge (jeremy@xensource.com) wrote:
+> > > -#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+> > > +#define MAXMEM			(__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
+> > 
+> > In the native case we lose one page of lowmem now.
+> 
+> erm, isn't this the hunk which gave one of my machines a 4kb highmem zone?
+> I have memories of reverting it.
 
-There should be.  It makes more information available to the C compiler, 
-and it makes useful symbols available to the debugger.
+Yes, that does sound quite familiar.  I couldn't find the thread, do you
+recall any of the details?  I expect it's the same issue as the off by one
+page I mentioned above.
 
-	Jeff
-
-
+thanks,
+-chris

@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbWHAJii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWHAJj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbWHAJii (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWHAJii
+	id S932593AbWHAJj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbWHAJj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:38:38 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:19206 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932539AbWHAJih
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:38:37 -0400
-Message-ID: <44CF2112.8040202@argo.co.il>
-Date: Tue, 01 Aug 2006 12:38:26 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
-       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
-       Nate Diller <nate.diller@gmail.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
- by kernelnewbies.org regarding reiser4 inclusion]
-References: <20060801092514.GB2974@merlin.emma.line.org>
-In-Reply-To: <20060801092514.GB2974@merlin.emma.line.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Aug 2006 05:39:28 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:61454 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932593AbWHAJj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 05:39:27 -0400
+Subject: RE: do { } while (0) question
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: "'Jiri Slaby'" <jirislaby@gmail.com>,
+       "'Heiko Carstens'" <heiko.carstens@de.ibm.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "'Martin Schwidefsky'" <schwidefsky@de.ibm.com>
+In-Reply-To: <008e01c6b549$59e52f70$493d010a@nuitysystems.com>
+References: <008e01c6b549$59e52f70$493d010a@nuitysystems.com>
+Content-Type: text/plain
+Date: Tue, 01 Aug 2006 11:39:31 +0200
+Message-Id: <1154425171.32739.2.camel@taijtu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Aug 2006 09:38:34.0752 (UTC) FILETIME=[42170800:01C6B54E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
->
-> On Tue, 01 Aug 2006, Avi Kivity wrote:
->
-> > There's no reason to repack *all* of the data.  Many workloads write 
-> and
-> > delete whole files, so file data should be contiguous.  The repacker
-> > would only need to move metadata and small files.
->
-> Move small files? What for?
->
+On Tue, 2006-08-01 at 02:03 -0700, Hua Zhong wrote:
+> > #if KILLER == 1
+> > #define MACRO
+> > #else
+> > #define MACRO do { } while (0)
+> > #endif
+> > 
+> > {
+> > 	if (some_condition)
+> > 		MACRO
+> > 
+> > 	if_this_is_not_called_you_loose_your_data();
+> > }
+> > 
+> > How do you want to define KILLER, 0 or 1? I personally choose 0.
+> 
+> Really? Does it compile?
 
-WAFL-style filesystems like contiguous space,  so if small files are 
-scattered in otherwise free space, the repacker should free them.
+No, and that is the whole point.
 
-> Even if it is "only" moving metadata, it is not different from what ext3
-> or xfs are doing today (rewriting metadata from the intent log or block
-> journal to the final location).
->
+The empty 'do {} while (0)' makes the missing semicolon a syntax error.
 
-There is no need to repack all metadata; only that which helps in 
-creating free space.
-
-For example: if you untar a source tree you'd get mixed metadata and 
-small file data packed together, but there's no need to repack that data.
-
-
--- 
-error compiling committee.c: too many arguments to function
 

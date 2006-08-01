@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWHAFSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWHAFT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161053AbWHAFSp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 01:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWHAFSp
+	id S1161057AbWHAFT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 01:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbWHAFTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 01:18:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62863 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161053AbWHAFSo (ORCPT
+	Tue, 1 Aug 2006 01:19:25 -0400
+Received: from mx2.suse.de ([195.135.220.15]:26066 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161057AbWHAFTY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 01:18:44 -0400
-Date: Mon, 31 Jul 2006 22:18:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 2/3] add-force-of-use-mmconfig.patch
-Message-Id: <20060731221841.9195556c.akpm@osdl.org>
-In-Reply-To: <44CDBF1E.2010001@ed-soft.at>
-References: <44CDBF1E.2010001@ed-soft.at>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 01:19:24 -0400
+Date: Mon, 31 Jul 2006 22:14:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: usb related oops after resume
+Message-ID: <20060801051446.GA23206@kroah.com>
+References: <44CE96A1.2010009@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44CE96A1.2010009@gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jul 2006 10:28:14 +0200
-Edgar Hucek <hostmaster@ed-soft.at> wrote:
+On Tue, Aug 01, 2006 at 01:47:22AM +0159, Jiri Slaby wrote:
+> Hello,
+> 
+> during resume I got this oops in 2.6.18-rc1-mm2 kernel:
 
-> This Patch add force for mmconfig. On Intel Macs the efi firmaware gives
-> a different memory map then ACPI_MCFG provides. This makes the check wether
-> to use mmconfig or not fail.
+Does the 2.6.18-rc3 kernel work properly for you?
 
-Sorry, you cannot do this.  I already merged this patch into -mm, and
-followed that up with two bugfix patches, both of which you were copied on.
+How about a newer -mm release?
 
-Now you're sending out the original patch, without the bugfixes which
-Adrian and I prepared.
+thanks,
 
-If you think these patches should be merged into 2.6.18 at this late a
-stage, please give reasons and if they're agreeable I can send it all to
-Linus.  But sending out known-buggy stuff which has already been fixed
-doesn't help anyone.
-
-Also, please don't use filenames as patch descriptions.  See section 2 of
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt.
-
-Thanks.
+greg k-h

@@ -1,61 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWHATjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751845AbWHATmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751851AbWHATjU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWHATjU
+	id S1751845AbWHATmY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWHATmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:39:20 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:22400 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751851AbWHATjT (ORCPT
+	Tue, 1 Aug 2006 15:42:24 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:41347 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751845AbWHATmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:39:19 -0400
-Date: Tue, 1 Aug 2006 21:39:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mark Seger <Mark.Seger@hp.com>
-Cc: linux-kernel@vger.kernel.org, Alan Brunelle <Alan.Brunelle@hp.com>
-Subject: Re: Accuracy of disk statistics IO counter
-Message-ID: <20060801193948.GC20108@suse.de>
-References: <44CA3523.9020000@hp.com> <20060729104232.GD13095@suse.de> <44CFABE0.8020501@hp.com>
+	Tue, 1 Aug 2006 15:42:24 -0400
+Date: Tue, 1 Aug 2006 21:42:16 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, agruen@suse.de,
+       Dave Jones <davej@redhat.com>
+Subject: Re: Building external modules against objdirs
+Message-ID: <20060801194216.GA15462@mars.ravnborg.org>
+References: <200607301846.07797.ak@suse.de> <200607301949.41165.ak@suse.de> <20060730183159.GA30278@mars.ravnborg.org> <200607302037.02559.ak@suse.de> <20060730191700.GA30700@mars.ravnborg.org> <Pine.LNX.4.64.0607311135350.6762@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CFABE0.8020501@hp.com>
+In-Reply-To: <Pine.LNX.4.64.0607311135350.6762@scrub.home>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01 2006, Mark Seger wrote:
+On Mon, Jul 31, 2006 at 11:39:30AM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> >>Specifically, I wrote a 1GB file with a blocksize of 1MB, which would 
-> >>result in 1000 writes at the application level.  What I believe then 
-> >>happens is that each write turns into 8 128KB requests to the driver, 
-> >>which should result in 8000 actual writes.  Toss in metadata operations 
-> >>and who knows what else and the actual number should be a little 
-> >>higher.  What I've see after repeating the tests a number of times on 
-> >>2.6.16-27 is numbers ranging from 6800-7000 writes which feels like a 
-> >>big enough difference to at least point out.
-> >>   
-> >>
-> >
-> >Install http://brick.kernel.dk/snaps/blktrace-git-20060723022503.tar.gz
-> >and blktrace your disk for the duration of the test and compare the io
-> >numbers. Requires 2.6.17 or later, though.
+> On Sun, 30 Jul 2006, Sam Ravnborg wrote:
+> 
+> > On Sun, Jul 30, 2006 at 08:37:02PM +0200, Andi Kleen wrote:
+> >  
+> > > 
+> > > The echo didn't output for some reason, but adding it to the error gives
+> > > 
+> > > /home/lsrc/quilt/linux/Makefile:456: *** triggered by /home/lsrc/quilt/linux/drivers/net/wireless/Kconfig /home/lsrc/quilt/linux/drivers/message/fusion/Kconfig /home/lsrc/quilt/linux/net/ieee80211/Kconfig /home/lsrc/quilt/linux/net/netfilter/Kconfig kernel configuration not valid - run 'make prepare' in /home/lsrc/quilt/linux to update it.  Stop.
 > > 
-> >
-> I had problems getting blktrace going and posted a note to 
-> linux-btrace@vger.kernel.org at Alan Brunelle's suggestion and he also 
+> > What happens is that a few Kconfig files in your quilt tree are updated
+> > after last time you reran 'make'.
+> > And then kbuild say that config is invalid since it has not been updated
+> > since last edit of Kconfig files.
+> > 
+> > Hmm...
+> 
+> What we could do is to call silentoldconfig and set 
+> KCONFIG_NOSILENTUPDATE, if the .config is uptodate it will only update 
+> autoconf and abort otherwise.
+External modules shall to a great extent just rely on the avialble
+kernel, and any attempt to do automatic updates are not OK.
+The kernel source could be RO and no rights to write in the
+directories either.
+So it is preferable to bail out in case we cannot build the external
+module but to avoid the consistency checks all over.
+Following patch does this for the configuration part.
 
-Documentation issues, sorry about that. It hasn't been updated for the
-debugfs change.
+	Sam
 
-> said he'd take a closer look at it himself.  On the other hand he 
-> pointed me to 'stap' and I was able to use it to get the details I was 
-> looking for - SystemTAP really rocks for this type of analysis!  As it 
-> turns out my assumption about driver blocksize was wrong (sorry about 
-> that).  It turns out that the size of requests from the driver to the 
-> disk is 160mb and so the I/O count was smaller than I had anticipated.
-
-160KiB, I'm assuming? :-)
-
--- 
-Jens Axboe
-
+diff --git a/Makefile b/Makefile
+index 110db85..291bb5e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -436,12 +436,13 @@ core-y		:= usr/
+ endif # KBUILD_EXTMOD
+ 
+ ifeq ($(dot-config),1)
+-# In this section, we need .config
++# Read in config
++-include include/config/auto.conf
+ 
++ifeq ($(KBUILD_EXTMOD),)
+ # Read in dependencies to all Kconfig* files, make sure to run
+ # oldconfig if changes are detected.
+ -include include/config/auto.conf.cmd
+--include include/config/auto.conf
+ 
+ # To avoid any implicit rule to kick in, define an empty command
+ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+@@ -451,16 +452,27 @@ # with it and forgot to run make oldconf
+ # if auto.conf.cmd is missing then we are probably in a cleaned tree so
+ # we execute the config step to be sure to catch updated Kconfig files
+ include/config/auto.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+-ifeq ($(KBUILD_EXTMOD),)
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+ else
+-	$(error kernel configuration not valid - run 'make prepare' in $(srctree) to update it)
+-endif
++# external modules needs include/linux/autoconf.h and include/config/auto.conf
++# but do not care if they are up-to-date. Use auto.conf to trigger the test
++PHONY += include/config/auto.conf
++
++include/config/auto.conf:
++	$(Q)test -e include/linux/autoconf.h -a -e $@ || (		\
++	echo;								\
++	echo "  ERROR: Kernel configuration is invalid.";		\
++	echo "         include/linux/autoconf.h or $@ is missing.";	\
++	echo "         Run 'make oldconfig && make prepare' on kernel src to fix it.";	\
++	echo;								\
++	/bin/false)
++
++endif # KBUILD_EXTMOD
+ 
+ else
+ # Dummy target needed, because used as prerequisite
+ include/config/auto.conf: ;
+-endif
++endif # $(dot-config)
+ 
+ # The all: target is the default when no target is given on the
+ # command line.

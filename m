@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbWHALaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbWHALgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932666AbWHALaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 07:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWHALaX
+	id S932668AbWHALgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 07:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932671AbWHALgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:30:23 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:25738 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S932653AbWHALaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 07:30:21 -0400
-Date: Tue, 1 Aug 2006 13:30:08 +0200 (MEST)
-Message-Id: <200608011130.k71BU860027746@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@it.uu.se>
-To: davem@davemloft.net, mikpe@it.uu.se
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+	Tue, 1 Aug 2006 07:36:50 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:57273 "EHLO
+	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
+	id S932668AbWHALgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 07:36:49 -0400
+Message-ID: <44CF3CCE.9010209@grupopie.com>
+Date: Tue, 01 Aug 2006 12:36:46 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.4 (X11/20060516)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: fastboot@osdl.org, linux-kernel@vger.kernel.org,
+       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 8/33] kallsyms.c: Generate relocatable symbols.
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <11544302331578-git-send-email-ebiederm@xmission.com>
+In-Reply-To: <11544302331578-git-send-email-ebiederm@xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: David Miller <davem@davemloft.net>
-Subject: Re: [BUG sparc64] 2.6.16-git6 broke X11 on Ultra5 with ATI Mach64
-In-Reply-To: <20060731.224235.19784785.davem@davemloft.net>
-References: <200607281035.k6SAZOJ3015670@harpo.it.uu.se>
-	<20060731.224235.19784785.davem@davemloft.net>
-X-Mailer: VM 7.17 under Emacs 20.7.1
---text follows this line--
-David Miller writes:
- > From: Mikael Pettersson <mikpe@it.uu.se>
- > Date: Fri, 28 Jul 2006 12:35:24 +0200 (MEST)
- > 
- > > FAULT: write(1) old_entry[e00001ffe1970f8a]
- > > FAULT: After, entry[e00001ffe1970f8a]
- > > FAULT: write(1) old_entry[e00001ffe1970f8a]
- > > FAULT: After, entry[e00001ffe1970f8a]
- > > 
- > > The last two lines then repeat semi-infinitely, and they
- > > were generated at an extremely high rate.
- > 
- > It looks like the TSB is never updated.
- > 
- > Do you have CONFIG_HUGETLB_PAGE disabled by chance?
- > I bet that's part of what helps trigger this bug.
+Eric W. Biederman wrote:
+> Print the addresses of non-absolute symbols relative to _text
+> so that ld will generate relocations.  Allowing a relocatable
+> kernel to relocate them.  We can't actually use the symbol names
+> because kallsyms includes static symbols that are not exported
+> from their object files.
+> 
+> [...]
+>  	output_label("kallsyms_addresses");
+>  	for (i = 0; i < table_cnt; i++) {
+> -		printf("\tPTR\t%#llx\n", table[i].addr);
+> +		if (toupper(table[i].sym[0]) != 'A') {
+> +			printf("\tPTR\t_text + %#llx\n",
+> +				table[i].addr - _text);
+> +		} else {
+> +			printf("\tPTR\t%#llx\n", table[i].addr);
+> +		}
 
-I'm away from my U5 right now and won't be able to check for
-certain until later this week, but I'm pretty sure CONFIG_HUGETLBFS
-and CONFIG_HUGETLB_PAGE are disabled in its kernel.
+Doesn't this break kallsyms for almost everyone?
 
- > Meanwhile I think I know what's wrong, I'll let you
- > know when I have a fix to test out.
+kallsyms addresses aren't used just for displaying, but also to find 
+symbols from their addresses (from the stack trace, etc.).
 
-Thanks. I'm looking forward to it.
+Am I missing something?
 
-/Mikael
+-- 
+Paulo Marques - www.grupopie.com
+
+"The face of a child can say it all, especially the
+mouth part of the face."

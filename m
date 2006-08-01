@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWHAWAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWHAWBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWHAWAW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 18:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWHAWAW
+	id S1751200AbWHAWBX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 18:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWHAWBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 18:00:22 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:58596 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751172AbWHAWAV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 18:00:21 -0400
-Message-ID: <44CFCEE7.10406@zytor.com>
-Date: Tue, 01 Aug 2006 15:00:07 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@gmail.com>
-CC: sam@ravnborg.org, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@mars.ravnborg.org>
-Subject: Re: [PATCH] kbuild: hardcode value of YACC&LEX for aic7-triple-x
-References: <20060729071540.GA6738@mars.ravnborg.org> <11541575812597-git-send-email-sam@ravnborg.org> <20060729090725.GF6843@martell.zuzino.mipt.ru>
-In-Reply-To: <20060729090725.GF6843@martell.zuzino.mipt.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 1 Aug 2006 18:01:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58505 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751189AbWHAWBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 18:01:22 -0400
+Subject: Re: use persistent allocation for cursor blinking.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <adairlc5ktk.fsf@cisco.com>
+References: <20060801185618.GS22240@redhat.com>  <adairlc5ktk.fsf@cisco.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Aug 2006 23:20:13 +0100
+Message-Id: <1154470813.15540.95.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
-> On Sat, Jul 29, 2006 at 09:19:33AM +0200, sam@ravnborg.org wrote:
->> When we introduced -rR then aic7xxx no loger could pick up definition
->> of YACC&LEX from make - so do it explicit now.
+Ar Maw, 2006-08-01 am 12:15 -0700, ysgrifennodd Roland Dreier:
+>  > Every time the console cursor blinks, we do a kmalloc/kfree pair.
+>  > This patch turns that into a single allocation.
 > 
->> --- a/drivers/scsi/aic7xxx/aicasm/Makefile
->> +++ b/drivers/scsi/aic7xxx/aicasm/Makefile
->> @@ -14,6 +14,8 @@ LIBS=	-ldb
->>  clean-files:= ${GENSRCS} ${GENHDRS} $(YSRCS:.y=.output) $(PROG)
->>  # Override default kernel CFLAGS.  This is a userland app.
->>  AICASM_CFLAGS:= -I/usr/include -I.
->> +LEX= flex
->> +YACC= bison
->>  YFLAGS= -d
->>  
->>  NOMAN=	noman
-> 
-> SuSv3 lists "lex" and "yacc" as _the_ names. Is there any distro which
-> doesn't install compat symlinks?
-> 
+> A naiive question from someone who knows nothing about this subsystem:
+> is there any possibility of concurrent calls into this function, for
+> example if there are multiple cursors on a multiheaded system?
 
-At least on Red Hat/Fedora, "yacc" invokes BSD yacc, which produces 
-worse code than bison.
+We don't do console multihead so its basically OK. Moving all the
+console globals into a struct so we can have multiple instances would be
+a good thing [tm] and it would make sense for the variable to end up in
+said structure if it was done.
 
-	-hpa
+Definitely a janitor job there.
+
+Alan
+

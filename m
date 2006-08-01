@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWHAVZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWHAVcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWHAVZi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 17:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWHAVZi
+	id S1750988AbWHAVcS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 17:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWHAVcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 17:25:38 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:50143 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751018AbWHAVZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 17:25:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=uZYDyBdK4j1vvyyfCblrDhvI7Ev1LqeU5ejf22DkrscnUkl9JBq+rgJ1UCIidGInbxg4flGR8NlQZ6UzN12ln3cWtYWwy6x3qo2zaFS6mHae9wCbbGdLT0Te9+cX/uxXpIgu2DWbKYqTh75Z3Nisvz+8JFMLpVvSAgSC0BId+tc=
-Message-ID: <44CFC6CC.8020106@gmail.com>
-Date: Tue, 01 Aug 2006 15:25:32 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Tue, 1 Aug 2006 17:32:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28598 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750984AbWHAVcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 17:32:17 -0400
+Date: Tue, 1 Aug 2006 14:31:21 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Chris Wright <chrisw@sous-sol.org>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Jeremy Fitzhardinge <jeremy@xensource.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org,
+       Christian Limpach <Christian.Limpach@cl.cam.ac.uk>,
+       Gerd Hoffmann <kraxel@suse.de>, Hollis Blanchard <hollisb@us.ibm.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Zachary Amsden <zach@vmware.com>,
+       npiggin@suse.de, Ian Wienand <ianw@gelato.unsw.edu.au>
+Subject: Re: [PATCH 1 of 13] Add apply_to_page_range() which applies a function
+ to a pte range
+In-Reply-To: <20060801211410.GH2654@sequoia.sous-sol.org>
+Message-ID: <Pine.LNX.4.64.0608011421080.19146@schroedinger.engr.sgi.com>
+References: <79a98a10911fc4e77dce.1154421372@ezr.goop.org>
+ <m1ejw0zmic.fsf@ebiederm.dsl.xmission.com> <20060801211410.GH2654@sequoia.sous-sol.org>
 MIME-Version: 1.0
-To: Robert Schwebel <r.schwebel@pengutronix.de>
-CC: Chris Boot <bootc@bootc.net>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Proposal: common kernel-wide GPIO interface
-References: <44CA7738.4050102@bootc.net> <20060730130811.GI10495@pengutronix.de>
-In-Reply-To: <20060730130811.GI10495@pengutronix.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel wrote:
-> Chris,
->
-> On Fri, Jul 28, 2006 at 09:44:40PM +0100, Chris Boot wrote:
->   
->> I propose to develop a common way of registering and accessing GPIO pins on 
->> various devices.
->>     
->
-> I've attached the gpio framework we have developed a while ago; it is
-> not ready for upstream, only tested on pxa and has probably several
-> other drawbacks, but may be a start for your activities. One of the
-> problems we've recently seen is that for example on PowerPCs you don't
-> have such a clear "this is gpio pin x" nomenclature, so the question
-> would be how to do the mapping here.
->
-> Robert 
->   
-this is cool to see.  Using a class-driver is very different from the 
-vtable-approach
-that I used (struct nsc_gpio_ops) in pc8736x_gpio and scx200_gpio.
+On Tue, 1 Aug 2006, Chris Wright wrote:
 
-Are any of the limitation youve cited above related to the 
-/sys/class/gpio paths below ?
+> We got the opposite feedback the first time we posted this function.
+> Xen has some users, and I believe there's a couple in-tree functions we could
+> convert easily w/out overhead issues.  It's generic and this is just the
+> infrastructure, I think we should leave it.
 
-+	  To set pin 63 to low (to start the motor) do a:
-+	   $ echo 0 > /sys/class/gpio/gpio63/level
-+	  Or to stop the motor again:
-+	   $ echo 1 > /sys/class/gpio/gpio63/level
-+	  To get the level of the key (pin 8) do:
-+	   $ cat /sys/class/gpio/gpio8/level
-+	  The result will be 1 or 0.
-+
-+	  To add new GPIO pins at runtime (lets say pin 88 should be an input)
-+	  you can do a:
-+	   $ echo 88:in > /sys/class/gpio/map_gpio
-+	  The same with a new GPIO pin 95, it should be an output and at high level:
-+	   $ echo 95:out:hi > /sys/class/gpio/map_gpio
-+
+Th generic method was proposed a number of times in the past including 
+by Nick Piggin and more recently by the page table abstraction layer 
+posted by Ian Wienand. See also 
 
+http://www.gelato.org/pdf/apr2006/gelato_ICE06apr_unsw.pdf
+http://www.gelato.org/pdf/may2005/gelato_may2005_ia64vm_chubb_unsw.pdf.
+http://lwn.net/Articles/124961/
 
+Special functionality may be attached at various levels, and we are very 
+sensitive to changes in this area.
 
-
+Would you please research this issue thoroughly and coordinate with others 
+who have the same interest?

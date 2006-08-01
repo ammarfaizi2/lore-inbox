@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWHAWMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWHAWVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWHAWMT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 18:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWHAWMT
+	id S1751240AbWHAWVz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 18:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWHAWVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 18:12:19 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:3485
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751241AbWHAWMR convert rfc822-to-8bit (ORCPT
+	Tue, 1 Aug 2006 18:21:55 -0400
+Received: from ns1.suse.de ([195.135.220.2]:28869 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751240AbWHAWVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 18:12:17 -0400
-Date: Tue, 01 Aug 2006 15:12:11 -0700 (PDT)
-Message-Id: <20060801.151211.88703025.davem@davemloft.net>
-To: omar.aitmous@gmail.com
-Cc: linux-kernel@vger.kernel.org, jp@enix.org, sebastien.wacquiez@enix.fr,
-       smagghue@gmail.com, risk_colta@hotmail.com
-Subject: Re: Connection tracking synchronization module
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <e084545e0608010617h9941cbchd366cf3ee6bcb0d0@mail.gmail.com>
-References: <e084545e0608010617h9941cbchd366cf3ee6bcb0d0@mail.gmail.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 1 Aug 2006 18:21:55 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org, sergio@sergiomb.no-ip.org
+Subject: Re: [discuss] Re: [PATCH for 2.6.18] [2/8] x86_64: On Intel systems when CPU has C3 don't use TSC
+Date: Wed, 2 Aug 2006 00:21:47 +0200
+User-Agent: KMail/1.9.3
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+References: <44cbba2d.ejpOKfo7QfGElmoT%ak@suse.de> <200608012356.52893.ak@suse.de> <1154470000.5123.1.camel@localhost.portugal>
+In-Reply-To: <1154470000.5123.1.camel@localhost.portugal>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608020021.47623.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Omar Aït Mous" <omar.aitmous@gmail.com>
-Date: Tue, 1 Aug 2006 15:17:27 +0200
+On Wednesday 02 August 2006 00:06, Sergio Monteiro Basto wrote:
+> On Tue, 2006-08-01 at 23:56 +0200, Andi Kleen wrote:
+> > Lost timer ticks print a rip. Do you have some samples?
 
-> This is a kernel module to allow real-time synchronization of connection
-> tracking tables between two linux routers.
+Can you send dmesg with the following patch applied too?
 
-You might want to send this to the netfilter developer list, not here.
-Also, the netfilter netlink channels already in the kernel are meant
-to be a means by which synchronization could be implemented.
+cc'ing Suresh because he might have an explanation too then.
 
-But please discuss this on the netfilter developer list, which is at:
-netfilter-devel@lists.netfilter.org
+-Andi
 
-Thanks.
+Index: linux-2.6.18-rc3-work/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux-2.6.18-rc3-work.orig/arch/x86_64/kernel/smpboot.c
++++ linux-2.6.18-rc3-work/arch/x86_64/kernel/smpboot.c
+@@ -345,7 +345,7 @@ static void __cpuinit tsc_sync_wait(void
+ 	 * mess up a possible perfect synchronization with a
+ 	 * not-quite-perfect algorithm.
+ 	 */
+-	if (notscsync || !cpu_has_tsc || !unsynchronized_tsc())
++	if (0 && (notscsync || !cpu_has_tsc || !unsynchronized_tsc()))
+ 		return;
+ 	sync_tsc(0);
+ }

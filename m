@@ -1,93 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWHADdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWHADin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWHADdV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 23:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWHADdV
+	id S1751219AbWHADin (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 23:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWHADim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 23:33:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43908 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751202AbWHADdU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 23:33:20 -0400
-To: Neil Brown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: let md auto-detect 128+ raid members, fix potential race condition
-References: <ork65veg2y.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-	<20060730124139.45861b47.akpm@osdl.org>
-	<orac6qerr4.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-	<17613.16090.470524.736889@cse.unsw.edu.au>
-	<ord5blcyg0.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-	<17614.44057.322945.156592@cse.unsw.edu.au>
-	<orpsflrxmb.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat OS Tools Group
-Date: Tue, 01 Aug 2006 00:33:04 -0300
-In-Reply-To: <orpsflrxmb.fsf@free.oliva.athome.lsd.ic.unicamp.br> (Alexandre Oliva's message of "Mon, 31 Jul 2006 23:35:56 -0300")
-Message-ID: <orac6p870v.fsf@free.oliva.athome.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.5-b27 (linux)
+	Mon, 31 Jul 2006 23:38:42 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:15889 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751219AbWHADim
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 23:38:42 -0400
+Message-ID: <44CECCBB.3080408@slaphack.com>
+Date: Mon, 31 Jul 2006 22:38:35 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Theodore Tso <tytso@mit.edu>, David Masover <ninja@slaphack.com>,
+       Nate Diller <nate.diller@gmail.com>,
+       David Lang <dlang@digitalinsight.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+References: <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl> <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch> <44CE7C31.5090402@gmx.de> <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com> <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com> <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz> <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com> <20060801010215.GA24946@merlin.emma.line.org> <44CEAEF4.9070100@slaphack.com> <20060801030005.GA1987@thunk.org>
+In-Reply-To: <20060801030005.GA1987@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Theodore Tso wrote:
+> On Mon, Jul 31, 2006 at 08:31:32PM -0500, David Masover wrote:
+>> So you use a repacker.  Nice thing about a repacker is, everyone has 
+>> downtime.  Better to plan to be a little sluggish when you'll have 
+>> 1/10th or 1/50th of the users than be MUCH slower all the time.
+> 
+> Actually, that's a problem with log-structured filesystems in general.
+> There are quite a few real-life workloads where you *don't* have
+> downtime.  The thing is, in a global economy, you move from the
+> London/European stock exchanges, to the New York/US exchanges, to the
+> Asian exchanges, with little to no downtime available.
 
-On Jul 31, 2006, Alexandre Oliva <aoliva@redhat.com> wrote:
+Such systems must have redundancy, however.  And if you have 2-3 servers 
+hot in case one of them goes down, I can see switching between which is 
+more active, and which is repacking.
 
->> mdadm --assemble --scan --homehost='<system>' --auto-update-homehost \
->> --auto=yes --run
+This repacker is online, hence a filesystem being repacked would have to 
+be less active, not necessarily down.  So repack the backup server, then 
+make the backup server the active one and repack the main server.  If 
+the main server goes down while the backup is repacking, kill the repack 
+process.
 
->> in your initrd, having set the hostname correctly first.  It might do
->> exactly what you want.
+I actually have a problem imagining a system where you don't have enough 
+spare capacity (disk, CPU, spare servers) to run a repacker every now 
+and then, but which also must have 100% uptime.  What happens when a 
+disk goes bad?  Or when power to half the country goes out?  Or...  You 
+get the idea.
 
-> I'll give it a try some time tomorrow, since I won't turn on that
-> noisy box today any more; my daughter is already asleep :-)
+> In addition,
+> people have been getting more sophisticated with workload
+> consolidation tricks so that you use your "downtime" for other
+> applications (either to service other parts of the world, or to do
+> daily summaries, 3-d frame rendering at animation companies, etc.)  So
+> the assumption that there will always be time to run the repacker is a
+> dangerous one.
 
-But then, I could use my own desktop to test it :-)
+3D frame rendering in particular doesn't require much disk use, does it? 
+  Daily summaries, I guess, depends on what kind of summaries they are. 
+  And anyway, those applications are making the same dangerous assumption.
 
-FWIW, here's the patch for Fedora rawhide's mkinitrd that worked for
-me.  I figured even without --homehost it worked fine, even without
-HOMEHOST set in mdadm.conf.
+And anyway, I suspect the repacker will work best once a week or so, but 
+no one knows yet, as they haven't written it yet.
 
-I hope copying mdadm.conf to initrd won't ever hurt, can you think of
-any case in which it would?
+> The problem is that many benchmarks (such as taring and untaring the
+> kernel sources in reiser4 sort order) are overly simplistic, in that
+> they don't really reflect how people use the filesystem in real life.
 
+That's true.  I'd also like to see lots more benchmarks.
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=mkinitrd-mdadm.patch
+> If the benchmark doesn't take into account the need for
+> repacker, or if the repacker is disabled or fails to run during the
+> benchmark, the filesystem are in effect "cheating" on the benchmark
+> because there is critical work which is necessary for the long-term
+> health of the filesystem which is getting deferred until after the
+> benchmark has finished measuring the performance of the system under
+> test.
 
---- /sbin/mkinitrd	2006-07-26 15:43:41.000000000 -0300
-+++ /tmp/mkinitrd	2006-08-01 00:06:14.000000000 -0300
-@@ -1240,10 +1240,19 @@
- emitdms
- 
- if [ -n "$raiddevices" ]; then
-+  if test -f /sbin/mdadm.static; then
-+    if test -f /etc/mdadm.conf; then
-+      inst /etc/mdadm.conf "$MNTIMAGE/etc/mdadm.conf"
-+    fi
-+    inst /sbin/mdadm.static "$MNTIMAGE/sbin/mdadm"
-+    emit "mkdir /dev/md"
-+    emit "mdadm --quiet --assemble --scan --auto-update-homehost --auto=yes --run"
-+  else
-     for dev in $raiddevices; do
-         cp -a /dev/${dev} $MNTIMAGE/dev
-         emit "raidautorun /dev/${dev}"
-     done
-+  fi
- fi
- 
- if [ -n "$vg_list" ]; then
+In this case, the only fair test would be to run the benchmark 24/7 for 
+a week, and run the repacker on a weekend.  Or however you're planning 
+to do it.  It wouldn't be fair to run a 10-minute or 1-hour benchmark 
+and then immediately run the repacker.
 
---=-=-=
-
-
--- 
-Alexandre Oliva         http://www.lsd.ic.unicamp.br/~oliva/
-Secretary for FSF Latin America        http://www.fsfla.org/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
-
---=-=-=--
+But I'd also like to see more here, especially about fragmentation.  If 
+the repacker will cost money, the system should be reasonably good at 
+avoiding fragmentation.  I'm wondering if I should run a benchmark on my 
+systems -- they're over a year old, and while they aren't under 
+particularly heavy load, they should be getting somewhat fragmented by now.

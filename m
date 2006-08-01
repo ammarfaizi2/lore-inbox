@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWHAQrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWHAQ4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWHAQrk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 12:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWHAQrk
+	id S1750827AbWHAQ4D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 12:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWHAQ4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 12:47:40 -0400
-Received: from pat.uio.no ([129.240.10.4]:47049 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750817AbWHAQrk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 12:47:40 -0400
-Subject: Re: [PATCH 0/6] AVR32 update for 2.6.18-rc2-mm1
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       David Howells <dhowells@redhat.com>
-In-Reply-To: <20060801101210.0548a382@cad-250-152.norway.atmel.com>
-References: <1154354115351-git-send-email-hskinnemoen@atmel.com>
-	 <20060731174659.72da734f@cad-250-152.norway.atmel.com>
-	 <1154371259.13744.4.camel@localhost>
-	 <20060801101210.0548a382@cad-250-152.norway.atmel.com>
-Content-Type: multipart/mixed; boundary="=-scdnRbaUpYFz4zAJb0u9"
-Date: Tue, 01 Aug 2006 09:47:27 -0700
-Message-Id: <1154450847.5605.21.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.182, required 12,
-	autolearn=disabled, AWL 1.82, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 1 Aug 2006 12:56:03 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:9916 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1750827AbWHAQ4B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 12:56:01 -0400
+Message-ID: <44CF879D.1000803@slaphack.com>
+Date: Tue, 01 Aug 2006 11:55:57 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+MIME-Version: 1.0
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+CC: Andrew Morton <akpm@osdl.org>, vda.linux@googlemail.com,
+       linux-kernel@vger.kernel.org, Reiserfs-List@namesys.com
+Subject: Re: reiser4: maybe just fix bugs?
+References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>	 <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com>	 <1154431477.10043.55.camel@tribesman.namesys.com>	 <20060801073316.ee77036e.akpm@osdl.org> <1154444822.10043.106.camel@tribesman.namesys.com>
+In-Reply-To: <1154444822.10043.106.camel@tribesman.namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vladimir V. Saveliev wrote:
 
---=-scdnRbaUpYFz4zAJb0u9
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Do you think that if reiser4 supported xattrs - it would increase its
+> chances on inclusion?
 
-On Tue, 2006-08-01 at 10:12 +0200, Haavard Skinnemoen wrote:
-> On Mon, 31 Jul 2006 11:40:58 -0700
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> 
-> > On Mon, 2006-07-31 at 17:46 +0200, Haavard Skinnemoen wrote:
-> > > On Mon, 31 Jul 2006 15:55:15 +0200
-> > > Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
-> > > 
-> > > > Anyway, 2.6.18-rc2-mm1 boots successfully on my target with these
-> > > > patches, but there's something strange going on with NFS and a few
-> > > > other things that I didn't notice on 2.6.18-rc1. I'll investigate
-> > > > some more and see if I can figure out what's going on.
-> > > 
-> > > All forms of write access to the NFS root file system seem to return
-> > > -EACCESS. If I leave out git-nfs.patch, the problem goes away, so
-> > > I'll try bisecting the NFS git tree tomorrow.
-> > 
-> > can you check in /proc/self/mountstats what mount options are set on
-> > the root file system?
-> 
-> rw,vers=2,rsize=4096,wsize=4096,acregmin=3,acregmax=60,acdirmin=30,
-> acdirmax=60,hard,nolock,proto=udp,timeo=11,retrans=2,sec=null
+Probably the opposite.
 
-That 'sec=null' would explain why you are seeing a problem, and the
-attached patch ought to fix it.
+If I understand it right, the original Reiser4 model of file metadata is 
+the file-as-directory stuff that caused such a furor the last big push 
+for inclusion (search for "Silent semantic changes in Reiser4"):
 
-Cheers,
- Trond
+foo.mp3/.../rwx    # permissions
+foo.mp3/.../artist # part of the id3 tag
 
---=-scdnRbaUpYFz4zAJb0u9
-Content-Disposition: inline; filename=linux-2.6.18-036-nfs-fix_auth_mount.dif
-Content-Type: message/rfc822; name=linux-2.6.18-036-nfs-fix_auth_mount.dif
+So I suspect xattrs would just be a different interface to this stuff, 
+maybe just a subset of it (to prevent namespace collisions):
 
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-NFS: Ensure NFSv2/v3 mounts respect the NFS_MOUNT_SECFLAVOUR flag
-Date: Tue, 01 Aug 2006 09:47:17 -0700
-Subject: No Subject
-Message-Id: <1154450837.5605.20.camel@localhost>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+foo.mp3/.../xattr/ # contains files representing attributes
 
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
+Of course, you'd be able to use the standard interface for 
+getting/setting these.  The point is, I don't think Hans/Namesys wants 
+to do this unless they're going to do it right, especially because they 
+already have the file-as-dir stuff somewhat done.  Note that these are 
+neither mutually exclusive nor mutually dependent -- you don't have to 
+enable file-as-dir to make xattrs work.
 
- fs/nfs/super.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+I know it's not done yet, though.  I can understand Hans dragging his 
+feet here, because xattrs and traditional acls are examples of things 
+Reiser4 is supposed to eventually replace.
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 867b5dc..d744f63 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -471,9 +471,10 @@ static int nfs_validate_mount_data(struc
- 						data->version);
- 				return -EINVAL;
- 			}
--			/* Fill in pseudoflavor for mount version < 5 */
--			data->pseudoflavor = RPC_AUTH_UNIX;
- 		case 5:
-+			/* Set the pseudoflavor */
-+			if (!(data->flags & NFS_MOUNT_SECFLAVOUR))
-+				data->pseudoflavor = RPC_AUTH_UNIX;
- 			memset(data->context, 0, sizeof(data->context));
- 	}
- 
+Anyway, if xattrs were done now, the only good that would come of it is 
+building a userbase outside the vanilla kernel.  I can't see it as doing 
+anything but hurting inclusion by introducing more confusion about 
+"plugins".
 
---=-scdnRbaUpYFz4zAJb0u9--
-
+I could be entirely wrong, though.  I speak for neither 
+Hans/Namesys/reiserfs nor LKML.  Talk amongst yourselves...

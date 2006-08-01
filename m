@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWHAQQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWHAQSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWHAQQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 12:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWHAQQe
+	id S1750802AbWHAQSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 12:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWHAQSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 12:16:34 -0400
-Received: from wx-out-0102.google.com ([66.249.82.194]:9646 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750801AbWHAQQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 12:16:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ciYh6eDA5okC04dnVT9wXYtG+iw8h5aHm28OJw5FHhFJ/8lzV26xfky3vS7ywMhZ3a+ZGFiVAYXefOmS/VFs+28Zy4tv2iK2we2VUhRnOgdUDzHY0mOs+etuH8ujzKE5GGfeI653CWDxNiW4MPN+xdDRZKWP8y9jeEDDyytEdVo=
-Message-ID: <44CF7E5A.2010903@gmail.com>
-Date: Wed, 02 Aug 2006 01:16:26 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Harald Dunkel <harald.dunkel@t-online.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-rc2, problem to wake up spinned down drive?
-References: <44CC9F7E.8040807@t-online.de>
-In-Reply-To: <44CC9F7E.8040807@t-online.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 12:18:43 -0400
+Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:26297 "EHLO
+	several.ru") by vger.kernel.org with ESMTP id S1750802AbWHAQSn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 12:18:43 -0400
+Date: Wed, 2 Aug 2006 00:42:02 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Nick Piggin <npiggin@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] mm: speculative get_page
+Message-ID: <20060801204202.GA223@oleg>
+References: <20060801193203.GA191@oleg> <1154447729.10401.16.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1154447729.10401.16.camel@kleikamp.austin.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Dunkel wrote:
-> Hi folks,
+On 08/01, Dave Kleikamp wrote:
+>
+> On Tue, 2006-08-01 at 23:32 +0400, Oleg Nesterov wrote:
+> > Nick Piggin wrote:
+> > >
+> > > --- linux-2.6.orig/mm/vmscan.c
+> > > +++ linux-2.6/mm/vmscan.c
+> > > @@ -380,6 +380,8 @@ int remove_mapping(struct address_space 
+> > >  	if (!mapping)
+> > >  		return 0;		/* truncate got there first */
+> > >
+> > > +	SetPageNoNewRefs(page);
+> > > +	smp_wmb();
+> > >  	write_lock_irq(&mapping->tree_lock);
+> > >
+> > 
+> > Is it enough?
+> > 
+> > PG_nonewrefs could be already set by another add_to_page_cache()/remove_mapping(),
+> > and it will be cleared when we take ->tree_lock.
 > 
-> I tried to spin down my harddisk using hdparm, but when it is
-> supposed to spin up again, then it is blocked for quite some
-> time. dmesg says:
-> 
-> ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
-> ata1.00: (BMDMA stat 0x20)
-> ata1.00: tag 0 cmd 0xca Emask 0x4 stat 0x40 err 0x0 (timeout)
-> ata1: port is slow to respond, please be patient
-> ata1: port failed to respond (30 secs)
-> ata1: soft resetting port
-> ata1.00: configured for UDMA/133
-> ata1: EH complete
-> SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
-> sda: Write Protect is off
-> sda: Mode Sense: 00 3a 00 00
-> SCSI device sda: drive cache: write back
-> 
-> The disk is a SAMSUNG SP1614C.
-> 
-> On another machine (with a SAMSUNG SP2504C inside) there is no
-> such problem: The disk is back after just a few seconds.
+> Isn't the page locked when calling remove_mapping()?  It looks like
+> SetPageNoNewRefs & ClearPageNoNewRefs are called in safe places.  Either
+> the page is locked, or it's newly allocated.  I could have missed
+> something, though.
 
-In standby mode, the drive's interface and state machines stay online 
-and are supposed to spin up and process the command when it receives 
-one.  The above message is printed because an IO command hasn't finished 
-in 30 secs meaning that it didn't wake up when it should have.  The 
-drive seems to act incorrectly.
+No, I think it is I who missed something, thanks.
 
-> Is there some trick to wake up the disk a little bit faster?
+Oleg.
 
-Can you try the following instead of hdparm?
-
-echo 1 > /sys/bus/scsi/devices/1:0:0:0/power/state
-
-It will make libata involved in putting the disk to sleep and waking it 
-up, and, when waking, it will kick the drive in the ass by resetting the 
-channel.  Please try with the latest -rc kernel.
-
--- 
-tejun

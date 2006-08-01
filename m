@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWHAOes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWHAOeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWHAOes (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHAOer
+	id S932378AbWHAOeq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWHAOep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:34:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36821 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932075AbWHAOeo (ORCPT
+	Tue, 1 Aug 2006 10:34:45 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:2508 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932084AbWHAOeo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 1 Aug 2006 10:34:44 -0400
-Date: Tue, 1 Aug 2006 07:34:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: jeremy@xensource.com, linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       Christian.Limpach@cl.cam.ac.uk, clameter@sgi.com, ebiederm@xmission.com,
-       kraxel@suse.de, hollisb@us.ibm.com, ian.pratt@xensource.com,
-       rusty@rustcorp.com.au, zach@vmware.com
-Subject: Re: [PATCH 7 of 13] Make __FIXADDR_TOP variable to allow it to make
- space for a hypervisor
-Message-Id: <20060801073428.f543ba9f.akpm@osdl.org>
-In-Reply-To: <20060801090330.GC2654@sequoia.sous-sol.org>
-References: <patchbomb.1154421371@ezr.goop.org>
-	<b6c100bb5ca5e2839ac8.1154421378@ezr.goop.org>
-	<20060801090330.GC2654@sequoia.sous-sol.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Date: Tue, 1 Aug 2006 18:34:21 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: James Morris <jmorris@namei.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>
+Subject: Re: [take2 1/4] kevent: core files.
+Message-ID: <20060801143421.GA14827@2ka.mipt.ru>
+References: <11544248451203@2ka.mipt.ru> <Pine.LNX.4.64.0608010945090.10827@d.namei> <20060801135538.GA356@2ka.mipt.ru> <Pine.LNX.4.64.0608011024380.11168@d.namei>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0608011024380.11168@d.namei>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 01 Aug 2006 18:34:22 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006 02:03:30 -0700
-Chris Wright <chrisw@sous-sol.org> wrote:
-
-> * Jeremy Fitzhardinge (jeremy@xensource.com) wrote:
-> > -#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
-> > +#define MAXMEM			(__FIXADDR_TOP-__PAGE_OFFSET-__VMALLOC_RESERVE)
+On Tue, Aug 01, 2006 at 10:27:36AM -0400, James Morris (jmorris@namei.org) wrote:
+> > > > +	u->ready_num = 0;
+> > > > +#ifdef CONFIG_KEVENT_USER_STAT
+> > > > +	u->wait_num = u->im_num = u->total = 0;
+> > > > +#endif
+> > > 
+> > > Generally, #ifdefs in the body of the kernel code are discouraged.  Can 
+> > > you abstract these out as static inlines?
+> > 
+> > Yes, it is possible.
+> > I would ask is it needed at all?
 > 
-> In the native case we lose one page of lowmem now.
+> Yes, please, it is standard kernel development practice.
 
-erm, isn't this the hunk which gave one of my machines a 4kb highmem zone?
-I have memories of reverting it.
+Will do.
+Thanks, James.
+
+> -- 
+> James Morris
+> <jmorris@namei.org>
+
+-- 
+	Evgeniy Polyakov

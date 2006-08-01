@@ -1,115 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWHAWgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWHAWjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWHAWgb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 18:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWHAWgb
+	id S1750707AbWHAWjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 18:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWHAWjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 18:36:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10119 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750706AbWHAWga (ORCPT
+	Tue, 1 Aug 2006 18:39:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29576 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750707AbWHAWjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 18:36:30 -0400
-Date: Tue, 1 Aug 2006 18:36:22 -0400
+	Tue, 1 Aug 2006 18:39:43 -0400
+Date: Tue, 1 Aug 2006 18:39:40 -0400
 From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: single bit flip detector.
-Message-ID: <20060801223622.GG22240@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: use persistent allocation for cursor blinking.
+Message-ID: <20060801223940.GH22240@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
 	Alan Cox <alan@lxorguk.ukuu.org.uk>,
 	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com>
+References: <20060801185618.GS22240@redhat.com> <1154470660.15540.92.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060801223011.GF22240@redhat.com>
+In-Reply-To: <1154470660.15540.92.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 06:30:11PM -0400, Dave Jones wrote:
- > On Tue, Aug 01, 2006 at 11:14:27PM +0100, Alan Cox wrote:
- >  > Ar Maw, 2006-08-01 am 14:44 -0400, ysgrifennodd Dave Jones:
- >  > > +		case POISON_FREE ^ 0x01:
- >  > > +		case POISON_FREE ^ 0x02:
- >  > > +		case POISON_FREE ^ 0x04:
- >  > > +		case POISON_FREE ^ 0x08:
- >  > > +		case POISON_FREE ^ 0x10:
- >  > > +		case POISON_FREE ^ 0x20:
- >  > > +		case POISON_FREE ^ 0x40:
- >  > > +		case POISON_FREE ^ 0x80:
- >  > > +			printk (KERN_ERR "Single bit error detected. Possibly bad RAM.\n");
- >  > > +#ifdef CONFIG_X86
- >  > > +			printk (KERN_ERR "Run memtest86 or other memory test tool.\n");
- >  > > +#endif
- >  > > +			return;
- >  > 
- >  > Gack .. NAK
- >  > 
- >  > #1: Do we want memtest86 or memtest86+ ?
+On Tue, Aug 01, 2006 at 11:17:40PM +0100, Alan Cox wrote:
+
+ > If the allocation fails we have allocsize = "somesize" and src = NULL.
+ > The next time we enter the if is false and we fall through and Oops
  > 
- > I doubt it really matters.
- > 
- >  > #2: The check is horrible and there is an elegant implementation for
- >  > single bit.
- >  > 
- >  > 	errors = value ^ expected;
- >  > 	if (errors && !(errors & (errors - 1)))
- >  > 		printk(KERN_ERR "Single bit error detected....");
- >  
- > Good call, I'll hack that up.
+ > Either check src in the if or set allocsize to something impossible (eg
+ > 0) on the error path.
 
-Take #2.
-
-In case where we detect a single bit has been flipped, we spew
-the usual slab corruption message, which users instantly think
-is a kernel bug.  In a lot of cases, single bit errors are
-down to bad memory, or other hardware failure.
-
-This patch adds an extra line to the slab debug messages
-in those cases, in the hope that users will try memtest before
-they report a bug.
-
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Possibly bad RAM. Run memtest86.
+Good catch.
 
 Signed-off-by: Dave Jones <davej@redhat.com>
 
-
-diff --git a/mm/slab.c b/mm/slab.c
-index 21ba060..39f1183 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
- static void dump_line(char *data, int offset, int limit)
- {
- 	int i;
-+	unsigned char total=0, bad_count=0;
- 	printk(KERN_ERR "%03x:", offset);
--	for (i = 0; i < limit; i++)
-+	for (i = 0; i < limit; i++) {
-+		if (data[offset+i] != POISON_FREE) {
-+			total += data[offset+i];
-+			++bad_count;
-+		}
- 		printk(" %02x", (unsigned char)data[offset + i]);
-+	}
- 	printk("\n");
-+
-+	if (bad_count == 1) {
-+		errors = total ^ POISON_FREE;
-+		if ((errors && !(errors & (errors-1))) {
-+			printk (KERN_ERR "Single bit error detected. Probably bad RAM.\n");
-+#ifdef CONFIG_X86
-+			printk (KERN_ERR "Run memtest86+ or similar memory test tool.\n");
-+#else
-+			printk (KERN_ERR "Run a memory test tool.\n");
-+#endif
-+			return;
-+		}
-+	}
- }
- #endif
+--- linux-2.6/drivers/video/console/softcursor.c~	2005-12-28 18:40:08.000000000 -0500
++++ linux-2.6/drivers/video/console/softcursor.c	2005-12-28 18:45:50.000000000 -0500
+@@ -23,7 +23,9 @@ int soft_cursor(struct fb_info *info, st
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int i, size, dsize, s_pitch, d_pitch;
+ 	struct fb_image *image;
+-	u8 *dst, *src;
++	u8 *dst;
++	static u8 *src=NULL;
++	static int allocsize = 0;
  
+ 	if (info->state != FBINFO_STATE_RUNNING)
+ 		return 0;
+@@ -31,9 +33,17 @@ int soft_cursor(struct fb_info *info, st
+ 	s_pitch = (cursor->image.width + 7) >> 3;
+ 	dsize = s_pitch * cursor->image.height;
+ 
+-	src = kmalloc(dsize + sizeof(struct fb_image), GFP_ATOMIC);
+-	if (!src)
+-		return -ENOMEM;
++	if (dsize + sizeof(struct fb_image) != allocsize) {
++		if (src != NULL)
++			kfree(src);
++		allocsize = dsize + sizeof(struct fb_image);
++
++		src = kmalloc(allocsize, GFP_ATOMIC);
++		if (!src) {
++			allocsize = 0;
++			return -ENOMEM;
++		}
++	}
+ 
+ 	image = (struct fb_image *) (src + dsize);
+ 	*image = cursor->image;
+@@ -61,7 +69,6 @@ int soft_cursor(struct fb_info *info, st
+ 	fb_pad_aligned_buffer(dst, d_pitch, src, s_pitch, image->height);
+ 	image->data = dst;
+ 	info->fbops->fb_imageblit(info, image);
+-	kfree(src);
+ 	return 0;
+ }
+ 
+
 -- 
 http://www.codemonkey.org.uk

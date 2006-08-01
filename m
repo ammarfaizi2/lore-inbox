@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWHAPIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWHAPLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWHAPIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 11:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWHAPIq
+	id S1750780AbWHAPLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 11:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWHAPLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 11:08:46 -0400
-Received: from filfla-vlan276.msk.corbina.net ([213.234.233.49]:56492 "EHLO
-	several.ru") by vger.kernel.org with ESMTP id S1750774AbWHAPIp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 11:08:45 -0400
-Date: Tue, 1 Aug 2006 23:32:03 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Andy Whitcroft <apw@shadowen.org>, linux-mm@kvack.org,
+	Tue, 1 Aug 2006 11:11:19 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52962 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750780AbWHAPLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 11:11:18 -0400
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+	regarding reiser4 inclusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Ulrich <reiser4@blinkenlights.ch>
+Cc: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
+       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] mm: speculative get_page
-Message-ID: <20060801193203.GA191@oleg>
+In-Reply-To: <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
+References: <200607312314.37863.bernd-schubert@gmx.de>
+	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
+	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Aug 2006 16:29:49 +0100
+Message-Id: <1154446189.15540.43.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
->
-> --- linux-2.6.orig/mm/vmscan.c
-> +++ linux-2.6/mm/vmscan.c
-> @@ -380,6 +380,8 @@ int remove_mapping(struct address_space 
->  	if (!mapping)
->  		return 0;		/* truncate got there first */
->
-> +	SetPageNoNewRefs(page);
-> +	smp_wmb();
->  	write_lock_irq(&mapping->tree_lock);
->
+Ar Maw, 2006-08-01 am 16:52 +0200, ysgrifennodd Adrian Ulrich:
+> WriteCache, Mirroring between 2 Datacenters, snapshotting.. etc..
+> you don't need your filesystem beeing super-robust against bad sectors
+> and such stuff because:
 
-Is it enough?
+You do it turns out. Its becoming an issue more and more that the sheer
+amount of storage means that the undetected error rate from disks,
+hosts, memory, cables and everything else is rising.
 
-PG_nonewrefs could be already set by another add_to_page_cache()/remove_mapping(),
-and it will be cleared when we take ->tree_lock. For example:
+There has been a great deal of discussion about this at the filesystem
+and kernel summits - and data is getting kicked the way of networking -
+end to end not reliability in the middle.
 
-CPU_0					CPU_1					CPU_3
-
-add_to_page_cache:
-
-    SetPageNoNewRefs();
-    write_lock_irq(->tree_lock);
-    ...
-    write_unlock_irq(->tree_lock);
-
-					remove_mapping:
-	
-					    SetPageNoNewRefs();
-
-    ClearPageNoNewRefs();
-					    write_lock_irq(->tree_lock);
-
-					    check page_count()
-
-										page_cache_get_speculative:
-
-										    increment page_count()
-
-										    no PG_nonewrefs => return
-
-Oleg.
+The sort of changes this needs hit the block layer and ever fs.
 

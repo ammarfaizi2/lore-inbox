@@ -1,126 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWHATSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWHATTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751823AbWHATSP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWHATSP
+	id S1751833AbWHATTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWHATTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:18:15 -0400
-Received: from relay1.beelinegprs.ru ([217.118.71.5]:45088 "EHLO
-	relay2.beelinegprs.ru") by vger.kernel.org with ESMTP
-	id S1751823AbWHATSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:18:14 -0400
-From: Alexander Zarochentsev <zam@namesys.com>
-Organization: namesys
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: reiser4-2.6.18-rc2-mm1: possible circular locking dependency detected in txn_end
-Date: Tue, 1 Aug 2006 23:18:36 +0400
-User-Agent: KMail/1.8.2
-Cc: reiserfs-list@namesys.com, Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <44CD0115.4010608@free.fr>
-In-Reply-To: <44CD0115.4010608@free.fr>
+	Tue, 1 Aug 2006 15:19:14 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:61382 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751833AbWHATTM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 15:19:12 -0400
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 9/33] i386 boot: Add serial output support to the decompressor
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<115443023544-git-send-email-ebiederm@xmission.com>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Aug 2006 21:19:03 +0200
+In-Reply-To: <115443023544-git-send-email-ebiederm@xmission.com>
+Message-ID: <p73zmeoz2l4.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200608012318.36995.zam@namesys.com>
-X-SpamTest-Info: Profile: Formal (478/060801)
-X-SpamTest-Info: Profile: Detect Hard No RBL (4/030526)
-X-SpamTest-Info: Profile: SysLog
-X-SpamTest-Info: Profile: Marking Spam - Subject (2/030321)
-X-SpamTest-Status: Not detected
-X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ingo,
+"Eric W. Biederman" <ebiederm@xmission.com> writes:
+>  			}
+> @@ -200,6 +224,178 @@ static void putstr(const char *s)
+>  	outb_p(0xff & (pos >> 1), vidport+1);
+>  }
+>  
+> +static void vid_console_init(void)
 
-there is a new reiser4 / lock validator problem:
+Please just use early_printk instead of reimplementing this. 
+I think it should work in this context too.
 
-On Sunday 30 July 2006 22:57, Laurent Riffard wrote:
-> =======================================================
-> [ INFO: possible circular locking dependency detected ]
-> -------------------------------------------------------
-> mv/29012 is trying to acquire lock:
->  (&txnh->hlock){--..}, at: [<e0c8e09b>] txn_end+0x191/0x368 [reiser4]
->
-> but task is already holding lock:
->  (&atom->alock){--..}, at: [<e0c8a640>] txnh_get_atom+0xf6/0x39e
-> [reiser4]
->
-> which lock already depends on the new lock.
+> +static inline int tolower(int ch)
+> +{
+> +	return ch | 0x20;
+> +}
+> +
+> +static inline int isdigit(int ch)
+> +{
+> +	return (ch >= '0') && (ch <= '9');
+> +}
+> +
+> +static inline int isxdigit(int ch)
+> +{
+> +	ch = tolower(ch);
+> +	return isdigit(ch) || ((ch >= 'a') && (ch <= 'f'));
+> +}
 
-it is absolutely legal in reiser4 to lock atom first, then lock 
-transaction handle.
+And please reuse the Linux code here.
 
-i guess the lock validator recorded wrong dependency rule from one place 
-where the spinlocks are taken in reverse order.  that place is in 
-fs/reiser4/txnmgr.c:atom_begin_and_assign_to_txnh, that atom is new, 
-just kmalloc'ed object which is inaccessible for others, so it can't a 
-source for deadlock.
 
-but how to explain that to the lock validator?
+Actually the best way to reuse would be to first do 64bit uncompressor
+and linker directly, but short of that #includes would be fine too.
 
->
-> the existing dependency chain (in reverse order) is:
->
-> -> #1 (&atom->alock){--..}:
->        [<c012ce2f>] lock_acquire+0x60/0x80
->        [<c0292968>] _spin_lock+0x19/0x28
->        [<e0c8bbd7>] try_capture+0x7cf/0x1cd7 [reiser4]
->        [<e0c786e1>] longterm_lock_znode+0x427/0x84f [reiser4]
->        [<e0ca55dc>] coord_by_handle+0x2be/0x7f7 [reiser4]
->        [<e0ca5f89>] coord_by_key+0x1e3/0x22d [reiser4]
->        [<e0c7dbd2>] insert_by_key+0x8f/0xe0 [reiser4]
->        [<e0cbf7f1>] write_sd_by_inode_common+0x361/0x61a [reiser4]
->        [<e0cbfce4>] create_object_common+0xf1/0xf6 [reiser4]
->        [<e0cbaebf>] create_vfs_object+0x51d/0x732 [reiser4]
->        [<e0cbb1fd>] mkdir_common+0x43/0x4b [reiser4]
->        [<c015ed33>] vfs_mkdir+0x5a/0x9d
->        [<c0160f5e>] sys_mkdirat+0x88/0xc0
->        [<c0160fa6>] sys_mkdir+0x10/0x12
->        [<c0102c2d>] sysenter_past_esp+0x56/0x8d
->
-> -> #0 (&txnh->hlock){--..}:
->        [<c012ce2f>] lock_acquire+0x60/0x80
->        [<c0292968>] _spin_lock+0x19/0x28
->        [<e0c8e09b>] txn_end+0x191/0x368 [reiser4]
->        [<e0c7f97d>] reiser4_exit_context+0x1c2/0x571 [reiser4]
->        [<e0cbb091>] create_vfs_object+0x6ef/0x732 [reiser4]
->        [<e0cbb1fd>] mkdir_common+0x43/0x4b [reiser4]
->        [<c015ed33>] vfs_mkdir+0x5a/0x9d
->        [<c0160f5e>] sys_mkdirat+0x88/0xc0
->        [<c0160fa6>] sys_mkdir+0x10/0x12
->        [<c0102c2d>] sysenter_past_esp+0x56/0x8d
->
-> other info that might help us debug this:
->
-> 2 locks held by mv/29012:
->  #0:  (&inode->i_mutex/1){--..}, at: [<c015f50b>]
-> lookup_create+0x1d/0x73
->  #1:  (&atom->alock){--..}, at: [<e0c8a640>]
-> txnh_get_atom+0xf6/0x39e [reiser4]
->
-> stack backtrace:
->  [<c0104df0>] show_trace+0xd/0x10
->  [<c0104e0c>] dump_stack+0x19/0x1d
->  [<c012bc62>] print_circular_bug_tail+0x59/0x64
->  [<c012cc3e>] __lock_acquire+0x814/0x9a5
->  [<c012ce2f>] lock_acquire+0x60/0x80
->  [<c0292968>] _spin_lock+0x19/0x28
->  [<e0c8e09b>] txn_end+0x191/0x368 [reiser4]
->  [<e0c7f97d>] reiser4_exit_context+0x1c2/0x571 [reiser4]
->  [<e0cbb091>] create_vfs_object+0x6ef/0x732 [reiser4]
->  [<e0cbb1fd>] mkdir_common+0x43/0x4b [reiser4]
->  [<c015ed33>] vfs_mkdir+0x5a/0x9d
->  [<c0160f5e>] sys_mkdirat+0x88/0xc0
->  [<c0160fa6>] sys_mkdir+0x10/0x12
->  [<c0102c2d>] sysenter_past_esp+0x56/0x8d
->
-> (Linux antares.localdomain 2.6.18-rc2-mm1 #77 Sun Jul 30 15:09:34
-> CEST 2006 i686 AMD Athlon(TM) XP 1600+ unknown GNU/Linux)
 
--- 
-Alex.
+> +
+> +
+> +static inline int digval(int ch)
+> +{
+> +	return isdigit(ch)? (ch - '0') : tolower(ch) - 'a' + 10;
+> +}
+> +
+> +/**
+> + * simple_strtou - convert a string to an unsigned
+> + * @cp: The start of the string
+> + * @endp: A pointer to the end of the parsed string will be placed here
+> + * @base: The number base to use
+> + */
+> +static unsigned simple_strtou(const char *cp, char **endp, unsigned base)
+> +{
+> +	unsigned result = 0,value;
+> +
+> +	if (!base) {
+> +		base = 10;
+> +		if (*cp == '0') {
+> +			base = 8;
+> +			cp++;
+> +			if ((tolower(*cp) == 'x') && isxdigit(cp[1])) {
+> +				cp++;
+> +				base = 16;
+> +			}
+> +		}
+> +	} else if (base == 16) {
+> +		if (cp[0] == '0' && tolower(cp[1]) == 'x')
+> +			cp += 2;
+> +	}
+> +	while (isxdigit(*cp) && ((value = digval(*cp)) < base)) {
+> +		result = result*base + value;
+> +		cp++;
+> +	}
+> +	if (endp)
+> +		*endp = (char *)cp;
+> +	return result;
+> +}
+
+Can you please somehow reuse the Linux one? 
+
+> +
+>  static void* memset(void* s, int c, unsigned n)
+>  {
+>  	int i;
+> @@ -218,6 +414,29 @@ static void* memcpy(void* dest, const vo
+>  	return dest;
+>  }
+>  
+> +static int memcmp(const void *s1, const void *s2, unsigned n)
+> +{
+> +	const unsigned char *str1 = s1, *str2 = s2;
+> +	size_t i;
+> +	int result = 0;
+> +	for(i = 0; (result == 0) && (i < n); i++) {
+> +		result = *str1++ - *str2++;
+> +		}
+> +	return result;
+> +}
+> +
+> +char *strstr(const char *haystack, const char *needle)
+> +{
+> +	size_t len;
+> +	len = strlen(needle);
+> +	while(*haystack) {
+> +		if (memcmp(haystack, needle, len) == 0)
+> +			return (char *)haystack;
+> +		haystack++;
+> +	}
+> +	return NULL;
+
+
+Would be better to just pull in lib/string.c
+
+-Andi
 

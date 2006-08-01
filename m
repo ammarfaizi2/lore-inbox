@@ -1,56 +1,1025 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751686AbWHAPZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWHAP1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751686AbWHAPZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 11:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWHAPZK
+	id S1750787AbWHAP1f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 11:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWHAP1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 11:25:10 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:35668 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751679AbWHAPZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 11:25:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=PVu+tWDlFFAJBoRR2rsCpKLlHnIVskYLcP8lovYLEb56kunjQq+DmtugQI448CdqYGUILOekwtXTMJpWkKNcdPUxJsGsWxuUf2i1LiXfV4WvUjI30kUSqoGP2OM7KIB5JP5cArJ9PsKi3sjppMVJywzrinykOTt+i1sZwJShCik=
-Date: Tue, 1 Aug 2006 17:25:03 +0200
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Amit Gud <agud@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] sysctl for the latecomers
-Message-ID: <20060801152503.GA2825@slug>
-References: <44CF69F0.6040801@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44CF69F0.6040801@redhat.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Tue, 1 Aug 2006 11:27:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:23527 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750787AbWHAP1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 11:27:33 -0400
+Subject: PATCH: Convert usb fm radio to V4L2 and move to the right
+	directory.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1154381296.2506.4.camel@praia>
+References: <9e4733910606251040v62675399gdfe438aaac691a5a@mail.gmail.com>
+	 <1151327213.3687.13.camel@praia>
+	 <9e4733910606260855kf2e57ado5c69d8295d1be5@mail.gmail.com>
+	 <1151341122.13794.2.camel@praia>
+	 <1154302828.2318.9.camel@localhost.localdomain>
+	 <1154381296.2506.4.camel@praia>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Aug 2006 16:46:33 +0100
+Message-Id: <1154447193.15540.50.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 10:49:20AM -0400, Amit Gud wrote:
-> /etc/sysctl.conf values are of no use to kernel modules that are inserted
-> after init scripts call sysctl for the values in /etc/sysctl.conf
->
-> For modules to use the values stored in the file /etc/sysctl.conf, sysctl
-> kernel code can keep record of 'limited' values, for sysctl entries which
-> haven't been registered yet. During registration, sysctl code can check
-> against the stored values and call the appropriate strategy and proc_handler
-> routines if a match is found.
->
-> Attached patch does just that. This patch is NOT tested and is just to get
-> opinions, if something like this is a right way of addressing this problem.
->
->
-Hi,
+As promised. Could do with the stereo detect wiring in somewhere but I'm
+not sure where it goes with V4L2.
 
-One strange behaviour that comes to mind is the following:
-1. I boot my machine so that it doesn't load module X
-2. I modify /etc/sysctl.conf and I remove a line affecting module X
-3. I modprobe X
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Wouldn't the fact that the sysctl directive is applied anyway be a bit 
-misleading?
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/dsbr100.c linux-2.6.18-rc2-mm1/drivers/media/radio/dsbr100.c
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/dsbr100.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/radio/dsbr100.c	2006-07-31 15:43:51.000000000 +0100
+@@ -0,0 +1,484 @@
++/* A driver for the D-Link DSB-R100 USB radio.  The R100 plugs
++ into both the USB and an analog audio input, so this thing
++ only deals with initialisation and frequency setting, the
++ audio data has to be handled by a sound driver.
++
++ Major issue: I can't find out where the device reports the signal
++ strength, and indeed the windows software appearantly just looks
++ at the stereo indicator as well.  So, scanning will only find
++ stereo stations.  Sad, but I can't help it.
++
++ Also, the windows program sends oodles of messages over to the
++ device, and I couldn't figure out their meaning.  My suspicion
++ is that they don't have any:-)
++
++ You might find some interesting stuff about this module at
++ http://unimut.fsk.uni-heidelberg.de/unimut/demi/dsbr
++
++ Copyright (c) 2000 Markus Demleitner <msdemlei@cl.uni-heidelberg.de>
++
++ This program is free software; you can redistribute it and/or modify
++ it under the terms of the GNU General Public License as published by
++ the Free Software Foundation; either version 2 of the License, or
++ (at your option) any later version.
++
++ This program is distributed in the hope that it will be useful,
++ but WITHOUT ANY WARRANTY; without even the implied warranty of
++ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ GNU General Public License for more details.
++
++ You should have received a copy of the GNU General Public License
++ along with this program; if not, write to the Free Software
++ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++
++ History:
++
++ Version 0.40-ac1:
++  Alan Cox: Updated to V4L2 interface
++
++ Version 0.40:
++  Markus: Updates for 2.6.x kernels, code layout changes, name sanitizing
++
++ Version 0.30:
++	Markus: Updates for 2.5.x kernel and more ISO compliant source
++
++ Version 0.25:
++	PSL and Markus: Cleanup, radio now doesn't stop on device close
++
++ Version 0.24:
++	Markus: Hope I got these silly VIDEO_TUNER_LOW issues finally
++	right.  Some minor cleanup, improved standalone compilation
++
++ Version 0.23:
++	Markus: Sign extension bug fixed by declaring transfer_buffer unsigned
++
++ Version 0.22:
++	Markus: Some (brown bag) cleanup in what VIDIOCSTUNER returns,
++	thanks to Mike Cox for pointing the problem out.
++
++ Version 0.21:
++	Markus: Minor cleanup, warnings if something goes wrong, lame attempt
++	to adhere to Documentation/CodingStyle
++
++ Version 0.2:
++	Brad Hards <bradh@dynamite.com.au>: Fixes to make it work as non-module
++	Markus: Copyright clarification
++
++ Version 0.01: Markus: initial release
++
++*/
++
++#include <linux/version.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/videodev.h>
++#include <media/v4l2-common.h>
++#include <linux/usb.h>
++#include <linux/smp_lock.h>
++
++/*
++ * Version Information
++ */
++#define DRIVER_VERSION "v0.40"
++#define RADIO_VERSION KERNEL_VERSION(0,40,0)
++#define DRIVER_AUTHOR "Markus Demleitner <msdemlei@tucana.harvard.edu>"
++#define DRIVER_DESC "D-Link DSB-R100 USB FM radio driver"
++
++#define DSB100_VENDOR 0x04b4
++#define DSB100_PRODUCT 0x1002
++
++/* Commands the device appears to understand */
++#define DSB100_TUNE 1
++#define DSB100_ONOFF 2
++
++#define TB_LEN 16
++
++/* Frequency limits in MHz -- these are European values.  For Japanese
++devices, that would be 76 and 91.  */
++#define FREQ_MIN  87.5
++#define FREQ_MAX 108.0
++#define FREQ_MUL 16000
++
++static struct v4l2_queryctrl radio_qctrl[] = {
++	{
++		.id            = V4L2_CID_AUDIO_MUTE,
++		.name          = "Mute",
++		.minimum       = 0,
++		.maximum       = 1,
++		.default_value = 1,
++		.type          = V4L2_CTRL_TYPE_BOOLEAN,
++	}
++};
++
++static int usb_dsbr100_probe(struct usb_interface *intf,
++			     const struct usb_device_id *id);
++static void usb_dsbr100_disconnect(struct usb_interface *intf);
++static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
++			     unsigned int cmd, unsigned long arg);
++static int usb_dsbr100_open(struct inode *inode, struct file *file);
++static int usb_dsbr100_close(struct inode *inode, struct file *file);
++
++static int radio_nr = -1;
++module_param(radio_nr, int, 0);
++
++/* Data for one (physical) device */
++struct dsbr100_device {
++	struct usb_device *usbdev;
++	struct video_device *videodev;
++	unsigned char transfer_buffer[TB_LEN];
++	int curfreq;
++	int stereo;
++	int users;
++	int muted;
++	int removed;
++};
++
++/* File system interface */
++static struct file_operations usb_dsbr100_fops = {
++	.owner =	THIS_MODULE,
++	.open =		usb_dsbr100_open,
++	.release =     	usb_dsbr100_close,
++	.ioctl =        usb_dsbr100_ioctl,
++	.compat_ioctl = v4l_compat_ioctl32,
++	.llseek =       no_llseek,
++};
++
++/* V4L interface */
++static struct video_device dsbr100_videodev_template=
++{
++	.owner =	THIS_MODULE,
++	.name =		"D-Link DSB-R 100",
++	.type =		VID_TYPE_TUNER,
++	.hardware =	VID_HARDWARE_AZTECH,
++	.fops =         &usb_dsbr100_fops,
++	.release = video_device_release,
++};
++
++static struct usb_device_id usb_dsbr100_device_table [] = {
++	{ USB_DEVICE(DSB100_VENDOR, DSB100_PRODUCT) },
++	{ }						/* Terminating entry */
++};
++
++MODULE_DEVICE_TABLE (usb, usb_dsbr100_device_table);
++
++/* USB subsystem interface */
++static struct usb_driver usb_dsbr100_driver = {
++	.name =		"dsbr100",
++	.probe =	usb_dsbr100_probe,
++	.disconnect =	usb_dsbr100_disconnect,
++	.id_table =	usb_dsbr100_device_table,
++};
++
++/* Low-level device interface begins here */
++
++/* switch on radio */
++static int dsbr100_start(struct dsbr100_device *radio)
++{
++	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			USB_REQ_GET_STATUS,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			0x00, 0xC7, radio->transfer_buffer, 8, 300)<0 ||
++	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			DSB100_ONOFF,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			0x01, 0x00, radio->transfer_buffer, 8, 300)<0)
++		return -1;
++	return (radio->transfer_buffer)[0];
++}
++
++
++/* switch off radio */
++static int dsbr100_stop(struct dsbr100_device *radio)
++{
++	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			USB_REQ_GET_STATUS,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			0x16, 0x1C, radio->transfer_buffer, 8, 300)<0 ||
++	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			DSB100_ONOFF,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			0x00, 0x00, radio->transfer_buffer, 8, 300)<0)
++		return -1;
++	return (radio->transfer_buffer)[0];
++}
++
++/* set a frequency, freq is defined by v4l's TUNER_LOW, i.e. 1/16th kHz */
++static int dsbr100_setfreq(struct dsbr100_device *radio, int freq)
++{
++	freq = (freq/16*80)/1000+856;
++	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			DSB100_TUNE,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			(freq>>8)&0x00ff, freq&0xff,
++			radio->transfer_buffer, 8, 300)<0 ||
++	   usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			USB_REQ_GET_STATUS,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			0x96, 0xB7, radio->transfer_buffer, 8, 300)<0 ||
++	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++			USB_REQ_GET_STATUS,
++			USB_TYPE_VENDOR | USB_RECIP_DEVICE |  USB_DIR_IN,
++			0x00, 0x24, radio->transfer_buffer, 8, 300)<0) {
++		radio->stereo = -1;
++		return -1;
++	}
++	radio->stereo = ! ((radio->transfer_buffer)[0]&0x01);
++	return (radio->transfer_buffer)[0];
++}
++
++/* return the device status.  This is, in effect, just whether it
++sees a stereo signal or not.  Pity. */
++static void dsbr100_getstat(struct dsbr100_device *radio)
++{
++	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
++		USB_REQ_GET_STATUS,
++		USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++		0x00 , 0x24, radio->transfer_buffer, 8, 300)<0)
++		radio->stereo = -1;
++	else
++		radio->stereo = ! (radio->transfer_buffer[0]&0x01);
++}
++
++
++/* USB subsystem interface begins here */
++
++/* check if the device is present and register with v4l and
++usb if it is */
++static int usb_dsbr100_probe(struct usb_interface *intf,
++			 const struct usb_device_id *id)
++{
++	struct dsbr100_device *radio;
++
++	if (!(radio = kmalloc(sizeof(struct dsbr100_device), GFP_KERNEL)))
++		return -ENOMEM;
++	if (!(radio->videodev = video_device_alloc())) {
++		kfree(radio);
++		return -ENOMEM;
++	}
++	memcpy(radio->videodev, &dsbr100_videodev_template,
++		sizeof(dsbr100_videodev_template));
++	radio->removed = 0;
++	radio->users = 0;
++	radio->usbdev = interface_to_usbdev(intf);
++	radio->curfreq = FREQ_MIN*FREQ_MUL;
++	video_set_drvdata(radio->videodev, radio);
++	if (video_register_device(radio->videodev, VFL_TYPE_RADIO,
++		radio_nr)) {
++		warn("Could not register video device");
++		video_device_release(radio->videodev);
++		kfree(radio);
++		return -EIO;
++	}
++	usb_set_intfdata(intf, radio);
++	return 0;
++}
++
++/* handle unplugging of the device, release data structures
++if nothing keeps us from doing it.  If something is still
++keeping us busy, the release callback of v4l will take care
++of releasing it.  stv680.c does not relase its private
++data, so I don't do this here either.  Checking out the
++code I'd expect I better did that, but if there's a memory
++leak here it's tiny (~50 bytes per disconnect) */
++static void usb_dsbr100_disconnect(struct usb_interface *intf)
++{
++	struct dsbr100_device *radio = usb_get_intfdata(intf);
++
++	usb_set_intfdata (intf, NULL);
++	if (radio) {
++		video_unregister_device(radio->videodev);
++		radio->videodev = NULL;
++		if (radio->users) {
++			kfree(radio);
++		} else {
++			radio->removed = 1;
++		}
++	}
++}
++
++
++/* Video for Linux interface */
++
++static int usb_dsbr100_do_ioctl(struct inode *inode, struct file *file,
++				unsigned int cmd, void *arg)
++{
++	struct dsbr100_device *radio=video_get_drvdata(video_devdata(file));
++
++	if (!radio)
++		return -EIO;
++
++	switch(cmd) {
++		case VIDIOC_QUERYCAP:
++		{
++			struct v4l2_capability *v = arg;
++			memset(v,0,sizeof(*v));
++			strlcpy(v->driver, "dsbr100", sizeof (v->driver));
++			strlcpy(v->card, "D-Link R-100 USB FM Radio", sizeof (v->card));
++			sprintf(v->bus_info,"ISA");
++			v->version = RADIO_VERSION;
++			v->capabilities = V4L2_CAP_TUNER;
++
++			return 0;
++		}
++		case VIDIOC_G_TUNER:
++		{
++			struct v4l2_tuner *v = arg;
++
++			if (v->index > 0)
++				return -EINVAL;
++
++			memset(v,0,sizeof(*v));
++			strcpy(v->name, "FM");
++			v->type = V4L2_TUNER_RADIO;
++
++			v->rangelow = FREQ_MIN*FREQ_MUL;
++			v->rangehigh = FREQ_MAX*FREQ_MUL;
++			v->rxsubchans =V4L2_TUNER_SUB_MONO;
++			v->capability=V4L2_TUNER_CAP_LOW;
++			v->audmode = V4L2_TUNER_MODE_MONO;
++			v->signal = 0xFFFF;	/* We can't get the signal strength */
++			return 0;
++		}
++		case VIDIOC_S_TUNER:
++		{
++			struct v4l2_tuner *v = arg;
++
++			if (v->index > 0)
++				return -EINVAL;
++
++			return 0;
++		}
++		case VIDIOC_G_FREQUENCY:
++		{
++			struct v4l2_frequency *f = arg;
++
++			f->type = V4L2_TUNER_RADIO;
++			f->frequency = radio->curfreq;
++
++			return 0;
++		}
++		case VIDIOC_S_FREQUENCY:
++		{
++			struct v4l2_frequency *f = arg;
++			radio->curfreq = f->frequency;
++			if (dsbr100_setfreq(radio, radio->curfreq)==-1)
++				warn("Set frequency failed");
++			return 0;
++		}
++		case VIDIOC_QUERYCTRL:
++		{
++			struct v4l2_queryctrl *qc = arg;
++			int i;
++
++			for (i = 0; i < ARRAY_SIZE(radio_qctrl); i++) {
++				if (qc->id && qc->id == radio_qctrl[i].id) {
++					memcpy(qc, &(radio_qctrl[i]),
++								sizeof(*qc));
++					return 0;
++				}
++			}
++			return -EINVAL;
++		}
++		case VIDIOC_G_CTRL:
++		{
++			struct v4l2_control *ctrl= arg;
++
++			switch (ctrl->id) {
++				case V4L2_CID_AUDIO_MUTE:
++					ctrl->value=radio->muted;
++					return 0;
++			}
++			return -EINVAL;
++		}
++		case VIDIOC_S_CTRL:
++		{
++			struct v4l2_control *ctrl= arg;
++
++			switch (ctrl->id) {
++				case V4L2_CID_AUDIO_MUTE:
++					if (ctrl->value) {
++						if (dsbr100_stop(radio)==-1)
++							warn("Radio did not respond properly");
++					} else {
++						if (dsbr100_start(radio)==-1)
++							warn("Radio did not respond properly");
++					}
++					return 0;
++			}
++			return -EINVAL;
++		}
++
++		default:
++			return v4l_compat_translate_ioctl(inode,file,cmd,arg,
++							  usb_dsbr100_do_ioctl);
++		case VIDIOCSAUDIO: {
++			struct video_audio *v = arg;
++
++			if (v->audio)
++				return -EINVAL;
++			if (v->flags&VIDEO_AUDIO_MUTE) {
++				if (dsbr100_stop(radio)==-1)
++					warn("Radio did not respond properly");
++			}
++			else
++				if (dsbr100_start(radio)==-1)
++					warn("Radio did not respond properly");
++			return 0;
++		}
++	}
++}
++
++static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
++			     unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, usb_dsbr100_do_ioctl);
++}
++
++static int usb_dsbr100_open(struct inode *inode, struct file *file)
++{
++	struct dsbr100_device *radio=video_get_drvdata(video_devdata(file));
++
++	radio->users = 1;
++	if (dsbr100_start(radio)<0) {
++		warn("Radio did not start up properly");
++		radio->users = 0;
++		return -EIO;
++	}
++	dsbr100_setfreq(radio, radio->curfreq);
++	return 0;
++}
++
++static int usb_dsbr100_close(struct inode *inode, struct file *file)
++{
++	struct dsbr100_device *radio=video_get_drvdata(video_devdata(file));
++
++	if (!radio)
++		return -ENODEV;
++	radio->users = 0;
++	if (radio->removed) {
++		kfree(radio);
++	}
++	return 0;
++}
++
++static int __init dsbr100_init(void)
++{
++	int retval = usb_register(&usb_dsbr100_driver);
++	info(DRIVER_VERSION ":" DRIVER_DESC);
++	return retval;
++}
++
++static void __exit dsbr100_exit(void)
++{
++	usb_deregister(&usb_dsbr100_driver);
++}
++
++module_init (dsbr100_init);
++module_exit (dsbr100_exit);
++
++MODULE_AUTHOR( DRIVER_AUTHOR );
++MODULE_DESCRIPTION( DRIVER_DESC );
++MODULE_LICENSE("GPL");
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/Kconfig linux-2.6.18-rc2-mm1/drivers/media/radio/Kconfig
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/Kconfig	2006-07-27 16:19:51.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/radio/Kconfig	2006-07-31 15:27:52.000000000 +0100
+@@ -350,5 +350,17 @@
+ 	help
+ 	  Enter the I/O port of your Zoltrix radio card.
+ 
++config USB_DSBR
++	tristate "D-Link USB FM radio support (EXPERIMENTAL)"
++	depends on USB && VIDEO_V4L1 && EXPERIMENTAL
++	---help---
++	  Say Y here if you want to connect this type of radio to your
++	  computer's USB port. Note that the audio is not digital, and
++	  you must connect the line out connector to a sound card or a
++	  set of speakers.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called dsbr100.
++
+ endmenu
+ 
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/Makefile linux-2.6.18-rc2-mm1/drivers/media/radio/Makefile
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/radio/Makefile	2006-07-27 16:19:02.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/radio/Makefile	2006-07-31 15:27:36.000000000 +0100
+@@ -20,5 +20,6 @@
+ obj-$(CONFIG_RADIO_GEMTEK_PCI) += radio-gemtek-pci.o
+ obj-$(CONFIG_RADIO_TRUST) += radio-trust.o
+ obj-$(CONFIG_RADIO_MAESTRO) += radio-maestro.o
++obj-$(CONFIG_USB_DSBR) += dsbr100.o
+ 
+ EXTRA_CFLAGS += -Isound
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/dsbr100.c linux-2.6.18-rc2-mm1/drivers/media/video/dsbr100.c
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/dsbr100.c	2006-07-27 16:19:02.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/video/dsbr100.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,430 +0,0 @@
+-/* A driver for the D-Link DSB-R100 USB radio.  The R100 plugs
+- into both the USB and an analog audio input, so this thing
+- only deals with initialisation and frequency setting, the
+- audio data has to be handled by a sound driver.
+-
+- Major issue: I can't find out where the device reports the signal
+- strength, and indeed the windows software appearantly just looks
+- at the stereo indicator as well.  So, scanning will only find
+- stereo stations.  Sad, but I can't help it.
+-
+- Also, the windows program sends oodles of messages over to the
+- device, and I couldn't figure out their meaning.  My suspicion
+- is that they don't have any:-)
+-
+- You might find some interesting stuff about this module at
+- http://unimut.fsk.uni-heidelberg.de/unimut/demi/dsbr
+-
+- Copyright (c) 2000 Markus Demleitner <msdemlei@cl.uni-heidelberg.de>
+-
+- This program is free software; you can redistribute it and/or modify
+- it under the terms of the GNU General Public License as published by
+- the Free Software Foundation; either version 2 of the License, or
+- (at your option) any later version.
+-
+- This program is distributed in the hope that it will be useful,
+- but WITHOUT ANY WARRANTY; without even the implied warranty of
+- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- GNU General Public License for more details.
+-
+- You should have received a copy of the GNU General Public License
+- along with this program; if not, write to the Free Software
+- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+-
+- History:
+-
+- Version 0.40:
+-  Markus: Updates for 2.6.x kernels, code layout changes, name sanitizing
+-
+- Version 0.30:
+-	Markus: Updates for 2.5.x kernel and more ISO compliant source
+-
+- Version 0.25:
+-	PSL and Markus: Cleanup, radio now doesn't stop on device close
+-
+- Version 0.24:
+-	Markus: Hope I got these silly VIDEO_TUNER_LOW issues finally
+-	right.  Some minor cleanup, improved standalone compilation
+-
+- Version 0.23:
+-	Markus: Sign extension bug fixed by declaring transfer_buffer unsigned
+-
+- Version 0.22:
+-	Markus: Some (brown bag) cleanup in what VIDIOCSTUNER returns,
+-	thanks to Mike Cox for pointing the problem out.
+-
+- Version 0.21:
+-	Markus: Minor cleanup, warnings if something goes wrong, lame attempt
+-	to adhere to Documentation/CodingStyle
+-
+- Version 0.2:
+-	Brad Hards <bradh@dynamite.com.au>: Fixes to make it work as non-module
+-	Markus: Copyright clarification
+-
+- Version 0.01: Markus: initial release
+-
+-*/
+-
+-
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/slab.h>
+-#include <linux/input.h>
+-#include <linux/videodev.h>
+-#include <media/v4l2-common.h>
+-#include <linux/usb.h>
+-#include <linux/smp_lock.h>
+-
+-/*
+- * Version Information
+- */
+-#define DRIVER_VERSION "v0.40"
+-#define DRIVER_AUTHOR "Markus Demleitner <msdemlei@tucana.harvard.edu>"
+-#define DRIVER_DESC "D-Link DSB-R100 USB FM radio driver"
+-
+-#define DSB100_VENDOR 0x04b4
+-#define DSB100_PRODUCT 0x1002
+-
+-/* Commands the device appears to understand */
+-#define DSB100_TUNE 1
+-#define DSB100_ONOFF 2
+-
+-#define TB_LEN 16
+-
+-/* Frequency limits in MHz -- these are European values.  For Japanese
+-devices, that would be 76 and 91.  */
+-#define FREQ_MIN  87.5
+-#define FREQ_MAX 108.0
+-#define FREQ_MUL 16000
+-
+-
+-static int usb_dsbr100_probe(struct usb_interface *intf,
+-			     const struct usb_device_id *id);
+-static void usb_dsbr100_disconnect(struct usb_interface *intf);
+-static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
+-			     unsigned int cmd, unsigned long arg);
+-static int usb_dsbr100_open(struct inode *inode, struct file *file);
+-static int usb_dsbr100_close(struct inode *inode, struct file *file);
+-
+-static int radio_nr = -1;
+-module_param(radio_nr, int, 0);
+-
+-/* Data for one (physical) device */
+-typedef struct {
+-	struct usb_device *usbdev;
+-	struct video_device *videodev;
+-	unsigned char transfer_buffer[TB_LEN];
+-	int curfreq;
+-	int stereo;
+-	int users;
+-	int removed;
+-} dsbr100_device;
+-
+-
+-/* File system interface */
+-static struct file_operations usb_dsbr100_fops = {
+-	.owner =	THIS_MODULE,
+-	.open =		usb_dsbr100_open,
+-	.release =     	usb_dsbr100_close,
+-	.ioctl =        usb_dsbr100_ioctl,
+-	.compat_ioctl = v4l_compat_ioctl32,
+-	.llseek =       no_llseek,
+-};
+-
+-/* V4L interface */
+-static struct video_device dsbr100_videodev_template=
+-{
+-	.owner =	THIS_MODULE,
+-	.name =		"D-Link DSB-R 100",
+-	.type =		VID_TYPE_TUNER,
+-	.hardware =	VID_HARDWARE_AZTECH,
+-	.fops =         &usb_dsbr100_fops,
+-	.release = video_device_release,
+-};
+-
+-static struct usb_device_id usb_dsbr100_device_table [] = {
+-	{ USB_DEVICE(DSB100_VENDOR, DSB100_PRODUCT) },
+-	{ }						/* Terminating entry */
+-};
+-
+-MODULE_DEVICE_TABLE (usb, usb_dsbr100_device_table);
+-
+-/* USB subsystem interface */
+-static struct usb_driver usb_dsbr100_driver = {
+-	.name =		"dsbr100",
+-	.probe =	usb_dsbr100_probe,
+-	.disconnect =	usb_dsbr100_disconnect,
+-	.id_table =	usb_dsbr100_device_table,
+-};
+-
+-/* Low-level device interface begins here */
+-
+-/* switch on radio */
+-static int dsbr100_start(dsbr100_device *radio)
+-{
+-	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			USB_REQ_GET_STATUS,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			0x00, 0xC7, radio->transfer_buffer, 8, 300)<0 ||
+-	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			DSB100_ONOFF,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			0x01, 0x00, radio->transfer_buffer, 8, 300)<0)
+-		return -1;
+-	return (radio->transfer_buffer)[0];
+-}
+-
+-
+-/* switch off radio */
+-static int dsbr100_stop(dsbr100_device *radio)
+-{
+-	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			USB_REQ_GET_STATUS,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			0x16, 0x1C, radio->transfer_buffer, 8, 300)<0 ||
+-	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			DSB100_ONOFF,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			0x00, 0x00, radio->transfer_buffer, 8, 300)<0)
+-		return -1;
+-	return (radio->transfer_buffer)[0];
+-}
+-
+-/* set a frequency, freq is defined by v4l's TUNER_LOW, i.e. 1/16th kHz */
+-static int dsbr100_setfreq(dsbr100_device *radio, int freq)
+-{
+-	freq = (freq/16*80)/1000+856;
+-	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			DSB100_TUNE,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			(freq>>8)&0x00ff, freq&0xff,
+-			radio->transfer_buffer, 8, 300)<0 ||
+-	   usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			USB_REQ_GET_STATUS,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-			0x96, 0xB7, radio->transfer_buffer, 8, 300)<0 ||
+-	usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-			USB_REQ_GET_STATUS,
+-			USB_TYPE_VENDOR | USB_RECIP_DEVICE |  USB_DIR_IN,
+-			0x00, 0x24, radio->transfer_buffer, 8, 300)<0) {
+-		radio->stereo = -1;
+-		return -1;
+-	}
+-	radio->stereo = ! ((radio->transfer_buffer)[0]&0x01);
+-	return (radio->transfer_buffer)[0];
+-}
+-
+-/* return the device status.  This is, in effect, just whether it
+-sees a stereo signal or not.  Pity. */
+-static void dsbr100_getstat(dsbr100_device *radio)
+-{
+-	if (usb_control_msg(radio->usbdev, usb_rcvctrlpipe(radio->usbdev, 0),
+-		USB_REQ_GET_STATUS,
+-		USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+-		0x00 , 0x24, radio->transfer_buffer, 8, 300)<0)
+-		radio->stereo = -1;
+-	else
+-		radio->stereo = ! (radio->transfer_buffer[0]&0x01);
+-}
+-
+-
+-/* USB subsystem interface begins here */
+-
+-/* check if the device is present and register with v4l and
+-usb if it is */
+-static int usb_dsbr100_probe(struct usb_interface *intf,
+-			 const struct usb_device_id *id)
+-{
+-	dsbr100_device *radio;
+-
+-	if (!(radio = kmalloc(sizeof(dsbr100_device), GFP_KERNEL)))
+-		return -ENOMEM;
+-	if (!(radio->videodev = video_device_alloc())) {
+-		kfree(radio);
+-		return -ENOMEM;
+-	}
+-	memcpy(radio->videodev, &dsbr100_videodev_template,
+-		sizeof(dsbr100_videodev_template));
+-	radio->removed = 0;
+-	radio->users = 0;
+-	radio->usbdev = interface_to_usbdev(intf);
+-	radio->curfreq = FREQ_MIN*FREQ_MUL;
+-	video_set_drvdata(radio->videodev, radio);
+-	if (video_register_device(radio->videodev, VFL_TYPE_RADIO,
+-		radio_nr)) {
+-		warn("Could not register video device");
+-		video_device_release(radio->videodev);
+-		kfree(radio);
+-		return -EIO;
+-	}
+-	usb_set_intfdata(intf, radio);
+-	return 0;
+-}
+-
+-/* handle unplugging of the device, release data structures
+-if nothing keeps us from doing it.  If something is still
+-keeping us busy, the release callback of v4l will take care
+-of releasing it.  stv680.c does not relase its private
+-data, so I don't do this here either.  Checking out the
+-code I'd expect I better did that, but if there's a memory
+-leak here it's tiny (~50 bytes per disconnect) */
+-static void usb_dsbr100_disconnect(struct usb_interface *intf)
+-{
+-	dsbr100_device *radio = usb_get_intfdata(intf);
+-
+-	usb_set_intfdata (intf, NULL);
+-	if (radio) {
+-		video_unregister_device(radio->videodev);
+-		radio->videodev = NULL;
+-		if (radio->users) {
+-			kfree(radio);
+-		} else {
+-			radio->removed = 1;
+-		}
+-	}
+-}
+-
+-
+-/* Video for Linux interface */
+-
+-static int usb_dsbr100_do_ioctl(struct inode *inode, struct file *file,
+-				unsigned int cmd, void *arg)
+-{
+-	dsbr100_device *radio=video_get_drvdata(video_devdata(file));
+-
+-	if (!radio)
+-		return -EIO;
+-
+-	switch(cmd) {
+-		case VIDIOCGCAP: {
+-			struct video_capability *v = arg;
+-
+-			memset(v, 0, sizeof(*v));
+-			v->type = VID_TYPE_TUNER;
+-			v->channels = 1;
+-			v->audios = 1;
+-			strcpy(v->name, "D-Link R-100 USB FM Radio");
+-			return 0;
+-		}
+-		case VIDIOCGTUNER: {
+-			struct video_tuner *v = arg;
+-
+-			dsbr100_getstat(radio);
+-			if(v->tuner)	/* Only 1 tuner */
+-				return -EINVAL;
+-			v->rangelow = FREQ_MIN*FREQ_MUL;
+-			v->rangehigh = FREQ_MAX*FREQ_MUL;
+-			v->flags = VIDEO_TUNER_LOW;
+-			v->mode = VIDEO_MODE_AUTO;
+-			v->signal = radio->stereo*0x7000;
+-				/* Don't know how to get signal strength */
+-			v->flags |= VIDEO_TUNER_STEREO_ON*radio->stereo;
+-			strcpy(v->name, "DSB R-100");
+-			return 0;
+-		}
+-		case VIDIOCSTUNER: {
+-			struct video_tuner *v = arg;
+-
+-			if(v->tuner!=0)
+-				return -EINVAL;
+-			/* Only 1 tuner so no setting needed ! */
+-			return 0;
+-		}
+-		case VIDIOCGFREQ: {
+-			int *freq = arg;
+-
+-			if (radio->curfreq==-1)
+-				return -EINVAL;
+-			*freq = radio->curfreq;
+-			return 0;
+-		}
+-		case VIDIOCSFREQ: {
+-			int *freq = arg;
+-
+-			radio->curfreq = *freq;
+-			if (dsbr100_setfreq(radio, radio->curfreq)==-1)
+-				warn("Set frequency failed");
+-			return 0;
+-		}
+-		case VIDIOCGAUDIO: {
+-			struct video_audio *v = arg;
+-
+-			memset(v, 0, sizeof(*v));
+-			v->flags |= VIDEO_AUDIO_MUTABLE;
+-			v->mode = VIDEO_SOUND_STEREO;
+-			v->volume = 1;
+-			v->step = 1;
+-			strcpy(v->name, "Radio");
+-			return 0;
+-		}
+-		case VIDIOCSAUDIO: {
+-			struct video_audio *v = arg;
+-
+-			if (v->audio)
+-				return -EINVAL;
+-			if (v->flags&VIDEO_AUDIO_MUTE) {
+-				if (dsbr100_stop(radio)==-1)
+-					warn("Radio did not respond properly");
+-			}
+-			else
+-				if (dsbr100_start(radio)==-1)
+-					warn("Radio did not respond properly");
+-			return 0;
+-		}
+-		default:
+-			return -ENOIOCTLCMD;
+-	}
+-}
+-
+-static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
+-			     unsigned int cmd, unsigned long arg)
+-{
+-	return video_usercopy(inode, file, cmd, arg, usb_dsbr100_do_ioctl);
+-}
+-
+-static int usb_dsbr100_open(struct inode *inode, struct file *file)
+-{
+-	dsbr100_device *radio=video_get_drvdata(video_devdata(file));
+-
+-	radio->users = 1;
+-	if (dsbr100_start(radio)<0) {
+-		warn("Radio did not start up properly");
+-		radio->users = 0;
+-		return -EIO;
+-	}
+-	dsbr100_setfreq(radio, radio->curfreq);
+-	return 0;
+-}
+-
+-static int usb_dsbr100_close(struct inode *inode, struct file *file)
+-{
+-	dsbr100_device *radio=video_get_drvdata(video_devdata(file));
+-
+-	if (!radio)
+-		return -ENODEV;
+-	radio->users = 0;
+-	if (radio->removed) {
+-		kfree(radio);
+-	}
+-	return 0;
+-}
+-
+-static int __init dsbr100_init(void)
+-{
+-	int retval = usb_register(&usb_dsbr100_driver);
+-	info(DRIVER_VERSION ":" DRIVER_DESC);
+-	return retval;
+-}
+-
+-static void __exit dsbr100_exit(void)
+-{
+-	usb_deregister(&usb_dsbr100_driver);
+-}
+-
+-module_init (dsbr100_init);
+-module_exit (dsbr100_exit);
+-
+-MODULE_AUTHOR( DRIVER_AUTHOR );
+-MODULE_DESCRIPTION( DRIVER_DESC );
+-MODULE_LICENSE("GPL");
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/Kconfig linux-2.6.18-rc2-mm1/drivers/media/video/Kconfig
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/Kconfig	2006-07-27 16:19:51.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/video/Kconfig	2006-07-31 15:27:21.000000000 +0100
+@@ -449,18 +449,6 @@
+ 
+ source "drivers/media/video/em28xx/Kconfig"
+ 
+-config USB_DSBR
+-	tristate "D-Link USB FM radio support (EXPERIMENTAL)"
+-	depends on USB && VIDEO_V4L1 && EXPERIMENTAL
+-	---help---
+-	  Say Y here if you want to connect this type of radio to your
+-	  computer's USB port. Note that the audio is not digital, and
+-	  you must connect the line out connector to a sound card or a
+-	  set of speakers.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called dsbr100.
+-
+ source "drivers/media/video/usbvideo/Kconfig"
+ 
+ source "drivers/media/video/et61x251/Kconfig"
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/Makefile linux-2.6.18-rc2-mm1/drivers/media/video/Makefile
+--- linux.vanilla-2.6.18-rc2-mm1/drivers/media/video/Makefile	2006-07-27 16:19:02.000000000 +0100
++++ linux-2.6.18-rc2-mm1/drivers/media/video/Makefile	2006-07-31 15:27:08.000000000 +0100
+@@ -77,7 +77,6 @@
+ obj-$(CONFIG_VIDEO_CX2341X) += cx2341x.o
+ 
+ obj-$(CONFIG_USB_DABUSB)        += dabusb.o
+-obj-$(CONFIG_USB_DSBR)          += dsbr100.o
+ obj-$(CONFIG_USB_OV511)         += ov511.o
+ obj-$(CONFIG_USB_SE401)         += se401.o
+ obj-$(CONFIG_USB_STV680)        += stv680.o
 
-Regards,
-Frederik
+

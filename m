@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWHACmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWHACnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWHACmS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 22:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbWHACmS
+	id S1030401AbWHACnd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 22:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbWHACnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 22:42:18 -0400
-Received: from waste.org ([66.93.16.53]:5804 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030400AbWHACmR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 22:42:17 -0400
-Date: Mon, 31 Jul 2006 21:41:02 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64 built-in command line
-Message-ID: <20060801024102.GS6908@waste.org>
-References: <20060731171442.GI6908@waste.org> <200607312207.58999.ak@suse.de> <44CE6AEA.2090909@zytor.com> <200608010017.00826.ak@suse.de> <20060801014319.GO6908@waste.org> <44CEBEAF.8030203@zytor.com>
+	Mon, 31 Jul 2006 22:43:33 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:58686 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030401AbWHACnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 22:43:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=e17nSMVpKo/gDi+vA/gScuY58fYC0pMZULbu5ql9fZUTTkNAPx+XhnwOyVPDH6H7xmRJGEZLskuksKYy0sXJ7HYf+/gGeDPUkJL04ihtXoLLJ75IIop9/1/S1Cwc96p70IfFiVoh/8a/9jGp5uiVvkFJn+OugbC3Z5EU5eNS7gc=
+Date: Tue, 1 Aug 2006 06:43:24 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] task_struct: ifdef Missed'em V IPC
+Message-ID: <20060801024324.GC7006@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44CEBEAF.8030203@zytor.com>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 31, 2006 at 07:38:39PM -0700, H. Peter Anvin wrote:
-> Actually, the best thing to do might be to designate a symbol (say &, 
-> like in automount) as "insert the boot loader command line here."
-> 
-> That way you can specify things in the builtin command line that are 
-> both prepended and appended to the boot loader command, and if you wish, 
-> you can emit it completely.
-> 
-> The default would be just "&".
+ipc/sem.c only.
 
-That idea doesn't suck. I'll take a look at it.
+$ agrep sysvsem -w -n
+ipc/sem.c:912:  undo_list = current->sysvsem.undo_list;
+ipc/sem.c:932:  undo_list = current->sysvsem.undo_list;
+ipc/sem.c:954:  undo_list = current->sysvsem.undo_list;
+ipc/sem.c:963:          current->sysvsem.undo_list = undo_list;
+ipc/sem.c:1247:         tsk->sysvsem.undo_list = undo_list;
+ipc/sem.c:1249:         tsk->sysvsem.undo_list = NULL;
+ipc/sem.c:1271: undo_list = tsk->sysvsem.undo_list;
+include/linux/sched.h:876:      struct sysv_sem sysvsem;
 
-We still have a problem with overriding things like console=tty, for
-which there's no obvious fix that doesn't break the world.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
--- 
-Mathematics is the supreme nostalgia of our time.
+ include/linux/sched.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -872,8 +872,10 @@ #endif
+ 				     - initialized normally by flush_old_exec */
+ /* file system info */
+ 	int link_count, total_link_count;
++#ifdef CONFIG_SYSVIPC
+ /* ipc stuff */
+ 	struct sysv_sem sysvsem;
++#endif
+ /* CPU-specific state of this task */
+ 	struct thread_struct thread;
+ /* filesystem information */
+

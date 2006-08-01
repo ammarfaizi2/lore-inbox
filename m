@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWHARYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWHAR03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751684AbWHARYP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751685AbWHARYP
+	id S1751705AbWHAR03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWHAR0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:24:15 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40609 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751644AbWHARYO (ORCPT
+	Tue, 1 Aug 2006 13:26:07 -0400
+Received: from ns2.suse.de ([195.135.220.15]:49079 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751699AbWHAR0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:24:14 -0400
-Date: Tue, 1 Aug 2006 14:04:17 -0500
-From: Brandon Philips <brandon@ifup.org>
-To: gregkh@suse.de
-Cc: trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.18-rc3 genhd.c reference in Documentation/kobjects.txt
-Message-ID: <20060801190417.GB23303@vnet.ibm.com>
+	Tue, 1 Aug 2006 13:26:04 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH for 2.6.18] [2/8] x86_64: On Intel systems when CPU has C3 don't use TSC
+Date: Tue, 1 Aug 2006 19:10:25 +0200
+User-Agent: KMail/1.9.3
+Cc: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <44cbba2d.ejpOKfo7QfGElmoT%ak@suse.de> <1154437483.3264.14.camel@localhost.localdomain>
+In-Reply-To: <1154437483.3264.14.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200608011910.25110.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-block/genhd.c no longer in drivers/.  Update Documentation/kobjects.txt
 
-Thanks,
-Brandon
+> I had some faith in this patch , but this just enable boot parameter
+> notsc (which I already use). And "just" disable tsc don't solve all the
+> problems.
 
-Signed-off-by: Brandon Philips <brandon@ifup.org>
+What problems do you have?
 
-Index: linux-rc/Documentation/kobject.txt
-===================================================================
---- linux-rc.orig/Documentation/kobject.txt	2006-08-01 13:35:18.000000000 -0500
-+++ linux-rc/Documentation/kobject.txt	2006-08-01 13:35:23.000000000 -0500
-@@ -247,7 +247,7 @@
- - default_attrs: Default attributes to be exported via sysfs when the
-   object is registered.Note that the last attribute has to be
-   initialized to NULL ! You can find a complete implementation
--  in drivers/block/genhd.c
-+  in block/genhd.c
- 
- 
- Instances of struct kobj_type are not registered; only referenced by
+> 
+> 
+> After "Using ACPI (MADT) for SMP configuration information"
+> my acpi_fadt.length is great than  0
+> acpi_fadt.plvl3_lat is 1001
+
+You don't have C3 support so the patch doesn't apply to you.
+
+> On BIOS 1.40 update description of ASRock, claims this VIA chipset have
+> C1 stepping support.
+
+C1 stepping is a processor revision; it has nothing to do with
+ACPI C* power states.
+
+-Andi

@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbWHARqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWHAR5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbWHARqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWHARqO
+	id S1750975AbWHAR5a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWHAR5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:46:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:17637 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751736AbWHARqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:46:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:date:x-x-sender:to:cc:subject:message-id:mime-version:content-type:from;
-        b=El65JekweXkysydAP4TlSHrG7XxpYNZCqqo71dnDsUuZkDZqlrZrzk3++a28GuJMt+GDsN3Ue+k9gezdZ5a7oOJKLDC2peRhFttkBmybG/tRmMyLEgnE/jZ8Sgo8kEVfyYDdkIdN837gZqjNCWa2++ruxiQIAAWiqfhfdRJl+Io=
-Date: Tue, 1 Aug 2006 19:46:32 +0100 (BST)
-X-X-Sender: simlo@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, StevenRostedt <rostedt@goodmis.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [-rt] Fix race condition and following BUG in PI-futex
-Message-ID: <Pine.LNX.4.64.0608011931560.10605@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Esben Nielsen <nielsen.esben@googlemail.com>
+	Tue, 1 Aug 2006 13:57:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63894 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750810AbWHAR53 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:57:29 -0400
+Date: Tue, 1 Aug 2006 13:57:16 -0400
+From: Dave Jones <davej@redhat.com>
+To: akpm@osdl.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: clear vm_reclaimable when we free pages.
+Message-ID: <20060801175716.GB22240@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, akpm@osdl.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran into the bug on 2.6.17-rt8 with the previous posted patches which 
-make pthread_timed_lock() work on UP, but the bug is there without the 
-patches - I just can't trigger it - and it is also in the mainline kernel.
+There are two places where we reclaim free pages, but we never
+update the all_unreclaimable flag for the relevant zone.
+This patch helped reduce the frequency of oom-kills under high load
+for us a while back, and we've been carrying it since.
+I posted this a few months back and from what I recall it didn't
+get a great deal of interest.
 
-The problem is that rt_mutex_next_owner() is used unprotected in 
-wake_futex_pi(). At least it isn't probably serialiazed against the next 
-owner being signalled or getting a timeout. The only lock, which is 
-good enough here, is &pi_state->pi_mutex.wait_lock, so I added this 
-protection.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Esben
-
-  kernel/futex.c |   12 ++++++++++--
-  1 file changed, 10 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.17-rt8/kernel/futex.c
-===================================================================
---- linux-2.6.17-rt8.orig/kernel/futex.c
-+++ linux-2.6.17-rt8/kernel/futex.c
-@@ -565,6 +565,7 @@ static int wake_futex_pi(u32 __user *uad
-  	if (!pi_state)
-  		return -EINVAL;
-
-+	spin_lock(&pi_state->pi_mutex.wait_lock);
-  	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
-
-  	/*
-@@ -590,15 +591,22 @@ static int wake_futex_pi(u32 __user *uad
-  	curval = futex_atomic_cmpxchg_inatomic(uaddr, uval, newval);
-  	dec_preempt_count();
-
--	if (curval == -EFAULT)
-+	if (curval == -EFAULT) {
-+		spin_unlock(&pi_state->pi_mutex.wait_lock);
-  		return -EFAULT;
--	if (curval != uval)
+--- linux-2.6/mm/filemap.c~	2005-12-10 01:47:15.000000000 -0500
++++ linux-2.6/mm/filemap.c	2005-12-10 01:47:46.000000000 -0500
+@@ -471,11 +471,18 @@ EXPORT_SYMBOL(unlock_page);
+  */
+ void end_page_writeback(struct page *page)
+ {
++	struct zone *zone = page_zone(page);
+ 	if (!TestClearPageReclaim(page) || rotate_reclaimable_page(page)) {
+ 		if (!test_clear_page_writeback(page))
+ 			BUG();
+ 	}
+ 	smp_mb__after_clear_bit();
++	if (zone->all_unreclaimable) {
++		spin_lock(&zone->lock);
++		zone->all_unreclaimable = 0;
++		zone->pages_scanned = 0;
++		spin_unlock(&zone->lock);
 +	}
-+	if (curval != uval) {
-+		spin_unlock(&pi_state->pi_mutex.wait_lock);
-  		return -EINVAL;
-+	}
+ 	wake_up_page(page, PG_writeback);
+ }
+ EXPORT_SYMBOL(end_page_writeback);
+--- linux-2.6/mm/page_alloc.c~	2006-01-09 13:40:03.000000000 -0500
++++ linux-2.6/mm/page_alloc.c	2006-01-09 13:40:50.000000000 -0500
+@@ -722,6 +722,11 @@ static void fastcall free_hot_cold_page(
+ 	if (pcp->count >= pcp->high) {
+ 		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
+ 		pcp->count -= pcp->batch;
++	} else if (zone->all_unreclaimable) {
++		spin_lock(&zone->lock);
++		zone->all_unreclaimable = 0;
++		zone->pages_scanned = 0;
++		spin_unlock(&zone->lock);
+ 	}
+ 	local_irq_restore(flags);
+ 	put_cpu();
 
-  	list_del_init(&pi_state->owner->pi_state_list);
-  	list_add(&pi_state->list, &new_owner->pi_state_list);
-  	pi_state->owner = new_owner;
-+	atomic_inc(&pi_state->refcount);
-+	spin_unlock(&pi_state->pi_mutex.wait_lock);
-  	rt_mutex_unlock(&pi_state->pi_mutex);
-+	free_pi_state(pi_state);
-
-  	return 0;
-  }
+-- 
+http://www.codemonkey.org.uk

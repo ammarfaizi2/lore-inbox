@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751650AbWHAT7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWHAUAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751650AbWHAT7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbWHAT7Y
+	id S1751621AbWHAUAL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 16:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbWHAUAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:59:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18325 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750775AbWHAT7X (ORCPT
+	Tue, 1 Aug 2006 16:00:10 -0400
+Received: from main.gmane.org ([80.91.229.2]:41706 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751643AbWHAUAI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:59:23 -0400
-Date: Tue, 1 Aug 2006 15:59:18 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: wire up missing syscalls on x86-64
-Message-ID: <20060801195918.GZ22240@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060801185738.GT22240@redhat.com> <200608012155.34431.ak@suse.de>
+	Tue, 1 Aug 2006 16:00:08 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Steve Fox" <drfickle@us.ibm.com>
+Subject: 2.6.18-rc3 still breaks IDE for PPC
+Date: Tue, 1 Aug 2006 19:59:51 +0000 (UTC)
+Message-ID: <eaobrn$nt$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200608012155.34431.ak@suse.de>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: text/plain; charset=UTF-8
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: rchp4.rochester.ibm.com
+User-Agent: pan 0.104 ("YES, OK!  I *AM* COMMUNIST SPICE!!!  NOW THAT YOU
+	KNOW, I AM VERY TICKLE YOU AND THEN YOU ARE DIE!!!")
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 09:55:34PM +0200, Andi Kleen wrote:
- > On Tuesday 01 August 2006 20:57, Dave Jones wrote:
- > > Signed-off-by: Dave Jones <davej@redhat.com>
- > 
- > No, the reason they're not wired up yet is that some infrastructure
- > for them is still missing. It's currently queued up for .19
+I'm still hitting this issue that I first reported on July 7th [1] with
+2.6.18-rc1. Is anyone aware of any patches which fix this? 
 
-Ah, I missed the fact that we're also carrying another diff
-in the Fedora kernel for this.  Ok, as long as you're aware
-of it, all is good.
+creating device nodes .hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
 
-		Dave
+[1] http://thread.gmane.org/gmane.linux.kernel/423795/focus=424403
 
 -- 
-http://www.codemonkey.org.uk
+
+Steve Fox
+IBM Linux Technology Center
+

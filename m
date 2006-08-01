@@ -1,37 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWHAX0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWHAX13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWHAX0A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 19:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWHAX0A
+	id S1750742AbWHAX13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 19:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWHAX13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 19:26:00 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:26329 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750741AbWHAX0A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 19:26:00 -0400
-Subject: Re: [2.6.18-rc2-mm1] pata_via fails
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-In-Reply-To: <20060802010415.2bebc5fc@werewolf.auna.net>
-References: <20060802010415.2bebc5fc@werewolf.auna.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 02 Aug 2006 00:45:05 +0100
-Message-Id: <1154475905.15540.121.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 19:27:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18333 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750742AbWHAX12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 19:27:28 -0400
+Date: Tue, 1 Aug 2006 19:27:24 -0400
+From: Dave Jones <davej@redhat.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+Message-ID: <20060801232724.GB5738@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alexey Dobriyan <adobriyan@gmail.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060801231603.GA5738@redhat.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-02 am 01:04 +0200, ysgrifennodd J.A. Magallón:
-> Yes, generic subject ;)
-> 
-> After solving the problems with ICH, one other stays. One box has a
-> VIA controller (in fact, this is a ApolloPro 266 chipset motherboard):
+On Tue, Aug 01, 2006 at 07:16:03PM -0400, Dave Jones wrote:
+ > On Wed, Aug 02, 2006 at 03:00:03AM +0400, Alexey Dobriyan wrote:
+ > 
+ >  > Turn on CONFIG_DEBUG_SLAB before compiling. ;-)
+ > 
+ > Well, that was silly.   Here's a properly compile tested patch :-)
 
-Known insanity. With some ATAPI devices the VIA delivers the IRQ before
-the response is ready when we do a SET_FEATURES. Still being worked on.
+The grammar police found me, here's hopefully the final rendition..
 
-Alan
+		Dave
 
+
+In case where we detect a single bit has been flipped, we spew
+the usual slab corruption message, which users instantly think
+is a kernel bug.  In a lot of cases, single bit errors are
+down to bad memory, or other hardware failure.
+
+This patch adds an extra line to the slab debug messages
+in those cases, in the hope that users will try memtest before
+they report a bug.
+
+000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Single bit error detected. Probably bad RAM.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+diff --git a/mm/slab.c b/mm/slab.c
+index 21ba060..39f1183 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1638,10 +1638,29 @@ static void poison_obj(struct kmem_cache
+ static void dump_line(char *data, int offset, int limit)
+ {
+ 	int i;
++	unsigned char total = 0, bad_count = 0, errors = 0;
+ 	printk(KERN_ERR "%03x:", offset);
+-	for (i = 0; i < limit; i++)
++	for (i = 0; i < limit; i++) {
++		if (data[offset + i] != POISON_FREE) {
++			total += data[offset + i];
++			bad_count++;
++		}
+ 		printk(" %02x", (unsigned char)data[offset + i]);
++	}
+ 	printk("\n");
++
++	if (bad_count == 1) {
++		errors = total ^ POISON_FREE;
++		if (errors && !(errors & (errors-1))) {
++			printk (KERN_ERR "Single bit error detected. Probably bad RAM.\n");
++#ifdef CONFIG_X86
++			printk (KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
++#else
++			printk (KERN_ERR "Run a memory test tool.\n");
++#endif
++			return;
++		}
++	}
+ }
+ #endif
+ 
+
+-- 
+http://www.codemonkey.org.uk

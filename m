@@ -1,135 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWHAJfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbWHAJii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWHAJfN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 05:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWHAJfM
+	id S932539AbWHAJii (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 05:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWHAJii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 05:35:12 -0400
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:26273 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S1750761AbWHAJfK
+	Tue, 1 Aug 2006 05:38:38 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:19206 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932539AbWHAJih
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 05:35:10 -0400
-X-Antivirus-MYDOMAIN-Mail-From: abum@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(203.129.230.146):SA:0(-102.5/1.7):. Processed in 1.607362 secs Process 31933)
-From: "Abu M. Muttalib" <abum@aftek.com>
-To: <kernelnewbies@nl.linux.org>, <linux-newbie@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, "linux-mm" <linux-mm@kvack.org>
-Subject: the /proc/meminfo statistics
-Date: Tue, 1 Aug 2006 15:09:32 +0530
-Message-ID: <BKEKJNIHLJDCFGDBOHGMEEJDDEAA.abum@aftek.com>
+	Tue, 1 Aug 2006 05:38:37 -0400
+Message-ID: <44CF2112.8040202@argo.co.il>
+Date: Tue, 01 Aug 2006 12:38:26 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
+       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
+       Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
+ by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801092514.GB2974@merlin.emma.line.org>
+In-Reply-To: <20060801092514.GB2974@merlin.emma.line.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
+X-OriginalArrivalTime: 01 Aug 2006 09:38:34.0752 (UTC) FILETIME=[42170800:01C6B54E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matthias Andree wrote:
+>
+> On Tue, 01 Aug 2006, Avi Kivity wrote:
+>
+> > There's no reason to repack *all* of the data.  Many workloads write 
+> and
+> > delete whole files, so file data should be contiguous.  The repacker
+> > would only need to move metadata and small files.
+>
+> Move small files? What for?
+>
 
-I am running the following application.
+WAFL-style filesystems like contiguous space,  so if small files are 
+scattered in otherwise free space, the repacker should free them.
 
-#include<stdio.h>
-#include<stdlib.h>
+> Even if it is "only" moving metadata, it is not different from what ext3
+> or xfs are doing today (rewriting metadata from the intent log or block
+> journal to the final location).
+>
 
-int main()
-{
-	unsigned char* arr;
-	system("cat /proc/meminfo");
-	sleep(25);
-	arr = (char *)malloc (1048576);
-	system("cat /proc/meminfo");
-	sleep(25);
-	free(arr);
-	system("cat /proc/meminfo");
-	sleep(25);
-}
+There is no need to repack all metadata; only that which helps in 
+creating free space.
 
-I am getting the following meminfo statistics. As I am allocating and
-freeing 1024 kb, so I should get the same information through /proc/meminfo:
-
-
-MemTotal:        14296 kB
-MemFree:           912 kB
-Buffers:          1448 kB
-Cached:           5564 kB
-SwapCached:          0 kB
-Active:           5480 kB
-Inactive:         3664 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        14296 kB
-LowFree:           912 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:           5144 kB
-Slab:             1560 kB
-CommitLimit:      7148 kB
-Committed_AS:     6492 kB
-PageTables:        188 kB
-VmallocTotal:   630784 kB
-VmallocUsed:    262560 kB
-VmallocChunk:   366588 kB
+For example: if you untar a source tree you'd get mixed metadata and 
+small file data packed together, but there's no need to repack that data.
 
 
-MemTotal:        14296 kB
-MemFree:           920 kB
-Buffers:          1448 kB
-Cached:           5564 kB
-SwapCached:          0 kB
-Active:           5492 kB
-Inactive:         3660 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        14296 kB
-LowFree:           920 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:           5152 kB
-Slab:             1544 kB
-CommitLimit:      7148 kB
-Committed_AS:     7652 kB
-PageTables:        188 kB
-VmallocTotal:   630784 kB
-VmallocUsed:    262560 kB
-VmallocChunk:   366588 kB
-
-
-MemTotal:        14296 kB
-MemFree:           924 kB
-Buffers:          1448 kB
-Cached:           5564 kB
-SwapCached:          0 kB
-Active:           5488 kB
-Inactive:         3660 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        14296 kB
-LowFree:           924 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-Dirty:               0 kB
-Writeback:           0 kB
-Mapped:           5148 kB
-Slab:             1544 kB
-CommitLimit:      7148 kB
-Committed_AS:     6624 kB
-PageTables:        188 kB
-VmallocTotal:   630784 kB
-VmallocUsed:    262560 kB
-VmallocChunk:   366588 kB
-
-I think that the values given in first Committed_AS and 3rd Committed_AS
-should be same. But the same is not the case. Why its so?
-
-Anticipation and regards,
-Abu.
+-- 
+error compiling committee.c: too many arguments to function
 

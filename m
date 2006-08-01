@@ -1,34 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWHATnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWHAT4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWHATnW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWHATnW
+	id S1751424AbWHAT4l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWHAT4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:43:22 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:22726 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751852AbWHATnV (ORCPT
+	Tue, 1 Aug 2006 15:56:40 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:62922 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751424AbWHAT4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:43:21 -0400
-Message-ID: <44CFAECF.40902@hp.com>
-Date: Tue, 01 Aug 2006 15:43:11 -0400
-From: Mark Seger <Mark.Seger@hp.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Tue, 1 Aug 2006 15:56:39 -0400
+From: Andi Kleen <ak@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: wire up missing syscalls on x86-64
+Date: Tue, 1 Aug 2006 21:55:34 +0200
+User-Agent: KMail/1.9.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060801185738.GT22240@redhat.com>
+In-Reply-To: <20060801185738.GT22240@redhat.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Alan Brunelle <Alan.Brunelle@hp.com>
-Subject: Re: Accuracy of disk statistics IO counter
-References: <44CA3523.9020000@hp.com> <20060729104232.GD13095@suse.de> <44CFABE0.8020501@hp.com> <20060801193948.GC20108@suse.de>
-In-Reply-To: <20060801193948.GC20108@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608012155.34431.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 01 August 2006 20:57, Dave Jones wrote:
+> Signed-off-by: Dave Jones <davej@redhat.com>
 
->160KiB, I'm assuming? :-)
->  
->
-oops...  8-(
--mark
+No, the reason they're not wired up yet is that some infrastructure
+for them is still missing. It's currently queued up for .19
+
+-Andi
 

@@ -1,55 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751555AbWHAC3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWHACaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751555AbWHAC3X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jul 2006 22:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWHAC3W
+	id S1030389AbWHACaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jul 2006 22:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbWHACaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jul 2006 22:29:22 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:51936 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751363AbWHAC3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jul 2006 22:29:22 -0400
-Message-ID: <44CEBC6D.4040400@zytor.com>
-Date: Mon, 31 Jul 2006 19:29:01 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] x86_64 built-in command line
-References: <20060731171442.GI6908@waste.org> <200607312207.58999.ak@suse.de> <44CE6AEA.2090909@zytor.com> <200608010017.00826.ak@suse.de> <20060801014319.GO6908@waste.org>
-In-Reply-To: <20060801014319.GO6908@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jul 2006 22:30:00 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:65293 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1030392AbWHAC37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jul 2006 22:29:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Jjooi+t3xqjEPBZmHYz4mK79yB/+K3fsDoncZyImivxG/cqbwDBBtrzQaSRcNA8aVAEgolKpC6oErVxe1nbFAD7jngH0EF7YHEZKYR9PZ8Dtz17s0GZUfPP5TvMJJ6TvPnTgiwxdV1j4xL2UiP2BKAIxHq5SoyCTPEcP//n8ncc=
+Date: Tue, 1 Aug 2006 06:29:51 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] task_struct: remove writeonly counters
+Message-ID: <20060801022951.GB7006@martell.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Tue, Aug 01, 2006 at 12:17:00AM +0200, Andi Kleen wrote:
->> On Monday 31 July 2006 22:41, H. Peter Anvin wrote:
->>> Andi Kleen wrote:
->>>>   
->>>>> +#ifdef CONFIG_CMDLINE_BOOL
->>>>> +	strlcpy(saved_command_line, CONFIG_CMDLINE, COMMAND_LINE_SIZE);
->>>>> +#endif
->>>> I think I would prefer a strcat.
->>>>
->>>> Also you should describe the exact behaviour (override/append) in Kconfig help.
->>>>
->>> In the i386 thread, Matt described having a firmware bootloader which 
->>> passes bogus parameters.  For that case, it would make sense to have a 
->>> non-default CONFIG option to have override rather than conjoined (and I 
->>> maintain that the built-in command line should be prepended.)
->> Is that boot loader common? What's its name? 
->> If not I would prefer that he keeps the one liner patch to deal
->> with that private.
->>
->> For generic semantics strcat (or possible prepend) is probably better.
-> 
-> No, it doesn't work for numerous kernel options that can't be negated.
-> 
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-How about we fix the real problem, then?
+ fs/read_write.c       |   23 ++---------------------
+ include/linux/sched.h |    2 --
+ kernel/fork.c         |    4 ----
+ 3 files changed, 2 insertions(+), 27 deletions(-)
 
-	-hpa
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -264,11 +264,8 @@ ssize_t vfs_read(struct file *file, char
+ 				ret = file->f_op->read(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_read(file, buf, count, pos);
+-			if (ret > 0) {
++			if (ret > 0)
+ 				fsnotify_access(file->f_dentry);
+-				current->rchar += ret;
+-			}
+-			current->syscr++;
+ 		}
+ 	}
+ 
+@@ -316,11 +313,8 @@ ssize_t vfs_write(struct file *file, con
+ 				ret = file->f_op->write(file, buf, count, pos);
+ 			else
+ 				ret = do_sync_write(file, buf, count, pos);
+-			if (ret > 0) {
++			if (ret > 0)
+ 				fsnotify_modify(file->f_dentry);
+-				current->wchar += ret;
+-			}
+-			current->syscw++;
+ 		}
+ 	}
+ 
+@@ -609,9 +603,6 @@ sys_readv(unsigned long fd, const struct
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+-	if (ret > 0)
+-		current->rchar += ret;
+-	current->syscr++;
+ 	return ret;
+ }
+ 
+@@ -630,9 +621,6 @@ sys_writev(unsigned long fd, const struc
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+-	if (ret > 0)
+-		current->wchar += ret;
+-	current->syscw++;
+ 	return ret;
+ }
+ 
+@@ -713,13 +701,6 @@ static ssize_t do_sendfile(int out_fd, i
+ 
+ 	retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
+ 
+-	if (retval > 0) {
+-		current->rchar += retval;
+-		current->wchar += retval;
+-	}
+-	current->syscr++;
+-	current->syscw++;
+-
+ 	if (*ppos > max)
+ 		retval = -EOVERFLOW;
+ 
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -962,8 +962,6 @@ #endif
+  * to a stack based synchronous wait) if its doing sync IO.
+  */
+ 	wait_queue_t *io_wait;
+-/* i/o counters(bytes read/written, #syscalls */
+-	u64 rchar, wchar, syscr, syscw;
+ #if defined(CONFIG_BSD_PROCESS_ACCT)
+ 	u64 acct_rss_mem1;	/* accumulated rss usage */
+ 	u64 acct_vm_mem1;	/* accumulated virtual memory usage */
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1024,10 +1024,6 @@ #endif
+ 	p->utime = cputime_zero;
+ 	p->stime = cputime_zero;
+  	p->sched_time = 0;
+-	p->rchar = 0;		/* I/O counter: bytes read */
+-	p->wchar = 0;		/* I/O counter: bytes written */
+-	p->syscr = 0;		/* I/O counter: read syscalls */
+-	p->syscw = 0;		/* I/O counter: write syscalls */
+ 	acct_clear_integrals(p);
+ 
+  	p->it_virt_expires = cputime_zero;
+

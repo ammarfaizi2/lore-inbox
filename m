@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWHAEYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWHAEY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWHAEYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 00:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbWHAEYN
+	id S1161001AbWHAEY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 00:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbWHAEY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 00:24:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:64427 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1161001AbWHAEYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 00:24:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=syn/OQgiPuQwLgXQhnnjlnFLNd/R09ZbWhmy9AUWrpIuZuiNVnxx5v9CMFJ6wwMmgFBH71VUwakAdFm1iL6dqq02xQ3DVcPrEkqOovJNPu1Cvfg1qG6Dw6eiA1rAp1Ak6I6bgH5bDWGVYv9Vr8UKQhBkXLdlkO9/7sobCimQxao=
-Date: Tue, 1 Aug 2006 08:24:03 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] headers_check: improve #include regexp
-Message-ID: <20060801042403.GF7006@martell.zuzino.mipt.ru>
-References: <20060729082249.GD6843@martell.zuzino.mipt.ru> <20060729082511.GB26956@flint.arm.linux.org.uk> <20060729084248.GE6843@martell.zuzino.mipt.ru> <20060730122441.6db7bda2.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060730122441.6db7bda2.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 1 Aug 2006 00:24:28 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:50589 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1161001AbWHAEY1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 00:24:27 -0400
+Message-ID: <44CED777.5080308@slaphack.com>
+Date: Mon, 31 Jul 2006 23:24:23 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: tdwebste2@yahoo.com
+CC: Theodore Tso <tytso@mit.edu>, Nate Diller <nate.diller@gmail.com>,
+       David Lang <dlang@digitalinsight.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"
+ expressed by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060801034726.58097.qmail@web51311.mail.yahoo.com>
+In-Reply-To: <20060801034726.58097.qmail@web51311.mail.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Instead of headers_check-fix-include-regexp.patch
------------------------------------------------------
-The following combinations of pp-tokens are used
+Timothy Webster wrote:
+> Different users have different needs.
 
-	#include
-	 #include
-	# include
+I'm having trouble thinking of users who need an FS that doesn't need a 
+repacker.
 
-so, script'd better check for all of them.
+The disk error problem, though, you're right -- most users will have to 
+get bitten by this, hard, at least once, or they'll never get the 
+importance of it.  But it'd be nice if it's not too hard, and we can 
+actually recover most of their files.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Still, I can see most people who are aware of this problem using RAID, 
+backups, and not caring if their filesystem tolerates bad hardware.
 
- scripts/hdrcheck.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> The problem I see is managing disk errors.
 
---- a/scripts/hdrcheck.sh
-+++ b/scripts/hdrcheck.sh
-@@ -1,6 +1,6 @@
- #!/bin/sh
- 
--for FILE in `grep '^#include <' $2 | cut -f2 -d\< | cut -f1 -d\> | egrep ^linux\|^asm` ; do
-+for FILE in `grep '^[ \t]*#[ \t]*include[ \t]*<' $2 | cut -f2 -d\< | cut -f1 -d\> | egrep ^linux\|^asm` ; do
-     if [ ! -r $1/$FILE ]; then
- 	echo $2 requires $FILE, which does not exist in exported headers
- 	exit 1
+I see this kind of the same way.  If your disk has errors, you should be 
+getting a new disk.  If you can't do that, you can run a mirrored RAID 
+-- even on SATA, you should be able to hotswap it.
 
+Even for a home/desktop user, disks are cheap, and getting cheaper all 
+the time.  All you have to do is run the mean time between failure 
+numbers by them, and ask them if their backup is enough.
+
+> And perhaps a
+> really good clustering filesystem for markets that
+> require NO downtime. 
+
+Thing is, a cluster is about the only FS I can imagine that could 
+reasonably require (and MAYBE provide) absolutely no downtime. 
+Everything else, the more you say it requires no downtime, the more I 
+say it requires redundancy.
+
+Am I missing any more obvious examples where you can't have enough 
+redundancy, but you can't have downtime either?

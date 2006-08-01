@@ -1,13 +1,13 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161368AbWHALNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWHALNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161368AbWHALNM (ORCPT <rfc822;willy@w.ods.org>);
+	id S932627AbWHALNM (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 1 Aug 2006 07:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbWHALGD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWHALGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 07:06:03 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59100 "EHLO
+	Tue, 1 Aug 2006 07:06:00 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59356 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932631AbWHALFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932633AbWHALFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 1 Aug 2006 07:05:31 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: <fastboot@osdl.org>
@@ -16,36 +16,47 @@ Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
        "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
        Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 7/33] elf: Add ELFOSABI_STANDALONE to elf.h
-Date: Tue,  1 Aug 2006 05:03:22 -0600
-Message-Id: <11544302323001-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 14/33] x86_64: Properly report in /proc/iomem the kernel address
+Date: Tue,  1 Aug 2006 05:03:29 -0600
+Message-Id: <1154430237912-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.rc2.g5209e
 In-Reply-To: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The code assumed that the kernel was always loaded
+at 1M in memory.  This fixes that assumption.
+
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- include/linux/elf.h |    5 +++--
+ arch/x86_64/kernel/setup.c |    5 +++--
  1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/elf.h b/include/linux/elf.h
-index c5bf043..6fa8d3d 100644
---- a/include/linux/elf.h
-+++ b/include/linux/elf.h
-@@ -338,8 +338,9 @@ #define EV_NONE		0		/* e_version, EI_VER
- #define EV_CURRENT	1
- #define EV_NUM		2
+diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
+index 8a099ff..11d31ea 100644
+--- a/arch/x86_64/kernel/setup.c
++++ b/arch/x86_64/kernel/setup.c
+@@ -521,7 +521,7 @@ static void discover_ebda(void)
  
--#define ELFOSABI_NONE	0
--#define ELFOSABI_LINUX	3
-+#define ELFOSABI_NONE		0
-+#define ELFOSABI_LINUX		3
-+#define ELFOSABI_STANDALONE	255
+ void __init setup_arch(char **cmdline_p)
+ {
+-	unsigned long kernel_end;
++	unsigned long kernel_start, kernel_end;
  
- #ifndef ELF_OSABI
- #define ELF_OSABI ELFOSABI_NONE
+  	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
+  	screen_info = SCREEN_INFO;
+@@ -596,8 +596,9 @@ #endif
+ 				(table_end - table_start) << PAGE_SHIFT);
+ 
+ 	/* reserve kernel */
++	kernel_start = __pa_symbol(&_text);
+ 	kernel_end = round_up(__pa_symbol(&_end),PAGE_SIZE);
+-	reserve_bootmem_generic(HIGH_MEMORY, kernel_end - HIGH_MEMORY);
++	reserve_bootmem_generic(kernel_start, kernel_end - kernel_start);
+ 
+ 	/*
+ 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
 -- 
 1.4.2.rc2.g5209e
 

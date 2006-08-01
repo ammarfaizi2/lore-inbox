@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWHATLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWHATKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751809AbWHATLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 15:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWHATLJ
+	id S1751806AbWHATKz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 15:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbWHATKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 15:11:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29869 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751809AbWHATLH (ORCPT
+	Tue, 1 Aug 2006 15:10:55 -0400
+Received: from mx2.suse.de ([195.135.220.15]:61637 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751806AbWHATKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 15:11:07 -0400
-Date: Tue, 1 Aug 2006 12:10:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Andrew Morton <akpm@osdl.org>, Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-In-Reply-To: <1154459316.29772.5.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0608011209560.18537@schroedinger.engr.sgi.com>
-References: <20060801030443.GA2221@gondor.apana.org.au> 
- <20060731210418.084f9f5d.akpm@osdl.org>  <20060801050259.GA3126@gondor.apana.org.au>
-  <20060731225454.19981a5f.akpm@osdl.org>  <Pine.LNX.4.64.0608011034540.18006@schroedinger.engr.sgi.com>
- <1154459316.29772.5.camel@localhost.localdomain>
+	Tue, 1 Aug 2006 15:10:54 -0400
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: <linux-kernel@vger.kernel.org>, Horms <horms@verge.net.au>,
+       Jan Kratochvil <lace@jankratochvil.net>,
+       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
+       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
+Subject: Re: [PATCH 26/33] x86_64: 64bit PIC ACPI wakeup
+References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
+	<1154430244487-git-send-email-ebiederm@xmission.com>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Aug 2006 21:10:48 +0200
+In-Reply-To: <1154430244487-git-send-email-ebiederm@xmission.com>
+Message-ID: <p73hd0w1dc7.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006, Steven Rostedt wrote:
+"Eric W. Biederman" <ebiederm@xmission.com> writes:
+> 
+> I don't have a configuration I can test this but it compiles cleanly
+> and it should work, the code is very similar to the SMP trampoline,
+> which I have tested.  At least now the comments about still running in
+> low memory are actually correct.
 
-> If you set the alignment for ext3 the same as the size (ie 1024, 2048,
-> 4096 for the above respectively) then wouldn't that guarantee not
-> straddling a page?
+We would need someone to actually test this before it could 
+be merged. I didn't see anything that tripped me up though.
 
-Yes. But then that number must always be a fraction of pagesize.
-
-
+-Andi

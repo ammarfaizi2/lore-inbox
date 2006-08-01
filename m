@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422774AbWHAIQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWHAIXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422774AbWHAIQD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 04:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422773AbWHAIQC
+	id S1750713AbWHAIXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 04:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWHAIXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 04:16:02 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:4076 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1422777AbWHAIQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 04:16:00 -0400
-Date: Tue, 1 Aug 2006 04:09:48 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: BUG: unable to handle kernel paging request at virtual
-  address
-To: Stephen Lynch <Stephen_Lynch@rocketmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200608010412_MC3-1-C6B2-617C@compuserve.com>
+	Tue, 1 Aug 2006 04:23:40 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:37735 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750713AbWHAIXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 04:23:39 -0400
+Date: Tue, 1 Aug 2006 10:21:09 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: do { } while (0) question
+Message-ID: <20060801082109.GB9589@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060731144810.91843.qmail@web57012.mail.re3.yahoo.com>
+Hi Andrew,
 
-On Mon, 31 Jul 2006 07:48:10 -0700 (PDT), Stephen Lynch wrote:
+your commit e2c2770096b686b4d2456173f53cb50e01aa635c does this:
 
-> BUG: unable to handle kernel paging request at virtual address 00080000
+---
+Always use do {} while (0).  Failing to do so can cause subtle compile
+failures or bugs.
 
-Probably a single-bit error, as someone suggested:
+-#define hotcpu_notifier(fn, pri)
+-#define register_hotcpu_notifier(nb)
+-#define unregister_hotcpu_notifier(nb)
++#define hotcpu_notifier(fn, pri)	do { } while (0)
++#define register_hotcpu_notifier(nb)	do { } while (0)
++#define unregister_hotcpu_notifier(nb)	do { } while (0)
+---
 
-  24:   8b 48 28                  mov    0x28(%eax),%ecx
-  27:   85 c9                     test   %ecx,%ecx
-  29:   74 62                     je     8d <_EIP+0x8d>
-   0:   8b 31                     mov    (%ecx),%esi   <=====
-
-It tests for zero and jumps around the failing instruction if that's
-true.
-
--- 
-Chuck
-
+I'm really wondering what these subtle compile failures or bugs are.
+Could you please explain?

@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWHARDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWHARFL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWHARDK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 13:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWHARDK
+	id S1750866AbWHARFL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 13:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751674AbWHARFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 13:03:10 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:42707 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751661AbWHARDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 13:03:09 -0400
-Message-ID: <44CF8949.707@slaphack.com>
-Date: Tue, 01 Aug 2006 12:03:05 -0500
-From: David Masover <ninja@slaphack.com>
-User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
+	Tue, 1 Aug 2006 13:05:11 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:4006 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751678AbWHARFJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 13:05:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=osOFnuly+mtEzmEQ70me1xQvif+Ro97w3OBmWUuWOPfOg4HQ0MxP2yS/eszo0zjDsivG3u9Jx4SBMeCzQGZfDBjWkdn+aj6TuyyH1IeAcq1prwmHlQ1N7ULuTR3SjOMR5MhMk0QmkJrsGocnIr/OZjXDYCSSRurWQSsqNrjGlmQ=
+Message-ID: <e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
+Date: Tue, 1 Aug 2006 13:04:56 -0400
+From: "Gregory Maxwell" <gmaxwell@gmail.com>
+To: "David Masover" <ninja@slaphack.com>
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org regarding reiser4 inclusion
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Adrian Ulrich" <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, bernd-schubert@gmx.de,
+       reiserfs-list@namesys.com, jbglaw@lug-owl.de, clay.barnes@gmail.com,
+       rudy@edsons.demon.nl, ipso@snappymail.ca, reiser@namesys.com,
+       lkml@lpbproductions.com, jeff@garzik.org, tytso@mit.edu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44CF84F0.8080303@slaphack.com>
 MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, David Lang <dlang@digitalinsight.com>,
-       David Masover <ninja@slaphack.com>, tdwebste2@yahoo.com,
-       Nate Diller <nate.diller@gmail.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of view"expressed
- by kernelnewbies.org regarding reiser4 inclusion]
-References: <20060801034726.58097.qmail@web51311.mail.yahoo.com> <44CED777.5080308@slaphack.com> <Pine.LNX.4.63.0607312133080.15179@qynat.qvtvafvgr.pbz> <20060801064837.GB1987@thunk.org>
-In-Reply-To: <20060801064837.GB1987@thunk.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200607312314.37863.bernd-schubert@gmx.de>
+	 <200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
+	 <20060801165234.9448cb6f.reiser4@blinkenlights.ch>
+	 <1154446189.15540.43.camel@localhost.localdomain>
+	 <44CF84F0.8080303@slaphack.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+On 8/1/06, David Masover <ninja@slaphack.com> wrote:
+> Yikes.  Undetected.
+>
+> Wait, what?  Disks, at least, would be protected by RAID.  Are you
+> telling me RAID won't detect such an error?
 
-> Ah, but as soon as the repacker thread runs continuously, then you
-> lose all or most of the claimed advantage of "wandering logs".
-[...]
-> So instead of a write-write overhead, you end up with a
-> write-read-write overhead.
+Unless the disk ECC catches it raid won't know anything is wrong.
 
-This would tend to suggest that the repacker should not run constantly, 
-but also that while it's running, performance could be almost as good as 
-ext3.
+This is why ZFS offers block checksums... it can then try all the
+permutations of raid regens to find a solution which gives the right
+checksum.
 
-> But of course, people tend to disable the repacker when doing
-> benchmarks because they're trying to play the "my filesystem/database
-> has bigger performance numbers than yours" game....
-
-So you run your own benchmarks, I'll run mine...  Benchmarks for 
-everyone!  I'd especially like to see what performance is like with the 
-repacker not running, and during the repack.  If performance during a 
-repack is comparable to ext3, I think we win, although we have to amend 
-that statement to "My filesystem/database has the same or bigger 
-perfomance numbers than yours."
+Every level of the system must be paranoid and take measure to avoid
+corruption if the system is to avoid it... it's a tough problem. It
+seems that the ZFS folks have addressed this challenge by building as
+much of what is classically separate layers into one part.

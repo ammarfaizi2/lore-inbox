@@ -1,139 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWHASMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbWHASOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751753AbWHASMy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 14:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751746AbWHASMy
+	id S1751746AbWHASOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 14:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWHASOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 14:12:54 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:39379 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751753AbWHASMx (ORCPT
+	Tue, 1 Aug 2006 14:14:52 -0400
+Received: from blinkenlights.ch ([62.202.0.18]:14322 "EHLO blinkenlights.ch")
+	by vger.kernel.org with ESMTP id S1751746AbWHASOv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 14:12:53 -0400
-Date: Tue, 1 Aug 2006 11:13:32 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: synchronous signal in the blocked signal context
-Message-ID: <20060801181331.GF1291@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060731191449.B4592@unix-os.sc.intel.com> <Pine.LNX.4.64.0607312152240.4168@g5.osdl.org> <20060801144403.GA1291@us.ibm.com> <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>
+	Tue, 1 Aug 2006 14:14:51 -0400
+Date: Tue, 1 Aug 2006 20:14:49 +0200
+From: Adrian Ulrich <reiser4@blinkenlights.ch>
+To: David Masover <ninja@slaphack.com>
+Cc: gmaxwell@gmail.com, alan@lxorguk.ukuu.org.uk, vonbrand@inf.utfsm.cl,
+       bernd-schubert@gmx.de, reiserfs-list@namesys.com, jbglaw@lug-owl.de,
+       clay.barnes@gmail.com, rudy@edsons.demon.nl, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: the " 'official' point of view" expressed by kernelnewbies.org
+ regarding reiser4 inclusion
+Message-Id: <20060801201449.cde3293c.reiser4@blinkenlights.ch>
+In-Reply-To: <44CF9267.7050202@slaphack.com>
+References: <200607312314.37863.bernd-schubert@gmx.de>
+	<200608011428.k71ESIuv007094@laptop13.inf.utfsm.cl>
+	<20060801165234.9448cb6f.reiser4@blinkenlights.ch>
+	<1154446189.15540.43.camel@localhost.localdomain>
+	<44CF84F0.8080303@slaphack.com>
+	<e692861c0608011004x2ac1d9fcu353cd8e0d72eaac4@mail.gmail.com>
+	<44CF9267.7050202@slaphack.com>
+Organization: Bluewin AG
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0608010806100.4168@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2006 at 08:25:12AM -0700, Linus Torvalds wrote:
+
+> > This is why ZFS offers block checksums... it can then try all the
+> > permutations of raid regens to find a solution which gives the right
+> > checksum.
 > 
-> 
-> On Tue, 1 Aug 2006, Paul E. McKenney wrote:
-> > > 
-> > > Paul? Should I just revert, or did you have some deeper reason for it?
-> > 
-> > I cannot claim any deep thought on this one, so please do revert it.
-> 
-> Well, I do have to say that I like the notion of trying to have the _same_ 
-> semantics for "force_sig_info()" and "force_sig_specific()", so in that 
-> way your patch is fine - I just missed the fact that it changed it back to 
-> the old broken ones (that results in endless SIGSEGV's if the SIGSEGV 
-> happens when setting up the handler for the SIGSEGV and other 
-> "interesting" issues, where a bug can result in the user process hanging 
-> instead of just killing it outright).
+> Isn't there a way to do this at the block layer?  Something in 
+> device-mapper?
 
-I guess I am glad I was not -totally- insane when submitting the
-original patch.  ;-)
+Remember: Suns new Filesystem + Suns new Volume Manager = ZFS
 
-> However, I wonder if the _proper_ fix is to just either remove 
-> "force_sig_specific()" entirely, or just make that one match the semantics 
-> of "force_sig_info()" instead (rather than doing it the other way - change 
-> for_sig_specific() to match force_sig_info()).
-
-One question -- the original (2.6.14 or thereabouts) version of
-force_sig_info() would do the sigdelset() and recalc_sig_pending()
-even if the signal was not blocked, while your patch below would
-do sigdelset()/recalc_sig_pending() only if the signal was blocked,
-even if it was not ignored.  Not sure this matters, but thought I
-should ask.
-
-> force_sig_info() has only two uses, and both should be ok with the 
-
-s/force_sig_info/force_sig_specific/?  I see >100 uses of force_sig_info().
-
-> force_sig_specific() semantics, since they are for SIGSTOP and SIGKILL 
-> respectively, and those should not be blockable unless you're a kernel 
-> thread (and I don't think either of them could validly ever be used with 
-> kernel threads anyway), so doing it the other way around _should_ be ok.
-
-OK, SIGSTOP and SIGKILL cannot be ignored or blocked.  So wouldn't
-they end up skipping the recalc_sig_pending() in the new code,
-where they would have ended up executing it in the 2.6.14 version
-of force_sig_specific()?
-
-Assuming I am at least semi-sane, one possible way to fix shown below.
-
-						Thanx, Paul
-
-> Paul, Suresh, would something like this work for you instead?
-> 
-> 		Linus
-> ----
-> diff --git a/kernel/signal.c b/kernel/signal.c
-> index 7fe874d..bfdb568 100644
-> --- a/kernel/signal.c
-> +++ b/kernel/signal.c
-> @@ -791,22 +791,31 @@ out:
->  /*
->   * Force a signal that the process can't ignore: if necessary
->   * we unblock the signal and change any SIG_IGN to SIG_DFL.
-> + *
-> + * Note: If we unblock the signal, we always reset it to SIG_DFL,
-> + * since we do not want to have a signal handler that was blocked
-> + * be invoked when user space had explicitly blocked it.
-> + *
-> + * We don't want to have recursive SIGSEGV's etc, for example.
->   */
-> -
->  int
->  force_sig_info(int sig, struct siginfo *info, struct task_struct *t)
->  {
->  	unsigned long int flags;
-> -	int ret;
-> +	int ret, blocked, ignored;
-
-	int alwaysfatal;
-
-> +	struct k_sigaction *action;
->  
->  	spin_lock_irqsave(&t->sighand->siglock, flags);
-> -	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
-> -		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
-> -	}
-> -	if (sigismember(&t->blocked, sig)) {
-> -		sigdelset(&t->blocked, sig);
-> +	action = &t->sighand->action[sig-1];
-> +	ignored = action->sa.sa_handler == SIG_IGN;
-
-	alwaysfatal = sig == SIGKILL || sig == SIGSTOP;
-
-> +	blocked = sigismember(&t->blocked, sig);
-> +	if (blocked || ignored) {
-
-	if (blocked || ignored || alwaysfatal) {
-
-> +		action->sa.sa_handler = SIG_DFL;
-> +		if (blocked) {
-
-		if (blocked || alwaysfatal) {
-
-> +			sigdelset(&t->blocked, sig);
-> +			recalc_sigpending_tsk(t);
-> +		}
->  	}
-> -	recalc_sigpending_tsk(t);
->  	ret = specific_send_sig_info(sig, info, t);
->  	spin_unlock_irqrestore(&t->sighand->siglock, flags);
->  

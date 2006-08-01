@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWHAOqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWHAOtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161010AbWHAOqH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 10:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161024AbWHAOqG
+	id S1161011AbWHAOtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 10:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWHAOtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 10:46:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64216 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161010AbWHAOqE (ORCPT
+	Tue, 1 Aug 2006 10:49:25 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:54178 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1161011AbWHAOtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 10:46:04 -0400
-Date: Tue, 1 Aug 2006 07:45:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [BLOCK] bh: Ensure bh fits within a page
-Message-Id: <20060801074556.b9e772bc.akpm@osdl.org>
-In-Reply-To: <20060801110658.GA5388@gondor.apana.org.au>
-References: <20060801030443.GA2221@gondor.apana.org.au>
-	<20060731210418.084f9f5d.akpm@osdl.org>
-	<20060801050259.GA3126@gondor.apana.org.au>
-	<20060731225454.19981a5f.akpm@osdl.org>
-	<20060801110658.GA5388@gondor.apana.org.au>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Aug 2006 10:49:24 -0400
+Message-Id: <200608011449.k71En5VT015262@laptop13.inf.utfsm.cl>
+To: Jiri Slaby <jirislaby@gmail.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: do { } while (0) question 
+In-Reply-To: Message from Jiri Slaby <jirislaby@gmail.com> 
+   of "Tue, 01 Aug 2006 10:51:38 +0159." <44CF1631.3020104@gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 19)
+Date: Tue, 01 Aug 2006 10:49:05 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 01 Aug 2006 10:49:06 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Aug 2006 21:06:58 +1000
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+Jiri Slaby <jirislaby@gmail.com> wrote:
+> Heiko Carstens wrote:
+> > Hi Andrew,
+> > your commit e2c2770096b686b4d2456173f53cb50e01aa635c does this:
+> > ---
+> > Always use do {} while (0).  Failing to do so can cause subtle compile
+> > failures or bugs.
+> > -#define hotcpu_notifier(fn, pri)
+> > -#define register_hotcpu_notifier(nb)
+> > -#define unregister_hotcpu_notifier(nb)
+> > +#define hotcpu_notifier(fn, pri)	do { } while (0)
+> > +#define register_hotcpu_notifier(nb)	do { } while (0)
+> > +#define unregister_hotcpu_notifier(nb)	do { } while (0)
+> 
+> #if KILLER == 1
+> #define MACRO
+> #else
+> #define MACRO do { } while (0)
+> #endif
+> 
+> {
+> 	if (some_condition)
+> 		MACRO
 
-> On Mon, Jul 31, 2006 at 10:54:54PM -0700, Andrew Morton wrote:
-> > 
-> > Crap, that's hard to fix.   Am I allowed to blame submit_bh()? ;)
+                      ;  /* missing */
 > 
-> Sure you're allowed to do anything :)
-> 
-> > uhm, we don't want to lose kmalloc redzoning, so I guess we need to create
-> > on-demand ext3-private slab caches for 1024, 2048, and 4096 bytes.  With
-> > the appropriate slab flags to defeat the redzoning.
-> 
-> Either that or we should fix redzoning so that it actually preserves
-> alignment, rather than turning off debugging whenever we want alignment.
-> Basically it means that we need to use twice the amount of memory for
-> each object (so 2K for each 1K object).  Is this acceptable for debugging?
+> 	if_this_is_not_called_you_loose_your_data();
+> }
 
-It doesn't sound like a good idea.  At present CONFIG_DEBUG_SLAB is
-acceptable for production use (although it makes kernel profiles look
-pretty sad).  Doubling the size of the slabs would rather alter that.
+> How do you want to define KILLER, 0 or 1? I personally choose 0.
+
+Yep, at least in this case you'd get a compile failure.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

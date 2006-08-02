@@ -1,69 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWHBFhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWHBFhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWHBFhO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 01:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWHBFhO
+	id S1751254AbWHBFhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 01:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWHBFhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 2 Aug 2006 01:37:16 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:6883 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751254AbWHBFhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 2 Aug 2006 01:37:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:430 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751254AbWHBFhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 01:37:12 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 18/33] x86_64: Kill temp_boot_pmds II
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<p73psfk1dnh.fsf_-_@verdi.suse.de>
-	<m18xm7yjh7.fsf@ebiederm.dsl.xmission.com>
-	<200608020507.02604.ak@suse.de>
-Date: Tue, 01 Aug 2006 23:35:38 -0600
-In-Reply-To: <200608020507.02604.ak@suse.de> (Andi Kleen's message of "Wed, 2
-	Aug 2006 05:07:02 +0200")
-Message-ID: <m1k65rvgwl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TsWmQpLs+Dh/NhUyf8GnTsNgr+TsUaqRMNbUxoOCzGXH8y4U5QzS5QJAgcAQhP8HWwApJSuapbPSexHwPS47XWfGgsMmc8Zfyr55b/mbMo+d3dtYkkGKNK2L9eQ5ivSQUtkH8xTqC0aWe+k4FZ+4kxd2sa/WqOFrtaLU8KZ5MmU=
+Message-ID: <e6babb600608012237g60d9dfd7ga11b97512240fb7b@mail.gmail.com>
+Date: Tue, 1 Aug 2006 22:37:13 -0700
+From: "Robert Crocombe" <rcrocomb@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with 2.6.17-rt8
+In-Reply-To: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <e6babb600608012231r74470b77x6e7eaeab222ee160@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Trying again.  Hopefully gmail will send as plain/text this time.
+Ingo CC'd on the version with the text/html subpart (sorry).
 
->> It is probably patch 17:
->> "x86_64: Separate normal memory map initialization from the hotplug case"
->
-> Ok that messes things up. Actually I think i prefered the previous
-> code - it was not that bad as you make it. The two variants. 
-> are really doing mostly the same. So best you drop that.
+I've just stuck up the relevant stuff on my little webserver at:
 
-All of my complaints are real.  But yes I do think a reasonable
-case can be made for merging them.  In several of the worst cases
-simply calling memset before initializing the page is probably
-sufficient to remove a test later on.
+ http://66.93.162.103/~rcrocomb/lkml/
 
-As that code sits right now you need way too much global context
-to understand what is going on.  It is the kind of code that cause
-obviously correct patches to fail, and I'm clever enough to know
-clever code is very dangerous. :)
+ The files are:
 
-So before I get back to that I will probably look and see if there
-is some more heavy lifting I can do to make that code less of a land mine.
+ config_2.6.17-rt8_local_00
+ config_2.6.17-rt8_local_01
+ dmesg_2.6.17-rt8_local_00_00
+ linux_version_info
+ output_from_lspci
+ scooter_log
 
->> I don't see any other patches that touch arch/x86_64/mm/init.c
->> before that.  At least not in 2.6.18-rc3, which is the base of
->> my patchset.
->
-> I got three patches that touch mm/init.c in my patchkit
-> (ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/)
->
-> BTW I didn't merge any further patches currently, but might
-> after the next round when the current comments are addressed.
+ which should largely be self-explanatory, I think.  The local_00
+kernel does not have much in the way of debugging info turned on,
+because I was hoping for peak performance.  local_01 has a bunch more
+debug widgets enabled:
 
-Ok. I will take a look.
+ +CONFIG_DEBUG_PREEMPT=y
+ +CONFIG_PREEMPT_TRACE=y
+ +CONFIG_DEBUG_INFO=y
+ +CONFIG_FRAME_POINTER=y
+ +CONFIG_UNWIND_INFO=y
+ +CONFIG_FORCED_INLINING=y
+ +CONFIG_IOMMU_DEBUG=y
 
-Having any patches merged on a simple request for comments was a bit of a surprise :)
+ in the hope of providing better/more info.  The machine is 'scooter',
+and scooter_log is the dump from 'cu' on another machine.  I decided
+not to trim anything, since I wasn't sure what might/might not be
+relevant.  Note that at first we were running with the nvidia kernel
+module, but removed that later (scooter_log6 line 7142 or therebouts)
+so as to test with an untainted kernel.  I wasn't sure if the problems
+w/ the module would be of interest or not.
 
-Eric
+ I can pretty much guarantee problems with a kernel compile or two in parallel.
+
+ The machine is built around the new IWill H8502 motherboard.  It's a
+4-way 2.8GHz Opteron machine with 8GB of RAM and two 150GB SCSI disks
+in a RAID5 setup.  The person doing development on this machine says
+the problems are basically constant.  I am using a very similar
+machine, but with dual video cards and 32GB of RAM, and haven't
+experienced any problems.  That machine, too, is using the nvidia
+module.  Oh, the underlying distribution is Fedora Core 5.
+
+ I'll be glad to provide other info/run any patches/etc.
+
+ Thanks.
+
+ Oh, I'm not lkml subscribed, so please CC.
+
+-- 
+Robert Crocombe
+rcrocomb@gmail.com

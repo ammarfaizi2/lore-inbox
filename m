@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWHBU6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWHBU7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWHBU6i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWHBU6i
+	id S932098AbWHBU7m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWHBU7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:58:38 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:56335 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932088AbWHBU6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:58:37 -0400
-Date: Wed, 2 Aug 2006 21:58:24 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dave Jones <davej@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: Linux v2.6.18-rc3
-Message-ID: <20060802205824.GA17599@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org,
-	cpufreq@www.linux.org.uk
-References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org> <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com> <200608022216.54797.rjw@sisk.pl> <20060802202309.GD7173@flint.arm.linux.org.uk> <20060802203236.GC23389@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060802203236.GC23389@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 2 Aug 2006 16:59:42 -0400
+Received: from dvhart.com ([64.146.134.43]:15552 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932098AbWHBU7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 16:59:41 -0400
+Message-ID: <44D1123B.2000602@mbligh.org>
+Date: Wed, 02 Aug 2006 13:59:39 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] add newline to nfs dprintk
+Content-Type: multipart/mixed;
+ boundary="------------090903030706030209020608"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 04:32:36PM -0400, Dave Jones wrote:
-> On Wed, Aug 02, 2006 at 09:23:09PM +0100, Russell King wrote:
->  > On Wed, Aug 02, 2006 at 10:16:54PM +0200, Rafael J. Wysocki wrote:
->  > > Please try the following patch from Russell King and see if it helps.
->  > 
->  > I'd have missed this if it weren't for that comment.  It hasn't been
->  > merged so far due to the lack of feedback on it...  Thanks for trying
->  > to get that feedback.
-> 
-> I'm fairly certain I gave feedback on this, and I'm sure I recall Pavel 
-> did too.  It did nothing for me.
+This is a multi-part message in MIME format.
+--------------090903030706030209020608
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Maybe you did, but it never got here.  The last two messages in the
-thread were mine posting this patch and pleading for some feedback
-which never came.
+Add missing \n to dprintk
+(attatched as well, cause thunderbird is pants)
 
-Rafael has reported that it fixes his problem, which is great - and is
-the first bit of feedback I've received on it (thanks Rafael.)
+Signed-off-by: mbligh@google.com
 
-I've no idea why it doesn't work for you though.
+diff -aurpN -X /home/mbligh/.diff.exclude 
+linux-2.6.18-rc3/fs/lockd/clntlock.c 
+linux-2.6.18-rc3-nfs_printk/fs/lockd/clntlock.c
+--- linux-2.6.18-rc3/fs/lockd/clntlock.c        2006-07-31 
+10:18:54.000000000 -0700
++++ linux-2.6.18-rc3-nfs_printk/fs/lockd/clntlock.c     2006-08-02 
+13:56:39.000000000 -0700
+@@ -160,7 +160,7 @@ static void nlmclnt_prepare_reclaim(stru
+          */
+         list_splice_init(&host->h_granted, &host->h_reclaim);
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-       dprintk("NLM: reclaiming locks for host %s", host->h_name);
++       dprintk("NLM: reclaiming locks for host %s\n", host->h_name);
+  }
+
+  static void nlmclnt_finish_reclaim(struct nlm_host *host)
+
+--------------090903030706030209020608
+Content-Type: text/plain;
+ name="linux-2.6.18-rc3-nfs_printk"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.18-rc3-nfs_printk"
+
+Add missing \n to dprintk
+
+Signed-off-by: mbligh@google.com
+
+diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18-rc3/fs/lockd/clntlock.c linux-2.6.18-rc3-nfs_printk/fs/lockd/clntlock.c
+--- linux-2.6.18-rc3/fs/lockd/clntlock.c	2006-07-31 10:18:54.000000000 -0700
++++ linux-2.6.18-rc3-nfs_printk/fs/lockd/clntlock.c	2006-08-02 13:56:39.000000000 -0700
+@@ -160,7 +160,7 @@ static void nlmclnt_prepare_reclaim(stru
+ 	 */
+ 	list_splice_init(&host->h_granted, &host->h_reclaim);
+ 
+-	dprintk("NLM: reclaiming locks for host %s", host->h_name);
++	dprintk("NLM: reclaiming locks for host %s\n", host->h_name);
+ }
+ 
+ static void nlmclnt_finish_reclaim(struct nlm_host *host)
+
+--------------090903030706030209020608--

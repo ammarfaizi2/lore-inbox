@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWHBCYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWHBCZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWHBCYg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 22:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWHBCYg
+	id S1751065AbWHBCZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 22:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWHBCZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 22:24:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52124 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751052AbWHBCYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 22:24:35 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org,
-       Horms <horms@verge.net.au>, Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-Subject: Re: [PATCH 4/33] i386: CONFIG_PHYSICAL_START cleanup
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com>
-	<11544302312298-git-send-email-ebiederm@xmission.com>
-	<20060801190838.GB12573@mars.ravnborg.org>
-Date: Tue, 01 Aug 2006 20:23:03 -0600
-In-Reply-To: <20060801190838.GB12573@mars.ravnborg.org> (Sam Ravnborg's
-	message of "Tue, 1 Aug 2006 21:08:38 +0200")
-Message-ID: <m1zmenx4e0.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 1 Aug 2006 22:25:59 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:42470
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1751062AbWHBCZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Aug 2006 22:25:58 -0400
+Date: Tue, 1 Aug 2006 19:25:39 -0700
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: 2.6.17-rt8 crash amd64
+Message-ID: <20060802022539.GA26799@gnuppy.monkey.org>
+References: <20060802011809.GA26313@gnuppy.monkey.org> <1154482302.30391.14.camel@localhost.localdomain> <20060802021956.GC26364@gnuppy.monkey.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060802021956.GC26364@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> writes:
+On Tue, Aug 01, 2006 at 07:19:56PM -0700, Bill Huey wrote:
+> On Tue, Aug 01, 2006 at 09:31:42PM -0400, Steven Rostedt wrote:
+> > On Tue, 2006-08-01 at 18:18 -0700, Bill Huey wrote:
+> > > [   42.124525]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
+> > > [   42.131032]        <ffffffff8025fd89>{schedule+236}
+> > > [   42.136195]        <ffffffff8026078f>{rt_lock_slowlock+351}
+> > > [   42.142086]        <ffffffff8026117d>{__lock_text_start+13}
+> > > [   42.147966]        <ffffffff8029ae98>{atomic_dec_and_spin_lock+21}
+> > > [   42.154476]        <ffffffff8020c4e9>{dput+57}
+> > > [   42.159194]        <ffffffff802093f3>{__link_path_walk+1710}
+> > > [   42.165166]        <ffffffff802617ad>{_raw_spin_unlock+46}
+> > > [   42.170961]        <ffffffff8020db81>{link_path_walk+103}
+> > > [   42.176672]        <ffffffff8020be5a>{do_path_lookup+644}
+> > > [   42.182379]        <ffffffff80223829>{__user_walk_fd+63}
+> > > [   42.187994]        <ffffffff8023fce4>{vfs_lstat_fd+33}
+> > > [   42.193434]        <ffffffff8022b3e4>{sys_newlstat+34}
+> > > [   42.198871]        <ffffffff8025ce3d>{error_exit+0}
+> > > [   42.204040]        <ffffffff8025bf22>{system_call+126}
+> > 
+> > This back trace is definitely ugly.  Do you get this all the time? And
+> > if so, could you compile in frame pointers and try again.  (I'll dig
+> > through this in the mean time.) 
+> 
+> Not sure, I'm getting hard reboots as well from what looks like more
+> atomic scheduling violations. I'll tweek my kernel config to be more
+> friendly about these things. It looked like it was in the rtmutex code,
+> which is why I CCed you.
+> 
+> Any other configuration suggestions ?
 
->> diff --git a/arch/i386/boot/compressed/head.S
-> b/arch/i386/boot/compressed/head.S
->> index b5893e4..8f28ecd 100644
->> --- a/arch/i386/boot/compressed/head.S
->> +++ b/arch/i386/boot/compressed/head.S
->> @@ -23,9 +23,9 @@
->>   */
->>  .text
->>  
->> +#include <linux/config.h>
->
-> You already have full access to all CONFIG_* symbols - kbuild includes
-> it on the commandline. So please kill this include.
+It's already compiling with frame pointers. Unfortunately, this is about
+as good it gets for a stack trace unless you've got another suggestion. 
 
-Ok.  That must be new.  No problem.
+bill
 
-Eric

@@ -1,76 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWHBHR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWHBHRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWHBHR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHBHR7
+	id S1751304AbWHBHRw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWHBHRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:17:59 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:46266 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751302AbWHBHR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:17:58 -0400
-From: Grant Coady <gcoady.lk@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Iomega ATAPI Zip100 problem: 2.4 & 2.6 lilo complains after eject
-Date: Wed, 02 Aug 2006 17:17:51 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <oej0d2htdjlp1j9di9lun7ue856b3qkodm@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
+	Wed, 2 Aug 2006 03:17:52 -0400
+Received: from ns1.sagem.com ([62.160.59.65]:25471 "EHLO mx1.sagem.com")
+	by vger.kernel.org with ESMTP id S1751304AbWHBHRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:17:51 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@ono.com>,
+       linux-ide@vger.kernel.org, linux-ide-owner@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?R=E9f=2E_=3A_Re=3A_[2=2E6=2E18-rc2-mm1]_pata=5Fvia_fails?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <OFF35F9EB5.995BFC42-ONC12571BE.0027D9D2-C12571BE.00281470@sagem.com>
+From: Matthieu CASTET <matthieu.castet@sagem.com>
+Date: Wed, 2 Aug 2006 09:17:45 +0200
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi,
 
-This might not be kernel issue as it is lilo that complains:
+> Known insanity. With some ATAPI devices the VIA delivers the IRQ before
+> the response is ready when we do a SET_FEATURES. Still being worked on.
 
-  "Fatal: open /dev/hdc: Input/output error"
+The patch in -mm for pata_via was dropped ?
 
-After the zip drive has been used.  Issue is present on both 2.6.18-rc3 
-and 2.4.33-rc3.  Box is dual SATA with Zip drive alone on secondary IDE.
-configs and dmesgs on: 
-	<http://bugsplatter.mine.nu/test/boxen/sempro/>
-	<http://bugsplatter.mine.nu/test/boxen/sempro/2.4.xx/>
 
-AMD SktA Sempron with VIA chipset, slackware-10.2
-
-Steps to reproduce:
-
-root@sempro:~# mount /dev/hdc4 /mnt/hd/
-root@sempro:~# ls -l /mnt/hd/
-total 29238
--rwxr-xr-x  1 root root    22295 2003-12-08 23:42 config-2.4.23*
--rwxr-xr-x  1 root root 29915976 2003-12-08 23:40 vanilla-2.4.23.tar.bz2*
-root@sempro:~# eject /mnt/hd/
-
-Zip100 media pops out
-
-root@sempro:~# vim /etc/lilo.conf		# changing reboot default
-root@sempro:~# lilo
-Warning: COMPACT may conflict with LBA32 on some systems
-Fatal: open /dev/hdc: Input/output error
-
-Push Zip100 media back into drive, ZipDrive light flashes...
-
-root@sempro:~# lilo
-Warning: COMPACT may conflict with LBA32 on some systems
-Added 2.6.18-rc3a
-Added 2.6.17.7a *
-Added 2.6.16.27a
-Added 2.4.33-rc3
-Added 2.4.32-hf32.7
-Added 2.4.31-hf32.7
-Added 2.4.30-hf32.7
-Added Slack-2.4.31
-
-root@sempro:~# lilo -V
-LILO version 22.5.9
-
-Is this 'normal' for removable media, a kernel problem or a lilo problem?  
-
-Thanks,
-Grant
+Matthieu

@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWHBVOh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWHBVTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWHBVOh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:14:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWHBVOh
+	id S932166AbWHBVTb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWHBVTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:14:37 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62390 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932191AbWHBVOg (ORCPT
+	Wed, 2 Aug 2006 17:19:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48829 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932166AbWHBVTa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:14:36 -0400
-In-Reply-To: <20060802.141103.35507776.davem@davemloft.net>
-To: David Miller <davem@davemloft.net>
-Cc: catalin.marinas@gmail.com, cxzhang@watson.ibm.com, czhang.us@gmail.com,
-       jmorris@namei.org, linux-kernel@vger.kernel.org,
-       michal.k.k.piotrowski@gmail.com, netdev@vger.kernel.org,
-       sds@tycho.nsa.org
-Subject: Re: [Patch] kernel memory leak fix for af_unix datagram getpeersec patch
+	Wed, 2 Aug 2006 17:19:30 -0400
+Date: Wed, 2 Aug 2006 14:18:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Dave Jones <davej@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
+       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: Linux v2.6.18-rc3
+In-Reply-To: <20060802205824.GA17599@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0608021416200.4168@g5.osdl.org>
+References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org>
+ <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com>
+ <200608022216.54797.rjw@sisk.pl> <20060802202309.GD7173@flint.arm.linux.org.uk>
+ <20060802203236.GC23389@redhat.com> <20060802205824.GA17599@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
-Message-ID: <OF2188FBCE.E3CAA317-ON852571BE.00749BCD-852571BE.0074B02B@us.ibm.com>
-From: Xiaolan Zhang <cxzhang@us.ibm.com>
-Date: Wed, 2 Aug 2006 17:14:31 -0400
-X-MIMETrack: Serialize by Router on D01ML605/01/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
- 08/02/2006 17:14:34,
-	Serialize complete at 08/02/2006 17:14:34
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
 
-I will remember this in the future, I promise.
 
-thank you,
-Catherine
-
-David Miller <davem@davemloft.net> wrote on 08/02/2006 05:11:03 PM:
-
+On Wed, 2 Aug 2006, Russell King wrote:
 > 
-> Catherine you really must begin to remember to add
-> proper "Signed-off-by: " lines to your patch submissions.
+> Rafael has reported that it fixes his problem, which is great - and is
+> the first bit of feedback I've received on it (thanks Rafael.)
 > 
-> I'll sign off on this bug fix, but in the future I will not
-> do so for you any more as you've been told at least 3 or 4
-> times about this.
-> 
-> Thank you.
+> I've no idea why it doesn't work for you though.
 
+Well, more importantly, why would we do something like this in the first 
+place?
+
+Wouldn't it be a _lot_ better to just use the bog-standard 
+"suspend/resume" callbacks, and let serial drivers just suspend/resume on 
+their own, instead of having upper layers generate these fake 
+"set_termios()" calls?
+
+The serial layer should use set_termios() when users set the termios state 
+(surprise surprise), not to emulate suspend/restore. 
+
+Real hardware tends to want to do a lot more _anyway_ for suspend/restore, 
+so the argument that "set_termios()" already exists as an interface is 
+pretty bogus.
+
+			Linus

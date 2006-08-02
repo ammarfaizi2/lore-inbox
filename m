@@ -1,92 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWHBTS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWHBTVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWHBTS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 15:18:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWHBTS0
+	id S932164AbWHBTVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 15:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWHBTVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 15:18:26 -0400
-Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:11187 "EHLO
-	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932169AbWHBTSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 15:18:25 -0400
-Date: Wed, 2 Aug 2006 15:14:08 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: + espfix-code-cleanup.patch added to -mm tree
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Zachary Amsden <zach@vmware.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200608021515_MC3-1-C6D7-2B90@compuserve.com>
-MIME-Version: 1.0
+	Wed, 2 Aug 2006 15:21:07 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:3243 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932164AbWHBTVG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 15:21:06 -0400
+Subject: [patch 1/3] selinux: eliminate selinux_task_ctxid
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: linux-audit@redhat.com, lkml <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@namei.org>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 02 Aug 2006 15:23:27 -0400
+Message-Id: <1154546607.16917.181.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <44D0DCF5.8050906@aknet.ru>
+Eliminate selinux_task_ctxid since it duplicates selinux_task_get_sid.
 
-On Wed, 02 Aug 2006 21:12:21 +0400, Stas Sergeev wrote:
-> 
-> > iret faults, but doesn't pop the user return frame.
-> But does it push the kernel frame after it or not?
-> If not - I don't understand how we go to a fixup.
-> If yes - I don't understand how the user's frame gets
-> accessed later, as it is above the kernel's frame.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by:  James Morris <jmorris@namei.org>
 
-Just before trying to return to userspace, we have a stack:
+---
+ include/linux/selinux.h    |   15 ---------------
+ kernel/auditsc.c           |    2 +-
+ security/selinux/exports.c |    9 ---------
+ 3 files changed, 1 insertions(+), 25 deletions(-)
 
-        user_regs [ebx ... es]
-        orig_eax
-        user_iret_frame [eip ... oldss]
-
-After RESTORE_ALL and discarding orig_eax, we have this just
-before doing iret (user's regs are in the CPU regs now):
-
-        user_iret_frame [eip ... oldss]
-
-iret faults and we get:
-
-        kernel_iret_frame [eip(of iret) ... flags]
-        user_iret_frame [eip ... oldss]
-
-error_code then saves regs and we have:
-
-        user_regs [ebx ... es]
-        orig_eax [== -1]
-        kernel_iret_frame [eip(iret) ... flags]
-        user_iret_frame [eip ... oldss]
-
-error_code then calls e.g. do_segment_not_present, which finds a fixup
-and does:
-
-        regs->eip = fixup_address;
-
-now we have:
-
-        user_regs [ebx ... es]
-        orig_eax [== -1]
-        kernel_iret_frame [eip(fixup) ... flags]
-        user_iret_frame [eip ... oldss]
-
-standard return sequence gives us (again user's regs are back in CPU):
-
-        kernel_iret_frame [eip(fixup) ... flags]
-        user_iret_frame [eip ... oldss]
-
-iret returns to the fixup code which jumps to error_code and then we have:
-
-        user_regs [ebx ... es]
-        orig_eax [== -1]
-        user_iret_frame [eip ... oldss]
-
-So now there is a stack frame that looks like it came from userspace
-and we call the iret fault handler with that.
-
-Only problem I have with this is we lose the original fault info from
-the iret.  So we have no real way of knowing whether it was #GP, #NP, #SF
-or whatever, and no record of the offending iret's address.
-
+diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+index aad4e39..79e4707 100644
+--- a/include/linux/selinux.h
++++ b/include/linux/selinux.h
+@@ -70,16 +70,6 @@ int selinux_audit_rule_match(u32 ctxid, 
+ void selinux_audit_set_callback(int (*callback)(void));
+ 
+ /**
+- *	selinux_task_ctxid - determine a context ID for a process.
+- *	@tsk: the task object
+- *	@ctxid: ID value returned via this
+- *
+- *	On return, ctxid will contain an ID for the context.  This value
+- *	should only be used opaquely.
+- */
+-void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid);
+-
+-/**
+  *     selinux_ctxid_to_string - map a security context ID to a string
+  *     @ctxid: security context ID to be converted.
+  *     @ctx: address of context string to be returned
+@@ -166,11 +156,6 @@ static inline void selinux_audit_set_cal
+ 	return;
+ }
+ 
+-static inline void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
+-{
+-	*ctxid = 0;
+-}
+-
+ static inline int selinux_ctxid_to_string(u32 ctxid, char **ctx, u32 *ctxlen)
+ {
+        *ctx = NULL;
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index ae40ac8..6322547 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -333,7 +333,7 @@ static int audit_filter_rules(struct tas
+ 			   logged upon error */
+ 			if (f->se_rule) {
+ 				if (need_sid) {
+-					selinux_task_ctxid(tsk, &sid);
++					selinux_get_task_sid(tsk, &sid);
+ 					need_sid = 0;
+ 				}
+ 				result = selinux_audit_rule_match(sid, f->type,
+diff --git a/security/selinux/exports.c b/security/selinux/exports.c
+index 9d7737d..ee0fb47 100644
+--- a/security/selinux/exports.c
++++ b/security/selinux/exports.c
+@@ -21,15 +21,6 @@ #include <linux/ipc.h>
+ #include "security.h"
+ #include "objsec.h"
+ 
+-void selinux_task_ctxid(struct task_struct *tsk, u32 *ctxid)
+-{
+-	struct task_security_struct *tsec = tsk->security;
+-	if (selinux_enabled)
+-		*ctxid = tsec->sid;
+-	else
+-		*ctxid = 0;
+-}
+-
+ int selinux_ctxid_to_string(u32 ctxid, char **ctx, u32 *ctxlen)
+ {
+ 	if (selinux_enabled)
 -- 
-Chuck
+1.4.1
+
+
 

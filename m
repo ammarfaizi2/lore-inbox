@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWHBO2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWHBOaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWHBO2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 10:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWHBO2Z
+	id S1750898AbWHBOaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 10:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWHBOaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 10:28:25 -0400
-Received: from khc.piap.pl ([195.187.100.11]:20884 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1750771AbWHBO2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 10:28:24 -0400
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Ian Stirling <ian.stirling@mauve.plus.com>,
-       David Masover <ninja@slaphack.com>,
-       David Lang <dlang@digitalinsight.com>,
-       Nate Diller <nate.diller@gmail.com>,
-       Adrian Ulrich <reiser4@blinkenlights.ch>,
-       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
-       lkml@lpbproductions.com, Jeff Garzik <jeff@garzik.org>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       LKML Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Subject: Re: Solaris ZFS on Linux
-References: <20060731175958.1626513b.reiser4@blinkenlights.ch>
-	<200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>
-	<20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>
-	<44CE7C31.5090402@gmx.de>
-	<5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>
-	<Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>
-	<5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>
-	<Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>
-	<5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>
-	<20060801010215.GA24946@merlin.emma.line.org>
-	<44CEAEF4.9070100@slaphack.com>
-	<Pine.LNX.4.63.0607312114500.15179@qynat.qvtvafvgr.pbz>
-	<44CED95C.10709@slaphack.com> <44CFE8D9.9090606@mauve.plus.com>
-	<0DA0B214-50BC-4E20-A520-B7AB121BB38B@mac.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 02 Aug 2006 16:28:20 +0200
-In-Reply-To: <0DA0B214-50BC-4E20-A520-B7AB121BB38B@mac.com> (Kyle Moffett's message of "Tue, 1 Aug 2006 22:29:20 -0400")
-Message-ID: <m3ejvzqkjf.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Aug 2006 10:30:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:37908 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750885AbWHBOaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 10:30:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=uC1+bytvtXGhq2vFbr6Pqvn2ecgsk7p+Om/aWb5umsnDWTmViqmW6CdpCg6CDitNdVuUn056Gbbk9/GrM46OI1ZEFa4PQpNxFvPmdcTNIRwiQeZAg9yt5vDP5BCHJY4Z/pFacZxlUiMuLXDmbpfpABxcYrn6yTqF1RYaEfCcoRQ=
+Date: Wed, 2 Aug 2006 16:30:04 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: akpm@osdl.org
+Cc: jayakumar.video@gmail.com, linux-kernel@vger.kernel.org
+Subject: [PATCH]: quickcam_messenger compilation fix
+Message-Id: <20060802163004.6ebf2cd7.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> writes:
+In bugzilla #6943, Maxim Britov reported:
 
-> IMHO the best alternative for a situation like that is a storage
-> controller with a battery-backed cache and a hunk of flash NVRAM for
-> when the power shuts off (just in case you run out of battery), as
-> well as a separate 1GB battery-backed PCI ramdisk for an external
-> journal device (likewise equipped with flash NVRAM).  It doesn't take
-> much power at all to write a gig of stuff to a small flash chip
-> (Think about your digital camera which runs off a couple AA's), so
-> with a fair-sized on-board battery pack you could easily transfer its
-> data to NVRAM and still have power left to back up data in RAM for 12
-> hours or so.  That way bootup is fast (no reading 1GB of data from
-> NVRAM) but there's no risk of data loss.
+"I can enable Logitech quickcam support in .config, but it want be compile.
+I have to add into drivers/media/video/Makefile:
+obj-$(CONFIG_USB_QUICKCAM_MESSENGER)    += usbvideo/"
 
-Not sure - reading flash is fast, but writing is quite slow.
-A digital camera can consume a set of 2 or 4 2500 mAh AA cells
-for a fraction of 1 GB (of course, only a part of power goes
-to flash).
--- 
-Krzysztof Halasa
+He's right, just enable that driver as module while disabling every other
+driver that gets into that directory, nothing will get compiled.
+This patch fixes the Makefile.
+
+Signed-off-by: Diego Calleja <diegocg@gmail.com>
+
+Index: 2.6/drivers/media/video/Makefile
+===================================================================
+--- 2.6.orig/drivers/media/video/Makefile	2006-08-02 16:22:40.000000000 +0200
++++ 2.6/drivers/media/video/Makefile	2006-08-02 16:22:51.000000000 +0200
+@@ -91,6 +91,7 @@
+ obj-$(CONFIG_USB_IBMCAM)        += usbvideo/
+ obj-$(CONFIG_USB_KONICAWC)      += usbvideo/
+ obj-$(CONFIG_USB_VICAM)         += usbvideo/
++obj-$(CONFIG_USB_QUICKCAM_MESSENGER)	+= usbvideo/
+ 
+ obj-$(CONFIG_VIDEO_VIVI) += vivi.o
+ 

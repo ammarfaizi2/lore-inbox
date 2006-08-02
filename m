@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWHBVny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWHBVqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWHBVny (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWHBVny
+	id S932239AbWHBVqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWHBVqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:43:54 -0400
-Received: from smtp.ono.com ([62.42.230.12]:59113 "EHLO resmta03.ono.com")
-	by vger.kernel.org with ESMTP id S932240AbWHBVnx (ORCPT
+	Wed, 2 Aug 2006 17:46:16 -0400
+Received: from 1wt.eu ([62.212.114.60]:12813 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S932239AbWHBVqO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:43:53 -0400
-Date: Wed, 2 Aug 2006 23:43:44 +0200
-From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
-To: sergio@sergiomb.no-ip.org
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [2.6.18-rc2-mm1] pata_via fails
-Message-ID: <20060802234344.6c2bf2b9@werewolf.auna.net>
-In-Reply-To: <1154474307.3819.5.camel@localhost.portugal>
-References: <20060802010415.2bebc5fc@werewolf.auna.net>
-	<1154474307.3819.5.camel@localhost.portugal>
-X-Mailer: Sylpheed-Claws 2.4.0cvs16 (GTK+ 2.10.1; i686-pc-linux-gnu)
+	Wed, 2 Aug 2006 17:46:14 -0400
+Date: Wed, 2 Aug 2006 23:46:08 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: mtosatti@redhat.com
+Cc: linux-kernel@vger.kernel.org, Grant Coady <gcoady.lk@gmail.com>
+Subject: [PATCH] 2.4.33-rc3 needs to export memchr() for smbfs
+Message-ID: <20060802214608.GA1987@1wt.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Aug 2006 00:18:27 +0100, Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> wrote:
+Hi Marcelo,
 
-> On Wed, 2006-08-02 at 01:04 +0200, J.A. Magallón wrote:
-> > Jul 10 15:09:46 nada kernel: PCI: VIA IRQ fixup for 0000:00:11.1, from
-> > 255 to 0
-> > Any ideas ?
-> yes, try this patch
-> http://lkml.org/lkml/2006/7/28/99
-> As you are using -mm tree use just hunk #1 above
-> 
-> --- linux-2.6.17.i686/drivers/pci/quirks.c.orig	2006-07-28 12:59:04.000000000 +0100
-> +++ linux-2.6.17.i686/drivers/pci/quirks.c	2006-07-28 13:26:49.000000000 +0100
-> @@ -648,11 +648,17 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_V
->   *
->   * Some of the on-chip devices are actually '586 devices' so they are
->   * listed here.
-> + * 
-> + * if flags say that we have working apic(s), we don't need to quirk these
-> + * devices
->   */
->  static void quirk_via_irq(struct pci_dev *dev)
->  {
->  	u8 irq, new_irq;
->  
-> +	if ((smp_found_config && !skip_ioapic_setup && nr_ioapics) || cpu_has_apic)
-> +		return;
-> +
->  	new_irq = dev->irq & 0xf;
->  	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
->  	if (new_irq != irq) {
-> 
+just finished building 2.4.33-rc3 on my dual-CPU Sun U60 (works
+fine BTW). I noticed that smbfs built as a module needs memchr()
+since a recent fix, so this one now needs to be exported, which
+this patch does.  Sources show that the lp driver would need it
+too is console on LP is enabled and LP is set as a module (which
+seems stupid to me anyway). I've pushed it into -upstream if you
+prefer to pull from it.
 
-Sorry, it did not help :(.
+Overall, 2.4.33-rc3 seems to be OK to me. I don't think that
+an additionnal -rc4 would be needed just for this export (Grant
+CCed in case he's wishing to do a few more builds, you know
+him...  :-) ).
+
+Regards,
+Willy
 
 
---
-J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
-                                         \         It's better when it's free
-Mandriva Linux release 2007.0 (Cooker) for i586
-Linux 2.6.17-jam05 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #2 SMP PREEMPT
+>From e3523609bec99d5c607fc00b4f68386d3390fb82 Mon Sep 17 00:00:00 2001
+From: Willy Tarreau <w@1wt.eu>
+Date: Wed, 2 Aug 2006 23:30:22 +0200
+Subject: [PATCH] export memchr() which is used by smbfs and lp driver.
+
+Recently, an smbfs fix added a dependency on memchr() which is
+not exported if smbfs is built as a module.
+
+Signed-Off-By: Willy Tarreau <w@1wt.eu>
+---
+ kernel/ksyms.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/kernel/ksyms.c b/kernel/ksyms.c
+index d1e66c7..73ad3e9 100644
+--- a/kernel/ksyms.c
++++ b/kernel/ksyms.c
+@@ -579,6 +579,7 @@ EXPORT_SYMBOL(get_write_access);
+ EXPORT_SYMBOL(strnicmp);
+ EXPORT_SYMBOL(strspn);
+ EXPORT_SYMBOL(strsep);
++EXPORT_SYMBOL(memchr);
+ 
+ #ifdef CONFIG_CRC32
+ EXPORT_SYMBOL(crc32_le);
+-- 
+1.4.1
+

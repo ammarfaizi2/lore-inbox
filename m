@@ -1,121 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWHBRkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWHBRnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWHBRkM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 13:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbWHBRkM
+	id S932110AbWHBRnv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 13:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWHBRnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 13:40:12 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:19162 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S932071AbWHBRkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 13:40:10 -0400
-Date: Wed, 2 Aug 2006 19:39:59 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Victor <andrew@sanpeople.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] at91_serial: Fix break handling
-Message-ID: <20060802193959.76b930b7@cad-250-152.norway.atmel.com>
-In-Reply-To: <20060802151741.GB32102@flint.arm.linux.org.uk>
-References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
-	<11545303082669-git-send-email-hskinnemoen@atmel.com>
-	<11545303083943-git-send-email-hskinnemoen@atmel.com>
-	<20060802151741.GB32102@flint.arm.linux.org.uk>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Aug 2006 13:43:51 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:21440 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932110AbWHBRnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 13:43:50 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Wed, 2 Aug 2006 19:40:06 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 2.6.18-rc3, 2.6.17.7] ieee1394: sbp2: enable auto spin-up for
+ Maxtor disks
+To: Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
+cc: linux-kernel@vger.kernel.org, Ben Collins <bcollins@ubuntu.com>
+Message-ID: <tkrat.f5b216d7ca35e7f2@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Aug 2006 16:17:41 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+At least Maxtor OneTouch III require a "start stop unit" command after
+auto spin-down before the next access can proceed.  This patch activates
+the responsible code in scsi_mod for all Maxtor SBP-2 disks.
+https://bugzilla.novell.com/show_bug.cgi?id=183011
 
-> 1. Effectively, this just ignores every second break status.  We've
-> no idea _which_ break interrupt is going to be ignored.
-> 2. it breaks break handling.  uart_handle_break returns a value for a
->    reason.  Use it - don't unconditionally ignore the received
-> character.
+Maybe that should be done for all SBP-2 disks, but better be cautious.
 
-Here's another attempt, which should at least fix #2 and hopefully #1.
-If a break appears to have been active for more than one second, we
-assume it's a new start-of-break.
-
-Tested using SysRq on AT32AP7000. Seems to work well when dumping lots
-of text to the console.
-
-Haavard
-
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Date: Tue, 4 Jul 2006 10:25:59 +0200
-Subject: [PATCH] at91_serial: Fix break handling
-
-The RXBRK field in the AT91/AT32 USART status register has the
-following definition according to the AT32AP7000 data sheet:
-
-    RXBRK: Break Received/End of Break
-    0: No Break received or End of Break detected since the last RSTSTA.
-    1: Break Received or End of Break detected since the last RSTSTA.
-
-Thus, for each break, the USART sets the RXBRK bit twice. This patch
-modifies the driver to report the break event to the serial core only
-once by keeping track of whether a break condition is currently active.
-
-Also, if an end-of-break appears more than one second after
-start-of-break, assume that we missed the last one and treat it as a
-start-of-break.
-
-With this patch, SysRq works as expected on the AT32STK1000 board
-with an AT32AP7000 CPU.
-
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 ---
- drivers/serial/at91_serial.c |   18 +++++++++++++++---
- 1 files changed, 15 insertions(+), 3 deletions(-)
+This patch is also available from the ieee1394 git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/bcollins/linux1394-2.6.git;a=commitdiff;h=31a379e1067834868b8f1ce3e409392c42dc0f2b
 
-diff --git a/drivers/serial/at91_serial.c b/drivers/serial/at91_serial.c
-index bee81ff..484faa2 100644
---- a/drivers/serial/at91_serial.c
-+++ b/drivers/serial/at91_serial.c
-@@ -112,6 +112,8 @@ struct at91_uart_port {
- 	struct uart_port	uart;		/* uart */
- 	struct clk		*clk;		/* uart clock */
- 	unsigned short		suspended;	/* is port suspended? */
-+	unsigned short		break_active;	/* currently receiving break */
-+	unsigned long		break_timeout;	/* when to stop waiting for end-of-break */
- };
+Fixes loss of connection if an external Maxtor disk automatically went
+into power saving mode.
+
+Enthusiasts may pick up a variant of this patch for 2.6.16.y at
+https://bugzilla.novell.com/show_bug.cgi?id=183011#c6
+
+Index: linux/drivers/ieee1394/sbp2.c
+===================================================================
+--- linux.orig/drivers/ieee1394/sbp2.c	2006-07-01 09:37:55.000000000 +0200
++++ linux/drivers/ieee1394/sbp2.c	2006-07-01 09:41:33.000000000 +0200
+@@ -2515,6 +2515,9 @@ static int sbp2scsi_slave_configure(stru
+ 		sdev->skip_ms_page_8 = 1;
+ 	if (scsi_id->workarounds & SBP2_WORKAROUND_FIX_CAPACITY)
+ 		sdev->fix_capacity = 1;
++	if (scsi_id->ne->guid_vendor_id == 0x0010b9 && /* Maxtor's OUI */
++	    (sdev->type == TYPE_DISK || sdev->type == TYPE_RBC))
++		sdev->allow_restart = 1;
+ 	return 0;
+ }
  
- static struct at91_uart_port at91_ports[AT91_NR_UART];
-@@ -250,6 +252,7 @@ static void at91_break_ctl(struct uart_p
-  */
- static void at91_rx_chars(struct uart_port *port, struct pt_regs *regs)
- {
-+	struct at91_uart_port *at91_port = (struct at91_uart_port *) port;
- 	struct tty_struct *tty = port->info->tty;
- 	unsigned int status, ch, flg;
- 
-@@ -269,9 +272,18 @@ static void at91_rx_chars(struct uart_po
- 			UART_PUT_CR(port, AT91_US_RSTSTA);	/* clear error */
- 			if (status & AT91_US_RXBRK) {
- 				status &= ~(AT91_US_PARE | AT91_US_FRAME);	/* ignore side-effect */
--				port->icount.brk++;
--				if (uart_handle_break(port))
--					goto ignore_char;
-+				if (at91_port->break_active
-+				    && time_before(jiffies,
-+						   at91_port->break_timeout)) {
-+					at91_port->break_active = 0;
-+					status &= ~AT91_US_RXBRK;
-+				} else {
-+					at91_port->break_active = 1;
-+					at91_port->break_timeout = jiffies + HZ;
-+					port->icount.brk++;
-+					if (uart_handle_break(port))
-+						goto ignore_char;
-+				}
- 			}
- 			if (status & AT91_US_PARE)
- 				port->icount.parity++;
--- 
-1.4.0
+
 

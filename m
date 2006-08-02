@@ -1,142 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWHBRRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWHBR2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWHBRRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 13:17:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWHBRRT
+	id S1751068AbWHBR2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 13:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWHBR2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 13:17:19 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:59288 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751280AbWHBRRS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 13:17:18 -0400
-Message-ID: <44D0DE13.7090205@in.ibm.com>
-Date: Wed, 02 Aug 2006 22:47:07 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-Organization: IBM India Private Limited
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Jay Lan <jlan@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Chris Sturtivant <csturtiv@sgi.com>, Tony Ernst <tee@sgi.com>
-Subject: Re: [patch 1/3] add basic accounting fields to taskstats
-References: <44CE57EF.2090409@sgi.com> <44CF6433.50108@in.ibm.com> <44CFCCE4.7060702@sgi.com> <44D0C56C.3030505@watson.ibm.com>
-In-Reply-To: <44D0C56C.3030505@watson.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Aug 2006 13:28:13 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:23778 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751068AbWHBR2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 13:28:13 -0400
+Date: Wed, 2 Aug 2006 19:27:38 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Victor <andrew@sanpeople.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] at91_serial: support AVR32
+Message-ID: <20060802192738.074af71d@cad-250-152.norway.atmel.com>
+In-Reply-To: <20060802160353.GA7173@flint.arm.linux.org.uk>
+References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
+	<11545303082669-git-send-email-hskinnemoen@atmel.com>
+	<20060802151505.GA32102@flint.arm.linux.org.uk>
+	<20060802180023.65fe6434@cad-250-152.norway.atmel.com>
+	<20060802160353.GA7173@flint.arm.linux.org.uk>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.3.1 (GTK+ 2.8.18; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shailabh Nagar wrote:
-> Jay Lan wrote:
->> Balbir Singh wrote:
->>
->>> Jay Lan wrote:
->>>
->>>>  
->>>> -#define TASKSTATS_VERSION    1
->>>> +#define TASKSTATS_VERSION    2
->>>> +#define TASK_COMM_LEN        16
->>>>  
->>>
->>>
->>>
->>> We should find a way to keep this in sync with with the definition
->>> in linux/sched.h (won't we a warning if both this header and
->>> linux/sched.h are included together?)
->>
->>
->> I do not know how to sync it up. This header linux/taskstats.h is
->> meant to be included by userspace programs. If an application
->> happens to include linux/sched.h, which includes linux/time.h,
->> the application will very likely have compilation errors because
->> the "struct timespec" declaration in <linux/time.h> and <time.h>
->> are conflicting.
->>
->> The <linux/acct.h> defines it to
->> #define ACCT_COMM    16
->>
->> I can change our define to TS_COMM_LEN with remakes saying it
->> should be in sync with the TAKS_COMM_LEN defined in linux/sched.h.
+On Wed, 2 Aug 2006 17:03:53 +0100
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+
+> On Wed, Aug 02, 2006 at 06:00:23PM +0200, Haavard Skinnemoen wrote:
+> > What is the best way to get the serial console up and running early
+> > in the boot process?
 > 
-> This seems like a good enough way to do it. There's no real need for
-> the taskstats comm length to remain exactly in sync with the task struct's
-> comm length (by way of trying to include sched.h etc.) though avoiding the
-> compile error by renaming is desirable as Balbir pointed out.
+> There is no generic solution to this problem other than to put up with
+> the late initialisation of serial console.
 > 
-> Moreover, TASK_COMM_LEN in linux/sched.h isn't likely to change much -
-> if it increases and csa_acct users also really need the extra info 
-> provided,
-> taskstats can always be changed and version bumped up. If the size 
-> decreases
-> there's no harm done (strncpy should be sufficient protection).
-> 
-> --Shailabh
-> 
+> If you want a serial console earlier, have a look at how the
+> 8250_early stuff works.
 
-I am not sure if there is a version of BUG_ON() for compile time
-asserts. Basically, if we have an infrastructure of the form
+Ok, thanks. I'll have a look at it later.
 
-/*
-  * From C/C++ users journal November 2004
-  */
-#define STATIC_BUG_ON(e) 	\
-	switch (0) {		\
-	case  0:		\
-	case (e):		\
-		;		\
-	}
+Here's an updated patch.
 
-Then the STATIC_BUG_ON() can catch as shown below.
+Haavard
 
-#define TASK_COMM_LEN 	16
-#define T_COMM_LEN	20
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date: Wed, 2 Aug 2006 14:59:13 +0200
+Subject: [PATCH 1/3] at91_serial: support AVR32
 
-int
-main(void)
-{
-	STATIC_BUG_ON(TASK_COMM_LEN == T_COMM_LEN);
-}
+This makes it possible to select and build the at91_serial driver
+on AVR32. It also #ifdefs out some AT91-specific code for AVR32.
 
-STATIC_BUG_ON gives the following warning
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ drivers/serial/Kconfig       |   12 ++++++------
+ drivers/serial/at91_serial.c |    9 +++++++++
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
-bug_on_c.c: In function `main':
-bug_on_c.c:19: duplicate case value
-bug_on_c.c:19: previously used here
-
-but with T_COMM_LEN set to 16
-
-It compiles without any errors, the code generated also
-looks like it has no overhead
-
-int
-main(void)
-{
-  8048310:       55                      push   %ebp
-  8048311:       89 e5                   mov    %esp,%ebp
-  8048313:       83 ec 08                sub    $0x8,%esp
-  8048316:       83 e4 f0                and    $0xfffffff0,%esp
-         STATIC_BUG_ON(TASK_COMM_LEN == T_COMM_LEN);
-}
-  8048319:       c9                      leave
-  804831a:       c3                      ret
-  804831b:       90                      nop
-
-
-Assuming such infrastructure is available, you could then
-do
-
-#ifdef __KERNEL__
-#include <linux/sched.h>
-#define TS_COMM_LEN	16
-STATIC_BUG_ON (TS_COMM_LEN == TASK_COMM_LEN);
-#endif
-
-Comments?
-
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index 5b48ac2..61b5b52 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -301,21 +301,21 @@ config SERIAL_AMBA_PL011_CONSOLE
+ 
+ config SERIAL_AT91
+ 	bool "AT91RM9200 / AT91SAM9261 serial port support"
+-	depends on ARM && (ARCH_AT91RM9200 || ARCH_AT91SAM9261)
++	depends on ARM && (ARCH_AT91RM9200 || ARCH_AT91SAM9261) || AVR32
+ 	select SERIAL_CORE
+ 	help
+ 	  This enables the driver for the on-chip UARTs of the Atmel
+-	  AT91RM9200 and AT91SAM926 processor.
++	  AT91RM9200, AT91SAM926 and AT32AP7000 processors.
+ 
+ config SERIAL_AT91_CONSOLE
+ 	bool "Support for console on AT91RM9200 / AT91SAM9261 serial port"
+ 	depends on SERIAL_AT91=y
+ 	select SERIAL_CORE_CONSOLE
+ 	help
+-	  Say Y here if you wish to use a UART on the Atmel AT91RM9200 or
+-	  AT91SAM9261 as the system console (the system console is the device
+-	  which receives all kernel messages and warnings and which allows
+-	  logins in single user mode).
++	  Say Y here if you wish to use a UART on the Atmel AT91RM9200,
++	  AT91SAM9261 or AT32AP7000 as the system console (the system console
++	  is the device which receives all kernel messages and warnings and
++	  which allows logins in single user mode).
+ 
+ config SERIAL_AT91_TTYAT
+ 	bool "Install as device ttyAT0-4 instead of ttyS0-4"
+diff --git a/drivers/serial/at91_serial.c b/drivers/serial/at91_serial.c
+index 54c6b2a..bee81ff 100644
+--- a/drivers/serial/at91_serial.c
++++ b/drivers/serial/at91_serial.c
+@@ -40,8 +40,10 @@ #include <asm/arch/at91rm9200_usart.h>
+ #include <asm/arch/at91rm9200_pdc.h>
+ #include <asm/mach/serial_at91.h>
+ #include <asm/arch/board.h>
++#ifdef CONFIG_ARM
+ #include <asm/arch/system.h>
+ #include <asm/arch/gpio.h>
++#endif
+ 
+ #if defined(CONFIG_SERIAL_AT91_CONSOLE) && defined(CONFIG_MAGIC_SYSRQ)
+ #define SUPPORT_SYSRQ
+@@ -134,6 +136,7 @@ static void at91_set_mctrl(struct uart_p
+ 	unsigned int control = 0;
+ 	unsigned int mode;
+ 
++#ifdef CONFIG_ARM
+ 	if (arch_identify() == ARCH_ID_AT91RM9200) {
+ 		/*
+ 		 * AT91RM9200 Errata #39: RTS0 is not internally connected to PA21.
+@@ -146,6 +149,7 @@ static void at91_set_mctrl(struct uart_p
+ 				at91_set_gpio_value(AT91_PIN_PA21, 1);
+ 		}
+ 	}
++#endif
+ 
+ 	if (mctrl & TIOCM_RTS)
+ 		control |= AT91_US_RTSEN;
+@@ -693,12 +697,17 @@ static void __devinit at91_init_port(str
+ 	port->mapbase	= pdev->resource[0].start;
+ 	port->irq	= pdev->resource[1].start;
+ 
++#ifdef CONFIG_AVR32
++	port->flags |= UPF_IOREMAP;
++	port->membase = NULL;
++#else
+ 	if (port->mapbase == AT91_VA_BASE_SYS + AT91_DBGU)		/* Part of system perpherals - already mapped */
+ 		port->membase = (void __iomem *) port->mapbase;
+ 	else {
+ 		port->flags	|= UPF_IOREMAP;
+ 		port->membase	= NULL;
+ 	}
++#endif
+ 
+ 	if (!at91_port->clk) {		/* for console, the clock could already be configured */
+ 		at91_port->clk = clk_get(&pdev->dev, "usart");
 -- 
+1.4.0
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs

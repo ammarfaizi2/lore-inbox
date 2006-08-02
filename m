@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWHBRgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWHBRhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWHBRgV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 13:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWHBRgV
+	id S1751294AbWHBRhD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 13:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWHBRhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 13:36:21 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:47751
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751289AbWHBRgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 13:36:20 -0400
-Date: Wed, 2 Aug 2006 10:35:53 -0700
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: 2.6.17-rt8 crash amd64
-Message-ID: <20060802173553.GA29327@gnuppy.monkey.org>
-References: <20060802011809.GA26313@gnuppy.monkey.org> <1154482302.30391.14.camel@localhost.localdomain> <20060802021956.GC26364@gnuppy.monkey.org> <20060802022539.GA26799@gnuppy.monkey.org> <20060802071348.GA28653@gnuppy.monkey.org> <1154539004.8620.16.camel@c-67-188-28-158.hsd1.ca.comcast.net>
+	Wed, 2 Aug 2006 13:37:01 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:27338 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1751294AbWHBRhA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 13:37:00 -0400
+From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+To: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] PCI: use PCI_BIOS as last fallback
+Date: Wed, 2 Aug 2006 19:36:40 +0200
+User-Agent: KMail/1.7.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-pci" <linux-pci@atrey.karlin.mff.cuni.cz>,
+       Marcus Better <marcus@better.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1154539004.8620.16.camel@c-67-188-28-158.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.5.11+cvs20060403
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Message-Id: <200608021936.41102.daniel.ritz-ml@swissonline.ch>
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 1377;
+	Body=5 Fuz1=5 Fuz2=5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 02, 2006 at 10:16:44AM -0700, Daniel Walker wrote:
-> On Wed, 2006-08-02 at 00:13 -0700, Bill Huey wrote:
-> 
-> >   [ 3254.657547] BUG: scheduling while atomic: mv/0x00000001/5222
-> >   [ 3254.663380]
-> >   [ 3254.663381] Call Trace:
-> >   [ 3254.667255]        <ffffffff8025ef25>{__schedule+155}
-> >   [ 3254.672491]
-> >   <ffffffff802616cb>{_raw_spin_unlock_irqrestore+81}
-> 
-> >   [ 3254.836278]        <ffffffff8025df02>{ia32_sysret+0}
-> >   [ 3254.841606] ---------------------------
-> >   [ 3254.845554] | preempt count: 00000001 ]
-> >   [ 3254.849503] | 1-level deep critical section nesting:
-> >   [ 3254.854614] ----------------------------------------
-> >   [ 3254.859725] .. [<ffffffff8025ef3d>] .... __schedule+0xb3/0xb2a
-> >   [ 3254.865743] .....[<ffffffff8025fbab>] ..   ( <=
-> >   preempt_schedule+0x55/0x8f)
-> 
-> 
-> _raw_spin_unlock_irqrestore() calls preempt_schedule() which calls
-> __schedule() , maybe (should be impossible though)? 
-> 
-> Are you using a 32-bit userspace and a 64-bit kernel ?
+[PATCH] PCI: use PCI_BIOS as last fallback
 
-Yes, but this happens with 64 bit apps as well. I'm going to take a
-deeper look at it today. My current track is to look at processes
-reaping. That seems to be a common attribute in all of those stack
-traces. I thought there was more debug instrumentation that dealt
-with preempt_count tracking before ?
+there was a change in 2.6.17 which affected the order in which the PCI access
+methods are probed. this gives regressions on some machines with broken BIOS.
+the problem is that PCI_BIOS sometimes reports the last bus wrong, leaving cardbus
+non-funcational. previously those system worked fine with direct access.
+fix it by chaning the order of the probing, having PCI_BIOS as the last fallback.
 
-bill
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
 
+diff --git a/arch/i386/pci/init.c b/arch/i386/pci/init.c
+index c7650a7..caeefd4 100644
+--- a/arch/i386/pci/init.c
++++ b/arch/i386/pci/init.c
+@@ -11,13 +11,13 @@ #ifdef CONFIG_PCI_MMCONFIG
+ #endif
+ 	if (raw_pci_ops)
+ 		return 0;
+-#ifdef CONFIG_PCI_BIOS
+-	pci_pcbios_init();
+-#endif
+-	if (raw_pci_ops)
+-		return 0;
+ #ifdef CONFIG_PCI_DIRECT
+ 	pci_direct_init();
++	if (raw_pci_ops)
++		return 0;
++#endif
++#ifdef CONFIG_PCI_BIOS
++	pci_pcbios_init();
+ #endif
+ 	return 0;
+ }

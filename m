@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWHBPWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWHBPYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWHBPWH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 11:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWHBPWH
+	id S1751194AbWHBPYP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 11:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWHBPYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 11:22:07 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:58583 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751192AbWHBPWG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 11:22:06 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-Subject: [PATCH] Use valid_dma_direction() in include/asm-i386/dma-mapping.h
-Date: Wed, 2 Aug 2006 17:22:35 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200607280928.54306.eike-kernel@sf-tec.de> <20060728174449.GA11046@rhun.ibm.com>
-In-Reply-To: <20060728174449.GA11046@rhun.ibm.com>
+	Wed, 2 Aug 2006 11:24:15 -0400
+Received: from mail.CS.McGill.CA ([132.206.51.234]:17939 "EHLO
+	mail.cs.mcgill.ca") by vger.kernel.org with ESMTP id S1751194AbWHBPYO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 11:24:14 -0400
+Message-ID: <44D0C39D.7040408@cs.ubishops.ca>
+Date: Wed, 02 Aug 2006 11:24:13 -0400
+From: Patrick McLean <pmclean@cs.ubishops.ca>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060729)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200608021722.35797.eike-kernel@sf-tec.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dave Jones <davej@redhat.com>, Andreas Schwab <schwab@suse.de>,
+       Alexey Dobriyan <adobriyan@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: single bit flip detector.
+References: <20060801184451.GP22240@redhat.com> <1154470467.15540.88.camel@localhost.localdomain> <20060801223011.GF22240@redhat.com> <20060801223622.GG22240@redhat.com> <20060801230003.GB14863@martell.zuzino.mipt.ru> <20060801231603.GA5738@redhat.com> <jebqr4f32m.fsf@sykes.suse.de> <20060801235109.GB12102@redhat.com> <20060802001626.GA14689@redhat.com>
+In-Reply-To: <20060802001626.GA14689@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that the generic DMA code has a function to decide if a given DMA
-mapping is valid use it. This will catch cases where direction is not any
-of the defined enum values but some random number outside the valid range.
-The current implementation will only catch the defined but invalid case
-DMA_NONE.
+Dave Jones wrote:
+> On Tue, Aug 01, 2006 at 07:51:09PM -0400, Dave Jones wrote:
+>  > I'm going for the record of 'most times a patch gets submitted in one day'.
+>  > And to think we were complaining that patches don't get enough review ? :)
+>  > If every change had this much polish, we'd be awesome.
+> 
+> Sigh. Spaces before printk. Whatever next.
+> I am now officially bored of seeing this patch.
+> 
+> 		Dave
+> 
+> 
+> In case where we detect a single bit has been flipped, we spew
+> the usual slab corruption message, which users instantly think
+> is a kernel bug.  In a lot of cases, single bit errors are
+> down to bad memory, or other hardware failure.
+> 
+> This patch adds an extra line to the slab debug messages
+> in those cases, in the hope that users will try memtest before
+> they report a bug.
+> 
+> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Single bit error detected. Possibly bad RAM. Run memtest86.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> +		if (errors && !(errors & (errors-1))) {
+> +			printk(KERN_ERR "Single bit error detected. Probably bad RAM.\n");
+> +#ifdef CONFIG_X86
 
-Signed-off-by: Rolf Eike Beer
+#if defined(CONFIG_X86) || defined(CONFIG_X86_64)
 
----
-commit 61f76f37d18da432ea1b55b92c98dd39388077f0
-tree e8c5d79bdb2e2b786b4d5c719d64f28dfc54c4fb
-parent 9f990495512e3f106ce56f885a675636b47ff421
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Wed, 02 Aug 2006 17:11:04 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Wed, 02 Aug 2006 17:11:04 +0200
+memtest86+ runs fine on x86_64 machines as well.
 
- include/asm-i386/dma-mapping.h |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/include/asm-i386/dma-mapping.h b/include/asm-i386/dma-mapping.h
-index 576ae01..81999a3 100644
---- a/include/asm-i386/dma-mapping.h
-+++ b/include/asm-i386/dma-mapping.h
-@@ -21,7 +21,7 @@ static inline dma_addr_t
- dma_map_single(struct device *dev, void *ptr, size_t size,
- 	       enum dma_data_direction direction)
- {
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- 	WARN_ON(size == 0);
- 	flush_write_buffers();
- 	return virt_to_phys(ptr);
-@@ -31,7 +31,7 @@ static inline void
- dma_unmap_single(struct device *dev, dma_addr_t dma_addr, size_t size,
- 		 enum dma_data_direction direction)
- {
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- }
- 
- static inline int
-@@ -40,7 +40,7 @@ dma_map_sg(struct device *dev, struct sc
- {
- 	int i;
- 
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- 	WARN_ON(nents == 0 || sg[0].length == 0);
- 
- 	for (i = 0; i < nents; i++ ) {
-@@ -57,7 +57,7 @@ static inline dma_addr_t
- dma_map_page(struct device *dev, struct page *page, unsigned long offset,
- 	     size_t size, enum dma_data_direction direction)
- {
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- 	return page_to_phys(page) + offset;
- }
- 
-@@ -65,7 +65,7 @@ static inline void
- dma_unmap_page(struct device *dev, dma_addr_t dma_address, size_t size,
- 	       enum dma_data_direction direction)
- {
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- }
- 
- 
-@@ -73,7 +73,7 @@ static inline void
- dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nhwentries,
- 	     enum dma_data_direction direction)
- {
--	BUG_ON(direction == DMA_NONE);
-+	BUG_ON(!valid_dma_direction(direction));
- }
- 
- static inline void
+> +			printk(KERN_ERR "Run memtest86+ or a similar memory test tool.\n");
+> +#else
+> +			printk(KERN_ERR "Run a memory test tool.\n");

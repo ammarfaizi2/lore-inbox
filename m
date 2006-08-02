@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWHBHYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWHBHZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWHBHYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 03:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWHBHYG
+	id S1751338AbWHBHZA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 03:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWHBHY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 03:24:06 -0400
-Received: from nf-out-0910.google.com ([64.233.182.189]:28021 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751318AbWHBHYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 03:24:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WMzoIZyItUKC9wgTRoFk3OCAJ0ZZYzPIxV5Xm9vEh9vIywV0iLkpTbJPGBmBbVon0y4l1E/pB66KJWepSS8M7YeshavSjghyYMOKHGM0a1cmNvg49nejobjkjNhzXAPcOEXK9njaAdX39kSgdhIRy0mgRg8TWagIclu7K3Zdb7M=
-Message-ID: <6d6a94c50608020024n9d8fbc0tcdedcadeedd54b44@mail.gmail.com>
-Date: Wed, 2 Aug 2006 15:24:03 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Newest Serial core issue
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Aug 2006 03:24:59 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56542
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751320AbWHBHY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 03:24:58 -0400
+Date: Wed, 02 Aug 2006 00:25:05 -0700 (PDT)
+Message-Id: <20060802.002505.34764840.davem@davemloft.net>
+To: johnpol@2ka.mipt.ru
+Cc: zach.brown@oracle.com, linux-kernel@vger.kernel.org, drepper@redhat.com,
+       netdev@vger.kernel.org
+Subject: Re: [take2 1/4] kevent: core files.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060802063918.GB6378@2ka.mipt.ru>
+References: <11544248451203@2ka.mipt.ru>
+	<44CFEA4B.3060200@oracle.com>
+	<20060802063918.GB6378@2ka.mipt.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Date: Wed, 2 Aug 2006 10:39:18 +0400
 
-My platform is using DMA to tx/rx data from UART. It's ok for tx
-datapath when I port the driver to the newest serial core framework.
-But I found all of the current existing drivers are using
-"uart_insert_char" to process the received chars to the high level tty
-driver, that means the received chars are processed byte by byte. But
-for my case, I need to transfer the received data to the high level
-tty driver block by block. Did I miss some API like
-"uart_insert_block"?
-Or Are there any other way to deal with my case to use the newest serial core?
+> u64 is not aligned, so I prefer to use u32 as much as possible.
 
-Thanks for any hints.
-
-Regards,
--Aubrey
+We have aligned_u64 exactly for this purpose, netfilter makes
+use of it to avoid the x86_64 vs. x86 u64 alignment discrepency.

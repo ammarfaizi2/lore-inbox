@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWHBDLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWHBDT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWHBDLA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 23:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWHBDKn
+	id S1751096AbWHBDT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 23:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWHBDT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 23:10:43 -0400
-Received: from mail.suse.de ([195.135.220.2]:7145 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751100AbWHBDKj (ORCPT
+	Tue, 1 Aug 2006 23:19:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9962 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751096AbWHBDT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 23:10:39 -0400
+	Tue, 1 Aug 2006 23:19:26 -0400
 From: Andi Kleen <ak@suse.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 18/33] x86_64: Kill temp_boot_pmds II
-Date: Wed, 2 Aug 2006 05:07:02 +0200
+To: virtualization@lists.osdl.org
+Subject: Re: [PATCH 0 of 13] Basic infrastructure patches for a paravirtualized kernel
+Date: Wed, 2 Aug 2006 05:18:56 +0200
 User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, Horms <horms@verge.net.au>,
-       Jan Kratochvil <lace@jankratochvil.net>,
-       "H. Peter Anvin" <hpa@zytor.com>, Magnus Damm <magnus.damm@gmail.com>,
-       Vivek Goyal <vgoyal@in.ibm.com>, Linda Wang <lwang@redhat.com>
-References: <m1d5bk2046.fsf@ebiederm.dsl.xmission.com> <p73psfk1dnh.fsf_-_@verdi.suse.de> <m18xm7yjh7.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m18xm7yjh7.fsf@ebiederm.dsl.xmission.com>
+Cc: Jeremy Fitzhardinge <jeremy@xensource.com>, Andrew Morton <akpm@osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Christoph Lameter <clameter@sgi.com>
+References: <patchbomb.1154462438@ezr>
+In-Reply-To: <patchbomb.1154462438@ezr>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200608020507.02604.ak@suse.de>
+Message-Id: <200608020518.56186.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 01 August 2006 22:00, Jeremy Fitzhardinge wrote:
+> [ REPOST: Apologies to anyone who has seen this before.  It
+>   didn't make it onto any of the lists it should have. -J ]
 
-> It is probably patch 17:
-> "x86_64: Separate normal memory map initialization from the hotplug case"
+I tried to apply these patches (except the ones I didn't like:
+8, 10, 12) to my tree, but couldn't because they are all
+MIME demaged:
 
-Ok that messes things up. Actually I think i prefered the previous
-code - it was not that bad as you make it. The two variants. 
-are really doing mostly the same. So best you drop that.
++       pte =3D (mm =3D=3D &init_mm) ?
 
-> I don't see any other patches that touch arch/x86_64/mm/init.c
-> before that.  At least not in 2.6.18-rc3, which is the base of
-> my patchset.
+etc.
 
-I got three patches that touch mm/init.c in my patchkit
-(ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/)
-
-BTW I didn't merge any further patches currently, but might
-after the next round when the current comments are addressed.
+Can you please repost a version without that (and ideally
+fix 8, 10, 12)?
 
 -Andi
-

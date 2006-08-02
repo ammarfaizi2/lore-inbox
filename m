@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWHBVt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWHBVxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWHBVt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 17:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWHBVt5
+	id S932247AbWHBVxE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 17:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWHBVxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 17:49:57 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55972 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932246AbWHBVt4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 17:49:56 -0400
-Subject: Re: make 16C950 UARTs work
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk,
-       Mathias Adam <a2@adamis.de>
-In-Reply-To: <20060802194938.GL5972@redhat.com>
-References: <20060802194938.GL5972@redhat.com>
-Content-Type: text/plain
+	Wed, 2 Aug 2006 17:53:04 -0400
+Received: from py-out-1112.google.com ([64.233.166.180]:18338 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932247AbWHBVxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 17:53:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eejPL7caJzGZbpNCmhU8ig4GUTvSfDf2oWv74DscFiN3oRsw8vaWUb+vu4hj7cZEXcauju0geAVD0qvDpAUbaS/i1zpFA/k0BuiWK1VbrpMzAFFcdQbrUXhwqrKhmUbk6JHeMZyiF3nm5Bch8dkoS2DXw1T9vgCjfbdy4E0NDl8=
+Message-ID: <6bffcb0e0608021453x5f44973ct7ce257dc80b5f1c2@mail.gmail.com>
+Date: Wed, 2 Aug 2006 23:53:02 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Hugh Dickins" <hugh@veritas.com>
+Subject: Re: mm snapshot broken-out-2006-08-02-00-27.tar.gz uploaded
+Cc: "Andrew Morton" <akpm@osdl.org>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0608021942500.13042@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 02 Aug 2006 23:08:56 +0100
-Message-Id: <1154556536.23655.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <200608020728.k727SegM012704@shell0.pdx.osdl.net>
+	 <6bffcb0e0608021115s65f81224td8d852b931a9b787@mail.gmail.com>
+	 <Pine.LNX.4.64.0608021942500.13042@blonde.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-08-02 am 15:49 -0400, ysgrifennodd Dave Jones:
-> This patch has been submitted a number of times, and doesn't seem
-> to get any upstream traction, which is a shame, as it seems to work
-> for users, and I keep inadvertantly dropping it from the Fedora
-> kernel everytime I rebase it.
+Hi Hugh,
 
-We really ought to do that based on the PCI subvendor/subdevice id of
-the boards in use if possible surely ? It ought to be safe for x86
-because nobody is going to use anything but chip default values so they
-can avoid needing a ROM.
+On 02/08/06, Hugh Dickins <hugh@veritas.com> wrote:
+> On Wed, 2 Aug 2006, Michal Piotrowski wrote:
+> > On 02/08/06, akpm@osdl.org <akpm@osdl.org> wrote:
+> > > The mm snapshot broken-out-2006-08-02-00-27.tar.gz has been uploaded to
+> > >
+> > >    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/mm/broken-out-2006-08-02-00-27.tar.gz
+> > >
+> > > It contains the following patches against 2.6.18-rc3:
+> ....
+> >
+> > Here is something new, previous mm snapshot was fine
+> >
+> > Aug  2 19:56:08 ltg01-fedora kernel: ------------[ cut here ]------------
+> > Aug  2 19:56:08 ltg01-fedora kernel: kernel BUG at
+> > /usr/src/linux-work4/mm/shmem.c:1228!
+> > 1228            BUG_ON(!(vma->vm_flags & VM_CAN_INVALIDATE));
+> >
+> > I will revert
+> > fix-the-race-between-invalidate_inode_pages-and-do_no_page.patch
+> > fix-the-race-between-invalidate_inode_pages-and-do_no_page-tidy.patch
+> > and see what will happen.
+>
+> Rather than reverting those, please add something like (I've not seen
+> this particular tree) the fixup below - it's easily missed that
+> ipc/shm.c has its own reference to shmem_nopage.  (Last I heard,
+> the flag was called VM_CAN_INVLD, but it looks like I'm not the
+> only one averse to unpronounceables.)
 
+Oops is gone. Thanks!
 
+Andrew, can you add this patch to -mm?
+
+>
+> Hugh
+>
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

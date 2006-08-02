@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWHBDyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWHBDwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWHBDyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Aug 2006 23:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWHBDyY
+	id S1751107AbWHBDwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Aug 2006 23:52:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWHBDwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Aug 2006 23:54:24 -0400
-Received: from 63-162-81-179.lisco.net ([63.162.81.179]:43653 "EHLO
-	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751115AbWHBDyX
+	Tue, 1 Aug 2006 23:52:09 -0400
+Received: from 63-162-81-179.lisco.net ([63.162.81.179]:45530 "EHLO
+	grunt.slaphack.com") by vger.kernel.org with ESMTP id S1751107AbWHBDwI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Aug 2006 23:54:23 -0400
-Message-ID: <44D021EE.1040907@slaphack.com>
-Date: Tue, 01 Aug 2006 23:54:22 -0400
+	Tue, 1 Aug 2006 23:52:08 -0400
+Message-ID: <44D02166.7070406@slaphack.com>
+Date: Tue, 01 Aug 2006 23:52:06 -0400
 From: David Masover <ninja@slaphack.com>
 User-Agent: Thunderbird 1.5.0.5 (Macintosh/20060719)
 MIME-Version: 1.0
-To: Nate Diller <nate.diller@gmail.com>
-CC: "Vladimir V. Saveliev" <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       vda.linux@googlemail.com, linux-kernel@vger.kernel.org,
-       Reiserfs-List@namesys.com
-Subject: Re: reiser4: maybe just fix bugs?
-References: <1158166a0607310226m5e134307o8c6bedd1f883479c@mail.gmail.com>	 <20060801013104.f7557fb1.akpm@osdl.org> <44CEBA0A.3060206@namesys.com>	 <1154431477.10043.55.camel@tribesman.namesys.com>	 <20060801073316.ee77036e.akpm@osdl.org>	 <1154444822.10043.106.camel@tribesman.namesys.com>	 <44CF879D.1000803@slaphack.com> <5c49b0ed0608011226w328d809fy9d50aa785ad93536@mail.gmail.com>
-In-Reply-To: <5c49b0ed0608011226w328d809fy9d50aa785ad93536@mail.gmail.com>
+To: Ian Stirling <ian.stirling@mauve.plus.com>
+CC: David Lang <dlang@digitalinsight.com>, Nate Diller <nate.diller@gmail.com>,
+       Adrian Ulrich <reiser4@blinkenlights.ch>,
+       "Horst H. von Brand" <vonbrand@inf.utfsm.cl>, ipso@snappymail.ca,
+       reiser@namesys.com, lkml@lpbproductions.com, jeff@garzik.org,
+       tytso@mit.edu, linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: Solaris ZFS on Linux [Was: Re: the " 'official' point of  view"expressed
+ by kernelnewbies.org regarding reiser4 inclusion]
+References: <20060731175958.1626513b.reiser4@blinkenlights.ch>  <200607311918.k6VJIqTN011066@laptop13.inf.utfsm.cl>  <20060731225734.ecf5eb4d.reiser4@blinkenlights.ch>  <44CE7C31.5090402@gmx.de>  <5c49b0ed0607311621i54f1c46fh9137f8955c9ea4be@mail.gmail.com>  <Pine.LNX.4.63.0607311621360.14674@qynat.qvtvafvgr.pbz>  <5c49b0ed0607311650j4b86d0c3h853578f58db16140@mail.gmail.com>  <Pine.LNX.4.63.0607311651410.14674@qynat.qvtvafvgr.pbz>  <5c49b0ed0607311705t1eb8fc6bs9a68a43059bfa91a@mail.gmail.com>  <20060801010215.GA24946@merlin.emma.line.org> <44CEAEF4.9070100@slaphack.com> <Pine.LNX.4.63.0607312114500.15179@qynat.qvtvafvgr.pbz> <44CED95C.10709@slaphack.com> <44CFE8D9.9090606@mauve.plus.com>
+In-Reply-To: <44CFE8D9.9090606@mauve.plus.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nate Diller wrote:
-> On 8/1/06, David Masover <ninja@slaphack.com> wrote:
->> Vladimir V. Saveliev wrote:
-
->> I could be entirely wrong, though.  I speak for neither
->> Hans/Namesys/reiserfs nor LKML.  Talk amongst yourselves...
+Ian Stirling wrote:
+> David Masover wrote:
+>> David Lang wrote:
+>>
+>>> On Mon, 31 Jul 2006, David Masover wrote:
+>>>
+>>>> Oh, I'm curious -- do hard drives ever carry enough 
+>>>> battery/capacitance to cover their caches?  It doesn't seem like it 
+>>>> would be that hard/expensive, and if it is done that way, then I 
+>>>> think it's valid to leave them on.  You could just say that other 
+>>>> filesystems aren't taking as much advantage of newer drive features 
+>>>> as Reiser :P
+>>>
+>>>
+>>> there are no drives that have the ability to flush their cache after 
+>>> they loose power.
+>>
+>>
+>> Aha, so back to the usual argument:  UPS!  It takes a fraction of a 
+>> second to flush that cache.
 > 
-> i should clarify things a bit here.  yes, hans' goal is for there to
-> be no difference between the "xattr" namespace and the "readdir" one.
-> unfortunately, this is not feasible with the current VFS, and some
-> major work would have to be done to enable this without some
-> pathological cases cropping up.  some very smart people think that it
-> cannot be done at all.
+> You probably don't actually want to flush the cache - but to write
+> to a journal.
+> 16M of cache - split into 32000 writes to single sectors spread over
+> the disk could well take several minutes to write. Slapping it onto
+> a journal would take well under .2 seconds.
+> That's a non-trivial amount of storage though - 3J or so, 40mF@12V -
+> a moderately large/expensive capacitor.
 
-But an xattr interface should work just fine, even if the rest of the 
-system is inaccessible (no readdir interface) -- preventing all these 
-pathological problems, except the one where Hans implements it the way 
-I'm thinking, and kernel people hate it.
+Before we get ahead of ourselves, remember:  ~$200 buys you a huge 
+amount of battery storage.  We're talking several minutes for several 
+boxes, at the very least -- more like 10 minutes.
+
+But yes, a journal or a software suspend.

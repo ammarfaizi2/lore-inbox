@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWHBUWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWHBUXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWHBUWq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 16:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWHBUWq
+	id S932222AbWHBUXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 16:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWHBUXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 16:22:46 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8392 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932219AbWHBUWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 16:22:46 -0400
-Date: Wed, 2 Aug 2006 22:22:32 +0200
-From: Pavel Machek <pavel@suse.cz>
+	Wed, 2 Aug 2006 16:23:25 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:19985 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932222AbWHBUXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 16:23:24 -0400
+Date: Wed, 2 Aug 2006 21:23:09 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] swsusp: Fix alloc_pagedir
-Message-ID: <20060802202232.GE8124@elf.ucw.cz>
-References: <200608021842.21774.rjw@sisk.pl> <200608021857.35042.rjw@sisk.pl>
-MIME-Version: 1.0
+Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: Linux v2.6.18-rc3
+Message-ID: <20060802202309.GD7173@flint.arm.linux.org.uk>
+Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
+	Jesse Brandeburg <jesse.brandeburg@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, stern@rowland.harvard.edu,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org,
+	cpufreq@www.linux.org.uk
+References: <20060731081112.05427677.akpm@osdl.org> <20060801215919.8596da9d.akpm@osdl.org> <4807377b0608021257p27882866i69a5a0a4a1f05dda@mail.gmail.com> <200608022216.54797.rjw@sisk.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200608021857.35042.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <200608022216.54797.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Aug 02, 2006 at 10:16:54PM +0200, Rafael J. Wysocki wrote:
+> Please try the following patch from Russell King and see if it helps.
 
-> Get rid of the FIXME in kernel/power/snapshot.c#alloc_pagedir() and
-> simplify the functions called by it.
-
-ACK.
-								Pavel
+I'd have missed this if it weren't for that comment.  It hasn't been
+merged so far due to the lack of feedback on it...  Thanks for trying
+to get that feedback.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWHBEfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWHBEhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWHBEfE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 00:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWHBEfB
+	id S1751153AbWHBEhF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 00:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWHBEhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 00:35:01 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:28626 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751153AbWHBEe7 (ORCPT
+	Wed, 2 Aug 2006 00:37:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:5508 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751153AbWHBEhD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 00:34:59 -0400
-Subject: Re: [PATCH] RTC: Add mmap method to rtc character driver
-From: john stultz <johnstul@us.ibm.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Dave Airlie <airlied@gmail.com>, Neil Horman <nhorman@tuxdriver.com>,
-       Segher Boessenkool <segher@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, a.zummo@towertech.it, jg@freedesktop.org
-In-Reply-To: <44D0296F.70707@zytor.com>
-References: <20060725174100.GA4608@hmsreliant.homelinux.net>
-	 <03BCDC7F-13D9-42FC-86FC-30C76FD3B3B8@kernel.crashing.org>
-	 <20060725182833.GE4608@hmsreliant.homelinux.net>
-	 <44C66C91.8090700@zytor.com>
-	 <20060725192138.GI4608@hmsreliant.homelinux.net>
-	 <F09D8005-BD93-4348-9FD1-0FA5D8D096F1@kernel.crashing.org>
-	 <20060725194733.GJ4608@hmsreliant.homelinux.net>
-	 <21d7e9970607251304n5681bf44gc751c21fd79be99d@mail.gmail.com>
-	 <1154490859.17171.12.camel@cog.beaverton.ibm.com>
-	 <44D0296F.70707@zytor.com>
-Content-Type: text/plain
-Date: Tue, 01 Aug 2006 21:34:52 -0700
-Message-Id: <1154493292.17171.15.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 2 Aug 2006 00:37:03 -0400
+From: Andi Kleen <ak@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Xen-devel] Re: [PATCH 8 of 13] Add a bootparameter to reserve high linear address space for hypervisors
+Date: Wed, 2 Aug 2006 06:36:58 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Xen-devel <xen-devel@lists.xensource.com>,
+       Ian Pratt <ian.pratt@xensource.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>, virtualization@lists.osdl.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Christoph Lameter <clameter@sgi.com>
+References: <0adfc39039c79e4f4121.1154462446@ezr> <200608020621.22827.ak@suse.de> <1154493226.2570.50.camel@localhost.localdomain>
+In-Reply-To: <1154493226.2570.50.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200608020636.58133.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-08-01 at 21:26 -0700, H. Peter Anvin wrote:
-> john stultz wrote:
+On Wednesday 02 August 2006 06:33, Rusty Russell wrote:
+> On Wed, 2006-08-02 at 06:21 +0200, Andi Kleen wrote:
+> > > 	I think you misunderstand the purpose of parse_early_param?  It is
+> > > designed to be called directly by the arch at some point (it is
+> > > idempotent, so the second call in init/main.c does nothing if the arch
+> > > has called it).  ie. in i386, it replaces parse_cmdline_early().
 > > 
-> > Only lightly tested, so beware, and I've only added support so far for
-> > the TSC (so don't be surprised if you don't see a performance
-> > improvement if you using a different clocksource).
-> > 
+> > Ah I didn't realize that. But why is there a second call in init/main.c?  
+> > Looks like a big hack to me. Someone was too lazy to add it to all architectures?
 > 
-> We should be able to use HPET in userspace, too.
+> Yes.  Someone == me.  I didn't want to hack it into all archs, I wanted
+> archs to actually use it, and you can see that's not a trivial patch...
+> 
+> Once all archs use it, we can probably clean up setup_arch() not to take
+> the char** and simply use the global saved_command_line directly.  At
+> this rate, that'll be around 2012 8)
 
-Oh yes, HPET and Cyclone as well. It just requires mapping their mmio
-page as user readable. I just haven't gotten to it yet. :)
+Please just make a proper patch - either add a call to it to all setup_archs,
+or add a call to before setup_arch in init/main.c. While such ifdefs
+for specific architecture hacks are more popular lately it doesn't mean they are a good idea.
 
--john
+I hope there aren't any existing architectures that use it in the middle
+of setup_arch or rely on it being after setup_arch.
 
+-Andi

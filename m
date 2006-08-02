@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWHBNk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWHBNoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWHBNk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Aug 2006 09:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWHBNk2
+	id S1751133AbWHBNoP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Aug 2006 09:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWHBNoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Aug 2006 09:40:28 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:37559 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750835AbWHBNk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Aug 2006 09:40:27 -0400
-Date: Wed, 2 Aug 2006 09:35:40 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] x86: rename is_at_popf(), add iret to tests and
-  fix insn length
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <acahalan@gmail.com>
-Message-ID: <200608020937_MC3-1-C6D7-3958@compuserve.com>
+	Wed, 2 Aug 2006 09:44:15 -0400
+Received: from web25814.mail.ukl.yahoo.com ([217.146.176.247]:13651 "HELO
+	web25814.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751133AbWHBNoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Aug 2006 09:44:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:MIME-Version:Content-Type;
+  b=rGDA7fCbpUbtCg4RNhxWlGkzzXeMNTMgHYcbl/We45cn5kFKsNw3Hin6c76pK2vU00GURxzzbC1RQ5HyrPj2IwHwBq0zOnWgDjc9wJegbJUZ79Cvar8tQ4vTbFvcpFtSuw44+oybx95qNTgmiqdazBNXMSo5mgNqJtnC39iy7Yw=  ;
+Message-ID: <20060802134413.63901.qmail@web25814.mail.ukl.yahoo.com>
+Date: Wed, 2 Aug 2006 13:44:13 +0000 (GMT)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Reply-To: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: sparsemem usage
+To: linux-kernel@vger.kernel.org
+Cc: apw@shadowen.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200608021454.33685.ak@suse.de>
+My board has a really weird mem mapping.
 
-On Wed, 2 Aug 2006 14:54:33 +0200. Andi Kleen wrote:
+MEM1: 0xc000 0000 - 32 Mo
+MEM2: 0xd000 0000 - 8 Mo
+MEM3: 0xd800 0000 - 128 Ko
 
-> > is_at_popf() needs to test for the iret instruction as well as
-> > popf.  So add that test and rename it to is_setting_trap_flag().
-> 
-> Do you have a single real example where anybody is actually using IRET
-> in user space? 
+MEM3 has interesting properties, such as speed and security,
+and I really need to use it.
 
-No, but Albert Cahalan complained so I figured it should be fixed.
+I think that sparsemem can deal with such mapping. But I
+encounter an issue when choosing the section bit size. I choose
+SECTION_SIZE_BITS = 17. Therefore the section size is
+equal to the smallest size of my memories. But I get a
+compilation error which is due to this:
 
--- 
-Chuck
+#if (MAX_ORDER - 1 + PAGE_SHIFT) > SECTION_SIZE_BITS
+#error Allocator MAX_ORDER exceeds SECTION_SIZE
+#endif
+
+I'm not sure to understand why there's such check. To fix this
+I should change MAX_ORDER to 6.
+
+Is it the only way to fix that ?
+
+Thanks
+
+Francis
+
 
